@@ -1,0 +1,1353 @@
+{
+ "round": 23,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[150]/open[2]",
+   "kind": "보강",
+   "old": "Blackboard::is_recent_visible(&Blackboard(744B), &dyn AbstractGame, &PlayerState, &Entity)->bool 내부(_gcbc/g07.ll:157005)는 안 봄. ★blackboard 인덱스가 enemy_team(=1-team, alloca %9 값) 인 것은 IR 관측 사실 — 의미(적 팀 블랙보드 기준 '최근 시야')는 미확인",
+   "new": "★해소 — Blackboard::is_recent_visible 내부는 shared 확정 항목(g07.ll:157005 · (A) 지금 보이면 true (B) last_visible[owner.pos]+120 >= tick)에 답이 있다. blackboard 인덱스가 enemy_team(=1-team, alloca %9 · aux m07.ll:2424~2435 `getelementptr … ptr %34, i64 %30`)인 뜻 = Blackboard[1-team].last_visible[pos] 는 '내 팀이 적 팀 pos 챔피언을 마지막으로 본 틱'(shared 확정) ⟹ 위협 후보 = 우리가 지금 보거나 120틱 안에 봤던 적 챔피언. 오라클 실행 확인: bb[1].last_visible[0]=tick 이면 위협 발화(case1·2), 0 이면 비위협(case4)",
+   "evidence": "shared.is_recent_visible.blackboard_인덱스_의미(★확정) + aux m07.ll:2426 `%31 = icmp ult i64 %30, 2` / 2435 gep Blackboard[%30] / 2439 is_recent_visible(%35, %36, %37, %38, %26) + 오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개) 150 case1/2/4",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[151]/consts[1]/kind",
+   "kind": "실오류",
+   "old": null,
+   "new": "길이",
+   "evidence": "G15 NEG 해소 — m07.ll:11833 `%21 = icmp ult i64 %20, 2` · 11841 panic_bounds_check(i64 noundef %20, i64 noundef 2) 는 배열 길이(첨자 상한)이지 문턱값이 아니다. 낱말 `인덱스` 가 `임계` 앞에 있어 word=인덱스 인데 관측 CMP_ORD 가 강해 규칙③으로 `임계` 가 됐고(mkspec3._kind 시뮬), 19차 규칙(v2 kind 명시 우선)으로 확정. ⚠kindchk.observe 의 CALLARG 정규식이 `i64 noundef 2`(타입과 값 사이 속성어)를 못 잡아 지지 관측 0 → G15 `강` 이 남는다(도구 결함 · 보고서 §도구)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[151]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "team 인덱스 bounds(len 2) — 임계 아님",
+   "new": "team 인덱스 bounds 의 배열 길이 2 — player_champion[team] 첨자 검사(m07.ll:11833 `%21 = icmp ult i64 %20, 2` · 11841 panic_bounds_check len 2). 문턱값이 아니라 배열 길이",
+   "evidence": "IR 원문 m07.ll:11833 `%21 = icmp ult i64 %20, 2`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[153]/consts[1]/kind",
+   "kind": "실오류",
+   "old": null,
+   "new": "길이",
+   "evidence": "G15 NEG 해소 — m07.ll:12343 `%21 = icmp ult i64 %20, 2` · 12351 panic_bounds_check(i64 noundef %20, i64 noundef 2) 는 배열 길이(첨자 상한)이지 문턱값이 아니다. 낱말 `인덱스` 가 `임계` 앞에 있어 word=인덱스 인데 관측 CMP_ORD 가 강해 규칙③으로 `임계` 가 됐고(mkspec3._kind 시뮬), 19차 규칙(v2 kind 명시 우선)으로 확정. ⚠kindchk.observe 의 CALLARG 정규식이 `i64 noundef 2`(타입과 값 사이 속성어)를 못 잡아 지지 관측 0 → G15 `강` 이 남는다(도구 결함 · 보고서 §도구)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[153]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "team 인덱스 bounds(len 2) — 임계 아님. 같은 2 가 L204 `level > 2` (Entity::skill2_effect 인라인, m07.ll:12397) 스킬2 해금 레벨 게이트",
+   "new": "team 인덱스 bounds 의 배열 길이 2 — player_champion[team] 첨자 검사(m07.ll:12343 `%21 = icmp ult i64 %20, 2` · 12351 panic_bounds_check len 2). 문턱값이 아니라 배열 길이(같은 값 2 의 `level > 2` 게이트는 별도 행 consts[5])",
+   "evidence": "IR 원문 m07.ll:12343 `%21 = icmp ult i64 %20, 2`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[154]/consts[1]/kind",
+   "kind": "실오류",
+   "old": null,
+   "new": "길이",
+   "evidence": "G15 NEG 해소 — m07.ll:12682 `%21 = icmp ult i64 %20, 2` · 12690 panic_bounds_check(i64 noundef %20, i64 noundef 2) 는 배열 길이(첨자 상한)이지 문턱값이 아니다. 낱말 `인덱스` 가 `임계` 앞에 있어 word=인덱스 인데 관측 CMP_ORD 가 강해 규칙③으로 `임계` 가 됐고(mkspec3._kind 시뮬), 19차 규칙(v2 kind 명시 우선)으로 확정. ⚠kindchk.observe 의 CALLARG 정규식이 `i64 noundef 2`(타입과 값 사이 속성어)를 못 잡아 지지 관측 0 → G15 `강` 이 남는다(도구 결함 · 보고서 §도구)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[154]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "team 인덱스 bounds(len 2) — 임계 아님",
+   "new": "team 인덱스 bounds 의 배열 길이 2 — player_champion[team] 첨자 검사(m07.ll:12682 `%21 = icmp ult i64 %20, 2` · 12690 panic_bounds_check len 2). 문턱값이 아니라 배열 길이",
+   "evidence": "IR 원문 m07.ll:12682 `%21 = icmp ult i64 %20, 2`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[153]/consts",
+   "at": 5,
+   "guard": "`level > 2` — Entity::skill2_effect 인라인(entity.rs:1693 → 루트 cast.rs:204) 스킬2 해금 레벨 게이트 (m07.ll:12397 `%45 = icmp ugt i64 %44, 2`). 미달이면 정적 None(@anon.31) → unwrap 패닉. 오라클 실행 확인: level 1·2 → cast.rs:204:86 unwrap 패닉(exit 101), level 3 → 통과",
+   "guard_key": "meaning",
+   "new": {
+    "value": 2,
+    "src_line": 204,
+    "kind": "임계",
+    "meaning": "`level > 2` — Entity::skill2_effect 인라인(entity.rs:1693 → 루트 cast.rs:204) 스킬2 해금 레벨 게이트 (m07.ll:12397 `%45 = icmp ugt i64 %44, 2`). 미달이면 정적 None(@anon.31) → unwrap 패닉. 오라클 실행 확인: level 1·2 → cast.rs:204:86 unwrap 패닉(exit 101), level 3 → 통과"
+   },
+   "kind": "보강",
+   "evidence": "m07.ll:12397 `%45 = icmp ugt i64 %44, 2` (dloc !27357: entity.rs:1693 in skill2_effect → cast.rs:204 in get_input) · 154 consts[5](level > 4, src 269)와 대칭인데 153 에는 이 행이 없고 consts[1] 에 뭉쳐 있었다 · 오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개) 153 case2(level1)·case8(level2) 패닉 / case3(level3) 통과",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[155]/sig/params[1]/role",
+   "kind": "실오류",
+   "old": "★IR 에서 제거됨(미사용)",
+   "new": "★DeadArgElim — 인자에서 제거(IR define m08.ll:94354 에 self 슬롯 없음 · 본문 미사용). exe(0xdb8e60)도 self 없는 10인자로 IR 과 동일 배치(argscan 09-14): rcx=sret rdx=version r8=rnd r9=player [entry+0x20]=data +0x28=ps +0x30=team_plan +0x38=target +0x40=TryKill.1(usize) +0x48=debug",
+   "evidence": "G16 P1: IR 인자 10(sret 포함) vs params 11 — role 이 소거 어휘(`인자에서 제거`)를 안 써서 정렬 불변식이 깨졌다. m08.ll:94354 `define internal fastcc void @…make_gank_battle(ptr … sret 384 %0, i64 %1, ptr 320 %2, ptr 2528 %3, ptr 24 %4, ptr 2760 %5, ptr 1064 %6, i64 %7, i64 %8, ptr 224 %9)` · argscan 0xdb8e60 = 스택 6 + 레지스터 4 = 10 · 디스어셈 140db8ea4 `cmp rdx, 1`(version) · 140db8eb1 `[rbx+0x930]`(r9=player) · 140db8ec8 `[r14]`(data.cache) · 140db8ee2 `mov rdx, r12`(target→get_entity_by_id)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[155]/sig/abi",
+   "kind": "실오류",
+   "old": "exe 측 ABI 는 이 IR 과 같다는 보장 없음(argscan 필요, EXE_ABI_UNRECOVERABLE 후보)",
+   "new": "exe(0xdb8e60) 인자 배치 = IR 과 동일 10/10(argscan 09-14: 스택 슬롯 entry+0x20~+0x48 6개 + 레지스터 4): rcx=sret(%0) rdx=version(%1) r8=rnd(%2) r9=player(%3) [+0x20]=data(%4) [+0x28]=ps(%5) [+0x30]=team_plan(%6) [+0x38]=target(%7) [+0x40]=arg8(%8) [+0x48]=debug(%9). ArgumentPromotion 없음 → EXE_ABI 복구됨(sweep 편입 가능)",
+   "evidence": "argscan.py 0xdb8e60: `entry_rsp+0x20 (arg5 · IR %4) 140db8e9d mov r14,[rbp+0x170]` … `+0x48 (arg10 · IR %9) 140db8fdf mov rax,[rbp+0x198]` ⟹ 스택 6 + 레지스터 4 = 10 · 디스어셈 140db8ea4 cmp rdx,1 / 140db8eb1 mov rcx,[rbx+0x930](rbx=r9) / 140db8ec8 mov rdx,[r14] / 140db8ee5 call [rax+0x1f0] with rdx=r12(=[+0x38])",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[155]/open[0]",
+   "kind": "보강",
+   "old": "인자 %8(usize, TryKill.1)의 이름/의미 — dbg_value 없음(internal fastcc 로 이름 소실). BattlePlanGoal::TryKill 2번째 필드 의미는 battle.rs 소관",
+   "new": "인자 %8(usize, TryKill.1)의 이름 — dbg_value 없음(internal fastcc 로 이름 소실)이라 이름은 「재료 부재」다(IR·tcx·rmeta docs 범위). 값은 확정: 호출 7곳 중 6곳이 리터럴 60(m08.ll:97043·97799·97823·97891·97897·98316 `i64 noundef 60`), 1곳(98181)은 지역 BattlePlanGoal 24B(%21)의 +0x10 을 그대로 전달. BattlePlanGoal.__1 은 생성 전부 60 · 산술 소비처 0(METHOD_MAP §4 함정7) — 판정에 안 쓰이는 값",
+   "evidence": "m08.ll:97043 등 6 호출부 `i64 noundef %780, i64 noundef 60, ptr … %8)` · 98181 `%1140 = load i64, ptr %1139`(%1139 = gep %21+16)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[155]/open[3]",
+   "kind": "보강",
+   "old": "exe 측 인자 배치 — internal fastcc + DeadArgElim(self 제거) 이라 exe 의 실제 레지스터/스택 배치는 argscan 으로 확인 필요(이 배치 범위 밖)",
+   "new": "★해소 — exe(0xdb8e60) 인자 배치는 IR define 과 동일 10/10(argscan 09-14: 스택 6 + 레지스터 4 · 디스어셈 대조 cmp rdx,1 / [r9+0x930] / [r14]→cache / r12→target). DeadArgElim 으로 self 만 빠졌고 ArgumentPromotion 은 없다 — sig.abi 참조",
+   "evidence": "argscan.py 0xdb8e60 출력 + disasm 140db8e60~",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[155]/mem[14]/base",
+   "kind": "실오류",
+   "old": "StdRng(rnd)/DebugFrameData(debug)",
+   "new": "StdRng",
+   "evidence": "D9-OFF: base 는 타입 하나여야 tcx 대조가 된다 — 두 타입을 `/` 로 묶어 chk=오귀속. StdRng 행으로 좁히고 DebugFrameData 는 별도 행 삽입",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[155]/mem[14]/name",
+   "kind": "보강",
+   "old": "콜리 update 경유 쓰기",
+   "new": "rng 상태(콜리 BattlePlan::update 경유 쓰기, m08.ll:94459 `invoke … update(ptr %12, i64 %1, ptr 320 %2, …)`)",
+   "evidence": "m08.ll:94459",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[155]/mem",
+   "at": 15,
+   "guard": "콜리 BattlePlan::update 경유 쓰기(DebugFrameData)",
+   "guard_key": "name",
+   "new": {
+    "base": "DebugFrameData",
+    "offset": "0x0",
+    "name": "콜리 BattlePlan::update 경유 쓰기(DebugFrameData)",
+    "value": "미탐색(plan_legacy battle 계층)",
+    "note": "본문 직접 store 없음 — m08.ll:94459 update 의 마지막 인자 %9(224B)"
+   },
+   "kind": "보강",
+   "evidence": "m08.ll:94459 · 기존 mem[14] 가 두 타입을 한 행에 묶어 chk 오귀속이던 것을 분리",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[152]/sig/abi",
+   "kind": "보강",
+   "old": "반환 i64 스칼라",
+   "new": "반환 i64 스칼라. exe(0xe281f0) 배치 = IR 과 동일 5/5(argscan 09-14: 스택 1 + 레지스터 4): rcx=data(%0) rdx=parameter(%1) r8=champ(%2) r9=target(%3) [entry+0x20]=effect(%4) — 디스어셈 140e28210 `[rbx+8]`(rbx=rcx → ctx) · 140e28236 `[r14+0x14d8]`(r14=rdx) · 140e28228 `[rdi+0x5c0]`(rdi=r9 → target.id) · 140e28208 `mov rcx,[rsp+0xd0]`(effect→expected_damage_target self)",
+   "evidence": "argscan.py 0xe281f0: `entry_rsp+0x20 (arg5 · IR %4) 140e28208 mov rcx,[rsp+0xd0]` ⟹ 스택 1 + 레지스터 4 = 5 · disasm 140e281ff~140e28236",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[156]/open[2]",
+   "kind": "보강",
+   "old": "is_ignored_well_enemy(usize,&PlayerState,&Entity)->bool (fight_model.rs:754) · Blackboard::is_recent_visible · new_with_skill(&OperationData,&PlayerState,usize,bool)->SmallActionRunAway · SmallActionAroundPosition::new(&mut StdRng,&OperationData,u64,u64,usize) — 시그니처만",
+   "new": "is_ignored_well_enemy(usize,&PlayerState,&Entity)->bool (fight_model.rs:754) · new_with_skill(&OperationData,&PlayerState,usize,bool)->SmallActionRunAway · SmallActionAroundPosition::new(&mut StdRng,&OperationData,u64,u64,usize) — 시그니처만 (블랙보드 최근시야 술어는 shared 확정 항목 참조: blackboard[1-team] = 내 팀이 본 적 챔피언 · 지금 보이거나 last_visible+120>=tick)",
+   "evidence": "G7 과열림: 이 항목이 shared 확정 키를 부르고 있었다 — 그 술어 몫만 shared 로 돌리고 나머지 3 시그니처만 남긴다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[156]/open[4]",
+   "kind": "보강",
+   "old": "rnd(&mut StdRng) 는 본문에 직접 write 없음 — AroundPosition::new 내부 rng 소비 여부는 콜리 소관",
+   "new": "★해소 — rnd(&mut StdRng) 본문 직접 write 없음은 그대로이고, 콜리 소비는 오라클 실행 확인: AroundPosition 경로(SmallActionAroundPosition::new)에서 StdRng 320B 변경(소비 O · case1/4/6/7/8/11), RunAway 경로(new_with_skill)·None 경로에서는 불변(case0/2/3/5/9/10)",
+   "evidence": "오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개) 156 12케이스 rnd_changed 열",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[156]/consts[4]/meaning",
+   "kind": "보강",
+   "old": "SmallActionRunAway::new_with_skill 의 3번째 usize 인자(19836) 및 SmallActionAroundPosition::new 의 5번째 usize 인자(19828·19832) — 액션 지속/우선 파라미터(이름은 콜리 시그니처에 없음)",
+   "new": "SmallActionRunAway::new_with_skill 의 3번째 usize 인자(19836) 및 SmallActionAroundPosition::new 의 5번째 usize 인자(19828·19832) — 두 콜리 모두 그 값을 `end_delay` 필드에 저장: new_with_skill → SmallActionRunAway+0x18(m08.ll:92113 `store i64 %3`), AroundPosition::new → SmallActionAroundPosition+0x60(m08.ll:103300 `store i64 %5`) ⟹ end_delay = 5틱(이름은 tcxdict SmallActionRunAway 0x18 / SmallActionAroundPosition 0x60)",
+   "evidence": "m08.ll:92113 · 103300 + tcxdict --deep 두 구조체(end_delay 오프셋)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[156]/knobs[1]/effect",
+   "kind": "보강",
+   "old": "콜리 시그니처상 usize 1개 — 의미(지속틱/우선도)는 콜리 내부 소관이라 효과 미확정",
+   "new": "= `end_delay` 필드(SmallActionRunAway+0x18 · SmallActionAroundPosition+0x60, 콜리 생성자가 그대로 저장) — 이름상 액션 종료 지연 틱(소비처 is_end 계열은 미독). 올리면 도주/배회 소액션이 종료 조건 뒤 더 오래 유지될 것으로 추정",
+   "evidence": "m08.ll:92113 `store i64 %3, ptr (%0+24)` · 103300 `store i64 %5, ptr (%0+96)` + tcxdict 필드명",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[156]/knobs[2]/effect",
+   "kind": "보강",
+   "old": "false 로 바꾸면 스킬 없는 도주(문서 주석: '도주 입력(스킬 미사용)')",
+   "new": "false 로 바꾸면 스킬 없는 도주(문서 주석: '도주 입력(스킬 미사용)') — 콜리 저장처: SmallActionRunAway+0x80 with_skill(m08.ll:92116 `store i8 %23`), +0x81 with_ult=false(92118)",
+   "evidence": "m08.ll:92116~92122 + tcxdict SmallActionRunAway 0x80~0x83",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[157]/writes[3]",
+   "guard": "StdRng",
+   "kind": "실오류",
+   "evidence": "rnd 는 이 함수 경로에서 전혀 쓰이지 않는다: 두 콜리 define 의 rnd 인자가 `readnone captures(none)` — m03.ll:14343 new_target `ptr noalias noundef readnone align 16 captures(none) dereferenceable(320) %1` · m03.ll:31379 update_path 동일 · PathFinder::get_input(137276)은 rnd 를 안 받는다 · 오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개) 157 5케이스 StdRng 320B 불변(2회 호출 포함)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[157]/sig/params[3]/role",
+   "kind": "실오류",
+   "old": "★&mut — 본문 직접 store 0. PathFinder::new_target / update_path 에 전달(path_finder 계층 내부 소비, 미탐색)",
+   "new": "★&mut 이지만 실제 소비 0 — 본문 직접 store 0 · 전달받는 두 콜리(new_target m03.ll:14343 · update_path m03.ll:31379)의 define 에서 이 인자가 `readnone captures(none)`(LLVM IPO 증거) · get_input(137276)은 안 받음 · 오라클 실행 확증: 5케이스(2회 호출 포함) StdRng 320B 불변",
+   "evidence": "m03.ll:14343 `ptr noalias noundef readnone align 16 captures(none) dereferenceable(320) %1` · 31379 동일 · 오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개) rnd_changed=false ×6",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[157]/open[0]",
+   "kind": "보강",
+   "old": "PathFinder::new_target 이 Option<PathFinder> 를 반환하는지(72B sret 을 self.path_finder 에 통째로 memcpy 후 태그 재검사 L1104) — tcx 시그니처는 `-> PathFinder` 인데 IR 은 memcpy 직후 니치 태그 2 를 다시 검사한다. 사전 시그니처와 IR 이 어긋남: IR 우선 = 실제로는 None 가능(또는 컴파일러가 접지 못한 불변 검사). path_finder 계층 미탐색",
+   "new": "★해소 — PathFinder::new_target 은 None 을 만들지 않는다: 본문(m03.ll:14343~17815)이 지역 72B(%42)의 +69(0x45, unconstrained_fallback=니치 태그 자리)에 0 또는 1 만 저장하고(14495·16097·16595 `store i8 0, ptr %60` · 16239 `store i8 1, ptr %60`) 17813 에서 sret 에 72B memcpy — 2 를 쓰는 지점 0. ⟹ tcx `-> PathFinder` 가 맞고 L1104 의 태그 재검사(m08.ll:104708 `icmp eq i8 %65, 2`)는 소스 `Option::as_mut()` match 가 접히지 않은 사장 분기(도달 불가). 오라클: 목표 밖 3케이스 전부 태그 2→0 · None 반환 없음",
+   "evidence": "m03.ll:14495/16097/16239/16595/17813 + 오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개) 157 case2/3/4 pf_tag=2->0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[157]/open[3]",
+   "kind": "보강",
+   "old": "rnd 의 소비량 — new_target/update_path 내부",
+   "new": "★해소 — rnd 소비량 = 0: new_target(m03.ll:14343)·update_path(31379) 의 rnd 인자가 `readnone captures(none)` · get_input(137276) 은 rnd 를 안 받음 · 오라클 5케이스 StdRng 320B 불변",
+   "evidence": "m03.ll:14343 · 31379 define 헤더 + 오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[157]/logic",
+   "kind": "보강",
+   "old": "if self.path_finder.is_none(): return None      # new_target 결과가 None 일 수 있음(Option 그대로 memcpy)   (L1104)",
+   "new": "if self.path_finder.is_none(): return None      # ★사장 분기 — new_target 은 태그 2 를 쓰지 않는다(m03.ll:14343~17815, +0x45 에 0/1 만) · Option::as_mut 의 접히지 않은 match   (L1104)",
+   "evidence": "m03.ll:14495/16097/16239/16595/17813",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[150]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "info.team"
+  },
+  {
+   "path": "/specs[150]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "info.position@tag"
+  },
+  {
+   "path": "/specs[150]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "cache"
+  },
+  {
+   "path": "/specs[150]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "context"
+  },
+  {
+   "path": "/specs[150]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "blackboard"
+  },
+  {
+   "path": "/specs[150]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "game"
+  },
+  {
+   "path": "/specs[150]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "player_champion[team][position]"
+  },
+  {
+   "path": "/specs[150]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "attack_effect@tag"
+  },
+  {
+   "path": "/specs[150]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "attack_effect@Some.0"
+  },
+  {
+   "path": "/specs[150]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "id"
+  },
+  {
+   "path": "/specs[150]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "ty@tag"
+  },
+  {
+   "path": "/specs[150]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "ty@Tower.info.nearest_enemy@tag"
+  },
+  {
+   "path": "/specs[150]/mem[12]",
+   "from": 5,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "ty@Tower.info.nearest_enemy@Some.0.1"
+  },
+  {
+   "path": "/specs[150]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "hp"
+  },
+  {
+   "path": "/specs[150]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "stat_cached.hp"
+  },
+  {
+   "path": "/specs[150]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "x"
+  },
+  {
+   "path": "/specs[150]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "y"
+  },
+  {
+   "path": "/specs[150]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "tutorial"
+  },
+  {
+   "path": "/specs[150]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "setting"
+  },
+  {
+   "path": "/specs[150]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "epic_jungle.first_spawn_tick"
+  },
+  {
+   "path": "/specs[150]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 42케이스 game==mine 전부 MATCH(그 오프셋을 읽는 경로 발화: 팀/포지션/캐시/블랙보드/타워 nearest_enemy 태그·id/hp/stat_cached.hp/x·y/tutorial/setting/first_spawn_tick/tps 전부 케이스로 갈림)",
+   "found_by": "new",
+   "guard": "tick_per_second"
+  },
+  {
+   "path": "/specs[150]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: cdmg=0 → false(case11) · tower_dmg=0 → absorb(case7)",
+   "found_by": "new",
+   "guard": "0"
+  },
+  {
+   "path": "/specs[150]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: dmg 449→not_soon · 450→soon(2×450>=900, case31/32)",
+   "found_by": "new",
+   "guard": "1"
+  },
+  {
+   "path": "/specs[150]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: maxhp 2000 → floor 500 · hp 601 true/600 false(case28/29)",
+   "found_by": "new",
+   "guard": "2"
+  },
+  {
+   "path": "/specs[150]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: first_spawn 18000·tps 60 → tick 16199 true / 16200 false(case12/13)",
+   "found_by": "new",
+   "guard": "30"
+  },
+  {
+   "path": "/specs[150]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: tutorial MidBottom(5) 에서 tick 16200 false(case41)",
+   "found_by": "new",
+   "guard": "5"
+  },
+  {
+   "path": "/specs[150]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: Line(7) 에서 false(case16)",
+   "found_by": "new",
+   "guard": "7"
+  },
+  {
+   "path": "/specs[150]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: Total(8) 에서 false(case17) · TopSolo(2)는 생략→true(case43)",
+   "found_by": "new",
+   "guard": "8"
+  },
+  {
+   "path": "/specs[150]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: max_range+50000<120000 인 기본 챔프에서 r=120000 · 적 dist 120000 위협/120001 비위협(case38/37)",
+   "found_by": "new",
+   "guard": "120000"
+  },
+  {
+   "path": "/specs[150]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 타워 dist 180000 위협 / 180001 비위협(case5/6)",
+   "found_by": "new",
+   "guard": "32400000001"
+  },
+  {
+   "path": "/specs[150]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: r 하한 120000 경계 실행(case37/38)",
+   "found_by": "new",
+   "guard": "위협 사거리 하한"
+  },
+  {
+   "path": "/specs[150]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 타워 180k 경계 실행(case5/6)",
+   "found_by": "new",
+   "guard": "타워 주변 위협 반경(제곱)"
+  },
+  {
+   "path": "/specs[150]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: tick 16199/16200 경계 실행(case12/13)",
+   "found_by": "new",
+   "guard": "라인전 페이즈 종료 마진(초)"
+  },
+  {
+   "path": "/specs[150]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: ×2 경계 실행(case31/32)",
+   "found_by": "new",
+   "guard": "마무리 임박 배수"
+  },
+  {
+   "path": "/specs[150]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: ÷4 바닥 경계 실행(case28/29)",
+   "found_by": "new",
+   "guard": "타워 1방 감당 HP 바닥 분모"
+  },
+  {
+   "path": "/specs[151]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "target"
+  },
+  {
+   "path": "/specs[151]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "cache"
+  },
+  {
+   "path": "/specs[151]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "game"
+  },
+  {
+   "path": "/specs[151]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "player_champion[team][position]"
+  },
+  {
+   "path": "/specs[151]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "info.team"
+  },
+  {
+   "path": "/specs[151]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "info.position@tag"
+  },
+  {
+   "path": "/specs[151]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "team@tag"
+  },
+  {
+   "path": "/specs[151]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "team@Player.0"
+  },
+  {
+   "path": "/specs[151]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "x"
+  },
+  {
+   "path": "/specs[151]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "y"
+  },
+  {
+   "path": "/specs[151]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "skill_effect@tag"
+  },
+  {
+   "path": "/specs[151]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "skill_effect@Some.0"
+  },
+  {
+   "path": "/specs[151]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증: 없는 대상(case0)·적 우물 대상(case1) 에서 반환 태그 -1 관측",
+   "found_by": "new",
+   "guard": "Option<Input> 전체"
+  },
+  {
+   "path": "/specs[151]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None 경로 두 종류에서 sret+0 == -1 관측",
+   "found_by": "new",
+   "guard": "-1"
+  },
+  {
+   "path": "/specs[151]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 아군 대상(team Player(0))은 우물검사 생략(Some), 적 대상(Player(1))은 우물 안이면 None",
+   "found_by": "new",
+   "guard": "0"
+  },
+  {
+   "path": "/specs[151]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 1-team 적 판정 케이스 갈림(아군/적)",
+   "found_by": "new",
+   "guard": "1"
+  },
+  {
+   "path": "/specs[151]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None 경로(없는 대상·적 우물)에서 StdRng 320B 불변, 콜리 경로에서만 변경 — 본문 직접 소비 0",
+   "found_by": "new",
+   "guard": "rnd"
+  },
+  {
+   "path": "/specs[151]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: self 24B 중 +0x8 target 읽기 · +0x10 만 쓰기(154 case6 바이트 덤프 [..,1,..]) · +0x0 start_tick 불변",
+   "found_by": "new",
+   "guard": "&mut self"
+  },
+  {
+   "path": "/specs[153]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "target"
+  },
+  {
+   "path": "/specs[153]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "cache"
+  },
+  {
+   "path": "/specs[153]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "game"
+  },
+  {
+   "path": "/specs[153]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "player_champion[team][position]"
+  },
+  {
+   "path": "/specs[153]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "info.team"
+  },
+  {
+   "path": "/specs[153]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "info.position@tag"
+  },
+  {
+   "path": "/specs[153]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "team@tag"
+  },
+  {
+   "path": "/specs[153]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "team@Player.0"
+  },
+  {
+   "path": "/specs[153]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "x"
+  },
+  {
+   "path": "/specs[153]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "y"
+  },
+  {
+   "path": "/specs[153]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "skill2_effect@tag"
+  },
+  {
+   "path": "/specs[153]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "skill2_effect@Some.0"
+  },
+  {
+   "path": "/specs[153]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증: level 1·2 패닉 / 3 통과",
+   "found_by": "new",
+   "guard": "level"
+  },
+  {
+   "path": "/specs[153]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증: 없는 대상(case0)·적 우물 대상(case1) 에서 반환 태그 -1 관측",
+   "found_by": "new",
+   "guard": "Option<Input>@tag"
+  },
+  {
+   "path": "/specs[153]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None 경로 두 종류에서 sret+0 == -1 관측",
+   "found_by": "new",
+   "guard": "-1"
+  },
+  {
+   "path": "/specs[153]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 아군 대상(team Player(0))은 우물검사 생략(Some), 적 대상(Player(1))은 우물 안이면 None",
+   "found_by": "new",
+   "guard": "0"
+  },
+  {
+   "path": "/specs[153]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 1-team 적 판정 케이스 갈림(아군/적)",
+   "found_by": "new",
+   "guard": "1"
+  },
+  {
+   "path": "/specs[153]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None 경로(없는 대상·적 우물)에서 StdRng 320B 불변, 콜리 경로에서만 변경 — 본문 직접 소비 0",
+   "found_by": "new",
+   "guard": "rnd"
+  },
+  {
+   "path": "/specs[153]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: self 24B 중 +0x8 target 읽기 · +0x10 만 쓰기(154 case6 바이트 덤프 [..,1,..]) · +0x0 start_tick 불변",
+   "found_by": "new",
+   "guard": "&mut self"
+  },
+  {
+   "path": "/specs[154]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "target"
+  },
+  {
+   "path": "/specs[154]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "cache"
+  },
+  {
+   "path": "/specs[154]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "game"
+  },
+  {
+   "path": "/specs[154]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "player_champion[team][position]"
+  },
+  {
+   "path": "/specs[154]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "info.team"
+  },
+  {
+   "path": "/specs[154]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "info.position@tag"
+  },
+  {
+   "path": "/specs[154]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "team@tag"
+  },
+  {
+   "path": "/specs[154]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "team@Player.0"
+  },
+  {
+   "path": "/specs[154]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "x"
+  },
+  {
+   "path": "/specs[154]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "y"
+  },
+  {
+   "path": "/specs[154]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "ult_effect@tag"
+  },
+  {
+   "path": "/specs[154]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(오라클 o23c.exe(_verify23/C/oracle · 케이스당 프로세스 1개)): 없는 대상→None(-1) · 적 우물 대상→None · 아군 대상은 우물검사 생략 · 적 우물 밖→콜리 경로 · 레벨 게이트(153 lv1·2 패닉/lv3 통과, 154 lv4 패닉/lv5 통과)",
+   "found_by": "new",
+   "guard": "ult_effect@Some.0"
+  },
+  {
+   "path": "/specs[154]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증: case6: Some(Ult{Dir}) tag 5 → self+0x10 = 1 (is_act 쓰기 관측)",
+   "found_by": "new",
+   "guard": "is_act"
+  },
+  {
+   "path": "/specs[154]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: case6: Some(Ult{Dir}) tag 5 → self+0x10 = 1 (is_act 쓰기 관측)",
+   "found_by": "new",
+   "guard": "5"
+  },
+  {
+   "path": "/specs[154]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: level 4 → cast.rs:269:83 unwrap 패닉, level 5 → 통과",
+   "found_by": "new",
+   "guard": "4"
+  },
+  {
+   "path": "/specs[154]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증: level 4 패닉 / 5 통과",
+   "found_by": "new",
+   "guard": "level"
+  },
+  {
+   "path": "/specs[154]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증: 없는 대상(case0)·적 우물 대상(case1) 에서 반환 태그 -1 관측",
+   "found_by": "new",
+   "guard": "Option<Input>@tag"
+  },
+  {
+   "path": "/specs[154]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None 경로 두 종류에서 sret+0 == -1 관측",
+   "found_by": "new",
+   "guard": "-1"
+  },
+  {
+   "path": "/specs[154]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 아군 대상(team Player(0))은 우물검사 생략(Some), 적 대상(Player(1))은 우물 안이면 None",
+   "found_by": "new",
+   "guard": "0"
+  },
+  {
+   "path": "/specs[154]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 1-team 적 판정 케이스 갈림(아군/적)",
+   "found_by": "new",
+   "guard": "1"
+  },
+  {
+   "path": "/specs[154]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None 경로(없는 대상·적 우물)에서 StdRng 320B 불변, 콜리 경로에서만 변경 — 본문 직접 소비 0",
+   "found_by": "new",
+   "guard": "rnd"
+  },
+  {
+   "path": "/specs[154]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: self 24B 중 +0x8 target 읽기 · +0x10 만 쓰기(154 case6 바이트 덤프 [..,1,..]) · +0x0 start_tick 불변",
+   "found_by": "new",
+   "guard": "&mut self"
+  },
+  {
+   "path": "/specs[156]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "kind@tag"
+  },
+  {
+   "path": "/specs[156]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "wait_pos.0"
+  },
+  {
+   "path": "/specs[156]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "wait_pos.1"
+  },
+  {
+   "path": "/specs[156]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "info.team"
+  },
+  {
+   "path": "/specs[156]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "info.position@tag"
+  },
+  {
+   "path": "/specs[156]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "cache"
+  },
+  {
+   "path": "/specs[156]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "blackboard"
+  },
+  {
+   "path": "/specs[156]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "player_champion[team][position] / [1-team][0..5]"
+  },
+  {
+   "path": "/specs[156]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "game(dyn AbstractGame 팻포인터 +0/+8)"
+  },
+  {
+   "path": "/specs[156]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "team@tag"
+  },
+  {
+   "path": "/specs[156]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "team@Player.0"
+  },
+  {
+   "path": "/specs[156]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "visible_state[team]@tag"
+  },
+  {
+   "path": "/specs[156]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "x"
+  },
+  {
+   "path": "/specs[156]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new",
+   "guard": "y"
+  },
+  {
+   "path": "/specs[156]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[156]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — 12케이스 game==mine 전부 MATCH(kind 0/1 · 적 거리 160000/160001 · last_visible · visible_state 갈림)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[156]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None 경로 3종(state None 제외) 반환 +0xb1 == -1 관측",
+   "found_by": "new",
+   "guard": "-1"
+  },
+  {
+   "path": "/specs[156]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: RunAway 경로 +0xb1 == 3 관측(case5/9)",
+   "found_by": "new",
+   "guard": "3"
+  },
+  {
+   "path": "/specs[156]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 적 dist 160000 위협(d2=25600000000) / 160001 비위협(case1/2·5/6)",
+   "found_by": "new",
+   "guard": "25600000001"
+  },
+  {
+   "path": "/specs[156]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: visible_state[0] 미설정(vis=0)이면 is_visible_from false → 비위협(case10/11)",
+   "found_by": "new",
+   "guard": "0"
+  },
+  {
+   "path": "/specs[156]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 160000 위협 / 160001 비위협 경계",
+   "found_by": "new",
+   "guard": "근접 위협 반경(제곱)"
+  },
+  {
+   "path": "/specs[156]/sig/params[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None → +0xb1=-1 · RunAway → +0xb1=3 · AroundPosition → +0xb1=0(untagged, outline_type 태그) · AroundPosition 의 +0x20/+0x28 = wait_pos 복사 관측",
+   "found_by": "new",
+   "guard": "(sret)"
+  },
+  {
+   "path": "/specs[156]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: AroundPosition 경로만 StdRng 변경, RunAway/None 불변",
+   "found_by": "new",
+   "guard": "rnd"
+  },
+  {
+   "path": "/specs[157]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "info.team"
+  },
+  {
+   "path": "/specs[157]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "info.position@tag"
+  },
+  {
+   "path": "/specs[157]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "cache"
+  },
+  {
+   "path": "/specs[157]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "player_champion[2][5]"
+  },
+  {
+   "path": "/specs[157]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "x"
+  },
+  {
+   "path": "/specs[157]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "y"
+  },
+  {
+   "path": "/specs[157]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "target_x"
+  },
+  {
+   "path": "/specs[157]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "target_y"
+  },
+  {
+   "path": "/specs[157]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "path_finder@tag"
+  },
+  {
+   "path": "/specs[157]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "context"
+  },
+  {
+   "path": "/specs[157]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "path_finder"
+  },
+  {
+   "path": "/specs[157]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "path_finder(콜리 경유)"
+  },
+  {
+   "path": "/specs[157]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증 — dist 0/16000 → None · 16001/200000 → Some(Move) · 태그 +0x5d 2→0 · 2회 호출 시 update_path 만(태그 유지)",
+   "found_by": "new",
+   "guard": "tag"
+  },
+  {
+   "path": "/specs[157]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: d2=256000000(16000) → None / 256032001(16001) → Some(case1/2)",
+   "found_by": "new",
+   "guard": "256000001"
+  },
+  {
+   "path": "/specs[157]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: None 경로 sret+0 == -1",
+   "found_by": "new",
+   "guard": "-1"
+  },
+  {
+   "path": "/specs[157]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: self+0x5d 2→0 관측(case2/3/4)",
+   "found_by": "new",
+   "guard": "2"
+  },
+  {
+   "path": "/specs[157]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 생성된 PathFinder +0x8 key.len == 0x10 관측",
+   "found_by": "new",
+   "guard": "16"
+  },
+  {
+   "path": "/specs[157]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 16000/16001 경계",
+   "found_by": "new",
+   "guard": "도착 판정 반경"
+  },
+  {
+   "path": "/specs[157]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: self+0x18 72B 가 new_target 결과로 채워짐(key ptr·len 0x10·path_len 7·index 1·version 0x37·Box 2개·danger 0/deadly 2/direct_cross 1) · 2회 호출 시 태그 0 유지",
+   "found_by": "new",
+   "guard": "self"
+  }
+ ],
+ "brief_errors": [
+  "mkspec3 `o[\"sig\"]` 가 v2 `signature.abi` 를 v3 로 넘기지 않는다 — 8함수 전부 v2 에 abi 문자열이 있는데 도시에(v3 기반)엔 안 보였다. 그래서 지시 ②「signature.abi 에 IR/exe 인자 대응 기재」가 「없는 칸을 새로 만들라」로 읽힌다. 실제로는 문자열 치환 대상이다(이 패치는 155·152 의 기존 abi 문자열을 치환). mkspec3 sig 에 `\"abi\": sp[\"signature\"].get(\"abi\")` 한 줄 추가 필요",
+  "kindchk.observe CALLARG 정규식이 `i64 noundef 2`(타입과 값 사이 속성어)를 못 잡는다 → `panic_bounds_check(i64 noundef %20, i64 noundef 2, …)` 가 관측 0 이라 kind=길이 가 구제되지 않고 G15 `강` 으로 남는다(129 consts[7] 도 같은 상태). 수정안 = `_ops` 의 CALLARG 패턴을 `[(,]\\s*(?:\\w+\\s+)*TY\\s+(?:\\w+\\s+)*V` 로(스크래치 sim_kind2.py 로 129/151/153/154 전부 통과 확인). 도구를 고치기 전엔 이 패치의 kind=길이 3행이 G15 NEG→강 으로 바뀌어 보일 것이다",
+  "§4 G16 [155] 의 처방 「params i = 소스 위치 규약대로 병합·삭제」는 이 케이스엔 맞지 않는다 — DeadArgElim 은 params 행을 지우는 게 아니라 role 에 소거 어휘(`인자에서 제거`)를 쓰면 P1 이 닫힌다(paramrole.DROPPED). 행을 지우면 P3(i 번호 규약, sig.tcx 인자 수 검산)이 깨진다",
+  "§1 「`vis` 가 pub 이 아니면 오라클 직접 진입이 막힌다」는 in:game_ai 4함수(151·153·154·157)에 대해 과잉 — 전부 `define hidden` 이라 link_name 으로 직접 실행됐다(22차 범위 반전이 §1 문구에 아직 반영 안 됨)",
+  "applypatch `op:delete` 가 `mem` 경로의 v3 인덱스를 v2 `writes` 로 옮기지 않는다 — `resolve()` 가 돌려준 jj 를 버리고 `int(idx)` 를 그대로 써서 `/specs[157]/mem[13]`(=writes[3]) 이 「delete 인덱스 범위 밖」. 10차 배치D 와 같은 우회(`/specs[157]/writes[3]`)로 냈다. 수정안 = delete 분기에서 `jj = int(idx)` 대신 `resolve(cont, field, int(idx))` 의 결과를 쓰기",
+  "도시에 §5 예시의 `kind` 어휘는 `실오류/오탐/보강` 인데 applypatch.py 헤더는 `실오류|판정반전|분류오류|보강` — 두 문서가 어긋난다(이 패치는 도시에 어휘를 따름)"
+ ]
+}

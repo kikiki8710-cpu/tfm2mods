@@ -53,7 +53,7 @@ use crate::{
 
 /// 슬롯 상한. ★표 길이에 의존하지 않는다 — `#5/#13/#17` RVA 가 확정돼 표가 20행으로
 /// 재생성돼도 코드는 그대로 `PROBES20.len()` 으로 돈다. 여유를 크게 둔다.
-pub const CAP: usize = 192; // ★09-13 밤 128→192: r10 편입으로 진입부 96 = CS_SLOT0 상한 도달 // ★09-13 64→128: r7 잎 20 편입으로 진입부 35 가 CS_SLOT0(32)를 넘쳐 3개(i=37·38·AUX20) 미설치 — probe20.txt 경고로 적발
+pub const CAP: usize = 320; // ★09-14 낮 192→320: r14 편입으로 진입부 175 > CS_SLOT0 160 → 13개(i167~179) 미측정(판 1 실측) // ★09-13 밤 128→192: r10 편입으로 진입부 96 = CS_SLOT0 상한 도달 // ★09-13 64→128: r7 잎 20 편입으로 진입부 35 가 CS_SLOT0(32)를 넘쳐 3개(i=37·38·AUX20) 미설치 — probe20.txt 경고로 적발
 
 static mut SLOTS: [usize; CAP] = [0; CAP]; // 프로브 i 의 스텁 주소(= 카운터 주소). 0 = 미설치
 static mut FAILS: [&'static str; CAP] = [""; CAP]; // 미설치 사유
@@ -71,7 +71,7 @@ static mut OVERFLOW: usize = 0;
 //   슬롯 인덱스 = `CS_SLOT0 + j`. 진입부는 `0..NPROBE` 를 쓴다.
 //   ★고정 오프셋인 이유: `PROBES20.len()` 은 static 이라 const 문맥에서 못 읽는다
 //     (constants cannot refer to statics) ⟹ 상수로 칸을 나누고 install 시 상한을 검사한다.
-pub const CS_SLOT0: usize = 160; // 진입부 프로브 160개까지(09-13 밤 96→160 · 현재 96 · 거대 9+update 대비) // 진입부 프로브는 96개까지(09-13 32→96 · 현재 35 · 서브트리 107 대비)
+pub const CS_SLOT0: usize = 288; // ★09-14 낮 160→288(현재 175 · 거대 7+루트 16+경로 171 대비) // 진입부 프로브 160개까지(09-13 밤 96→160 · 현재 96 · 거대 9+update 대비) // 진입부 프로브는 96개까지(09-13 32→96 · 현재 35 · 서브트리 107 대비)
 pub const CS_CAP: usize = 8; // 호출부 프로브 함수 수 상한(현재 1)
 pub const MAXSITE: usize = 8; // 함수당 호출부 수 상한(현재 2)
 

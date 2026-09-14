@@ -1,0 +1,766 @@
+{
+ "round": 23,
+ "batch": "E",
+ "errors": [
+  {
+   "path": "/specs[165]/consts[5]/src_line",
+   "kind": "실오류",
+   "old": 112,
+   "new": 110,
+   "evidence": "m11.ll:53437 `%94 = sdiv i64 %93, 3, !dbg !76733` → !76733 사슬 = action_eval.rs:110(lane_positioning_score) <- action_eval.rs:81(evaluate_action). 112 는 그 줄이 없다(53427~53428 의 unwrap_or 폴백 로드만 112). 나눗셈 식 `… .unwrap_or(…) / 3` 의 span 시작이 110 (물리적 리터럴은 110~112 어딘가 · IR 규약 = !dbg 줄)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/mem[2]/note",
+   "kind": "보강",
+   "old": "53209 (gep 177) idx 2,3,4,7,8,9,10 만 진행",
+   "new": "53209 (gep 177) 논리 idx 2,3,4,7,8,9,10 만 진행 — 메모리 태그로는 5·6·7·(니치 없음: AroundPosition 은 +0xb1 = outline_type 0..2)·11·12·13 (53213~53215 `add -3 / ugt 2 / select 7` 로 태그→idx 변환 · tcxdict --enum SmallActionPlay niche_start=3 untagged=7)",
+   "evidence": "m11.ll:53211~53234 `icmp ne i8 %24, 10 · add nsw i8 %24, -3 · icmp samesign ugt i8 %24, 2 · select i1 %27, i8 %26, i8 7 · switch i8 %28 [0,1→None 2,3,4→진행 5,6→None 7,8,9,10→진행 11..16→None]` · tcxdict --enum SmallActionPlay: RunAway 3 · Around 5 · AroundHide 6 · AroundRegion 7 · AroundPosition 없음(암묵, +0xb1 outline_type) · AroundPositionBush 11 · AroundBush 12 · LaneMinionPosition 13 · Attack 15 · Skill 16 · Skill2 17 · Ult 18 · Stop 19",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[165]/sig/abi",
+   "kind": "보강",
+   "old": "hidden(비-internal) · 반환 ScalarPair { i64, i64 } = Option<i64>",
+   "new": "hidden(비-internal) · 반환 ScalarPair { i64, i64 } = Option<i64>. ★exe 0xe29b40 ↔ IR define 8인자 동일(argscan: 스택 슬롯 +0x20 %4 player · +0x28 %5 data · +0x30 %6 action 접근, +0x38 %7 debug 는 미접근=readnone 과 일치 · 레지스터 rcx version/rdx ctx/r8 parameter/r9 rnd) — 비-internal 이라 인자 승격·소거 없음",
+   "evidence": "argscan2(chkstk 보정판) 0xe29b40: pushes 8 sub=0x1318 · entry_rsp+0x20 x3(`mov r10,[rsp+0x1380]`) · +0x28 x4 · +0x30 x1 · +0x38 0회 ⟹ exe 8 = IR 8(m11.ll:53179 define `{ i64, i64 } @…evaluate_action(i64 %0, ptr %1(40), ptr %2(5384), ptr readnone %3(320), ptr %4(2528), ptr %5(24), ptr %6(184), ptr readnone %7(224))`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[166]/sig/abi",
+   "kind": "보강",
+   "old": "define noundef zeroext i1 — 비-internal · 인자 승격 없음.",
+   "new": "define noundef zeroext i1 — 비-internal · 인자 승격 없음(★exe 0xd3ab40 argscan: 스택 인자 1(+0x20 enemy) + 레지스터 4 = 5 = IR 5).",
+   "evidence": "argscan 0xd3ab40: pushes 8 sub=0x58 · entry_rsp+0x20 (arg5 · IR %4) x1 ⟹ exe 5 = IR 5(m04.ll:54936)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "어느 바이트가 live 인지는 그 콜리 소관(미확인)",
+   "new": "콜리 sret 에 initializes 속성 없음 → 콜리 store 로 확정: PathFinder::get_input(m03.ll) Move = tag 0 + x(+8) + y(+16) 24B(137799~137807 · 138679~138683) / Return = tag 1 만 8B(137806 phi 1) / Skill·Skill2·Ult 등 InputTarget 계열 = tag + 24B memcpy 32B 전부(138673~138674) ; RunAway::get_input(m08.ll:106076) 도 sret 32B writeonly. ⟹ live = None [0,8) · Return [0,8) · Move [0,24) · 그 외 [0,32)",
+   "evidence": "m03.ll:137276 define `…PathFinder9get_input(ptr … writable writeonly sret([32 x i8]) … %0` (initializes 없음) · 137799 `%281 = gep %0, 8` 137800 `store i64 %279` 137801 `gep %0, 16` 137802 `store i64 %280` 137806 `%284 = phi i64 [ 1, %203 ], [ 0, %278 ]` 137807 `store i64 %284, ptr %0` · 138673 `store i64 %640, ptr %0` 138674 `memcpy(%642=%0+8, %641, 24)` · 138683 `store i64 0, ptr %0` · tcxdict --enum Input: Move{x +8,y +16} Return(무) Attack/Skill/Skill2/Ult{target InputTarget 24B +8}",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/sig/abi",
+   "kind": "보강",
+   "old": "★internal fastcc (exe 0xe26c40 · 호출자 1).",
+   "new": "★internal fastcc (exe 0xe26c40 · 호출자 1 · ★argscan: 스택 인자 4(+0x20 %4 player x7 · +0x28 %5 data x7 · +0x30 %6 positioning_score x5 · +0x38 %7 debug x1) + 레지스터 4(rcx sret · rdx self · r8 version · r9 rnd) = 8 = IR 8 — 승격·소거 없음).",
+   "evidence": "argscan 0xe26c40: pushes 8 sub=0x308 rbp=rsp+128 · entry_rsp+0x20 x7 / +0x28 x7 / +0x30 x5 / +0x38 x1 ⟹ exe 8 = IR 8(m11.ll:46067 define 8인자)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/mem[11]/note",
+   "kind": "보강",
+   "old": "46258 → choose_goal",
+   "new": "46258 → choose_goal (tcxdict SmallActionLaneMinionPosition 0x78 position_eval_purpose 1B — 사전 chk 오귀속은 도구 문제)",
+   "evidence": "tcxdict SmallActionLaneMinionPosition: 0x30 path_finder Option<PathFinder>(72B) · 0x78 position_eval_purpose PositionEvalPurpose(1B)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/mem[13]/note",
+   "kind": "보강",
+   "old": "46384 (drop: dealloc 1120B=70*(u64,u64) · 46408)",
+   "new": "46384 (drop: dealloc 1120B=70*(u64,u64) · 46408) — self+0x30 path_finder + PathFinder.path 0x28 = 0x58 (tcxdict PathFinder --deep: 0x28 path.0.pointer · 0x30 planned_verdict.0.pointer · 0x38 danger_violations u32 · 0x3c policy.deadly_cells u32 · 0x40 policy.direct_cross · 0x44 used_fallback · 0x45 unconstrained_fallback(=Option 니치, 2=None) · 패딩 0x41~0x43·0x46~0x47)",
+   "evidence": "tcxdict PathFinder --deep 원문 · m11.ll:46384 `gep %1, 88` · 46386 `gep %1, 96` · 46454 `store i8 2, ptr %159`(%159 = gep %1, 117 = 0x75 = 0x30+0x45)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/sig/params[0]/role",
+   "kind": "오탐",
+   "old": "+0 tag i64: None = -1",
+   "new": "+0 tag i64: None = -1",
+   "evidence": "G16 P4 오탐(도구 결함): %0 은 `ptr dead_on_unwind noalias noundef nonnull writable align 8 captures(none) dereferenceable(32)`(m11.ll:46067) 로 `sret(`·`writeonly` 가 없지만 반환 out-포인터가 맞다 — 46112/46150/46165/46241/46283/46348/46527 `store i64 -1, ptr %0` 8곳 + 46537 PathFinder::get_input(sret %0) · 46546 RunAway::get_input(sret %0) 로 콜리 sret 에 그대로 전달. paramrole.is_sret_arg 가 writeonly 를 요구하는 것이 원인(invoke 경로 때문에 LLVM 이 writeonly 를 못 붙임)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "None = i64 -1 @+0x0 · Some = Input 32B memcpy",
+   "new": "None = i64 -1 @+0x0 · Some = Input 32B memcpy. ★런타임(o168 hidden 직접 진입, 출력 버퍼 0xAA 선충전): Some(Move) = tag 0 · x +8 · y +16 기록, [24,32) 는 콜리 지역(%15) 사본이라 호출마다 다른 값(비결정 = dead) — Move 의 live 는 [0,24) 확정",
+   "evidence": "23차 E o168.rs 4케이스×2회: `tag=0 +8=48000 +16=880000 +24..32=a06d8d27c5000000 / 8085090000000000`(같은 프로세스 2회가 다름) · IR m08.ll:105642 memcpy 32B ← %15 · PathFinder::get_input Move store 는 +0/+8/+16 만(m03.ll:137799~137807)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/sig/params[3]/role",
+   "kind": "보강",
+   "old": "new_target/update_path 로 전달(소비량 path_finder 계층 미탐색)",
+   "new": "new_target/update_path 로 전달(★런타임 o168: 이 시나리오(스폰 위치·목표 4종·version 2·PositioningScoreData default)에선 StdRng 상태 불변 = 소비 0 — 다른 시나리오의 소비량은 path_finder 계층 미탐색)",
+   "evidence": "o168.rs `rnd round=0 changed=false draws_u32=0`(4케이스 전부) — StdRng PartialEq 로 호출 전후 대조",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/sig/abi",
+   "kind": "보강",
+   "old": "define hidden void (sret 32B = Option<Input>) — 비 internal, 인자 승격 없음. 인자 7 + sret",
+   "new": "define hidden void (sret 32B = Option<Input>) — 비 internal, 인자 승격 없음. 인자 7 + sret (★exe 0xdc2960 argscan: 스택 4(+0x20 %4 player · +0x28 %5 data · +0x30 %6 ps · +0x38 %7 debug) + 레지스터 4 = 8 = IR 8)",
+   "evidence": "argscan 0xdc2960: pushes 8 sub=0x2f8 rbp=rsp+128 · +0x20 x2 / +0x28 x2 / +0x30 x3 / +0x38 x1 ⟹ exe 8 = IR 8(m08.ll:105393)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/open[3]/q",
+   "kind": "보강",
+   "old": "rnd 소비량 — path_finder 계층",
+   "new": "rnd 소비량 — path_finder 계층(★o168 런타임: 스폰 위치·version 2 시나리오 4종에서 소비 0 확인 · 다른 상황은 미탐색)",
+   "evidence": "o168.rs rnd changed=false draws_u32=0 (4케이스)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[169]/sig/params[6]",
+   "guard": "action",
+   "kind": "실오류",
+   "old": "action",
+   "new": "(재정렬 — 소스 위치 순으로 재삽입)",
+   "evidence": "G16 P3: sig.tcx 소스 인자 7 ⟹ i 는 [1..7] 순서. 소거 3 인자를 소스 자리(rnd 1 · parameter 4 · action 5)에 다시 넣는다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[169]/sig/params[5]",
+   "guard": "parameter",
+   "kind": "실오류",
+   "old": "parameter",
+   "new": "(재정렬 — 소스 위치 순으로 재삽입)",
+   "evidence": "G16 P3: sig.tcx 소스 인자 7 ⟹ i 는 [1..7] 순서. 소거 3 인자를 소스 자리(rnd 1 · parameter 4 · action 5)에 다시 넣는다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[169]/sig/params[4]",
+   "guard": "rnd",
+   "kind": "실오류",
+   "old": "rnd",
+   "new": "(재정렬 — 소스 위치 순으로 재삽입)",
+   "evidence": "G16 P3: sig.tcx 소스 인자 7 ⟹ i 는 [1..7] 순서. 소거 3 인자를 소스 자리(rnd 1 · parameter 4 · action 5)에 다시 넣는다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[169]/sig/params",
+   "at": 0,
+   "guard": "rnd",
+   "guard_key": "name",
+   "new": {
+    "i": 1,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "소스 인자 1 — DeadArgElimination 으로 IR 인자에서 제거(인자로 안 넘어옴 · 본문 미사용 · write 0건). exe 에도 없음"
+   },
+   "kind": "실오류",
+   "old": "",
+   "evidence": "G16 P1/P3: IR m02.ll define 4인자(player,data,effect,t) vs 소스 7 ⟹ 소거 3 을 `인자에서 제거` 문면으로 주장하고 i 를 소스 위치로. 정본 = m02.ll:65168",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[169]/sig/params",
+   "at": 3,
+   "guard": "parameter",
+   "guard_key": "name",
+   "new": {
+    "i": 4,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B)",
+    "note": "소스 인자 4 — DeadArgElimination 으로 IR 인자에서 제거(인자로 안 넘어옴 · 본문 미사용). exe 에도 없음"
+   },
+   "kind": "실오류",
+   "old": "",
+   "evidence": "G16 P1/P3: IR m02.ll define 4인자(player,data,effect,t) vs 소스 7 ⟹ 소거 3 을 `인자에서 제거` 문면으로 주장하고 i 를 소스 위치로. 정본 = m02.ll:65168",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[169]/sig/params",
+   "at": 4,
+   "guard": "action",
+   "guard_key": "name",
+   "new": {
+    "i": 5,
+    "name": "action",
+    "type": "&Box<dyn Action>",
+    "note": "소스 인자 5 — DeadArgElimination 으로 IR 인자에서 제거(인자로 안 넘어옴 · 본문 미사용). exe 에도 없음"
+   },
+   "kind": "실오류",
+   "old": "",
+   "evidence": "G16 P1/P3: IR m02.ll define 4인자(player,data,effect,t) vs 소스 7 ⟹ 소거 3 을 `인자에서 제거` 문면으로 주장하고 i 를 소스 위치로. 정본 = m02.ll:65168",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[169]/sig/abi",
+   "kind": "실오류",
+   "old": "exe 0xccfbc0 인자 배치는 argscan 미실시 — EXE_ABI 는 IR 4인자 기준으로 추정",
+   "new": "★exe 0xccfbc0 = **5인자**(argscan 스택 +0x20 1개 + 레지스터 4): rcx = player.info.team(u64) · edx = player.info.position 태그(u32, `param_2 & 0xffffffff`) · r8 = data(&OperationData) · r9 = effect(&Effect) · [rsp+0x20] = t(&Entity) — IR `player`(%0 &PlayerState) 가 exe 에서 **ArgumentPromotion 으로 (team, position) 두 스칼라**로 쪼개짐(is_recent_visible_big_action 이 exe 에 인라인돼 player 는 team 만 필요). IR↔exe 대응: %0 player→(rcx,edx) · %1 data→r8 · %2 effect→r9 · %3 t→스택+0x20. ⟹ EXE_ABI 는 IR 4인자 기준으로 못 부른다(5인자·player 분해)",
+   "evidence": "argscan 0xccfbc0: `entry_rsp+0x20 (arg5) x3` ⟹ 5 · 호출부 디스어셈(argscan --caller 0xccf5f0): `mov qword ptr [rsp+0x20], rax(get_entity_by_id 결과 t) · mov rcx, r15 · mov edx, r12d · mov r8, rbx · mov r9, effect(+0x490/+0x4c8)` · 디컴 serpen_hunt.md:22305 `FUN_140ccfbc0(ulonglong param_1(team, `1 < param_1` 경계검사), ulonglong param_2(position, `param_2 & 0xffffffff`), longlong *param_3(data: *param_3 cache · [1] context · [2] blackboard), undefined8 param_4(effect → FUN_1412857f0 expected_damage_target), longlong param_5(t: +0x670 hp))`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[169]/consts[2]/src_line",
+   "kind": "오탐",
+   "old": 933,
+   "new": 933,
+   "evidence": "G12 오탐(도구 결함): 넥서스 200 은 phi 인입 `[ 200, %303 ]`(m02.ll:65969) 이고 인입 블록의 종결자는 여러 줄 `switch`(m02.ll:65957~65962) 라 `!dbg` 가 첫 줄이 아닌 닫는 `], !dbg` 줄에 있다 → srclinebase._term_dbg 가 `switch ` 로 시작하는 첫 줄만 보고 None 을 돌려줘 phi 구제가 발화하지 않는다. 그 !dbg 사슬 = serpen_hunt.rs:933 ⟹ 명세 933 이 맞다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[169]/open[0]/q",
+   "kind": "보강",
+   "old": "exe 0xccfbc0 의 실제 인자 수는 argscan 미실시",
+   "new": "exe 0xccfbc0 의 실제 인자 수 = 5(argscan 23차 E · sig.abi 에 대응표) — rnd·parameter·action 은 exe 에도 없고 player 가 (team,position) 으로 분해됨",
+   "evidence": "argscan 0xccfbc0 5인자 + 호출부 디스어셈",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[169]/open[2]/q",
+   "kind": "보강",
+   "old": "는 이름 기반 추정 — 콜리 내부 안 팜",
+   "new": "는 IR 로 확정(23차 E): in_serpen(bb,pos) = bb.big_goal[pos].1 == Some(BigGoal::Serpen)(태그 3, pos≥5 패닉) · is_recent_visible_big_action(bb,game,player,x) = owner=vt+0x150 get_player_by_champion_id(x.id) 가 Some 이면 bb.last_visible[owner.position]+600 >= tick() (지금 보이는지는 안 봄) / None 이면 vt+0xf8 is_visible(game, player.info.team, x.id)",
+   "evidence": "_gcbc/g07.ll:158545~158559 in_serpen `gep {i64,{i8,[23 x i8]}} %%0, %%1 · gep 248 · load i8 · icmp eq 3`(Blackboard big_goal 0xf0 + 0x8 → +0xf8 태그 · tcxdict --enum BigGoal Epic 2 Serpen 3) · 158392~158405 in_epic `icmp eq i8 %%7, 2` · 157514~157559 is_recent_visible_big_action `vt+336 call(game, x.id) → null? vt+248(game, player+2352(team), id) : bb+480[pos]+600 uge vt+40 tick()` · shared.is_recent_visible_4형제",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[170]/sig/params[6]",
+   "guard": "action",
+   "kind": "실오류",
+   "old": "action",
+   "new": "(재정렬 — 소스 위치 순으로 재삽입)",
+   "evidence": "G16 P3: sig.tcx 소스 인자 7 ⟹ i 는 [1..7] 순서. 소거 3 인자를 소스 자리(rnd 1 · parameter 4 · action 5)에 다시 넣는다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[170]/sig/params[5]",
+   "guard": "parameter",
+   "kind": "실오류",
+   "old": "parameter",
+   "new": "(재정렬 — 소스 위치 순으로 재삽입)",
+   "evidence": "G16 P3: sig.tcx 소스 인자 7 ⟹ i 는 [1..7] 순서. 소거 3 인자를 소스 자리(rnd 1 · parameter 4 · action 5)에 다시 넣는다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[170]/sig/params[4]",
+   "guard": "rnd",
+   "kind": "실오류",
+   "old": "rnd",
+   "new": "(재정렬 — 소스 위치 순으로 재삽입)",
+   "evidence": "G16 P3: sig.tcx 소스 인자 7 ⟹ i 는 [1..7] 순서. 소거 3 인자를 소스 자리(rnd 1 · parameter 4 · action 5)에 다시 넣는다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[170]/sig/params",
+   "at": 0,
+   "guard": "rnd",
+   "guard_key": "name",
+   "new": {
+    "i": 1,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "소스 인자 1 — DeadArgElimination 으로 IR 인자에서 제거(인자로 안 넘어옴 · 본문 미사용 · write 0건). exe 에도 없음"
+   },
+   "kind": "실오류",
+   "old": "",
+   "evidence": "G16 P1/P3: IR m15.ll define 4인자(player,data,effect,t) vs 소스 7 ⟹ 소거 3 을 `인자에서 제거` 문면으로 주장하고 i 를 소스 위치로. 정본 = m15.ll:50588",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[170]/sig/params",
+   "at": 3,
+   "guard": "parameter",
+   "guard_key": "name",
+   "new": {
+    "i": 4,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B)",
+    "note": "소스 인자 4 — DeadArgElimination 으로 IR 인자에서 제거(인자로 안 넘어옴 · 본문 미사용). exe 에도 없음"
+   },
+   "kind": "실오류",
+   "old": "",
+   "evidence": "G16 P1/P3: IR m15.ll define 4인자(player,data,effect,t) vs 소스 7 ⟹ 소거 3 을 `인자에서 제거` 문면으로 주장하고 i 를 소스 위치로. 정본 = m15.ll:50588",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[170]/sig/params",
+   "at": 4,
+   "guard": "action",
+   "guard_key": "name",
+   "new": {
+    "i": 5,
+    "name": "action",
+    "type": "&Box<dyn Action>",
+    "note": "소스 인자 5 — DeadArgElimination 으로 IR 인자에서 제거(인자로 안 넘어옴 · 본문 미사용). exe 에도 없음"
+   },
+   "kind": "실오류",
+   "old": "",
+   "evidence": "G16 P1/P3: IR m15.ll define 4인자(player,data,effect,t) vs 소스 7 ⟹ 소거 3 을 `인자에서 제거` 문면으로 주장하고 i 를 소스 위치로. 정본 = m15.ll:50588",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[170]/sig/abi",
+   "kind": "실오류",
+   "old": "exe 0xec81e0 인자 배치는 argscan 미실시 — EXE_ABI 는 IR 4인자 기준으로 추정",
+   "new": "★exe 0xec81e0 = **5인자**(argscan 스택 +0x20 1개 + 레지스터 4): rcx = player.info.team(u64) · edx = player.info.position 태그(u32, `param_2 & 0xffffffff`) · r8 = data(&OperationData) · r9 = effect(&Effect) · [rsp+0x20] = t(&Entity) — IR `player`(%0 &PlayerState) 가 exe 에서 **ArgumentPromotion 으로 (team, position) 두 스칼라**로 쪼개짐(is_recent_visible_big_action 이 exe 에 인라인돼 player 는 team 만 필요). IR↔exe 대응: %0 player→(rcx,edx) · %1 data→r8 · %2 effect→r9 · %3 t→스택+0x20. ⟹ EXE_ABI 는 IR 4인자 기준으로 못 부른다(5인자·player 분해)",
+   "evidence": "argscan 0xec81e0: `entry_rsp+0x20 (arg5) x4` ⟹ 5 · 호출부 디스어셈(argscan --caller 0xec7c90): `mov qword ptr [rsp+0x20], rax(get_entity_by_id 결과 t) · mov rcx, r15 · mov edx, r12d · mov r8, rbx · mov r9, effect(+0x490/+0x4c8)` · 디컴 epic_hunt.md:16800 `FUN_140ec81e0(ulonglong param_1(team, `1 < param_1` 경계검사), ulonglong param_2(position, `param_2 & 0xffffffff`), longlong *param_3(data: *param_3 cache · [1] context · [2] blackboard), undefined8 param_4(effect → FUN_1412857f0 expected_damage_target), longlong param_5(t: +0x670 hp))`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[170]/consts[2]/src_line",
+   "kind": "오탐",
+   "old": 939,
+   "new": 939,
+   "evidence": "G12 오탐(도구 결함): 넥서스 200 은 phi 인입 `[ 200, %303 ]`(m15.ll:51562) 이고 인입 블록의 종결자는 여러 줄 `switch`(m15.ll:51550~51555) 라 `!dbg` 가 첫 줄이 아닌 닫는 `], !dbg` 줄에 있다 → srclinebase._term_dbg 가 `switch ` 로 시작하는 첫 줄만 보고 None 을 돌려줘 phi 구제가 발화하지 않는다. 그 !dbg 사슬 = epic_hunt.rs:939 ⟹ 명세 939 이 맞다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[170]/open[0]/q",
+   "kind": "보강",
+   "old": "exe 0xec81e0 의 실제 인자 수는 argscan 미실시",
+   "new": "exe 0xec81e0 의 실제 인자 수 = 5(argscan 23차 E · sig.abi 에 대응표) — rnd·parameter·action 은 exe 에도 없고 player 가 (team,position) 으로 분해됨",
+   "evidence": "argscan 0xec81e0 5인자 + 호출부 디스어셈",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[170]/open[2]/q",
+   "kind": "보강",
+   "old": "는 이름 기반 추정 — 콜리 내부 안 팜",
+   "new": "는 IR 로 확정(23차 E): in_epic(bb,pos) = bb.big_goal[pos].1 == Some(BigGoal::Epic)(태그 2, pos≥5 패닉) · is_recent_visible_big_action(bb,game,player,x) = owner=vt+0x150 get_player_by_champion_id(x.id) 가 Some 이면 bb.last_visible[owner.position]+600 >= tick() (지금 보이는지는 안 봄) / None 이면 vt+0xf8 is_visible(game, player.info.team, x.id)",
+   "evidence": "_gcbc/g07.ll:158545~158559 in_serpen `gep {i64,{i8,[23 x i8]}} %%0, %%1 · gep 248 · load i8 · icmp eq 3`(Blackboard big_goal 0xf0 + 0x8 → +0xf8 태그 · tcxdict --enum BigGoal Epic 2 Serpen 3) · 158392~158405 in_epic `icmp eq i8 %%7, 2` · 157514~157559 is_recent_visible_big_action `vt+336 call(game, x.id) → null? vt+248(game, player+2352(team), id) : bb+480[pos]+600 uge vt+40 tick()` · shared.is_recent_visible_4형제",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[170]/mem[10]/note",
+   "kind": "실오류",
+   "old": "t (m15.ll:51548) 3=Nexus 2=Tower 6=Serpen 1=Minion",
+   "new": "t (m15.ll:51548) 3=Nexus 2=Tower 5=Epic 1=Minion (switch 51550~51555 · 51605 `icmp eq i64 %371, 5`)",
+   "evidence": "m15.ll:51550~51555 `switch i64 %371, label %386 [ i64 3 → %373 / i64 2 → %377 / i64 5 → %378 / i64 1 → %385 ]` · 51605 `%393 = icmp eq i64 %371, 5` — 이 함수에 태그 6 비교는 없다(세르펜판 복사 잔재). consts[12]·logic 은 이미 5",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[170]/knobs[2]/where",
+   "kind": "실오류",
+   "old": "epic_hunt.rs:945/945 (m15.ll:51579, 51583)",
+   "new": "epic_hunt.rs:945/951 (m15.ll:51579, 51583)",
+   "evidence": "m15.ll:51579 `select i1 %380, i64 0, i64 200, !dbg !58199` → epic_hunt.rs:951 · 51583 `select … 20, 200 !dbg !58200` → 945",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[170]/knobs[6]/where",
+   "kind": "실오류",
+   "old": "epic_hunt.rs:929/930 (m15.ll:50844, 51266)",
+   "new": "epic_hunt.rs:929/936 (m15.ll:50844, 51266)",
+   "evidence": "logic 자체가 L936~937 near_camp_enemies 로 적음 · 세르펜판 923/930 (930 = enemies 줄) 을 +6 시프트하면 929/936",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[171]/consts[4]/src_line",
+   "kind": "실오류",
+   "old": 132,
+   "new": 134,
+   "evidence": "m11.ll:51862 `%31 = phi i64 [ 0, %17 ], [ %103, %102 ], !dbg !74775` 사슬 루트 = lane_economy.rs:134(sum · macros.rs fold) · 인입 블록 %17 종결자 51858 `br label %29, !dbg !74861` 도 134. 132(filter) 줄엔 리터럴 0 이 없다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[171]/consts[6]/src_line",
+   "kind": "실오류",
+   "old": 131,
+   "new": 134,
+   "evidence": "m11.ll:52055 `%105 = icmp eq i64 %104, 5, !dbg !75118` → macros.rs:284(fold) <- … <- lane_economy.rs:134. 배열 [Option<&Entity>;5] 는 L131 것이지만 리터럴 5 는 L134 `.sum()` 의 fold 루프 상한으로만 나온다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[171]/consts[7]/src_line",
+   "kind": "실오류",
+   "old": 113,
+   "new": 119,
+   "evidence": "m11.ll:52233 `%157 = icmp ult i64 %155, 6, !dbg !75548` → index.rs:252 … iterator.rs:3387(min_by_key) <- lane_economy.rs:119(line_enemy_tower_punish_damage_at) <- 141. #dbg_value(i64 6, …) 52179~52232 도 전부 119 루트. 6 원소 배열은 L113 iter_towers_without_nexus 산출물이지만 리터럴 6 은 L119 min_by_key 순회에서만 나온다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[171]/sig/abi",
+   "kind": "보강",
+   "old": "★internal fastcc, 반환 i64 (exe 0xe288c0 · 호출자 1 = line_action_economy_adjustment 51657).",
+   "new": "★internal fastcc, 반환 i64 (exe 0xe288c0 · 호출자 1 = line_action_economy_adjustment 51657 · ★argscan: 스택 4(+0x20 %4 = target.ty@tag 1회 `cmp [rsp+0x1a0], 0xd` · +0x28 %5 x · +0x30 %6 y · +0x38 %7 window) + 레지스터 4(rcx version · rdx player · r8 data · r9 champ) = 8 = IR 8 — exe 도 IR 과 같은 승격 상태).",
+   "evidence": "argscan 0xe288c0: pushes 8 sub=0x138 · entry_rsp+0x20 x1 `140e28b7e: cmp qword ptr [rsp + 0x1a0], 0xd` · +0x28 x11 · +0x30 x11 · +0x38 x5 · 디컴 lane_economy.md:1323 `FUN_140e288c0(param_1..param_8)` L1437 `FUN_140d96b10(…, param_5 == 0xd, …)`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[171]/open[3]/q",
+   "kind": "보강",
+   "old": "self 가 data.blackboard[enemy_team] 인 이유(적 팀 판 vs 내 팀 판)는 콜리 의미 미확인 — IR 사실만 기록",
+   "new": "self = data.blackboard[enemy_team] 이 맞다(shared.is_recent_visible 확정: Blackboard[T].last_visible[pos] = 팀 (1−T) 가 팀 T 의 pos 챔피언을 마지막으로 본 틱 ⟹ 적 팀 판 = 내 팀이 적 pos 를 본 기록 · 창 120틱 · 지금 보이면 즉시 true) — 사실 서술로 종결",
+   "evidence": "shared.is_recent_visible(판정식·blackboard_인덱스_의미 확정) · _gcbc/g07.ll:157005~157050",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[165]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/sig/params[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5) · tcxdict ActionContext anchor 0x10/Anchor Lane.line +0x1 · SmallActionPlay 판별자 +0xb1 · Entity hp 0x670 undying 0x488",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5) · tcxdict ActionContext anchor 0x10/Anchor Lane.line +0x1 · SmallActionPlay 판별자 +0xb1 · Entity hp 0x670 undying 0x488",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5) · tcxdict ActionContext anchor 0x10/Anchor Lane.line +0x1 · SmallActionPlay 판별자 +0xb1 · Entity hp 0x670 undying 0x488",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5) · tcxdict ActionContext anchor 0x10/Anchor Lane.line +0x1 · SmallActionPlay 판별자 +0xb1 · Entity hp 0x670 undying 0x488",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5) · tcxdict ActionContext anchor 0x10/Anchor Lane.line +0x1 · SmallActionPlay 판별자 +0xb1 · Entity hp 0x670 undying 0x488",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5) · tcxdict ActionContext anchor 0x10/Anchor Lane.line +0x1 · SmallActionPlay 판별자 +0xb1 · Entity hp 0x670 undying 0x488",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[165]/mem[46]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o165.rs 14/14 MATCH, 케이스당 프로세스 1개): anchor Free/Objective→None · Attack/Stop→None · AroundBush/Around/LaneMinionPosition→Some · undying→danger 0 · hp 1/1000/100000 스케일 · risk_possible 2건→possible 700→danger 560(hp_value 800) · Some(-560000/-560/-5) · tcxdict ActionContext anchor 0x10/Anchor Lane.line +0x1 · SmallActionPlay 판별자 +0xb1 · Entity hp 0x670 undying 0x488",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/sig/params[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/sig/params[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[166]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o166.rs 16/16 MATCH, 케이스당 프로세스 1개): 경계 my_die−enemy_die = 59/60 → false · 61/62 → true(`>` +60) · skill2 level 2 → 미반영 / 3 → 반영 · 비가시(Unknown) → stat_cached.hp 사용 · ult 9999 무시 · attack None+skill 만 정상 · 대칭 → false · tcxdict Entity attack_effect 0x490 skill_effect 0x4c8 skill2_effect 0x500 level 0x5c8 hp 0x670 visible_state 0x38",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[167]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict 정본 대조: SmallActionLaneMinionPosition.path_finder 0x30 + PathFinder{path 0x28, planned_verdict 0x30, unconstrained_fallback 0x45(Option 니치 2)} ⟹ 0x58/0x60/0x75 · position_eval_purpose 0x78",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict 정본 대조: SmallActionLaneMinionPosition.path_finder 0x30 + PathFinder{path 0x28, planned_verdict 0x30, unconstrained_fallback 0x45(Option 니치 2)} ⟹ 0x58/0x60/0x75 · position_eval_purpose 0x78",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict 정본 대조: SmallActionLaneMinionPosition.path_finder 0x30 + PathFinder{path 0x28, planned_verdict 0x30, unconstrained_fallback 0x45(Option 니치 2)} ⟹ 0x58/0x60/0x75 · position_eval_purpose 0x78",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict 정본 대조: SmallActionLaneMinionPosition.path_finder 0x30 + PathFinder{path 0x28, planned_verdict 0x30, unconstrained_fallback 0x45(Option 니치 2)} ⟹ 0x58/0x60/0x75 · position_eval_purpose 0x78",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict 정본 대조: SmallActionLaneMinionPosition.path_finder 0x30 + PathFinder{path 0x28, planned_verdict 0x30, unconstrained_fallback 0x45(Option 니치 2)} ⟹ 0x58/0x60/0x75 · position_eval_purpose 0x78",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[167]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict 정본 대조: SmallActionLaneMinionPosition.path_finder 0x30 + PathFinder{path 0x28, planned_verdict 0x30, unconstrained_fallback 0x45(Option 니치 2)} ⟹ 0x58/0x60/0x75 · position_eval_purpose 0x78",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o168.rs hidden 직접 진입): self 바이트 diff 로 path_finder@0x6d 2→0 · 0x28~0x30 key · 0x38 path_len · 0x40 index · 0x48 version · 0x50 path Box · 0x58 planned_verdict Box · 0x64 policy · 0x68 direct_cross 갱신 관측 · tcxdict SmallActionAroundBush path_finder 0x28 + PathFinder 오프셋",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o168.rs hidden 직접 진입): self 바이트 diff 로 path_finder@0x6d 2→0 · 0x28~0x30 key · 0x38 path_len · 0x40 index · 0x48 version · 0x50 path Box · 0x58 planned_verdict Box · 0x64 policy · 0x68 direct_cross 갱신 관측 · tcxdict SmallActionAroundBush path_finder 0x28 + PathFinder 오프셋",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o168.rs hidden 직접 진입): self 바이트 diff 로 path_finder@0x6d 2→0 · 0x28~0x30 key · 0x38 path_len · 0x40 index · 0x48 version · 0x50 path Box · 0x58 planned_verdict Box · 0x64 policy · 0x68 direct_cross 갱신 관측 · tcxdict SmallActionAroundBush path_finder 0x28 + PathFinder 오프셋",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o168.rs hidden 직접 진입): self 바이트 diff 로 path_finder@0x6d 2→0 · 0x28~0x30 key · 0x38 path_len · 0x40 index · 0x48 version · 0x50 path Box · 0x58 planned_verdict Box · 0x64 policy · 0x68 direct_cross 갱신 관측 · tcxdict SmallActionAroundBush path_finder 0x28 + PathFinder 오프셋",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o168.rs hidden 직접 진입): self 바이트 diff 로 path_finder@0x6d 2→0 · 0x28~0x30 key · 0x38 path_len · 0x40 index · 0x48 version · 0x50 path Box · 0x58 planned_verdict Box · 0x64 policy · 0x68 direct_cross 갱신 관측 · tcxdict SmallActionAroundBush path_finder 0x28 + PathFinder 오프셋",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o168.rs hidden 직접 진입): self 바이트 diff 로 path_finder@0x6d 2→0 · 0x28~0x30 key · 0x38 path_len · 0x40 index · 0x48 version · 0x50 path Box · 0x58 planned_verdict Box · 0x64 policy · 0x68 direct_cross 갱신 관측 · tcxdict SmallActionAroundBush path_finder 0x28 + PathFinder 오프셋",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(23차 E o168.rs hidden 직접 진입): self 바이트 diff 로 path_finder@0x6d 2→0 · 0x28~0x30 key · 0x38 path_len · 0x40 index · 0x48 version · 0x50 path Box · 0x58 planned_verdict Box · 0x64 policy · 0x68 direct_cross 갱신 관측 · tcxdict SmallActionAroundBush path_finder 0x28 + PathFinder 오프셋",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[168]/sig/params[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(23차 E o168.rs hidden 직접 진입): self 바이트 diff 로 path_finder@0x6d 2→0 · 0x28~0x30 key · 0x38 path_len · 0x40 index · 0x48 version · 0x50 path Box · 0x58 planned_verdict Box · 0x64 policy · 0x68 direct_cross 갱신 관측 · Move live [0,24) · [24,32) 비결정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[171]/sig/params[4]",
+   "from": 5,
+   "to": 3,
+   "evidence": "exe 대조: argscan 0xe288c0 entry_rsp+0x20 `cmp qword ptr [rsp+0x1a0], 0xd` + 디컴 lane_economy.md:1437 `param_5 == 0xd` — exe 5번째 인자도 EntityType 태그 i64(승격 동일)",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§4 G12 6건 중 169/170 consts[2] 는 게이트 결함(srclinebase._term_dbg 가 여러 줄 switch 의 첫 줄에서 !dbg 를 찾아 None → phi 인입 구제 미발화)이라 오탐. 게이트 수정: 종결자가 `switch` 면 `]` 로 닫히는 줄까지 읽어 !dbg 를 잡을 것",
+  "§4 G16 [167] p[0] P4 는 paramrole.is_sret_arg 가 `writeonly` 를 요구해 생긴 오탐 — 167 %0 은 `dead_on_unwind noalias nonnull writable captures(none) dereferenceable(32)` 로 writeonly 가 없다(RunAway::get_input 을 invoke 로 부르는 경로 때문). 판정식을 `dead_on_unwind && writable` 또는 「%0 이 콜리 sret 인자로 전달됨」으로 완화할 것",
+  "지시문 ⑥ 「169/170 exe 5 vs IR 4」 — 확인됨. 분해된 것은 data 가 아니라 **player → (info.team, info.position 태그)** 다(호출부 `mov rcx, r15 · mov edx, r12d`). 지시가 「어느 인자가 승격/제거됐는지 확정」이라고만 해 방향은 맞았다",
+  "MIG\\argscan.py 가 `mov eax, N ; call __chkstk ; sub rsp, rax` 프롤로그(큰 프레임 · 165 0xe29b40 sub=0x1318)에서 `int(' rax')` ValueError 로 죽는다 — 로컬 보정판(scratchpad argscan2.py: 직전 `mov eax, imm` 을 sub 값으로)으로 우회. 도구에 반영 요망",
+  "지시문 ② 「Option<SmallActionPlay> 184B(태그 +0xb1)」 — 이 배치 7함수 중 Option<SmallActionPlay> 를 반환·저장하는 함수는 없다(165 는 &SmallActionPlay 읽기만). variant 별 live 표는 tcxdict 로 산출해 보고서에만 실었다(적용할 명세 칸 없음 = 표기 불가가 아니라 대상 부재)",
+  "170 notes[0] 문면 `L939/935/938/951` 은 세르펜판 줄번호 잔재 — 에픽판은 L939/941/944/957 (m15.ll:51548 939 · 51571 941 · 51574 944 · 51588 957). notes 는 patch 로 못 고치니 메인이 반영 요망"
+ ]
+}

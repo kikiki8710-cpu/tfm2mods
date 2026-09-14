@@ -446,5 +446,149 @@
   "line": 0,
   "from": "invoke fastcc noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check31should_add_self_etc_buff_action(",
   "to": "invoke noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check31should_add_self_etc_buff_action("
+ },
+ {
+  "raw": true,
+  "note": "r14 #legacy8sub_plan6battle16v48_on_cast_line 노출(2026-09-14): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r14",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line(",
+  "to": "define noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트 4곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "invoke fastcc noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line(",
+  "to": "invoke noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 2곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "call fastcc noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line(",
+  "to": "call noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line("
+ },
+ {
+  "raw": true,
+  "note": "r14 #tion34has_current_explicit_minion_action 노출(2026-09-14): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r14",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition34has_current_explicit_minion_action(",
+  "to": "define noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition34has_current_explicit_minion_action("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 2곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "call fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition34has_current_explicit_minion_action(",
+  "to": "call noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition34has_current_explicit_minion_action("
+ },
+ {
+  "raw": true,
+  "note": "r14 #e_economy29line_champion_trade_allowance 노출(2026-09-14): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r14",
+  "line": 0,
+  "from": "define internal fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance(",
+  "to": "define noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 1곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance(",
+  "to": "call noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance("
+ },
+ {
+  "raw": true,
+  "note": "r14 #rNtB2_14LineGankerPlan16make_gank_battle 노출(2026-09-14): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r14",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle(",
+  "to": "define void @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 1곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "call fastcc void @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle(",
+  "to": "call void @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트 6곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle(",
+  "to": "invoke void @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle("
+ },
+ {
+  "raw": true,
+  "note": "r14 #9SmallActionLaneMinionPosition9get_input 노출(2026-09-14): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r14",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get_input(",
+  "to": "define void @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get_input("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트 1곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get_input(",
+  "to": "invoke void @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get_input("
+ },
+ {
+  "raw": true,
+  "note": "r14 #rpen_hunt29calculate_serpen_action_score 노출(2026-09-14): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r14",
+  "line": 0,
+  "from": "define internal fastcc noundef range(i64 -9223372036854775808, 206) i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt29calculate_serpen_action_score(",
+  "to": "define noundef range(i64 -9223372036854775808, 206) i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt29calculate_serpen_action_score("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 3곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt29calculate_serpen_action_score(",
+  "to": "call noundef i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt29calculate_serpen_action_score("
+ },
+ {
+  "raw": true,
+  "note": "r14 #n9epic_hunt27calculate_epic_action_score 노출(2026-09-14): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r14",
+  "line": 0,
+  "from": "define internal fastcc noundef range(i64 -9223372036854775808, 206) i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt27calculate_epic_action_score(",
+  "to": "define noundef range(i64 -9223372036854775808, 206) i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt27calculate_epic_action_score("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 3곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt27calculate_epic_action_score(",
+  "to": "call noundef i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt27calculate_epic_action_score("
+ },
+ {
+  "raw": true,
+  "note": "r14 #economy31line_projected_punish_damage_at 노출(2026-09-14): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r14",
+  "line": 0,
+  "from": "define internal fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at(",
+  "to": "define noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 1곳.",
+  "file": "r14",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at(",
+  "to": "call noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at("
  }
 ]

@@ -100,7 +100,14 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          # ★r13(i=112~133 · 행동 계층 잎 22) · 2026-09-14 10:0x 판 1(설치 128/128 · 21/21 발화(117 camp_idx 는 프롤로그 불가) · 482.6s 판 종료 1회 · _r13_probe1\probe20_r13_run1.txt)
          112: 94620056, 118: 48068657, 121: 23421215, 113: 15789797, 132: 14601407, 127: 13265950, 115: 12859828, 114: 10113175,
          123: 6569837, 128: 3350410, 124: 2447507, 126: 2447507, 130: 2447507, 129: 2378034, 125: 2335365, 120: 1690592, 119: 1600262,
-         133: 906347, 122: 214163, 131: 120854, 116: 7336}
+         133: 906347, 122: 214163, 131: 120854, 116: 7336,
+         # ★r14(i=134~179 · 행동 계층 중간 46) · 2026-09-14 12:5x 판 1b(설치 175/175 · CS_SLOT0 160→288 · 43/46 발화 · 494.9s 판 종료 1회 · _r14_probe1\probe20_r14_run1b_all.txt) · 미발화 3 = i157 AroundPositionBush::get_input · i172 Positioning::get_input · i173 AroundHide::get_input(이 리플레이 한정)
+         135: 248668022, 141: 24459773, 145: 17490666, 165: 16580306, 143: 16326836, 142: 13053311, 134: 10753487, 162: 9938109,
+         179: 9174009, 161: 9120195, 147: 7121040, 159: 5990312, 158: 5943980, 171: 4301956, 176: 3487023, 144: 3145697,
+         178: 2338856, 156: 1069592, 149: 971545, 151: 907772, 136: 745879, 148: 668497, 150: 587665, 163: 576229,
+         153: 557042, 164: 483282, 167: 477948, 139: 411655, 137: 397019, 170: 347079, 152: 286586, 169: 233586,
+         138: 225596, 175: 184360, 177: 164297, 154: 120984, 168: 101215, 174: 99645, 140: 39593, 160: 34470,
+         146: 13315, 166: 4175, 155: 4039}
 #   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[90] @0xcaf9f0 · ~~AUX[20]~~ 09-13 이동)의
 #   재측정치 = **27,416,789**(probe20.txt 참조) — 명세 함수가 아니므로 이 표에 넣지 않는다.
 # ★★**이 함수들의 1단계 발화수는 무효다** — 그때 잰 주소가 **다른 함수**였다(2026-09-12 ghidra 확정).
@@ -116,6 +123,9 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
 #     무효 수치가 조용히 되살아난다(이 표가 존재하는 이유).
 INVALID_FIRE = {}
 DEAD = {7: u"미발화(재측정 확정치 0회)",
+        157: u"미발화(AroundPositionBush::get_input · 09-14 r14 판 1b 0회 — 이 리플레이 한정) — ★프로브는 유지",
+        172: u"미발화(Positioning::get_input · 09-14 r14 판 1b 0회 — 이 리플레이 한정) — ★프로브는 유지",
+        173: u"미발화(AroundHide::get_input · 09-14 r14 판 1b 0회 — 이 리플레이 한정) — ★프로브는 유지",
         57: u"미발화(handle_press_epic · 09-13 r9 판1 0회 — PressEpic 계열 · 이 리플레이 한정)",
         42: u"미발화(SinglePlanBattle = SingleLane 전용 · MOBA NA · 09-13 r8 판1 0회)", 47: u"미발화(handle_epic_line_change · 09-13 r8 판1 0회 — 이 리플레이 한정)",
         # ★재측정 전에는 `#10`·`#15` 의 0 을 믿을 수 없었다(틀린 주소에서 잰 0 이었다).
@@ -302,6 +312,16 @@ EXE_ABI = {
     #   디컴 `(*param_6)(param_4 + ((param_5-1)&~15) + 0x10)`). IR 사본은 vtable 에서 그 두 로드만 하므로(m15.ll 34643~34651)
     #   래퍼가 **가짜 vtable**(thread_local 0xa0B · +0x10 = a4 · +0x90 = a5)을 조립해 %4 로 넘긴다 — 원 포인터 복원이 아니라 재구성.
     129: [0, 1, 2, 3, ("VTABLE", [(0x10, 4, "u64"), (0x90, 5, "*const u8")])],
+    # r14(09-14 · 23차 F): Epic/SerpenPokeSubPlan::action_candidates_old — exe 6 인자(sret,self,version,rnd,player,data) · IR 7 의 %6 `parameter` 는 DeadArgElim(IR 사본도 안 읽음) → null.
+    174: [0, 1, 2, 3, 4, 5, "NULL"],
+    175: [0, 1, 2, 3, 4, 5, "NULL"],
+    # r14(09-14 · 23차 E): calculate_serpen/epic_action_score — exe 5 인자(rcx=player.info.team u64 · edx=info.position u32 · r8=data · r9=effect · [+0x20]=t)
+    #   vs IR 4(%0 &PlayerState 2528B · data · effect · t). IR 사본은 %0 에서 +0x930(team)·+0x9c0(position 태그)만 읽는다(m02.ll 65168~66027 · m15.ll 50588~51620 gep 전수)
+    #   → 가짜 PlayerState 2528B 에 두 필드만 채워 넘긴다(FAKE · VTABLE 의 일반화).
+    169: [("FAKE", 2528, [(0x930, 0, "u64"), (0x9c0, 1, "u32")]), 2, 3, 4],
+    170: [("FAKE", 2528, [(0x930, 0, "u64"), (0x9c0, 1, "u32")]), 2, 3, 4],
+    # r14(09-14 · 23차 B): has_current_explicit_minion_action — exe 4(rcx data · rdx player · r8 line · r9 target) · IR 5(version, data, player, line, target) → version DeadArgElim(exe 미사용 · IR 사본엔 2 를 준다)
+    144: [("CONST", 2), 0, 1, 2, 3],
 }
 
 SELF_RESTORE_OFF = 0
@@ -309,6 +329,19 @@ BISECT_NO_STRFREE = 0   # ★임시 이분 스위치(2026-09-13) — 0 으로 �
 BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — 중첩 Vec 누락) — 0 유지
 
 SELF_RESTORE = {
+    # ★r14(09-14) get_input 계열 `&mut self`(a1 · sret 이 a0) — PathFinder Box 는 BOX_SUBST
+    168: (1, 120, [], 8),
+    176: (1, 152, [], 8),
+    177: (1, 120, [], 8),
+    178: (1, 184, [], 8),
+    179: (1, 136, [], 8),
+    167: (1, 128, [], 8),
+    157: (1, 96, [], 8),   # SmallActionAroundPositionBush 96B(23차 C · pf@0x18)
+    172: (1, 112, [], 8),
+    173: (1, 120, [], 8),
+    151: (1, 24, [], 8),
+    153: (1, 24, [], 8),
+    154: (1, 24, [], 8),
     111: (0, 6168, [], 8),   # #120 LegacyPlanHandler::update — 최상위 진입점 · 힙 표면 = heapsurf(depth 5) 20 필드 + plan(HEAP_SUBST 3 명세)
     88: (0, 6168, [], 8),    # #93 v2_apply_assign_commit — self 쓰기 = 0x1800~0x1803 래치뿐(힙 없음) · plan 은 a5 별도
     100: (0, 1064, [], 8),   # #105 update_steal — TeamPlan(chats·completed_steal_sessions 는 HEAP_SUBST)
@@ -394,6 +427,19 @@ SELF_RESTORE = {
 #   (호출자가 분기) ⟹ 상태 + 반환을 둘 다 판정한다.
 LIVE_RET = {44, 83, 97}   # 83 = sret 열거형(SubPlan) 과 self 부작용을 둘 다 판정(09-14)
 SELF_DIFF = {
+    # ★r14(09-14) get_input 계열 — PathFinder key ptr·패딩 skip(Box 포인터 8B 는 BOX_SUBST 자동)
+    168: {"skip": [(40, 8), (105, 3), (110, 2)]},
+    176: {"skip": [(16, 8), (81, 3), (86, 2)]},
+    177: {"skip": [(48, 8), (113, 3), (118, 2)]},
+    178: {"skip": [(104, 8), (169, 3), (174, 2)]},
+    179: {"skip": [(56, 8), (121, 3), (126, 2)]},
+    167: {"skip": [(48, 8), (113, 3), (118, 2)]},
+    157: {"skip": [(24, 8), (89, 3), (94, 2)]},
+    172: {"skip": [(40, 8), (105, 3), (110, 2)]},
+    173: {"skip": [(48, 8), (113, 3), (118, 2)]},
+    151: {"skip": []},
+    153: {"skip": []},
+    154: {"skip": []},
     "v3_epicops_buff_window": {
         # `chats` 의 cap@0xc0 · ptr@0xc8 · len@0xd0 세 칸(24B). 버퍼가 서로 다르니 cap/ptr 은
         # 당연히 다르다. ★`len` 과 **내용**은 제외가 아니라 **따로 비교**한다(아래 생성 코드).
@@ -483,7 +529,7 @@ SELF_DIFF = {
     #   3차: 2차에서 DIFF 93.8%(1,132/1,207), 첫 갈림 self+0x778 = sub_plan(0x768, SubPlan 72B **니치 열거형 17 variant**)+0x10.
     #   `SubPlan::merge(self+0x768, …)` 가 in-place 갱신 = 같은 스택 잔재 부류. tcx 전수상 **소유 필드 없음**(POD) ⟹
     #   힙 위험은 없고 페이로드만 제외(태그 8B 는 비교).
-    11: {"skip": [(0x5e8 + 0x8, 384 - 8), (0x768 + 0x8, 72 - 8)]},
+    11: {"skip": [(0x5e8 + 0x8, 384 - 8), (0x768 + 0x8, 72 - 8), (0xf8 + 0x3f8, 24)]},   # 09-14 누적 마스크: 안쪽 sweep 이 V54Counter(0x4f0..0x508) 를 두 번 증가(r14 판 3 실측 5건)
     # ★#12 `handle_chat` — 요소 `PendingTraceEvent`(184B) = `event: TraceEventType`(176B) + `tick: usize`@0xb0.
     #   `TraceEventType` 은 **176B 니치 열거형 16 variant**(판별자 enum+0x0 8B ·
     #   niche_start = 0x8000000000000000) ⟹ **태그의 하위 1바이트 = variant idx** 다(0..15).
@@ -494,7 +540,7 @@ SELF_DIFF = {
     12: {
         # plan 페이로드는 본체 루프에서 빼고 `ENUM_LIVE[12]`(structlive) 가 variant 조건부로 정밀 비교(2026-09-13 범위한정 해제 =
         # 1,577,476 DIFF 0). sub_plan 은 이 경로가 안 건드려 본체 루프가 원시 비교한다.
-        "skip": [(0x5e8 + 0x8, 384 - 8)],
+        "skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)],   # 09-14 누적 마스크: 안쪽 sweep(handle_chat_inner 등)이 V54Counter 를 두 번 증가(판 3 실측 20,233건)
     },
 }
 
@@ -557,7 +603,13 @@ ELEM_LIVE = {
     "pchat": None, "wchat": None,   # 아래서 chat 맵으로 채운다
     "i32u2": {"live": [(0x0, 12, []), (0x10, 8, [])], "str": []},   # (i32, usize, usize) = IR `{ i64, i32, [1 x i32], i64 }`(m13.ll:21420) — i64@0 · i32@8 · 패딩@12 · i64@16 (09-14 판 5 실측 self+0x828[3]+12)
     "tup9": {"live": [(0, 9, [])], "str": []},
-    "jt16": {"live": [(0, 1, []), (8, 8, [])], "str": []},   # (JungleType, usize) = IR `{ i8, [7 x i8], i64 }`(m04.ll:28477) — 소형이 **앞** · +1..8 패딩 (09-14 판 7 실측 self+0x608[0]+1)
+    "jt16": {"live": [(0, 1, []), (8, 8, [])], "str": []},
+    # ★r14(09-14): `SmallActionPlay` 184B(태그 +0xb1 1B 니치 · 3~19 · AroundPosition 은 untagged = 그 자리가 position_eval_purpose 0..8) —
+    #   variant 별 live 는 `::new` 의 `initializes`(r14 명세 배치 A~H · 22차 B): Attack/Skill/Skill2 15~17 = 0..0x11 · RunAway 3 = (0,56)+0x7d+(0x80,4) ·
+    #   Around 5 = (0,56)+0x7d+(0x80,2) · AroundRegion 7 = (0,0x30)+0x75 · LaneMinionPosition 13 = (0,0x30)+0x75+0x78 · AroundPosition(0..8) = 태그가 3/5 와 겹쳐 제외 ·
+    #   그 외(Recall 4·AroundHide 6·AroundRunAway 8·Positioning 9·AroundPositionBush 11·AroundBush 12·Trace 14·Ult 18·Stop 19) = 태그만(내용 미확정 → 과소 비교 · 23차 뒤 보강).
+    "sap": {"live": [(0xb1, 1, []), (0x0, 0x11, [0xf, 0x10, 0x11]), (0x0, 56, [0x3, 0x5]), (0x7d, 1, [0x3, 0x5]), (0x80, 4, [0x3]), (0x80, 2, [0x5]),
+                     (0x0, 0x30, [0x7, 0xd]), (0x75, 1, [0x7, 0xd]), (0x78, 1, [0xd])], "str": []},   # untagged AroundPosition(0..8) 은 3/5 와 겹쳐 Vec 맵에서 제외(sret Option 은 SRET_LIVE 로)   # (JungleType, usize) = IR `{ i8, [7 x i8], i64 }`(m04.ll:28477) — 소형이 **앞** · +1..8 패딩 (09-14 판 7 실측 self+0x608[0]+1)
     "dive104": {"live": [(0, 0x62, [])], "str": []},   # V50DiveEpisode 104B — 0x62..0x68 패딩(tcxdict 필드 22 · 09-14 판 6 실측 self+0x888[0]+98)   # (usize, LineType) 16B — +9..16 패딩(09-14 판 4 실측: 0x870 v46_lane_recall_trigger_ticks)
     "u8x3": {"live": [(0x0, 8, []), (0x8, 3, [])], "str": []},
     "pte": {"live": [(0x00, 8, []), (0x80, 5, [0x0f]), (0xb0, 8, [])],
@@ -623,6 +675,44 @@ HEAP_SUBST = {
     12: [_BIGPLAN_SPEC,
          {"off": 0, "tags": None, "vecs": [(0x7c8, 24, "chat"), (0x858, 184, "pte")]}],
 }
+# ⚠141 SmallActionPlay::get_input(디스패처)은 제외 — untagged AroundPosition(+0xb1 = position_eval_purpose 0..8)이 RunAway 3/Around 5 태그와 겹쳐 pf Box 위치를 못 가른다(변종별 get_input 을 직접 검증 · 141 자체는 23차 A 오라클 7/7).
+# ★★BOX_SUBST(09-14 r14 행동 계층 중간): self 소유 **Box**(단일 포인터 · 고정 크기)를 내 힙으로 치환 — `Option<PathFinder>`(72B: path Box<[(u64,u64);70]>@+0x28 1120B ·
+#   planned_verdict Box<[u8;70]>@+0x30 70B · None 니치 = +0x45 == 2) 를 drop/재생성하는 around/trace/lane_minion get_input 들.
+#   값 = {idx: [(off, size, align, (tag_off, none_val)|None, (len_off, esz)|None)]} — off/tag_off/len_off 는 self 절대 오프셋.
+#   내용 비교 = self+len_off 값 × esz 바이트(path_len 만큼 · 나머지는 미초기화). 포인터 8B 는 본체 루프에서 자동 skip.
+BOX_SUBST = {
+    168: [(80, 1120, 8, [(109, 2, 'eq')], (56, 16)), (88, 70, 1, [(109, 2, 'eq')], (56, 1))],
+    176: [(56, 1120, 8, [(85, 2, 'eq')], (32, 16)), (64, 70, 1, [(85, 2, 'eq')], (32, 1))],
+    177: [(88, 1120, 8, [(117, 2, 'eq')], (64, 16)), (96, 70, 1, [(117, 2, 'eq')], (64, 1))],
+    178: [(144, 1120, 8, [(173, 2, 'eq')], (120, 16)), (152, 70, 1, [(173, 2, 'eq')], (120, 1))],
+    179: [(96, 1120, 8, [(125, 2, 'eq')], (72, 16)), (104, 70, 1, [(125, 2, 'eq')], (72, 1))],
+    167: [(88, 1120, 8, [(117, 2, 'eq')], (64, 16)), (96, 70, 1, [(117, 2, 'eq')], (64, 1))],
+    157: [(64, 1120, 8, [(93, 2, 'eq')], (40, 16)), (72, 70, 1, [(93, 2, 'eq')], (40, 1))],
+    172: [(80, 1120, 8, [(109, 2, 'eq')], (56, 16)), (88, 70, 1, [(109, 2, 'eq')], (56, 1))],
+    173: [(88, 1120, 8, [(117, 2, 'eq')], (64, 16)), (96, 70, 1, [(117, 2, 'eq')], (64, 1))],
+}
+
+
+def box_specs(i):
+    return [(b[0], b[1], b[2], b[3], b[4]) for b in (BOX_SUBST.get(i) or [])]
+
+def _box_none_expr(cond, base):
+    u"""BOX cond → Rust bool 식(참 = 이 Box 를 건드리지 않는다). cond = None | (off, val) | [(off, val, "eq"|"ne"), …]"""
+    if not cond:
+        return u"false"
+    if isinstance(cond, tuple):
+        cond = [(cond[0], cond[1], "eq")]
+    parts = []
+    for (o, v, op) in cond:
+        if op == "nin":   # v = 집합 — 그 안에 없으면 skip
+            parts.append(u"(!matches!(*((%s + %#x) as *const u8), %s))" % (base, o, u" | ".join(str(x) for x in v)))
+        else:
+            parts.append(u"(*((%s + %#x) as *const u8) %s %d)" % (base, o, u"==" if op == "eq" else u"!=", v))
+    return u" || ".join(parts)
+
+
+
+
 # (호환) 옛 이름
 PLAN_SUBST = HEAP_SUBST
 
@@ -682,6 +772,9 @@ ENUM_LIVE = {
 #   같은 Bump 에서 **따로** 할당하니 다르고, 판정은 **len + 원소 live 바이트**다(원소의 &Entity 는 게임 엔티티 주소라 양쪽 같다).
 #   부작용 = 내 사본이 같은 Bump 에 한 번 더 할당한다(아레나는 틱마다 리셋 · 게임 값엔 영향 없음).
 #   값 = {spec idx: {"ptr": off, "len": off, "esz": 원소 크기, "elem_live": [(off, len, [tags])]}}
+# SmallActionPlay 184B 원소 live(variant 별 · ELEM_LIVE "sap" 와 동일 · 태그 +0xb1)
+_SAP_EL = [(0xb1, 1, []), (0x0, 0x11, [0xf, 0x10, 0x11]), (0x0, 56, [0x3, 0x5]), (0x7d, 1, [0x3, 0x5]), (0x80, 4, [0x3]), (0x80, 2, [0x5]),
+           (0x0, 0x30, [0x7, 0xd]), (0x75, 1, [0x7, 0xd]), (0x78, 1, [0xd])]
 SRET_VEC = {
     41: {"ptr": 0x0, "len": 0x18, "esz": 24, "elem_live": [(0, 8, []), (8, 8, []), (16, 1, [])]},
     # r10 #97(i92) v46_flee_gate_check → (u8, Vec<usize, &Bump>) 40B: u8 태그@0(IR m04.ll `store i8 0..5, ptr %0`) · Vec 32B@8(memcpy 32B from %19).
@@ -692,6 +785,11 @@ SRET_VEC = {
     #   bump 할당이라 내 사본도 같은 pool 에서 할당 → 해제 없음(이중 free 무관). ptr/bump/cap 은 비교 안 함(len·원소만).
     114: {"ptr": 0x0, "len": 0x18, "esz": 184, "elem_live": [(0, 0x11, []), (0xb1, 1, [])]},   # 22차 B: ::new initializes((0,17)) → 0..0x11 (~~0x18~~)
     123: {"ptr": 0x0, "len": 0x18, "esz": 184, "elem_live": [(0, 0x11, []), (0xb1, 1, [])]},
+    # ★r14(09-14): bumpalo Vec<SmallActionPlay> — 원소 variant 별 live(태그 +0xb1 · `_SAP_EL`) · 158 line_minion_action_candidates · 159 battle_ally_action · 174/175 poke action_candidates_old
+    158: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    159: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    174: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    175: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
 }
 # ★★sret 버퍼가 **구조체(Option<구조체> 포함)** 인 함수(09-13 밤 · r9 #74 i69 `try_engage_dive` → `Option<BattlePlan>` 280B).
 #   structlive 잎(패딩·Vec 삼중항 제외 · 열거형 필드는 variant 조건부 · notin/hib 지원 = enumlive 와 같은 `_cond_rs`)으로 비교하고,
@@ -715,6 +813,7 @@ SRET_ENUM = {
     #   Some 은 BigPlan 니치 태그(2..17 · 밖 = DeathMatchBattle untagged)로 enumlive 비교. ⚠BigPlan 정본명 = plan_legacy::types::BigPlan(tcxdict).
     82: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},
     96: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},
+    155: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},   # r14 LineGankerPlan::make_gank_battle(internal · sret 384) → Option<BigPlan>(None=-1 · Some=Battle 9 + BattlePlan 280B)
 }
 PIN_ENUM_LIVE = {
     2: [(0x0, "game_ai::plan_legacy::sub_plan::SubPlan")],   # `#02` 인라인 arm 의 sret(SubPlan 72B) — pin02.rs
@@ -781,6 +880,8 @@ def self_restore_of(i, nm):
     return SELF_RESTORE.get(i)
 
 RET_LIVE = {
+    # r14(09-14): #143(i134) around::check_cell → `{i32 tag, i32 payload}` PathVerdict(0 Allow·1 Soft·2 Danger·3 Deadly·4 Priced) — 페이로드는 Priced 만 live(23차 F: 나머지 undef).
+    134: [4],
     # r13(09-14): #127(i118) base_attacking_minion_uncached → {i64 tag, i64 id}(P64: 0 None/1 Some) — None 경로 3곳 slot1 undef(22차 A 재확인 대상) → Some 만 slot1 비교.
     118: [1],
     6: [0, 1, 2, 3, 5, 6],
@@ -789,7 +890,25 @@ RET_LIVE = {
     99: [1, 2],
 }
 
+# ★r14(09-14): `Option<game_core::Input>` 32B — tag i64@0(-1 None · 0 Move · 1 Return · 2 Attack · 3 Skill · 4 Skill2 · 5 Ult) · Move = +8 x +16 y ·
+#   Attack~Ult = +8 InputTarget{tag i32@+8(0 Target/1 Dir/2 Pos/3 None) · +0x10 8B · Dir/Pos 만 +0x18 8B} · +0xc..0x10 패딩 · None 은 +0 만 기록.
+_OPT_INPUT = [(0x00, 8, []), (0x08, 16, [(0x00, 8, [0])]),
+              (0x08, 4, [(0x00, 8, [2, 3, 4, 5])]), (0x10, 8, [(0x00, 8, [2, 3, 4, 5]), (0x08, 4, [0, 1, 2])]), (0x18, 8, [(0x00, 8, [2, 3, 4, 5]), (0x08, 4, [1, 2])])]
 SRET_LIVE = {
+    # ★r14 행동 계층 중간(09-14): get_input 계열 15 = Option<Input>(SmallActionPlay 141 · Skill 151 · Skill2 153 · Ult 154 · AroundPositionBush 157 · abstract skill 163/skill2 164 ·
+    #   LaneMinionPosition 167 · AroundBush 168 · Positioning 172 · AroundHide 173 · Trace 176 · AroundRegion 177 · AroundPosition 178 · Around 179)
+    141: _OPT_INPUT, 151: _OPT_INPUT, 153: _OPT_INPUT, 154: _OPT_INPUT, 157: _OPT_INPUT, 163: _OPT_INPUT, 164: _OPT_INPUT,
+    167: _OPT_INPUT, 168: _OPT_INPUT, 172: _OPT_INPUT, 173: _OPT_INPUT, 176: _OPT_INPUT, 177: _OPT_INPUT, 178: _OPT_INPUT, 179: _OPT_INPUT,
+    # r14 145 SmallActionPlay::evaluation_position → Option<(u64,u64)> 24B(tag 0/1 · Some 만 +8/+16)
+    145: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [1])])],
+    # r14 156 v27_objective_discipline_action → Option<SmallActionPlay> 184B: 태그 +0xb1(-1 None · 3 RunAway(0..56·0x7d·0x80..0x84) · 0..8 = untagged AroundPosition(position_eval_purpose · 보수적 0..0x20))
+    #   ⚠AroundPosition 의 purpose 3/5 는 RunAway/Around 태그와 겹친다 — 갈리면 트리아지.
+    156: [(0xb1, 1, []), (0x00, 56, [(0xb1, 1, [3])]), (0x7d, 1, [(0xb1, 1, [3])]), (0x80, 4, [(0xb1, 1, [3])]), (0x00, 0x20, [(0xb1, 1, [0, 1, 2, 4, 5, 6, 7, 8])])],
+    # r14 161 lane_minion_position_action → Option<SmallActionPlay> 184B: -1 None · 13 LaneMinionPosition(0..0x30 · 0x75 pf tag · 0x78 purpose)
+    161: [(0xb1, 1, []), (0x00, 0x30, [(0xb1, 1, [13])]), (0x75, 1, [(0xb1, 1, [13])]), (0x78, 1, [(0xb1, 1, [13])])],
+    # r14 140/146 SmallActionAroundBush::new_* → 120B 생성자(live = 0..0x28 · 0x6d pf tag · 0x70 out_line · 23차 A)
+    140: [(0x00, 0x28, []), (0x6d, 1, []), (0x70, 1, [])],
+    146: [(0x00, 0x28, []), (0x6d, 1, []), (0x70, 1, [])],
     # ★r13 행동 계층 잎(09-14): sret 3 — 명세 writes 로 확정한 살아있는 슬롯.
     128: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [1])])],   # #137 SmallActionTrace::expected_goal_position → Option<(u64,u64)> 24B(tag 0/1 · Some 만 +8/+16 · m02.ll 9027~9035)
     121: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [0])])],   # #130 safe_move_avoiding_enemy_well → Option<Input> 32B(tag@0 8B: -1 None / 0 Some(Move) · +8 x +16 y · 24..32 미기록)
@@ -930,7 +1049,8 @@ MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "De
               107: {7: "DebugFrameData"}, 108: {7: "DebugFrameData"}, 109: {5: "LegacyPlanHandler", 6: "DebugFrameData"}, 110: {5: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
-SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280, 105: 392,
+SRET_FORCE = {167: 32, 156: 184, 161: 184, 140: 120, 146: 120, 145: 24, 155: 384,   # r14(09-14)
+              u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280, 105: 392,
               80: 280, 98: 16}   # r10: #85(i80) try_engage internal → Option<BattlePlan> 280B · #103(i98) evaluate_steal_for_target internal → 16B   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
     "LegacyPlanHandler": u"#74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만)",
@@ -1225,6 +1345,8 @@ def main():
                #   `define { i64, i64 } @gc::setting4item17item_index_by_key(...)` 처럼
                #   **external + ccc + 직접 반환** 선례가 실재한다(2026-09-12 확인) ⟹ rax:rdx.
                "P64" if re.fullmatch(r"\{ i64, i64 \}", g["ret"]) else
+               # r14(09-14): `{ i32, i32 }` ScalarPair(eax:edx) — #134 check_cell 의 PathVerdict(태그 i32 + Priced 페이로드 i32).
+               "P32" if re.fullmatch(r"\{ i32, i32 \}", g["ret"]) else
                "()" if g["ret"].startswith("void") else None)
         if rty is None:
             why.append(u"반환 `%s` 미지원(전용 래퍼 필요)" % g["ret"])
@@ -1455,6 +1577,10 @@ def main():
         w(u"/// `{ i64, i64 }`(ScalarPair · rax:rdx) 반환용. `repr(Rust)` 유지(위 `P8` 와 같은 이유).")
         w(u"#[derive(PartialEq, Debug, Clone, Copy)] pub struct P64 { pub a: i64, pub b: i64 }")
         w(u"")
+    if any(r["rty"] == "P32" for r in rows):
+        w(u"/// `{ i32, i32 }`(ScalarPair · eax:edx) 반환용(r14 #134 PathVerdict). `repr(Rust)` 유지.")
+        w(u"#[derive(PartialEq, Debug, Clone, Copy)] pub struct P32 { pub a: i32, pub b: i32 }")
+        w(u"")
     # ── sret 살아있는-구간 비교기 ───────────────────────────────────────────
     #   ★전 바이트 비교가 왜 안 되는지는 위 `SRET_LIVE` 주석 참조(패딩·미사용 자리가 갈린다).
     if any(r.get("live") for r in rows):
@@ -1519,6 +1645,11 @@ def main():
         w(u"#[repr(align(16))] struct A16([u8; 320]);")
         w(u"")
     for k, r in enumerate(rows):
+        for fi, fk in enumerate([x for x in (EXE_ABI.get(r["idx"]) or []) if isinstance(x, tuple) and x[0] == "FAKE"]):
+            w(u"thread_local! {")
+            w(u"    /// `#%02d` — exe 가 구조체 참조를 필드 스칼라로 승격해 넘기므로 IR 사본용 **가짜 구조체**(%dB · 채우는 칸만 유효 · 나머지 0)." % (r["idx"], fk[1]))
+            w(u"    static FK%d_%d: core::cell::UnsafeCell<[u8; %d]> = core::cell::UnsafeCell::new([0u8; %d]);" % (k, fi, fk[1], fk[1]))
+            w(u"}")
         if EXE_ABI.get(r["idx"]) and any(isinstance(s, tuple) and s[0] == "VTABLE" for s in EXE_ABI[r["idx"]]):
             w(u"thread_local! {")
             w(u"    /// `#%02d` — exe 가 vtable 포인터를 로드값 스칼라로 승격해 넘기므로 IR 사본용 **가짜 vtable**(0xa0B · 채우는 칸만 유효)." % r["idx"])
@@ -1551,6 +1682,9 @@ def main():
             w(u"    /// `#%02d` 명세 %d 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부." % (r["idx"], si))
             w(u"    ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.")
             w(u"    static PV%d_%d: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));" % (k, si))
+        for bj, (boff_, bsz_, bal_, bcond_, blive_) in enumerate(box_specs(r["idx"])):
+            w(u"    /// `#%02d` Box %d(self+%#x · %dB) 의 **게임 호출 전** 내용 + 유효 여부(BOX_SUBST)." % (r["idx"], bj, boff_, bsz_))
+            w(u"    static BX%d_%d: core::cell::UnsafeCell<([u8; %d], bool)> = core::cell::UnsafeCell::new(([0u8; %d], false));" % (k, bj, bsz_, bsz_))
         w(u"    /// `#%02d` 의 `Vec` 사본 버퍼(용량 %d개) + 게임과 같은 len." % (r["idx"], _cap))
         w(u"    /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).")
         w(u"    static VB%d: core::cell::UnsafeCell<([u8; %d], usize, bool)> = core::cell::UnsafeCell::new(([0u8; %d], 0, false));" % (k, _cap * _esz, _cap * _esz))
@@ -1688,7 +1822,8 @@ def main():
         # ★★exe ABI 가 IR 과 다르면 **래퍼는 exe 순서**로 받고 **내 사본은 IR 순서**로 부른다.
         abi = EXE_ABI.get(r["idx"])
         if abi:
-            _ex = [x for x in abi if isinstance(x, int)] + [ei for x in abi if isinstance(x, tuple) and x[0] == "VTABLE" for (_o, ei, _t) in x[1]]
+            _ex = [x for x in abi if isinstance(x, int)] + [ei for x in abi if isinstance(x, tuple) and x[0] == "VTABLE" for (_o, ei, _t) in x[1]] \
+                + [ei for x in abi if isinstance(x, tuple) and x[0] == "FAKE" for (_o, ei, _t) in x[2]]
             nexe = max(_ex) + 1
             etys = [None] * nexe
             for ir_i, src in enumerate(abi):
@@ -1697,15 +1832,26 @@ def main():
                 elif isinstance(src, tuple) and src[0] == "VTABLE":
                     for (_o, ei, ty) in src[1]:
                         etys[ei] = ty
+                elif isinstance(src, tuple) and src[0] == "FAKE":
+                    for (_o, ei, ty) in src[2]:
+                        etys[ei] = ty
             etys = [x or "*const u8" for x in etys]
             sig = ", ".join("a%d: %s" % (j, ty) for j, ty in enumerate(etys))
             call = ", ".join("a%d" % j for j in range(nexe))        # 게임 원본 = exe 순서 그대로
             def _my(s):
                 if s == "RNG":
                     return "RNG%d.with(|c| c.get() as *const u8)" % k
+                if s == "NULL":   # r14(09-14): exe 가 DeadArgElim 으로 버린 포인터 인자(IR 사본은 안 읽는다 · 174/175 `parameter`) — null 을 넘긴다
+                    return "core::ptr::null::<u8>()"
+                if isinstance(s, tuple) and s[0] == "CONST":   # exe 가 버린 스칼라 인자 — 상수(version 등)를 넘긴다
+                    return "%d" % s[1]
                 if isinstance(s, tuple) and s[0] == "VTABLE":
                     sets = " ".join("v[%d] = a%d as u64;" % (o // 8, ei) for (o, ei, _t) in s[1])
                     return "VT%d.with(|c| { let v = &mut *c.get(); %s v.as_ptr() as *const u8 })" % (k, sets)
+                if isinstance(s, tuple) and s[0] == "FAKE":
+                    fi = [j for j, x in enumerate(abi) if isinstance(x, tuple) and x[0] == "FAKE"].index(abi.index(s))
+                    sets = " ".join("core::ptr::write_unaligned(v.as_mut_ptr().add(%d) as *mut %s, a%d as %s);" % (o, ("u32" if ty == "u32" else "u64"), ei, ("u32" if ty == "u32" else "u64")) for (o, ei, ty) in s[2])
+                    return "FK%d_%d.with(|c| { let v = &mut *c.get(); %s v.as_ptr() as *const u8 })" % (k, fi, sets)
                 return "a%d" % s
             mycall = ", ".join(_my(s) for s in abi)        # 내 사본 = IR 순서
         else:
@@ -1760,6 +1906,14 @@ def main():
                 w(u"            core::ptr::copy_nonoverlapping(pz as *const u8, vb.0.as_mut_ptr(), ln * %d);" % _e0)
                 w(u"        } else { vb.1 = ln; vb.2 = ln + 2 <= %d; }" % (12288 // max(_e0, 1)))
                 w(u"    } });")
+        for bj, (boff_, bsz_, bal_, bcond_, blive_) in enumerate(box_specs(r["idx"]) if r.get("selfr") else []):
+            akx = r["selfr"][0]
+            w(u"    // ★Box %d: a%d+%#x 의 소유 Box 내용(%dB)을 **게임 호출 전에** 떠 둔다(BOX_SUBST)." % (bj, akx, boff_, bsz_))
+            w(u"    BX%d_%d.with(|c| { let bx = &mut *c.get(); bx.1 = false; if t {" % (k, bj))
+            w(u"        let none = %s;" % _box_none_expr(bcond_, u"a%d as usize" % akx))
+            w(u"        let p = core::ptr::read_unaligned((a%d as usize + %#x) as *const usize);" % (akx, boff_))
+            w(u"        if !none && p > 0x1000 { core::ptr::copy_nonoverlapping(p as *const u8, bx.0.as_mut_ptr(), %d); bx.1 = true; }" % bsz_)
+            w(u"    } });")
         for si, (boff, tags, vecs, harg) in enumerate(heap_specs(r["idx"]) if r.get("selfr") else []):
             ak0 = harg if harg is not None else r["selfr"][0]   # ★"arg" 명세는 그 인자를 base 로(09-14)
             w(u"    // ★명세 %d: a%d+%#x 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다." % (si, ak0, boff))
@@ -1862,6 +2016,13 @@ def main():
             w(u"            }")
             w(u"        }")
             w(u"    });")
+        for bj, (boff_, bsz_, bal_, bcond_, blive_) in enumerate(box_specs(r["idx"]) if r.get("selfr") else []):
+            akx = r["selfr"][0]
+            w(u"    // ★Box %d: 게임 호출 전 내용을 **내 힙 할당**에 복사해 포인터를 바꿔치기(내 사본의 drop 이 내 것을 해제하게)." % bj)
+            w(u"    BX%d_%d.with(|c| { let bx = &*c.get(); if bx.1 {" % (k, bj))
+            w(u"        if let Ok(l) = std::alloc::Layout::from_size_align(%d, %d) { let blk = std::alloc::alloc(l);" % (bsz_, bal_))
+            w(u"            if !blk.is_null() { core::ptr::copy_nonoverlapping(bx.0.as_ptr(), blk, %d); core::ptr::write_unaligned((a%d as usize + %#x) as *mut usize, blk as usize); } }" % (bsz_, akx, boff_))
+            w(u"    } });")
         sn = r.get("sret_n") or 0
         if sn:
             # ★sret — 게임은 **호출자 버퍼**(a0)에 이미 썼다. 내 사본은 **스크래치**에 쓰게 해서
@@ -1870,7 +2031,8 @@ def main():
               % ((sn + 7) // 8, sn))
             w(u"    let mut mb = [0u64; %d];                                                   // 내 사본 전용 출력 버퍼"
               % ((sn + 7) // 8,))
-            mcall = ", ".join(["mb.as_mut_ptr() as *const u8"] + ["a%d" % j for j in range(1, len(tys))])
+            # ★09-14 r14: EXE_ABI(NULL/FAKE/VTABLE) 가 있으면 IR 순서 mycall 의 첫 인자(sret)만 스크래치로 바꾼다
+            mcall = ", ".join(["mb.as_mut_ptr() as *const u8"] + (mycall.split(", ", 1)[1:] if abi else ["a%d" % j for j in range(1, len(tys))]))
             w(u"    let m = catch_unwind(AssertUnwindSafe(|| my_%d(%s)));" % (r["idx"], mcall))
         else:
             if BISECT_SKIP_MY and r["idx"] == 12:
@@ -1883,7 +2045,7 @@ def main():
             ak, sz, vecs, esz = r["selfr"]
             has_vec = bool(vecs)
             co, po, lo = vecs[0] if has_vec else (None, None, None)
-            skips = sdf.get("skip") or []
+            skips = list(sdf.get("skip") or []) + [(b[0], 8) for b in box_specs(r["idx"])]   # BOX_SUBST 포인터 8B 는 동적 skip
             if r["rty"] == "()":
                 w(u"    // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지")
                 w(u"    //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.")
@@ -1929,6 +2091,19 @@ def main():
                 w(u"        { let t = core::ptr::read_unaligned(sp.as_ptr().add(%#x) as *const u64);" % eoff)
                 w(u"          if let Some(d) = enumlive_cmp_%d_%d(t, sp.as_ptr() as usize + %#x, sq.as_ptr() as usize + %#x) {" % (r["idx"], ei, eoff, eoff))
                 w(u"              return Some(format!(\"self+{:#x}(tag {}){}\", %#x, t, d)); } }" % eoff)
+            for bj, (boff_, bsz_, bal_, bcond_, blive_) in enumerate(box_specs(r["idx"])):
+                w(u"        // ③′ Box %d(self+%#x) 내용 비교 — 게임 post 포인터 vs 내 포인터(둘 다 살아있음: 게임 것은 게임 소유 · 내 것은 아직 미해제)" % (bj, boff_))
+                w(u"        { let gn = %s; let mn = %s;" % (_box_none_expr(bcond_, u"sp.as_ptr() as usize"), _box_none_expr(bcond_, u"sq.as_ptr() as usize")))
+                w(u"          if gn != mn { return Some(format!(\"self+%#x.box%d.opt: g={} m={}\", if gn { \"None\" } else { \"Some\" }, if mn { \"None\" } else { \"Some\" })); }" % (boff_, bj))
+                w(u"          if !gn {")
+                w(u"            let gp = core::ptr::read_unaligned(sp.as_ptr().add(%#x) as *const usize); let mp = core::ptr::read_unaligned(sq.as_ptr().add(%#x) as *const usize);" % (boff_, boff_))
+                if blive_:
+                    w(u"            let n = (core::ptr::read_unaligned(sp.as_ptr().add(%#x) as *const usize) * %d).min(%d);" % (blive_[0], blive_[1], bsz_))
+                else:
+                    w(u"            let n = %dusize;" % bsz_)
+                w(u"            if gp > 0x1000 && mp > 0x1000 && gp != mp { for j in 0..n { let (gv, mv) = (*((gp + j) as *const u8), *((mp + j) as *const u8));")
+                w(u"                if gv != mv { return Some(format!(\"self+%#x.box%d[{}]: g={:02x} m={:02x}\", j, gv, mv)); } } }" % (boff_, bj))
+                w(u"          } }")
             for si, (boff, tags, vecs, harg) in enumerate(hs):
                 if harg is not None:
                     continue
@@ -1998,7 +2173,7 @@ def main():
                 w(u"            for e in 0..g_len {")
                 w(u"                let (gb, mb) = (g_ptr + e * %d, m_ptr + e * %d);" % (esz, esz))
                 if el:
-                    w(u"                let tag = *(gb as *const u8);")
+                    w(u"                let tag = *((gb + %d) as *const u8);" % (sdf.get("tag_off") or 0))   # r14: SmallActionPlay 태그 +0xb1
                     w(u"                for &(o, l, tg) in EL {")
                     w(u"                    if !tg.is_empty() && !tg.contains(&tag) { continue; }")
                     w(u"                    for j in o..o + l {")
@@ -2070,6 +2245,14 @@ def main():
                 w(u"            }")
                 w(u"        }")
                 w(u"    }")
+        for bj, (boff_, bsz_, bal_, bcond_, blive_) in enumerate(box_specs(r["idx"]) if r.get("selfr") else []):
+            akx = r["selfr"][0]
+            w(u"    // ★Box %d: 내 사본이 남긴 포인터를 해제(내 할당 또는 내 사본이 새로 만든 것). None 이면 이미 drop 됐다." % bj)
+            w(u"    BX%d_%d.with(|c| { let bx = &*c.get(); if bx.1 {" % (k, bj))
+            w(u"        let none = %s;" % _box_none_expr(bcond_, u"a%d as usize" % akx))
+            w(u"        let p = core::ptr::read_unaligned((a%d as usize + %#x) as *const usize);" % (akx, boff_))
+            w(u"        if !none && p > 0x1000 { if let Ok(l) = std::alloc::Layout::from_size_align(%d, %d) { std::alloc::dealloc(p as *mut u8, l); } }" % (bsz_, bal_))
+            w(u"    } });")
         if hs:
             ak = r["selfr"][0]
             w(u"    // ★내 사본이 남긴 소유 Vec 을 해제한다 — 이 시점에 그 포인터는 **전부 내 것**이다")
@@ -2139,9 +2322,9 @@ def main():
             # ⚠gb/mb 는 `[u64; N]` — 인덱스는 워드다. extra 는 **바이트** 단위이므로 포인터로 읽는다(판 3 실사고: `gb[0..1]` = 첫 워드 8B 비교 → 패딩 잔재 ff 가 갈림으로 찍힘).
             exc = u" ".join(u"else if (0..%d).any(|j| *((gb.as_ptr() as usize + %#x + j) as *const u8) != *((mb.as_ptr() as usize + %#x + j) as *const u8)) { Some(format!(\"extra+%#x g={:02x?} m={:02x?}\", core::slice::from_raw_parts((gb.as_ptr() as usize + %#x) as *const u8, %d), core::slice::from_raw_parts((mb.as_ptr() as usize + %#x) as *const u8, %d))) }" % (l, o, o, o, o, l, o, l) for (o, l) in ex)
             w(u"            let d: Option<String> = if false { None } %s else if gl != ml { Some(format!(\"len g={} m={}\", gl, ml)) }" % exc)
-            w(u"                else if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 { (|| { for e in 0..gl { let (eb, fb) = (gp + e * %d, mp + e * %d); let tag = *(eb as *const u8);"
-              % (sv["esz"], sv["esz"]))
-            w(u"                    for &(o, l, tg) in EL { if !tg.is_empty() && !tg.contains(&tag) { continue; } for j in o..o + l { let (gv, mv) = (*((eb + j) as *const u8), *((fb + j) as *const u8)); if gv != mv { return Some(format!(\"vec[{}]+{}: g={:02x} m={:02x}\", e, j, gv, mv)); } } } } None })() } else { None };")
+            w(u"                else if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 { (|| { for e in 0..gl { let (eb, fb) = (gp + e * %d, mp + e * %d); let tag = *((eb + %d) as *const u8);"
+              % (sv["esz"], sv["esz"], sv.get("tag_off") or 0))   # r14: tag_off(SmallActionPlay +0xb1)
+            w(u"                    for &(o, l, tg) in EL { if !tg.is_empty() && !tg.contains(&tag) { continue; } for j in o..o + l { let (gv, mv) = (*((eb + j) as *const u8), *((fb + j) as *const u8)); if gv != mv { return Some(format!(\"vec[{}](tag {:#x})+{}: g={:02x} m={:02x}\", e, tag, j, gv, mv)); } } } } None })() } else { None };")
             w(u"            if let Some(d) = d { note(%d, format!(\"#%02d %s 대조#{} 갈림(sret bump Vec len={}): {} | %s\", n, gl, d, %s)); } }"
               % (k, r["idx"], r["name"], " ".join(fmt[1:]), ", ".join(vals[1:])))
         elif sn and r.get("sret_struct"):
@@ -2180,7 +2363,7 @@ def main():
             w(u"            note(%d, format!(\"#%02d %s 대조#{} 갈림(sret %dB · +{:#x}): g={:02x?} m={:02x?} | %s\", n, off, &gb[..%d], &mb[..%d], %s)); } }"
               % (k, r["idx"], r["name"], sn,
                  " ".join(fmt[1:]), (sn + 7) // 8, (sn + 7) // 8, ", ".join(vals[1:])))
-        elif r["rty"] in ("P8", "P64") and RET_LIVE.get(r["idx"]) is not None:
+        elif r["rty"] in ("P8", "P64", "P32") and RET_LIVE.get(r["idx"]) is not None:
             # ★페어 반환 — 두 번째 칸은 **판별자에 따라 죽는다**(위 RET_LIVE 주석).
             arms = u" | ".join(str(t) for t in RET_LIVE[r["idx"]])
             w(u"        Ok(m) => { let bad = m.a != g.a || (matches!(g.a, %s) && m.b != g.b);" % arms)

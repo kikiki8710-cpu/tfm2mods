@@ -67,6 +67,7 @@ mod sweep20;
 mod abiprobe;
 /// `#02` midpin sweep(2026-09-13) — 게이트 mask bit19(0x80000).
 mod pin02;
+mod typeid;   // ★09-14 r14: rlib TypeId → exe TypeId 치환(sweep 설치 전 1회 · v57_summon_command_score 갈림 원인)
 /// `#02` midpin 전용 게이트 비트 = 0x4000000000000000 (gensweep20 자동배정 0..~60 밖 · 09-13).
 pub const PIN02_BIT: usize = 255;   // ★09-14: 마스크 u128→256비트([u64;4] · 슬롯 129 > 128) · pin02 는 최상위 비트 255 로 이동 (~~127~~)   // ★09-13 저녁: 마스크 u64→u128(sweep 슬롯 73개 > 64) · pin02 는 최상위 비트로
 
@@ -148,9 +149,9 @@ static ABI_GATE: std::sync::Mutex<String> = std::sync::Mutex::new(String::new())
 static ABI_LOG: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
 
 // ───────────────────────── WinAPI ─────────────────────────
-type BOOL = i32;
+pub type BOOL = i32;
 type DWORD = u32;
-type HMODULE = usize;
+pub type HMODULE = usize;
 
 #[repr(C)]
 #[derive(Default)]
@@ -169,7 +170,7 @@ struct MemBasicInfo {
 #[link(name = "kernel32")]
 extern "system" {
     fn GetModuleHandleW(name: *const u16) -> usize;
-    fn GetModuleHandleExW(flags: u32, addr: *const u16, h: *mut HMODULE) -> BOOL;
+    pub fn GetModuleHandleExW(flags: u32, addr: *const u16, h: *mut HMODULE) -> BOOL;
     fn GetModuleFileNameW(h: HMODULE, buf: *mut u16, sz: DWORD) -> DWORD;
     pub fn VirtualAlloc(addr: usize, sz: usize, typ: u32, prot: u32) -> usize;
     pub fn VirtualProtect(addr: usize, size: usize, new_protect: u32, old: *mut u32) -> BOOL;
@@ -455,6 +456,8 @@ unsafe fn do_install() {
     let (mask, gate) = sweep_mask();
     for k in 0..4 { SWEEP_MASK_W[k].store(mask[k], Ordering::Relaxed); }
     let mut slog = String::new();
+    // ★09-14: 내 DLL 이미지의 TypeId 상수를 exe 값으로 치환(내 사본의 `is::<T>()` 가 게임 객체와 비교되도록) — sweep 설치 전 1회.
+    if !mask_is_zero(&mask) { let tl = typeid::patch_typeids_in_self(); slog.push_str(&tl); }
     // ★bit62 = `#02` midpin(pin02.rs) — sweep20 슬롯 비트가 아니라 여기서 떼어 따로 건다.
     //   ⚠09-13 정정: 옛 bit19 는 gensweep20 이 발화수 순으로 **재배정**하는 칸이라 r7 편입 후 #24 와 충돌해
     //   #24 가 「미설치」로 빠졌다(실사고 · 판 08:40). 자동배정 범위 밖 고정 비트로 뺀다.
