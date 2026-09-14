@@ -1,0 +1,67 @@
+{
+ "name": "is_cleared",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle10is_cleared",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs",
+ "src_line": 841,
+ "ir_file": "m04.ll",
+ "ir_from": 62404,
+ "ir_to": 62516,
+ "aux": [],
+ "one_line": "정글 캠프가 '비어 있고(리스폰 대기) 내가 도착+offset+1초 후에도 아직 안 나오는가' 판정",
+ "signature": {
+  "abi": "define noundef zeroext i1 (외부 심볼, fastcc 아님, 인자 승격 없음 — 9인자 원형 그대로) · exe 0xd408e0 · tcx `game_ai::plan_legacy::old::is_cleared` v=pub(루트 재수출 아님) · mir=0 · ⚠IR 본체는 passive_jungle.rs:841 is_cleared 로 확정. team_plan.rs:40 Location 은 콜리 camp_idx 의 panic(m09.ll:54334) — IR 에서는 별도 call(L62447), exe 에서는 인라인된 것으로 추정(Location 4개 중 1개)",
+  "params": [
+   {"i": 1, "name": "camp", "type": "JungleType (i8, range 0..6)", "note": "camp_idx(camp) 인덱스 + camp_pos(camp) 좌표. Morgard(4)/Serpen(5) 를 넣으면 camp_idx 가 panic(team_plan.rs:40)"},
+   {"i": 2, "name": "team", "type": "usize (i64 %1)", "note": "next_respawn_tick[team] 인덱스(bounds <2, L62443/L62452) · camp_pos 의 `team == 0` 플래그(L62483). ⚠챔피언 조회는 이 team 이 아니라 player.info.team 을 씀"},
+   {"i": 3, "name": "_version", "type": "usize (i64 %2)", "note": "미사용(dbg_value poison L62409)"},
+   {"i": 4, "name": "_rnd", "type": "&mut StdRng (ptr %3, IR 속성 noalias readnone)", "note": "미사용 — readnone 이라 읽기·쓰기 0. writes 없음"},
+   {"i": 5, "name": "player", "type": "&PlayerState (2528B) noalias readonly", "note": "info.team(0x930)·info.position(0x9c0) 만 읽음"},
+   {"i": 6, "name": "data", "type": "&OperationData (24B) noalias readonly", "note": "cache(+0)·context(+8) 읽음. blackboard(+0x10) 미사용"},
+   {"i": 7, "name": "team_plan", "type": "&TeamPlan (1064B) readonly (noalias 아님, nonnull)", "note": "next_respawn_tick(0x378) 만 읽음"},
+   {"i": 8, "name": "offset", "type": "usize (i64 %7)", "note": "도착 예상틱에 더하는 여유틱(호출자 제공)"},
+   {"i": 9, "name": "_debug", "type": "&mut DebugFrameData (ptr %8, noalias readnone)", "note": "미사용 — readnone. writes 없음"}
+  ],
+  "returns": "bool (zeroext i1) — true=캠프가 클리어 상태로 봐야 함(가도 없음). false=(a)내 챔피언 없음 (b)현재틱 >= next_respawn_tick(캠프 살아있음/리스폰 완료) (c)도착+offset+tps 시점엔 리스폰됨. 반환 phi L62514 `[false,%14],[%71,%61],[false,%30]`",
+  "mutability": "&mut 인자 2개(_rnd, _debug)가 모두 IR 속성 readnone → 이 함수는 어떤 메모리도 쓰지 않는다(writes 전수 = 0건). 나머지 참조 인자는 readonly"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L62416~62417, player_champion[team] 인덱스(bounds <2 → L62422 panic)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag (Position, i32)", "note": "L62427~62429 Position::as_index 인라인(entity.rs:581) = 태그값 그대로 0..4 (tcxdict --enum Position: Top0 Jungle1 Mid2 Bottom3 …)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache (&AbstractGameWithCache)", "note": "L62430"},
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "L62479~62480"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos] (Option<&Entity>, null=None)", "note": "L62431~62434 gep 480 + team*40 + pos*8 (tcxdict AbstractGameWithCache 0x1e0)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "L62461"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "L62462~62465 슬롯 +0x28 = AbstractGame::tick (divtable). L62466·L62498 두 번 호출"},
+  {"base": "TeamPlan", "offset": "0x378", "name": "next_respawn_tick[team][camp_idx] ([[usize;4];2])", "note": "L62456~62459 gep 888 + team*32 + idx*8 (tcxdict TeamPlan 0x378)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map (&MapDef 28112B)", "note": "L62481~62482 → camp_pos"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting (&GameSetting 5432B)", "note": "L62499~62500"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "L62501~62502 (tcxdict GameSetting 0x12f8) — 여유 1초"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L62475~62476 (내 챔피언)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "L62477~62478"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "L62490~62491; 0 이면 L62510 panic_const_div_by_zero (passive_jungle.rs:854)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 842, "meaning": "player_champion 1차원 길이(팀 2) bounds check L62418 · next_respawn_tick 1차원 길이 bounds check L62443(:849). 판정값 아님"},
+  {"value": 4, "src_line": 849, "meaning": "next_respawn_tick 2차원 길이(캠프 4종) bounds check L62448 `icmp ult %27, 4` / L62471 panic len 4. camp_idx 반환 range(0,4) 라 실제 도달 불가"},
+  {"value": 0, "src_line": 853, "meaning": "`team == 0` → camp_pos 의 bool 인자(L62483~62484). 팀0 기준 캠프 좌표/대칭 선택"}
+ ],
+ "calls": [
+  "game_ai::plan_legacy::team_plan::camp_idx",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::utils::distance",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "fn is_cleared(camp, team, _version, _rnd, player, data, team_plan, offset, _debug) -> bool {   // passive_jungle.rs:841\n  // :842  내 챔피언(관측자 player 의 팀·포지션)\n  let champ = data.cache.player_champion[player.info.team][player.info.position.as_index()];   // L62416~62434 (bounds team<2)\n  if champ.is_none() { return false; }                                                      // :843 L62438~62439 → phi false\n  // :849  이 캠프의 다음 리스폰 예정틱 (팀 인자 기준)\n  let next_spawn_tick = team_plan.next_respawn_tick[team][camp_idx(camp)];                  // L62443~62459 (bounds team<2, idx<4; camp_idx: Rhino0 Mushroom1 Stump3 Bee2, Morgard/Serpen → panic team_plan.rs:40)\n  // :851  아직 리스폰 전인가 (tick < next_spawn) — 아니면 캠프가 살아 있는 것 → false\n  if !(game.tick() < next_spawn_tick) { return false; }                                     // L62461~62468 icmp ult %tick, %next → else phi false\n  // :853  캠프까지 거리\n  let dist = distance(champ.x, champ.y, map.camp_pos(camp, team == 0));                     // L62475~62488 (camp_pos 가 x,y 각각 1회씩 2번 call — 순수함수 CSE 미적용, 소스는 1회 호출로 추정)\n  // :854  이동 소요틱\n  let move_tick = dist / champ.stat_cached.move_speed;                                     // L62490~62496 udiv (speed 0 → panic)\n  // :855  도착(+offset+1초) 시점에도 아직 리스폰 전이면 '클리어됨'\n  next_spawn_tick > move_tick + offset + game.tick() + setting.tick_per_second               // L62498~62506 icmp ugt %34, (%62+%7+%63+%67)\n}   // :859\n\n[콜리 계약]\n  camp_idx(JungleType) -> usize 0..4 (m09.ll:54334): 0→0 1→1 2(Stump)→3 3(Bee)→2, 4/5 → panic\n  MapDef::camp_pos(&MapDef, JungleType, is_team0: bool) -> (u64,u64) (g07.ll:152570, TLS RefCell 메모 경유)\n  utils::distance(x1,y1,x2,y2) -> u64 = isqrt(dx²+dy²) (g06.ll:87697)\n  AbstractGame::tick (vtable +0x28) -> usize",
+ "knobs": [
+  {"what": "도착 여유 = tick_per_second(1초)", "where": "passive_jungle.rs:855 (L62501~62505, GameSetting+0x12f8)", "value": "tps(실전 60)", "effect": "리터럴이 아니라 세팅값. 여유를 늘리면 '곧 나올' 캠프도 클리어로 봐서 더 일찍 포기, 줄이면 캠프 앞에서 기다리는 쪽"},
+  {"what": "offset 인자", "where": "passive_jungle.rs:855 (%7)", "value": "호출자 제공", "effect": "값이 클수록 true 가 쉬워짐(=캠프를 클리어로 판정해 후보에서 제외)"}
+ ],
+ "unknown": [
+  "team 인자와 player.info.team 이 다른 경우(상대 팀 캠프 판정?)의 의도 — 본문은 챔피언 조회만 player.info.team, 나머지는 team 인자. 호출자 3곳의 전달값은 이 명세 범위 밖(잎 라운드)",
+  "camp_pos 가 2번 호출되는 것이 소스에서 튜플 1회 호출인지 2회 호출인지 — IR 로는 구분 불가(표기 불가). 동작(x,y 동일 호출)은 확정",
+  "_version/_rnd/_debug 는 IR 상 완전 미사용(readnone/poison) — 시그니처 호환용으로 추정",
+  "next_respawn_tick 의 의미(리스폰 '예정틱'인지 '마지막 클리어틱+쿨'인지)는 TeamPlan 갱신 지점의 몫 — 이 함수는 tick<next 를 '비어 있음' 으로 해석한다는 것만 확정"
+ ]
+}

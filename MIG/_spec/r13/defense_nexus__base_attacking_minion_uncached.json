@@ -1,0 +1,65 @@
+{
+ "name": "base_attacking_minion_uncached",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus30base_attacking_minion_uncached",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 279,
+ "ir_file": "m04.ll",
+ "ir_from": 62109,
+ "ir_to": 62401,
+ "aux": [
+  {"ir_file": "m04.ll", "ir_from": 66216, "ir_to": 66308, "what": "closure#1(:286) filter 술어 call_mut (Q 인스턴스, is_structure closure#0(:284) 인라인 포함). QQ/QQQ 인스턴스 m04.ll 66614~66711 / 66714~66816 은 참조 중첩만 다른 동일 술어"},
+  {"ir_file": "m11.ll", "ir_from": 23303, "ir_to": 23547, "what": "Chain<Copied<Iter>>::fold 모노 인스턴스 — min_by_key 본체(closure#1 필터·closure#2 map(distance_sq)·min_by_key::compare 인라인)"},
+  {"ir_file": "m11.ll", "ir_from": 33409, "ir_to": 33461, "what": "Copied<Iter<&Entity>>::try_fold<find::check<closure#1>> 인스턴스(Q) — 슬라이스 순회하며 closure#1::call_mut 호출. 34234~34286 / 34729~34781 은 QQ/QQQ 판"}
+ ],
+ "one_line": "우리 본진 구조물(넥서스·쌍둥이 타워)을 때리는 적 미니언 중 내 챔피언과 가장 가까운 놈의 id (없으면 None)",
+ "signature": {
+  "abi": "define hidden { i64, i64 } (ScalarPair, 외부 링키지 hidden, fastcc 아님, 인자 승격 없음) · exe 0xd405d0 · tcx v=in:game_ai::plan_legacy::old::defense_nexus (private) · mir=0",
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState (2528B) noalias readonly", "note": "info.team(0x930)·info.position(0x9c0) 만 읽음"},
+   {"i": 2, "name": "data", "type": "&OperationData (24B) noalias readonly", "note": "cache(+0) 만 읽음. context/blackboard 미사용"}
+  ],
+  "returns": "Option<usize> 를 ScalarPair {i64,i64} 로 반환 (L62159~62161 insertvalue). slot0(첫 i64) = Option 태그 0=None / 1=Some, slot1(둘째 i64) = Some 페이로드 minion.id(Entity+0x5c0). ★살아있는 바이트: Some 경로는 두 슬롯 모두, None 경로(넥서스 없음 L62157 `[undef,%12]` · 내 챔피언 없음 `[undef,%19]` · 후보 0명 L62397 `[undef,%72]/[undef,%73]`)는 slot0 만 유효하고 slot1 은 undef — 런타임 대조 시 slot0==0 이면 slot1 비교 금지",
+  "mutability": "인자 2개 모두 readonly → writes 없음. 지역 alloca(이터레이터 상태 72B·predicate 캡처 16B)만 씀"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L62123~62124 (bounds <2 L62126/L62139)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag → as_index()", "note": "L62145~62147 entity.rs:581 인라인, i32 태그를 그대로 인덱스로"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache (&AbstractGameWithCache)", "note": "L62130"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team] (Option<&Entity>, null=None)", "note": "L62131~62133 gep 368 + team*8 (tcxdict 0x170)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos] (Option<&Entity>)", "note": "L62148~62151 gep 480 + team*40 + pos*8"},
+  {"base": "AbstractGameWithCache", "offset": "0x130", "name": "twin_towers[team] (bumpalo Vec<&Entity> 32B: +0 buf.ptr, +0x18 len)", "note": "L62165~62166 gep 304 + team*32 → &Vec 을 is_structure 클로저에 캡처(L62169~62171). aux L66261~66277 에서 ptr(+0)·len(+24) 읽어 순회"},
+  {"base": "AbstractGameWithCache", "offset": "0x10/0x50/0x90", "name": "top/mid/bottom_minions[1-team] (콜리 iter_minions 내부)", "note": "L62174 iter_minions(cache, 1-team) — 본문 g15.ll:102624: top(0x10)→mid(0x50)→bottom(0x90) 순 Chain"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "본문 L62392~62393 결과 미니언 id(closure#3 :288) · aux L66255~66257/L66300~66302 넥서스·타워 id 비교(is_structure :284)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L62347~62348(내 챔피언)·L62355~62356(미니언) distance_sq(entity.rs:2158 → utils.rs:7~9) closure#2 :287"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "L62351~62352 / L62359~62360"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag (EntityType)", "note": "aux L66224~66226 `== 1` Minion (closure#1 :286)"},
+  {"base": "Entity", "offset": "0x88", "name": "ty@Minion.info.nearest_enemy@tag (Option<usize>)", "note": "aux L66230~66236 is_some_and (tcxdict Entity 0x88)"},
+  {"base": "Entity", "offset": "0x90", "name": "ty@Minion.info.nearest_enemy@Some.0 (usize = 공격 대상 id)", "note": "aux L66243~66244 → is_structure(id)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 281, "meaning": "nexus/player_champion 1차원(팀) 길이 bounds check L62126 / L62139 panic len 2. 판정값 아님"},
+  {"value": 1, "src_line": 285, "meaning": "`1 - team` = 적 팀(L62173 `sub nuw nsw i64 1, %10`) → iter_minions(적 미니언). ★aux 에서는 EntityType::Minion 메모리태그 1 (L66226 `icmp eq i64 %7, 1`, tcxdict --enum EntityType idx1=tag1)"},
+  {"value": 0, "src_line": 289, "meaning": "반환 Option 태그 None (L62158/L62398 phi 0)"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "core::iter::traits::iterator::Iterator::try_fold",
+  "core::iter::adapters::map::Map::fold",
+  "core::panicking::panic_bounds_check",
+  "llvm.memcpy.p0.p0.i64",
+  "game_ai::plan_legacy::old::defense_nexus::base_attacking_minion_uncached::{closure#1}::call_mut",
+  "core::iter::traits::iterator::Iterator::min_by_key::compare::call_once"
+ ],
+ "logic": "fn base_attacking_minion_uncached(player, data) -> Option<usize> {   // defense_nexus.rs:279\n  let team = player.info.team;                                                        // :280 L62123\n  let nexus = data.cache.nexus[team]?;                                                 // :281 L62131~62136 (None → 반환 None, slot1 undef)\n  let champ = data.cache.player_champion[team][player.info.position.as_index()]?;     // :282 L62145~62154\n  let twins = &data.cache.twin_towers[team];                                            // :283 L62165~62166 (bumpalo Vec<&Entity>)\n  let is_structure = |id: usize| id == nexus.id || twins.iter().any(|t| t.id == id);   // :284 closure#0 (aux L66255~66303 인라인) — 넥서스 먼저, 없으면 쌍둥이 타워 선형 any\n  data.cache.iter_minions(1 - team)                                                     // :285 L62173~62174 적 미니언 top→mid→bottom Chain (56B 이터레이터)\n      .filter(|m| m.ty@tag == 1 /*Minion*/ && m.ty@Minion.info.nearest_enemy.is_some_and(|id| is_structure(id)))   // :286 closure#1 (aux L66224~66306) — '지금 우리 구조물을 때리는(=nearest_enemy 가 구조물 id) 미니언'\n      .map(|m| (champ.distance_sq(m), m))                                              // :287 closure#2 — 첫 원소는 본문 L62347~62375, 나머지는 aux(m11) L23478~23506 인라인. distance_sq = |dx|²+|dy|² (utils.rs:7~9, abs_diff 후 wrapping mul)\n      .min_by_key(|(d, _)| *d)                                                          // :287 reduce → Map::fold(m12.ll:16716) → Chain::fold(m11 L23303~) ; compare = Ord::cmp(acc.0, new.0), acc 유지 조건 is_le (L23520~23524) ⇒ 동거리면 **먼저 나온 것(top→mid→bottom 순)** 유지\n      .map(|(_, m)| m.id)                                                               // :288 closure#3 L62392~62393 (Entity+0x5c0)\n}   // :289 L62159~62161 {tag, id}\n\n[구현 메모] Filter 의 첫 원소 탐색은 세 구간(top/mid/bottom)을 각각 try_fold(find::check) 인스턴스로 호출(L62231·L62274·L62319, m11.ll 33409/34234/34729) 하고 술어는 closure#1::call_mut(Q/QQ/QQQ) 로 아웃라인. 이후 원소는 Map<Filter<Chain>>::fold 한 번(L62380).\n[콜리 계약] iter_minions(&cache, team) -> Chain<Chain<Copied<Iter<&Entity>>,Copied<Iter>>,Copied<Iter>> (sret 56B) = top_minions[team] ⧺ mid_minions[team] ⧺ bottom_minions[team] (g15.ll:102624~)",
+ "knobs": [
+  {"what": "구조물 판정 집합(넥서스 + 쌍둥이 타워)", "where": "defense_nexus.rs:284 (aux L66255~66303)", "value": "nexus.id ∪ twin_towers[team][*].id", "effect": "여기에 1차 타워를 넣으면 라인 타워를 미는 미니언도 '본진 정리 대상'이 돼 넥서스 방어 플랜이 라인까지 나감"},
+  {"what": "선택 키 = 내 챔피언과의 제곱거리 최소", "where": "defense_nexus.rs:287 (m11 L23520~23524)", "value": "distance_sq 오름차순, 동률=먼저 나온 것(top→mid→bottom)", "effect": "예: 넥서스와의 거리로 바꾸면 '가장 깊이 들어온' 미니언부터 정리"}
+ ],
+ "unknown": [
+  "min_by_key 의 key 클로저 소스 표기(`|(d,_)| *d` 인지 `|t| t.0` 인지) — 인라인이라 표기 불가. 동작(튜플 0번 u64 비교, acc 유지 is_le)은 aux L23520~23524 로 확정",
+  "closure#0(is_structure)의 `||` 순서 — L66255~66258 에서 nexus.id 비교가 먼저이고 실패 시 twins.any 로 가는 것은 확정. 소스 한 줄 안 순서는 column 0 이라 IR 로만 확정",
+  "docs 는 'O(1) 판정' 함수를 따로 언급(game_ai.txt:302)하지만 이 함수는 목록 스캔판(_uncached) — 캐시판 래퍼는 이 명세 밖",
+  "QQ/QQQ 술어 인스턴스(m04 66614~66711, 66714~66816)는 md5 가 Q 와 다르나 참조 중첩(load 추가)만 다르다고 판단 — 줄 단위 전수 대조는 안 함(범위: 구조 비교만)"
+ ]
+}

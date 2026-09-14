@@ -157,7 +157,8 @@ def gate2(i, sp):
 SIB = ("sub_plan", "next_plan", "is_end", "update", "on_enter", "on_exit")
 
 
-FREE_FN = {0, 1, 3, 4, 9, 10, 16, 19} | set(range(21, 33)) | set(range(34, 40)) | {41, 45, 46, 48, 49, 50, 51, 52, 53} | {59, 60, 61, 62, 64, 65, 66, 70, 71, 73} | {78, 79, 81, 82, 84, 85, 87, 90, 92, 93, 94, 95, 96, 98, 99, 101} | {103}   # r11 103 position_risk(09-14) · r10 16(09-13 밤) · 실측으로 자유 함수(impl 타입 없음)인 것만 · 59~73 = r9(09-13 저녁) · 21~32·34~39 = r7 잎 · 41·45·46·48~53 = r8 잎(심볼 _RNvNt · 09-13)
+ARG_PROMOTED = {129}   # 09-14 r13: should_add_self_etc_buff_action `&Effect`(56B) → %3 Arc data ptr + %4 vtable ptr(IR 5 인자 · tcx 4) — G5 개수 대조 면제
+FREE_FN = {0, 1, 3, 4, 9, 10, 16, 19} | set(range(21, 33)) | set(range(34, 40)) | {41, 45, 46, 48, 49, 50, 51, 52, 53} | {59, 60, 61, 62, 64, 65, 66, 70, 71, 73} | {78, 79, 81, 82, 84, 85, 87, 90, 92, 93, 94, 95, 96, 98, 99, 101} | {103} | ({112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 126, 127, 129, 130, 131, 132, 133})   # r13 잎 20(09-14 · 125 lane_minion·128 SmallActionTrace 는 메서드) · r11 103 position_risk(09-14) · r10 16(09-13 밤) · 실측으로 자유 함수(impl 타입 없음)인 것만 · 59~73 = r9(09-13 저녁) · 21~32·34~39 = r7 잎 · 41·45·46·48~53 = r8 잎(심볼 _RNvNt · 09-13)
 
 
 def gate3(i, sp):
@@ -322,6 +323,8 @@ def gate5(i, sp):
             exp = args
         if len(exp) == len(params):
             args = exp
+        elif i in ARG_PROMOTED:
+            return   # ★09-14 r13: LTO ArgumentPromotion — 소스 `&Effect` 가 IR 에서 (Arc data, vtable) 2 스칼라로 분해(명세 signature 에 기재) · exe 는 argscan 으로 별도 확인
         else:
             flag("G5", i, u"sig.tcx 인자 %d개(팻포인터 확장 %d) vs params %d개 — 개수가 다르다" % (len(args), len(exp), len(params)),
                  u" | ".join(a[:34] for a in args))

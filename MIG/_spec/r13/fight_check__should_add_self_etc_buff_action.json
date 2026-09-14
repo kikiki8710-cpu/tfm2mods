@@ -1,0 +1,85 @@
+{
+ "name": "should_add_self_etc_buff_action",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check31should_add_self_etc_buff_action",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 608,
+ "ir_file": "m15.ll",
+ "ir_from": 34622,
+ "ir_to": 35407,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 8632, "ir_to": 8706},
+  {"ir_file": "m06.ll", "ir_from": 34663, "ir_to": 34844},
+  {"ir_file": "m11.ll", "ir_from": 30762, "ir_to": 30880},
+  {"ir_file": "m11.ll", "ir_from": 36721, "ir_to": 36765},
+  {"ir_file": "m06.ll", "ir_from": 48754, "ir_to": 48828}
+ ],
+ "one_line": "자기/기타 버프(EffectType::etc_buff) 액션 후보를 넣을지 — etc_buff 가 아니면 항상 true, etc_buff 면 (평타사거리+30000 또는 90000)+이속×30 안에 표적 가능한 적(챔프·소환수·미니언·정글·타워·넥서스)이 하나라도 있을 때만 true",
+ "signature": {
+  "abi": "internal fastcc (m15.ll:34622) · ★인자 승격 흔적 있음: 소스 인자 4 `effect:&Effect(56B)`(DISubprogram !45388 arg4 = ref$<Effect>) 가 IR 에선 `%3 ptr`(effect.ty Arc 데이터 ptr) + `%4 ptr readonly captures(address_is_null)`(effect.ty vtable ptr) 두 스칼라로 분해돼 들어온다(ArgumentPromotion — 본문이 effect.ty 만 쓰기 때문). 나머지 3개 참조는 그대로. exe 호출자 대조 시 인자 5개(player, data, champ, ty_ptr, ty_vtable)로 봐야 함.",
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "attrs": "noalias nonnull readonly", "note": "info.team 만 읽음(34734~34735) + can_target 인자"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "attrs": "noalias nonnull readonly", "note": "+0 cache. can_target 의 self"},
+   {"i": 3, "name": "champ", "type": "&Entity(1728B)", "attrs": "noalias nonnull readonly", "note": "내 챔피언. attack_effect·level·range 스탯·radius·move_speed·x/y"},
+   {"i": 4, "name": "effect.ty.data_ptr", "type": "ptr (Arc<dyn EffectType> ArcInner*)", "attrs": "(승격) assume nonnull 34639~34640", "note": "ArcInner 데이터 오프셋 = round_up(16, align)(34643~34648) → &dyn EffectType self"},
+   {"i": 4, "name": "effect.ty.vtable_ptr", "type": "ptr (EffectType vtable)", "attrs": "(승격) readonly captures(address_is_null)", "note": "vtable+0x90(144) = etc_buff (divtable EffectType 0x90 · tcx 메서드 idx14 와 정합) 호출(34649~34651)"}
+  ],
+  "returns": "bool(zeroext i1) — phi m15.ll:35405: etc_buff()==false → true(무조건 허용). etc_buff()==true → has_nearby_self_etc_buff_target 결과(35400 phi: 적 6부류 중 하나라도 조건 충족 → true, 전부 실패 → false). 스칼라 1B"
+ },
+ "reads": [
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag(니치)", "note": "champ. -1=None → 사거리 기본 90000(34667~34670, 34724, fight_check.rs:587~589)"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect@Some.0.range", "note": "34676~34677 (+30000)"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range", "note": "×(level-1) 34678~34679, 34712~34713"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "34685~34686"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "34687~34688"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "champ 반경 배율(34689~34693) — 표적 반경은 더하지 않음"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "champ(34696, 34703)"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "champ ×30 가산(34726~34729, L590)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ(34783·34786) 및 각 적 후보(34818 등)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ(34784·34787) 및 각 적 후보"},
+  {"base": "Entity", "offset": "0x6b9", "name": "can_target", "note": "정글(35280~35283)·타워(aux m06 34775~34777)·넥서스(35359~35361) 는 Entity::can_target(entity.rs:1478) 필드 검사. 챔프·소환수·미니언은 OperationData::can_target 호출"},
+  {"base": "Entity", "offset": "0x6a0", "name": "block_target_tick", "note": "==0 이어야 표적 가능(35286~35288, 35362~35364, aux m06 34778~34780)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "1-team = 적 인덱스, <2 아니면 panic(34734~34738, 35150)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "34741"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "can_target 인자(34810 등)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "dr816 (34811 등)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[enemy][0..5]", "note": "L594~595 적 챔피언 5칸 전개(34742~34743, 34796·34862·34928·34994·35060 null 검사)"},
+  {"base": "AbstractGameWithCache", "offset": "0xf0", "name": "others[enemy].buf.ptr / +24 len", "note": "L596~597 소환수 순회(35116~35147)"},
+  {"base": "AbstractGameWithCache", "offset": "0xd0", "name": "jungles.buf.ptr / +0xe8 len", "note": "L600~601 정글몹 순회(35237~35264) — 팀 무관(단일 Vec)"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[enemy]", "note": "L604~605 Option<&Entity>(35342~35349)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 30000, "src_line": 588, "meaning": "평타 사거리에 더하는 고정 여유(≈0.94셀) — range = atk.range + 30000 + stat.range + (level-1)*growth + radius(champ) (34714)"},
+  {"value": 90000, "src_line": 589, "meaning": "attack_effect 가 없을 때의 기본 탐색 사거리(unwrap_or, 34724) ≈ 2.8셀"},
+  {"value": 30, "src_line": 590, "meaning": "이속 × 30틱(0.5초@60tps) 추가 여유(34728). 최종 r = range + move_speed*30, r² 로 비교(34732)"},
+  {"value": 100, "src_line": 588, "meaning": "반경 배율 radius*(mult+100)/100 (entity.rs:1515, 34705~34707)"},
+  {"value": -1, "src_line": 587, "meaning": "Option<Effect> 니치 None(i32, 34669)"},
+  {"value": 0, "src_line": 601, "meaning": "block_target_tick == 0 (Entity::can_target 인라인, 35288·35364·aux 34780)"},
+  {"value": 1, "src_line": 593, "meaning": "1 - team = 적 팀 인덱스(34736); (level-1)(34712)"},
+  {"value": 2, "src_line": 593, "meaning": "팀 배열 bounds(34737) — 임계 아님"}
+ ],
+ "calls": [
+  "llvm.assume",
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::state::player::OperationData::can_target",
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::adapters::chain::Chain::any",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "game_ai::fight_check::has_nearby_self_etc_buff_target::{closure#3}::call_mut"
+ ],
+ "logic": "fn should_add_self_etc_buff_action(player, data, champ, effect:&Effect) -> bool\n  if !effect.ty.etc_buff() { return true }                                   // L609 vtable+0x90 (34649~34652 → %314 true)\n  return has_nearby_self_etc_buff_target(player, data, champ)                // L609 (fight_check.rs:586~606 전부 인라인)\n\nfn has_nearby_self_etc_buff_target(player, data, champ) -> bool   // fight_check.rs:586\n  let range = champ.attack_effect.as_ref()\n      .map(|a| a.range + 30000 + champ.stat_buff_cached.range + (champ.level-1)*a.growth_range + radius(champ))   // L587~588 closure#0 (34676~34717; 표적 반경·range_adjust 없음)\n      .unwrap_or(90000)                                                          // L589 (34724)\n  let r2 = (range + champ.stat_cached.move_speed*30)²                            // L590~591 (34726~34733)\n  let enemy = 1 - player.info.team                                               // L593 (34736; <2 아니면 panic)\n  let near_op = |e| data.can_target(cache.game, player, e) && distance_sq(e, champ) <= r2   // closure#1/#2/#3 (L595·597·599) — OperationData::can_target 호출\n  let near_ent = |e| e.can_target && e.block_target_tick==0 && distance_sq(e, champ) <= r2   // closure#4/#5/#6 (L601·603·605) — Entity 필드\n     cache.player_champion[enemy].iter().flatten().any(near_op)                 // L594~595 (34796~35108, 5칸 전개; ugt r2 → 다음)\n  || cache.others[enemy].iter().any(near_op)                                    // L596~597 (35116~35207)\n  || cache.iter_minions(enemy).any(near_op)                                     // L598~599 (35211~35232; aux m06 8632 Chain::any → m11 30762 try_fold(closure#3 인라인, 30830·30863) · m11 36721 try_fold → m06 48754 call_mut 심)\n  || cache.jungles.iter().any(near_ent)                                         // L600~601 (35237~35329)\n  || cache.iter_towers_without_nexus(enemy).any(near_ent)                       // L602~603 (35333~35339; aux m06 34663: 타워 6칸(34775~34812) + 쌍둥이 slice try_fold(34842))\n  || cache.nexus[enemy].is_some_and(near_ent)                                   // L604~605 (35342~35397; None → false 35349, can_target 실패 → false 35366)\n극성(35400 phi): 각 부류에서 `dist_sq > r2`(ugt) 가 false 인 첫 후보 → true. 6부류 전부 실패(마지막 넥서스 None/불가/원거리) → false. 34652: etc_buff false → 34405 phi true.",
+ "knobs": [
+  {"what": "평타 사거리 고정 여유", "where": "fight_check.rs:588 (m15.ll:34714)", "value": 30000, "effect": "올리면 더 먼 적이 있어도 자기버프 후보가 생성됨(버프를 더 일찍/자주 고려)"},
+  {"what": "평타 없을 때 기본 탐색 사거리", "where": "fight_check.rs:589 (m15.ll:34724)", "value": 90000, "effect": "attack_effect 없는 챔프의 자기버프 발동 거리"},
+  {"what": "이속 × 틱 여유", "where": "fight_check.rs:590 (m15.ll:34728)", "value": 30, "effect": "올리면 이속 높은 챔프가 더 먼 적에도 자기버프 후보 생성"}
+ ],
+ "unknown": [
+  "EffectType::etc_buff(&self)->bool (vtable+0x90) 의 구현별 의미(어떤 이펙트가 '기타 버프'인지)는 game_core 전 구현체 미독 — 이름·시그니처만. 슬롯 이름은 divtable(94%) + tcx 메서드 idx14 ↔ (0x90/8-3-1)=14 정합으로 확정(vtable 에 슬롯 3 추가 항목 1개 존재 추정)",
+  "OperationData::can_target(&self, game_data, game_vtable, &PlayerState, &Entity)->bool 내부 미독(game_core). Entity::can_target(entity.rs:1478) 은 `can_target(0x6b9) && block_target_tick(0x6a0)==0` 로 IR 확정",
+  "iter_minions/iter_towers_without_nexus(_gcbc g15.ll:102624 / 108971) 의 원소 구성은 미독 — 후자는 Chain<Flatten<IntoIter<[Option<&Entity>;6]>>, Copied<Iter>>(타워 6 + 쌍둥이) 로 타입명에서 추정",
+  "6부류 검사 순서(챔프→소환수→미니언→정글→타워→넥서스)는 IR 블록 순서와 소스 줄(594~605) 일치 — `||` 단락 평가라 순서가 결과엔 영향 없음",
+  "has_nearby_self_etc_buff_target 은 별도 define 없이 전부 인라인(fnparts: 서브프로그램 60 vs define 8, 나머지는 이터레이터 인스턴스) — 다른 호출자(should_add_self_skill2_action 등)에서의 복제본은 본 명세 범위 밖",
+  "L588 closure#0 의 사거리 식이 Effect::range() 인라인(effect.rs:26)인지 수동 합산인지 소스 표기 미확정 — 값은 IR 로 확정(표적 반경·range_adjust 미포함이 attack_summon_action 과의 차이)"
+ ]
+}

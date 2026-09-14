@@ -1,0 +1,70 @@
+{
+ "name": "nontarget_windup_perceived",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai5utils26nontarget_windup_perceived",
+ "src": "game-ai\\src\\utils.rs",
+ "src_line": 553,
+ "ir_file": "m04.ll",
+ "ir_from": 53108,
+ "ir_to": 53231,
+ "aux": [],
+ "one_line": "관측자(player)가 적 캐스터의 논타겟 시전 윈드업을 '이미 인지했는가' — 최근시야 AND 경과틱 >= 반응틱(시드고정 추첨)",
+ "signature": {
+  "abi": "define noundef zeroext i1 (외부 심볼, fastcc 아님, 인자 승격 없음) · exe 0xd399a0 · tcx 가시성 pub(크레이트 루트 재수출 game_ai::nontarget_windup_perceived) · mir=0",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize (i64 %0)", "note": "본문에서 한 번도 읽지 않음(dbg_value 만). 분기 없음"},
+   {"i": 2, "name": "player", "type": "&PlayerState (2528B) noalias readonly", "note": "관측자. 읽기: info.team(0x930)·info.id(0x928)·info.parameter(0x180)"},
+   {"i": 3, "name": "data", "type": "&OperationData (24B) noalias readonly", "note": "cache(+0x0)·blackboard(+0x10) 만 읽음. context(+0x8) 미사용"},
+   {"i": 4, "name": "caster", "type": "&Entity (1728B) noalias readonly", "note": "시전자. dbg 이름 caster/self 둘 다 %3. 읽기: ty@tag(0x68)·action_state(0x70/0x78)·id(0x5c0)"}
+  ],
+  "returns": "bool (zeroext i1) — true=윈드업을 인지했다(회피 판단 가능). false=(a)최근시야 없음 (b)경과틱 < 반응틱. 반환 phi = L53144 `[ %65, %52 ], [ false, %9 ]`",
+  "mutability": "인자 4개 전부 readonly(IR 속성 noalias readonly) — writes 없음. 순수 판정 함수"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L53116~53118 `1 - team` 으로 적 블랙보드 인덱스(bounds 2, L53134 panic_bounds_check). tcxdict PlayerState 0x930"},
+  {"base": "PlayerState", "offset": "0x928", "name": "info.id", "note": "L53221~53222 시드 재료(관측자 id). tcxdict PlayerState 0x928"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter (AthleteParameter 744B)", "note": "L53191 &parameter → skill_avoid_base(). 또 L53204 caster 소유 PlayerState+0x180 → skill_hit_base()"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard (&[Blackboard;2])", "note": "L53123~53125 `blackboard[1-team]` (Blackboard 744B stride, gep 타입 {…} 는 Blackboard 레이아웃)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache (&AbstractGameWithCache)", "note": "L53126"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr (&dyn AbstractGame)", "note": "L53127"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr (816B vtable)", "note": "L53128~53129; 슬롯 +0x28(40) = AbstractGame::tick (divtable). L53214~53216 `tick(game)`"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag (EntityType)", "note": "L53138~53140 `== 13` Champion (tcxdict --enum EntityType 메모리태그 13). action_time() 인라인 entity.rs:1593"},
+  {"base": "Entity", "offset": "0x70", "name": "ty@Champion.0.action_state@tag (ChampionActionState)", "note": "L53149~53159 switch: 3 Attack/4 Skill/5 Skill2/6 Ult → 경과틱, 0 Idle/1 Return/2 Move → 0. entity.rs:1594"},
+  {"base": "Entity", "offset": "0x78", "name": "ty@Champion.0.action_state@{Attack,Skill,Skill2,Ult}.time", "note": "L53165~53184 네 variant 모두 +0x78 `time` (tcxdict Entity 0x78). entity.rs:1598/1601/1604/1607"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "L53194~53195 caster.id → player_by_champion_id 인자 + 시드 재료(`<<20`)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 1, "src_line": 557, "meaning": "`1 - player.team` = 적 팀 인덱스(2팀 전제). L53118. 배열 길이 2 는 bounds check(L53119/L53134)"},
+  {"value": 2, "src_line": 557, "meaning": "blackboard 배열 길이(bounds check 상한, L53119 `icmp ult %7, 2` · L53134 panic_bounds_check len 2). 판정값 아님"},
+  {"value": 13, "src_line": 560, "meaning": "EntityType::Champion 메모리태그(tcxdict --enum EntityType idx13=tag13). 인라인 Entity::action_time entity.rs:1593 — 챔피언이 아니면 elapsed=0"},
+  {"value": 3, "src_line": 560, "meaning": "ChampionActionState::Attack 태그(entity.rs:1598) → elapsed = action_state.time"},
+  {"value": 4, "src_line": 560, "meaning": "ChampionActionState::Skill 태그(entity.rs:1601)"},
+  {"value": 5, "src_line": 560, "meaning": "ChampionActionState::Skill2 태그(entity.rs:1604)"},
+  {"value": 6, "src_line": 560, "meaning": "ChampionActionState::Ult 태그(entity.rs:1607)"},
+  {"value": 0, "src_line": 560, "meaning": "elapsed 기본값 0 — 비챔피언 또는 Idle/Return/Move 상태(L53189 phi). 비교 `elapsed >= react` 에서 react>=2 라 0 이면 항상 false"},
+  {"value": 50, "src_line": 564, "meaning": "캐스터 소유 PlayerState 를 못 찾을 때 skill_hit 기본값 `unwrap_or(50)` (L53212 phi [50, %41]; dbg `default = 50` L53115)"},
+  {"value": 20, "src_line": 566, "meaning": "시드 합성 `caster.id << 20` 의 시프트량 (L53223 `shl i64 %46, 20`). 배수 접힘 아님 — 소스도 시프트"},
+  {"value": 40, "src_line": 566, "meaning": "시드 합성 `cast_start << 40` 의 시프트량 (L53225 `shl i64 %57, 40`)"}
+ ],
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::state::player::AthleteParameter::skill_avoid_base",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_core::simulation::state::player::AthleteParameter::skill_hit_base",
+  "game_core::simulation::ai_interface::skill_avoid_react_ticks",
+  "core::panicking::panic_bounds_check",
+  "llvm.usub.sat.i64"
+ ],
+ "logic": "fn nontarget_windup_perceived(version, player, data, caster) -> bool {   // utils.rs:553\n  // :557  적 팀 블랙보드로 '최근 시야' 판정\n  let bb = &data.blackboard[1 - player.info.team];            // L53116~53125 (bounds len 2 → panic)\n  if !bb.is_recent_visible(data.cache.game /*&dyn AbstractGame (data,vtable)*/, player, caster) {   // L53130 (game_core 본문 g07.ll:157005)\n      return false;                                              // L53144 phi false\n  }\n  // :560  캐스터의 현재 액션 경과틱 (Entity::action_time 인라인, entity.rs:1593~1609)\n  let elapsed: usize = if caster.ty@tag == 13 /*Champion*/ {   // L53138~53141\n      match caster.action_state@tag /*+0x70*/ {                  // L53149~53159\n          3 /*Attack*/ | 4 /*Skill*/ | 5 /*Skill2*/ | 6 /*Ult*/ => caster.action_state.time /*+0x78*/,\n          0 | 1 | 2 => 0,                                        // Idle/Return/Move\n      }\n  } else { 0 };                                                  // L53189 phi\n  // :561  관측자 회피 기준치(로비 유효, 컨디션 미적용)\n  let a = player.info.parameter.skill_avoid_base();             // L53191~53192, 0..=100\n  // :562~564  캐스터 소유 선수의 skill_hit 기준치, 없으면 50\n  let h = data.cache.player_by_champion_id(caster.id)           // L53194~53196 (Option<&PlayerState>, null=None)\n              .map(|p| p.info.parameter.skill_hit_base())        // L53204~53205 closure$0 utils.rs:563\n              .unwrap_or(50);                                     // L53212\n  // :565  시전 시작틱 = 현재틱 − 경과틱 (포화 뺄셈)\n  let cast_start = game.tick().saturating_sub(elapsed);         // L53214~53219 vtable+0x28=tick, llvm.usub.sat\n  // :566  결정론 시드 = (관측자 id) ^ (캐스터 id << 20) ^ (시전시작틱 << 40)\n  let seed = player.info.id ^ (caster.id << 20) ^ (cast_start << 40);   // L53221~53226\n  // :567  반응틱 추첨(시드 고정) 과 경과틱 비교\n  elapsed >= skill_avoid_react_ticks(seed, a, h)                // L53228~53229 icmp uge\n}   // :568\n\n[game_core 콜리 skill_avoid_react_ticks(seed, avoid, hit) — g11.ll:265042 독해]\n  d = sat(100 − avoid); d2 = d*d\n  lo = 2 + d2*58/10000 ; hi = 6 + d2*114/10000      // avoid100 → 2..6틱, avoid1 → 58..117틱 (docs: '회피 100=2~6틱, 50=16~34틱, 1=59~118틱')\n  base = splitmix64(seed) 를 [lo, hi] 균등 사상(widening mul)  // 시드 같으면 같은 값 → 매 평가 재롤 없음\n  deception = d * (12 * min(hit,100)^2 / 10000) / 100           // '시전자 기만 12·(hit/100)²·(100−avoid)/100 틱'\n  return base + deception\n\n[game_core 콜리 Blackboard::is_recent_visible(bb, game, player, entity) — g07.ll:157005 독해]\n  if game.is_visible(player.team, entity.id) /*vtable+0xf8*/ { true }\n  else if let Some(p) = game.get_player_by_champion_id(entity.id) /*vtable+0x150*/ { bb.last_visible[p.position.as_index()] + 120 >= game.tick() }   // 120틱 = 2초@60tps\n  else { false }",
+ "knobs": [
+  {"what": "캐스터 skill_hit 기본값(소유 선수 미발견 시)", "where": "utils.rs:564 (L53212)", "value": 50, "effect": "올리면 기만 가산틱이 커져 인지가 늦어짐(더 못 피함). 실전에선 챔피언은 항상 소유 선수가 있어 거의 안 탐"},
+  {"what": "반응틱 곡선(2..6 / 58 / 114 / 기만 12) — 콜리 내부", "where": "game_core ai_interface::skill_avoid_react_ticks (g11.ll:265042) · 이 함수 밖", "value": "lo=2+d²·58/1e4, hi=6+d²·114/1e4, 기만=12·hit²/1e4·d/100", "effect": "여기서는 바꿀 수 없음(game_core). 인지 시점을 바꾸려면 콜리 재현 필요"},
+  {"what": "최근시야 유예 120틱 — 콜리 내부", "where": "game_core Blackboard::is_recent_visible (g07.ll:157005~) `+120`", "value": 120, "effect": "올리면 시야를 잃은 직후에도 더 오래 윈드업을 인지함"}
+ ],
+ "unknown": [
+  "version(%0) 은 본문에서 안 읽는다 — 호출자 측 게이트용 인자로 추정(근거: dbg_value 만 있고 load/비교 0건, L53109)",
+  "utils.rs:563 map 클로저의 소스 표기(`|p| p.info.parameter.skill_hit_base()`)는 인라인이라 추정 — 동작은 L53204~53205 로 확정",
+  "skill_avoid_react_ticks 의 [lo,hi] 사상이 `(hi-lo+1)==0` 이면 base=raw splitmix 값(L265058 분기) — 실제 lo<=hi 라 도달 불가로 보이나 콜리 명세 범위 밖",
+  "action_time() 의 Champion 이외 EntityType 도 경과틱을 가질 수 있는지 — 본문은 tag 13 만 취급(entity.rs:1593). 다른 타입은 0 확정, 소스에 다른 arm 이 있었다면 사장 코드"
+ ]
+}

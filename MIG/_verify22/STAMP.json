@@ -1,0 +1,86 @@
+{
+ "A": {
+  "dossier": "0decc4535d51f2eb",
+  "specs": [
+   "spec_112_nontarget_windup_perceived.md",
+   "spec_113_v3_deadly_edge_cells.md",
+   "spec_114_attack_summon_action.md",
+   "spec_115_is_cleared.md",
+   "spec_116_can_tower_focused_when_attack.md",
+   "spec_117_camp_idx.md"
+  ],
+  "spec_hashes": {
+   "spec_112_nontarget_windup_perceived.md": "91852768300d3478",
+   "spec_113_v3_deadly_edge_cells.md": "ffa9e2c8a846ee8f",
+   "spec_114_attack_summon_action.md": "67a15614f677d686",
+   "spec_115_is_cleared.md": "3d766d2db0bfdca9",
+   "spec_116_can_tower_focused_when_attack.md": "b4ac281f432383eb",
+   "spec_117_camp_idx.md": "1569a156182c82ab"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "6a6d3bd7721deec9",
+  "built": "2026-09-14 09:52:08"
+ },
+ "B": {
+  "dossier": "4c683bfd8989cadf",
+  "specs": [
+   "spec_118_base_attacking_minion_uncached.md",
+   "spec_119_check_nontarget.md",
+   "spec_120_line_recall_pressure_penalty.md",
+   "spec_121_safe_move_avoiding_enemy_well.md",
+   "spec_122_convert_to_move_action_target.md",
+   "spec_123_attack_structure_skill_action.md"
+  ],
+  "spec_hashes": {
+   "spec_118_base_attacking_minion_uncached.md": "69518b3943aeb391",
+   "spec_119_check_nontarget.md": "a81411f45deaf9f0",
+   "spec_120_line_recall_pressure_penalty.md": "731c305aa38f6d5f",
+   "spec_121_safe_move_avoiding_enemy_well.md": "3cef707fe7652387",
+   "spec_122_convert_to_move_action_target.md": "78876d3beea26ef3",
+   "spec_123_attack_structure_skill_action.md": "d5d2b9400eaf6415"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "6a6d3bd7721deec9",
+  "built": "2026-09-14 09:52:08"
+ },
+ "C": {
+  "dossier": "182f93c9e3092354",
+  "specs": [
+   "spec_124_v55_seal_value.md",
+   "spec_125_SmallActionLaneMinionPosition__should_suppress_direct_minion_attack.md",
+   "spec_126_v55_banish_penalty.md",
+   "spec_127_is_safe_recall.md",
+   "spec_128_SmallActionTrace__expected_goal_position.md"
+  ],
+  "spec_hashes": {
+   "spec_124_v55_seal_value.md": "6e86a76f23aaf63b",
+   "spec_125_SmallActionLaneMinionPosition__should_suppress_direct_minion_attack.md": "443b9c88864563da",
+   "spec_126_v55_banish_penalty.md": "775b67e13864a860",
+   "spec_127_is_safe_recall.md": "7161ab794565433f",
+   "spec_128_SmallActionTrace__expected_goal_position.md": "f690415dc6aaec34"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "6a6d3bd7721deec9",
+  "built": "2026-09-14 09:52:08"
+ },
+ "D": {
+  "dossier": "12411d0c42339bb7",
+  "specs": [
+   "spec_129_should_add_self_etc_buff_action.md",
+   "spec_130_v55_mark_value.md",
+   "spec_131_noncombat_steroid_value.md",
+   "spec_132_champion_hp_value_uncached.md",
+   "spec_133_buff_value_v54.md"
+  ],
+  "spec_hashes": {
+   "spec_129_should_add_self_etc_buff_action.md": "56862fad5717a103",
+   "spec_130_v55_mark_value.md": "ae9b99a0adf9af6f",
+   "spec_131_noncombat_steroid_value.md": "b4283a57b8b0b432",
+   "spec_132_champion_hp_value_uncached.md": "a457a46c3c1127e3",
+   "spec_133_buff_value_v54.md": "a0903dd8786a3fa7"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "6a6d3bd7721deec9",
+  "built": "2026-09-14 09:52:08"
+ }
+}

@@ -1,0 +1,88 @@
+{
+ "name": "check_nontarget",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action4cast15check_nontarget",
+ "src": "game-ai\\src\\small_action\\cast.rs",
+ "src_line": 38,
+ "ir_file": "m07.ll",
+ "ir_from": 60191,
+ "ir_to": 60473,
+ "aux": [],
+ "one_line": "논타겟(위치/방향) 스킬이 이 대상에 맞을 사거리인가 — 대상이 못 움직이면 정적 사거리, 움직이면 투사체 도달시간·대상 이속·선수 스킬명중 오차 롤을 반영한 유효사거리로 판정",
+ "signature": {
+  "abi": "★internal fastcc. 소스 인자 6개(_version, rnd, player, data, action, target) 인데 IR define 은 5개 — ①`_version`(usize) 은 dead-arg 제거(dbg 에만 남음) ②`data: &OperationData` 는 ArgumentPromotion 으로 **+0 필드(cache 포인터)만 스칼라 승격**돼 %2 로 들어온다(`ptr readonly captures(address_is_null) %2` · `llvm.assume(%2 != null)` m07:60247~60248 · 사용처는 %2+480 = cache.player_champion 뿐). 반환 i1 zeroext 스칼라. 지도 라벨 is_end 는 오라벨 — IR 실명 check_nontarget(DISubprogram !71685, cast.rs:38)",
+  "params": [
+   {"i": 1, "name": "_version", "type": "usize", "ir": "(제거됨 — IR 인자 없음)", "note": "본문 미사용(이름부터 `_`). DILocalVariable arg:1 만 남음"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B)", "ir": "ptr %0 noalias nonnull align 16 dereferenceable(320) (readonly 없음 = 가변)", "note": "★&mut — 롤 경로에서만 gen_range 1회로 상태 소비(writes 참조)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "ir": "ptr %1 noalias readonly", "note": "info.team·info.position·info.parameter(AthleteParameter)"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "ir": "ptr %2 = data.cache (승격)", "note": "cache.player_champion[team][pos] 만 읽음. context/blackboard 미사용"},
+   {"i": 5, "name": "action", "type": "&Effect(56B)", "ir": "ptr %3 noalias readonly", "note": "casting 종류·ty(Arc<dyn EffectType>)·range·growth_range·start_timing"},
+   {"i": 6, "name": "target", "type": "&Entity(1728B)", "ir": "ptr %4 noalias readonly", "note": "대상 엔티티(ty 태그로 이동가능 여부·x/y·move_speed·radius)"}
+  ],
+  "returns": "bool(i1) — true = 시전해도 된다(맞는 사거리). phi(m07:60471): true(L39 논타겟 아님) / true(L39 linear_move_speed None) / dist²<=range²(L68 정적) / dist²<=r²(L66 롤 반영)"
+ },
+ "reads": [
+  {"base": "Effect(action)", "offset": "0x30", "name": "casting@tag", "note": "i32 CastingType: (tag-1)<2 ⇔ tag∈{1 Position, 2 Direction} = is_nontarget (type.rs:149 인라인) (m07:60207~60211, L39)"},
+  {"base": "Effect(action)", "offset": "0x0", "name": "ty.ptr (Arc<dyn EffectType> data)", "note": "ArcInner: (cap-1)&-16 정렬 + 16 = 페이로드 (m07:60216~60224)"},
+  {"base": "Effect(action)", "offset": "0x8", "name": "ty.vtable", "note": "vtable+0xf8 = EffectType::linear_move_speed(&self)->Option<usize> ({i64 tag,i64 v}) — divtable EffectType 0xf8 (m07:60225~60229 L39 · m07:60385 L56)"},
+  {"base": "Effect(action)", "offset": "0x10", "name": "range", "note": "Effect::range(caster) 인라인(effect.rs:26) (m07:60262~60263, L45)"},
+  {"base": "Effect(action)", "offset": "0x18", "name": "growth_range", "note": "*(caster.level-1) (m07:60264~60269, L45)"},
+  {"base": "Effect(action)", "offset": "0x20", "name": "start_timing", "note": "dbg `apply_time` 초기값 (m07:60309~60310, L49)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "<2 아니면 panic_bounds_check (m07:60233~60239, L43)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "[5 x ptr] 인덱스 (m07:60244~60246, L43)"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter (AthleteParameter 744B)", "note": "AthleteParameter::skill_hit_accuracy(&self) 인자 (m07:60409~60410, L60)"},
+  {"base": "AbstractGameWithCache(승격 %2)", "offset": "0x1e0", "name": "player_champion[team][position]@Some.0", "note": "null → unwrap_failed 패닉(L43 `.unwrap()`) — 캐스터 champ (m07:60249~60255,60280)"},
+  {"base": "Entity(champ=캐스터)", "offset": "0x5c8", "name": "level", "note": "(level-1)*growth_range (m07:60266~60269)"},
+  {"base": "Entity(champ=캐스터)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "사거리 가산 (m07:60270~60271)"},
+  {"base": "Entity(champ=캐스터)", "offset": "0x660", "name": "x", "note": "dist² 계산 (m07:60342~60343 L68 · 60437~60438 L66)"},
+  {"base": "Entity(champ=캐스터)", "offset": "0x668", "name": "y", "note": "(m07:60346~60347 · 60441~60442)"},
+  {"base": "Entity(target)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "i32 · Entity::radius() 인라인(entity.rs:1511~1515): 0 이면 radius 그대로, 아니면 radius*(mult+100)/100 (m07:60273~60296, L45)"},
+  {"base": "Entity(target)", "offset": "0x680", "name": "radius", "note": "usize (m07:60284~60285, 60291~60292)"},
+  {"base": "Entity(target)", "offset": "0x640", "name": "stat_cached.move_speed", "note": "dbg `target_speed` (m07:60306~60307, L47)"},
+  {"base": "Entity(target)", "offset": "0x68", "name": "ty@tag", "note": "EntityType 태그 switch (can_move 인라인 entity.rs:1490 · m07:60313~60330, L54)"},
+  {"base": "Entity(target)", "offset": "0x308", "name": "rush_state@tag (니치)", "note": "None/Tower/Nexus/Epic/Serpen(태그 0,3,2,5,6) 일 때 == -9223372036854775805(=u64 9223372036854775811 = RushState::Rush) 이면 '이동 가능' (m07:60336~60339, L54 · can_move)"},
+  {"base": "Entity(target)", "offset": "0x70", "name": "ty@Champion.0.action_state@tag", "note": "Champion(13) 일 때 <3(Idle/Return/Move) 이면 이동 가능, ≥3(Attack/Skill/Skill2/Ult) 이면 정지 (is_in_action 인라인 entity.rs:1549 · m07:60377~60380, L54)"},
+  {"base": "Entity(target)", "offset": "0x660", "name": "x", "note": "(m07:60350~60351 · 60445~60446)"},
+  {"base": "Entity(target)", "offset": "0x668", "name": "y", "note": "(m07:60354~60355 · 60449~60450)"}
+ ],
+ "writes": [
+  {"base": "StdRng(rnd, &mut 320B)", "offset": "0x0 -> rand 내부 상태(ChaCha 블록 버퍼·인덱스)", "name": "rnd", "value": "gen_range::<usize, RangeInclusive<usize>>(rnd, (1000-range_error)..=(1000+range_error)) 1회 호출로 소비", "note": "★유일한 부작용. 롤 경로(%110, target 이동 가능)에서만 정확히 1회(m07:60427, L62). 정적 경로(%84)·조기 true(L39) 에선 rnd 를 건드리지 않는다 → rnd 스트림 비트동일 재현 시 이 분기 조건이 결정적"}
+ ],
+ "constants": [
+  {"value": 2, "src_line": 39, "meaning": "`(casting-1) <u 2` = CastingType∈{Position(1),Direction(2)} — is_nontarget(type.rs:149) 접힘. 아니면(Targeting/None) true 반환 (m07:60209~60210)"},
+  {"value": -1, "src_line": 39, "meaning": "위 범위검사의 `add nsw i32 %8, -1` 및 ArcInner 정렬 `(cap-1)&-16` (m07:60209,60221) — 판정값 아님"},
+  {"value": 1, "src_line": 39, "meaning": "linear_move_speed() 반환 Option<usize> 태그 1=Some (`icmp eq i64 %24, 1` m07:60229). None 이면 true 반환"},
+  {"value": 2, "src_line": 43, "meaning": "info.team bounds-check len 2 (m07:60235,60239) — 판정값 아님"},
+  {"value": 100, "src_line": 45, "meaning": "Entity::radius 인라인: radius*(radius_mult+100)/100 (m07:60293~60295, entity.rs:1515)"},
+  {"value": -9223372036854775805, "src_line": 54, "meaning": "RushState 니치 태그 = Rush(idx3, u64 9223372036854775811). can_move(entity.rs:1490): None/Tower/Nexus/Epic/Serpen 는 Rush 중일 때만 이동 가능 (m07:60338)"},
+  {"value": 3, "src_line": 54, "meaning": "ChampionActionState 태그 <3 (Idle0/Return1/Move2) = 행동 중 아님 → 이동 가능. is_in_action(entity.rs:1549) (m07:60379)"},
+  {"value": 10, "src_line": 58, "meaning": "★투사체 도달시간 보정: apply_time += (distance/linear_move_speed).saturating_sub(10) — 비행 틱에서 10틱 공제 (m07:60406~60407)"},
+  {"value": 1, "src_line": 56, "meaning": "0 나눗셈 바닥 umax(linear_move_speed,1)(m07:60401) · umax(range_error,1)(m07:60415 L61)"},
+  {"value": 1000, "src_line": 61, "meaning": "★명중 스케일: range_error = 1000 - skill_hit_accuracy(150..1000); error = rnd.gen_range((1000-range_error)..=(1000+range_error)); r = error * (range - apply_time*target_speed).saturating_sub / 1000 (m07:60412,60418,60420,60435, L61~64)"},
+  {"value": 0, "src_line": 62, "meaning": "RangeInclusive.exhausted=false 초기화 `store i8 0` (m07:60426) — 판정값 아님"}
+ ],
+ "calls": [
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::entity::Entity::distance",
+  "game_core::simulation::state::player::AthleteParameter::skill_hit_accuracy",
+  "rand::rngs::std::StdRng::gen_range",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "llvm.umax.i64",
+  "llvm.usub.sat.i64",
+  "llvm.assume"
+ ],
+ "logic": "fn check_nontarget(_version, rnd: &mut StdRng, player, data, action: &Effect, target: &Entity) -> bool {\n  // L39 — 논타겟(Position/Direction) 이고 투사체 속도가 정의된 스킬만 검사\n  if !(action.is_nontarget() && action.ty.linear_move_speed().is_some()) { return true; }   // casting∈{1,2} · vtable+0xf8 Some\n  // L43\n  let champ = data.cache.player_champion[player.info.team][player.info.position].unwrap();   // 캐스터\n  // L45 — 유효 사거리\n  let range = action.range(champ)                        // = action.range + (champ.level-1)*action.growth_range + champ.stat_buff_cached.range   (effect.rs:26)\n            + action.range_adjust(champ, target)         // game_core g06.ll:51785\n            + target.radius();                           // radius_mult==0 ? radius : radius*(mult+100)/100   (entity.rs:1511)\n  // L47, L49\n  let target_speed = target.stat_cached.move_speed;\n  let apply_time = action.start_timing;\n  // L54 — 대상이 움직일 수 있나 (can_move entity.rs:1490 + is_in_action entity.rs:1549 인라인)\n  let movable = match target.ty.tag {\n      None|Tower|Nexus|Epic|Serpen (0,3,2,5,6) => target.rush_state == Rush,   // +0x308 == Rush 니치\n      Champion (13)                            => target.action_state.tag < 3,   // Idle/Return/Move\n      _ (Minion,Jungle,Ghoul,SmallJiangshi,Bear,Eagle,Revenant,Illusion) => true,\n  };\n  if !movable {\n      // L68 — 정적: 제곱거리 비교 (rnd 미소비)\n      return dist2(champ.xy, target.xy) <= range*range;\n  }\n  // L56 — 투사체 선형 이동속도\n  let linear_move_speed = max(action.ty.linear_move_speed().unwrap(), 1);\n  // L58 — 도달까지 걸리는 틱(10틱 공제)을 발동시점에 더함\n  let apply_time = apply_time + (champ.distance(target) / linear_move_speed).saturating_sub(10);\n  // L60~62 — 선수 스킬 명중 오차 롤\n  let skill_hit_accuracy = player.info.parameter.skill_hit_accuracy();   // 150..=1000\n  let range_error = max(1000 - skill_hit_accuracy, 1);\n  let error = rnd.gen_range((1000 - range_error)..=(1000 + range_error));   // ★rnd 1회 소비\n  // L63~64 — 대상이 도달시간 동안 도망가는 거리를 빼고 오차 배율\n  let v = apply_time * target_speed;\n  let r = error * range.saturating_sub(v) / 1000;\n  // L66\n  dist2(champ.xy, target.xy) <= r*r\n}\n\n분기 순서(IR): %10(casting∈{1,2}) → %25(linear_move_speed Some) → %29(team bounds) → %40(champ null→panic) → %55(radius_mult==0) → switch(ty) → %83(rush==Rush)/%109(action_state<3) → 정적 %84 / 롤 %110~%115. dist2 = |dx|²+|dy|² (Entity.x/y u64, abs-diff).",
+ "knobs": [
+  {"what": "투사체 비행 틱 공제", "where": "cast.rs:58 (m07:60406)", "value": 10, "effect": "올리면 도달시간 보정이 줄어 멀리 있는 이동 대상에게도 시전 허용(빗나감↑). 내리면(0) 보수적"},
+  {"what": "명중 오차 스케일", "where": "cast.rs:61~64 (m07:60412,60418,60420,60435)", "value": 1000, "effect": "skill_hit_accuracy(150..1000) 를 밀리 단위로 해석. 1000 이 곧 '오차 0' 기준 — 바꾸면 accuracy 스탯 의미가 통째로 바뀜(스케일 상수, 노브로 부적합)"},
+  {"what": "행동 중 판정 임계", "where": "entity.rs:1549 is_in_action 인라인 (m07:60379)", "value": 3, "effect": "ChampionActionState 태그 ≥3(Attack/Skill/Skill2/Ult) 은 정지로 봐 정적 사거리 — 내리면(2) Move 중인 챔피언도 정지 취급 → 롤 없이 판정"},
+  {"what": "Rush 니치 태그", "where": "entity.rs:1490 can_move 인라인 (m07:60338)", "value": -9223372036854775805, "effect": "구조물/에픽/세르펜은 Rush 상태에서만 이동 취급 — 상수 자체는 열거형 레이아웃이라 노브 아님"}
+ ],
+ "unknown": [
+  "L54 의 정확한 소스 표기(`target.can_move() && !target.is_in_action()` 인지 단일 헬퍼인지) — dloc 은 1490 can_move 와 1549 is_in_action 둘 다 inlinedAt 54 를 가리킨다. 동작(위 movable 표)은 확정",
+  "`Effect::range_adjust(&Effect, caster:&Entity, target:&Entity)->usize`(g06.ll:51785) · `Entity::distance(&Entity,&Entity)->usize range(0,i64::MIN)`(g06.ll:84197) · `AthleteParameter::skill_hit_accuracy(&self 744B)->usize range(150,1001)`(g15.ll:125941) 내부 미독해(경계 콜리 — 시그니처만)",
+  "EffectType::linear_move_speed 는 Arc<dyn> 런타임 vtable — divtable 은 CombineEffect impl 기준 슬롯 0xf8 이름만 확정, 실제 어느 구현체가 꽂히는지·None 을 돌려주는 효과 종류는 미확인",
+  "exe 측 인자 배치(internal fastcc + ArgumentPromotion) 는 argscan 미실행 — sweep 편입 시 `argscan.py 0xd9f3c0` 필요(EXE_ABI 는 IR 과 다를 수 있음)",
+  "`_version` 이 IR 에서 제거됐으므로 버전 게이트 없음 — 모든 버전 동일 동작(IR 기준 확정, 소스에 `_version` 이라 의도적)"
+ ]
+}

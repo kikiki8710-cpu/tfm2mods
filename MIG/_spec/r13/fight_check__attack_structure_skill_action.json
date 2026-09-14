@@ -1,0 +1,99 @@
+{
+ "name": "attack_structure_skill_action",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check29attack_structure_skill_action",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 794,
+ "ir_file": "m15.ll",
+ "ir_from": 33783,
+ "ir_to": 34619,
+ "aux": [
+  {"ir_file": "m11.ll", "ir_from": 33849, "ir_to": 33901},
+  {"ir_file": "m15.ll", "ir_from": 58665, "ir_to": 58688}
+ ],
+ "one_line": "구조물(적 타워 6·쌍둥이·넥서스)에 스킬/스킬2 를 시전하는 후보 생성 — expected_damage_structure 를 보고하는(구조물 특화) 스킬만 대상으로, 표적가능·사거리(+이속×30)·target_constraint·can_activate 통과 시 Skill/Skill2 후보 push",
+ "signature": {
+  "abi": "외부 심볼 · sret 32B = bumpalo Vec<SmallActionPlay>. 인자 승격 없음. 클로저 3개(fight_check.rs:799·801·807) 중 799·801 은 본문 인라인, 807 은 call_mut 심(m15.ll:58665)과 Copied::try_fold 인스턴스(m11.ll:33849)로 분리 → aux.",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut bumpalo Vec<SmallActionPlay>(32B)", "attrs": "writable writeonly sret", "note": "+0 ptr / +8 bump / +16 cap / +24 len — L833 memcpy(m15.ll:34290)"},
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "attrs": "noalias readonly captures(none)", "note": "info.team / info.position 만"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "attrs": "noalias readonly", "note": "cache(+0)·context(+8). context 는 expected_damage_structure 와 pool 에, cache.game 은 Action vtable 호출에"}
+  ],
+  "returns": "bumpalo Vec<SmallActionPlay> 32B 전부 살아있음. 빈 반환 2경로: ① skill·skill2 둘 다 구조물 피해 없음(L802, 33953~33954 → %199) ② 타워 순회 종료(L833, %198). 원소 태그 enum+0xb1: 16=Skill / 17=Skill2 (Attack 후보는 이 함수에 없음 — 평타 타워 후보는 각 sub_plan 의 attack_tower_action, docs L111)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "<2 아니면 panic(33803~33809). 1-team = 적(33961)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index()(33814~33816)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "33817. iter_towers 의 self(33962), game 팻포인터 로드(34378~34379)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B) → pool(+0) 및 expected_damage_structure 인자(33876, 33934)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "Vec 할당자(33837, 33841)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "None → unwrap_failed 패닉(33823~33824, 33888)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "Action::target_constraint/can_activate 인자(34378, 34540)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "dr816 (34379, 34541)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag(니치)", "note": "champ. -1=None → skill 후보 없음(33845~33854, L798)"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "= skill(&Effect). +0 ty(Arc<dyn EffectType> 데이터 ptr 33865) / +8 vtable(33866~33867) / +0x10 range(33978) / +0x18 growth_range(33979) / +0x28 target(33985)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "champ. level>2 → skill2_effect/skill2 action 선택(33899~33904, 33993), level-1 → growth 배수(33981)"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect@Some.0", "note": "level>2 일 때 base, 아니면 정적 None @anon…58(33902~33904). +0x30 태그(33905~33907) / +0x10 range(33990) / +0x18 growth(33991) / +0x28 target(33992)"},
+  {"base": "Entity", "offset": "0x530", "name": "skill2_effect@tag(니치)", "note": "= base+48. -1 → skill2 후보 없음(L800)"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "champ ×30 = 사거리 여유(33957~33958, 33984, L806)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ(33976)·tower(34254) → distance_sq L808"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ(33977)·tower(34258)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "champ(33980, 34299, 34461)"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "champ(33982)·tower 반경 배율"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "champ(33983)·tower"},
+  {"base": "Entity", "offset": "0x580", "name": "skill(Box<dyn Action>).data_ptr", "note": "champ. Action vtable 호출 self(33986, 34376)"},
+  {"base": "Entity", "offset": "0x588", "name": "skill(Box<dyn Action>).vtable_ptr", "note": "vtable+0xc8 target_constraint(34380~34382) / +0xc0 can_activate(34389~34391)"},
+  {"base": "Entity", "offset": "0x590", "name": "skill2(Box<dyn Action>)", "note": "level>2 면 이것, 아니면 0x5b0 empty (select 33993~33995). target_constraint(34542~34544)/can_activate(34553~34555)"},
+  {"base": "Entity", "offset": "0x5b0", "name": "empty(Box<dyn Action>)", "note": "level<=2 의 skill2 action 대리 — 그 경우 skill2_effect 가 None 이라 실전 도달 불가(추정)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "tower id → SmallActionSkill/Skill2::new(34400~34402, 34564~34566)"},
+  {"base": "Entity", "offset": "0x6b9", "name": "can_target", "note": "tower. bool(aux m15.ll:58674~58677 / 인라인 34127~34129·34234~34236) — Entity::can_target(entity.rs:1478) = can_target && block_target_tick==0"},
+  {"base": "Entity", "offset": "0x6a0", "name": "block_target_tick", "note": "tower. ==0 이어야 표적 가능(58680~58682 / 34130~34133 / 34237~34239)"}
+ ],
+ "writes": [
+  {"base": "(sret)", "offset": "0x0", "name": "Vec.ptr", "value": "8(dangling) 또는 reserve 결과", "note": "33839 초기화, L833 memcpy 34290"},
+  {"base": "(sret)", "offset": "0x8", "name": "Vec.bump", "value": "data.context.pool", "note": "33841"},
+  {"base": "(sret)", "offset": "0x10", "name": "Vec.cap", "value": "0 → reserve_internal_or_panic 갱신", "note": "memset 33846; 34429, 34593"},
+  {"base": "(sret)", "offset": "0x18", "name": "Vec.len", "value": "push 횟수", "note": "34452, 34616"},
+  {"base": "Vec<SmallActionPlay>[len]", "offset": "0x0", "name": "SmallActionSkill/Skill2::new 24B", "value": "new(data, tower.id)", "note": "184B memcpy(34450, 34614). +0x18..+0xb0 은 alloca 잔여"},
+  {"base": "Vec<SmallActionPlay>[len]", "offset": "0xb1", "name": "SmallActionPlay@tag", "value": "16(Skill) | 17(Skill2)", "note": "store i8 (34407, 34571)"}
+ ],
+ "constants": [
+  {"value": 30, "src_line": 806, "meaning": "이속 × 30틱(0.5초@60tps) 사거리 여유 — skill·skill2 사거리 모두에 가산(33984 mul, 34352, 34514)"},
+  {"value": 100, "src_line": 812, "meaning": "반경 배율 radius*(mult+100)/100 (entity.rs:1515 인라인)"},
+  {"value": -1, "src_line": 798, "meaning": "Option<Effect> 니치 None(i32): skill_effect(33848) / skill2_effect(33907). 34025·34146 의 -1 과 34011·34186 의 -2 는 Chain 이터레이터 상태 니치(판정 아님)"},
+  {"value": 2, "src_line": 800, "meaning": "skill2 존재/action 선택 조건 level > 2 (entity.rs:1693, 33901·33993). 33805 의 2 는 팀 bounds"},
+  {"value": 0, "src_line": 799, "meaning": "Option<(usize,usize)> 태그 0=None — expected_damage_structure 가 None 이면 그 스킬 제외(33882, 33940). block_target_tick==0 (58682)"},
+  {"value": 16, "src_line": 817, "meaning": "SmallActionPlay 메모리태그 16 = Skill (34407)"},
+  {"value": 17, "src_line": 827, "meaning": "SmallActionPlay 메모리태그 17 = Skill2 (34571)"},
+  {"value": 1, "src_line": 807, "meaning": "1 - team = 적 팀 인덱스(33961); (level-1)(33981); push len+1"}
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "llvm.memset.p0.i64",
+  "llvm.memcpy.p0.p0.i64",
+  "llvm.assume",
+  "game_core::simulation::AbstractGameWithCache::iter_towers",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "game_ai::fight_check::attack_structure_skill_action::{closure#2}::call_mut",
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::entity::Entity::can_skill2",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_ai::small_action::cast::SmallActionSkill::new",
+  "game_ai::small_action::cast::SmallActionSkill2::new",
+  "game_ai::small_action::SmallActionPlay::reserve_internal_or_panic",
+  "core::ptr::drop_glue"
+ ],
+ "logic": "fn attack_structure_skill_action(player, data) -> bumpalo Vec<SmallActionPlay>\n  let champ = cache.player_champion[team][pos].unwrap()                                        // L795 (33803~33824; None → 패닉 33888)\n  let mut ret = Vec::new_in(data.context.pool)                                                    // L796 (33839~33846)\n  // L798~799: 구조물 특화 스킬만 — EffectType::expected_damage_structure(ctx, champ as &dyn AbstractEntity).is_some()\n  let skill  = champ.skill_effect.as_ref().filter(|e| e.ty.expected_damage_structure(data.context, champ).is_some())    // closure#0 (33845~33885; vtable+0x30, Arc deref 33868~33873)\n  // L800~801\n  let skill2 = champ.skill2_effect() /*level>2*/.as_ref().filter(|e| e.ty.expected_damage_structure(data.context, champ).is_some())   // closure#1 (33899~33946)\n  if skill.is_none() && skill2.is_none() { return ret }                                           // L802 (33950~33954)\n  let leeway = champ.stat_cached.move_speed * 30                                                  // L806 (33957~33958, 33984)\n  for tower in cache.iter_towers(1 - team).filter(|t| t.can_target()) {                           // L807 (33962; closure#2 = can_target(0x6b9) && block_target_tick(0x6a0)==0; Chain: 타워6 → 쌍둥이 slice(aux m11 33849 try_fold) → 넥서스)\n    let d2 = distance_sq(tower.xy, champ.xy)                                                      // L808 (34254~34281)\n    if let Some(sk) = skill {                                                                      // L810 (34282: %86)\n      let r = sk.range + leeway + (level-1)*sk.growth_range + stat.range + range_adjust(sk, champ, tower) + radius(champ) + radius(tower)   // L812~813 (34297~34357)\n      if champ.can_skill() && sk.target.check(champ, tower) && d2 <= r*r {                         // L814 (34359~34373; 순서 can_skill → check → 거리)\n        if champ.skill.target_constraint(game, champ, tower) {                                     // L815 vtable+0xc8 (34376~34386)\n          if champ.skill.can_activate(game, champ) {                                               // L816 vtable+0xc0 (34389~34395)\n            ret.push(Skill(SmallActionSkill::new(data, tower.id))) } } } }                          // L817 (34400~34452; 태그 16)\n    if let Some(sk2) = skill2 {                                                                    // L821 (34304: %87)\n      let r = sk2.range + leeway + (level-1)*sk2.growth_range + stat.range + range_adjust(sk2,..) + radius(champ) + radius(tower)   // L822~823 (34459~34519)\n      if champ.can_skill2() && sk2.target.check(champ, tower) && d2 <= r*r {                       // L824 (34521~34535)\n        let act = if level > 2 { &champ.skill2 } else { &champ.empty }                             // (33993~33995)\n        if act.target_constraint(game, champ, tower) {                                             // L825 (34538~34548)\n          if act.can_activate(game, champ) {                                                       // L826 (34551~34559)\n            ret.push(Skill2(SmallActionSkill2::new(data, tower.id))) } } } }                        // L827 (34564~34616; 태그 17)\n  }\n  ret                                                                                              // L833 (34290~34292)\n극성: 33854/33912 None → 필터 결과 null / 33882·33940 tag==0 → null(제외) / 33954 둘 다 null → 빈 반환 / 34282 skill null → %205(skill2 로) / 34363 can_skill false → %205 / 34373 select false → %205 / 34386·34395 false → %205 / 34304 skill2 null → %285(다음 타워) / 34525·34535·34548·34559 false → %285.",
+ "knobs": [
+  {"what": "사거리 여유 = 이속 × N틱", "where": "fight_check.rs:806 (m15.ll:33984)", "value": 30, "effect": "올리면 아직 사거리 밖인 구조물에도 스킬 후보가 서서 접근 중 시전 판단이 앞당겨짐"}
+ ],
+ "unknown": [
+  "EffectType::expected_damage_structure(&self, &GameContext, &dyn AbstractEntity) -> Option<(usize,usize)> (vtable+0x30, divtable EffectType 0x30) 의 각 구현 내부 및 (usize,usize) 의미는 game_core — 여기선 is_some 만 사용. @anon.e5f9a016….56(88B) 은 Entity 의 AbstractEntity vtable(추정: 팻포인터 뒤 절반으로 전달)",
+  "Action::target_constraint(vtable+0xc8)·can_activate(vtable+0xc0) 의 구현별 내부 미독(divtable Action 일치율 58% — 슬롯 이름은 tcx 트레이트 메서드 순서로 교차확인: action.rs:30 can_activate / :34 target_constraint)",
+  "iter_towers(&cache, team)->Chain 이터레이터(136B, _gcbc g15.ll:102521) 의 원소 순서(타워 6 → 쌍둥이 → 넥서스)는 IR 의 Chain 타입 이름으로 추정 — 내부 미독",
+  "SmallActionSkill/Skill2::new 의 24B 내용 미독. 원소 +0x18..+0xb0 은 alloca 잔여(런타임 비교 제외)",
+  "level<=2 이면 skill2_effect 가 정적 None 이라 empty action(0x5b0) 경로는 도달 불가(추정)",
+  "L814/L824 의 `&&` 세 항 소스 순서는 IR 호출 순서(can_skill → check → 거리 select)로만 확정 — 한 줄 안 표기는 복원 불가"
+ ]
+}

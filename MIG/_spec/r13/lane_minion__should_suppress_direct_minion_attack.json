@@ -1,0 +1,70 @@
+{
+ "name": "SmallActionLaneMinionPosition::should_suppress_direct_minion_attack",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition36should_suppress_direct_minion_attack",
+ "src": "game-ai\\src\\small_action\\lane_minion.rs",
+ "src_line": 152,
+ "ir_file": "m11.ll",
+ "ir_from": 45771,
+ "ir_to": 46032,
+ "aux": [],
+ "one_line": "사거리 밖의 같은 라인 적 미니언(target)에 대해 '직접 걸어가 때리기'를 억제할지 — 직접공격 스탠스 좌표가 있고 라인 위험이 없을 때 has_safe_minion_attack_stance 결과를 그대로 반환",
+ "signature": {
+  "abi": "외부 심볼(define zeroext i1, hidden 아님) · 인자 승격 없음. self 는 인자에 없다(연관함수 — 첫 인자 version 이 i64 %0). line 은 i8 range(0,3) = LineType 태그가 스칼라로 전달.",
+  "params": [
+   {"i": 1, "name": "version", "type": "i64(usize)", "attrs": "", "note": "본 함수 본문에선 분기 없음. has_safe_minion_attack_stance 에 그대로 전달(m11.ll:46030). lane_stance_risk 에는 `i64 poison` 으로 전달(46020) = 그 콜리가 version 을 안 쓴다는 컴파일러 판단"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "attrs": "noalias readonly", "note": "+0x0 cache(&AbstractGameWithCache) → player_champion 조회 / +0x8 context(&GameContext) → direct_attack_stance 에 전달"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "attrs": "noalias readonly", "note": "info.team / info.position 만 읽어 내 챔피언 엔티티를 찾음"},
+   {"i": 4, "name": "line", "type": "i8 LineType 태그 range(0,3)", "attrs": "", "note": "0=Top 1=Mid 2=Bottom (tcxdict --enum LineType). target 미니언의 line 태그와 == 비교"},
+   {"i": 5, "name": "target", "type": "&Entity(1728B)", "attrs": "noalias readonly", "note": "후보 적 미니언. dbg 이름 target(45777) — 이후 `self`로도 여러 번 바인딩(인라인 메서드의 self)"}
+  ],
+  "returns": "bool(zeroext i1) — true = 직접 미니언 공격을 억제. false 반환 경로 11개(phi m11.ll:45903) / true 는 오직 has_safe_minion_attack_stance 의 반환(%151)을 통과시키는 경로뿐. 스칼라라 살아있는 바이트 = 1B(i1 zeroext)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. player_champion 1차 인덱스. <2 아니면 panic_bounds_check(45783~45787)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 태그 → as_index()(player.rs:581 인라인) → player_champion 2차 인덱스(45792~45794)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache 로드(45795)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext 로드 → direct_attack_stance 인자(46005~46007)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[2][5] x Option<&Entity>(니치 null=None). None 이면 false(45797~45801)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "target·champ 양쪽. TeamType 태그 0=Player/1=Neutral (45811, 45814)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "팀 번호 usize. 태그가 둘 다 Player 일 때 == 비교(45853~45855); champ 쪽은 player_team() 으로도 로드(45830)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag", "note": "target.visible_state[champ_team]. stride 24B(gepS 45861). 태그 0=Visible 이어야 통과(45862~45863)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "target 의 EntityType 태그. ==1(Minion) 이어야 통과(45841~45843 L159, 45864~45866 은 컴파일러가 L156 select 로 병합)"},
+  {"base": "Entity", "offset": "0x11a", "name": "ty@Minion.info.line@tag", "note": "target 미니언의 LineType 1B 태그. 인자 line 과 == (45880~45884, L162). ty==Minion 확정 문맥에서만 읽힘(switch 접힘)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag(니치)", "note": "champ 의 attack_effect Option 니치 태그(i32 -1 = None → false, 45890~45893, L165)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "&Effect(56B) 시작 = atk. range_adjust 인자(45917)"},
+  {"base": "Entity", "offset": "0x4b8", "name": "attack_effect@Some.0.target", "note": "CastingTarget(4B) → CastingTarget::check 의 self(45898~45899, L168)"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect@Some.0.range", "note": "champ. 사거리 합산 항(45907~45908, effect.rs:26 range() 인라인)"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range", "note": "champ. (level-1)*growth_range(45909~45914)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "champ 레벨(45911~45913)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "champ 기본 사거리 스탯(45915~45916)"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "champ·target 양쪽. i32, 0 이면 radius 그대로, 아니면 radius*(mult+100)/100 (entity.rs:1511~1515 인라인, 45918~45963)"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "champ·target 양쪽 몸통 반경(45925, 45932, 45948, 45955)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "target(45970)·champ(45978) 좌표 → distance_sq"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "target(45974)·champ(45982) 좌표 → distance_sq"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 1, "src_line": 159, "meaning": "EntityType 메모리태그 1 = Minion (tcxdict --enum EntityType). target.ty==Minion 아니면 false (45843, 45866). 같은 값 1 이 45822 에선 TeamType Neutral 비트(trunc i1), 46009 에선 direct_attack_stance 반환 Option 태그 Some, 46022 에선 lane_stance_risk 반환 Option<i64> 태그 Some"},
+  {"value": 0, "src_line": 156, "meaning": "VisibleState 메모리태그 0 = Visible (45863) — target.visible_state[champ_team]==Visible 이어야 통과. 45826 의 0 은 TeamType Player 태그"},
+  {"value": -1, "src_line": 165, "meaning": "attack_effect Option 니치 None(i32 태그 -1, 45892). champ 에 평타 이펙트 없으면 false"},
+  {"value": 100, "src_line": 172, "meaning": "반경 배율 퍼센트 — radius*(radius_mult+100)/100 (entity.rs:1515 인라인, 45934~45936·45957~45959). 임계 아님"}
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::direct_attack_stance",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::lane_stance_risk",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::has_safe_minion_attack_stance"
+ ],
+ "logic": "fn should_suppress_direct_minion_attack(version, data:&OperationData, player:&PlayerState, line:LineType, target:&Entity) -> bool\n  let champ = data.cache.player_champion[player.info.team][player.info.position.as_index()]?  // L153: None → false (45801)\n  // L156: 팀 비교 + 가시성 (entity.rs:1127 eq / 1482~1483 is_visible_from / 1136~1137 player_team 인라인)\n  if target.team == champ.team { return false }            // 태그 같고 (Player 면 팀번호까지 같음 | 둘 다 Neutral) → false (45827, 45856)\n  match champ.team {\n    Player(t) => { if target.visible_state[t] != Visible { return false } }   // 45862~45868 (t<2 아니면 panic 45871)\n    Neutral   => { /* 가시성 검사 생략 — champ 는 player_champion 이라 실전 도달 불가 경로 */ }  // 45822→45840\n  }\n  if target.ty.tag != Minion(1) { return false }           // L159 (45843; Player 경로에선 L156 select 에 병합 45866)\n  if target.ty.Minion.info.line != line { return false }    // L162 (45884)\n  let atk = champ.attack_effect.as_ref()?                    // L165: None(-1) → false (45892)\n  if !atk.target.check(champ, target) { return false }       // L168 CastingTarget::check (45899)\n  // L172 attack_range = champ.range_to(target) (effect.rs:26 range() 인라인)\n  let attack_range = champ.stat_buff_cached.range + atk.range + (champ.level-1)*atk.growth_range\n                   + Effect::range_adjust(atk, champ, target) + radius(champ) + radius(target)   // 45964~45968\n     where radius(e) = if e.radius_mult==0 { e.radius } else { e.radius*(radius_mult+100)/100 }   // entity.rs:1511~1515\n  // L173: 이미 사거리 안이면 억제 안 함\n  if distance_sq(target.xy, champ.xy) <= attack_range^2 { return false }   // ugt 가 true 일 때만 계속 (46000~46001)\n  // L177\n  let Some((walk_x, walk_y)) = Self::direct_attack_stance(data.context, champ.x, champ.y, target.x, target.y, attack_range) else { return false }  // L178 (46007~46010, 46027)\n  // L180: 스탠스 지점의 라인 위험이 있으면(Some) 억제 안 함\n  if Self::lane_stance_risk(<unused>, player, data, champ, walk_x, walk_y).is_some() { return false }   // Option<i64> 태그 1=Some → false (46020~46023)\n  // L184\n  return Self::has_safe_minion_attack_stance(version, player, data, champ, target, line, attack_range)   // 46030\n분기 극성 근거: 45801 null→%66(false) / 45856 팀번호 eq→%66 / 45868 select(visible&&minion) false→%66 / 45885 line ne→%66 / 45893 -1→%66 / 45900 check false→%66 / 46001 dist≤range→%66 / 46010 Option None→%149→%66 false / 46023 Some→%66 false / 46031 %151 그대로.",
+ "knobs": [],
+ "unknown": [
+  "has_safe_minion_attack_stance(m11.ll:45190, internal fastcc, i1 반환)·direct_attack_stance(m11.ll:45044, sret 24B Option<(i64,i64)>)·lane_stance_risk(m11.ll:44468, {i64,i64}=Option<i64>) 의 내부는 본 명세 범위 밖 — 시그니처·반환 형태만 호출부에서 확정. 최종 true 의 의미('안전한 대체 스탠스가 있어 직접 공격을 억제')는 이름 기반 추정",
+  "lane_stance_risk 의 Option<i64> 페이로드(위험 수치?)는 본 함수에서 안 읽음(태그만 검사, 46021~46022)",
+  "direct_attack_stance 첫 인자 = data.context(&GameContext) 이나 `captures(address_is_null)` 속성 — 콜리가 null 검사만 하는지 미확인",
+  "champ.team==Neutral 경로(45822 true→45840)는 소스 `player_team()` 이 Option 을 돌려주는 형태로 추정(None 이면 가시성 검사 없이 통과) — 소스 표기는 미확정. 실전에선 player_champion 이 항상 Player 팀이라 도달 불가(추정)",
+  "attack_range 합산 순서·`range_adjust` 의 정확한 반환 단위(부호)는 game_core 쪽 — 여기선 i64 add 로만 관측(45917, 45966)",
+  "판정 임계 상수 없음(모든 비교가 필드 대 필드/태그) → knobs 비움. 조정 지점은 콜리 3개 내부"
+ ]
+}

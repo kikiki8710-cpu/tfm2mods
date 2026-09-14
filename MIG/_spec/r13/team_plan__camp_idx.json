@@ -1,0 +1,36 @@
+{
+ "name": "camp_idx",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan8camp_idx",
+ "src": "game-ai\\src\\plan_legacy\\team_plan.rs",
+ "src_line": 34,
+ "ir_file": "m09.ll",
+ "ir_from": 54334,
+ "ir_to": 54359,
+ "aux": [],
+ "one_line": "정글 캠프 타입(JungleType) → 팀플랜 캠프 배열 인덱스 0..4 순수 매핑(Rhino0 Mushroom1 Bee2 Stump3 · Morgard/Serpen 은 unreachable 패닉)",
+ "signature": {
+  "abi": "일반 define(external) · 인자 1 스칼라 `i8 range(0,6)` · 반환 `i64 range(0,4)` 스칼라. 부작용 없음(메모리 접근 0)",
+  "params": [
+   {"i": 1, "name": "jungle", "type": "JungleType(1B enum, 태그 Direct)", "ir": "i8 noundef range(i8 0, 6) %0", "note": "tcxdict --enum JungleType: 0 Rhino / 1 Mushroom / 2 Stump / 3 Bee / 4 Morgard / 5 Serpen (idx==태그)"}
+  ],
+  "returns": "usize(i64 range 0..3) — 캠프 배열 인덱스. 태그 0→0, 1→1, 2(Stump)→3, 3(Bee)→2. 태그 4(Morgard)/5(Serpen) 는 `unreachable!()` 패닉(team_plan.rs:40:10). 스칼라라 살아있는 바이트 = 8B(값 0..3)"
+ },
+ "reads": [],
+ "writes": [],
+ "constants": [
+  {"value": 0, "src_line": 35, "meaning": "switch case JungleType 태그 0=Rhino → 인덱스 0 (m09:54337 → phi %1 값 0, m09:54357)"},
+  {"value": 1, "src_line": 37, "meaning": "태그 1=Mushroom → 인덱스 1 (m09:54338 → %3 → phi 1)"},
+  {"value": 2, "src_line": 39, "meaning": "태그 2=Stump → 인덱스 **3** (m09:54339 → %4 → phi 3, L39) — 개발자 주석 '(Rhino=0, Mushroom=1, Bee=2, Stump=3)' 과 일치"},
+  {"value": 3, "src_line": 38, "meaning": "태그 3=Bee → 인덱스 **2** (m09:54340 → %5 → phi 2, L38)"},
+  {"value": 40, "src_line": 40, "meaning": "panic 메시지 길이 40 = \"internal error: entered unreachable code\"(@anon…304) · Location @anon…305 = team_plan.rs:40:10 (m09:54344) — 판정값 아님"}
+ ],
+ "calls": [
+  "core::panicking::panic"
+ ],
+ "logic": "fn camp_idx(jungle: JungleType) -> usize {\n  match jungle {            // L35 switch i8\n    JungleType::Rhino    => 0,   // 태그 0 (L35 default-through, phi [0,%1])\n    JungleType::Mushroom => 1,   // 태그 1 (L37)\n    JungleType::Bee      => 2,   // 태그 3 (L38)\n    JungleType::Stump    => 3,   // 태그 2 (L39)\n    JungleType::Morgard | JungleType::Serpen => unreachable!(),   // 태그 4·5 → core::panicking::panic (L40, team_plan.rs:40:10)\n  }\n}\n\n★선언 순서(Rhino,Mushroom,Stump,Bee)와 배열 인덱스 순서(Rhino,Mushroom,Bee,Stump)가 다르다 — Stump↔Bee 가 뒤바뀐 매핑이며 이 함수가 그 변환 전담. 호출자 1곳(exe 0xde5300 · 54B).",
+ "knobs": [],
+ "unknown": [
+  "소스 L36 이 무엇인지(IR 에 줄 36 DILocation 없음 — `match jungle {` 다음 빈 줄이거나 Rhino arm 이 35 에 접힘 추정). 동작은 4 arm 전부 확정",
+  "이 인덱스를 소비하는 캠프 배열(길이 4)의 정체·호출자는 이 명세 범위 밖(호출자 1 — 잎 라운드라 미추적)"
+ ]
+}

@@ -1,0 +1,76 @@
+{
+ "name": "champion_hp_value_uncached",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai5utils26champion_hp_value_uncached",
+ "src": "game-ai\\src\\utils.rs",
+ "src_line": 929,
+ "ir_file": "m04.ll",
+ "ir_from": 52225,
+ "ir_to": 53105,
+ "aux": [],
+ "one_line": "대상 챔피언의 'HP 가치' = (attack_value·공격력 순위배율 + util_value·유틸력 순위배율)/100 — 근처 챔피언(≤10명) 안에서의 상대 순위로 스케일",
+ "signature": {
+  "abi": "define hidden noundef range(i64 …) i64 (외부 링키지 hidden, fastcc 아님, 인자 승격 없음) · exe 0xd390a0 · tcx v=in:game_ai::utils (private) · mir=0 · 호출자 1(캐시 래퍼로 추정)",
+  "params": [
+   {"i": 1, "name": "parameter", "type": "&ScoreParameter (5384B) noalias readonly", "note": "player(0x918: 자기 ChampionScoreParameter)·near_allies(0x14b8)·near_enemies(0x14d8) 만 읽음"},
+   {"i": 2, "name": "target", "type": "&ChampionScoreParameter (216B) noalias readonly", "note": "가치를 매길 대상. dbg 이름 target/p 둘 다 %1"}
+  ],
+  "returns": "i64 — HP 가치 점수 = (target.attack_value*atk_scale + target.util_value*util_scale)/100 (L53094~53104). 순위배율은 50..=200 (rank_scale: 하위면 rank+50 (50..100), 상위면 rank*2 (102..200); n<2 이면 100). 단일 스칼라라 살아있는 바이트 = 8B 전부",
+  "mutability": "인자 2개 모두 readonly → writes 없음. 지역 배열 atk_list[10]·util_list[10](alloca 80B ×2, memset 0) 만 씀"
+ },
+ "reads": [
+  {"base": "ScoreParameter", "offset": "0x9d0", "name": "player.attack_power (=0x918+0xb8)", "note": "L52252~52254 atk_list[0] (:943)"},
+  {"base": "ScoreParameter", "offset": "0x978", "name": "player.team (=0x918+0x60)", "note": "L52255~52259 `== target.team` (:944, :964)"},
+  {"base": "ScoreParameter", "offset": "0x9d8", "name": "player.util_power_base (=0x918+0xc0)", "note": "L52430~52431 util_power_combined 인라인 utils.rs:873 (:965)"},
+  {"base": "ScoreParameter", "offset": "0x9e0", "name": "player.cc_time_x_inv_cd (=0x918+0xc8)", "note": "L52432~52436 `*ally_dps/1000` (utils.rs:874)"},
+  {"base": "ScoreParameter", "offset": "0x9e8", "name": "player.buff_inv_cd_count (=0x918+0xd0)", "note": "L52437~52441 `*ally_dps/10000` (utils.rs:875)"},
+  {"base": "ScoreParameter", "offset": "0x14b8", "name": "near_allies.buf.ptr (bumpalo Vec<ChampionScoreParameter>)", "note": "L52268~52269 (:947, :968)"},
+  {"base": "ScoreParameter", "offset": "0x14d0", "name": "near_allies.len (=0x14b8+0x18)", "note": "L52271~52272 · 원소 stride 216B (L52286)"},
+  {"base": "ScoreParameter", "offset": "0x14d8", "name": "near_enemies.buf.ptr", "note": "L52344~52345 (:953, :974)"},
+  {"base": "ScoreParameter", "offset": "0x14f0", "name": "near_enemies.len (=0x14d8+0x18)", "note": "L52347~52348"},
+  {"base": "ChampionScoreParameter", "offset": "0x60", "name": "team", "note": "target: L52257~52258. 각 p: L52313~52315 / L52395~52397 / L52466~52468 … / L52850~52852"},
+  {"base": "ChampionScoreParameter", "offset": "0xb8", "name": "attack_power", "note": "각 p: L52309~52310 / L52391~52392 → atk_list[n] ; target: L52887~52888 target_atk (:982)"},
+  {"base": "ChampionScoreParameter", "offset": "0xc0", "name": "util_power_base", "note": "util_power_combined 항1 (utils.rs:873) L52472~52473 등 · target L52890~52891"},
+  {"base": "ChampionScoreParameter", "offset": "0xc8", "name": "cc_time_x_inv_cd", "note": "항2 `*dps/1000` L52474~52477 · target L52892~52895"},
+  {"base": "ChampionScoreParameter", "offset": "0xd0", "name": "buff_inv_cd_count", "note": "항3 `*dps/10000` L52479~52482 · target L52897~52900"},
+  {"base": "ChampionScoreParameter", "offset": "0xa8", "name": "attack_value (target)", "note": "L53094~53096 `* atk_scale` (:988)"},
+  {"base": "ChampionScoreParameter", "offset": "0xb0", "name": "util_value (target)", "note": "L53097~53099 `* util_scale` (:988)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 1000, "src_line": 874, "meaning": "util_power_combined 항2 분모: cc_time_x_inv_cd * ally_dps / 1000 (L52435 등 — :965/:971/:977/:983 네 호출 지점에 인라인)"},
+  {"value": 10000, "src_line": 875, "meaning": "util_power_combined 항3 분모: buff_inv_cd_count * ally_dps / 10000 (L52440 등)"},
+  {"value": 10, "src_line": 934, "meaning": "atk_list/util_list 길이 10 (=자기 1 + 근처 최대 9) — L52883 panic_bounds_check len 10 (:977) · L52954 slice_index_fail len 10 (:985) · dbg values[8..+8]=10"},
+  {"value": 8, "src_line": 947, "meaning": "루프 상한 접힘: 저장 후 `n_old > 8`(L52334/L52416 `icmp samesign ugt %24, 8`) 이면 중단 = 소스 `n >= 10` 가드가 회전된 형태(folded). n 은 1에서 시작하므로 최대 index 9"},
+  {"value": 9, "src_line": 953, "meaning": "적 루프 진입 가드 `n > 9`(L52377) = 같은 `n >= 10` 가드(빈 루프 진입 전 검사). 판정값 아님(용량)"},
+  {"value": 2, "src_line": 882, "meaning": "rank_scale: `n < 2` 이면 순위 계산 없이 100 (L52923 icmp ult %79, 2 → L53091/53092 phi 100). 즉 비교 대상이 없으면 배율 1.0"},
+  {"value": 11, "src_line": 985, "meaning": "`atk_list[..n]` 슬라이스 범위검사 n<=10 (L52929 `icmp ult %79, 11`). 도달 불가 panic"},
+  {"value": 100, "src_line": 890, "meaning": "rank_x100 = middle*100/(n−1) (L53059/L53071) · clamp 상한 100 (L53063/L53077) · :988 최종 /100 (L53101) · n<2 기본 배율 100"},
+  {"value": 51, "src_line": 891, "meaning": "`rank_x100 < 51`(하위·중위) 이면 배율 = rank_x100+50 (50..100), 아니면 rank_x100*2 (102..200). L53064/L53079 — ⚠비교는 clamp 전 값(%366/%376)이지만 결과는 동일"},
+  {"value": 50, "src_line": 892, "meaning": "하위 배율 오프셋 `rank_x100 + 50` (L53065/L53087)"},
+  {"value": 1, "folded_from": 2, "src_line": 894, "meaning": "상위 배율 `rank_x100 * 2` 가 `shl nuw nsw i64 %368, 1`(L53066/L53083) 로 접힘. 또 `equal/2` 가 `lshr 1`(L53057/L53068), `n−1` 이 `add −1`(L53060)"},
+  {"value": -1, "src_line": 890, "meaning": "`n - 1` (L53060 add nsw −1) — 순위 분모(자기 제외 인원)"},
+  {"value": 0, "src_line": 938, "meaning": "누적 초기값 n·same_dps·opp_dps=0 (dbg) · select 분기의 0 (팀 불일치면 상대 합에 0 가산, L52260~52261) · clamp 하한 0"}
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::slice::index::slice_index_fail",
+  "llvm.memset.p0.i64",
+  "llvm.smax.i64",
+  "llvm.umin.i64"
+ ],
+ "logic": "fn champion_hp_value_uncached(parameter: &ScoreParameter, target: &ChampionScoreParameter) -> i64 {   // utils.rs:929~932\n  let mut atk_list = [0i64; 10]; let mut util_list = [0i64; 10];                                    // :934~935 L52242~52246 memset\n  let (mut n, mut same_dps, mut opp_dps) = (0, 0, 0);                                                 // :938~941 (same_dps 의 dbg 별칭 = ally_team_dps_sum)\n  let me = &parameter.player;                                                                          // +0x918\n  // :943~944  자기 자신\n  atk_list[0] = me.attack_power; n = 1;                                                                // L52252~52254\n  if me.team == target.team { same_dps += me.attack_power } else { opp_dps += me.attack_power }        // L52255~52261 (select 쌍)\n  // :947~951  근처 아군\n  for p in parameter.near_allies.iter() { if n >= 10 { break; }                                        // L52296~52336 (가드는 `n_old > 8` 로 접힘)\n    atk_list[n] = p.attack_power;                                                                       // :949\n    if p.team == target.team { same_dps += p.attack_power } else { opp_dps += p.attack_power }          // :950\n    n += 1; }                                                                                           // :951\n  // :953~957  근처 적군 (같은 처리)\n  for p in parameter.near_enemies.iter() { if n >= 10 { break; } atk_list[n] = p.attack_power; …team 합산…; n += 1; }   // L52376~52418\n  // :964~965  자기 유틸력 (자기 '편' DPS 합 = target 과 같은 팀이면 same_dps, 아니면 opp_dps)\n  let ally_dps = if me.team == target.team { same_dps } else { opp_dps };                               // L52427\n  util_list[0] = util_power_combined(me, ally_dps);                                                     // L52430~52442\n  // :968~971  근처 아군 유틸력 (idx 1.., idx>=n 이면 중단 — 완전 언롤 L52459~52814)\n  let mut idx = 1;\n  for p in near_allies { if idx >= n { break; } let d = if p.team == target.team {same_dps} else {opp_dps}; util_list[idx] = util_power_combined(p, d); idx += 1; }\n  // :974~978  근처 적군 유틸력 (idx>=n 중단, idx>=10 이면 bounds panic — 도달 불가)\n  for p in near_enemies { if idx >= n { break; } … util_list[idx] = util_power_combined(p, d); idx += 1; }   // L52832~52880\n  // :982~983  대상 자신의 공격력·유틸력 (대상 팀 DPS 합 = same_dps)\n  let target_atk = target.attack_power;                                                                 // L52887~52888\n  let target_util = util_power_combined(target, same_dps);                                              // L52890~52901\n  // :985~986  근처 집단 안에서의 순위 배율\n  let atk_scale = rank_scale(&atk_list[..n], target_atk);                                               // L52923~53067\n  let util_scale = rank_scale(&util_list[..n], target_util);                                            // L53018~53088\n  // :988  최종\n  (target.attack_value * atk_scale + target.util_value * util_scale) / 100                              // L53094~53104\n}   // :989\n\n// util_power_combined(p, dps) -> i64   utils.rs:873~875 (인라인 4곳)\n  p.util_power_base + p.cc_time_x_inv_cd * dps / 1000 + p.buff_inv_cd_count * dps / 10000\n\n// rank_scale(values: &[i64], target: i64) -> i64   utils.rs:882~894 (인라인 2곳)\n  let n = values.len(); if n < 2 { return 100; }                                                        // :882\n  let (mut lower, mut equal) = (0, 0);\n  for v in values { if v < target { lower += 1 } ; if v == target { equal += 1 } }                        // :885~886 (부호 있는 비교 slt/eq)\n  let middle = lower + equal / 2;                                                                       // :889 (동률 절반을 아래로)\n  let rank_x100 = (middle * 100 / (n - 1)).clamp(0, 100);                                               // :890\n  if middle*100/(n-1) < 51 { rank_x100 + 50 } else { rank_x100 * 2 }                                    // :891~894 → 50..=100 | 102..=200\n\n※ values 에는 target 자신도 들어 있을 수 있어(근처 목록에 target 포함 시) equal>=1 이 보통이고, middle 로 절반만 센다.",
+ "knobs": [
+  {"what": "순위→배율 곡선 분기점", "where": "utils.rs:891 (L53064/L53079)", "value": 51, "effect": "rank 51% 이상이면 ×2 곡선(102..200), 미만이면 +50(50..100). 올리면 '상위' 취급이 어려워져 HP 가치가 전반적으로 낮아짐"},
+  {"what": "하위 배율 바닥", "where": "utils.rs:892 (L53065/L53087)", "value": 50, "effect": "꼴찌도 가치 50%. 내리면 약한 챔피언 HP 가치가 더 무시됨"},
+  {"what": "상위 배율 기울기(×2)", "where": "utils.rs:894 (L53066/L53083 shl 1)", "value": 2, "effect": "1위 = 200%. 올리면 캐리 챔피언 HP 가 훨씬 비싸짐(보호·집중 대상)"},
+  {"what": "유틸력 DPS 결합 계수", "where": "utils.rs:874~875 (L52435/L52440 등)", "value": "cc_time_x_inv_cd/1000 · buff_inv_cd_count/10000", "effect": "CC·버프 챔피언의 유틸력이 편 DPS 합에 비례해 커짐. 분모를 줄이면 서포터 HP 가치 상승"},
+  {"what": "근처 집단 최대 인원", "where": "utils.rs:934 (배열 10)", "value": 10, "effect": "자기+9. 양 팀 5:5 전원이 들어감. 줄이면 뒤쪽 원소(적군 뒤쪽)가 순위 모집단에서 빠짐"}
+ ],
+ "unknown": [
+  "루프 가드 `n >= 10`/`idx >= n` 의 소스 표기(if-break 인지 take() 인지) — IR 은 `n_old > 8`·`n > 9`·`idx < n` 으로 회전돼 있어 표기 불가. 동작(최대 10원소, 아군 먼저)은 확정",
+  ":968~971 아군 유틸 루프가 완전 언롤(9회, L52459~52814)된 것은 컴파일러 판단 — 소스는 :974 적군 루프(L52832~)와 같은 형태로 추정",
+  "rank_scale 에서 `< 51` 비교가 clamp 전 값(%366/%376)에 걸리는 것이 소스 그대로인지(`let r = …; let rank_x100 = r.clamp(0,100); if r < 51`) — 표기 불가, 외연 동일",
+  "near_allies/near_enemies 에 target 자신이 포함되는지는 ScoreParameter 생성 지점(이 명세 밖)의 몫 — 포함되면 equal 에 1이 들어가 middle 에 0.5 기여",
+  "attack_value/util_value/attack_power/util_power_base 의 산출식은 ChampionScoreParameter 생성부(score_parameter.rs:1379~) 몫 — 여기서는 소비만"
+ ]
+}

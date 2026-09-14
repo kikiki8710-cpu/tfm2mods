@@ -1,0 +1,55 @@
+{
+ "name": "line_recall_pressure_penalty",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy28line_recall_pressure_penalty",
+ "src": "game-ai\\src\\lane_economy.rs",
+ "src_line": 238,
+ "ir_file": "m11.ll",
+ "ir_from": 51097,
+ "ir_to": 51193,
+ "aux": [],
+ "one_line": "귀환 압박 페널티 — 처벌피해를 맞은 뒤 남는 HP% 가 45%/25% 미만이거나 처벌피해가 최대HP의 11% 초과면 hp_value 비례 페널티(i64) 산출",
+ "signature": {
+  "abi": "internal fastcc (m11.ll:51097). 인자 승격 흔적 없음 — 소스 인자 3개(&Entity, i64, i64)가 그대로 ptr/i64/i64 로 넘어온다(포인터→스칼라 분해 없음). 반환 i64 에 range(-6610083293079255995, 6610083293079255995) 는 컴파일러 분석값일 뿐 의미 없음.",
+  "params": [
+   {"i": 1, "name": "champ", "type": "&Entity(1728B)", "attrs": "noalias readonly captures(none) dereferenceable(1728)", "note": "읽기 전용. undying / stat_cached.hp / hp 3필드만 읽음"},
+   {"i": 2, "name": "punish_damage", "type": "i64", "attrs": "range(i64 1, i64::MIN) = 호출자가 ≥1 을 보장", "note": "귀환 시 맞을 것으로 보는 처벌 피해량. 부호 있는 산술(sub/mul/sdiv)로만 쓰임"},
+   {"i": 3, "name": "hp_value", "type": "i64", "attrs": "", "note": "HP 1 단위의 가치(통화). 페널티 스케일 인자"}
+  ],
+  "returns": "i64 penalty — 0 이면 페널티 없음. undying 이면 무조건 0(m11.ll:51104→51190 phi [0,%3]). 양수 클수록 귀환이 더 불리하다는 뜻(호출자 lane_economy 채점에서 감산되는 것으로 추정 — 호출자 미독). 스칼라 반환이라 살아있는 바이트 = 8B 전부"
+ },
+ "reads": [
+  {"base": "Entity", "offset": "0x488", "name": "stat_buff_cached.undying", "note": "bool(i8 trunc → i1). true 면 즉시 0 반환 (m11.ll:51101~51104, lane_economy.rs:239)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "usize 최대HP. umax(.,1) 로 0 나눗셈 방지 → max_hp (m11.ll:51107~51111, L242)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "usize 현재HP. hp - punish_damage 를 smax 0 → hp_after (m11.ll:51113~51118, L243). L253 에서 max(hp,1) 로 한 번 더 읽음(같은 로드 %12 재사용, m11.ll:51178)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 100, "src_line": 244, "meaning": "퍼센트 스케일 — hp_after*100/max_hp = 처벌 후 HP%. L252 에서도 punish_damage*100/max_hp 에 재사용(m11.ll:51120, 51148)"},
+  {"value": 45, "src_line": 246, "meaning": "1차 임계 HP%. hp_after_pct < 45 이면 페널티 발생. L247 에서 (45 - hp_after_pct) 의 피감수로도 쓰임(m11.ll:51130, 51138)"},
+  {"value": 60, "src_line": 247, "meaning": "1차 페널티 분모 — penalty = (45-hp_after_pct)*hp_value/60 (m11.ll:51140)"},
+  {"value": 25, "src_line": 249, "meaning": "2차(치명) 임계 HP%. hp_after_pct < 25 이면 추가 페널티. 45 미만 블록 안에서만 검사(m11.ll:51142)"},
+  {"value": 5, "src_line": 250, "meaning": "치명 추가 페널티 = hp_value/5 (sdiv, m11.ll:51154)"},
+  {"value": 11, "src_line": 252, "meaning": "처벌피해 비율 임계 — punish_damage*100/max_hp > 11 (즉 ≥12%) 이면 추가 페널티(m11.ll:51161)"},
+  {"value": 2, "src_line": 253, "meaning": "추가 페널티 = (hp_value*punish_damage / max(hp,1)) / 2 — 절반(sdiv 2, m11.ll:51180). 비교 임계와 무관한 분모"}
+ ],
+ "calls": [
+  "llvm.umax.i64",
+  "llvm.smax.i64",
+  "core::panicking::panic_const::panic_const_div_overflow"
+ ],
+ "logic": "fn line_recall_pressure_penalty(champ:&Entity, punish_damage:i64(≥1), hp_value:i64) -> i64\n  if champ.stat_buff_cached.undying { return 0 }                         // L239  (@0x488)\n  let max_hp = max(champ.stat_cached.hp, 1)                                // L242  (@0x628, umax)\n  let hp_after = max(champ.hp as i64 - punish_damage, 0)                   // L243  (@0x670, smax)\n  let hp_after_pct = hp_after*100 / max_hp                                 // L244  (sdiv; -1/MIN 오버플로 패닉 가드는 컴파일러 삽입)\n  let mut penalty = 0\n  if hp_after_pct < 45 {                                                   // L246\n     penalty = (45 - hp_after_pct) * hp_value / 60                         // L247\n     if hp_after_pct < 25 { penalty += hp_value / 5 }                      // L249~250 (45 미만 블록 안에서만)\n  }\n  if punish_damage*100 / max_hp > 11 {                                     // L252\n     penalty += (hp_value * punish_damage / max(champ.hp,1)) / 2           // L253 (분모는 max_hp 가 아니라 현재 hp!)\n  }\n  return penalty                                                           // L256\n분기 극성: 51104 br %6(undying) → true=%51(ret 0) / 51131 br %21(pct<45) → true=%23 / 51143 br %27(pct<25) → true=%33 / 51162 br %38(ratio>11) → true=%40. 세 조건은 독립 가산(첫 undying 만 조기 종료). 세 panic_const_div_overflow 블록(51134·51165·51186)은 i64::MIN/-1 가드로 도달 불가(max_hp≥1, hp 는 usize).",
+ "knobs": [
+  {"what": "처벌 후 HP% 1차 임계", "where": "lane_economy.rs:246 (m11.ll:51130)", "value": 45, "effect": "올리면 더 높은 HP 에서도 귀환 페널티가 붙어 귀환을 더 꺼리게(라인 압박 아래 귀환 억제). L247 의 (45-pct) 기울기 기준점도 같이 이동"},
+  {"what": "1차 페널티 분모", "where": "lane_economy.rs:247 (m11.ll:51140)", "value": 60, "effect": "내리면 HP% 부족 1%당 페널티가 커진다(hp_value/60 per %)"},
+  {"what": "치명 HP% 임계", "where": "lane_economy.rs:249 (m11.ll:51142)", "value": 25, "effect": "올리면 hp_value/5 정액 추가 페널티가 더 넓은 HP 구간에서 붙는다"},
+  {"what": "치명 정액 페널티 분모", "where": "lane_economy.rs:250 (m11.ll:51154)", "value": 5, "effect": "내리면 치명 구간 정액 페널티(hp_value/5) 증가"},
+  {"what": "처벌피해/최대HP 비율 임계(%)", "where": "lane_economy.rs:252 (m11.ll:51161)", "value": 11, "effect": "올리면 큰 처벌피해에서만 비례 페널티가 붙는다(>11 이므로 12% 이상)"},
+  {"what": "비례 페널티 반감 분모", "where": "lane_economy.rs:253 (m11.ll:51180)", "value": 2, "effect": "내리면(1) 비례 페널티 2배"}
+ ],
+ "unknown": [
+  "호출자(1곳) 및 penalty 의 소비 방향(감산인지 가산인지)은 본 함수 범위 밖 — 미독(범위: m11.ll 51097~51193 만). '귀환 페널티' 해석은 이름·부호(양수 누적)에 근거한 추정",
+  "punish_damage 의 range(≥1) 는 호출자 유래 힌트 — 어떤 값(타워/미니언 기대피해 등)인지 미확인",
+  "L253 분모가 max_hp(stat_cached.hp) 가 아닌 현재 hp(%12=Entity+0x670) 인 것은 IR 확정(m11.ll:51172~51179) — 소스 의도(버그 vs 의도)는 판단 불가",
+  "hp_after_pct/ratio 의 == 경계(<45 vs <=44 등)는 외연 동일이라 표기 불가(IR 은 slt 45 / slt 25 / sgt 11)"
+ ]
+}

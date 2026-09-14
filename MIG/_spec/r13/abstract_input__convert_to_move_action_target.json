@@ -1,0 +1,64 @@
+{
+ "name": "convert_to_move_action_target",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29convert_to_move_action_target",
+ "src": "game-ai\\src\\abstract_input.rs",
+ "src_line": 1440,
+ "ir_file": "m04.ll",
+ "ir_from": 43140,
+ "ir_to": 43269,
+ "aux": [],
+ "one_line": "이동형 스킬의 목표 (x,y) 를 캐스팅 타입에 맞는 InputTarget 으로 변환 — Position 이면 사거리 안으로 클램프한 Pos, Direction 이면 방향 벡터 Dir(×부호)",
+ "signature": {
+  "abi": "define void, sret([24 x i8]) 첫 인자 (외부 심볼, fastcc 아님, 인자 승격 없음) · exe 0xd34470 · tcx `game_ai::convert_to_move_action_target` v=pub(루트 재수출) · mir=0",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut InputTarget (24B) noalias writable writeonly", "note": "반환 슬롯. 아래 returns 참조"},
+   {"i": 1, "name": "setting", "type": "&GameSetting (5432B) noalias readonly", "note": "adjust_position 에 전달만(L43252). 본문 직접 read 없음"},
+   {"i": 2, "name": "map", "type": "&MapDef (28112B) noalias readonly", "note": "adjust_position 에 전달만"},
+   {"i": 3, "name": "caster", "type": "&Entity (1728B) noalias readonly", "note": "x/y(0x660/0x668)·level(0x5c8)·stat_buff_cached.range(0x438)"},
+   {"i": 4, "name": "effect", "type": "&Effect (56B) noalias readonly", "note": "casting(0x30)·range(0x10)·growth_range(0x18)·ty(Arc<dyn EffectType>, 0x0/0x8)"},
+   {"i": 5, "name": "x", "type": "u64 (i64 %5)", "note": "목표 x"},
+   {"i": 6, "name": "y", "type": "u64 (i64 %6)", "note": "목표 y"},
+   {"i": 7, "name": "max_range", "type": "bool (i1 zeroext %7)", "note": "true 면 거리와 무관하게 항상 최대 사거리 지점으로 투사 (Position 분기에서만 의미)"}
+  ],
+  "returns": "InputTarget (sret 24B, tcxdict --enum InputTarget: 태그 i32 @+0x0 · 페이로드 +0x8/+0x10). L43260~43267: +0 i32 태그 = 1 Dir / 2 Pos, +8 i64 = x 또는 dir_x, +16 i64 = y 또는 dir_y. ★살아있는 바이트: 0..4(태그)·8..24(두 i64). 4..8 은 패딩으로 미기록(undef) — 런타임 대조 시 제외. Targeting/None 캐스팅은 unreachable!(L43162 panic '…entered unreachable code', :1465)",
+  "mutability": "sret 외 인자 전부 readonly. writes = sret 3 스토어만"
+ },
+ "reads": [
+  {"base": "Effect", "offset": "0x30", "name": "casting (CastingType, i32)", "note": "L43154~43159 switch 1=Position 2=Direction (tcxdict --enum CastingType), 그 외(0 Targeting/3 None) → panic"},
+  {"base": "Effect", "offset": "0x10", "name": "range", "note": "L43166~43167 Effect::range 인라인(effect.rs:26)"},
+  {"base": "Effect", "offset": "0x18", "name": "growth_range", "note": "L43168~43169 ×(level−1)"},
+  {"base": "Effect", "offset": "0x0", "name": "ty (Arc<dyn EffectType>) data_ptr → ArcInner", "note": "L43208 Direction 분기. ArcInner 내부 오프셋은 vtable align 필드(+16)로 계산(L43211~43216)"},
+  {"base": "Effect", "offset": "0x8", "name": "ty vtable_ptr", "note": "L43209~43210; 슬롯 +0xf0(240) = EffectType::expected_move_input_dir_sign (divtable EffectType 0xf0, g02.ll) L43217~43219"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "L43170~43172 `level - 1` (effect.rs:26)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "L43174~43175 사거리 기본항 (effect.rs:26)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L43179~43180 (Position) · L43221~43222 (Direction)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "L43183~43184 · L43225~43226"}
+ ],
+ "writes": [
+  {"base": "InputTarget(sret)", "offset": "0x0", "name": "tag (i32)", "value": "1=Dir (Direction 분기) / 2=Pos (Position 분기 두 경로)", "note": "L43262 phi + L43267 store i32"},
+  {"base": "InputTarget(sret)", "offset": "0x8", "name": "Pos.x | Dir.dir_x", "value": "Pos: 클램프된 nx 또는 원래 x / Dir: (x − caster.x)·sign", "note": "L43260 phi + L43263~43264"},
+  {"base": "InputTarget(sret)", "offset": "0x10", "name": "Pos.y | Dir.dir_y", "value": "Pos: ny 또는 y / Dir: (y − caster.y)·sign", "note": "L43261 phi + L43265~43266"}
+ ],
+ "constants": [
+  {"value": 1, "src_line": 1441, "meaning": "CastingType::Position 태그(switch L43157) — ★같은 값 1 이 L43262 phi 에서는 InputTarget::Dir 태그, L43172 에서는 `level - 1`(add −1), L43242 `max(sz,1)` 0나눗셈 방지"},
+  {"value": 2, "src_line": 1441, "meaning": "CastingType::Direction 태그(switch L43158) — ★L43262 phi 에서는 InputTarget::Pos 태그 2"},
+  {"value": -1, "src_line": 1443, "meaning": "`level - 1` 의 add −1 (L43172, effect.rs:26 성장 사거리 = growth_range × (level−1))"}
+ ],
+ "calls": [
+  "game_core::utils::isqrt",
+  "game_core::simulation::game::Game::adjust_position",
+  "core::panicking::panic",
+  "llvm.smax.i64"
+ ],
+ "logic": "fn convert_to_move_action_target(setting, map, caster, effect, x, y, max_range) -> InputTarget {   // abstract_input.rs:1440\n  match effect.casting {                                                                          // :1441 L43154~43159 (Effect+0x30 i32)\n    CastingType::Position /*1*/ => {\n      // :1443  실효 사거리 = caster.stat_buff_cached.range + effect.range + effect.growth_range*(level-1)   (Effect::range 인라인 effect.rs:26)\n      let range = caster.stat_buff_cached.range + effect.range + (caster.level - 1) * effect.growth_range;   // L43166~43177\n      // :1444  목표가 사거리 밖이거나 max_range 강제면 사거리 끝점으로 투사\n      if max_range || distance_sq(x, y, caster.x, caster.y) > range*range {                          // L43179~43203 (`or i1 %7, %41` 비단락 — 둘 다 계산됨; 소스 순서 표기 불가)\n        let dx = x - caster.x; let dy = y - caster.y;                                                // :1449 (wrapping sub, 부호 있음)\n        let sz = isqrt(dx*dx + dy*dy);                                                              // :1449 L43234~43237\n        let nx = caster.x + range*dx / max(sz,1);                                                    // :1451 L43239~43244\n        let ny = caster.y + dy*range / max(sz,1);                                                    // :1452 L43246~43250\n        let (nx, ny) = Game::adjust_position(map, setting, nx, ny);                                 // :1453 L43252 (맵 경계 클램프·통행 보정, g15.ll:72245)\n        InputTarget::Pos { x: nx, y: ny }                                                            // tag 2\n      } else {\n        InputTarget::Pos { x, y }                                                                    // :1444 else — 그대로 (L43260~43262 phi [%5,%12],[%6,%12],[2,%12])\n      }\n    }\n    CastingType::Direction /*2*/ => {\n      let sign = effect.ty.expected_move_input_dir_sign();                                          // :1459 L43208~43219 vtable+0xf0 (i64, 돌진형=+1 / 후퇴형=−1 로 추정)\n      InputTarget::Dir { dir_x: (x - caster.x) * sign, dir_y: (y - caster.y) * sign }               // :1461~1462 L43221~43228, tag 1\n    }\n    _ => unreachable!()                                                                             // :1465 L43162 core::panicking::panic\n  }\n}   // :1467",
+ "knobs": [
+  {"what": "사거리 밖 판정 = 제곱거리 > range²", "where": "abstract_input.rs:1444 (L43200~43201)", "value": "range² (동적)", "effect": "'>' 를 '>=' 로 바꿔도 외연 차이는 정확히 경계 1점뿐. 사거리 자체는 Effect::range 항(range+growth·(lv−1)+stat range)이라 데이터 값"},
+  {"what": "max_range 인자", "where": "abstract_input.rs:1444 (%7)", "value": "bool", "effect": "true 면 가까운 목표도 항상 사거리 끝까지 투사(돌진기 최대거리 사용)"}
+ ],
+ "unknown": [
+  "`max_range || dist_sq > range²` 의 소스 순서 — IR 은 `or i1 %7, %41` 로 비단락 평가(column 0 · MIR 없음) → 표기 불가, 동작은 동일",
+  "expected_move_input_dir_sign 의 반환 의미(+1/−1 추정) — EffectType 은 Arc<dyn> 런타임 vtable 이라 구현체별 값은 이 명세 범위 밖(divtable 은 슬롯 이름만 확정)",
+  ":1449 의 dx/dy 가 부호 있는 wrapping sub(L43189/L43193 `sub i64 %5, %26`)인데 :1444 의 distance_sq 는 abs_diff — 같은 줄 재사용이 아니라 별도 계산이라는 것만 확정",
+  "adjust_position 의 정확한 보정 규칙(30×30 셀 통행 검사 + [0, setting.width/height] 클램프로 보임, g15.ll:72245~) — 콜리 명세 범위 밖"
+ ]
+}

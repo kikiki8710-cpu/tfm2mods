@@ -1,0 +1,74 @@
+{
+ "name": "v3_deadly_edge_cells",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline20v3_deadly_edge_cells",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 304,
+ "ir_file": "m07.ll",
+ "ir_from": 49636,
+ "ir_to": 49773,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 35615, "ir_to": 35810, "what": "Chain<Flatten<array::IntoIter<Option<&Entity>,6>>,Copied<slice::Iter<&Entity>>>::try_fold<find_map::check<{closure#0}>> — 312~313 줄 find_map 클로저가 인라인된 본체(고정 타워 6슬롯 절반)"},
+  {"ir_file": "m11.ll", "ir_from": 34784, "ir_to": 34861, "what": "Copied<slice::Iter<&Entity>>::try_fold<find_map::check<{closure#0}>> — 같은 클로저의 Chain 뒷절반(추가 타워 슬라이스) 판, m06 판이 L110 에서 호출"}
+ ],
+ "one_line": "v3 위험가격: 적 타워 1기의 한 방 피해로 내 챔피언이 셀 1칸을 건너는 동안 받는 기대피해를 HP 화폐로 환산해 '치명 엣지 셀 수'(2..60)를 낸다",
+ "signature": {
+  "abi": "일반 define(external) · 인자 3 스칼라/포인터 · 반환 i32 스칼라(sret/ScalarPair 아님)",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "ir": "i64 %0", "note": "AI 버전 게이트. `icmp ult %0, 2`(L305) — version<2 이면 즉시 2 반환"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "ir": "ptr %1 noalias readonly captures(none) dereferenceable(2528)", "note": "읽기 전용(readonly). info.team·info.position 만 읽음"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "ir": "ptr %2 noalias readonly captures(none) dereferenceable(24)", "note": "읽기 전용. +0 cache(&AbstractGameWithCache) · +8 context(&GameContext) 만 읽음. +0x10 blackboard 은 안 읽음"}
+  ],
+  "returns": "i32 `range(i32 0, 61)` — 치명 엣지 셀 수. 2 = 기본값(version<2 / 내 챔피언 없음 / 공격효과 있는 적 타워 없음), 그 외 min(cells, 60). 스칼라라 살아있는 바이트 = 4B 전부(하위 6비트 범위 0..60)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize · <2 아니면 panic_bounds_check(len 2) (m07:49651~49656, L308)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 태그(Top0/Jungle1/Mid2/Bottom3/…) → zext 해 [5 x ptr] 인덱스 (m07:49661~49667, L308 · 인라인 콜리 줄 581)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (m07:49664)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext — find_map 클로저 캡처 f[0] (m07:49678~49679, L312)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]@Some.0", "note": "Option<&Entity> 니치(null=None) · cache+0x1e0 + team*40 + position*8 (m07:49665~49669). None 이면 2 반환"},
+  {"base": "Entity(champ=내 챔피언)", "offset": "0x640", "name": "stat_cached.move_speed", "note": "usize · 32000/max(speed,1) = 셀 1칸 통과 틱 (m07:49709~49714, L316)"},
+  {"base": "Entity(champ=내 챔피언)", "offset": "0x670", "name": "hp", "note": "usize 현재 HP · 분모 max(hp,1) (m07:49760~49765, L318)"},
+  {"base": "Entity(tower=적 타워, aux)", "offset": "0x4c0", "name": "attack_effect@tag (Option<Effect> 니치 = casting@tag)", "note": "i32 == -1 이면 None → 이 타워 skip (m06:35720~35723 · m11:34830~34833, 클로저 L312 · 인라인 콜리 줄 742)"},
+  {"base": "Entity(tower=적 타워, aux)", "offset": "0x490", "name": "attack_effect@Some.0 (&Effect 56B)", "note": "expected_damage_target 의 &self (m06:35741,35750 · m11:34836,34845, L313)"},
+  {"base": "Chain<..> 이터레이터 상태(aux 로컬, sret 120B)", "offset": "0x0", "name": "a: Option<Flatten<IntoIter<Option<&Entity>,6>>> (tag -1=None)", "note": "m06:35621~35623 · +0x8/+0x10 = IntoIter alive 범위 · +0x18 = [Option<&Entity>;6] 데이터 · +0x68 = b: Option<Copied<Iter>> (null=None, m06:35734~35737)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 305, "meaning": "version 임계: `icmp ult i64 %0, 2` → version<2(v0/v1) 이면 계산 없이 2 반환 (m07:49646)"},
+  {"value": 2, "src_line": 308, "meaning": "info.team 배열 길이 bounds-check(len 2) — 판정값 아님 (m07:49652,49656)"},
+  {"value": 1, "src_line": 311, "meaning": "`sub nuw nsw i64 1, %team` = 상대 팀 인덱스(1-team) → iter_towers_without_nexus(cache, 적팀) (m07:49675)"},
+  {"value": 32000, "src_line": 316, "meaning": "셀 1칸 크기(좌표단위). edge_ticks = max(32000 / max(move_speed,1), 1) = 셀 1칸 건너는 데 걸리는 틱 (m07:49714)"},
+  {"value": 1, "src_line": 316, "meaning": "0 나눗셈 방지 바닥 `llvm.umax(x,1)` 4곳: move_speed·edge_ticks(L316)·cool(L317)·hp(L318) (m07:49713,49717,49739,49764)"},
+  {"value": 30, "src_line": 318, "meaning": "HP 화폐 계수: cells = (edge_dmg.saturating_mul(30) / max(hp,1)) + 2 — 개발자 주석 '가격 공식 30/현재HP' (m07:49745)"},
+  {"value": 2, "src_line": 318, "meaning": "기본 셀 가산 `add i32 %59, 2` — 풀피여도 최소 2셀 (m07:49767) · 동시에 조기반환 기본값 2 (m07:49694 phi)"},
+  {"value": 60, "src_line": 319, "meaning": "상한 `llvm.umin.i32(cells, 60)` (m07:49771)"},
+  {"value": -1, "src_line": 312, "meaning": "(aux) ①Entity+0x4c0 == -1 = attack_effect None 니치 (m06:35722) ②saturating_mul 오버플로 시 usize::MAX (m07:49735,49758 phi) ③Chain.a None 태그 (m06:35622,35773)"},
+  {"value": 6, "src_line": 311, "meaning": "(aux) 고정 타워 슬롯 수 [Option<&Entity>;6] — 배열 길이(assume ult 6, m06:35694) · 판정값 아님"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::adapters::chain::Chain::try_fold",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "core::panicking::panic_bounds_check",
+  "llvm.umax.i64",
+  "llvm.umul.with.overflow.i64",
+  "llvm.umin.i32"
+ ],
+ "logic": "fn v3_deadly_edge_cells(version, player, data) -> i32 {\n  // L305\n  if version < 2 { return 2; }\n  // L308\n  let team = player.info.team;                 // +0x930, <2 아니면 panic_bounds_check\n  let pos  = player.info.position as usize;    // +0x9c0 태그\n  let champ = match data.cache.player_champion[team][pos] { Some(e) => e, None => return 2 };   // cache+0x1e0 + team*40 + pos*8\n  // L311~313 : 적 타워(넥서스 제외) 중 '공격 효과가 있는' 첫 타워의 (한 방 기대피해, 공격 쿨)\n  let (shot, cool) = match data.cache.iter_towers_without_nexus(1 - team)\n        .find_map(|t| {\n            let eff = t.attack_effect.as_ref()?;                      // Entity+0x4c0 == -1 → None → 다음 타워\n            Some((eff.expected_damage_target(data.context, t as &dyn AbstractEntity, champ),   // Effect+0 = Entity+0x490\n                  t.attack_cooltime()))\n        }) { Some(v) => v, None => return 2 };\n  // L316\n  let edge_ticks = max(32000 / max(champ.stat_cached.move_speed, 1), 1);   // 셀 1칸 통과 틱\n  // L317\n  let edge_dmg = shot.saturating_mul(edge_ticks) / max(cool, 1);            // 한 칸 건너는 동안 기대피해\n  // L318\n  let cells = (edge_dmg.saturating_mul(30) / max(champ.hp, 1)) as i32 + 2;  // 30/현재HP 화폐\n  // L319~320\n  min(cells, 60)\n}\n\n분기 순서(IR): %6(version<2) → %10(team bounds) → %21(champ null) → %27(find_map tag) → 산술 → umin. 반환 phi(m07:49694) = [2,%3 ; 2,%12 ; 2,%28 ; %61,%53].\nfind_map 순회 순서 = Chain: 고정 슬롯 [Option<&Entity>;6] (인덱스 0..6 순, null skip) → 추가 타워 슬라이스 순. '첫' 매치에서 멈춘다(try_fold Break) — 어느 타워를 집는지는 iter_towers_without_nexus 의 배열 순서에 종속(내부는 game_core g15.ll:108971 미독해).",
+ "knobs": [
+  {"what": "위험가격 HP 계수", "where": "tower_discipline.rs:318 (m07:49745)", "value": 30, "effect": "올리면 같은 피해/HP 비율에서 셀 수가 커져 타워 근처 엣지가 더 비싸진다(우회 성향↑). 내리면 타워 관통이 싸진다"},
+  {"what": "기본 가산 셀", "where": "tower_discipline.rs:318 (m07:49767) · 조기반환값 305/308/313 (m07:49694)", "value": 2, "effect": "풀피·타워없음 등 모든 경우의 하한. 올리면 타워 밴드가 항상 두꺼워진다"},
+  {"what": "셀 수 상한", "where": "tower_discipline.rs:319 (m07:49771)", "value": 60, "effect": "저HP 때 밴드가 사실상 벽이 되는 상한. 내리면 저HP 우회가 약해진다"},
+  {"what": "셀 1칸 크기(좌표단위)", "where": "tower_discipline.rs:316 (m07:49714)", "value": 32000, "effect": "좌표 변환 상수 — 노브 아님(게임 좌표계 고정)"},
+  {"what": "버전 게이트", "where": "tower_discipline.rs:305 (m07:49646)", "value": 2, "effect": "version<2 면 항상 2. 내리면 구버전 AI 도 v3 가격을 쓴다"}
+ ],
+ "unknown": [
+  "`Effect::expected_damage_target`(g06.ll:52355) · `Entity::attack_cooltime`(g06.ll:66510) · `iter_towers_without_nexus`(g15.ll:108971) 내부는 안 읽음(game_core 경계 콜리 — 시그니처만 확정: expected_damage_target(&Effect,&GameContext,&dyn AbstractEntity(data,vtable),&Entity)->usize · attack_cooltime(&Entity)->usize range(3,0)=≥3 · iter_towers_without_nexus(&cache, team)->Chain 120B)",
+  "find_map 이 '첫' 타워에서 멈추므로 적 타워가 여럿이면 어느 타워의 (shot,cool) 이 쓰이는지는 iter_towers_without_nexus 배열 순서에 달렸다 — 그 순서(라인/티어 순?)는 g15.ll 미독해",
+  "L312 클로저 캡처 f[8]=champ 가 expected_damage_target 의 target(5번째 인자) 으로 들어가고, 타워는 caster(&dyn AbstractEntity, vtable=@anon.eb49…6 = Entity vtable) 로 들어간다 — 인자 역할은 g06.ll DISubprogram !63700 arg 이름(self/context/-/target)으로 확정, 3번째(caster) 이름은 팻포인터라 dbg 에 없음",
+  "info.position 태그 4 (5번째 variant) 가 무엇인지 안 봄 — [5 x ptr] 라 5슬롯 전부 유효 인덱스",
+  "`add i32 %59, 2` 는 nsw 없음 → trunc 후 i32 wrap 가능(edge_dmg*30/hp 가 2^31 초과 시). 실전 값에선 도달 어려움(추정)"
+ ]
+}

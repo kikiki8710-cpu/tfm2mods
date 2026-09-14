@@ -1,0 +1,81 @@
+{
+ "name": "v55_banish_penalty",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value18v55_banish_penalty",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 596,
+ "ir_file": "m10.ll",
+ "ir_from": 34297,
+ "ir_to": 34563,
+ "aux": [],
+ "one_line": "추방(banish) 이펙트의 벌점 — 추방 초 동안 아군(자신 제외·150000 이내)이 대상 t 에 못 넣는 DPS 합을 t 최대HP 로 캡·hp_value 환산해 0..80",
+ "signature": {
+  "abi": "define hidden (외부 링크, fastcc 아님) · 인자 승격 없음 · 반환 i64 range(-2^62, 81)",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음 — effect_cc_time(version, effect) 에 그대로 전달만 (m10.ll:34328)"},
+   {"i": 2, "name": "effect", "type": "&Effect(56B)", "note": "noalias readonly captures(address,read_provenance). ty vtable 슬롯 has_banish_deep 호출 + effect_cc_time 인자"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "noalias readonly captures(none). cache(+0x0)·context(+0x8)"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "noalias readonly captures(none). info.team(+0x930) 만 읽음 — 아군 순회 팀"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B)", "note": "noalias readonly captures(none). id(+0x5c0) 만 — 아군 순회에서 자기 자신 제외"},
+   {"i": 6, "name": "t", "type": "&Entity(1728B)", "note": "noalias readonly captures(none). 추방 대상. id·x·y·stat_cached.hp·hp 읽음"},
+   {"i": 7, "name": "hp_value", "type": "i64", "note": "대상 HP 1 당 가치 — lost 에 곱함"}
+  ],
+  "returns": "i64 — 스칼라 단일 반환. 0 = has_banish_deep 거짓(L598) / effect_cc_time None(L601) / t 가 플레이어 챔피언 아님(L604). 그 외 min(lost*hp_value / max(t.hp,1) / 2, 80). 호출자가 어떻게 부호를 쓰는지(감산인지)는 이 범위 밖"
+ },
+ "reads": [
+  {"base": "Effect", "offset": "0x0", "name": "ty.ptr(ArcInner*)", "note": "m10.ll:34313 · Arc data = ptr + ((align-1)&~15) + 16"},
+  {"base": "Effect", "offset": "0x8", "name": "ty.vtable", "note": "m10.ll:34314~34315"},
+  {"base": "vtable(EffectType)", "offset": "0x10", "name": "align", "note": "m10.ll:34316~34317"},
+  {"base": "vtable(EffectType)", "offset": "0xc0", "name": "has_banish_deep", "note": "m10.ll:34322~34324 · 슬롯 24, fn(&self)->bool (divtable EffectType 0xc0 · tcx EffectType::has_banish_deep type.rs:327)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "m10.ll:34343~34344"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "m10.ll:34345~34346"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "m10.ll:34350~34351 · 0 이면 div_by_zero 패닉(34370)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "m10.ll:34361"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "t.id(34363~34364, player_by_champion_id) · champ.id(34401~34402, 자기 제외 비교) · ally.id(34453~34454, 비교+ap 조회)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "tp(34376~34378 → ti) · ap(34530~34533 → 캐시 2차 인덱스)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "player(34381~34382, iter_champions 팀·bounds<2) · ap(34517~34519, 캐시 1차 인덱스·bounds<2)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][0..5]", "note": "m10.ll:34388~34396 · [[Option<&Entity>;5];2] 순회(iter_champions 인라인, filter_map call_mut 은 `|x| *x` — m09.ll:66150~66155)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "t(34403~34404) · ally(34482~34483) — abs_diff 거리"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "t(34405~34406) · ally(34486~34487)"},
+  {"base": "AbstractGameWithCache", "offset": "0x280", "name": "player_champion_cache[ap.team][ap.position]", "note": "m10.ll:34407·34529~34535"},
+  {"base": "ChampionCache", "offset": "0x190", "name": "attack_per_sec[ti]", "note": "m10.ll:34537~34539 · ti = t 의 포지션 → 배열 인덱스 = 대상 포지션"},
+  {"base": "ChampionCache", "offset": "0x1b8", "name": "skill_per_sec[ti]", "note": "m10.ll:34540~34542"},
+  {"base": "ChampionCache", "offset": "0x1e0", "name": "skill2_per_sec[ti]", "note": "m10.ll:34543~34545"},
+  {"base": "ChampionCache", "offset": "0x208", "name": "ult_per_sec[ti]", "note": "m10.ll:34546~34548"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "m10.ll:34462~34463 · t 최대HP — lost 상한(umin)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "m10.ll:34469~34470 · t 현재HP — 분모 max(hp,1)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 1, "src_line": 601, "meaning": "banish_sec = max(cc_ticks / tps, 1) — 추방 초 하한 (llvm.umax, m10.ll:34359, closure#0 buff_value.rs:601 인라인)"},
+  {"value": 22500000000, "src_line": 610, "meaning": "150000^2 — ally↔t 제곱거리 임계. dx²+dy² > 이 값이면 그 아군은 제외(continue) (m10.ll:34507)"},
+  {"value": 1, "src_line": 620, "meaning": "분모 하한 max(t.hp,1) (llvm.smax, m10.ll:34473)"},
+  {"value": 2, "src_line": 620, "meaning": "sdiv 2 — 환산값 절반 (m10.ll:34475)"},
+  {"value": 80, "src_line": 620, "meaning": "결과 상한 (llvm.smin, m10.ll:34478)"},
+  {"value": 0, "src_line": 598, "meaning": "조기 반환 0 — has_banish_deep 거짓(L598) / effect_cc_time None(L601) / t 비플레이어(L604) (phi m10.ll:34339)"},
+  {"value": 40, "src_line": 609, "meaning": "player_champion[team] 5원소×8B 슬라이스 끝 오프셋(루프 종료 비교 icmp eq %70, 40 — m10.ll:34434). 배열 stride 이지 판정값 아님"}
+ ],
+ "calls": [
+  "game_ai::fight_check::effect_cc_time",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_core::simulation::AbstractGameWithCache::iter_champions::{closure#0}::call_mut",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "llvm.umax.i64",
+  "llvm.umin.i64",
+  "llvm.smax.i64",
+  "llvm.smin.i64"
+ ],
+ "logic": "fn v55_banish_penalty(version, effect, data, player, champ, t, hp_value) -> i64  [buff_value.rs:596]\nL598: if !effect.ty.has_banish_deep() { return 0 }   // vtable+0xc0, fn(&self)->bool\nL601: let Some(banish_sec) = effect_cc_time(version, effect).map(|c| max(c / tps, 1)) else { return 0 }\n      // effect_cc_time -> Option<usize> (ScalarPair {tag,val}: tag i64 bit0 = Some) · tps = data.context.setting.tick_per_second (0 → div_by_zero 패닉)\nL604: let Some(tp) = data.cache.player_by_champion_id(t.id) else { return 0 }\nL607: ti = tp.info.position as usize\nL608: ally_dps = 0\nL609: for ally in data.cache.iter_champions(player.info.team) {   // player_champion[team][0..5] filter_map, team bounds<2\nL610:   if ally.id == champ.id || dist2(ally.(x,y), t.(x,y)) > 150000² { continue }   // 분기 순서: id 비교 먼저, 거짓일 때만 거리(abs_diff² 합)\nL613:   let Some(ap) = data.cache.player_by_champion_id(ally.id) else { continue }\nL616:   c = &data.cache.player_champion_cache[ap.info.team][ap.info.position as usize]   // team bounds<2\nL617:   ally_dps += c.attack_per_sec[ti] + c.skill_per_sec[ti] + c.skill2_per_sec[ti] + c.ult_per_sec[ti]\n      }\nL619: lost = min(ally_dps * banish_sec, t.stat_cached.hp)   // umin\nL620: v = ((lost as i64 * hp_value) / max(t.hp as i64, 1) / 2).min(80)\nL621: return v\n비고: 아군 순회에 champ 자신은 제외(자기 DPS 는 세지 않음) — 즉 '내가 추방하면 다른 아군이 t 를 못 때리는 손실'.",
+ "knobs": [
+  {"what": "추방 초 하한", "where": "buff_value.rs:601", "value": 1, "effect": "올리면 짧은 추방도 N초분 손실로 계상 → 벌점 ↑"},
+  {"what": "아군 포함 거리 임계(제곱)", "where": "buff_value.rs:610", "value": 22500000000, "effect": "올리면 먼 아군의 DPS 까지 손실에 포함 → 벌점 ↑ (150000 = 4.69셀)"},
+  {"what": "환산 절반 계수", "where": "buff_value.rs:620", "value": 2, "effect": "내리면 벌점 2배"},
+  {"what": "결과 상한", "where": "buff_value.rs:620", "value": 80, "effect": "올리면 고DPS 팀의 장기 추방 벌점이 더 커짐"}
+ ],
+ "unknown": [
+  "effect_cc_time(m15.ll:25822, fight_check.rs:379) 내부(어느 CC 를 추방 틱으로 세는지)는 다른 함수 — 여기선 Option<usize> 계약만",
+  "has_banish_deep 구현체(CombineEffect/LinearProjectileEffect 는 자식 위임, 기본 impl 은 tcx type.rs:327)의 true 조건은 game_core 경계 밖 — 미탐색",
+  "L610 `A || B` 의 소스 표기 순서는 column 부재로 표기 불가 — IR 분기 순서(id → 거리)를 기록",
+  "반환값을 호출자가 감산(벌점)으로 쓰는지 가산으로 쓰는지는 호출자(buff_value 상위, 호출자 1) 범위 — 이름(penalty)만으론 단정 안 함"
+ ]
+}

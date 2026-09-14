@@ -1,0 +1,772 @@
+{
+ "name": "buff_value_v54",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value14buff_value_v54",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 85,
+ "ir_file": "m10.ll",
+ "ir_from": 30000,
+ "ir_to": 33060,
+ "aux": [
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 18547,
+   "ir_to": 18845
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 7330,
+   "ir_to": 7681
+  },
+  {
+   "ir_file": "m10.ll",
+   "ir_from": 55855,
+   "ir_to": 55865
+  }
+ ],
+ "one_line": "BuffState 한 개를 받는 recv 에게 얼마나 가치 있나 — 공격(DPS 증가→앵커 적 HP가치 환산)·쿨감·힐·피해경감·기동·위기(undying/cc_immune/toughness) 항을 합산해 0..160",
+ "signature": {
+  "abi": "define hidden (외부 링크, fastcc 아님) · 인자 승격 없음(10 인자 전부 소스 그대로) · 반환 i64 range(0, 161)",
+  "params": [
+   {
+    "i": 1,
+    "name": "buff",
+    "type": "&BuffState(288B)",
+    "note": "noalias readonly captures(address,read_provenance). name(+0x0) 을 제외한 전 필드(36개) 읽음"
+   },
+   {
+    "i": 2,
+    "name": "recv",
+    "type": "&Entity(1728B)",
+    "note": "noalias readonly captures(address,read_provenance). 버프 수신자(=DILocalVariable 'caster' 별칭도 같은 %1, m10.ll:30023). id·stat_cached·hp·x/y·attack_effect·level·stat_buff_cached.range/radius_mult·radius 읽음, attack_cooltime() 호출"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "noalias readonly captures(address,read_provenance). cache/context/blackboard 전부 사용"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "noalias readonly captures(none). info.team(+0x930)·info.position(+0x9c0) 만 — 아군/적 순회 팀·시전자(caster) 조회"
+   },
+   {
+    "i": 5,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B)",
+    "note": "noalias readonly captures(address,read_provenance). near_enemies(+0x14d8 ptr/+0x14f0 len) 만 읽음 + champion_hp_value 인자"
+   },
+   {
+    "i": 6,
+    "name": "crisis",
+    "type": "Option<&DefensiveCrisis(2B)>",
+    "note": "noalias readonly captures(address_is_null) dereferenceable_or_null(2) — null=None. die_imminent(+0x0)·cc_threat(+0x1) 읽음 (L339~355)"
+   },
+   {
+    "i": 7,
+    "name": "incoming",
+    "type": "i64",
+    "note": "예상 피격량. L277 힐 실현 상한, L284 게이트(>0), L291~311 경감 계산, L332 RunAway 기동 실현 판정"
+   },
+   {
+    "i": 8,
+    "name": "epic_incoming",
+    "type": "i64",
+    "note": "L238 에서만 — 앵커 적 없을 때 >0 이면 자기 HP 가치로 공격항 환산"
+   },
+   {
+    "i": 9,
+    "name": "on_attack_damage",
+    "type": "i64",
+    "note": "L172~174 — >0 이면 평타 횟수×값을 offense_total 에 가산"
+   },
+   {
+    "i": 10,
+    "name": "recv_hp_value",
+    "type": "i64",
+    "note": "recv HP 1 당 가치 — 쿨감·힐·경감·기동·위기 항 전부 이 값으로 환산"
+   }
+  ],
+  "returns": "i64 — 스칼라 단일 반환, range(0,161): return clamp(score, 0, 160) (llvm.smax 0 → llvm.umin 160, m10.ll:33038~33044). 조기 반환 없음"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "m10.ll:30054~30055 · tps·debug"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "m10.ll:30056~30057"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "m10.ll:30058~30059 · tps(i64). 0 이면 div_by_zero 패닉(30080, Time 버프일 때만)"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x48",
+   "name": "duration@tag",
+   "note": "m10.ll:30061~30064 · BuffType 태그 i32: 1=Time (tcxdict --enum BuffType: Permanent 0/Time 1/WithShield 2)"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x50",
+   "name": "duration@Time.tick",
+   "note": "m10.ll:30067~30069 · Time 일 때만"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "m10.ll:30102"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "recv.id(30106~30107 L97·33044 L321) · 아군 순회 e 의 id 는 안 읽음"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "p(30114~30117 L98, bounds<2) · player(30450~30451 L109 → 1-team 적팀; 31586·32310 아군팀) · L322 p"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "p(30125~30127 L98 캐시 인덱스) · player(32020~32022 L224 시전자) · L322 p"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x280",
+   "name": "player_champion_cache[team][pos]",
+   "note": "m10.ll:30128~30130(L98 recv 캐시) · 30915~30916(L192 적팀 5포지션 순회)"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x190",
+   "name": "attack_per_sec[0..5]",
+   "note": "m10.ll:30132~30191 · a_ps = 합/5 (L99)"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1b8",
+   "name": "skill_per_sec[0..5]",
+   "note": "m10.ll:30198~30257 · s_ps 일부 (L100)"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1e0",
+   "name": "skill2_per_sec[0..5]",
+   "note": "m10.ll:30264~30323 · s_ps = (skill합+skill2합)/5 (L100)"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x208",
+   "name": "ult_per_sec[0..5]",
+   "note": "m10.ll:30330~30392 · u_ps = 합/5 (L101)"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x230",
+   "name": "skill_heal_sec[0..5]",
+   "note": "m10.ll:30921~30980(pos0)… · L193 적 힐 추정"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x258",
+   "name": "skill2_heal_sec[0..5]",
+   "note": "m10.ll:30987~31034(pos0)… · L193 (ult_heal_sec 은 안 읽음)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x618",
+   "name": "stat_cached.attack",
+   "note": "m10.ll:30427~30428 · stat = recv.get_stat()(entity.rs:789 인라인) 의 attack (L105/L128)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x620",
+   "name": "stat_cached.magic_power",
+   "note": "m10.ll:30430~30431 · L139 분모"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "recv: 30433~30434(L105 → L186·L239·L277·L310) · 적 e: 30527~30528(L110 e_hp)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x630",
+   "name": "stat_cached.defence",
+   "note": "recv 30436~30437(L286 def) · 적 e 30530~30531(L112 e_def)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x638",
+   "name": "stat_cached.magic_resistance",
+   "note": "recv 30439~30440(L287 mr) · 적 e 30533~30534(L113 e_mr)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][0..5]",
+   "note": "iter_champions 인라인: 30460~30461(L109 적팀) · 31586~31590(L199 아군) · 32020~32025(L224 시전자 단일) · 32310~32323(L254 아군)"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x5c",
+   "name": "attack_mult",
+   "note": "m10.ll:30564~30567 L124"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x58",
+   "name": "attack",
+   "note": "m10.ll:30581~30584 L127"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x8c",
+   "name": "attack_speed_mult",
+   "note": "m10.ll:30597~30600 L130 · 재사용: L242 디버그 print 게이트(%206)·포맷 인자"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x104",
+   "name": "crit_chance",
+   "note": "m10.ll:30617~30620 L134"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x60",
+   "name": "magic_power",
+   "note": "m10.ll:30634~30637 L138"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x64",
+   "name": "magic_power_mult",
+   "note": "m10.ll:30651~30654 L141"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xa8",
+   "name": "defence_penetration",
+   "note": "m10.ll:30671~30675 L147"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xb0",
+   "name": "magic_resistance_penetration",
+   "note": "m10.ll:30689~30693 L152"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xf0",
+   "name": "dot_amplify",
+   "note": "m10.ll:30718~30721 L156"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xc8",
+   "name": "range",
+   "note": "m10.ll:30746~30749 L160"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag",
+   "note": "m10.ll:30768~30771(L162)·31941~31944(L220 recv)·32040~32043(L220 caster) · Option<Effect> 니치: i32 == -1 이면 None (tcxdict Entity 0x4c0 = Niche 판별자, 위치 casting)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect@Some.range",
+   "note": "m10.ll:30787~30788 · Effect::range(effect.rs:25~26 인라인) = range + (level-1)*growth_range + stat_buff_cached.range"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect@Some.growth_range",
+   "note": "m10.ll:30789~30790"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "m10.ll:30791~30793 · (level-1)*growth"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "m10.ll:30795~30796"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x100",
+   "name": "radius_mult",
+   "note": "m10.ll:30761~30764 L165"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xd0",
+   "name": "base_attack_enemy_max_hp_damage",
+   "note": "m10.ll:30841~30845 L177"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xe0",
+   "name": "skill_enemy_max_hp_damage",
+   "note": "m10.ll:30866~30870 L181"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xd8",
+   "name": "self_max_hp_damage",
+   "note": "m10.ll:30893~30896 L184"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xc0",
+   "name": "heal_reduce",
+   "note": "m10.ll:30909~30912 L188"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xa0",
+   "name": "damaged_amplify",
+   "note": "m10.ll:31574~31577 L197"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "recv 31611~31612(L199)·32344~32345(L254) · 아군 e 31636~31637… · aux m12: recv/caster/e (L230)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "recv 31613~31614 · 아군 e 31638~31639 …"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult",
+   "note": "m10.ll:31970~31974(L221 recv)·32069~32073(caster) · aux m12.ll:18653~18657(L228 적 e) · Entity::radius(entity.rs:1509~1515 인라인): mult==0 → radius, 아니면 radius*(mult+100)/100"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "m10.ll:31977·31985 · 32076·32084 · aux m12.ll:18660·18669"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "m10.ll:31994~31996(recv)·32093~32095(caster) · engage_of 의 move_speed*120 (L221)"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x14d8",
+   "name": "near_enemies.buf.ptr",
+   "note": "m10.ll:32101~32102 L226 · 앵커 후보 슬라이스"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x14f0",
+   "name": "near_enemies.len",
+   "note": "m10.ll:32104~32105(L226 끝 포인터)·32267(L245 print)·32961~32963(L328 is_empty)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game(&dyn AbstractGame).data_ptr",
+   "note": "m10.ll:32115 L227"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "m10.ll:32116~32117"
+  },
+  {
+   "base": "vtable(AbstractGame)",
+   "offset": "0x1f0",
+   "name": "get_entity_by_id",
+   "note": "aux m12.ll:18623~18625·18772~18774 · 슬롯 62 fn(&self,usize)->Option<&Entity> (divtable AbstractGame 0x1f0)"
+  },
+  {
+   "base": "vtable(AbstractGame)",
+   "offset": "0x28",
+   "name": "tick",
+   "note": "m10.ll:32256~32258 L244 · 디버그 print 인자"
+  },
+  {
+   "base": "ChampionScoreParameter",
+   "offset": "0x58",
+   "name": "id",
+   "note": "aux m12.ll:18621~18622 · near_enemies 원소의 챔피언 id → get_entity_by_id"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "recv: 32686~32687(L264)·32707~32708(L277/279/315) · aux m12 적 e: 18782~18783(L233 ehp)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug",
+   "note": "m10.ll:32206~32209 L242 · print 게이트"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x90",
+   "name": "skill_cooldown_mult",
+   "note": "m10.ll:32005~32007 L251/257"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xfc",
+   "name": "ult_cooldown_mult",
+   "note": "m10.ll:32008~32010 L251/261"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x80",
+   "name": "vamp",
+   "note": "m10.ll:32317~32320 L271"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x74",
+   "name": "hp_regen",
+   "note": "m10.ll:32699~32704 L274"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x68",
+   "name": "defence",
+   "note": "m10.ll:32763~32765 L288"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x6c",
+   "name": "defence_mult",
+   "note": "m10.ll:32766~32768 L288"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x78",
+   "name": "magic_resistance",
+   "note": "m10.ll:32779~32781 L293"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x7c",
+   "name": "magic_resistance_mult",
+   "note": "m10.ll:32782~32784 L293"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xe8",
+   "name": "damaged_reduce",
+   "note": "m10.ll:32807~32810 L297"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x108",
+   "name": "base_attack_damaged_reduce",
+   "note": "m10.ll:32828~32831 L300"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x110",
+   "name": "skill_damaged_reduce",
+   "note": "m10.ll:32843~32846 L303"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x98",
+   "name": "damage_reflect",
+   "note": "m10.ll:32859~32862 L306"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x70",
+   "name": "hp",
+   "note": "m10.ll:32875~32877 L310"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x84",
+   "name": "hp_mult",
+   "note": "m10.ll:32878~32880 L310"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x88",
+   "name": "move_speed_mult",
+   "note": "m10.ll:32750~32752 L320/333"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x119",
+   "name": "ignore_wall",
+   "note": "m10.ll:32753~32755 L320/333"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard(&[Blackboard;2])",
+   "note": "m10.ll:32913~32914 L322"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x78",
+   "name": "small_actions[pos]@tag",
+   "note": "m10.ll:32948~32951 · [Option<SmallAction>;5] stride 32, 태그 i64 (Direct: RunAway 0 / Trace 4, tcxdict --enum SmallAction)"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0x118",
+   "name": "undying",
+   "note": "m10.ll:32923~32926 L339"
+  },
+  {
+   "base": "DefensiveCrisis",
+   "offset": "0x0",
+   "name": "die_imminent",
+   "note": "m10.ll:32995~32997(L340)·33018~33020(L346)"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xf8",
+   "name": "cc_immune",
+   "note": "m10.ll:32985~32988 L344"
+  },
+  {
+   "base": "DefensiveCrisis",
+   "offset": "0x1",
+   "name": "cc_threat",
+   "note": "m10.ll:33012~33015(L346)·33049~33052(L354)"
+  },
+  {
+   "base": "BuffState",
+   "offset": "0xb8",
+   "name": "toughness",
+   "note": "m10.ll:33004~33007 L353"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 1,
+   "src_line": 90,
+   "meaning": "BuffType 메모리태그 1 = Time (icmp eq i32 %33, 1 — m10.ll:30063). 리터럴, shl 아님"
+  },
+  {
+   "value": 6,
+   "src_line": 94,
+   "meaning": "window = min(dur_sec, 6) — 버프 지속을 최대 6초로 캡(llvm.umin 30089) · Time 이 아닌 버프(Permanent/WithShield)는 dur_sec=6 (phi 30097)"
+  },
+  {
+   "value": 5,
+   "src_line": 99,
+   "meaning": "ChampionCache *_per_sec[5]/_heal_sec[5] 5 슬롯(=상대 포지션) 평균 분모 (udiv 30412·30414·30415·31047…)"
+  },
+  {
+   "value": 100,
+   "src_line": 125,
+   "meaning": "퍼센트 분모/승수 — attack_mult·attack_speed_mult·crit·magic_power_mult·관통·힐감·증폭·흡혈·경감·hp_mult·이속(L125~334 전반)"
+  },
+  {
+   "value": -99,
+   "src_line": 150,
+   "meaning": "관통 후 방어/마저 하한 max(def_after,-99) → 분모 (def_after+100) ≥ 1 (llvm.smax 30708·30736)"
+  },
+  {
+   "value": 200,
+   "src_line": 158,
+   "meaning": "dot_amplify*s_ps/200 (L158) · s_ps*radius_mult/200 (L167) · toughness*hp_value/200 (L355) — 반값 계수"
+  },
+  {
+   "value": -1,
+   "src_line": 162,
+   "meaning": "Option<Effect> None 니치(attack_effect.casting i32 == -1) — None 이면 L162 atk_range=1, L220 engage 사거리 0 (icmp eq i32 …, -1: 30770·31943·32042)"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 199,
+   "meaning": "120000²+1 — near_allies: recv 와 제곱거리 < 이 값(=≤120000, 3.75셀)인 아군(자신 포함) 수 (closure#1 buff_value.rs:199, icmp ult 31670…)"
+  },
+  {
+   "value": 3,
+   "src_line": 200,
+   "meaning": "min(near_allies, 3) — 피해증폭(damaged_amplify) 가치에 곱하는 아군 수 상한 (llvm.umin 31921) · L349 cc_threat 만 있을 때 recv_hp_value/3 (sdiv 33023)"
+  },
+  {
+   "value": 120,
+   "src_line": 221,
+   "meaning": "engage_of(c) = attack_range(c) + radius(c) + stat_cached.move_speed*120 — 이속을 교전 사거리로 환산(2초분, mul 31996·32095)"
+  },
+  {
+   "value": 3600000001,
+   "src_line": 253,
+   "meaning": "60000²+1 — covered: recv 와 제곱거리 < 이 값(≤60000)인 아군(자신 포함) 수 (closure#7 buff_value.rs:253, icmp ult 32403…)"
+  },
+  {
+   "value": 0,
+   "src_line": 116,
+   "meaning": "게이트 비교값: e_n>0 · 각 버프 필드 >0/!=0 · offense_total>0(L204) · heal_realized>0(L278) · incoming>0(L284) · d_def/d_mr/d_hp>0 · mitigated>0(L314) · 최종 max(score,0)(L360)"
+  },
+  {
+   "value": 4,
+   "src_line": 327,
+   "meaning": "SmallAction 메모리태그 4 = Trace (switch 32953~32956; 0 = RunAway) — mobility_realized 분기"
+  },
+  {
+   "value": 10,
+   "src_line": 333,
+   "meaning": "ms = move_speed_mult + (ignore_wall ? 10 : 0) — 벽무시를 이속 10% 상당으로 (select 32973)"
+  },
+  {
+   "value": 160,
+   "src_line": 360,
+   "meaning": "최종 상한 min(score,160) (llvm.umin 33041)"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 291,
+   "meaning": "incoming/2 — `lshr i64 %6, 1`(32793·32813·32849·32865) 로 접힘. 방어/마저/평타경감/스킬경감 항은 예상 피격의 절반(물리·마법 반반 가정)에만 적용"
+  },
+  {
+   "value": 1,
+   "src_line": 128,
+   "meaning": "분모 하한 max(stat.attack,1)·max(stat.magic_power,1)·max(atk_range,1)·max(attack_cooltime,1)·max(hits,1)·max(recv.hp,1)·max(def+100+d_def,1)·max(dur_sec,1) (llvm.smax/umax 다수). 리터럴, shl 아님"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_core::simulation::AbstractGameWithCache::iter_champions::{closure#0}::call_mut",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_ai::utils::champion_hp_value",
+  "core::iter::adapters::map::Map::try_fold",
+  "core::iter::adapters::map::Map::fold",
+  "core::iter::traits::iterator::Iterator::max_by_key::compare::call_once",
+  "game_ai::buff_value::buff_value_v54::{closure#3}::call_mut",
+  {
+   "name": "_RNvNtNtCs9ec1k27omRZ_3std2io5stdio6__print",
+   "note": "= std::io::stdio::_print (print! 매크로, L243 디버그 출력). qcspec 망글 파서가 v0 `_` 구분자(6__print)를 못 풀어 원문 심볼로 기재"
+  },
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "llvm.smax.i64",
+  "llvm.smin.i64",
+  "llvm.umax.i64",
+  "llvm.umin.i64",
+  "llvm.memcpy.p0.p0.i64"
+ ],
+ "logic": "fn buff_value_v54(buff, recv, data, player, parameter, crisis, incoming, epic_incoming, on_attack_damage, recv_hp_value) -> i64  [buff_value.rs:85]\n\n§1 준비 (L88~101)\nL88:  tps = data.context.setting.tick_per_second as i64\nL90:  dur_sec = if buff.duration is Time(tick) { max(tick as i64 / tps, 1) } else { 6 }   // tps==0 → div_by_zero 패닉\nL94:  window = min(dur_sec, 6)    // dur_sec 은 이후 미사용\nL97:  (a_ps, s_ps, u_ps) = if let Some(p) = data.cache.player_by_champion_id(recv.id) {\n        c = &cache.player_champion_cache[p.info.team][p.info.position]   // team bounds<2\nL99~101: (sum(c.attack_per_sec[0..5])/5, (sum(c.skill_per_sec)+sum(c.skill2_per_sec))/5, sum(c.ult_per_sec)/5)\n      } else { (0,0,0) }\nL105: stat = recv.get_stat()   // = stat_cached 복사 (attack, magic_power, hp, defence, magic_resistance 사용)\nL108: (e_hp,e_def,e_mr,e_n) = (0,0,0,0)\nL109: for e in data.cache.iter_champions(1 - player.info.team) { e_hp += e.stat_cached.hp; e_def += …defence; e_mr += …magic_resistance; e_n += 1 }   // L110~114 적팀 5명\nL116: if e_n > 0 { e_hp /= e_n; e_def /= e_n; e_mr /= e_n }   // L117~119 적 평균\n\n§2 delta_dps — 버프가 늘리는 초당 피해 (L123~167)\nL123: delta_dps = 0\nL124: if buff.attack_mult > 0        { L125: delta_dps += a_ps * attack_mult / 100 }\nL127: if buff.attack > 0             { L128: delta_dps += a_ps * attack / max(stat.attack,1) }\nL130: if buff.attack_speed_mult > 0  { L132: delta_dps += a_ps * attack_speed_mult / 100 }\nL134: if buff.crit_chance > 0        { L136: delta_dps += a_ps * crit_chance / 100 }\nL138: if buff.magic_power > 0        { L139: delta_dps += (s_ps+u_ps) * magic_power / max(stat.magic_power,1) }\nL141: if buff.magic_power_mult > 0   { L142: delta_dps += (s_ps+u_ps) * magic_power_mult / 100 }\nL147: if e_n > 0 && buff.defence_penetration != 0 {\nL149:   def_after = max(100 - pen, 0) * e_def / 100\nL150:   delta_dps += a_ps * (e_def - def_after) / (max(def_after,-99) + 100) }\nL152: if e_n > 0 && buff.magic_resistance_penetration != 0 {\nL153:   mr_after = max(100 - mpen, 0) * e_mr / 100\nL154:   delta_dps += (s_ps+u_ps) * (e_mr - mr_after) / (max(mr_after,-99) + 100) }\nL156: if buff.dot_amplify != 0       { L158: delta_dps += dot_amplify * s_ps / 200 }\nL160: if buff.range != 0 {\nL162:   atk_range = max(recv.attack_effect.as_ref().map(|e| e.range(recv)).unwrap_or(1), 1)   // Effect::range = range + (level-1)*growth_range + recv.stat_buff_cached.range\nL163:   delta_dps += a_ps * buff.range / atk_range }   // 오버플로 검사 있음(i64 sdiv)\nL165: if buff.radius_mult > 0        { L167: delta_dps += s_ps * radius_mult / 200 }\n\n§3 offense_total — 창 동안의 추가 피해 (L170~200)\nL170: offense_total = delta_dps * window\nL172: if on_attack_damage > 0 { L173: hits = max(window*tps / max(recv.attack_cooltime(),1), 1); L174: offense_total += hits * on_attack_damage }\nL177: if e_n > 0 && buff.base_attack_enemy_max_hp_damage != 0 { L178: hits = (같은 식); L179: offense_total += hits * (val * e_hp / 100) }\nL181: if e_n > 0 && buff.skill_enemy_max_hp_damage != 0 { L182: offense_total += val * e_hp / 100 }\nL184: if buff.self_max_hp_damage != 0 { L185: hits = (같은 식); L186: offense_total += hits * (val * stat.hp / 100) }\nL188: if buff.heal_reduce != 0 {\nL190~193: e_heal = Σ_{pos 0..5} (sum(cache[적팀][pos].skill_heal_sec[0..5]) + sum(…skill2_heal_sec[0..5])) / 5   // ult_heal_sec 미포함\nL195:   offense_total += (e_heal * heal_reduce / 100) * window }\nL197: if buff.damaged_amplify != 0 {\nL199:   near_allies = iter_champions(player.info.team).filter(|e| dist²(e,recv) ≤ 120000²).count()   // 자신 포함\nL200:   offense_total += ((a_ps+s_ps+u_ps) * damaged_amplify / 100) * min(near_allies,3) * window }\n\n§4 앵커 적으로 환산 (L204~245)\nL204: score = 0\nif offense_total > 0 {\nL219:   engage_of = |c| c.attack_effect.map(|e| e.range(c)).unwrap_or(0) + c.radius() + c.stat_cached.move_speed*120   // L220~221; radius() = radius*(radius_mult+100)/100 (mult==0 이면 radius)\nL223:   recv_engage_range = engage_of(recv)\nL224:   caster = cache.player_champion[player.info.team][player.info.position].unwrap()   // None 이면 패닉(unwrap_failed, Location 224)\nL225:   caster_engage_range = engage_of(caster)\nL226~235: anchor: Option<(ev, ehp)> = parameter.near_enemies.iter()\n            .filter(|ep| { let Some(e)=game.get_entity_by_id(ep.id) else {return false};   // L227\n                           r = recv_engage_range + e.radius(); rc = caster_engage_range + e.radius();   // L228~229\n                           dist²(recv,e) ≤ r² || dist²(caster,e) ≤ rc² })                     // L230 (IR 순서: recv 먼저)\n            .map(|ep| (champion_hp_value(data, parameter, ep), game.get_entity_by_id(ep.id).map(|e| e.hp).unwrap_or(0)))   // L232~233\n            .filter(|(_, ehp)| *ehp > 0)                                                        // L234 (closure#3 = aux m10.ll:55855)\n            .max_by_key(|(ev, _)| *ev)                                                          // L235 (동점이면 뒤 원소)\nL237:   if let Some((ev, ehp)) = anchor { score = offense_total * ev / max(ehp,1) }\nL238:   else if epic_incoming > 0        { score = offense_total * recv_hp_value / max(stat.hp,1) }   // 앵커 없으면 에픽전투 중일 때만 자기 HP 가치\nL242:   if buff.attack_speed_mult > 0 && data.context.debug { L243: print!(\"\\rBUFFV54 tick={} recv={} aps={} mult={} off={} ne={} engage={} anchor={:?}\\n\", game.tick(), recv.id, a_ps, attack_speed_mult, offense_total, near_enemies.len(), recv_engage_range, anchor) }   // 관측 전용\n}\n\n§5 쿨감 (L251~264)\nL251: if buff.skill_cooldown_mult > 0 || buff.ult_cooldown_mult > 0 {\nL252~254: covered = iter_champions(player.info.team).filter(|e| dist²(e,recv) ≤ 60000²).count()\nL255:   if covered > 1 {   // 자신 외 아군이 1명 이상 붙어 있을 때만\nL257:     cd_gain = if scm > 0 { (s_ps+u_ps) * scm / (scm+100) } else 0            // L259\nL261:     if ucm > 0 { cd_gain += u_ps * ucm / (ucm+100) }                          // L262\nL264:     score += window * recv_hp_value * cd_gain / max(recv.hp,1) } }\n\n§6 힐 (L270~279)\nL270: heal_total = 0\nL271: if buff.vamp > 0     { L272: heal_total = (a_ps * vamp / 100) * window }\nL274: heal_total += if buff.hp_regen > 0 { window * hp_regen } else 0\nL277: heal_realized = min(max(stat.hp - recv.hp, 0) + incoming, heal_total)   // 잃은 체력+예상피격만큼만 실현\nL278: if heal_realized > 0 { L279: score += heal_realized * recv_hp_value / max(recv.hp,1) }\n\n§7 피해 경감 (L284~315)\nL284: if incoming > 0 {\nL285:   mitigated = 0; def = stat.defence; mr = stat.magic_resistance\nL288:   d_def = buff.defence + def * defence_mult / 100\nL289:   if d_def > 0 { L291: mitigated = d_def * (incoming/2) / max(def + 100 + d_def, 1) }\nL293:   d_mr = buff.magic_resistance + mr * magic_resistance_mult / 100\nL294:   if d_mr > 0  { L295: mitigated += d_mr * (incoming/2) / max(mr + 100 + d_mr, 1) }\nL297:   if buff.damaged_reduce != 0             { L298: mitigated += damaged_reduce * incoming / 100 }\nL300:   if buff.base_attack_damaged_reduce != 0 { L301: mitigated += val * (incoming/2) / 100 }\nL303:   if buff.skill_damaged_reduce != 0       { L304: mitigated += val * (incoming/2) / 100 }\nL306:   if buff.damage_reflect != 0             { L307: mitigated += reflect * incoming / 100 }\nL310:   d_hp = buff.hp + stat.hp * hp_mult / 100\nL311:   mitigated += if d_hp > 0 { min(incoming, d_hp) } else 0\nL314:   if mitigated > 0 { L315: score += mitigated * recv_hp_value / max(recv.hp,1) } }\n\n§8 기동 (L320~334)\nL320: if buff.move_speed_mult > 0 || buff.ignore_wall {\nL321~322: act = cache.player_by_champion_id(recv.id).and_then(|p| data.blackboard[p.info.team].small_actions[p.info.position])   // team bounds<2\nL327:   mobility_realized = match act { Some(Trace(_)) => L328 !parameter.near_enemies.is_empty(), Some(RunAway) => incoming > 0, _ => false }\nL332:   if mobility_realized { L333: ms = move_speed_mult + (ignore_wall ? 10 : 0); L334: score += ms * recv_hp_value / 100 } }\n\n§9 위기 (L339~355) — crisis: Option<&DefensiveCrisis{die_imminent,cc_threat}>\nL339: if let Some(c) = crisis && buff.undying   { L340: score += if c.die_imminent { recv_hp_value } else 0 }\nL344: if let Some(c) = crisis && buff.cc_immune { L346: if c.cc_threat { if c.die_imminent { L347: score += recv_hp_value } else { L349: score += recv_hp_value / 3 } } }\nL353: if let Some(c) = crisis && buff.toughness != 0 { L354: if c.cc_threat { L355: score += toughness * recv_hp_value / 200 } }\n\nL360: return clamp(score, 0, 160)   // smax 0 → umin 160 → range(0,161)",
+ "knobs": [
+  {
+   "what": "버프 창 상한(초)",
+   "where": "buff_value.rs:94",
+   "value": 6,
+   "effect": "올리면 긴 버프(Permanent 포함, 기본 6)의 공격/쿨감/힐 항이 비례 증가 → 장기 버프 가치 ↑"
+  },
+  {
+   "what": "피해증폭 아군 수 상한",
+   "where": "buff_value.rs:200",
+   "value": 3,
+   "effect": "올리면 5인 뭉침에서 damaged_amplify 가치 ↑"
+  },
+  {
+   "what": "피해증폭 아군 거리",
+   "where": "buff_value.rs:199",
+   "value": 14400000001,
+   "effect": "120000² — 올리면 멀리 있는 아군도 세어 증폭 가치 ↑"
+  },
+  {
+   "what": "이속→교전사거리 환산 계수",
+   "where": "buff_value.rs:221",
+   "value": 120,
+   "effect": "올리면 앵커 적 후보 반경이 넓어져 offense 환산이 되는 경우 ↑(앵커 없음→0 되는 일 감소)"
+  },
+  {
+   "what": "쿨감 인정 아군 거리",
+   "where": "buff_value.rs:253",
+   "value": 3600000001,
+   "effect": "60000² — 올리면 흩어진 팀에서도 covered>1 이 되어 쿨감 가치 발생"
+  },
+  {
+   "what": "쿨감 인정 최소 아군 수",
+   "where": "buff_value.rs:255",
+   "value": 1,
+   "effect": "covered > 1 — 내리면(>0) 혼자 있어도 쿨감 가치 인정"
+  },
+  {
+   "what": "관통 분모 하한",
+   "where": "buff_value.rs:150",
+   "value": -99,
+   "effect": "올리면(예 -50) 고관통 버프의 delta_dps 상한이 낮아짐"
+  },
+  {
+   "what": "물리/마법 반분 계수",
+   "where": "buff_value.rs:291",
+   "value": 2,
+   "effect": "incoming/2 — 내리면(1) 방어/마저/평타·스킬경감 항이 2배(shl 접힘)"
+  },
+  {
+   "what": "벽무시 이속 환산",
+   "where": "buff_value.rs:333",
+   "value": 10,
+   "effect": "올리면 ignore_wall 버프 가치 ↑"
+  },
+  {
+   "what": "cc_threat 만 있을 때 cc_immune 분할",
+   "where": "buff_value.rs:349",
+   "value": 3,
+   "effect": "recv_hp_value/3 — 내리면 die_imminent 아닌 CC 위협에서도 cc_immune 가치 ↑"
+  },
+  {
+   "what": "toughness 환산 분모",
+   "where": "buff_value.rs:355",
+   "value": 200,
+   "effect": "내리면 강인함 버프 가치 ↑"
+  },
+  {
+   "what": "최종 상한",
+   "where": "buff_value.rs:360",
+   "value": 160,
+   "effect": "올리면 복합 버프(여러 항 동시)가 더 높은 점수"
+  }
+ ],
+ "unknown": [
+  "champion_hp_value(utils.rs:909, define m04.ll:49583, TLS 캐시 경유) 의 산식 — 다른 함수. 여기선 i64 반환 계약만(ev = 그 적의 HP 1 당 가치로 사용)",
+  "Entity::attack_cooltime(entity.rs:1766) 내부 — game_core",
+  "dur_sec/window 의 소스 표기: Time 아닌 경로가 `else 6` 인지 `unwrap_or(6)` 인지 표기 불가(외연 동일: window=6). dur_sec 자체는 window 외 소비 0건",
+  "L339/344/353 의 `crisis.is_some() && buff.flag` 소스 순서(column 부재) — IR 은 두 조건을 or 로 합쳐 한 번에 분기",
+  "L230 `dist(recv)≤r || dist(caster)≤rc` 표기 순서 — IR 분기 순서(recv 먼저) 기록",
+  "L242 디버그 print 게이트가 attack_speed_mult>0 인 이유(개발자 디버깅 잔재로 보이나 근거 없음) — 관측 전용이라 판정 무영향",
+  "ChampionCache.*_heal_sec[5] 의 인덱스 의미 — per_sec 과 같은 '대상 포지션'으로 추정(자매 함수 banish/mark 가 per_sec 을 그렇게 색인) · 여기선 5원소 합/5 만 쓰므로 판정에 영향 없음",
+  "Option<Effect> None 니치가 -1 인 이유(rustc 니치 방향)는 IR 관측 사실만 기록 — tcxdict 는 위치(0x4c0, Niche)만 주고 값은 안 준다"
+ ]
+}

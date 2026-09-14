@@ -1,0 +1,76 @@
+{
+ "name": "can_tower_focused_when_attack",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline29can_tower_focused_when_attack",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 83,
+ "ir_file": "m07.ll",
+ "ir_from": 50962,
+ "ir_to": 51097,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 8322, "ir_to": 8395, "what": "Chain<Chain<Copied<Iter<&Entity>>,Copied>,Copied>::try_fold<any::check<{closure#0}::{closure#1}>> — L109 `any` 외곽(3슬라이스 순회, 술어는 내부 Copied 판에 인라인)"},
+  {"ir_file": "m11.ll", "ir_from": 30335, "ir_to": 30419, "what": "Copied<Iter<&Entity>>::try_fold<any::check<{closure#0}::{closure#1}>> — L109 술어 본체: tower.attack_effect.unwrap().is_in_range(tower, minion)"},
+  {"ir_file": "m06.ll", "ir_from": 7224, "ir_to": 7307, "what": "Chain<..>::fold<map_fold<Filter<{closure#0}::{closure#0}>::count>> — L98~100 `filter(..).count()` 외곽"},
+  {"ir_file": "m11.ll", "ir_from": 24832, "ir_to": 24924, "what": "Copied<Iter<&Entity>>::fold<..count..> — L98 술어 본체(동일: attack_effect.unwrap().is_in_range(tower, minion) 를 세어 더함)"}
+ ],
+ "one_line": "내가 공격하러 들어가면 이 적 타워가 나를 물(focus) 수 있는가 — 타워 활성 틱·타워 현재 표적(nearest_enemy)·사거리 안 아군 미니언 수로 판정",
+ "signature": {
+  "abi": "일반 define(external) · 인자 4 포인터 전부 readonly · 반환 i1 zeroext 스칼라(sret/ScalarPair 아님). 본문(L88~119)은 즉시호출 클로저 `(|| {..})()` 가 통째로 인라인된 형태(!dbg 가 전부 `<119`)",
+  "params": [
+   {"i": 1, "name": "context", "type": "&GameContext(64B)", "ir": "ptr %0 noalias readonly captures(none)", "note": "+0x8 setting 만 읽음 → setting.tower_attack_disable_tick"},
+   {"i": 2, "name": "cache", "type": "&AbstractGameWithCache(8840B)", "ir": "ptr %1 noalias readonly captures(address,read_provenance)", "note": "game(&dyn AbstractGame 팻포인터 +0 data/+8 vtable)·player_champion·iter_minions 호출"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "ir": "ptr %2 noalias readonly captures(none)", "note": "info.team·info.position 만"},
+   {"i": 4, "name": "tower", "type": "&Entity(1728B)", "ir": "ptr %3 noalias readonly captures(address,read_provenance)", "note": "적 타워 엔티티(ty 태그 2 = Tower 검사). 술어 클로저 캡처로도 전달"}
+  ],
+  "returns": "bool(i1) — true = 이 타워가 나를 물 수 있다(=공격 진입 위험). phi(m07:51095): false(L84 타워 비활성 틱) / false(L89 champ None 또는 ty≠Tower) / true(L93 타워 표적==나) / cnt<2(L103) / !any(L111)"
+ },
+ "reads": [
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr (&dyn AbstractGame)", "note": "m07:50974"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "vtable+0x28 = AbstractGame::tick (divtable) 호출 (m07:50975~50979, L84)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting (&GameSetting)", "note": "m07:50980~50981"},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick", "note": "usize · `tick < tower_attack_disable_tick` 아니면 false (m07:50982~50985, L84)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "<2 아니면 panic_bounds_check (m07:50999~51005, L89)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "[5 x ptr] 인덱스 (m07:51010~51015, L89 · 인라인 콜리 줄 581)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]@Some.0", "note": "null=None → false (m07:51013~51018,51023)"},
+  {"base": "Entity(tower)", "offset": "0x68", "name": "ty@tag", "note": "i64 == 2 (EntityType::Tower) 아니면 false (m07:51020~51023) — 이 load 는 !dbg 없음(L89~90 사이 추정, `champ.is_some() && matches!(tower.ty, Tower{..})` 형태)"},
+  {"base": "Entity(tower)", "offset": "0x88", "name": "ty@Tower.info.nearest_enemy@tag", "note": "Option<(usize,usize)> 태그(i64 trunc→i1, 1=Some) (m07:51028~51031, L92)"},
+  {"base": "Entity(tower)", "offset": "0x98", "name": "ty@Tower.info.nearest_enemy@Some.0.1", "note": "usize = 타워 현재 표적 엔티티 id (dbg `id`) (m07:51034~51035, L92). .0(+0x90)은 안 읽음"},
+  {"base": "Entity(champ)", "offset": "0x5c0", "name": "id", "note": "usize · nearest_enemy.1 == champ.id → true (m07:51037~51040, L93)"},
+  {"base": "Entity(tower, aux)", "offset": "0x4c0", "name": "attack_effect@tag (Option<Effect> 니치)", "note": "i32 == -1(None) 이면 `unwrap_failed` 패닉 (m11:30348~30351,30380 · m11:24869~24873,24918, L98/L109)"},
+  {"base": "Entity(tower, aux)", "offset": "0x490", "name": "attack_effect@Some.0 (&Effect 56B)", "note": "Effect::is_in_range 의 &self (m11:30352,30413 · m11:24872,24903)"},
+  {"base": "Filter<Chain,..>(로컬 sret 56B+8)", "offset": "0x38", "name": "predicate(캡처 tower)", "note": "store ptr tower → iter+56 (m07:51057~51058, L98) — 로컬 alloca 쓰기, 인자 쓰기 아님"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 89, "meaning": "info.team bounds-check(len 2) — 판정값 아님 (m07:51001,51005)"},
+  {"value": 2, "src_line": 89, "meaning": "EntityType 메모리태그 2 = Tower — `icmp eq i64 %35, 2` (m07:51022, tcxdict --enum EntityType idx2=tag2)"},
+  {"value": 2, "src_line": 103, "meaning": "★사거리 안 아군 미니언 수 임계: `cnt < 2` → true(타워가 나를 문다). 미니언이 2기 이상이면 타워가 미니언을 계속 물어 안전 (m07:51090)"},
+  {"value": 0, "src_line": 100, "meaning": "count() fold 초기값 (m07:51079 `i64 0`) — 판정값 아님"},
+  {"value": -1, "src_line": 98, "meaning": "(aux) Entity+0x4c0 == -1 = attack_effect None 니치 → unwrap_failed (m11:30351 · m11:24871) · 또 m07:51060 `default = -1` 은 size_hint 상한 None 표기"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "core::iter::adapters::chain::Chain::try_fold",
+  "core::iter::adapters::chain::Chain::fold",
+  "core::iter::adapters::chain::Chain::size_hint",
+  "core::panicking::panic_bounds_check",
+  "llvm.memcpy.p0.p0.i64",
+  "llvm.assume",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "core::iter::adapters::copied::Copied::fold",
+  "core::option::unwrap_failed"
+ ],
+ "logic": "fn can_tower_focused_when_attack(context, cache, player, tower) -> bool {\n  // L84 — 타워 공격 비활성 구간(경기 초반)이면 어떤 타워도 못 문다\n  if !(cache.game.tick() < context.setting.tower_attack_disable_tick) { return false; }   // vtable+0x28 tick · GameSetting+0x13f8\n  (|| {   // L88~119 즉시호출 클로저(인라인)\n    // L89\n    let team = player.info.team;                                  // +0x930 (<2 아니면 panic)\n    let champ = cache.player_champion[team][player.info.position]?;   // cache+0x1e0 · None → false\n    let EntityType::Tower { info } = &tower.ty else { return false; };   // Entity+0x68 == 2 (dbg 줄 없음)\n    // L92\n    if let Some((_, id)) = info.nearest_enemy {                   // Entity+0x88 태그 · +0x98 = .1\n        // L93 — 타워가 이미 나를 조준 중\n        if id == champ.id { return true; }                        // Entity+0x5c0\n        // L97~103 — 타워 사거리 안에 있는 우리 팀 미니언 수\n        let cnt = cache.iter_minions(team)\n            .filter(|m| tower.attack_effect.as_ref().unwrap().is_in_range(tower, m))   // L98 · Entity+0x490 · None 이면 panic\n            .count();\n        cnt < 2                                                    // ★L103: 미니언 2기 미만이면 내가 물린다\n    } else {\n        // L108~111 — 타워가 아무도 안 물고 있으면: 사거리 안 미니언이 하나라도 있어야 안전\n        let in_range_minions = cache.iter_minions(team)\n            .any(|m| tower.attack_effect.as_ref().unwrap().is_in_range(tower, m));      // L109\n        !in_range_minions\n    }\n  })()\n}\n\n분기 순서(IR): %19(tick<disable) → %23(team bounds) → %37(champ!=null && ty==2) → %41(nearest_enemy Some?) → Some: %47(id==champ.id → true) / %62(cnt<2) ; None: %50(!any).\n순회 = iter_minions(team) 의 3 슬라이스 Chain(Chain(top,mid),bottom 추정 — g15.ll:102624 미독해) 순. count 는 전량 순회, any 는 첫 매치에서 중단. 두 술어 모두 Effect::is_in_range(&tower.attack_effect, caster=tower, target=minion).",
+ "knobs": [
+  {"what": "안전 미니언 수 임계", "where": "tower_discipline.rs:103 (m07:51090)", "value": 2, "effect": "올리면(예 3) 타워가 다른 표적을 물고 있어도 미니언이 3기 미만이면 '물린다'로 판정 → 타워 진입이 더 보수적. 내리면(1) 미니언 1기만 있어도 안전 판정 → 다이브 성향↑"},
+  {"what": "타워 공격 비활성 틱", "where": "GameSetting+0x13f8 tower_attack_disable_tick (m07:50982~50985, L84)", "value": "설정값(런타임)", "effect": "게임 설정 필드 — 이 틱 이상이면 항상 false(타워 비활성). 코드 상수 아님"}
+ ],
+ "unknown": [
+  "Entity+0x68 == 2 비교(m07:51020~51023)에 !dbg 가 없어 소스 줄(89 또는 90)과 표기(`let EntityType::Tower{info}` vs `matches!`) 는 미확정 — 동작(태그≠2 → false) 은 확정",
+  "`iter_minions(cache, team)`(g15.ll:102624) 이 돌려주는 3 슬라이스의 정체(top/mid/bottom_minions[team] 추정 — cache 필드 배치 0x10/0x50/0x90 근거) 는 내부 미독해",
+  "`Effect::is_in_range(&Effect, caster:&Entity, target:&Entity)->bool`(g06.ll:51634) 내부는 안 읽음 — 사거리 비교로 추정(이름·인자만 확정)",
+  "L97 count 경로에서 Chain::size_hint(fastcc m07:63266) 호출 + assume(cnt <= upper) 는 count() 인라인 잔재로 판정과 무관(관측 사실만)",
+  "v22_can_tower_focused_when_attack(tower_discipline.rs:477, m07:51312) 은 별도 함수 — 이 명세 범위 밖",
+  "타워의 attack_effect 가 None 이면 미니언 순회 중 unwrap_failed 패닉(m11:30380/24918). 실전 타워는 항상 Some 이라 도달 안 함(추정 — 런타임 미확인)"
+ ]
+}

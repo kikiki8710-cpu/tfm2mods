@@ -1,0 +1,75 @@
+{
+ "name": "v55_seal_value",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value14v55_seal_value",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 516,
+ "ir_file": "m10.ll",
+ "ir_from": 33434,
+ "ir_to": 33861,
+ "aux": [],
+ "one_line": "부분 봉인(평타/스킬 봉쇄) 이펙트의 가치 — 봉인 초 동안 대상 t 가 못 내는 DPS(캐시 평균)를 t 최대HP 로 캡·hp_value 로 환산해 0..80 점",
+ "signature": {
+  "abi": "define hidden (외부 링크, fastcc 아님) · 인자 승격 없음(포인터 그대로) · 반환 i64 range(-2^62, 81)",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문에서 미사용(dbg_value 만, 분기 0건 — m10.ll:33436)"},
+   {"i": 2, "name": "effect", "type": "&Effect(56B)", "note": "noalias readonly captures(none). ty(Arc<dyn EffectType>) 의 data/vtable 만 읽음"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "noalias readonly captures(none). cache(+0x0)·context(+0x8) 읽음"},
+   {"i": 4, "name": "champ", "type": "&Entity(1728B)", "note": "noalias readonly captures(address,read_provenance). 본문에서 직접 필드 읽기 없음 — `&dyn AbstractEntity`(vtable @anon.ff23c5838f81fa2a3acb125bb4b6e568.29, 88B) 로 expected_seal 에 전달만"},
+   {"i": 5, "name": "t", "type": "&Entity(1728B)", "note": "noalias readonly captures(none). 봉인 대상. id(+0x5c0)·stat_cached.hp(+0x628)·hp(+0x670) 읽음"},
+   {"i": 6, "name": "hp_value", "type": "i64", "note": "대상 HP 1 당 가치(호출자가 산정). erased 에 곱함"}
+  ],
+  "returns": "i64 — 스칼라 단일 반환(sret/ScalarPair 아님). 0 = 봉인 프로필 None(L520) 또는 t 가 플레이어 챔피언 아님(L522). 그 외 min(erased*hp_value / max(t.hp,1) / 2, 80) — hp_value 음수면 음수 가능(range 하한 -2^62), 상한 80"
+ },
+ "reads": [
+  {"base": "Effect", "offset": "0x0", "name": "ty.ptr(ArcInner*)", "note": "m10.ll:33451 · Arc<dyn EffectType> data 포인터. 데이터 = ptr + ((vtable.align-1)&~15) + 16 (ArcInner 헤더 뒤, L441<2127<2445<519 인라인)"},
+  {"base": "Effect", "offset": "0x8", "name": "ty.vtable", "note": "m10.ll:33452~33453"},
+  {"base": "vtable(EffectType)", "offset": "0x10", "name": "align", "note": "m10.ll:33454~33455 · ArcInner 데이터 오프셋 계산용"},
+  {"base": "vtable(EffectType)", "offset": "0xc8", "name": "expected_seal", "note": "m10.ll:33462~33464 · 슬롯 25 (divtable EffectType 0xc8 → expected_seal)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "m10.ll:33460~33461 · &GameContext, expected_seal 인자 + tps 조회"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "m10.ll:33480 · &AbstractGameWithCache"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "m10.ll:33481~33482 · t.id → player_by_champion_id"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "m10.ll:33493~33494 · tp.info.team, bounds<2 검사(33495~33499)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "m10.ll:33504~33506 · i32 태그 zext → 캐시 2차 인덱스(Position 0..4, 검사 없음)"},
+  {"base": "AbstractGameWithCache", "offset": "0x280", "name": "player_champion_cache[team][position]", "note": "m10.ll:33507~33509 · [[ChampionCache;5];2], stride 4000/800"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "m10.ll:33511~33512"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "m10.ll:33513~33514 · 0 이면 panic_const_div_by_zero(33528, Location buff_value.rs:526:13)"},
+  {"base": "ChampionCache", "offset": "0x190", "name": "attack_per_sec[0..5]", "note": "m10.ll:33537~33608 · blocks_attack 일 때 5원소 합/5 (L529)"},
+  {"base": "ChampionCache", "offset": "0x1b8", "name": "skill_per_sec[0..5]", "note": "m10.ll:33613~33674 · blocks_skill 일 때 합 (L532)"},
+  {"base": "ChampionCache", "offset": "0x1e0", "name": "skill2_per_sec[0..5]", "note": "m10.ll:33681~33742 · blocks_skill 일 때 합 (L533)"},
+  {"base": "ChampionCache", "offset": "0x208", "name": "ult_per_sec[0..5]", "note": "m10.ll:33749~33812 · blocks_skill 일 때 합 (L534)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "m10.ll:33839~33840 · t 의 최대 HP(캐시 스탯) — erased 상한 (L536, umin)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "m10.ll:33846~33847 · t 현재 HP — 분모 max(hp,1) (L537)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 519, "meaning": "Option<SealProfile> None 니치 태그 — sret 16B 의 byte9(blocks_skill 자리)==2 면 None → return 0 (m10.ll:33465~33468). SealProfile 16B={ticks@0 usize, blocks_attack@8 bool, blocks_skill@9 bool}(tcxdict)"},
+  {"value": 1, "src_line": 526, "meaning": "sec = max(seal.ticks / tps, 1) — 봉인 초 하한 (llvm.umax, m10.ll:33522)"},
+  {"value": 5, "src_line": 529, "meaning": "ChampionCache *_per_sec[5] 5 슬롯 평균 분모(udiv 5, m10.ll:33608·33830) — 대상 5 포지션 상대 DPS 평균"},
+  {"value": 1, "src_line": 537, "meaning": "분모 하한 max(t.hp, 1) (llvm.smax, m10.ll:33851)"},
+  {"value": 2, "src_line": 537, "meaning": "sdiv 2 — 환산값 절반 (m10.ll:33852)"},
+  {"value": 80, "src_line": 537, "meaning": "결과 상한 min(v, 80) (llvm.smin, m10.ll:33855)"},
+  {"value": 0, "src_line": 520, "meaning": "조기 반환값 — 프로필 None(L520) / 대상이 플레이어 챔피언 아님(L522 let-else) 두 경로 (phi m10.ll:33859)"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "llvm.umax.i64",
+  "llvm.umin.i64",
+  "llvm.smax.i64",
+  "llvm.smin.i64"
+ ],
+ "logic": "fn v55_seal_value(version, effect, data, champ, t, hp_value) -> i64  [buff_value.rs:516]\nL519: seal = effect.ty.expected_seal(data.context, champ as &dyn AbstractEntity)   // vtable+0xc8 간접호출, sret 16B\n      if seal is None (byte9==2) → L520 return 0\nL522: let Some(tp) = data.cache.player_by_champion_id(t.id) else return 0   // t 가 플레이어 챔피언이 아니면 0\nL525: c = &data.cache.player_champion_cache[tp.info.team][tp.info.position as usize]   // team<2 bounds check\nL526: sec = max(seal.ticks / tps, 1)   // tps = data.context.setting.tick_per_second (0 이면 div_by_zero 패닉)\nL527: stopped = 0\nL528: if seal.blocks_attack { L529: stopped += sum(c.attack_per_sec[0..5]) / 5 }\nL531: if seal.blocks_skill  { L532~534: stopped += (sum(c.skill_per_sec[0..5]) + sum(c.skill2_per_sec[0..5]) + sum(c.ult_per_sec[0..5])) / 5 }\nL536: erased = min(stopped * sec, t.stat_cached.hp)   // usize, umin — 봉인 동안 사라지는 화력을 대상 최대HP 로 캡\nL537: v = ((erased as i64 * hp_value) / max(t.hp as i64, 1) / 2).min(80)   // sdiv — hp_value 부호 따라 음수 가능\nL538: return v\n극성: blocks_attack/blocks_skill 은 각각 독립 if(둘 다 참이면 둘 다 가산). 조기반환 2경로 모두 0.",
+ "knobs": [
+  {"what": "봉인 초 하한", "where": "buff_value.rs:526", "value": 1, "effect": "올리면 짧은 봉인도 최소 N초 분 화력정지로 계상 → 봉인 가치 ↑"},
+  {"what": "DPS 평균 분모", "where": "buff_value.rs:529/532", "value": 5, "effect": "내리면(예 3) stopped 가 커져 봉인 가치 ↑ (5=대상 포지션 슬롯 수라 구조적 상수)"},
+  {"what": "환산 절반 계수", "where": "buff_value.rs:537", "value": 2, "effect": "내리면(1) 봉인 가치 2배; 올리면 봉인 가치 ↓"},
+  {"what": "결과 상한", "where": "buff_value.rs:537", "value": 80, "effect": "올리면 고DPS 대상 장기 봉인이 더 큰 점수 — 상한 밖 구간은 hp_value 비례"}
+ ],
+ "unknown": [
+  "version(인자1)은 dbg_value 만 있고 본문 분기 0건 — 호출자가 왜 넘기는지는 이 범위 밖(범위 한정: m10.ll:33434~33861)",
+  "expected_seal 의 구현체별 SealProfile.ticks 산정(AP 스케일 반영, _docs game_core.txt:1252~1254)은 game_core 경계 밖 — 여기서는 (ticks, blocks_attack, blocks_skill) 계약만 사용",
+  "ChampionCache.*_per_sec[5] 의 인덱스 = 대상 포지션(자매 함수 v55_banish_penalty 가 `[ti = tp.info.position]` 로 색인, m10.ll:34537~34548) — 그래서 여기 /5 는 '상대 5포지션 평균 DPS'. 캐시 생성부 자체는 미탐색",
+  "L522 의 let-else 인지 `?`/match 인지 표기 불가(외연 동일: None→0)"
+ ]
+}

@@ -1,5 +1,6 @@
 # r13 행동 계층 잎 61 편성표 (생성 2026-09-14 · rvaname 실명 · 지도 라벨은 참고만)
 
+> argscan(09-14): `0xd9f3c0` check_nontarget exe 5 = IR 5 ✓ · `0xe28060` line_recall_pressure_penalty exe ≤4(레지스터만) IR 3 ✓ · ⚠`0xebcbd0` should_add_self_etc_buff_action **exe 6 ≠ IR 5**(스택 arg6 이 `call [rsp+0x188]` = 함수 포인터 → 팻포인터/구조체 ArgumentPromotion 의심 · #103 과 같은 유형 → sweep 은 `EXE_ABI_UNRECOVERABLE` 후보 · 호출자 2 로 간접 검증 예정)
 > 합계: 확정 21 · 다후보 1 · 클로저 39 — 클로저 = 부모 명세의 aux(독립 명세 대상 아님) · 다후보 = Location 다수 본체를 1순위로 두고 배치가 IR 로 확정
 | # | RVA | 판정 | IR 실명(짧게) | IR | define 줄 | 크기 | 호출자 | 지도 라벨 | Location |
 |---|---|---|---|---|---|---|---|---|---|

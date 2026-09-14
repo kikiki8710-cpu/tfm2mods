@@ -1,0 +1,97 @@
+{
+ "name": "SmallActionTrace::expected_goal_position",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action5traceNtB2_16SmallActionTrace22expected_goal_position",
+ "src": "game-ai\\src\\small_action\\trace.rs",
+ "src_line": 116,
+ "ir_file": "m02.ll",
+ "ir_from": 8995,
+ "ir_to": 9340,
+ "aux": [],
+ "one_line": "추격(Trace) 소액션이 향할 목표 좌표 — 대상이 안 보이거나 부시 안이면 대상 좌표 그대로, 보이면 대상에서 (최소사거리−여유) 만큼 내 쪽으로 물러선 지점을 adjust_position 으로 보정해 Some((x,y))",
+ "signature": {
+  "abi": "hidden · sret 24B(Option<(u64,u64)>) · 인자 승격 없음. self=&SmallActionTrace(152B) 는 readonly(쓰기 없음).",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut Option<(u64,u64)>(24B)", "attrs": "writable writeonly sret dereferenceable(24)", "note": "+0x0 태그 i64(0=None/1=Some) · +0x8 x · +0x10 y"},
+   {"i": 1, "name": "self", "type": "&SmallActionTrace(152B)", "attrs": "noalias readonly captures(none)", "note": "explicit_min_range(0x0/0x8) · target(0x60) · attack_range_margin(0x78) · attack_range_only(0x91) 만 읽음"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "attrs": "noalias readonly", "note": "info.team / info.position 으로 내 챔피언 조회"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "attrs": "noalias readonly", "note": "cache(+0) → game dyn AbstractGame(vtable 0x1f0 get_entity_by_id)·player_champion / context(+8) → map(+0x20)·setting(+0x8)"}
+  ],
+  "returns": "Option<(u64,u64)> via sret — 살아있는 바이트: 태그 +0x0(8B, store i64 0|1 @m02.ll:9035) 는 전 경로 기록. +0x8(x)·+0x10(y) 는 **Some 경로(%19, m02.ll:9028·9030)에서만** 기록 — None 경로 3개(target 없음 %4 / champ 없음 %27 / 평타 이펙트 없음 %73)에선 미기록(쓰레기). 런타임 대조 시 None 이면 +0 8B 만 비교할 것"
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(9002)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(9292)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game(dyn AbstractGame data_ptr)", "note": "9003 — vtable 호출 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game(dyn AbstractGame vtable_ptr)", "note": "9005; vtable+0x1f0(496) = get_entity_by_id (divtable AbstractGame 0x1f0, 9008~9010)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[2][5] Option<&Entity> 니치 null=None(9047~9053, L118)"},
+  {"base": "SmallActionTrace", "offset": "0x0", "name": "explicit_min_range@tag", "note": "i64 trunc i1: 1=Some → +0x8 값을 min_range 로(9111~9113, L120)"},
+  {"base": "SmallActionTrace", "offset": "0x8", "name": "explicit_min_range@Some.0", "note": "u64 명시 최소사거리(9116~9117)"},
+  {"base": "SmallActionTrace", "offset": "0x60", "name": "target", "note": "usize 엔티티 id → get_entity_by_id(9006~9010, L117)"},
+  {"base": "SmallActionTrace", "offset": "0x78", "name": "attack_range_margin", "note": "u64. min_range.saturating_sub(margin) = from_distance(9319~9322, L156)"},
+  {"base": "SmallActionTrace", "offset": "0x91", "name": "attack_range_only", "note": "bool. true 면 스킬 사거리 min 반영 생략(9165~9168, L127)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "<2 아니면 panic_bounds_check(9019~9022, 9039)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index()(player.rs:581 인라인, 9044~9046)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "champ. 1=Neutral 이면 가시성 검사 생략(9138~9140, entity.rs:1136 player_team 인라인)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "champ 팀번호 → target.visible_state 인덱스(9248~9253)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag", "note": "target. stride 24B(gepS 9258). 0=Visible(9259~9261, L144)"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "champ(9063)·target(9086). 0 이면 radius 그대로, 아니면 radius*(mult+100)/100 (entity.rs:1511~1515)"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "champ·target → radius_sum(9070·9077·9093·9100·9109, L119)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag(니치)", "note": "champ. i32 -1=None → 반환 None(9126~9129, L124)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "&Effect(56B) → range_adjust 인자(9143, 9156)"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect@Some.0.range", "note": "9145~9146 (effect.rs:26 range() 인라인)"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range", "note": "×(level-1) (9147~9152)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "champ. (level-1)*growth 공용(9149~9151) · level>2 가 skill2 존재 조건(9191)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "champ 기본 사거리(9153~9154). +radius_sum 이 세 사거리 공통 베이스 %94(9157)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag(니치)", "note": "champ. -1=None 이면 스킬 사거리 반영 생략(9173~9176, L128)"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "&Effect → range_adjust(9172, 9206)"},
+  {"base": "Entity", "offset": "0x4f0", "name": "skill_effect@Some.0.target", "note": "CastingTarget → check(champ,target)(9181~9182, L129)"},
+  {"base": "Entity", "offset": "0x4d8", "name": "skill_effect@Some.0.range", "note": "9201~9202 (L130)"},
+  {"base": "Entity", "offset": "0x4e0", "name": "skill_effect@Some.0.growth_range", "note": "9203~9205"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect@Some.0", "note": "level>2 일 때만 이 주소, 아니면 정적 None(@anon…19) (entity.rs:1693 skill2_effect 인라인, 9191~9193). 이후 +0x30 태그·+0x28 target·+0x10 range·+0x18 growth 는 이 base 상대(9195·9223·9228·9230)"},
+  {"base": "Entity", "offset": "0x530", "name": "skill2_effect@tag(니치)", "note": "= skill2 base+0x30(48). -1=None 이면 생략(9195~9198, L134)"},
+  {"base": "Entity", "offset": "0x528", "name": "skill2_effect@Some.0.target", "note": "= base+0x28(40) → check(9223~9224, L135)"},
+  {"base": "Entity", "offset": "0x510", "name": "skill2_effect@Some.0.range", "note": "= base+0x10(16) (9228~9229, L136)"},
+  {"base": "Entity", "offset": "0x518", "name": "skill2_effect@Some.0.growth_range", "note": "= base+0x18(24) (9230~9232)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "target(9268·9275) / champ(9303)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "target(9270·9283) / champ(9307)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef(28112B) (9293~9294, L149)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B) → adjust_position 인자(9332~9334, L159)"},
+  {"base": "MapDef", "offset": "0x1c98", "name": "bushes[tyi][txi]", "note": "[30][30] usize. 0 이 아니면 대상이 부시 안 → 대상 좌표 그대로(9295~9300, L149)"}
+ ],
+ "writes": [
+  {"base": "(sret)", "offset": "0x0", "name": "Option tag", "value": "0(None) | 1(Some)", "note": "m02.ll:9034~9035 phi: 0 ← %4(target 없음)/%27(champ 없음)/%73(atk 없음), 1 ← %19"},
+  {"base": "(sret)", "offset": "0x8", "name": "x", "value": "target.x | adjust_position().0", "note": "Some 경로만(9027~9028). phi %20: %154(target.x, L145) / %159(target.x, L149 부시) / %199(adjust 결과, L159)"},
+  {"base": "(sret)", "offset": "0x10", "name": "y", "value": "target.y | adjust_position().1", "note": "Some 경로만(9029~9030). phi %21: %156 / %163 / %200"}
+ ],
+ "constants": [
+  {"value": 100, "src_line": 119, "meaning": "반경 배율 퍼센트 radius*(mult+100)/100 (entity.rs:1511~1515 인라인, 9079~9081·9102~9104). 임계 아님"},
+  {"value": -1, "src_line": 124, "meaning": "Option<Effect> 니치 None(i32). attack_effect(9128) 없으면 반환 None / skill(9175)·skill2(9197) 없으면 해당 사거리 생략"},
+  {"value": 2, "src_line": 134, "meaning": "skill2 존재 조건 level > 2 (entity.rs:1693 skill2_effect 인라인, 9191). 3레벨부터 skill2 사거리를 min 후보에 포함. 같은 값 2 는 9021·9252 에선 팀 배열 상한(bounds)"},
+  {"value": 0, "src_line": 144, "meaning": "VisibleState 태그 0=Visible (9260). Visible 이면 부시/오프셋 계산, 아니면 대상 좌표 그대로. 9299 의 0 은 bushes 셀 '부시 아님'"},
+  {"value": 32000, "src_line": 147, "meaning": "셀 크기 — 좌표/32000 = 셀 인덱스(9277, 9285). 좌표 변환"},
+  {"value": 29, "src_line": 147, "meaning": "clamp 상한 = 30x30 격자 마지막 인덱스(umin, 9281·9289)"},
+  {"value": 1, "src_line": 155, "meaning": "sz = max(isqrt(dx²+dy²), 1) — 0 나눗셈 방지 바닥(9317). 9034 의 1 은 Some 태그, 9112 는 explicit_min_range Some 태그"}
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "llvm.umin.i64",
+  "llvm.smax.i64",
+  "llvm.usub.sat.i64",
+  "game_core::utils::isqrt",
+  "game_core::simulation::game::Game::adjust_position"
+ ],
+ "logic": "fn expected_goal_position(&self, player:&PlayerState, data:&OperationData) -> Option<(u64,u64)>\n  let target = data.cache.game.get_entity_by_id(self.target)?                       // L117 vtable+0x1f0, null → None (9010~9013)\n  let champ  = data.cache.player_champion[player.info.team][player.info.position.as_index()]?   // L118 (9047~9053)\n  let radius_sum = radius(champ) + radius(target)                                     // L119 (9063~9109) radius(e)= mult==0 ? e.radius : e.radius*(mult+100)/100\n  let base = champ.stat_buff_cached.range + radius_sum                                // %94 (9157) — 세 사거리 공통\n  let min_range = if let Some(r) = self.explicit_min_range { r }                      // L120 (9111~9122)\n    else {\n      let atk = champ.attack_effect.as_ref()?                                          // L124 (-1 → 반환 None, 9126~9129)\n      let mut m = base + atk.range + (champ.level-1)*atk.growth_range + Effect::range_adjust(atk, champ, target)   // L124~125 (9145~9160)\n      if !self.attack_range_only {                                                     // L127 (9165~9168; true 면 아래 전부 건너뜀)\n        if let Some(sk) = champ.skill_effect.as_ref() {                                // L128 (9173~9176)\n          if sk.target.check(champ, target) {                                          // L129 (9182)\n            let sr = base + sk.range + (level-1)*sk.growth_range + range_adjust(sk, champ, target)   // L130 (9201~9209)\n            m = min(sr, m) } }                                                          // L131 (umin 9213)\n        let sk2 = if champ.level > 2 { &champ.skill2_effect } else { &NONE }           // L134 (entity.rs:1693, 9191~9193)\n        if let Some(sk2) = sk2 {                                                       // (9195~9198)\n          if sk2.target.check(champ, target) {                                         // L135 (9224)\n            let sr2 = base + sk2.range + (level-1)*sk2.growth_range + range_adjust(sk2, champ, target)   // L136 (9228~9236)\n            m = min(sr2, m) } }                                                         // L137 (umin 9240)\n      }\n      m }\n  // L144: 가시성 (champ Neutral 이면 검사 생략 → 보이는 것으로 취급, 9138~9140)\n  if !target.is_visible_from(champ.player_team()) {                                   // visible_state[t]!=Visible → (9260~9261 false 분기 %152)\n    return Some((target.x, target.y)) }                                                // L145 (9268~9272)\n  let txi = min(target.x/32000, 29); let tyi = min(target.y/32000, 29)                // L147~148 (9277~9289; clamp(0,29) — 부호없음이라 하한은 umin 만)\n  if data.context.map.bushes[tyi][txi] != 0 {                                          // L149 (9295~9300)\n    return Some((target.x, target.y)) }\n  let dx = champ.x - target.x; let dy = champ.y - target.y                             // L153~154 (9303~9309; wrapping i64)\n  let sz = max(isqrt(dx*dx + dy*dy), 1)                                                // L155 (9311~9317)\n  let from_distance = min_range.saturating_sub(self.attack_range_margin)              // L156 (9319~9322)\n  let x = target.x + from_distance*dx/sz; let y = target.y + from_distance*dy/sz       // L157~158 (9324~9330; sdiv)\n  Some(Game::adjust_position(data.context.map, data.context.setting, x, y))            // L159 (9332~9336) → sret +8/+16, 태그 1\n",
+ "knobs": [
+  {"what": "skill2 사거리 반영 시작 레벨", "where": "entity.rs:1693 (Entity::skill2_effect 인라인, m02.ll:9191)", "value": 2, "effect": "level>2 조건. 올리면 더 늦은 레벨부터 skill2 사거리가 min 후보에 들어감 — 단 game_core 인라인이라 이 함수 단독 조정 불가"}
+ ],
+ "unknown": [
+  "adjust_position(&MapDef,&GameSetting,x,y)->(i64,i64) 의 내부(벽/맵 밖 보정으로 추정) 및 isqrt·range_adjust·CastingTarget::check 내부는 game_core(_gcbc g15.ll:72245 / g06.ll:87607) — 본 범위 밖, 시그니처만 확정",
+  "L144 의 소스 표기: IR 은 visible_state[t]==Visible(0) 이면 부시/오프셋 경로, 아니면 대상 좌표 직반환. 소스가 `if !is_visible_from(..) { return Some(target.pos) }` 형태인지 `is_visible_from` 의 극성이 반대인지는 표기 불가(동작은 확정)",
+  "champ.team==Neutral 경로(9139~9140 → %157)는 player_champion 이 항상 Player 팀이라 실전 도달 불가(추정)",
+  "attack_range_margin 이 min_range 보다 크면 from_distance=0 → 목표 = target 좌표(adjust 후). 의도 여부는 소스 없이 판단 불가",
+  "@anon.94acafa22d01e083ca1cc62f01598c8f.19(정적 None Option<Effect>) 은 컴파일러가 만든 상수 — 값 미확인(태그 -1 로 추정, 9193→9197 경로)",
+  "self 의 나머지 필드(goal_x/goal_y 등)는 본 함수에서 안 읽음 — 반환값을 self.goal 에 쓰는 것은 호출자 몫(미독)"
+ ]
+}

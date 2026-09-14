@@ -1,0 +1,338 @@
+{
+ "name": "v55_mark_value",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value14v55_mark_value",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 724,
+ "ir_file": "m10.ll",
+ "ir_from": 33063,
+ "ir_to": 33431,
+ "aux": [],
+ "one_line": "표식(지연 폭발) 이펙트의 가치 — 창(window) 동안 아군이 t 에 넣을 피해/타수로 기대 폭발딜(base+per_hit·hits+accum%)을 만들어 hp_value 환산, 0..160",
+ "signature": {
+  "abi": "define hidden (외부 링크, fastcc 아님) · 인자 승격 없음 · 반환 i64(range 없음)",
+  "params": [
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "note": "본문 미사용(dbg_value 만, 분기·호출 전달 0건 — m10.ll:33070)"
+   },
+   {
+    "i": 2,
+    "name": "effect",
+    "type": "&Effect(56B)",
+    "note": "noalias readonly captures(none). ty vtable 슬롯 expected_mark 호출만"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "noalias readonly captures(address,read_provenance). cache/context/context.debug/game.tick 읽음 + add_log 인자"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "noalias readonly captures(address,read_provenance). info.team(+0x930)=아군 순회 팀 · info.position(+0x9c0)=디버그 로그 포맷 · add_log 인자"
+   },
+   {
+    "i": 5,
+    "name": "_parameter",
+    "type": "&ScoreParameter(5384B)",
+    "note": "noalias readonly captures(none). 본문에서 전혀 안 읽음(이름도 `_` 접두)"
+   },
+   {
+    "i": 6,
+    "name": "champ",
+    "type": "&Entity(1728B)",
+    "note": "noalias readonly captures(address,read_provenance). 필드 읽기 없음 — `&dyn AbstractEntity`(vtable @anon.29) 로 expected_mark 에 전달만. ⚠banish 와 달리 아군 순회에서 자기 자신을 제외하지 않음(champ.id 비교 없음)"
+   },
+   {
+    "i": 7,
+    "name": "t",
+    "type": "&Entity(1728B)",
+    "note": "noalias readonly captures(none). 표식 대상. id·x·y·stat_cached.hp·hp"
+   },
+   {
+    "i": 8,
+    "name": "hp_value",
+    "type": "i64",
+    "note": "대상 HP 1 당 가치 — explosion 에 곱함"
+   },
+   {
+    "i": 9,
+    "name": "_debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "noalias align 8 dereferenceable(224), readonly 아님 = &mut. 직접 store 0건 — 유일한 쓰기 = DebugFrameData::add_log 호출(m10.ll:33353, 디버그 게이트 안)"
+   }
+  ],
+  "returns": "i64 — 스칼라 단일 반환. 0 = expected_mark None(L729) / t 비플레이어(L731). 그 외 v = min(explosion*hp_value / max(t.hp,1), 160) — hp_value 음수면 음수 가능. ⚠seal/banish 와 달리 /2 없음·상한 160"
+ },
+ "reads": [
+  {
+   "base": "Effect",
+   "offset": "0x0",
+   "name": "ty.ptr(ArcInner*)",
+   "note": "m10.ll:33087 · data = ptr + ((align-1)&~15) + 16"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x8",
+   "name": "ty.vtable",
+   "note": "m10.ll:33088~33089"
+  },
+  {
+   "base": "vtable(EffectType)",
+   "offset": "0x10",
+   "name": "align",
+   "note": "m10.ll:33090~33091"
+  },
+  {
+   "base": "vtable(EffectType)",
+   "offset": "0xa8",
+   "name": "expected_mark",
+   "note": "m10.ll:33098~33100 · 슬롯 21 (divtable EffectType 0xa8 → expected_mark), sret 48B = Option<MarkProfile>: tag i64@0(1=Some,0=None) · base@8 · accum_pct@16 · per_hit@24 · max_hits@32 · window@40 (dbg fragment 33108~33120 + tcxdict MarkProfile 40B)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "m10.ll:33096~33097"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "m10.ll:33122"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "t.id(33124~33125 → player_by_champion_id) · ally.id(33362~33364)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "m10.ll:33136~33137"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "m10.ll:33138~33139 · tps. 0 이면 div_by_zero 패닉(33164, Location buff_value.rs:735)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "tp(33151~33153 → ti) · ap(33383~33386 캐시 인덱스) · player(33324, 로그 포맷 Debug)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "player(33157~33158 iter_champions 팀, bounds<2 · 로그 포맷 Display) · ap(33370~33372 캐시 1차 인덱스, bounds<2)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][0..5]",
+   "note": "m10.ll:33168~33176 · iter_champions 인라인, filter_map call_mut = `|x| *x`(m09.ll:66150)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "t(33181~33182) · ally(33229~33230)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "t(33183~33184) · ally(33233~33234)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x280",
+   "name": "player_champion_cache[ap.team][ap.position]",
+   "note": "m10.ll:33185·33382~33388"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x190",
+   "name": "attack_per_sec[ti]",
+   "note": "m10.ll:33390~33392 · ti = t 포지션"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1b8",
+   "name": "skill_per_sec[ti]",
+   "note": "m10.ll:33393~33395"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1e0",
+   "name": "skill2_per_sec[ti]",
+   "note": "m10.ll:33396~33398"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x208",
+   "name": "ult_per_sec[ti]",
+   "note": "m10.ll:33399~33401"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "m10.ll:33260~33261 · max_hp (L750) — expected_accum·explosion 상한 = max_hp*2"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "m10.ll:33287~33288 · 분모 max(hp,1)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug",
+   "note": "m10.ll:33306~33308 · 디버그 로그 게이트(L760)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game(&dyn AbstractGame).data_ptr",
+   "note": "m10.ll:33312"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "m10.ll:33313~33314"
+  },
+  {
+   "base": "vtable(AbstractGame)",
+   "offset": "0x28",
+   "name": "tick",
+   "note": "m10.ll:33315~33317 · 슬롯 5 fn(&self)->usize (divtable AbstractGame 0x28 → tick)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "DebugFrameData",
+   "offset": "0x48",
+   "name": "logs(Vec<DebugLog>) — push",
+   "value": "DebugLog{ …, text: format!(\"\\nMARK_WIN T{team} {player.pos:?} target_pos={tp.pos:?} v={v}\") }",
+   "note": "★직접 store 0건. 유일한 &mut 부작용 = game_core::DebugFrameData::add_log(_debug, data, player, String) 호출(m10.ll:33353) — add_log 본문(_gcbc g13.ll:122046)이 logs Vec(len@+0x58 +1, ptr@+0x50 버퍼에 56B DebugLog 기록, 필요시 grow 로 cap@+0x48·ptr 갱신). 발화 조건 = v>0 && data.context.debug && game.tick()%6==0 (L760). 디버그 OFF 프로덕션에선 쓰기 0"
+  }
+ ],
+ "constants": [
+  {
+   "value": 1,
+   "src_line": 735,
+   "meaning": "window_sec = max(mark.window / tps, 1) — 창 초 하한 (llvm.umax, m10.ll:33148) (리터럴 1 — shl 시프트량 아님)"
+  },
+  {
+   "value": 22500000000,
+   "src_line": 740,
+   "meaning": "150000^2 — ally↔t 제곱거리 임계, 초과하면 그 아군 제외 (m10.ll:33254)"
+  },
+  {
+   "value": 100,
+   "src_line": 748,
+   "meaning": "hits_per_sec_x100 += tps*100 / max(ally.attack_cooltime(),1) — 초당 평타 수 ×100 고정소수(mul 33186, udiv 33270 에서 /100 복원, accum_pct 도 /100 33277)"
+  },
+  {
+   "value": 1,
+   "src_line": 748,
+   "meaning": "attack_cooltime 하한 max(_,1) — 0 나눗셈 방지 (llvm.umax, m10.ll:33406) (리터럴 1 — shl 시프트량 아님)"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 751,
+   "meaning": "max_hp*2 — `shl i64 %105, 1`(m10.ll:33264) 로 접힘. expected_accum(L751)·explosion(L757) 상한 = 대상 최대HP 의 2배"
+  },
+  {
+   "value": 0,
+   "src_line": 753,
+   "meaning": "mark.max_hits == 0 이면 히트 상한 무시(select 33272~33274) — _docs game_core.txt:1250 '히트 누적 상한 (0 = 무관)'"
+  },
+  {
+   "value": 1,
+   "src_line": 758,
+   "meaning": "분모 하한 max(t.hp,1) (llvm.smax, m10.ll:33291) (리터럴 1 — shl 시프트량 아님)"
+  },
+  {
+   "value": 160,
+   "src_line": 758,
+   "meaning": "결과 상한 min(v,160) (llvm.smin, m10.ll:33295) — seal/banish(80) 의 2배"
+  },
+  {
+   "value": 6,
+   "src_line": 760,
+   "meaning": "디버그 로그 샘플링 — game.tick() % 6 == 0 일 때만 add_log (urem 33318)"
+  },
+  {
+   "value": 0,
+   "src_line": 729,
+   "meaning": "조기 반환 0 — expected_mark None(L729) / t 비플레이어(L731) (phi 33358). 또 L760 `v > 0` 게이트 비교값(icmp sgt 33297)"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_core::simulation::AbstractGameWithCache::iter_champions::{closure#0}::call_mut",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_core::simulation::game::frame::DebugFrameData::add_log",
+  "alloc::fmt::format::format_inner",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "llvm.umax.i64",
+  "llvm.umin.i64",
+  "llvm.smax.i64",
+  "llvm.smin.i64"
+ ],
+ "logic": "fn v55_mark_value(version, effect, data, player, _parameter, champ, t, hp_value, _debug) -> i64  [buff_value.rs:724]\nL728: let Some(mark) = effect.ty.expected_mark(data.context, champ as &dyn AbstractEntity) else { L729 return 0 }   // vtable+0xa8, MarkProfile{base,accum_pct,per_hit,max_hits,window}\nL731: let Some(tp) = data.cache.player_by_champion_id(t.id) else { return 0 }\nL734: tps = data.context.setting.tick_per_second\nL735: window_sec = max(mark.window / tps, 1)   // tps==0 → 패닉\nL736: ti = tp.info.position as usize\nL737: accum_dps = 0;  L738: hits_per_sec_x100 = 0\nL739: for ally in data.cache.iter_champions(player.info.team) {   // ⚠champ 자신 포함(제외 비교 없음)\nL740:   if dist2(ally.(x,y), t.(x,y)) > 150000² { continue }\nL743:   let Some(ap) = data.cache.player_by_champion_id(ally.id) else { continue }\nL746:   c = &data.cache.player_champion_cache[ap.info.team][ap.info.position as usize]\nL747:   accum_dps += c.attack_per_sec[ti] + c.skill_per_sec[ti] + c.skill2_per_sec[ti] + c.ult_per_sec[ti]\nL748:   hits_per_sec_x100 += tps*100 / max(ally.attack_cooltime(), 1)\n      }\nL750: max_hp = t.stat_cached.hp\nL751: expected_accum = min(accum_dps * window_sec, max_hp*2)\nL752: expected_hits = hits_per_sec_x100 * window_sec / 100\nL753: if mark.max_hits > 0 { expected_hits = min(expected_hits, mark.max_hits) }\nL756: explosion = mark.base + expected_hits*mark.per_hit + expected_accum*mark.accum_pct/100\nL757: explosion = min(explosion, max_hp*2)\nL758: v = ((explosion as i64 * hp_value) / max(t.hp as i64, 1)).min(160)\nL760: if v > 0 && data.context.debug && data.cache.game.tick() % 6 == 0 {   // 분기 순서: v>0 → debug → tick%6\nL761:   _debug.add_log(data, player, format!(\"\\nMARK_WIN T{} {:?} target_pos={:?} v={}\", player.info.team, player.info.position, tp.info.position, v)) }\nL764: return v",
+ "knobs": [
+  {
+   "what": "창 초 하한",
+   "where": "buff_value.rs:735",
+   "value": 1,
+   "effect": "올리면 짧은 표식 창도 N초 누적으로 계상 → 표식 가치 ↑"
+  },
+  {
+   "what": "아군 포함 거리 임계(제곱)",
+   "where": "buff_value.rs:740",
+   "value": 22500000000,
+   "effect": "올리면 먼 아군의 DPS/타수까지 누적에 포함 → 기대 폭발딜 ↑"
+  },
+  {
+   "what": "누적·폭발 상한 배수",
+   "where": "buff_value.rs:751/757",
+   "value": 2,
+   "effect": "max_hp×N. 내리면(1) 과대 폭발딜이 대상 체력으로 캡 → 고DPS 팀에서 가치 ↓ (shl 접힘)"
+  },
+  {
+   "what": "결과 상한",
+   "where": "buff_value.rs:758",
+   "value": 160,
+   "effect": "내리면 표식 가치가 다른 버프(80 상한)와 같은 급으로 눌림"
+  },
+  {
+   "what": "디버그 로그 샘플링 주기",
+   "where": "buff_value.rs:760",
+   "value": 6,
+   "effect": "관측 전용(행동 무영향). debug=true 일 때 6틱마다 1회 로그"
+  }
+ ],
+ "unknown": [
+  "expected_mark 구현체별 MarkProfile 산정(HitmanUlt·VoodooShamanCurse·AddEffectBuff·CombineEffect 등, _docs game_core.txt:1247~1250)은 game_core 경계 밖",
+  "Entity::attack_cooltime(entity.rs:1766) 의 틱 산식은 game_core — 여기선 usize 반환·max(_,1) 만",
+  "DebugLog(56B) 의 필드 구성·add_log 가 데이터를 어디서 뽑는지(+128 of data 등)는 g13.ll:122046 본문 소관 — 쓰기 표면은 logs Vec push 로만 특정",
+  "version·_parameter 를 호출자가 넘기는 이유(시그니처 통일로 추정)는 호출자 범위",
+  "L760 `A && B && C` 소스 표기 순서는 column 부재로 표기 불가 — IR 분기 순서(v>0 → debug → tick%6) 기록"
+ ]
+}
