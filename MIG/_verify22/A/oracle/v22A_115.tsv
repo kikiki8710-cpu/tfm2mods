@@ -1,0 +1,70 @@
+115	pre	mine=Some(false)	tick=100 next=1741 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	tick=100	camp=0	team=0	nm=-1	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=1741 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	pre	mine=Some(true)	tick=100 next=1742 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	tick=100	camp=0	team=0	nm=-2	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=1742 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	pre	mine=Some(false)	tick=100 next=1740 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	tick=100	camp=0	team=0	nm=-3	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=1740 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	pre	mine=Some(false)	tick=100 next=2881 camp=(752000,496000) dist=816354 ms=300 move_tick=2721 rhs=2881
+115	tick=100	camp=0	team=1	nm=-1	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=2881 camp=(752000,496000) dist=816354 ms=300 move_tick=2721 rhs=2881
+115	pre	mine=Some(true)	tick=100 next=2882 camp=(752000,496000) dist=816354 ms=300 move_tick=2721 rhs=2881
+115	tick=100	camp=0	team=1	nm=-2	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=2882 camp=(752000,496000) dist=816354 ms=300 move_tick=2721 rhs=2881
+115	pre	mine=Some(false)	tick=100 next=2880 camp=(752000,496000) dist=816354 ms=300 move_tick=2721 rhs=2881
+115	tick=100	camp=0	team=1	nm=-3	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=2880 camp=(752000,496000) dist=816354 ms=300 move_tick=2721 rhs=2881
+115	pre	mine=Some(false)	tick=100 next=1304 camp=(176000,592000) dist=343351 ms=300 move_tick=1144 rhs=1304
+115	tick=100	camp=1	team=0	nm=-1	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=1304 camp=(176000,592000) dist=343351 ms=300 move_tick=1144 rhs=1304
+115	pre	mine=Some(true)	tick=100 next=1305 camp=(176000,592000) dist=343351 ms=300 move_tick=1144 rhs=1304
+115	tick=100	camp=1	team=0	nm=-2	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=1305 camp=(176000,592000) dist=343351 ms=300 move_tick=1144 rhs=1304
+115	pre	mine=Some(false)	tick=100 next=1303 camp=(176000,592000) dist=343351 ms=300 move_tick=1144 rhs=1304
+115	tick=100	camp=1	team=0	nm=-3	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=1303 camp=(176000,592000) dist=343351 ms=300 move_tick=1144 rhs=1304
+115	pre	mine=Some(false)	tick=100 next=3206 camp=(592000,176000) dist=913823 ms=300 move_tick=3046 rhs=3206
+115	tick=100	camp=1	team=1	nm=-1	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=3206 camp=(592000,176000) dist=913823 ms=300 move_tick=3046 rhs=3206
+115	pre	mine=Some(true)	tick=100 next=3207 camp=(592000,176000) dist=913823 ms=300 move_tick=3046 rhs=3206
+115	tick=100	camp=1	team=1	nm=-2	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=3207 camp=(592000,176000) dist=913823 ms=300 move_tick=3046 rhs=3206
+115	pre	mine=Some(false)	tick=100 next=3205 camp=(592000,176000) dist=913823 ms=300 move_tick=3046 rhs=3206
+115	tick=100	camp=1	team=1	nm=-3	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=3205 camp=(592000,176000) dist=913823 ms=300 move_tick=3046 rhs=3206
+115	pre	mine=Some(false)	tick=100 next=1850 camp=(256000,448000) dist=507166 ms=300 move_tick=1690 rhs=1850
+115	tick=100	camp=2	team=0	nm=-1	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=1850 camp=(256000,448000) dist=507166 ms=300 move_tick=1690 rhs=1850
+115	pre	mine=Some(true)	tick=100 next=1851 camp=(256000,448000) dist=507166 ms=300 move_tick=1690 rhs=1850
+115	tick=100	camp=2	team=0	nm=-2	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=1851 camp=(256000,448000) dist=507166 ms=300 move_tick=1690 rhs=1850
+115	pre	mine=Some(false)	tick=100 next=1849 camp=(256000,448000) dist=507166 ms=300 move_tick=1690 rhs=1850
+115	tick=100	camp=2	team=0	nm=-3	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=1849 camp=(256000,448000) dist=507166 ms=300 move_tick=1690 rhs=1850
+115	pre	mine=Some(false)	tick=100 next=2716 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=2716
+115	tick=100	camp=2	team=1	nm=-1	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=2716 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=2716
+115	pre	mine=Some(true)	tick=100 next=2717 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=2716
+115	tick=100	camp=2	team=1	nm=-2	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=2717 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=2716
+115	pre	mine=Some(false)	tick=100 next=2715 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=2716
+115	tick=100	camp=2	team=1	nm=-3	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=2715 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=2716
+115	pre	mine=Some(false)	tick=100 next=1232 camp=(351000,800000) dist=321753 ms=300 move_tick=1072 rhs=1232
+115	tick=100	camp=3	team=0	nm=-1	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=1232 camp=(351000,800000) dist=321753 ms=300 move_tick=1072 rhs=1232
+115	pre	mine=Some(true)	tick=100 next=1233 camp=(351000,800000) dist=321753 ms=300 move_tick=1072 rhs=1232
+115	tick=100	camp=3	team=0	nm=-2	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=1233 camp=(351000,800000) dist=321753 ms=300 move_tick=1072 rhs=1232
+115	pre	mine=Some(false)	tick=100 next=1231 camp=(351000,800000) dist=321753 ms=300 move_tick=1072 rhs=1232
+115	tick=100	camp=3	team=0	nm=-3	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=1231 camp=(351000,800000) dist=321753 ms=300 move_tick=1072 rhs=1232
+115	pre	mine=Some(false)	tick=100 next=3282 camp=(800000,351000) dist=936803 ms=300 move_tick=3122 rhs=3282
+115	tick=100	camp=3	team=1	nm=-1	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=3282 camp=(800000,351000) dist=936803 ms=300 move_tick=3122 rhs=3282
+115	pre	mine=Some(true)	tick=100 next=3283 camp=(800000,351000) dist=936803 ms=300 move_tick=3122 rhs=3282
+115	tick=100	camp=3	team=1	nm=-2	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=3283 camp=(800000,351000) dist=936803 ms=300 move_tick=3122 rhs=3282
+115	pre	mine=Some(false)	tick=100 next=3281 camp=(800000,351000) dist=936803 ms=300 move_tick=3122 rhs=3282
+115	tick=100	camp=3	team=1	nm=-3	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=3281 camp=(800000,351000) dist=936803 ms=300 move_tick=3122 rhs=3282
+115	pre	mine=Some(false)	alive tick=100 next=0
+115	tick=100	camp=0	team=0	nm=0	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	alive tick=100 next=0
+115	pre	mine=Some(false)	alive tick=100 next=100
+115	tick=100	camp=0	team=0	nm=100	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	alive tick=100 next=100
+115	pre	mine=Some(false)	tick=100 next=101 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	tick=100	camp=0	team=0	nm=101	ms=300	off=0	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=101 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	pre	mine=Some(true)	tick=100 next=99999999 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	tick=100	camp=0	team=0	nm=99999999	ms=300	off=0	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=99999999 camp=(496000,752000) dist=474436 ms=300 move_tick=1581 rhs=1741
+115	pre	mine=Some(true)	tick=100 next=3217 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=3216
+115	tick=100	camp=2	team=1	nm=-2	ms=300	off=500	who=0	game=true	mine=Some(true)	ok=true	tick=100 next=3217 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=3216
+115	pre	mine=Some(false)	tick=100 next=3216 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=3216
+115	tick=100	camp=2	team=1	nm=-1	ms=300	off=500	who=0	game=false	mine=Some(false)	ok=true	tick=100 next=3216 camp=(448000,256000) dist=766958 ms=300 move_tick=2556 rhs=3216
+115	pre	mine=Some(true)	tick=3000 next=21874 camp=(351000,800000) dist=936803 ms=50 move_tick=18736 rhs=21873
+115	tick=3000	camp=3	team=0	nm=-2	ms=50	off=77	who=1	game=true	mine=Some(true)	ok=true	tick=3000 next=21874 camp=(351000,800000) dist=936803 ms=50 move_tick=18736 rhs=21873
+115	pre	mine=Some(false)	tick=3000 next=21873 camp=(351000,800000) dist=936803 ms=50 move_tick=18736 rhs=21873
+115	tick=3000	camp=3	team=0	nm=-1	ms=50	off=77	who=1	game=false	mine=Some(false)	ok=true	tick=3000 next=21873 camp=(351000,800000) dist=936803 ms=50 move_tick=18736 rhs=21873
+115	pre	mine=Some(false)	alive tick=100 next=1
+115	tick=100	camp=0	team=0	nm=-2	ms=0	off=0	who=0	game=false	mine=Some(false)	ok=true	alive tick=100 next=1
+115	pre	mine=None	camp_idx panic
+thread 'main' (34684) panicked at game-ai\src\plan_legacy\team_plan.rs:40:10:
+115	pre	mine=None	camp_idx panic
+thread 'main' (14536) panicked at game-ai\src\plan_legacy\team_plan.rs:40:10:

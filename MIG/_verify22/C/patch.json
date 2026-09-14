@@ -1,0 +1,325 @@
+{
+ "round": 22,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[126]/consts[5]/meaning",
+   "kind": "오탐",
+   "old": "조기 반환 0 — has_banish_deep 거짓(L598) / effect_cc_time None(L601) / t 비플레이어(L604) (phi m10.ll:34339)",
+   "new": "조기 반환 0 — has_banish_deep 거짓(L598) / effect_cc_time None(L601) / t 비플레이어(L604) (phi m10.ll:34339 `[ 0, %7 ]` 의 인입 블록 %7 종결자 = m10.ll:34325 `br i1 %21, label %22, label %27, !dbg !41028`=buff_value.rs:598 · G12 후보 601 은 `icmp eq i64 %35, 0`(tps 0 검사) 이고 620 은 `range(i64 0, …)` 속성 잡음이라 이 상수가 아니다)",
+   "evidence": "m10.ll:34325 `br i1 %21, label %22, label %27, !dbg !41028` (!41028 = buff_value.rs:598) → %27 의 phi m10.ll:34339 `%28 = phi i64 [ %93, %82 ], [ 0, %22 ], [ 0, %7 ], [ 0, %37 ]`. 상수 0 은 phi 인입이라 !dbg 가 없고(G12 교정 ②), 인입 블록 %7 의 종결자가 598 이다. 실제 후보 601 = m10.ll:34352 `%36 = icmp eq i64 %35, 0, !dbg !41065`(tick_per_second==0 → div_by_zero 검사, 별개 상수) · 620 = m10.ll:34473 `range(i64 0, -9223372036854775808) i64 @llvm.smax.i64` 의 속성 리터럴(잡음 ③). 오라클 o124.exe case20(has_banish_deep=false → game=0) 으로 이 경로가 실행 확인됨",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[124]/knobs[3]/what",
+   "kind": "보강",
+   "old": "결과 상한",
+   "new": "봉인 가치 결과 상한(v55_seal_value)",
+   "evidence": "m10.ll:33855 `%134 = call noundef i64 @llvm.smin.i64(i64 %133, i64 80)` — 이 함수의 상한은 80 이 맞다. [130] 의 160 은 다른 함수의 다른 노브라 R4 충돌은 이름 공유 탓(구조적). 오라클 o124.exe case6(hp_value=100000 → game=80=mine) 으로 80 실행 확인",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/knobs[3]/what",
+   "kind": "보강",
+   "old": "결과 상한",
+   "new": "추방 벌점 결과 상한(v55_banish_penalty)",
+   "evidence": "m10.ll:34478 `%93 = call noundef i64 @llvm.smin.i64(i64 %92, i64 80)`. 오라클 o124.exe case28(hp_value=100000 → game=80=mine) 실행 확인. [124] 와 같은 이유로 이름을 가른다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/mem[2]/name",
+   "kind": "보강",
+   "old": "game(dyn AbstractGame data_ptr)",
+   "new": "game.data_ptr",
+   "evidence": "m02.ll:9003 `%6 = load ptr, ptr %5` (cache+0x0) · 9010 `call … %12(ptr noundef nonnull %6, i64 noundef %10)` 첫 인자 = dyn 데이터 포인터. [127] mem[12] 가 같은 자리를 `game.data_ptr` 로 적고 있어 R2 가 [128] 만 잡았다 — 이름 규약 통일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/mem[3]/name",
+   "kind": "보강",
+   "old": "game(dyn AbstractGame vtable_ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "m02.ll:9004~9005 `%7 = getelementptr inbounds nuw i8, ptr %5, i64 8` / `%8 = load ptr, ptr %7` · 9008 `%11 = getelementptr inbounds nuw i8, ptr %8, i64 496`(vtable+0x1f0 get_entity_by_id). [127] mem[13] `game.vtable_ptr` 와 통일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/consts[6]/kind",
+   "kind": "보강",
+   "old": null,
+   "new": "임계",
+   "evidence": "m02.ll:9317 `%186 = tail call noundef range(i64 0, -9223372036854775808) i64 @llvm.smax.i64(i64 %185, i64 1)` — 이 행의 값 1 의 본 소비는 sz 하한(0 나눗셈 방지 바닥)이고, 9034 `phi … [ 1, %19 ]`(Some 태그)·9112 `trunc nuw i64 %68 to i1` 은 부수 언급이다. meaning 의 '태그' 낱말이 kind 를 태그로 끌고 가는 것을 막는다. 오라클 o128.exe case6(champ==target 좌표, isqrt(0)=0 → max(0,1)=1 → 결과 (15000,913000)=mine) 실행 확인",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/mem[38]/note",
+   "kind": "보강",
+   "old": "m02.ll:9034~9035 phi: 0 ← %4(target 없음)/%27(champ 없음)/%73(atk 없음), 1 ← %19",
+   "new": "m02.ll:9034~9035 phi: 0 ← %4(target 없음)/%27(champ 없음)/%73(atk 없음), 1 ← %19. ★살아있는 바이트: None 경로는 +0x0 8B 만 store(9035) — +0x8/+0x10 은 undef(런타임 대조 시 태그 0 이면 페이로드 비교 금지) / Some 경로는 +0x8·+0x10 store(9028·9030) 뒤 +0x0=1 store — 24B 전부 live",
+   "evidence": "m02.ll:9024~9036: 블록 %19 만 `store i64 %20, ptr %22`(+8)·`store i64 %21, ptr %23`(+16) 를 하고 %24 로 합류, %24 는 `%25 = phi i64 [ 0, %27 ], [ 0, %4 ], [ 0, %73 ], [ 1, %19 ]` → `store i64 %25, ptr %0` 뿐. None 3경로(%4·%27·%73)는 +8/+16 을 쓰지 않는다. 오라클 o128.exe 14케이스 전부 Some 반환(None 경로는 get_entity_by_id 실패 등 입력으로 재현 안 함)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[125]/mem[3]/note",
+   "kind": "보강",
+   "old": "&GameContext 로드 → direct_attack_stance 인자(46005~46007)",
+   "new": "&GameContext 로드 → direct_attack_stance 인자(46005~46007). 콜리(m11.ll:45044 internal fastcc, ArgumentPromotion 으로 (context, champ.x, champ.y, target.x, target.y, range) 6인자)는 context+0x20 map·+0x8 setting 을 로드해 Game::adjust_position 에 넘긴다(45076~45080) — `captures(address_is_null)` 은 `llvm.assume(ptr != null)`(45074~45075) 아티팩트이지 null 검사만 하는 게 아니다. 반환 sret 24B `initializes((0, 8))`: None(dist<1, 45060)→태그 0 만 live, Some→+8/+16 store(45084·45086) 후 태그 1",
+   "evidence": "m11.ll:45044 `define internal fastcc void @…direct_attack_stance(ptr … sret([24 x i8]) … initializes((0, 8)) %0, ptr readonly captures(address_is_null) %1, i64 %2, i64 %3, i64 %4, i64 %5, i64 noundef %6)` · 45051~45061 `%8 = sub i64 %2, %4` … `%13 = isqrt` `%14 = icmp slt i64 %13, 1` → None · 45064 `%16 = usub.sat(%6, 15000)` · 45076~45080 `%25 = load ptr, ptr (%1+32)` `%27 = load ptr, ptr (%1+8)` → `adjust_position(%25, %27, %19, %22)` · 45090 `%34 = phi i64 [ 1, %15 ], [ 0, %7 ]`",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[124]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): ticks 59·119→sec 1(game=16), 179→2(32), 180→3(48) — max(ticks/60,1) 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): attack_per_sec 합 5150/5=1030·skill 계열 합 3000/5=600 로 계산한 재구현과 일치(case1=20·case2=12·case3=32)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): t.hp 50000 분모 — 케이스 전부 일치. (hp 0/1 케이스는 126 case24·25 에서 max(hp,1) 확인)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): /2 포함 재구현 일치(case3: 3260*1000/50000=65 → /2 = 32)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): case6 hp_value=100000 → game=80",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): case0(expected_seal None)=0 · case8(t=타워, player_by_champion_id None)=0 · case10(둘 다 false)=0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/consts[0]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): case0 expected_seal=None → 0(sret byte9==2 경로 실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): 노브 값(1·5·2·80)이 재구현 산식과 13케이스 전부 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): 노브 값(1·5·2·80)이 재구현 산식과 13케이스 전부 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): 노브 값(1·5·2·80)이 재구현 산식과 13케이스 전부 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): 노브 값(1·5·2·80)이 재구현 산식과 13케이스 전부 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/sig/params[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): case7 hp_value=-1000 → game=-32 (음수 그대로 통과, smin 만 적용)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[124]/sig/params[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe · hidden 함수를 `#[link_name]` extern \"Rust\" 선언으로 직접 진입 · 케이스당 프로세스 1개 · 독립 재구현 대조 13/13 MATCH): version=55 로 호출 — 본문 분기 없음(IR dbg_value 만)과 정합, 결과 무관",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): cc 59→sec 1(game=18) · 120→2(36)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): case26 아군 pos1 을 t 에서 정확히 150000(dist²=22500000000 → 포함), pos2 를 150001(제외) → game=6=mine(포함 1명) — `>` 경계 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): case24 t.hp=1 · case25 t.hp=0 → 둘 다 80(패닉 없음, max(hp,1))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): case23 3680*1000/50000=73 → /2=36 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): case28 hp_value=100000 → 80",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): case20(has_banish_deep=false)=0 · case21(expected_cc_time_deep None)=0 · case22(아군 전부 150000 밖)=0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): 노브 값(1·22500000000·2·80) 재구현 산식과 9케이스 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): 노브 값(1·22500000000·2·80) 재구현 산식과 9케이스 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): 노브 값(1·22500000000·2·80) 재구현 산식과 9케이스 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[126]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o124.exe case20~28 · `#[link_name]` 직접 진입 · 독립 재구현 대조 9/9 MATCH): 노브 값(1·22500000000·2·80) 재구현 산식과 9케이스 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o128.exe · `#[link_name]` 직접 진입 · 독립 재구현 대조 13/14 MATCH, 불일치 1 은 재구현이 champ Neutral 분기를 빠뜨린 것 = 명세가 맞음): case9 bushes[0][0]!=0 셀(16000,16000)에 target 배치 → 대상 좌표 그대로 반환",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o128.exe · `#[link_name]` 직접 진입 · 독립 재구현 대조 13/14 MATCH, 불일치 1 은 재구현이 champ Neutral 분기를 빠뜨린 것 = 명세가 맞음): 좌표/32000 셀 인덱스 경로 실행(case4·9)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o128.exe · `#[link_name]` 직접 진입 · 독립 재구현 대조 13/14 MATCH, 불일치 1 은 재구현이 champ Neutral 분기를 빠뜨린 것 = 명세가 맞음): case6 champ==target 좌표 → isqrt 0 → max(0,1) → (15000,913000)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o128.exe · `#[link_name]` 직접 진입 · 독립 재구현 대조 13/14 MATCH, 불일치 1 은 재구현이 champ Neutral 분기를 빠뜨린 것 = 명세가 맞음): case2 Unknown·case7 Invisible → 대상 좌표 / case4 Visible → 오프셋 경로(42000,877000) / case8 champ Neutral → 가시성 검사 생략(42000,877000)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o128.exe · `#[link_name]` 직접 진입 · 독립 재구현 대조 13/14 MATCH, 불일치 1 은 재구현이 champ Neutral 분기를 빠뜨린 것 = 명세가 맞음): attack_effect Some 경로 실행(default Swordman atk range 0 → min_range=20000=반경합)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/knobs[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o128.exe · `#[link_name]` 직접 진입 · 독립 재구현 대조 13/14 MATCH, 불일치 1 은 재구현이 champ Neutral 분기를 빠뜨린 것 = 명세가 맞음): level 1 이라 skill2 미포함 경로만 실행(level>2 분기는 미도달 — IR 근거 유지)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[128]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o128.exe · `#[link_name]` 직접 진입 · 독립 재구현 대조 13/14 MATCH, 불일치 1 은 재구현이 champ Neutral 분기를 빠뜨린 것 = 명세가 맞음): explicit_min_range Some(40000)→(30000,893000) · Some(0)→대상좌표 · attack_range_margin 50000>min_range→saturating 0→대상좌표 · attack_range_only=true(new_attack_range) 경로",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[125]/consts[0]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o125.exe · pub 직접 호출 · 미니언 600틱 스폰 · 케이스당 프로세스 1개): case2 적 챔피언(ty≠Minion)→false · case0/3~9 적 미니언(ty 태그 1) 통과",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[125]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o125.exe · pub 직접 호출 · 미니언 600틱 스폰 · 케이스당 프로세스 1개): case8 visible_state[0]=Unknown→false · Visible 로 write 한 케이스는 통과",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[125]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o125.exe · pub 직접 호출 · 미니언 600틱 스폰 · 케이스당 프로세스 1개): case4 champ.attack_effect=None → false",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[125]/sig/params[3]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o125.exe · pub 직접 호출 · 미니언 600틱 스폰 · 케이스당 프로세스 1개): case3 line=Mid vs 미니언 line Top(+0x11a=0) → false · Top 이면 통과",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§1 「`vis` 가 `pub` 이 아니면 오라클 직접 진입이 막힌다」는 과잉이다 — `in:game_ai`(IR `define hidden`, 비-fastcc) 함수는 `extern \"Rust\" { #[link_name=\"<mangled>\"] fn … }` 선언으로 `-C lto=fat` 프로브에서 직접 호출된다(이번 라운드 124·126·128 실증, 3함수 36케이스 전부 실행). 남는 진짜 차단은 `internal fastcc`(심볼 없음·ABI 변형)뿐이다. 단 프로브가 game_ai 의 pub 항목을 하나도 참조하지 않으면 `--extern game_ai` 가 링크에 안 실려 LNK2019 가 난다 — pub 함수 1개(예 `game_ai::effect_cc_time`)를 아무 데나 호출해 크레이트를 끌어들여야 한다.",
+  "§4 G12 [126] consts[5] 의 「실제 후보 = [601, 620]」은 둘 다 잡음이다 — 601 은 별개 상수(tps==0 검사), 620 은 `range(i64 0, …)` 속성 리터럴. 게이트가 여전히 ③리터럴 정규식으로 함수 속성의 `range(...)` 를 상수로 읽는다(7차 denoise 가 `range(` 를 안 거른다).",
+  "§4 G20 R4 [124]/[126] 80 vs [130] 160 은 「같은 노브」가 아니라 세 함수가 `결과 상한` 이라는 같은 이름을 쓴 것이다 — R4 는 (노브 이름) 만으로 묶어 함수 경계를 무시한다. 이름을 함수별로 가르는 patch 를 냈지만, 게이트 쪽도 (함수, 이름) 또는 (파일:줄) 로 키를 바꿔야 재발하지 않는다.",
+  "프롬프트 ⑥ 의 「exe(0xebcbd0) 는 argscan 상 인자 6」— IR define 은 5인자(&Effect → Arc data ptr + vtable ptr 로 승격)이고, exe 는 vtable ptr 이 한 번 더 승격돼 (align 값, etc_buff 함수포인터) 가 됐다(대응표는 보고 본문). 「소스 &Effect 가 IR 에서 (Arc data, vtable) 로 승격」은 맞고, exe 6인자의 정체는 vtable 2필드 승격이다.",
+  "TEMPLATE.rs 함정 ⑦ 보강: `&Entity` 에서 캐스팅한 `*mut` 로 `(*p).hp = …` 를 써도 이번 프로브에서 조용히 사라졌다(hp=1 그대로) — `std::ptr::write_volatile` 로만 들어갔다. 좌표(x·y)는 같은 방식으로 들어간 걸 보면 필드별로 갈리니(readonly 스칼라 재사용 여부) **세팅은 전부 write_volatile 로** 하는 게 안전하다."
+ ]
+}

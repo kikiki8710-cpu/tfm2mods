@@ -1,0 +1,113 @@
+62404	define noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle10is_cleared(i8 noundef range(i8 0, 6) %0, i64 noundef %1, i64 %2, ptr noalias readnone align 16 captures(none) %3, ptr noalias noundef readonly align 8 captures(none) dereferenceable(2528) %4, ptr noalias noundef readonly align 8 captures(none) dereferenceable(24) %5, ptr noundef nonnull readonly align 8 captures(none) %6, i64 noundef %7, ptr noalias readnone align 8 captures(none) %8) unnamed_addr #1 !dbg !71408 {
+62405	    #dbg_value(ptr poison, !71429, !DIExpression(), !71432)
+62406	    #dbg_value(ptr poison, !71436, !DIExpression(), !71438)
+62407	    #dbg_value(i8 %0, !71410, !DIExpression(), !71439)
+62408	    #dbg_value(i64 %1, !71411, !DIExpression(), !71439)
+62409	    #dbg_value(i64 poison, !71412, !DIExpression(), !71439)
+62410	    #dbg_value(ptr poison, !71413, !DIExpression(), !71439)
+62411	    #dbg_value(ptr %4, !71414, !DIExpression(), !71439)
+62412	    #dbg_value(ptr %5, !71415, !DIExpression(), !71439)
+62413	    #dbg_value(ptr %6, !71416, !DIExpression(), !71439)
+62414	    #dbg_value(i64 %7, !71417, !DIExpression(), !71439)
+62415	    #dbg_value(ptr poison, !71418, !DIExpression(), !71439)
+62416	  %10 = getelementptr inbounds nuw i8, ptr %4, i64 2352, !dbg !71440 ;; passive_jungle.rs:842@is_cleared
+62417	  %11 = load i64, ptr %10, align 8, !dbg !71440, !noundef !8 ;; passive_jungle.rs:842@is_cleared
+62418	  %12 = icmp ult i64 %11, 2, !dbg !71440 ;; passive_jungle.rs:842@is_cleared
+62419	  br i1 %12, label %14, label %13, !dbg !71440 ;; passive_jungle.rs:842@is_cleared
+62420	
+62421	13:                                               ; preds = %9
+62422	  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %11, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.266) #30, !dbg !71440 ;; passive_jungle.rs:842@is_cleared
+62423	  unreachable, !dbg !71440 ;; passive_jungle.rs:842@is_cleared
+62424	
+62425	14:                                               ; preds = %9
+62426	    #dbg_value(ptr %4, !71441, !DIExpression(DW_OP_plus_uconst, 2496, DW_OP_stack_value), !71444)
+62427	  %15 = getelementptr inbounds nuw i8, ptr %4, i64 2496, !dbg !71445 ;; entity.rs:581@as_index <- passive_jungle.rs:842@is_cleared
+62428	  %16 = load i32, ptr %15, align 8, !dbg !71445, !range !28546, !noundef !8 ;; entity.rs:581@as_index <- passive_jungle.rs:842@is_cleared
+62429	  %17 = zext nneg i32 %16 to i64, !dbg !71445 ;; entity.rs:581@as_index <- passive_jungle.rs:842@is_cleared
+62430	  %18 = load ptr, ptr %5, align 8, !dbg !71440, !nonnull !8, !align !14311, !noundef !8 ;; passive_jungle.rs:842@is_cleared
+62431	  %19 = getelementptr inbounds nuw i8, ptr %18, i64 480, !dbg !71440 ;; passive_jungle.rs:842@is_cleared
+62432	  %20 = getelementptr inbounds nuw [5 x ptr], ptr %19, i64 %11, !dbg !71440 ;; passive_jungle.rs:842@is_cleared
+62433	  %21 = getelementptr inbounds nuw ptr, ptr %20, i64 %17, !dbg !71440 ;; passive_jungle.rs:842@is_cleared
+62434	  %22 = load ptr, ptr %21, align 8, !dbg !71440, !align !14311, !noundef !8 ;; passive_jungle.rs:842@is_cleared
+62435	    #dbg_value(ptr %22, !71419, !DIExpression(), !71446)
+62436	    #dbg_value(ptr undef, !71436, !DIExpression(), !71438)
+62437	    #dbg_value(ptr undef, !71429, !DIExpression(), !71432)
+62438	  %23 = icmp eq ptr %22, null, !dbg !71447 ;; option.rs:633@is_some<ref$<game_core::simulation::entity::Entity> > <- option.rs:682@is_none<ref$<game_core::simulation::entity::Entity> > <- passive_jungle.rs:843@is_cleared
+62439	  br i1 %23, label %73, label %24, !dbg !71437 ;; passive_jungle.rs:843@is_cleared
+62440	
+62441	24:                                               ; preds = %14
+62442	    #dbg_value(ptr %22, !71421, !DIExpression(), !71448)
+62443	  %25 = icmp ult i64 %1, 2, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62444	  br i1 %25, label %26, label %29, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62445	
+62446	26:                                               ; preds = %24
+62447	  %27 = tail call noundef i64 @_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan8camp_idx(i8 noundef %0), !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62448	  %28 = icmp ult i64 %27, 4, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62449	  br i1 %28, label %30, label %42, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62450	
+62451	29:                                               ; preds = %24
+62452	  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %1, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.267) #30, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62453	  unreachable, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62454	
+62455	30:                                               ; preds = %26
+62456	  %31 = getelementptr inbounds nuw i8, ptr %6, i64 888, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62457	  %32 = getelementptr inbounds nuw [4 x i64], ptr %31, i64 %1, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62458	  %33 = getelementptr inbounds nuw i64, ptr %32, i64 %27, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62459	  %34 = load i64, ptr %33, align 8, !dbg !71449, !noundef !8 ;; passive_jungle.rs:849@is_cleared
+62460	    #dbg_value(i64 %34, !71423, !DIExpression(), !71450)
+62461	  %35 = load ptr, ptr %18, align 8, !dbg !71451, !nonnull !8, !noundef !8 ;; passive_jungle.rs:851@is_cleared
+62462	  %36 = getelementptr inbounds nuw i8, ptr %18, i64 8, !dbg !71451 ;; passive_jungle.rs:851@is_cleared
+62463	  %37 = load ptr, ptr %36, align 8, !dbg !71451, !nonnull !8, !align !14311, !noundef !8 ;; passive_jungle.rs:851@is_cleared
+62464	  %38 = getelementptr inbounds nuw i8, ptr %37, i64 40, !dbg !71451 ;; passive_jungle.rs:851@is_cleared
+62465	  %39 = load ptr, ptr %38, align 8, !dbg !71451, !invariant.load !8, !nonnull !8 ;; passive_jungle.rs:851@is_cleared
+62466	  %40 = tail call noundef i64 %39(ptr noundef nonnull %35), !dbg !71451 ;; passive_jungle.rs:851@is_cleared
+62467	  %41 = icmp ult i64 %40, %34, !dbg !71451 ;; passive_jungle.rs:851@is_cleared
+62468	  br i1 %41, label %43, label %73, !dbg !71451 ;; passive_jungle.rs:851@is_cleared
+62469	
+62470	42:                                               ; preds = %26
+62471	  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %27, i64 noundef 4, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.267) #30, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62472	  unreachable, !dbg !71449 ;; passive_jungle.rs:849@is_cleared
+62473	
+62474	43:                                               ; preds = %30
+62475	  %44 = getelementptr inbounds nuw i8, ptr %22, i64 1632, !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62476	  %45 = load i64, ptr %44, align 8, !dbg !71452, !noundef !8 ;; passive_jungle.rs:853@is_cleared
+62477	  %46 = getelementptr inbounds nuw i8, ptr %22, i64 1640, !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62478	  %47 = load i64, ptr %46, align 8, !dbg !71452, !noundef !8 ;; passive_jungle.rs:853@is_cleared
+62479	  %48 = getelementptr inbounds nuw i8, ptr %5, i64 8, !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62480	  %49 = load ptr, ptr %48, align 8, !dbg !71452, !nonnull !8, !align !14311, !noundef !8 ;; passive_jungle.rs:853@is_cleared
+62481	  %50 = getelementptr inbounds nuw i8, ptr %49, i64 32, !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62482	  %51 = load ptr, ptr %50, align 8, !dbg !71452, !nonnull !8, !align !14311, !noundef !8 ;; passive_jungle.rs:853@is_cleared
+62483	  %52 = icmp eq i64 %1, 0, !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62484	  %53 = tail call { i64, i64 } @_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_pos(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(28112) %51, i8 noundef %0, i1 noundef zeroext %52), !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62485	  %54 = extractvalue { i64, i64 } %53, 0, !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62486	  %55 = tail call { i64, i64 } @_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_pos(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(28112) %51, i8 noundef %0, i1 noundef zeroext %52), !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62487	  %56 = extractvalue { i64, i64 } %55, 1, !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62488	  %57 = tail call noundef i64 @_RNvNtCs97f5S1uJLkH_9game_core5utils8distance(i64 noundef %45, i64 noundef %47, i64 noundef %54, i64 noundef %56), !dbg !71452 ;; passive_jungle.rs:853@is_cleared
+62489	    #dbg_value(i64 %57, !71425, !DIExpression(), !71453)
+62490	  %58 = getelementptr inbounds nuw i8, ptr %22, i64 1600, !dbg !71454 ;; passive_jungle.rs:854@is_cleared
+62491	  %59 = load i64, ptr %58, align 8, !dbg !71454, !noundef !8 ;; passive_jungle.rs:854@is_cleared
+62492	  %60 = icmp eq i64 %59, 0, !dbg !71454 ;; passive_jungle.rs:854@is_cleared
+62493	  br i1 %60, label %72, label %61, !dbg !71454 ;; passive_jungle.rs:854@is_cleared
+62494	
+62495	61:                                               ; preds = %43
+62496	  %62 = udiv i64 %57, %59, !dbg !71454 ;; passive_jungle.rs:854@is_cleared
+62497	    #dbg_value(i64 %62, !71427, !DIExpression(), !71455)
+62498	  %63 = tail call noundef i64 %39(ptr noundef nonnull %35), !dbg !71456 ;; passive_jungle.rs:855@is_cleared
+62499	  %64 = getelementptr inbounds nuw i8, ptr %49, i64 8, !dbg !71456 ;; passive_jungle.rs:855@is_cleared
+62500	  %65 = load ptr, ptr %64, align 8, !dbg !71456, !nonnull !8, !align !14311, !noundef !8 ;; passive_jungle.rs:855@is_cleared
+62501	  %66 = getelementptr inbounds nuw i8, ptr %65, i64 4856, !dbg !71456 ;; passive_jungle.rs:855@is_cleared
+62502	  %67 = load i64, ptr %66, align 8, !dbg !71456, !noundef !8 ;; passive_jungle.rs:855@is_cleared
+62503	  %68 = add i64 %62, %7, !dbg !71456 ;; passive_jungle.rs:855@is_cleared
+62504	  %69 = add i64 %68, %63, !dbg !71456 ;; passive_jungle.rs:855@is_cleared
+62505	  %70 = add i64 %69, %67, !dbg !71456 ;; passive_jungle.rs:855@is_cleared
+62506	  %71 = icmp ugt i64 %34, %70, !dbg !71456 ;; passive_jungle.rs:855@is_cleared
+62507	  br label %73, !dbg !71451 ;; passive_jungle.rs:851@is_cleared
+62508	
+62509	72:                                               ; preds = %43
+62510	  tail call void @_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.268) #30, !dbg !71454 ;; passive_jungle.rs:854@is_cleared
+62511	  unreachable, !dbg !71454 ;; passive_jungle.rs:854@is_cleared
+62512	
+62513	73:                                               ; preds = %61, %30, %14
+62514	  %74 = phi i1 [ false, %14 ], [ %71, %61 ], [ false, %30 ], !dbg !71446 ;; passive_jungle.rs:0@is_cleared
+62515	  ret i1 %74, !dbg !71457 ;; passive_jungle.rs:859@is_cleared
+62516	}

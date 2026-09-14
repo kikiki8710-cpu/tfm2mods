@@ -177,6 +177,9 @@ def collect(sp):
                 hit = any(v == str(val) for (v, _lab) in PHIIN.findall(ln))
             if not hit:
                 continue
+            # ── ⑧ 09-14(22차 C): 함수/호출 속성 `range(i64 0, 161)` 안의 리터럴은 상수가 아니다([126] 620 오탐) ──
+            if not isphi and "range(" in ln and not pat.search(re.sub(r"range\([^)]*\)", "", ln)):
+                continue
 
             # ── ② gep 오프셋은 상수가 아니다 ─────────────────────────────────
             if GEP.match(s):

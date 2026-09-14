@@ -100,6 +100,8 @@
 **⚠**: 두 경로의 컬럼 기준이 달라 **섞으면 1칸 어긋난다.**
 
 ## ⑥ SDK 실행 오라클 (`-C lto=fat`)  ★★확장성 최대
+
+> ★**09-14(22차 C·D) 범위 반전**: 「pub 만 직접 진입」은 과잉이었다. `define hidden`(비-`internal`) 함수는 프로브에서 `extern "Rust" { #[link_name = "<망글 심볼>"] fn f(…) -> T; }` 로 **직접 링크·실행**된다(124·126·128·130~133 실측 · 케이스 ~100 MATCH). 조건 ①프로브가 `game_ai` pub 항목을 하나라도 참조해야 rlib 이 링크된다(아니면 LNK2019 — `if args().count()>99 { let _ = game_ai::<pub fn> as *const (); }` 한 줄) ②`internal fastcc` 만 불가(IR 로만) ③`&Entity` 필드 세팅은 `std::ptr::write_volatile`(캐스팅 store 유실). 원문 = `REPORT\tfm2_judge_verify\RE\2026-09-14_22차_반증검증_r13_…` §0.
 **무엇**: SDK rlib 은 멤버가 날 비트코드라 그냥은 exe 로 안 링크된다(`LNK1136`). **`-C lto=fat -C codegen-units=1` 을 붙이면 rustc 가 비트코드를 병합해 exe 가 나오고, 게임 SDK 함수가 우리 프로세스 안에서 진짜 실행된다.**
 **언제**: **대상이 `pub` 이면 무조건 이걸 먼저 고려하라.** 전수 진리표로 IR 독해를 *실행 결과*로 검증할 수 있다.
 **실적**: `rule_scope` pub 13개 진리표 → IR 표 (A)~(E) **틀린 칸 0**. 덤으로 `valid_lines`·`fallback_line`·`steal_*`·`main/sub_objective_allowed` 6개가 **새로 완전 규정**.

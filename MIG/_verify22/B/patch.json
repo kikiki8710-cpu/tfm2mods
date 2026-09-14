@@ -1,0 +1,323 @@
+{
+ "round": 22,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[118]/logic",
+   "kind": "실오류",
+   "old": "      .map(|m| (champ.distance_sq(m), m))                                              // :287 closure#2 — 첫 원소는 본문 L62347~62375, 나머지는 aux(m11) L23478~23506 인라인. distance_sq = |dx|²+|dy|² (utils.rs:7~9, abs_diff 후 wrapping mul)",
+   "new": "      .min_by_key(|m| champ.distance_sq(m))                                            // :287 closure#2 = min_by_key 의 **key 클로저**(&Entity → u64). 첫 원소는 본문 L62347~62375, 나머지는 aux(m11) L23478~23506 인라인. distance_sq = |dx|²+|dy|² (utils.rs:7~9, abs_diff 후 wrapping mul). ★소스에 `.map(|m| (key, m))`·`|(d,_)| *d` 는 없다 — 튜플 (key, elem) 생성·비교·`|(_, x)| x` 는 std min_by_key 내부(iterator.rs:3387~3390)",
+   "evidence": "m04.ll:62181 `!dbg` 사슬 leaf = `min_by_key<Filter<Chain<…>,closure_env$1>,u64,closure_env$2>:3387` — min_by_key 가 Filter 에 직접 붙고 key 타입 u64·key 클로저 = closure_env$2. m04.ll:62184 `new<…, core::iter::traits::iterator::Iterator::min_by_key::key::closure_env$0<ref$<Entity>,u64,closure_env$2>>:69` — 튜플 만드는 클로저는 std 의 min_by_key::key 이지 소스 클로저가 아니다. m04.ll:62189 `min_by<Map<Filter<…>, min_by_key::key::closure_env$0<…>>, Ordering(*)(ref$<tuple$<u64,ref$<Entity>>>,…)>:3416`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[118]/logic",
+   "kind": "실오류",
+   "old": "      .min_by_key(|(d, _)| *d)                                                          // :287 reduce",
+   "new": "      // (std 내부) Map<Filter,key>::min_by(compare)                                        // :287 reduce",
+   "evidence": "m04.ll:62181/62184/62189 위 항목과 동일 — `|(d,_)| *d` 소스 클로저는 존재하지 않는다(iterator.rs:3387 key / :3416 min_by 내부)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[118]/logic",
+   "kind": "실오류",
+   "old": "      .map(|(_, m)| m.id)                                                               // :288 closure#3 L62392~62393 (Entity+0x5c0)",
+   "new": "      .map(|m| m.id)                                                                    // :288 closure#3 L62392~62393 (Entity+0x5c0) — min_by_key 는 원소(&Entity)를 돌려주므로 튜플 해체 없음",
+   "evidence": "m04.ll:62381 `%96 = extractvalue { i64, ptr } %95, 1`(min_by 결과 튜플의 elem) → 62386 null 검사 → 62392 `closure$3:288` 가 `%96`(&Entity) 에서 +1472(id) 로드. closure#3 인자는 &Entity 다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[118]/mem[8]/note",
+   "kind": "실오류",
+   "old": "L62347~62348(내 챔피언)·L62355~62356(미니언)",
+   "new": "L62347~62348(미니언 %74)·L62355~62356(내 챔피언 %75=%39 에 저장된 %26)",
+   "evidence": "m04.ll:62334 `%74 = phi ptr [ %67, %66 ], [ %70, %68 ]`(filter 가 찾은 미니언) · 62339 `%75 = load ptr, ptr %39`(62188 `store ptr %26, ptr %39` = player_champion) · 62347 `gep %74, 1632` · 62355 `gep %75, 1632` — 표기가 서로 바뀌어 있었다(abs_diff 라 동작은 대칭)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[119]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "본문 미사용(이름부터 `_`). DILocalVariable arg:1 만 남음",
+   "new": "본문 미사용(이름부터 `_`) — IR define 에서 **인자에서 제거**(소거)됨: m07.ll:60191 define 인자 5개 = rnd·player·cache·action·target, version 슬롯 없음. DILocalVariable arg:1 만 남음",
+   "evidence": "m07.ll:60191 `define internal fastcc noundef zeroext i1 @…check_nontarget(ptr noalias noundef nonnull align 16 dereferenceable(320) %0, ptr … dereferenceable(2528) %1, ptr readonly captures(address_is_null) %2, ptr … dereferenceable(56) %3, ptr … dereferenceable(1728) %4)` — 6개 중 `_version` 이 빠진 5개. G16 P1 은 DROPPED 어휘(인자에서 제거|인자 없음|poison) 를 요구하는데 `미사용` 만 있어 소거 주장으로 못 셌다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[119]/sig/params[3]/role",
+   "kind": "보강",
+   "old": "cache.player_champion[team][pos] 만 읽음. context/blackboard 미사용",
+   "new": "cache.player_champion[team][pos] 만 읽음. context/blackboard 미사용. ★IR 에선 `data.cache`(+0) 만 **승격**되어 `%2`(`ptr readonly captures(address_is_null)`, m07.ll:60247~60248 `llvm.assume(ne null)`) 로 들어온다 — exe 도 동일(r8 = cache, argscan 0xd9f3c0 = 레지스터 4 + 스택 1 = 5 인자)",
+   "evidence": "m07.ll:60191 `%2` 의 dereferenceable 없음·`captures(address_is_null)` + 60247 `%35 = icmp ne ptr %2, null` / 60248 `tail call void @llvm.assume(i1 %35)` / 60249 `gep %2, 480`(player_champion). exe 0xd9f43d `lea rcx,[rdi+rcx*8]`·`mov rsi,[rcx+rax*8+0x1e0]` 에서 rdi=r8",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[119]/mem[1]/note",
+   "kind": "실오류",
+   "old": "ArcInner: (cap-1)&-16 정렬 + 16 = 페이로드 (m07:60216~60224)",
+   "new": "ArcInner: (vtable.align−1)&-16 + 16 = 페이로드 오프셋 (m07:60216~60224 — `%16 = load i64, vtable+16`(align 슬롯) → `add -1` → `and -16` → data_ptr + 그 값 + 16). `cap` 이 아니다",
+   "evidence": "m07.ll:60219 `%15 = getelementptr inbounds nuw i8, ptr %14, i64 16`(%14 = vtable) · 60220 `%16 = load i64, ptr %15, !invariant.load` · 60221 `%17 = add nsw i64 %16, -1` · 60222 `%18 = and i64 %17, -16` · 60223 `%19 = gep %12(data), %18` · 60224 `%20 = gep %19, 16`. vtable+0x10 = align 슬롯(drop/size/align)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[119]/consts[1]/meaning",
+   "kind": "실오류",
+   "old": "ArcInner 정렬 `(cap-1)&-16`",
+   "new": "ArcInner 정렬 `(vtable.align-1)&-16`(vtable+0x10 align 슬롯, m07:60219~60222)",
+   "evidence": "위 mem[1] 항목과 동일(m07.ll:60219~60222)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[119]/logic",
+   "kind": "실오류",
+   "old": "None|Tower|Nexus|Epic|Serpen (0,3,2,5,6)",
+   "new": "None|Tower|Nexus|Epic|Serpen (0,2,3,5,6)",
+   "evidence": "tcxdict --enum EntityType: idx/태그 0 None · 2 Tower · 3 Nexus · 5 Epic · 6 Serpen(1 Minion·4 Jungle·13 Champion). m07.ll:60316~60320 switch 케이스 `i64 0/6/2/3/5 → %80`. 집합은 같고 Tower↔Nexus 번호 표기만 바뀌어 있었다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[119]/mem[18]/note",
+   "kind": "실오류",
+   "old": "None/Tower/Nexus/Epic/Serpen(태그 0,3,2,5,6)",
+   "new": "None/Tower/Nexus/Epic/Serpen(태그 0,2,3,5,6 — tcxdict --enum EntityType)",
+   "evidence": "tcxdict --enum EntityType idx2=Tower 태그2 · idx3=Nexus 태그3; m07.ll:60316~60320",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[119]/consts[7]/meaning",
+   "kind": "보강",
+   "old": "★투사체 도달시간 보정: apply_time += (distance/linear_move_speed).saturating_sub(10) — 비행 틱에서 10틱 공제 (m07:60406~60407)",
+   "new": "★투사체 도달시간 보정(여유분 가감): apply_time += (distance/linear_move_speed).saturating_sub(10) — 비행 틱에서 10틱을 여유분으로 공제 (m07:60406 `llvm.usub.sat.i64(%119, 10)`, 60407 add). 태그·임계가 아니라 가감 바이어스",
+   "evidence": "m07.ll:60406 `%120 = tail call i64 @llvm.usub.sat.i64(i64 %119, i64 10)` · 60407 `%121 = add i64 %120, %76` — 소비 오프코드가 감산(usub.sat)이라 `태그` 분류는 오분류. mkspec3._word_kind 어휘 `여유분/가감` 으로 `오프셋가감` 이 되게 문면 정정",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[119]/consts[8]/meaning",
+   "kind": "보강",
+   "old": "0 나눗셈 바닥 umax(linear_move_speed,1)(m07:60401) · umax(range_error,1)(m07:60415 L61)",
+   "new": "0 나눗셈 방지 하한(임계) umax(linear_move_speed,1)(m07:60401) · umax(range_error,1)(m07:60415 L61) — `태그` 가 아니라 하한값",
+   "evidence": "m07.ll:60401 `%117 = tail call noundef i64 @llvm.umax.i64(i64 %116, i64 1)` · 60415 `%125 = … @llvm.umax.i64(i64 %124, i64 1)` — umax 하한 소비. 어휘 `하한` 으로 `임계` 분류",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[120]/sig/params[1]/role",
+   "kind": "보강",
+   "old": "귀환 시 맞을 것으로 보는 처벌 피해량. 부호 있는 산술(sub/mul/sdiv)로만 쓰임",
+   "new": "귀환 시 맞을 것으로 보는 처벌 피해량 = 호출자 line_action_economy_adjustment(lane_economy.rs:46) 의 `line_projected_punish_damage_at(version, player, data, champ, …)`(m11.ll:51657) 결과. :47 `< 1` 이면 호출 전에 0 반환(m11.ll:51659~51660)이라 여기엔 ≥1 만 온다(define 의 range(i64 1, …) 근거). 부호 있는 산술(sub/mul/sdiv)로만 쓰임",
+   "evidence": "m11.ll:51657 `%129 = tail call fastcc noundef i64 @lane_economy::line_projected_punish_damage_at(i64 %0, ptr %1, ptr %2, ptr %20, …)` · 51659 `%130 = icmp slt i64 %129, 1` · 51660 `br i1 %130, label %164, label %131` · 51683 `%144 = tail call fastcc … line_recall_pressure_penalty(ptr %20, i64 noundef %129, i64 noundef %134)`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[120]/sig/params[2]/role",
+   "kind": "보강",
+   "old": "HP 1 단위의 가치(통화). 페널티 스케일 인자",
+   "new": "HP 1 단위의 가치(통화) = 호출자 :51 `max(champion_hp_value(data, cache, …), 1)`(m11.ll:51663~51667 smax 1). 페널티 스케일 인자",
+   "evidence": "m11.ll:51663 `%133 = tail call noundef i64 @…5utils17champion_hp_value(…)` · 51667 `%134 = tail call noundef i64 @llvm.smax.i64(i64 %133, i64 1)` · 51683 셋째 인자 `%134`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[121]/consts[8]/meaning",
+   "kind": "오탐",
+   "old": "value 상한 clamp(0,30) (L43804 umin 30)",
+   "new": "value 상한 clamp(0,30) (L43804 `umin 30` — ★이 명령은 `!dbg` 가 없어(호이스트) G12 후보에 안 잡힌다; 소스 :102)",
+   "evidence": "m04.ll:43804 `%230 = call i64 @llvm.umin.i64(i64 %225, i64 30)` — 줄 끝에 `!dbg` 없음(43803 smax 도 없음). 30 리터럴 중 `!dbg` 를 가진 것은 43838 `%247 = sdiv i64 %246, 30, !dbg`(:111<143) 뿐이라 srclinecheck 후보가 [111,143] 이 됐다. 소스 :102 `.clamp(0,30)` 의 30 은 43804 이고 명세가 옳다 → G12 오탐(디버그정보 없는 명령은 후보 산출에서 제외되거나 「불일치 불가」로 처리해야 함)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[121]/sig/returns",
+   "kind": "실오류",
+   "old": "Some 경로 4곳(L43868~43872·L43906~43910·L43958~43962)",
+   "new": "Some 경로 3곳(L43868~43872·L43906~43910·L43958~43962)",
+   "evidence": "m04.ll:43868 `store i64 0, ptr %0` · 43906 `store i64 0, ptr %0` · 43958 `store i64 0, ptr %0` — Some 태그 store 는 3곳(:144·:127·:135). None 은 43918·43954 의 `store i64 -1` 2곳",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[121]/mem[19]/name",
+   "kind": "보강",
+   "old": "shape 첫 페이로드 (Circle.radius | Line.width | Rect.width | DirDot.0)",
+   "new": "shape 첫 페이로드 (Circle.radius | Line.width | Rect.width | DirDot.radius) — tcxdict --enum ProjectileShape enum+0x8",
+   "evidence": "tcxdict --enum ProjectileShape: Circle{radius@+0x8} · Line{width@+0x8, from_x@+0x10, …} · Rect{width@+0x8, height@+0x10} · DirDot{radius@+0x8, range@+0x10}. m04.ll:43606~43607 `gep %79, 24` 로드",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[121]/open[0]",
+   "kind": "보강",
+   "old": ":80 `along < -crad || along > remain+crad` 와 :67 `team && visible` 은 IR 이 비단락(`or`/순차 br)이라 소스 표기는 불가(동작 동일)",
+   "new": ":80 `along < -crad || along > remain+crad` 는 IR 이 비단락 `or i1`(L43690)이라 소스 순서 표기 불가(동작 동일). :67 `team == Player(enemy) && is_visible` 은 순차 br(L43524 tag==0 → L43570 payload==enemy → L43576 is_visible)이라 평가 순서는 IR 로 확정(team 먼저)",
+   "evidence": "m04.ll:43690 `%175 = or i1 %172, %174` · 43691 `br i1 %175` (비단락) vs 43524 `br i1 %83, label %105, label %258` · 43570 `br i1 %108, label %109, label %258` · 43576 `br i1 %112, label %113, label %258`(순차 단락)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[122]/open[1]",
+   "kind": "보강",
+   "old": "expected_move_input_dir_sign 의 반환 의미(+1/−1 추정) — EffectType 은 Arc<dyn> 런타임 vtable 이라 구현체별 값은 이 명세 범위 밖(divtable 은 슬롯 이름만 확정)",
+   "new": "expected_move_input_dir_sign 의 반환값 = 기본 impl 1(g02.ll:309383 `ret i64 1`, type.rs:343) · CrossbowmanFireEffect(crossbowman.rs:370, g12.ll:307528~307536) = self+80≠0 && self+72≠0 ? −1 : 1 (range(-1,2)) · CombineEffect(combine.rs:113~115, g06.ll:101100~) = 하위 effect 를 try_fold 로 순회. 오라클(AttackEffect) 실측 sign=1 → Dir(dx,dy) 그대로. 구현체가 뒤집는(−1) 경우는 크로스보우맨 발사 effect 뿐(명시 impl 2개)",
+   "evidence": "grep `^define.*28expected_move_input_dir_sign` _gcbc/*.ll: 명시(_RNvX) impl = CombineEffect(g06.ll:101100)·CrossbowmanFireEffect(g12.ll:307526) 2개, 나머지 전부 기본(_RNvY, g02.ll:309382~ `ret i64 1`). v22B_o1.tsv cv_dir 케이스 3건 SIGN=1·MATCH=YES",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/mem[30]/note",
+   "kind": "실오류",
+   "old": "184B memcpy(34450, 34614). +0x18..+0xb0 은 alloca 잔여",
+   "new": "184B memcpy(34450, 34614). ★살아있는 바이트 = +0x0..+0x11(SmallActionSkill/Skill2::new 이 `initializes((0, 17))`: +0 start_tick=game.tick()(vtable+0x28) / +8 target=tower.id / +0x10 is_act=false i8) + 태그 +0xb1. **+0x11..+0xb0 은 alloca 잔여(undef)** — 이전 표기 +0x18 은 is_act 뒤 패딩 7B 를 살아있는 것으로 오인",
+   "evidence": "m07.ll:7645 `define void @…16SmallActionSkill3new(ptr … sret([24 x i8]) … initializes((0, 17)) %0, …)` · 7654 `%10 = tail call noundef i64 %9(ptr %5)`(vtable+40=0x28 tick) · 7655 `store i64 %10, ptr %0` · 7657 `store i64 %2, ptr %11`(+8 target) · 7659 `store i8 0, ptr %12`(+16 is_act). Skill2::new m07.ll:12020~12035 동형. 오라클 실측 `Skill(SmallActionSkill { start_tick: 0, target: 3, is_act: false })`(v22B_o1.tsv as_siege 15000)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/mem[22]/note",
+   "kind": "실오류",
+   "old": "level<=2 의 skill2 action 대리 — 그 경우 skill2_effect 가 None 이라 실전 도달 불가(추정)",
+   "new": "level<=2 의 skill2 action 대리 — 그 경우 skill2_effect 가 정적 None(33903 select → @anon…58) 이라 %85=null → 33952 `%87` true → 34304 skill2 분기 불도달. **IR 확정 사장 경로**(추정 아님)",
+   "evidence": "m15.ll:33901 `%62 = icmp ugt i64 %61, 2` · 33903 `%64 = select i1 %62, ptr %63, ptr @anon.e5f9a016f1220e5cee86475419aee1e5.58` · 33905~33907 `+48 load i32 … icmp eq -1` → 33912 `br i1 %67, label %84` → 33946 `%85 = phi [null, %58]` · 33952 `%87 = icmp eq ptr %85, null` · 34304 `br i1 %87, label %285, label %280`. 같은 `%62` 로 33993 `select i1 %62, i64 1424, i64 1456` 이 결정되므로 1456(0x5b0) 선택 ⇔ %85 null ⇔ skill2 분기 스킵",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/open[2]",
+   "kind": "보강",
+   "old": "iter_towers(&cache, team)->Chain 이터레이터(136B, _gcbc g15.ll:102521) 의 원소 순서(타워 6 → 쌍둥이 → 넥서스)는 IR 의 Chain 타입 이름으로 추정 — 내부 미독",
+   "new": "iter_towers(&cache, team)->Chain 이터레이터(136B, _gcbc g15.ll:102521) 의 원소 순서 **확정**: top_tower(0x180)→mid_tower(0x1a0)→bottom_tower(0x1c0)→top_tower2(0x190)→mid_tower2(0x1b0)→bottom_tower2(0x1d0) 배열 6(Option, None 은 Flatten 이 건너뜀; simulation.rs:1832~1837 iter_towers_without_nexus) → twin_towers[team] slice(0x130) → nexus[team](0x170)",
+   "evidence": "g15.ll:102535~102552 `gep %1, 384/416/448/400/432/464`(:1832~1837 순서로 로드) · 102555~102569 twin_towers(304) ptr/len · 102583~102585 nexus(368) · 102590~ Chain 구성. m15.ll:34099 `icmp ult i64 %135, 6`+34110 null skip(flatten.rs) → 34175 slice try_fold → 34219 Option ptr(+8)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/open[3]",
+   "kind": "보강",
+   "old": "SmallActionSkill/Skill2::new 의 24B 내용 미독. 원소 +0x18..+0xb0 은 alloca 잔여(런타임 비교 제외)",
+   "new": "SmallActionSkill/Skill2::new(data, id) 24B = {start_tick: game.tick()(vtable+0x28), target: id, is_act: false} 로 확정(m07.ll:7645~7660 / 12020~12035, initializes((0,17))). 원소 **+0x11**..+0xb0 은 alloca 잔여(런타임 비교 제외)",
+   "evidence": "m07.ll:7654~7659 store 3건(위 mem[30] 근거) · tcxdict SmallActionSkill: 0x0 start_tick usize / 0x8 target usize / 0x10 is_act bool",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/open[4]",
+   "kind": "보강",
+   "old": "level<=2 이면 skill2_effect 가 정적 None 이라 empty action(0x5b0) 경로는 도달 불가(추정)",
+   "new": "level<=2 이면 skill2_effect 가 정적 None 이라 empty action(0x5b0) 경로는 도달 불가 — IR 확정(33903 select → %85 null → 34304 skill2 분기 스킵). 사실 서술",
+   "evidence": "m15.ll:33903/33946/33952/34304 (mem[22] 근거와 동일)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/logic",
+   "kind": "보강",
+   "old": "Chain: 타워6 → 쌍둥이 slice(aux m11 33849 try_fold) → 넥서스)",
+   "new": "Chain: 1차 타워 3(top,mid,bottom) → 2차 타워 3(top2,mid2,bottom2) → 쌍둥이 slice(aux m11 33849 try_fold) → 넥서스 — g15.ll:102535~102585)",
+   "evidence": "g15.ll:102535~102552 로드 순서 384(top)·416(mid)·448(bottom)·400(top2)·432(mid2)·464(bottom2)",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[121]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(v22B_o1.exe, 케이스당 프로세스 1개): sm_tdanger 1 → None / sm_tdanger 2 → Move(700359,13665)=enemy_well_escape_position(D). `version > 1` 게이트 실행 확정(_verify22/B/oracle/v22B_o1.tsv)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[121]/knobs[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 같은 위험 목표에 v1=None, v2=Some(Move(탈출점)) (v22B_o1.tsv sm_tdanger 1/2)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[121]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(한쪽 팔): sm_tdanger 2 에서 dist_sq(champ,esc)=1278520401106 > 4000000 → Some(Move(esc)) 일치. ≤4e6 팔(None)은 미실행(탈출점이 항상 멀어 재료 부재 — 근접 재현은 IR L43950 ugt 로만)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[122]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: casting=Position(1) 케이스 8건(cv_pos) 전부 Pos 반환·예측 일치(v22B_o1.tsv)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[122]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: casting=Direction(2) 케이스 3건(cv_dir) Dir{dir_x=(x−cx)·1, dir_y=(y−cy)·1} 일치(v22B_o1.tsv)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[122]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: cv_pos 1000 1(max_range=true, 사거리 안) → Pos(165000,913000)=사거리 끝 투사점; cv_pos 1000 0 → Pos(16000,913000) 그대로(v22B_o1.tsv)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[122]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: dist 1000/149999(안) → 그대로, 400000/−300000(밖) → 투사+adjust_position(x=0 클램프 포함). ⚠dist==range(150000) 은 두 팔의 출력이 같은 점(투사점=목표점)이라 `>` vs `>=` 는 실행으로 안 갈린다 — L43201 `icmp ugt` 로만",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/mem[22]",
+   "from": 5,
+   "to": 3,
+   "evidence": "IR CFG 확정(m15.ll:33903/33952/34304, 위 note) — 추정에서 확정으로",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(SiegeBreakerChampionInfo, 적 1차 탑타워 옆): r=20030(= range 합 + move_speed 1×30 + 반경) 에서 d=20030 → Skill push 1 / d=20031 → 0 (v22B_o1.tsv as_siege 20030/20031). 이속×30 항이 빠지면 r=20000 이라 20030 이 빠졌을 것",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: v22B_o1.tsv as_siege 20030(push)/20031(미push) — 사거리 여유 30×move_speed 가 경계에 반영됨",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 반환 원소가 SmallActionPlay::Skill(SmallActionSkill{start_tick:0,target:3,is_act:false}) (v22B_o1.tsv as_siege 15000)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[123]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 스워드맨 기본(expected_damage_structure None) → 빈 Vec, SiegeBreaker(Some) → 후보 생성 (v22B_o1.tsv as_default / as_siege)",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "지시 ⑥ `should_add_self_etc_buff_action`(129) 은 배치 D 함수(_verify22/D/spec_129_*.md)인데 배치 B 지시문에 실렸다 — 대응표는 만들어 산문에 넣었고 patch 는 D 명세를 건드리지 않았다(경계 준수)",
+  "§4 G16 [119] 문구 「role 이 소거를 주장한 것은 0개」는 도구 어휘 문제다 — role 원문 `본문 미사용` 이 paramrole.DROPPED(인자에서 제거|인자 없음|poison) 에 없어 못 센 것. FULL_NEG 의 `미사용` 도 DROPPED 로 인정하거나 §4 에 요구 어휘를 적어 줘야 배치가 문면만 바꾸는 헛수고를 안 한다",
+  "§4 G12 [121] 의 「실제 후보 = [111, 143]」 은 `!dbg` 없는 명령(호이스트된 43804 umin 30)을 후보에서 통째로 잃은 결과 — 「강한 후보 없음」과 「후보와 불일치」를 구분하지 않으면 명세가 옳은데 게이트가 기각한다(오탐)",
+  "§1 표의 `ev≥4(미실행)` 수치(121=56·122=15·123=41)는 internal 콜리·인라인 줄까지 센 것이라 실제 오라클로 닿는 행은 그 1/5 이하(121: 3행·122: 4행·123: 4행)였다 — 7차 배치A 지적과 동일. 표에 「닿는 행」 열을 따로 두면 낫다"
+ ]
+}

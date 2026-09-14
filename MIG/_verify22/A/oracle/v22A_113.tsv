@@ -1,0 +1,26 @@
+113	tick=0	ver=0	hp=100	ms=300	nochamp=0	kill=0	tatk=500	game=2	mine=2	ok=true	ver
+113	tick=0	ver=1	hp=100	ms=300	nochamp=0	kill=0	tatk=500	game=2	mine=2	ok=true	ver
+113	tick=0	ver=2	hp=100	ms=300	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=300 hp=100 edge_ticks=106 edge_dmg=17525 cells_raw=5259
+113	tick=0	ver=3	hp=100	ms=300	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=300 hp=100 edge_ticks=106 edge_dmg=17525 cells_raw=5259
+113	tick=0	ver=99	hp=100	ms=300	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=300 hp=100 edge_ticks=106 edge_dmg=17525 cells_raw=5259
+113	tick=0	ver=2	hp=100	ms=300	nochamp=1	kill=0	tatk=500	game=2	mine=2	ok=true	nochamp
+113	tick=0	ver=2	hp=100	ms=300	nochamp=0	kill=1	tatk=500	game=2	mine=2	ok=true	notower
+113	tick=0	ver=2	hp=100	ms=300	nochamp=0	kill=0	tatk=0	game=2	mine=2	ok=true	shot=0 cool=3 tid=3 ms=300 hp=100 edge_ticks=106 edge_dmg=0 cells_raw=2
+113	tick=0	ver=2	hp=100	ms=300	nochamp=0	kill=0	tatk=-1	game=2	mine=2	ok=true	shot=0 cool=3 tid=3 ms=300 hp=100 edge_ticks=106 edge_dmg=0 cells_raw=2
+113	tick=0	ver=2	hp=100000	ms=300	nochamp=0	kill=0	tatk=500	game=7	mine=7	ok=true	shot=496 cool=3 tid=3 ms=300 hp=100000 edge_ticks=106 edge_dmg=17525 cells_raw=7
+113	tick=0	ver=2	hp=20000	ms=300	nochamp=0	kill=0	tatk=500	game=28	mine=28	ok=true	shot=496 cool=3 tid=3 ms=300 hp=20000 edge_ticks=106 edge_dmg=17525 cells_raw=28
+113	tick=0	ver=2	hp=10000	ms=300	nochamp=0	kill=0	tatk=500	game=54	mine=54	ok=true	shot=496 cool=3 tid=3 ms=300 hp=10000 edge_ticks=106 edge_dmg=17525 cells_raw=54
+113	tick=0	ver=2	hp=9100	ms=300	nochamp=0	kill=0	tatk=500	game=59	mine=59	ok=true	shot=496 cool=3 tid=3 ms=300 hp=9100 edge_ticks=106 edge_dmg=17525 cells_raw=59
+113	tick=0	ver=2	hp=9063	ms=300	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=300 hp=9063 edge_ticks=106 edge_dmg=17525 cells_raw=60
+113	tick=0	ver=2	hp=9000	ms=300	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=300 hp=9000 edge_ticks=106 edge_dmg=17525 cells_raw=60
+113	tick=0	ver=2	hp=0	ms=300	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=300 hp=0 edge_ticks=106 edge_dmg=17525 cells_raw=525752
+113	tick=0	ver=2	hp=1000	ms=0	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=0 hp=1000 edge_ticks=32000 edge_dmg=5290666 cells_raw=158721
+113	tick=0	ver=2	hp=1000	ms=1	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=1 hp=1000 edge_ticks=32000 edge_dmg=5290666 cells_raw=158721
+113	tick=0	ver=2	hp=1000	ms=100000	nochamp=0	kill=0	tatk=500	game=6	mine=6	ok=true	shot=496 cool=3 tid=3 ms=100000 hp=1000 edge_ticks=1 edge_dmg=165 cells_raw=6
+113	tick=0	ver=2	hp=1000	ms=32000	nochamp=0	kill=0	tatk=500	game=6	mine=6	ok=true	shot=496 cool=3 tid=3 ms=32000 hp=1000 edge_ticks=1 edge_dmg=165 cells_raw=6
+113	tick=0	ver=2	hp=1000	ms=32001	nochamp=0	kill=0	tatk=500	game=6	mine=6	ok=true	shot=496 cool=3 tid=3 ms=32001 hp=1000 edge_ticks=1 edge_dmg=165 cells_raw=6
+113	tick=0	ver=2	hp=1000	ms=16000	nochamp=0	kill=0	tatk=500	game=11	mine=11	ok=true	shot=496 cool=3 tid=3 ms=16000 hp=1000 edge_ticks=2 edge_dmg=330 cells_raw=11
+113	tick=0	ver=2	hp=1000	ms=10667	nochamp=0	kill=0	tatk=500	game=11	mine=11	ok=true	shot=496 cool=3 tid=3 ms=10667 hp=1000 edge_ticks=2 edge_dmg=330 cells_raw=11
+113	tick=0	ver=2	hp=1	ms=1	nochamp=0	kill=0	tatk=12708741	game=60	mine=60	ok=true	shot=12582912 cool=3 tid=3 ms=1 hp=1 edge_ticks=32000 edge_dmg=134217728000 cells_raw=2147483650
+113	tick=0	ver=2	hp=1	ms=1	nochamp=0	kill=0	tatk=12708740	game=60	mine=60	ok=true	shot=12582911 cool=3 tid=3 ms=1 hp=1 edge_ticks=32000 edge_dmg=134217717333 cells_raw=2147163640
+113	tick=500	ver=2	hp=1000	ms=300	nochamp=0	kill=0	tatk=500	game=60	mine=60	ok=true	shot=496 cool=3 tid=3 ms=300 hp=1000 edge_ticks=106 edge_dmg=17525 cells_raw=527

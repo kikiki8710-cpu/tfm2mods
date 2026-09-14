@@ -213,7 +213,12 @@ def check(D):
         w = (r.get("where") or u"") + u" " + (r.get("effect") or u"")
         m = re.search(u"icmp\\s+(?:samesign\\s+)?(ugt|sgt|uge|sge|ult|slt|ule|sle)\\s+i\\d+\\s+%[\\w.]+,\\s*(-?\\d+)", w)
         if not m:
-            return None
+            # ★09-14(22차 A): icmp 문면이 없으면 산문 술어(`version > 1` · `v<2` · `≥ 2` · `>= 2`)로 외연 환산.
+            m2 = re.search(u"(?:version|v|버전)\\s*(>=|<=|≥|≤|>|<)\\s*(-?\\d+)", w)
+            if not m2:
+                return None
+            op2, k2 = m2.group(1), int(m2.group(2))
+            return {u">": k2 + 1, u"≥": k2, u">=": k2, u"<": k2, u"≤": k2 + 1, u"<=": k2 + 1}[op2]
         op, k = m.group(1), int(m.group(2))
         return {"ugt": k + 1, "sgt": k + 1, "uge": k, "sge": k, "ult": k, "slt": k, "ule": k + 1, "sle": k + 1}[op]
     for k, v in sorted(g.items()):

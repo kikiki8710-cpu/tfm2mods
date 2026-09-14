@@ -648,7 +648,7 @@ unsafe fn install_one(i: usize) -> Result<(usize, usize, usize), &'static str> {
 
 /// abiprobe 설치. `mask` 비트 k = `S[k]`. `sweep_mask` = 2단계 게이트(교차 배타 판정용).
 /// 반환 = (성공, 시도).
-pub unsafe fn install(mask: u64, obs: u32, sweep_mask: u128, log: &mut String) -> (usize, usize) {
+pub unsafe fn install(mask: u64, obs: u32, sweep_mask: crate::Mask, log: &mut String) -> (usize, usize) {
     NOBS.store(obs.clamp(1, 64), Ordering::Relaxed);
     if mask == 0 {
         log.push_str("[abiprobe] 게이트 OFF (abiprobe_on.txt 없음/0) — 한 곳도 안 걸었다\n");
@@ -677,7 +677,7 @@ pub unsafe fn install(mask: u64, obs: u32, sweep_mask: u128, log: &mut String) -
         tried += 1;
         // ㉡ 게이트 레벨 교차 배타 — sweep 이 같은 함수를 **요청만 해도** 양보한다.
         let sbit = crate::sweep20::S.iter().find(|x| x.idx == sl.idx).map(|x| x.bit);
-        let sweep_wants = sbit.map(|b| sweep_mask & (1u128 << b) != 0).unwrap_or(false);
+        let sweep_wants = sbit.map(|b| crate::mask_bit(&sweep_mask, b as usize)).unwrap_or(false);
         let sweep_has = crate::sweep20::is_installed_spec(sl.idx);
         if sweep_wants || sweep_has {
             let why = format!(

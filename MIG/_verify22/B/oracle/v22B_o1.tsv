@@ -1,0 +1,191 @@
+### sm_safe 1 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_safe	p1=1	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	target=(115000,913000)	t_danger=false	c_danger=false	c_recent=false
+RESULT	got=Move(115000,913000)	expect=Move(115000,913000)	MATCH=YES
+### sm_safe 2 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_safe	p1=2	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	target=(115000,913000)	t_danger=false	c_danger=false	c_recent=false
+RESULT	got=Move(115000,913000)	expect=Move(115000,913000)	MATCH=YES
+### sm_near 1 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_near	p1=1	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	target=(16000,913000)	t_danger=false	c_danger=false	c_recent=false
+RESULT	got=Move(16000,913000)	expect=Move(16000,913000)	MATCH=YES
+### sm_near 2 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_near	p1=2	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	target=(16000,913000)	t_danger=false	c_danger=false	c_recent=false
+RESULT	got=Move(16000,913000)	expect=Move(16000,913000)	MATCH=YES
+### sm_tdanger 1 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_tdanger	p1=1	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	target=(808000,8000)	t_danger=true	c_danger=false	c_recent=false
+RESULT	got=None	expect=None	MATCH=YES
+### sm_tdanger 2 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_tdanger	p1=2	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	target=(808000,8000)	t_danger=true	c_danger=false	c_recent=false
+PRED_V2	esc=(700359,13665)	d2=1278520401106
+RESULT	got=Move(700359,13665)	expect=Move(700359,13665)	MATCH=YES
+### sm_sdanger 1 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_sdanger	p1=1	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=808000	y=8000	radius=10000	team=0
+PRED_IN	target=(808000,8000)	t_danger=true	c_danger=true	c_recent=false
+RESULT	got=Move(700359,13665)	expect=Move(700359,13665)	MATCH=YES
+### sm_sdanger 2 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_sdanger	p1=2	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=808000	y=8000	radius=10000	team=0
+PRED_IN	target=(808000,8000)	t_danger=true	c_danger=true	c_recent=false
+RESULT	got=Move(700359,13665)	expect=Move(700359,13665)	MATCH=YES
+### sm_sdanger_tsafe 1 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_sdanger_tsafe	p1=1	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=808000	y=8000	radius=10000	team=0
+PRED_IN	target=(100000,900000)	t_danger=false	c_danger=true	c_recent=false
+RESULT	got=Move(100000,900000)	expect=Move(100000,900000)	MATCH=YES
+### sm_sdanger_tsafe 2 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	sm_sdanger_tsafe	p1=2	p2=0	setting_ok=true	DM_NO_DODGE=None
+DANGER	Some((808000, 8000))
+CHAMP	id=18	lvl=1	x=808000	y=8000	radius=10000	team=0
+PRED_IN	target=(100000,900000)	t_danger=false	c_danger=true	c_recent=false
+RESULT	got=Move(100000,900000)	expect=Move(100000,900000)	MATCH=YES
+### cv_pos 1000 0 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_pos	p1=1000	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	range_eff=150000	d2=1000000	range2=22500000000	maxr=false
+RESULT	got=Pos { x: 16000, y: 913000 }	expect=Pos { x: 16000, y: 913000 }	MATCH=YES
+### cv_pos 149999 0 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_pos	p1=149999	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	range_eff=150000	d2=22499700001	range2=22500000000	maxr=false
+RESULT	got=Pos { x: 164999, y: 913000 }	expect=Pos { x: 164999, y: 913000 }	MATCH=YES
+### cv_pos 150000 0 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_pos	p1=150000	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	range_eff=150000	d2=22500000000	range2=22500000000	maxr=false
+RESULT	got=Pos { x: 165000, y: 913000 }	expect=Pos { x: 165000, y: 913000 }	MATCH=YES
+### cv_pos 150001 0 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_pos	p1=150001	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	range_eff=150000	d2=22500300001	range2=22500000000	maxr=false
+RESULT	got=Pos { x: 165000, y: 913000 }	expect=Pos { x: 165000, y: 913000 }	MATCH=YES
+### cv_pos 400000 0 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_pos	p1=400000	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	range_eff=150000	d2=160000000000	range2=22500000000	maxr=false
+RESULT	got=Pos { x: 165000, y: 913000 }	expect=Pos { x: 165000, y: 913000 }	MATCH=YES
+### cv_pos 1000 1 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_pos	p1=1000	p2=1	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	range_eff=150000	d2=1000000	range2=22500000000	maxr=true
+RESULT	got=Pos { x: 165000, y: 913000 }	expect=Pos { x: 165000, y: 913000 }	MATCH=YES
+### cv_pos -300000 0 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_pos	p1=-300000	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	range_eff=150000	d2=90000000000	range2=22500000000	maxr=false
+RESULT	got=Pos { x: 0, y: 913000 }	expect=Pos { x: 0, y: 913000 }	MATCH=YES
+### cv_pos -1000 1 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_pos	p1=-1000	p2=1	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+PRED_IN	range_eff=150000	d2=1000000	range2=22500000000	maxr=true
+RESULT	got=Pos { x: 0, y: 913000 }	expect=Pos { x: 0, y: 913000 }	MATCH=YES
+### cv_dir 5000 -7000 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_dir	p1=5000	p2=-7000	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+SIGN	1
+PRED_IN	range_eff=150000	d2=74000000	range2=22500000000	maxr=false
+RESULT	got=Dir { dir_x: 5000, dir_y: -7000 }	expect=Dir { dir_x: 5000, dir_y: -7000 }	MATCH=YES
+### cv_dir -5000 7000 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_dir	p1=-5000	p2=7000	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+SIGN	1
+PRED_IN	range_eff=150000	d2=74000000	range2=22500000000	maxr=false
+RESULT	got=Dir { dir_x: -5000, dir_y: 7000 }	expect=Dir { dir_x: -5000, dir_y: 7000 }	MATCH=YES
+### cv_dir 0 0 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	cv_dir	p1=0	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+SIGN	1
+PRED_IN	range_eff=150000	d2=0	range2=22500000000	maxr=false
+RESULT	got=Dir { dir_x: 0, dir_y: 0 }	expect=Dir { dir_x: 0, dir_y: 0 }	MATCH=YES
+### as_default (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	as_default	p1=2	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+SKILL	skill_effect_some=true	eds_some=Some(false)	skill2_some=false	can_skill=true	can_skill2=false	move_speed=1
+RESULT	len=0	pred_len=0	MATCH=YES	[]
+### as_siege 0 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	as_siege	p1=0	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=15000	y=913000	radius=10000	team=0
+SKILL	skill_effect_some=true	eds_some=Some(true)	skill2_some=false	can_skill=true	can_skill2=false	move_speed=1
+TOWER	id=3	d2=814274000000	r2=401200900	check=true	in_range=false	tc=true	ca=true
+TOWER	id=7	d2=629954000000	r2=401200900	check=true	in_range=false	tc=true	ca=true
+TOWER	id=11	d2=855234000000	r2=401200900	check=true	in_range=false	tc=true	ca=true
+RESULT	len=0	pred_len=0	MATCH=YES	[]
+### as_siege 15000 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	as_siege	p1=15000	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=257000	y=48000	radius=10000	team=0
+SKILL	skill_effect_some=true	eds_some=Some(true)	skill2_some=false	can_skill=true	can_skill2=false	move_speed=1
+TOWER	id=3	d2=225000000	r2=401200900	check=true	in_range=true	tc=true	ca=true
+TOWER	id=7	d2=214625000000	r2=401200900	check=true	in_range=false	tc=true	ca=true
+TOWER	id=11	d2=838625000000	r2=401200900	check=true	in_range=false	tc=true	ca=true
+RESULT	len=1	pred_len=1	MATCH=YES	["Skill(SmallActionSkill { start_tick: 0, target: 3, is_act: false })"]
+### as_siege 20030 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	as_siege	p1=20030	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=251970	y=48000	radius=10000	team=0
+SKILL	skill_effect_some=true	eds_some=Some(true)	skill2_some=false	can_skill=true	can_skill2=false	move_speed=1
+TOWER	id=3	d2=401200900	r2=401200900	check=true	in_range=true	tc=true	ca=true
+TOWER	id=7	d2=218020400900	r2=401200900	check=true	in_range=false	tc=true	ca=true
+TOWER	id=11	d2=845239600900	r2=401200900	check=true	in_range=false	tc=true	ca=true
+RESULT	len=1	pred_len=1	MATCH=YES	["Skill(SmallActionSkill { start_tick: 0, target: 3, is_act: false })"]
+### as_siege 20031 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	as_siege	p1=20031	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=251969	y=48000	radius=10000	team=0
+SKILL	skill_effect_some=true	eds_some=Some(true)	skill2_some=false	can_skill=true	can_skill2=false	move_speed=1
+TOWER	id=3	d2=401240961	r2=401200900	check=true	in_range=false	tc=true	ca=true
+TOWER	id=7	d2=218021080961	r2=401200900	check=true	in_range=false	tc=true	ca=true
+TOWER	id=11	d2=845240920961	r2=401200900	check=true	in_range=false	tc=true	ca=true
+RESULT	len=0	pred_len=0	MATCH=YES	[]
+### as_siege 25000 (rc=0)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	as_siege	p1=25000	p2=0	setting_ok=true	DM_NO_DODGE=None
+CHAMP	id=18	lvl=1	x=247000	y=48000	radius=10000	team=0
+SKILL	skill_effect_some=true	eds_some=Some(true)	skill2_some=false	can_skill=true	can_skill2=false	move_speed=1
+TOWER	id=3	d2=625000000	r2=401200900	check=true	in_range=false	tc=true	ca=true
+TOWER	id=7	d2=221425000000	r2=401200900	check=true	in_range=false	tc=true	ca=true
+TOWER	id=11	d2=851825000000	r2=401200900	check=true	in_range=false	tc=true	ca=true
+RESULT	len=0	pred_len=0	MATCH=YES	[]

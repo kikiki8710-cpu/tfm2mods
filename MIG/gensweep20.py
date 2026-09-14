@@ -96,7 +96,11 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          # ★r11(i=102~110 · 거대 9) · 2026-09-14 02:0x 판 1(설치 110/110 · 9/9 발화 · 리플레이 + 배경 일정 sim 누적 1863s 스냅샷 · 원문 _r11_probe1\probe20_r11_run1.txt).
          108: 20422392, 110: 19901309, 105: 16643998, 107: 14407556, 106: 4256793, 102: 4252554, 109: 4056185, 103: 1360977, 104: 1210647,
          # ★r12(i=111 · update 본체) · 2026-09-14 05:1x 판 1(설치 111/111 · 556.9s 판 종료 1회 · _r12_probe1\probe20_r12_run1.txt)
-         111: 23031577}
+         111: 23031577,
+         # ★r13(i=112~133 · 행동 계층 잎 22) · 2026-09-14 10:0x 판 1(설치 128/128 · 21/21 발화(117 camp_idx 는 프롤로그 불가) · 482.6s 판 종료 1회 · _r13_probe1\probe20_r13_run1.txt)
+         112: 94620056, 118: 48068657, 121: 23421215, 113: 15789797, 132: 14601407, 127: 13265950, 115: 12859828, 114: 10113175,
+         123: 6569837, 128: 3350410, 124: 2447507, 126: 2447507, 130: 2447507, 129: 2378034, 125: 2335365, 120: 1690592, 119: 1600262,
+         133: 906347, 122: 214163, 131: 120854, 116: 7336}
 #   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[90] @0xcaf9f0 · ~~AUX[20]~~ 09-13 이동)의
 #   재측정치 = **27,416,789**(probe20.txt 참조) — 명세 함수가 아니므로 이 표에 넣지 않는다.
 # ★★**이 함수들의 1단계 발화수는 무효다** — 그때 잰 주소가 **다른 함수**였다(2026-09-12 ghidra 확정).
@@ -678,6 +682,11 @@ SRET_VEC = {
     # r10 #97(i92) v46_flee_gate_check → (u8, Vec<usize, &Bump>) 40B: u8 태그@0(IR m04.ll `store i8 0..5, ptr %0`) · Vec 32B@8(memcpy 32B from %19).
     #   "extra" = Vec 밖 live 바이트(먼저 비교). 원소 usize 8B.
     92: {"ptr": 0x8, "len": 0x20, "esz": 8, "elem_live": [(0, 8, [])], "extra": [(0x0, 1)]},
+    # ★r13(09-14): #123/#132 fight_check::attack_summon_action / attack_structure_skill_action → bumpalo Vec<SmallActionPlay> 32B
+    #   (ptr@0 · bump@8 = ctx.pool · cap@0x10 · len@0x18) · 원소 184B 중 live = +0..0x18(::new 24B 페이로드) + +0xb1(태그 15/16/17) — 나머지 alloca 잔재.
+    #   bump 할당이라 내 사본도 같은 pool 에서 할당 → 해제 없음(이중 free 무관). ptr/bump/cap 은 비교 안 함(len·원소만).
+    114: {"ptr": 0x0, "len": 0x18, "esz": 184, "elem_live": [(0, 0x11, []), (0xb1, 1, [])]},   # 22차 B: ::new initializes((0,17)) → 0..0x11 (~~0x18~~)
+    123: {"ptr": 0x0, "len": 0x18, "esz": 184, "elem_live": [(0, 0x11, []), (0xb1, 1, [])]},
 }
 # ★★sret 버퍼가 **구조체(Option<구조체> 포함)** 인 함수(09-13 밤 · r9 #74 i69 `try_engage_dive` → `Option<BattlePlan>` 280B).
 #   structlive 잎(패딩·Vec 삼중항 제외 · 열거형 필드는 variant 조건부 · notin/hib 지원 = enumlive 와 같은 `_cond_rs`)으로 비교하고,
@@ -742,6 +751,9 @@ SPEC_RVA_OVERRIDE = {
 #   ⚠교훈: internal 함수는 `try_engage_dive`(#74)·`try_engage`(#85)·`v3_assign_anchor`(#45) 처럼 승격이 없을 때만 sweep 이 성립 —
 #      1단계 발화 카운트는 인자를 안 보므로 이를 잡지 못한다. 편입 전에 **ghidra 로 exe 스택 인자 개수 = IR 인자 개수** 를 확인할 것.
 EXE_ABI_UNRECOVERABLE = {
+    # r13(09-14): should_add_self_etc_buff_action — IR 5 인자(소스 &Effect 56B → %3 Arc data + %4 vtable 승격) vs exe 6(argscan: 스택 arg6 이 `call [rsp+0x188]`).
+    #   exe 측 승격이 IR 과 다르다(#103 유형). 진입부 detour 재호출 방식 한정 불가 · 호출자 2(지도)로 간접 검증. 22차 배치 D 대응표 후 재판정.
+    129: u"exe 0xebcbd0 = 6 인자(IR 5 · argscan 스택 arg6 함수포인터) — LTO ArgumentPromotion 이 exe 와 IR 에서 다르게 적용. 진입부 detour 방식 한정 불가 · 호출자 대조로 간접(22차 D 대응표 대기)",
     98: u"exe 0xd9bce0 = sret+13 인자(IR sret+11) — LTO ArgumentPromotion(%1 2528B→i64 · %3→팀idx/ctx/world · %2 널검사→bool) 로 원 포인터 복원 불가. "
         u"진입부 detour 재호출 방식 한정 불가 · 호출자 #104 should_steal_now(pub) 대조로 간접 검증(09-13 판 2 AV 0xd9c012 · ghidra-re 대응표)",
 }
@@ -755,7 +767,7 @@ INLINED_NO_ENTRY = {
     #          디스패처의 분기 대상 어디에도 attack_nexus 모듈 함수가 없고, exe 전역에 그 모듈의
     #          독립 함수는 `0xe81680`·`0xe83080`(둘 다 `plan_legacy/sub_plan/attack_nexus` = 다른 모듈)뿐이다.
     #   ★2026-09-13: 그래서 행(rows)에서는 빼되 **`pin02.rs` midpin(A 0xcafa57 + B 0xcafdaa · 게이트 bit19)** 으로 대조한다 — 397,835 DIFF 0.
-    2: u"`BigPlan::sub_plan`(0xcaf9f0)에 인라인 — 독립 진입부가 없다 ⟹ pin02.rs midpin(**bit127** = 1<<127 · 09-13 bit19→62→127 이동 · 마스크 u128)으로 대조(2026-09-13 DIFF 0)",
+    2: u"`BigPlan::sub_plan`(0xcaf9f0)에 인라인 — 독립 진입부가 없다 ⟹ pin02.rs midpin(**bit255** = 마스크 최상위 · 09-13 bit19→62→127 → 09-14 255 이동 · 마스크 256비트 [u64;4])으로 대조(2026-09-13 DIFF 0)",
 }
 
 
@@ -766,6 +778,8 @@ def self_restore_of(i, nm):
     return SELF_RESTORE.get(i)
 
 RET_LIVE = {
+    # r13(09-14): #127(i118) base_attacking_minion_uncached → {i64 tag, i64 id}(P64: 0 None/1 Some) — None 경로 3곳 slot1 undef(22차 A 재확인 대상) → Some 만 slot1 비교.
+    118: [1],
     6: [0, 1, 2, 3, 5, 6],
     # r10 #104(i99) should_steal_now → StealAction 2B(P8: a=태그 0 None/1 Lurk/2 Commit · b=페이로드 StealTarget 1B).
     #   None 의 b 는 IR undef(m07.ll:55118 `phi i8 [ undef, …]`) — 판 3 실측 60% 갈림 전부 `g={0,0} m={0,255}`. Lurk/Commit 만 b 비교.
@@ -773,6 +787,10 @@ RET_LIVE = {
 }
 
 SRET_LIVE = {
+    # ★r13 행동 계층 잎(09-14): sret 3 — 명세 writes 로 확정한 살아있는 슬롯.
+    128: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [1])])],   # #137 SmallActionTrace::expected_goal_position → Option<(u64,u64)> 24B(tag 0/1 · Some 만 +8/+16 · m02.ll 9027~9035)
+    121: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [0])])],   # #130 safe_move_avoiding_enemy_well → Option<Input> 32B(tag@0 8B: -1 None / 0 Some(Move) · +8 x +16 y · 24..32 미기록)
+    122: [(0x00, 4, []), (0x08, 16, [])],                 # #131 convert_to_move_action_target → InputTarget 24B(tag i32@0: 1 Dir/2 Pos · +8/+16 · 4..8 패딩)
     # r10(09-13 밤): #92(i87) check_kill · #106(i101) line_backfight_support_focus → Option<(usize, usize)> 24B(#26 과 동일 레이아웃).
     87: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [1])])],
     101: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [1])])],
@@ -2172,20 +2190,20 @@ def main():
     w(u"/// sweep 설치. `mask` 비트 k = `S[k]`. 반환 = (성공, 시도).")
     w(u"/// ⚠`orig` 는 **진입부 패치 전에** 저장된다(`hookw` 가 그 순서를 보장) — 패치 직후 다른 스레드가")
     w(u"///   들어와 `orig==0` 을 transmute 하면 널 호출이다(배경 sim 워커가 있으니 실재하는 경합).")
-    w(u"pub unsafe fn install(mask: u128, log: &mut String) -> (usize, usize) {")
-    w(u"    if mask == 0 {")
+    w(u"pub unsafe fn install(mask: crate::Mask, log: &mut String) -> (usize, usize) {")
+    w(u"    if crate::mask_is_zero(&mask) {")
     w(u"        log.push_str(\"[sweep] 게이트 OFF (sweep20_on.txt 없음/0) — 한 곳도 안 걸었다\\n\");")
     w(u"        return (0, 0);")
     w(u"    }")
-    w(u"    let unknown = mask & !((1u128 << S.len()) - 1);")
-    w(u"    if unknown != 0 {")
+    w(u"    let unknown: Vec<usize> = (S.len()..256).filter(|&i| crate::mask_bit(&mask, i)).collect();")
+    w(u"    if !unknown.is_empty() {")
     w(u"        // 「빠진 것을 모르는 상태」를 만들지 않는다 — 슬롯이 없는 비트를 켜면 조용히 무시되는 게 아니라 말한다.")
-    w(u"        log.push_str(&format!(\"[sweep] ⚠mask 의 미지 비트 {:#x} 는 슬롯이 없어 무시했다(슬롯 {}개)\\n\", unknown, S.len()));")
+    w(u"        log.push_str(&format!(\"[sweep] ⚠mask 의 미지 비트 {:?} 는 슬롯이 없어 무시했다(슬롯 {}개)\\n\", unknown, S.len()));")
     w(u"    }")
     w(u"    let w: [usize; %d] = [%s];" % (N, ", ".join("w_%d as usize" % r["idx"] for r in rows)))
     w(u"    let (mut ok, mut tried) = (0usize, 0usize);")
     w(u"    for i in 0..S.len() {")
-    w(u"        if mask & (1u128 << i) == 0 { continue; }")
+    w(u"        if !crate::mask_bit(&mask, i) { continue; }")
     w(u"        tried += 1;")
     # ★사이트가 있으면 **호출부 리다이렉트**로 건다(진입부 12B 를 못 빼는 함수). 원 함수 명령은 무손상.
     w(u"        let r = if S[i].sites.is_empty() {")

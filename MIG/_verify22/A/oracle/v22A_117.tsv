@@ -1,0 +1,14 @@
+117	case=0	mine=Some(0)
+117	case=0	game=0	mine=Some(0)	ok=true
+117	case=1	mine=Some(1)
+117	case=1	game=1	mine=Some(1)	ok=true
+117	case=2	mine=Some(3)
+117	case=2	game=3	mine=Some(3)	ok=true
+117	case=3	mine=Some(2)
+117	case=3	game=2	mine=Some(2)	ok=true
+117	case=4	mine=None
+thread 'main' (11532) panicked at game-ai\src\plan_legacy\team_plan.rs:40:10:
+internal error: entered unreachable code
+117	case=5	mine=None
+thread 'main' (26524) panicked at game-ai\src\plan_legacy\team_plan.rs:40:10:
+internal error: entered unreachable code

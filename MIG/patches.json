@@ -398,5 +398,37 @@
   "line": 0,
   "from": "invoke fastcc void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler22v2_apply_assign_commit(",
   "to": "invoke void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler22v2_apply_assign_commit("
+ },
+ {
+  "raw": true,
+  "note": "r13 #check_nontarget 노출(2026-09-14): internal fastcc → external ccc(argscan exe = IR 인자 · sweep 편입).",
+  "file": "r13",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action4cast15check_nontarget(",
+  "to": "define noundef zeroext i1 @_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action4cast15check_nontarget("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트.",
+  "file": "r13",
+  "line": 0,
+  "from": "call fastcc noundef zeroext i1 @_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action4cast15check_nontarget(",
+  "to": "call noundef zeroext i1 @_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action4cast15check_nontarget("
+ },
+ {
+  "raw": true,
+  "note": "r13 #line_recall_pressure_penalty 노출(2026-09-14): internal fastcc → external ccc(argscan exe = IR 인자 · sweep 편입).",
+  "file": "r13",
+  "line": 0,
+  "from": "define internal fastcc noundef range(i64 -6610083293079255995, 6610083293079255995) i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy28line_recall_pressure_penalty(",
+  "to": "define noundef range(i64 -6610083293079255995, 6610083293079255995) i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy28line_recall_pressure_penalty("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트.",
+  "file": "r13",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy28line_recall_pressure_penalty(",
+  "to": "call noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy28line_recall_pressure_penalty("
  }
 ]

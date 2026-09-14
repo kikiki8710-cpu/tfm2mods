@@ -68,7 +68,7 @@ mod abiprobe;
 /// `#02` midpin sweep(2026-09-13) — 게이트 mask bit19(0x80000).
 mod pin02;
 /// `#02` midpin 전용 게이트 비트 = 0x4000000000000000 (gensweep20 자동배정 0..~60 밖 · 09-13).
-pub const PIN02_BIT: u32 = 127;   // ★09-13 저녁: 마스크 u64→u128(sweep 슬롯 73개 > 64) · pin02 는 최상위 비트로
+pub const PIN02_BIT: usize = 255;   // ★09-14: 마스크 u128→256비트([u64;4] · 슬롯 129 > 128) · pin02 는 최상위 비트 255 로 이동 (~~127~~)   // ★09-13 저녁: 마스크 u64→u128(sweep 슬롯 73개 > 64) · pin02 는 최상위 비트로
 
 const MOD_ID: &str = "tfm2_judge_verify";
 
@@ -102,9 +102,39 @@ static INSTALL_OK: AtomicUsize = AtomicUsize::new(0);
 static INSTALL_N: AtomicUsize = AtomicUsize::new(0);
 // ── 2단계 sweep 게이트·설치 결과(리포트 헤더에 그대로 실린다) ──
 // ★09-13 저녁: sweep 슬롯이 64 를 넘어 마스크가 u128 — std 에 AtomicU128 이 없어 하위/상위 두 칸에 나눠 둔다.
-static SWEEP_MASK_LO: AtomicU64 = AtomicU64::new(0);
-static SWEEP_MASK_HI: AtomicU64 = AtomicU64::new(0);
-fn sweep_mask_load() -> u128 { ((SWEEP_MASK_HI.load(Ordering::Relaxed) as u128) << 64) | SWEEP_MASK_LO.load(Ordering::Relaxed) as u128 }
+// ★09-14: 슬롯이 128 을 넘어 **256비트 마스크** `[u64; 4]`(비트 k = word[k/64] 의 k%64). 파일은 `0x…` 16진 최대 64자리.
+pub type Mask = [u64; 4];
+static SWEEP_MASK_W: [AtomicU64; 4] = [AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0)];
+fn sweep_mask_load() -> Mask { [SWEEP_MASK_W[0].load(Ordering::Relaxed), SWEEP_MASK_W[1].load(Ordering::Relaxed), SWEEP_MASK_W[2].load(Ordering::Relaxed), SWEEP_MASK_W[3].load(Ordering::Relaxed)] }
+#[inline] pub fn mask_bit(m: &Mask, i: usize) -> bool { i < 256 && (m[i / 64] >> (i % 64)) & 1 != 0 }
+pub fn mask_is_zero(m: &Mask) -> bool { m.iter().all(|&w| w == 0) }
+pub fn mask_hex(m: &Mask) -> String {
+    let mut s = String::from("0x");
+    let mut started = false;
+    for w in m.iter().rev() {
+        if started { s.push_str(&format!("{:016x}", w)); }
+        else if *w != 0 { s.push_str(&format!("{:x}", w)); started = true; }
+    }
+    if !started { s.push('0'); }
+    s
+}
+/// 16진(최대 64자리) 또는 10진(u128 범위) → 256비트. 실패 = None(fail-safe OFF).
+fn mask_parse(body: &str, radix: u32) -> Option<Mask> {
+    let mut m: Mask = [0; 4];
+    if radix == 16 {
+        let h = body.trim_start_matches('0');
+        if h.len() > 64 || !h.chars().all(|c| c.is_ascii_hexdigit()) { return None; }
+        for (k, ch) in h.chars().rev().enumerate() {
+            let v = ch.to_digit(16)? as u64;
+            m[k / 16] |= v << ((k % 16) * 4);
+        }
+        Some(m)
+    } else {
+        let v = u128::from_str_radix(body, radix).ok()?;
+        m[0] = v as u64; m[1] = (v >> 64) as u64;
+        Some(m)
+    }
+}
 static SWEEP_OK: AtomicUsize = AtomicUsize::new(0);
 static SWEEP_N: AtomicUsize = AtomicUsize::new(0);
 static SWEEP_GATE: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
@@ -315,14 +345,14 @@ fn probe_disabled() -> bool {
 ///   실행**하고 ABI 가 틀리면 즉사한다(선례: ai_adjust `fn_bisect` 비트2 = 게임 즉사).
 ///   ⟹ **명시적으로 적어야만 켠다.** 파싱 실패도 0 으로 떨어진다(fail-safe).
 /// 형식 = 한 줄에 `0x3` 또는 `3`. `#` 로 시작하는 줄과 빈 줄은 무시.
-fn sweep_mask() -> (u128, String) {
+fn sweep_mask() -> (Mask, String) {
     let p = match pth("sweep20_on.txt") {
         Some(p) => p,
-        None => return (0, "경로 도출 실패 → OFF".into()),
+        None => return ([0; 4], "경로 도출 실패 → OFF".into()),
     };
     let txt = match fs::read_to_string(&p) {
         Ok(t) => t,
-        Err(_) => return (0, "sweep20_on.txt 없음 → **OFF**(기본값)".into()),
+        Err(_) => return ([0; 4], "sweep20_on.txt 없음 → **OFF**(기본값)".into()),
     };
     for ln in txt.lines() {
         let t = ln.trim();
@@ -334,12 +364,12 @@ fn sweep_mask() -> (u128, String) {
         } else {
             (t, 10)
         };
-        return match u128::from_str_radix(body, radix) {
-            Ok(v) => (v, format!("sweep20_on.txt = \"{}\" → mask {:#x}", t, v)),
-            Err(_) => (0, format!("sweep20_on.txt 파싱 실패(\"{}\") → **OFF**", t)),
+        return match mask_parse(body, radix) {
+            Some(v) => { let hx = mask_hex(&v); (v, format!("sweep20_on.txt = \"{}\" → mask {}", t, hx)) }
+            None => ([0; 4], format!("sweep20_on.txt 파싱 실패(\"{}\") → **OFF**", t)),
         };
     }
-    (0, "sweep20_on.txt 가 비어 있다 → **OFF**".into())
+    ([0; 4], "sweep20_on.txt 가 비어 있다 → **OFF**".into())
 }
 
 /// ★3단계 게이트 = `abiprobe_on.txt`. 반환 = (mask, 관측상한 N, 사람이 읽을 사유).
@@ -423,13 +453,14 @@ unsafe fn do_install() {
     //   프로브 쪽이 `sweep20::is_installed_spec()` 를 보고 자기를 건너뛴다(반대 순서면 프로브가
     //   먼저 12B 를 덮어 sweep 이 「이미 훅됨」으로 전부 미설치된다).
     let (mask, gate) = sweep_mask();
-    SWEEP_MASK_LO.store(mask as u64, Ordering::Relaxed); SWEEP_MASK_HI.store((mask >> 64) as u64, Ordering::Relaxed);
+    for k in 0..4 { SWEEP_MASK_W[k].store(mask[k], Ordering::Relaxed); }
     let mut slog = String::new();
     // ★bit62 = `#02` midpin(pin02.rs) — sweep20 슬롯 비트가 아니라 여기서 떼어 따로 건다.
     //   ⚠09-13 정정: 옛 bit19 는 gensweep20 이 발화수 순으로 **재배정**하는 칸이라 r7 편입 후 #24 와 충돌해
     //   #24 가 「미설치」로 빠졌다(실사고 · 판 08:40). 자동배정 범위 밖 고정 비트로 뺀다.
-    let (sok, sn) = sweep20::install(mask & !(1u128 << PIN02_BIT), &mut slog);
-    if mask & (1u128 << PIN02_BIT) != 0 {
+    let mut m2 = mask; m2[PIN02_BIT / 64] &= !(1u64 << (PIN02_BIT % 64));
+    let (sok, sn) = sweep20::install(m2, &mut slog);
+    if mask_bit(&mask, PIN02_BIT) {
         let _ = pin02::install(&mut slog);
     }
     SWEEP_OK.store(sok, Ordering::Relaxed);
@@ -471,7 +502,7 @@ unsafe fn dump(ctx: &str) {
     //   「지금 어느 계측이 그 진입부를 잡고 있나」는 어느 파일을 펴도 즉시 보여야 한다(배타 확인용).
     let header = format!(
         "덤프: {}\n프레임 {} · 경과 {:.1}s · 관측한 판 종료 {}회\n\
-         계측 설치: probe(1단계) {}/{} · sweep(2단계) {}/{} mask {:#x} · abiprobe(3단계) {}/{} mask {:#x} N={}\nexe_base={:#x}\n소스: {}",
+         계측 설치: probe(1단계) {}/{} · sweep(2단계) {}/{} mask {} · abiprobe(3단계) {}/{} mask {:#x} N={}\nexe_base={:#x}\n소스: {}",
         ctx,
         FRAME.load(Ordering::Relaxed),
         ACC_MS.load(Ordering::Relaxed) as f64 / 1000.0,
@@ -480,7 +511,7 @@ unsafe fn dump(ctx: &str) {
         INSTALL_N.load(Ordering::Relaxed),
         SWEEP_OK.load(Ordering::Relaxed),
         SWEEP_N.load(Ordering::Relaxed),
-        sweep_mask_load(),
+        mask_hex(&sweep_mask_load()),
         ABI_OK.load(Ordering::Relaxed),
         ABI_N.load(Ordering::Relaxed),
         ABI_MASK.load(Ordering::Relaxed),
@@ -497,14 +528,14 @@ unsafe fn dump(ctx: &str) {
     if let Some(p) = pth("sweep20.txt") {
         let gate = SWEEP_GATE.lock().unwrap_or_else(|e| e.into_inner()).clone();
         let inst = format!(
-            "성공 {}/{} (mask {:#x})\n{}",
+            "성공 {}/{} (mask {})\n{}",
             SWEEP_OK.load(Ordering::Relaxed),
             SWEEP_N.load(Ordering::Relaxed),
-            sweep_mask_load(),
+            mask_hex(&sweep_mask_load()),
             SWEEP_LOG.lock().unwrap_or_else(|e| e.into_inner()).as_str()
         );
         let mut rep = sweep20::report(&header, &gate, &inst);
-        if sweep_mask_load() & (1u128 << PIN02_BIT) != 0 { rep.push_str(&pin02::report()); }
+        if mask_bit(&sweep_mask_load(), PIN02_BIT) { rep.push_str(&pin02::report()); }
         let _ = fs::write(p, rep);
     }
     // ★3단계도 **별도 파일**. 게이트 OFF 여도 한 번은 쓴다(「왜 관측이 0 건인가」를 파일이 말하게).

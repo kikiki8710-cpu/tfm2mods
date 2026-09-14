@@ -1,0 +1,50 @@
+114	el[0] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[1] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	tick=0	n=1	dist=0	vis=1	atk_r=-1	level=-1	sk_r=-1	game=[(15, 23), (16, 23)]	mine=[(15, 23), (16, 23)]	ok=true	len=2	cap=2	ptr_dangling8=false	pay_ok=true	a20030 s20030 d2=0 
+114	el[0] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[1] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[2] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=24 is_act=0
+114	el[3] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=24 is_act=0
+114	el[4] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=26 is_act=0
+114	el[5] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=26 is_act=0
+114	tick=0	n=3	dist=0	vis=1	atk_r=-1	level=-1	sk_r=-1	game=[(15, 23), (16, 23), (15, 24), (16, 24), (15, 26), (16, 26)]	mine=[(15, 23), (16, 23), (15, 24), (16, 24), (15, 26), (16, 26)]	ok=true	len=6	cap=8	ptr_dangling8=false	pay_ok=true	a20030 s20030 d2=0 a20030 s20030 d2=0 a20030 s20030 d2=0 
+114	el[0] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[1] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	tick=0	n=1	dist=20030	vis=1	atk_r=-1	level=-1	sk_r=-1	game=[(15, 23), (16, 23)]	mine=[(15, 23), (16, 23)]	ok=true	len=2	cap=2	ptr_dangling8=false	pay_ok=true	a20030 s20030 d2=401200900 
+114	tick=0	n=1	dist=20031	vis=1	atk_r=-1	level=-1	sk_r=-1	game=[]	mine=[]	ok=true	len=0	cap=0	ptr_dangling8=true	pay_ok=true	a20030 s20030 d2=401240961 
+114	tick=0	n=1	dist=80000	vis=1	atk_r=-1	level=-1	sk_r=-1	game=[]	mine=[]	ok=true	len=0	cap=0	ptr_dangling8=true	pay_ok=true	a20030 s20030 d2=6400000000 
+114	tick=0	n=1	dist=80001	vis=1	atk_r=-1	level=-1	sk_r=-1	game=[]	mine=[]	ok=true	len=0	cap=0	ptr_dangling8=true	pay_ok=true	D
+114	tick=0	n=2	dist=0	vis=0	atk_r=-1	level=-1	sk_r=-1	game=[]	mine=[]	ok=true	len=0	cap=0	ptr_dangling8=true	pay_ok=true	VV
+114	el[0] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	tick=0	n=1	dist=25030	vis=1	atk_r=5000	level=-1	sk_r=-1	game=[(15, 23)]	mine=[(15, 23)]	ok=true	len=1	cap=1	ptr_dangling8=false	pay_ok=true	a25030 s20030 d2=626500900 
+114	tick=0	n=1	dist=25031	vis=1	atk_r=5000	level=-1	sk_r=-1	game=[]	mine=[]	ok=true	len=0	cap=0	ptr_dangling8=true	pay_ok=true	a25030 s20030 d2=626550961 
+114	el[0] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	tick=0	n=1	dist=22030	vis=1	atk_r=5000	level=-1	sk_r=-1	game=[(15, 23)]	mine=[(15, 23)]	ok=true	len=1	cap=1	ptr_dangling8=false	pay_ok=true	a25030 s20030 d2=485320900 
+114	el[0] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[1] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[2] tag=17 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	tick=0	n=1	dist=0	vis=1	atk_r=-1	level=3	sk_r=-1	game=[(15, 23), (16, 23), (17, 23)]	mine=[(15, 23), (16, 23), (17, 23)]	ok=true	len=3	cap=4	ptr_dangling8=false	pay_ok=true	a20030 s20030 s2:20030 d2=0 
+114	el[0] tag=15 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[1] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	tick=0	n=1	dist=0	vis=1	atk_r=-1	level=2	sk_r=-1	game=[(15, 23), (16, 23)]	mine=[(15, 23), (16, 23)]	ok=true	len=2	cap=2	ptr_dangling8=false	pay_ok=true	a20030 s20030 d2=0 
+114	el[0] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[1] tag=17 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	tick=0	n=1	dist=30030	vis=1	atk_r=-1	level=3	sk_r=10000	game=[(16, 23), (17, 23)]	mine=[(16, 23), (17, 23)]	ok=true	len=2	cap=2	ptr_dangling8=false	pay_ok=true	a20030 s30030 s2:30030 d2=901800900 
+114	tick=0	n=1	dist=30031	vis=1	atk_r=-1	level=3	sk_r=10000	game=[]	mine=[]	ok=true	len=0	cap=0	ptr_dangling8=true	pay_ok=true	a20030 s30030 s2:30030 d2=901860961 
+114	el[0] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[1] tag=17 live17=[0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=23 is_act=0
+114	el[2] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=24 is_act=0
+114	el[3] tag=17 live17=[0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=24 is_act=0
+114	el[4] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=26 is_act=0
+114	el[5] tag=17 live17=[0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=26 is_act=0
+114	el[6] tag=16 live17=[0, 0, 0, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=27 is_act=0
+114	el[7] tag=17 live17=[0, 0, 0, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=0 target=27 is_act=0
+114	tick=0	n=4	dist=30030	vis=1	atk_r=5000	level=3	sk_r=10000	game=[(16, 23), (17, 23), (16, 24), (17, 24), (16, 26), (17, 26), (16, 27), (17, 27)]	mine=[(16, 23), (17, 23), (16, 24), (17, 24), (16, 26), (17, 26), (16, 27), (17, 27)]	ok=true	len=8	cap=8	ptr_dangling8=false	pay_ok=true	a25030 s30030 s2:30030 d2=901800900 a25030 s30030 s2:30030 d2=901800900 a25030 s30030 s2:30030 d2=901800900 a25030 s30030 s2:30030 d2=901800900 
+114	el[0] tag=15 live17=[100, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=100 target=23 is_act=0
+114	el[1] tag=16 live17=[100, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=100 target=23 is_act=0
+114	el[2] tag=17 live17=[100, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=100 target=23 is_act=0
+114	el[3] tag=15 live17=[100, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=100 target=24 is_act=0
+114	el[4] tag=16 live17=[100, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=100 target=24 is_act=0
+114	el[5] tag=17 live17=[100, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0] pad7=[0, 0, 0, 0, 0, 0, 0] start_tick=100 target=24 is_act=0
+114	tick=100	n=2	dist=79999	vis=1	atk_r=60000	level=3	sk_r=70000	game=[(15, 23), (16, 23), (17, 23), (15, 24), (16, 24), (17, 24)]	mine=[(15, 23), (16, 23), (17, 23), (15, 24), (16, 24), (17, 24)]	ok=true	len=6	cap=8	ptr_dangling8=false	pay_ok=true	a80030 s90030 s2:90030 d2=6399840001 a80030 s90030 s2:90030 d2=6399840001 
+114	tick=0	n=0	dist=0	vis=1	atk_r=-1	level=-1	sk_r=-1	game=[]	mine=[]	ok=true	len=0	cap=0	ptr_dangling8=true	pay_ok=true	

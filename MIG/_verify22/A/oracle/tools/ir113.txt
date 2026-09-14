@@ -1,0 +1,141 @@
+49636	define noundef range(i32 0, 61) i32 @_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline20v3_deadly_edge_cells(i64 noundef %0, ptr noalias noundef readonly align 8 captures(none) dereferenceable(2528) %1, ptr noalias noundef readonly align 8 captures(none) dereferenceable(24) %2) unnamed_addr #0 personality ptr @__CxxFrameHandler3 !dbg !61754 {
+49637	  %4 = alloca [24 x i8], align 8
+49638	  %5 = alloca [120 x i8], align 8
+49639	    #dbg_value(i64 %0, !61758, !DIExpression(), !61772)
+49640	    #dbg_value(ptr %1, !61759, !DIExpression(), !61772)
+49641	    #dbg_value(ptr %2, !61760, !DIExpression(), !61772)
+49642	    #dbg_declare(ptr %4, !61773, !DIExpression(), !61782)
+49643	    #dbg_value(i64 30, !61798, !DIExpression(), !61807)
+49644	    #dbg_value(i64 30, !61809, !DIExpression(), !61820)
+49645	    #dbg_value(i64 30, !61823, !DIExpression(), !61828)
+49646	  %6 = icmp ult i64 %0, 2, !dbg !61831 ;; tower_discipline.rs:305@v3_deadly_edge_cells
+49647	  br i1 %6, label %29, label %7, !dbg !61831 ;; tower_discipline.rs:305@v3_deadly_edge_cells
+49648	
+49649	7:                                                ; preds = %3
+49650	  %8 = getelementptr inbounds nuw i8, ptr %1, i64 2352, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49651	  %9 = load i64, ptr %8, align 8, !dbg !61832, !noundef !8 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49652	  %10 = icmp ult i64 %9, 2, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49653	  br i1 %10, label %12, label %11, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49654	
+49655	11:                                               ; preds = %7
+49656	  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %9, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.81aa2713ddfa9e15f7e3c0757f8f3b51.174) #25, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49657	  unreachable, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49658	
+49659	12:                                               ; preds = %7
+49660	    #dbg_value(ptr %1, !61833, !DIExpression(DW_OP_plus_uconst, 2496, DW_OP_stack_value), !61836)
+49661	  %13 = getelementptr inbounds nuw i8, ptr %1, i64 2496, !dbg !61837 ;; entity.rs:581@as_index <- tower_discipline.rs:308@v3_deadly_edge_cells
+49662	  %14 = load i32, ptr %13, align 8, !dbg !61837, !range !20466, !noundef !8 ;; entity.rs:581@as_index <- tower_discipline.rs:308@v3_deadly_edge_cells
+49663	  %15 = zext nneg i32 %14 to i64, !dbg !61837 ;; entity.rs:581@as_index <- tower_discipline.rs:308@v3_deadly_edge_cells
+49664	  %16 = load ptr, ptr %2, align 8, !dbg !61832, !nonnull !8, !align !14741, !noundef !8 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49665	  %17 = getelementptr inbounds nuw i8, ptr %16, i64 480, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49666	  %18 = getelementptr inbounds nuw [5 x ptr], ptr %17, i64 %9, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49667	  %19 = getelementptr inbounds nuw ptr, ptr %18, i64 %15, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49668	  %20 = load ptr, ptr %19, align 8, !dbg !61832, !align !14741, !noundef !8 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49669	  %21 = icmp eq ptr %20, null, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49670	  br i1 %21, label %29, label %22, !dbg !61832 ;; tower_discipline.rs:308@v3_deadly_edge_cells
+49671	
+49672	22:                                               ; preds = %12
+49673	    #dbg_value(ptr %20, !61761, !DIExpression(), !61838)
+49674	  call void @llvm.lifetime.start.p0(ptr nonnull %5), !dbg !61839 ;; tower_discipline.rs:311@v3_deadly_edge_cells
+49675	  %23 = sub nuw nsw i64 1, %9, !dbg !61839 ;; tower_discipline.rs:311@v3_deadly_edge_cells
+49676	  call void @_RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache25iter_towers_without_nexus(ptr noalias noundef nonnull sret([120 x i8]) align 8 captures(address) dereferenceable(120) %5, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(8840) %16, i64 noundef %23), !dbg !61839 ;; tower_discipline.rs:311@v3_deadly_edge_cells
+49677	    #dbg_value(ptr %5, !61793, !DIExpression(), !61840)
+49678	  %24 = getelementptr inbounds nuw i8, ptr %2, i64 8, !dbg !61797 ;; tower_discipline.rs:312@v3_deadly_edge_cells
+49679	  %25 = load ptr, ptr %24, align 8, !dbg !61797, !nonnull !8, !align !14741, !noundef !8 ;; tower_discipline.rs:312@v3_deadly_edge_cells
+49680	    #dbg_value(ptr %25, !61794, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !61840)
+49681	    #dbg_value(ptr %20, !61794, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !61840)
+49682	  call void @llvm.lifetime.start.p0(ptr nonnull %4), !dbg !61783 ;; iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49683	  call void @_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainINtNtB7_7flatten7FlattenINtNtNtBb_5array4iter8IntoIterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEKj6_EEINtNtB7_6copied6CopiedINtNtNtBb_5slice4iter4IterB2e_EEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB49_8find_map5checkB2e_TjjENCNvNtCshdEBA0ozCnw_7game_ai16tower_discipline20v3_deadly_edge_cells0E0INtNtNtBb_3ops12control_flow11ControlFlowB5l_EEB5v_(ptr noalias noundef nonnull sret([24 x i8]) align 8 captures(address) dereferenceable(24) %4, ptr noalias noundef nonnull align 8 dereferenceable(120) %5, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(64) %25, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %20), !dbg !61783 ;; iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49684	  %26 = load i64, ptr %4, align 8, !dbg !61841, !range !16239, !noundef !8 ;; control_flow.rs:195@break_value<tuple$<usize,usize>,tuple$<> > <- iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49685	  %27 = trunc nuw i64 %26 to i1, !dbg !61841 ;; control_flow.rs:195@break_value<tuple$<usize,usize>,tuple$<> > <- iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49686	  br i1 %27, label %31, label %28, !dbg !61841 ;; control_flow.rs:195@break_value<tuple$<usize,usize>,tuple$<> > <- iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49687	
+49688	28:                                               ; preds = %22
+49689	  call void @llvm.lifetime.end.p0(ptr nonnull %4), !dbg !61783 ;; iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49690	  call void @llvm.lifetime.end.p0(ptr nonnull %5), !dbg !61842 ;; tower_discipline.rs:315@v3_deadly_edge_cells
+49691	  br label %29, !dbg !61843 ;; tower_discipline.rs:1@v3_deadly_edge_cells
+49692	
+49693	29:                                               ; preds = %53, %28, %12, %3
+49694	  %30 = phi i32 [ 2, %3 ], [ %61, %53 ], [ 2, %28 ], [ 2, %12 ], !dbg !61772 ;; tower_discipline.rs:0@v3_deadly_edge_cells
+49695	  ret i32 %30, !dbg !61845 ;; tower_discipline.rs:320@v3_deadly_edge_cells
+49696	
+49697	31:                                               ; preds = %22
+49698	  %32 = getelementptr inbounds nuw i8, ptr %4, i64 8, !dbg !61846 ;; control_flow.rs:197@break_value<tuple$<usize,usize>,tuple$<> > <- iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49699	  %33 = load i64, ptr %32, align 8, !dbg !61846, !noundef !8 ;; control_flow.rs:197@break_value<tuple$<usize,usize>,tuple$<> > <- iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49700	  %34 = getelementptr inbounds nuw i8, ptr %4, i64 16, !dbg !61846 ;; control_flow.rs:197@break_value<tuple$<usize,usize>,tuple$<> > <- iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49700	  %34 = getelementptr inbounds nuw i8, ptr %4, i64 16, !dbg !61846 ;; control_flow.rs:197@break_value<tuple$<usize,usize>,tuple$<> > <- iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49701	  %35 = load i64, ptr %34, align 8, !dbg !61846, !noundef !8 ;; control_flow.rs:197@break_value<tuple$<usize,usize>,tuple$<> > <- iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49702	  call void @llvm.lifetime.end.p0(ptr nonnull %4), !dbg !61783 ;; iterator.rs:3004@find_map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,tuple$<usize,usize>,game_ai::tower_discipline::v3_deadly_edge_cells::closure_env$0> <- tower_discipline.rs:312@v3_deadly_edge_cells
+49703	    #dbg_value(i64 %33, !61763, !DIExpression(), !61847)
+49704	    #dbg_value(i64 %33, !61801, !DIExpression(), !61848)
+49705	    #dbg_value(i64 %33, !61812, !DIExpression(), !61850)
+49706	    #dbg_value(i64 %33, !61826, !DIExpression(), !61852)
+49707	    #dbg_value(i64 %35, !61765, !DIExpression(), !61847)
+49708	  call void @llvm.lifetime.end.p0(ptr nonnull %5), !dbg !61842 ;; tower_discipline.rs:315@v3_deadly_edge_cells
+49709	  %36 = getelementptr inbounds nuw i8, ptr %20, i64 1600, !dbg !61854 ;; tower_discipline.rs:316@v3_deadly_edge_cells
+49710	  %37 = load i64, ptr %36, align 8, !dbg !61854, !noundef !8 ;; tower_discipline.rs:316@v3_deadly_edge_cells
+49711	    #dbg_value(i64 %37, !16309, !DIExpression(), !61855)
+49712	    #dbg_value(i64 1, !16314, !DIExpression(), !61855)
+49713	  %38 = call noundef i64 @llvm.umax.i64(i64 %37, i64 1), !dbg !61857 ;; cmp.rs:1039@max<usize> <- tower_discipline.rs:316@v3_deadly_edge_cells
+49714	  %39 = udiv i64 32000, %38, !dbg !61854 ;; tower_discipline.rs:316@v3_deadly_edge_cells
+49715	    #dbg_value(i64 %39, !16309, !DIExpression(), !61858)
+49716	    #dbg_value(i64 1, !16314, !DIExpression(), !61858)
+49717	  %40 = call noundef i64 @llvm.umax.i64(i64 %39, i64 1), !dbg !61860 ;; cmp.rs:1039@max<usize> <- tower_discipline.rs:316@v3_deadly_edge_cells
+49718	    #dbg_value(i64 %40, !61766, !DIExpression(), !61861)
+49719	    #dbg_value(i64 %40, !61802, !DIExpression(), !61848)
+49720	    #dbg_value(i64 %40, !61813, !DIExpression(), !61850)
+49721	    #dbg_value(i64 %40, !61827, !DIExpression(), !61852)
+49722	  %41 = call { i64, i1 } @llvm.umul.with.overflow.i64(i64 %33, i64 %40), !dbg !61862 ;; uint_macros.rs:3178@overflowing_mul <- uint_macros.rs:1288@checked_mul <- uint_macros.rs:2517@saturating_mul <- tower_discipline.rs:317@v3_deadly_edge_cells
+49723	  %42 = extractvalue { i64, i1 } %41, 0, !dbg !61862 ;; uint_macros.rs:3178@overflowing_mul <- uint_macros.rs:1288@checked_mul <- uint_macros.rs:2517@saturating_mul <- tower_discipline.rs:317@v3_deadly_edge_cells
+49724	  %43 = extractvalue { i64, i1 } %41, 1, !dbg !61862 ;; uint_macros.rs:3178@overflowing_mul <- uint_macros.rs:1288@checked_mul <- uint_macros.rs:2517@saturating_mul <- tower_discipline.rs:317@v3_deadly_edge_cells
+49725	    #dbg_value(i1 %43, !61816, !DIExpression(DW_OP_LLVM_convert, 1, DW_ATE_unsigned, DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_stack_value), !61863)
+49726	    #dbg_value(i1 %43, !61864, !DIExpression(DW_OP_LLVM_convert, 1, DW_ATE_unsigned, DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_stack_value), !61867)
+49727	    #dbg_value(i64 %42, !61814, !DIExpression(), !61863)
+49728	  br i1 %43, label %44, label %45, !dbg !61869, !prof !16837 ;; mod.rs:459@unlikely <- uint_macros.rs:1289@checked_mul <- uint_macros.rs:2517@saturating_mul <- tower_discipline.rs:317@v3_deadly_edge_cells
+49729	
+49730	44:                                               ; preds = %31
+49731	    #dbg_value(i64 -1, !61814, !DIExpression(), !61863)
+49732	  br label %45, !dbg !61870 ;; uint_macros.rs:2519@saturating_mul <- tower_discipline.rs:317@v3_deadly_edge_cells
+49733	
+49734	45:                                               ; preds = %44, %31
+49735	  %46 = phi i64 [ -1, %44 ], [ %42, %31 ], !dbg !61848 ;; uint_macros.rs:0@saturating_mul <- tower_discipline.rs:317@v3_deadly_edge_cells
+49736	    #dbg_value(i64 %46, !61814, !DIExpression(), !61863)
+49737	    #dbg_value(i64 %35, !16309, !DIExpression(), !61871)
+49738	    #dbg_value(i64 1, !16314, !DIExpression(), !61871)
+49739	  %47 = call noundef i64 @llvm.umax.i64(i64 %35, i64 1), !dbg !61873 ;; cmp.rs:1039@max<usize> <- tower_discipline.rs:317@v3_deadly_edge_cells
+49740	  %48 = udiv i64 %46, %47, !dbg !61849 ;; tower_discipline.rs:317@v3_deadly_edge_cells
+49741	    #dbg_value(i64 %48, !61768, !DIExpression(), !61874)
+49742	    #dbg_value(i64 %48, !61801, !DIExpression(), !61807)
+49743	    #dbg_value(i64 %48, !61812, !DIExpression(), !61820)
+49744	    #dbg_value(i64 %48, !61826, !DIExpression(), !61828)
+49745	  %49 = call { i64, i1 } @llvm.umul.with.overflow.i64(i64 %48, i64 30), !dbg !61875 ;; uint_macros.rs:3178@overflowing_mul <- uint_macros.rs:1288@checked_mul <- uint_macros.rs:2517@saturating_mul <- tower_discipline.rs:318@v3_deadly_edge_cells
+49746	  %50 = extractvalue { i64, i1 } %49, 0, !dbg !61875 ;; uint_macros.rs:3178@overflowing_mul <- uint_macros.rs:1288@checked_mul <- uint_macros.rs:2517@saturating_mul <- tower_discipline.rs:318@v3_deadly_edge_cells
+49747	  %51 = extractvalue { i64, i1 } %49, 1, !dbg !61875 ;; uint_macros.rs:3178@overflowing_mul <- uint_macros.rs:1288@checked_mul <- uint_macros.rs:2517@saturating_mul <- tower_discipline.rs:318@v3_deadly_edge_cells
+49748	    #dbg_value(i1 %51, !61819, !DIExpression(DW_OP_LLVM_convert, 1, DW_ATE_unsigned, DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_stack_value), !61876)
+49749	    #dbg_value(i1 %51, !61864, !DIExpression(DW_OP_LLVM_convert, 1, DW_ATE_unsigned, DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_stack_value), !61877)
+49750	    #dbg_value(i64 %50, !61817, !DIExpression(), !61876)
+49751	  br i1 %51, label %52, label %53, !dbg !61880, !prof !16837 ;; mod.rs:459@unlikely <- uint_macros.rs:1289@checked_mul <- uint_macros.rs:2517@saturating_mul <- tower_discipline.rs:318@v3_deadly_edge_cells
+49752	
+49753	52:                                               ; preds = %45
+49754	    #dbg_value(i64 -1, !61817, !DIExpression(), !61876)
+49755	  br label %53, !dbg !61881 ;; uint_macros.rs:2519@saturating_mul <- tower_discipline.rs:318@v3_deadly_edge_cells
+49756	
+49757	53:                                               ; preds = %52, %45
+49758	  %54 = phi i64 [ -1, %52 ], [ %50, %45 ], !dbg !61807 ;; uint_macros.rs:0@saturating_mul <- tower_discipline.rs:318@v3_deadly_edge_cells
+49759	    #dbg_value(i64 %54, !61817, !DIExpression(), !61876)
+49760	  %55 = getelementptr inbounds nuw i8, ptr %20, i64 1648, !dbg !61808 ;; tower_discipline.rs:318@v3_deadly_edge_cells
+49761	  %56 = load i64, ptr %55, align 8, !dbg !61808, !noundef !8 ;; tower_discipline.rs:318@v3_deadly_edge_cells
+49762	    #dbg_value(i64 %56, !16309, !DIExpression(), !61882)
+49763	    #dbg_value(i64 1, !16314, !DIExpression(), !61882)
+49764	  %57 = call noundef i64 @llvm.umax.i64(i64 %56, i64 1), !dbg !61884 ;; cmp.rs:1039@max<usize> <- tower_discipline.rs:318@v3_deadly_edge_cells
+49765	  %58 = udiv i64 %54, %57, !dbg !61808 ;; tower_discipline.rs:318@v3_deadly_edge_cells
+49766	  %59 = trunc i64 %58 to i32, !dbg !61808 ;; tower_discipline.rs:318@v3_deadly_edge_cells
+49767	  %60 = add i32 %59, 2, !dbg !61808 ;; tower_discipline.rs:318@v3_deadly_edge_cells
+49768	    #dbg_value(i32 %60, !61770, !DIExpression(), !61885)
+49769	    #dbg_value(i32 %60, !61886, !DIExpression(), !61892)
+49770	    #dbg_value(i32 60, !61889, !DIExpression(), !61892)
+49771	  %61 = call noundef range(i32 0, 61) i32 @llvm.umin.i32(i32 %60, i32 60), !dbg !61894 ;; cmp.rs:1078@min<u32> <- tower_discipline.rs:319@v3_deadly_edge_cells
+49772	  br label %29, !dbg !61845 ;; tower_discipline.rs:320@v3_deadly_edge_cells
+49773	}
+49774	
+49775	; Function Attrs: uwtable

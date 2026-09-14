@@ -1,0 +1,681 @@
+28194	define void @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check20attack_summon_action(ptr dead_on_unwind noalias noundef writable writeonly sret([32 x i8]) align 8 captures(none) dereferenceable(32) %0, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528) %1, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) %2) unnamed_addr #0 personality ptr @__CxxFrameHandler3 !dbg !39921 {
+28195	  %4 = alloca [24 x i8], align 8
+28196	  %5 = alloca [184 x i8], align 8
+28197	  %6 = alloca [24 x i8], align 8
+28198	  %7 = alloca [184 x i8], align 8
+28199	  %8 = alloca [24 x i8], align 8
+28200	  %9 = alloca [184 x i8], align 8
+28201	    #dbg_value(ptr poison, !39955, !DIExpression(), !39964)
+28202	  %10 = alloca [32 x i8], align 8
+28203	    #dbg_value(ptr %1, !39925, !DIExpression(), !39967)
+28204	    #dbg_value(ptr %2, !39926, !DIExpression(), !39967)
+28205	    #dbg_declare(ptr %10, !39929, !DIExpression(), !39968)
+28206	    #dbg_value(i64 1, !39969, !DIExpression(), !39973)
+28207	  %11 = getelementptr inbounds nuw i8, ptr %1, i64 2352, !dbg !39975 ;; fight_check.rs:837@attack_summon_action
+28208	  %12 = load i64, ptr %11, align 8, !dbg !39975, !noundef !8 ;; fight_check.rs:837@attack_summon_action
+28209	  %13 = icmp ult i64 %12, 2, !dbg !39975 ;; fight_check.rs:837@attack_summon_action
+28210	  br i1 %13, label %15, label %14, !dbg !39975 ;; fight_check.rs:837@attack_summon_action
+28211	
+28212	14:                                               ; preds = %3
+28213	  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %12, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.e5f9a016f1220e5cee86475419aee1e5.179) #30, !dbg !39975 ;; fight_check.rs:837@attack_summon_action
+28214	  unreachable, !dbg !39975 ;; fight_check.rs:837@attack_summon_action
+28215	
+28216	15:                                               ; preds = %3
+28217	    #dbg_value(ptr %1, !39976, !DIExpression(DW_OP_plus_uconst, 2496, DW_OP_stack_value), !39979)
+28218	  %16 = getelementptr inbounds nuw i8, ptr %1, i64 2496, !dbg !39980 ;; entity.rs:581@as_index <- fight_check.rs:837@attack_summon_action
+28219	  %17 = load i32, ptr %16, align 8, !dbg !39980, !range !22134, !noundef !8 ;; entity.rs:581@as_index <- fight_check.rs:837@attack_summon_action
+28220	  %18 = zext nneg i32 %17 to i64, !dbg !39980 ;; entity.rs:581@as_index <- fight_check.rs:837@attack_summon_action
+28221	  %19 = load ptr, ptr %2, align 8, !dbg !39975, !nonnull !8, !align !17879, !noundef !8 ;; fight_check.rs:837@attack_summon_action
+28222	  %20 = getelementptr inbounds nuw i8, ptr %19, i64 480, !dbg !39975 ;; fight_check.rs:837@attack_summon_action
+28223	  %21 = getelementptr inbounds nuw [5 x ptr], ptr %20, i64 %12, !dbg !39975 ;; fight_check.rs:837@attack_summon_action
+28224	  %22 = getelementptr inbounds nuw ptr, ptr %21, i64 %18, !dbg !39975 ;; fight_check.rs:837@attack_summon_action
+28225	  %23 = load ptr, ptr %22, align 8, !dbg !39975, !align !17879, !noundef !8 ;; fight_check.rs:837@attack_summon_action
+28226	    #dbg_value(ptr %23, !39981, !DIExpression(), !39986)
+28227	  %24 = icmp eq ptr %23, null, !dbg !39987 ;; option.rs:1011@unwrap<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:837@attack_summon_action
+28228	  br i1 %24, label %63, label %25, !dbg !39987, !prof !19849 ;; option.rs:1011@unwrap<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:837@attack_summon_action
+28229	
+28230	25:                                               ; preds = %15
+28231	    #dbg_value(ptr %23, !39927, !DIExpression(), !39988)
+28232	    #dbg_value(ptr %23, !39989, !DIExpression(), !39995)
+28233	    #dbg_value(ptr %23, !39997, !DIExpression(), !40001)
+28234	    #dbg_value(ptr %23, !40003, !DIExpression(), !40007)
+28235	    #dbg_value(ptr %23, !40009, !DIExpression(), !40024)
+28236	    #dbg_value(ptr %23, !39997, !DIExpression(), !40025)
+28237	    #dbg_value(ptr %23, !40003, !DIExpression(), !40027)
+28238	    #dbg_value(ptr %23, !40009, !DIExpression(), !40029)
+28239	    #dbg_value(ptr %23, !39997, !DIExpression(), !40030)
+28240	    #dbg_value(ptr %23, !40032, !DIExpression(), !40035)
+28241	    #dbg_value(ptr %23, !40003, !DIExpression(), !40037)
+28242	    #dbg_value(ptr %23, !40009, !DIExpression(), !40039)
+28243	    #dbg_value(ptr %23, !39997, !DIExpression(), !40040)
+28244	  call void @llvm.lifetime.start.p0(ptr nonnull %10), !dbg !40042 ;; fight_check.rs:838@attack_summon_action
+28245	  %26 = getelementptr inbounds nuw i8, ptr %2, i64 8, !dbg !40042 ;; fight_check.rs:838@attack_summon_action
+28246	  %27 = load ptr, ptr %26, align 8, !dbg !40042, !nonnull !8, !align !17879, !noundef !8 ;; fight_check.rs:838@attack_summon_action
+28247	  %28 = load ptr, ptr %27, align 8, !dbg !40042, !nonnull !8, !align !17879, !noundef !8 ;; fight_check.rs:838@attack_summon_action
+28248	    #dbg_value(ptr %28, !40043, !DIExpression(), !40046)
+28249	  store ptr inttoptr (i64 8 to ptr), ptr %10, align 8, !dbg !40047 ;; vec.rs:547@new_in<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:838@attack_summon_action
+28250	  %29 = getelementptr inbounds nuw i8, ptr %10, i64 8, !dbg !40047 ;; vec.rs:547@new_in<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:838@attack_summon_action
+28251	  store ptr %28, ptr %29, align 8, !dbg !40047 ;; vec.rs:547@new_in<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:838@attack_summon_action
+28252	  %30 = getelementptr inbounds nuw i8, ptr %10, i64 16, !dbg !40047 ;; vec.rs:547@new_in<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:838@attack_summon_action
+28253	  %31 = getelementptr inbounds nuw i8, ptr %10, i64 24, !dbg !40047 ;; vec.rs:547@new_in<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:838@attack_summon_action
+28254	  %32 = getelementptr inbounds nuw i8, ptr %23, i64 1600, !dbg !40048 ;; fight_check.rs:839@attack_summon_action
+28255	  call void @llvm.memset.p0.i64(ptr noundef nonnull align 8 dereferenceable(16) %30, i8 0, i64 16, i1 false), !dbg !40047 ;; vec.rs:547@new_in<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:838@attack_summon_action
+28256	  %33 = load i64, ptr %32, align 8, !dbg !40048, !noundef !8 ;; fight_check.rs:839@attack_summon_action
+28257	    #dbg_value(i64 %33, !39931, !DIExpression(), !40049)
+28258	  %34 = sub nuw nsw i64 1, %12, !dbg !40050 ;; fight_check.rs:841@attack_summon_action
+28259	  %35 = getelementptr inbounds nuw i8, ptr %19, i64 240, !dbg !40050 ;; fight_check.rs:841@attack_summon_action
+28260	  %36 = getelementptr inbounds nuw { { ptr, ptr, i64 }, i64 }, ptr %35, i64 %34, !dbg !40050 ;; fight_check.rs:841@attack_summon_action
+28261	    #dbg_value(ptr %36, !40051, !DIExpression(), !40056)
+28262	    #dbg_value(ptr %36, !40057, !DIExpression(), !40060)
+28263	  %37 = load ptr, ptr %36, align 8, !dbg !40062, !nonnull !8, !noundef !8 ;; raw_vec.rs:138@ptr<ref$<game_core::simulation::entity::Entity> > <- vec.rs:2073@deref<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:841@attack_summon_action
+28264	    #dbg_value(ptr %37, !40054, !DIExpression(), !40063)
+28265	  %38 = getelementptr inbounds nuw i8, ptr %36, i64 24, !dbg !40064 ;; vec.rs:2075@deref<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:841@attack_summon_action
+28266	  %39 = load i64, ptr %38, align 8, !dbg !40064, !noundef !8 ;; vec.rs:2075@deref<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:841@attack_summon_action
+28267	    #dbg_value(i64 %39, !40065, !DIExpression(), !40074)
+28268	    #dbg_value(i64 %39, !40079, !DIExpression(), !40083)
+28269	    #dbg_value(ptr %37, !40078, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !40085)
+28270	    #dbg_value(ptr %37, !40069, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !40086)
+28271	    #dbg_value(i64 %39, !40078, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !40085)
+28272	    #dbg_value(i64 %39, !40069, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !40086)
+28273	    #dbg_value(ptr %37, !40070, !DIExpression(), !40087)
+28274	    #dbg_value(ptr %37, !40082, !DIExpression(), !40083)
+28275	  %40 = getelementptr inbounds nuw ptr, ptr %37, i64 %39, !dbg !40088 ;; mut_ptr.rs:961@add<ref$<game_core::simulation::entity::Entity> > <- iter.rs:100@new<ref$<game_core::simulation::entity::Entity> > <- mod.rs:1042@iter<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:841@attack_summon_action
+28276	    #dbg_value(ptr %37, !39933, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !40089)
+28277	    #dbg_value(ptr %40, !39933, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !40089)
+28278	  %41 = getelementptr inbounds nuw i8, ptr %19, i64 8
+28279	  %42 = getelementptr inbounds nuw i8, ptr %23, i64 8
+28280	  %43 = getelementptr inbounds nuw i8, ptr %23, i64 1632
+28281	  %44 = getelementptr inbounds nuw i8, ptr %23, i64 1640
+28282	  %45 = getelementptr inbounds nuw i8, ptr %23, i64 1216
+28283	  %46 = getelementptr inbounds nuw i8, ptr %23, i64 1168
+28284	  %47 = getelementptr inbounds nuw i8, ptr %23, i64 1184
+28285	  %48 = getelementptr inbounds nuw i8, ptr %23, i64 1192
+28286	  %49 = getelementptr inbounds nuw i8, ptr %23, i64 1480
+28287	  %50 = getelementptr inbounds nuw i8, ptr %23, i64 1080
+28288	  %51 = getelementptr inbounds nuw i8, ptr %23, i64 1136
+28289	  %52 = getelementptr inbounds nuw i8, ptr %23, i64 1664
+28290	  %53 = mul i64 %33, 30
+28291	  %54 = getelementptr inbounds nuw i8, ptr %9, i64 177
+28292	  %55 = getelementptr inbounds nuw i8, ptr %23, i64 1224
+28293	  %56 = getelementptr inbounds nuw i8, ptr %23, i64 1272
+28294	  %57 = getelementptr inbounds nuw i8, ptr %23, i64 1264
+28295	  %58 = getelementptr inbounds nuw i8, ptr %23, i64 1240
+28296	  %59 = getelementptr inbounds nuw i8, ptr %23, i64 1248
+28297	  %60 = getelementptr inbounds nuw i8, ptr %7, i64 177
+28298	  %61 = getelementptr inbounds nuw i8, ptr %23, i64 1280
+28299	  %62 = getelementptr inbounds nuw i8, ptr %5, i64 177
+28300	  br label %67, !dbg !40090 ;; fight_check.rs:841@attack_summon_action
+28301	
+28302	63:                                               ; preds = %15
+28303	  tail call void @_RNvNtCsjihNppCmMEE_4core6option13unwrap_failed(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.e5f9a016f1220e5cee86475419aee1e5.180) #30, !dbg !40091 ;; option.rs:1013@unwrap<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:837@attack_summon_action
+28304	  unreachable, !dbg !40091 ;; option.rs:1013@unwrap<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:837@attack_summon_action
+28305	
+28306	64:                                               ; preds = %316, %306, %261, %257, %253, %246, %236, %192, %189, %179, %172, %162, %118, %109, %89, %70
+28307	  %65 = cleanuppad within none []
+28308	  call fastcc void @_RINvNtCsjihNppCmMEE_4core3ptr9drop_glueINtNtNtCshWfHDMLkPaX_7bumpalo11collections3vec3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEEB1t_(ptr noalias noundef align 8 dereferenceable(32) %10) #32 [ "funclet"(token %65) ], !dbg !40092 ;; fight_check.rs:881@attack_summon_action
+28309	  cleanupret from %65 unwind to caller, !dbg !40093 ;; fight_check.rs:836@attack_summon_action
+28310	
+28311	66:                                               ; preds = %89
+28312	  unreachable
+28313	
+28314	67:                                               ; preds = %255, %25
+28315	  %68 = phi ptr [ %37, %25 ], [ %71, %255 ], !dbg !40050 ;; fight_check.rs:841@attack_summon_action
+28316	    #dbg_value(ptr %68, !39933, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !40089)
+28317	    #dbg_value(ptr undef, !39955, !DIExpression(), !39964)
+28318	    #dbg_value(ptr %68, !39958, !DIExpression(), !40094)
+28319	    #dbg_value(ptr %68, !39972, !DIExpression(), !39973)
+28320	    #dbg_value(ptr %40, !39960, !DIExpression(), !40095)
+28321	    #dbg_value(ptr poison, !40096, !DIExpression(), !40100)
+28322	    #dbg_value(ptr poison, !40099, !DIExpression(), !40100)
+28323	  %69 = icmp eq ptr %68, %40, !dbg !40102 ;; non_null.rs:1714@eq<ref$<game_core::simulation::entity::Entity> > <- macros.rs:180@next<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:841@attack_summon_action
+28324	  br i1 %69, label %76, label %70, !dbg !40101 ;; macros.rs:180@next<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:841@attack_summon_action
+28325	
+28326	70:                                               ; preds = %67
+28327	  %71 = getelementptr inbounds nuw i8, ptr %68, i64 8, !dbg !40103 ;; non_null.rs:656@add<ref$<game_core::simulation::entity::Entity> > <- macros.rs:185@next<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:841@attack_summon_action
+28328	    #dbg_value(ptr %71, !39933, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !40089)
+28329	  %72 = load ptr, ptr %68, align 8, !dbg !40090, !nonnull !8, !align !17879, !noundef !8 ;; fight_check.rs:841@attack_summon_action
+28330	    #dbg_value(ptr %72, !39935, !DIExpression(), !40104)
+28331	    #dbg_value(ptr %72, !39992, !DIExpression(), !39995)
+28332	    #dbg_value(ptr %72, !40000, !DIExpression(), !40001)
+28333	    #dbg_value(ptr %72, !40009, !DIExpression(), !40024)
+28334	    #dbg_value(ptr %72, !40000, !DIExpression(), !40025)
+28335	    #dbg_value(ptr %72, !40009, !DIExpression(), !40029)
+28336	    #dbg_value(ptr %72, !40000, !DIExpression(), !40030)
+28337	    #dbg_value(ptr %72, !40009, !DIExpression(), !40039)
+28338	    #dbg_value(ptr %72, !40000, !DIExpression(), !40040)
+28339	  %73 = load ptr, ptr %19, align 8, !dbg !39996, !nonnull !8, !noundef !8 ;; fight_check.rs:842@attack_summon_action
+28340	  %74 = load ptr, ptr %41, align 8, !dbg !39996, !nonnull !8, !align !17879, !noundef !8 ;; fight_check.rs:842@attack_summon_action
+28341	  %75 = invoke noundef zeroext i1 @_RNvMNtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB2_13OperationData10can_target(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %2, ptr noundef nonnull %73, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(816) %74, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %1, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %72)
+28342	          to label %77 unwind label %64, !dbg !39996 ;; fight_check.rs:842@attack_summon_action
+28343	
+28344	76:                                               ; preds = %67
+28345	  call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(32) %0, ptr noundef nonnull align 8 dereferenceable(32) %10, i64 32, i1 false), !dbg !40105 ;; fight_check.rs:880@attack_summon_action
+28346	  call void @llvm.lifetime.end.p0(ptr nonnull %10), !dbg !40092 ;; fight_check.rs:881@attack_summon_action
+28347	  ret void, !dbg !40106 ;; fight_check.rs:881@attack_summon_action
+28348	
+28349	77:                                               ; preds = %70
+28350	  br i1 %75, label %78, label %255, !dbg !39996 ;; fight_check.rs:842@attack_summon_action
+28351	
+28352	78:                                               ; preds = %77
+28353	    #dbg_value(ptr %23, !40107, !DIExpression(), !40112)
+28354	  %79 = load i64, ptr %23, align 8, !dbg !40114, !range !19103, !noundef !8 ;; entity.rs:1136@player_team <- entity.rs:1482@is_visible_from <- fight_check.rs:842@attack_summon_action
+28355	  %80 = trunc nuw i64 %79 to i1, !dbg !40114 ;; entity.rs:1136@player_team <- entity.rs:1482@is_visible_from <- fight_check.rs:842@attack_summon_action
+28356	  br i1 %80, label %90, label %81, !dbg !40114 ;; entity.rs:1136@player_team <- entity.rs:1482@is_visible_from <- fight_check.rs:842@attack_summon_action
+28357	
+28358	81:                                               ; preds = %78
+28359	    #dbg_value(ptr %23, !40110, !DIExpression(DW_OP_plus_uconst, 8, DW_OP_stack_value), !40115)
+28360	  %82 = load i64, ptr %42, align 8, !dbg !40115, !noundef !8 ;; entity.rs:1137@player_team <- entity.rs:1482@is_visible_from <- fight_check.rs:842@attack_summon_action
+28361	    #dbg_value(i64 %82, !39993, !DIExpression(), !40116)
+28362	  %83 = icmp ult i64 %82, 2, !dbg !40117 ;; entity.rs:1483@is_visible_from <- fight_check.rs:842@attack_summon_action
+28363	  br i1 %83, label %84, label %89, !dbg !40117 ;; entity.rs:1483@is_visible_from <- fight_check.rs:842@attack_summon_action
+28364	
+28365	84:                                               ; preds = %81
+28366	    #dbg_value(ptr poison, !40118, !DIExpression(), !40121)
+28367	  %85 = getelementptr inbounds nuw i8, ptr %72, i64 56, !dbg !40122 ;; data.rs:122@is_visible <- entity.rs:1483@is_visible_from <- fight_check.rs:842@attack_summon_action
+28368	  %86 = getelementptr inbounds nuw { i64, [2 x i64] }, ptr %85, i64 %82, !dbg !40122 ;; data.rs:122@is_visible <- entity.rs:1483@is_visible_from <- fight_check.rs:842@attack_summon_action
+28369	  %87 = load i64, ptr %86, align 8, !dbg !40122, !range !19196, !noundef !8 ;; data.rs:122@is_visible <- entity.rs:1483@is_visible_from <- fight_check.rs:842@attack_summon_action
+28370	  %88 = icmp eq i64 %87, 0, !dbg !40122 ;; data.rs:122@is_visible <- entity.rs:1483@is_visible_from <- fight_check.rs:842@attack_summon_action
+28371	  br i1 %88, label %90, label %255, !dbg !39996 ;; fight_check.rs:842@attack_summon_action
+28372	
+28373	89:                                               ; preds = %81
+28374	  invoke void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %82, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.e5f9a016f1220e5cee86475419aee1e5.62) #30
+28375	          to label %66 unwind label %64, !dbg !40117 ;; entity.rs:1483@is_visible_from <- fight_check.rs:842@attack_summon_action
+28376	
+28377	90:                                               ; preds = %84, %78
+28378	  %91 = getelementptr inbounds nuw i8, ptr %72, i64 1632, !dbg !40123 ;; entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28379	  %92 = load i64, ptr %91, align 8, !dbg !40123, !noundef !8 ;; entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28380	    #dbg_value(i64 %92, !40124, !DIExpression(), !40146)
+28381	    #dbg_value(i64 %92, !40147, !DIExpression(), !40151)
+28382	    #dbg_value(i64 %92, !40124, !DIExpression(), !40153)
+28383	    #dbg_value(i64 %92, !40147, !DIExpression(), !40156)
+28384	    #dbg_value(i64 %92, !40124, !DIExpression(), !40159)
+28385	    #dbg_value(i64 %92, !40147, !DIExpression(), !40162)
+28386	    #dbg_value(i64 %92, !40124, !DIExpression(), !40165)
+28387	    #dbg_value(i64 %92, !40147, !DIExpression(), !40168)
+28388	  %93 = getelementptr inbounds nuw i8, ptr %72, i64 1640, !dbg !40123 ;; entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28389	  %94 = load i64, ptr %93, align 8, !dbg !40123, !noundef !8 ;; entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28390	    #dbg_value(i64 %94, !40127, !DIExpression(), !40146)
+28391	    #dbg_value(i64 %94, !40147, !DIExpression(), !40171)
+28392	    #dbg_value(i64 %94, !40127, !DIExpression(), !40153)
+28393	    #dbg_value(i64 %94, !40147, !DIExpression(), !40173)
+28394	    #dbg_value(i64 %94, !40127, !DIExpression(), !40159)
+28395	    #dbg_value(i64 %94, !40147, !DIExpression(), !40176)
+28396	    #dbg_value(i64 %94, !40127, !DIExpression(), !40165)
+28397	    #dbg_value(i64 %94, !40147, !DIExpression(), !40179)
+28398	  %95 = load i64, ptr %43, align 8, !dbg !40123, !noundef !8 ;; entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28399	    #dbg_value(i64 %95, !40128, !DIExpression(), !40146)
+28400	    #dbg_value(i64 %95, !40150, !DIExpression(), !40151)
+28401	    #dbg_value(i64 %95, !40128, !DIExpression(), !40153)
+28402	    #dbg_value(i64 %95, !40150, !DIExpression(), !40156)
+28403	    #dbg_value(i64 %95, !40128, !DIExpression(), !40159)
+28404	    #dbg_value(i64 %95, !40150, !DIExpression(), !40162)
+28405	    #dbg_value(i64 %95, !40128, !DIExpression(), !40165)
+28406	    #dbg_value(i64 %95, !40150, !DIExpression(), !40168)
+28407	  %96 = load i64, ptr %44, align 8, !dbg !40123, !noundef !8 ;; entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28408	    #dbg_value(i64 %96, !40129, !DIExpression(), !40146)
+28409	    #dbg_value(i64 %96, !40150, !DIExpression(), !40171)
+28410	    #dbg_value(i64 %96, !40129, !DIExpression(), !40153)
+28411	    #dbg_value(i64 %96, !40150, !DIExpression(), !40173)
+28412	    #dbg_value(i64 %96, !40129, !DIExpression(), !40159)
+28413	    #dbg_value(i64 %96, !40150, !DIExpression(), !40176)
+28414	    #dbg_value(i64 %96, !40129, !DIExpression(), !40165)
+28415	    #dbg_value(i64 %96, !40150, !DIExpression(), !40179)
+28416	  %97 = icmp ult i64 %92, %95, !dbg !40182 ;; uint_macros.rs:3147@abs_diff <- utils.rs:7@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28417	  %98 = sub nuw i64 %95, %92, !dbg !40182 ;; uint_macros.rs:3147@abs_diff <- utils.rs:7@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28418	  %99 = sub nuw i64 %92, %95, !dbg !40182 ;; uint_macros.rs:3147@abs_diff <- utils.rs:7@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28419	  %100 = select i1 %97, i64 %98, i64 %99, !dbg !40182 ;; uint_macros.rs:3147@abs_diff <- utils.rs:7@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28420	    #dbg_value(i64 %100, !40130, !DIExpression(), !40183)
+28421	  %101 = icmp ult i64 %94, %96, !dbg !40184 ;; uint_macros.rs:3147@abs_diff <- utils.rs:8@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28422	  %102 = sub nuw i64 %96, %94, !dbg !40184 ;; uint_macros.rs:3147@abs_diff <- utils.rs:8@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28423	  %103 = sub nuw i64 %94, %96, !dbg !40184 ;; uint_macros.rs:3147@abs_diff <- utils.rs:8@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28424	  %104 = select i1 %101, i64 %102, i64 %103, !dbg !40184 ;; uint_macros.rs:3147@abs_diff <- utils.rs:8@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28425	    #dbg_value(i64 %104, !40132, !DIExpression(), !40185)
+28426	  %105 = mul i64 %100, %100, !dbg !40186 ;; utils.rs:9@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28427	  %106 = mul i64 %104, %104, !dbg !40186 ;; utils.rs:9@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28428	  %107 = add i64 %106, %105, !dbg !40186 ;; utils.rs:9@distance_sq <- entity.rs:2158@distance_sq <- fight_check.rs:845@attack_summon_action
+28429	  %108 = icmp ugt i64 %107, 6400000000, !dbg !40002 ;; fight_check.rs:845@attack_summon_action
+28430	  br i1 %108, label %255, label %109, !dbg !40002 ;; fight_check.rs:845@attack_summon_action
+28431	
+28432	109:                                              ; preds = %90
+28433	  %110 = invoke noundef zeroext i1 @_RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity10can_attack(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %23)
+28434	          to label %111 unwind label %64, !dbg !40187 ;; fight_check.rs:849@attack_summon_action
+28435	
+28436	111:                                              ; preds = %109
+28437	  br i1 %110, label %115, label %112, !dbg !40187 ;; fight_check.rs:849@attack_summon_action
+28438	
+28439	112:                                              ; preds = %174, %152, %115, %111
+28440	    #dbg_value(ptr %23, !40188, !DIExpression(DW_OP_plus_uconst, 1224, DW_OP_stack_value), !40197)
+28441	  %113 = load i32, ptr %56, align 8, !dbg !40199, !range !18139, !noundef !8 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:859@attack_summon_action
+28442	  %114 = icmp eq i32 %113, -1, !dbg !40199 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:859@attack_summon_action
+28443	  br i1 %114, label %181, label %179, !dbg !40199 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:859@attack_summon_action
+28444	
+28445	115:                                              ; preds = %111
+28446	    #dbg_value(ptr %23, !40188, !DIExpression(DW_OP_plus_uconst, 1168, DW_OP_stack_value), !40200)
+28447	  %116 = load i32, ptr %45, align 8, !dbg !40202, !range !18139, !noundef !8 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:850@attack_summon_action
+28448	  %117 = icmp eq i32 %116, -1, !dbg !40202 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:850@attack_summon_action
+28449	  br i1 %117, label %112, label %118, !dbg !40202 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:850@attack_summon_action
+28450	
+28451	118:                                              ; preds = %115
+28452	    #dbg_value(ptr %46, !39937, !DIExpression(), !40203)
+28453	    #dbg_value(ptr %46, !40006, !DIExpression(), !40007)
+28454	  %119 = load i64, ptr %47, align 8, !dbg !40204, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:851@attack_summon_action
+28455	  %120 = load i64, ptr %48, align 8, !dbg !40204, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:851@attack_summon_action
+28456	  %121 = load i64, ptr %49, align 8, !dbg !40204, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:851@attack_summon_action
+28457	  %122 = load i64, ptr %50, align 8, !dbg !40204, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:851@attack_summon_action
+28458	  %123 = invoke noundef i64 @_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(56) %46, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %23, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %72)
+28459	          to label %124 unwind label %64, !dbg !40008 ;; fight_check.rs:851@attack_summon_action
+28460	
+28461	124:                                              ; preds = %118
+28462	  %125 = add i64 %121, -1, !dbg !40204 ;; effect.rs:26@range <- fight_check.rs:851@attack_summon_action
+28463	  %126 = mul i64 %125, %120, !dbg !40204 ;; effect.rs:26@range <- fight_check.rs:851@attack_summon_action
+28464	  %127 = load i32, ptr %51, align 8, !dbg !40205, !noundef !8 ;; entity.rs:1511@radius <- fight_check.rs:851@attack_summon_action
+28465	    #dbg_value(i32 %127, !40012, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !40206)
+28466	  %128 = icmp eq i32 %127, 0, !dbg !40207 ;; entity.rs:1512@radius <- fight_check.rs:851@attack_summon_action
+28467	  br i1 %128, label %129, label %131, !dbg !40207 ;; entity.rs:1512@radius <- fight_check.rs:851@attack_summon_action
+28468	
+28469	129:                                              ; preds = %124
+28470	  %130 = load i64, ptr %52, align 8, !dbg !40208, !noundef !8 ;; entity.rs:1513@radius <- fight_check.rs:851@attack_summon_action
+28471	  br label %137, !dbg !40207 ;; entity.rs:1512@radius <- fight_check.rs:851@attack_summon_action
+28472	
+28473	131:                                              ; preds = %124
+28474	  %132 = sext i32 %127 to i64, !dbg !40205 ;; entity.rs:1511@radius <- fight_check.rs:851@attack_summon_action
+28475	    #dbg_value(i64 %132, !40012, !DIExpression(), !40206)
+28476	  %133 = load i64, ptr %52, align 8, !dbg !40209, !noundef !8 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28477	  %134 = add nsw i64 %132, 100, !dbg !40209 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28478	  %135 = mul i64 %133, %134, !dbg !40209 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28479	  %136 = udiv i64 %135, 100, !dbg !40209 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28480	  br label %137, !dbg !40207 ;; entity.rs:1512@radius <- fight_check.rs:851@attack_summon_action
+28481	
+28482	137:                                              ; preds = %131, %129
+28483	  %138 = phi i64 [ %130, %129 ], [ %136, %131 ], !dbg !40206 ;; entity.rs:0@radius <- fight_check.rs:851@attack_summon_action
+28484	  %139 = getelementptr inbounds nuw i8, ptr %72, i64 1136, !dbg !40205 ;; entity.rs:1511@radius <- fight_check.rs:851@attack_summon_action
+28485	  %140 = load i32, ptr %139, align 8, !dbg !40205, !noundef !8 ;; entity.rs:1511@radius <- fight_check.rs:851@attack_summon_action
+28486	    #dbg_value(i32 %140, !40014, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !40210)
+28487	  %141 = icmp eq i32 %140, 0, !dbg !40211 ;; entity.rs:1512@radius <- fight_check.rs:851@attack_summon_action
+28488	  br i1 %141, label %142, label %145, !dbg !40211 ;; entity.rs:1512@radius <- fight_check.rs:851@attack_summon_action
+28489	
+28490	142:                                              ; preds = %137
+28491	  %143 = getelementptr inbounds nuw i8, ptr %72, i64 1664, !dbg !40212 ;; entity.rs:1513@radius <- fight_check.rs:851@attack_summon_action
+28492	  %144 = load i64, ptr %143, align 8, !dbg !40212, !noundef !8 ;; entity.rs:1513@radius <- fight_check.rs:851@attack_summon_action
+28493	  br label %152, !dbg !40211 ;; entity.rs:1512@radius <- fight_check.rs:851@attack_summon_action
+28494	
+28495	145:                                              ; preds = %137
+28496	  %146 = sext i32 %140 to i64, !dbg !40205 ;; entity.rs:1511@radius <- fight_check.rs:851@attack_summon_action
+28497	    #dbg_value(i64 %146, !40014, !DIExpression(), !40210)
+28498	  %147 = getelementptr inbounds nuw i8, ptr %72, i64 1664, !dbg !40213 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28499	  %148 = load i64, ptr %147, align 8, !dbg !40213, !noundef !8 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28500	  %149 = add nsw i64 %146, 100, !dbg !40213 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28501	  %150 = mul i64 %148, %149, !dbg !40213 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28502	  %151 = udiv i64 %150, 100, !dbg !40213 ;; entity.rs:1515@radius <- fight_check.rs:851@attack_summon_action
+28503	  br label %152, !dbg !40211 ;; entity.rs:1512@radius <- fight_check.rs:851@attack_summon_action
+28504	
+28505	152:                                              ; preds = %145, %142
+28506	  %153 = phi i64 [ %144, %142 ], [ %151, %145 ], !dbg !40210 ;; entity.rs:0@radius <- fight_check.rs:851@attack_summon_action
+28507	    #dbg_value(i64 poison, !39939, !DIExpression(), !40214)
+28508	  %154 = add i64 %119, %53, !dbg !40204 ;; effect.rs:26@range <- fight_check.rs:851@attack_summon_action
+28509	  %155 = add i64 %154, %122, !dbg !40204 ;; effect.rs:26@range <- fight_check.rs:851@attack_summon_action
+28510	  %156 = add i64 %155, %126, !dbg !40008 ;; fight_check.rs:851@attack_summon_action
+28511	  %157 = add i64 %156, %123, !dbg !40008 ;; fight_check.rs:851@attack_summon_action
+28512	  %158 = add i64 %157, %138, !dbg !40008 ;; fight_check.rs:851@attack_summon_action
+28513	  %159 = add i64 %158, %153, !dbg !40215 ;; fight_check.rs:852@attack_summon_action
+28514	    #dbg_value(i64 %159, !39941, !DIExpression(), !40216)
+28515	  %160 = mul i64 %159, %159, !dbg !40026 ;; fight_check.rs:853@attack_summon_action
+28516	  %161 = icmp ugt i64 %107, %160, !dbg !40026 ;; fight_check.rs:853@attack_summon_action
+28517	  br i1 %161, label %112, label %162, !dbg !40026 ;; fight_check.rs:853@attack_summon_action
+28518	
+28519	162:                                              ; preds = %152
+28520	  call void @llvm.lifetime.start.p0(ptr nonnull %9), !dbg !40217 ;; fight_check.rs:854@attack_summon_action
+28521	  call void @llvm.lifetime.start.p0(ptr nonnull %8), !dbg !40217 ;; fight_check.rs:854@attack_summon_action
+28522	  %163 = getelementptr inbounds nuw i8, ptr %72, i64 1472, !dbg !40217 ;; fight_check.rs:854@attack_summon_action
+28523	  %164 = load i64, ptr %163, align 8, !dbg !40217, !noundef !8 ;; fight_check.rs:854@attack_summon_action
+28524	  invoke void @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB2_17SmallActionAttack3new(ptr noalias noundef nonnull sret([24 x i8]) align 8 captures(none) dereferenceable(24) %8, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %2, i64 noundef %164)
+28525	          to label %165 unwind label %64, !dbg !40217 ;; fight_check.rs:854@attack_summon_action
+28526	
+28527	165:                                              ; preds = %162
+28528	  call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(24) %9, ptr noundef nonnull align 8 dereferenceable(24) %8, i64 24, i1 false), !dbg !40217 ;; fight_check.rs:854@attack_summon_action
+28529	  store i8 15, ptr %54, align 1, !dbg !40217 ;; fight_check.rs:854@attack_summon_action
+28530	  call void @llvm.lifetime.end.p0(ptr nonnull %8), !dbg !40217 ;; fight_check.rs:854@attack_summon_action
+28531	    #dbg_value(ptr %10, !19360, !DIExpression(), !40218)
+28532	    #dbg_value(ptr %10, !19371, !DIExpression(), !40220)
+28533	    #dbg_declare(ptr %9, !19366, !DIExpression(), !40222)
+28534	    #dbg_declare(ptr %9, !19378, !DIExpression(), !40223)
+28535	    #dbg_value(i64 1, !19374, !DIExpression(), !40220)
+28536	    #dbg_value(i64 1, !19386, !DIExpression(), !40225)
+28537	    #dbg_value(i64 1, !19393, !DIExpression(), !40227)
+28538	    #dbg_value(i8 1, !19398, !DIExpression(), !40227)
+28539	  %166 = load i64, ptr %31, align 8, !dbg !40229, !alias.scope !40230, !noalias !40233, !noundef !8 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28540	    #dbg_value(ptr %10, !19407, !DIExpression(), !40235)
+28541	  %167 = load i64, ptr %30, align 8, !dbg !40237, !alias.scope !40230, !noalias !40233, !noundef !8 ;; raw_vec.rs:149@cap<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28542	  %168 = icmp eq i64 %166, %167, !dbg !40229 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28543	  br i1 %168, label %169, label %174, !dbg !40229 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28544	
+28545	169:                                              ; preds = %165
+28546	    #dbg_value(ptr %10, !19389, !DIExpression(), !40225)
+28547	    #dbg_value(ptr %10, !19396, !DIExpression(), !40227)
+28548	    #dbg_value(ptr %10, !19407, !DIExpression(), !40238)
+28549	    #dbg_value(i64 %166, !19390, !DIExpression(), !40225)
+28550	    #dbg_value(i64 %166, !19397, !DIExpression(), !40227)
+28551	  invoke void @_RNvMs2_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE25reserve_internal_or_panicB17_(ptr noalias noundef nonnull align 8 dereferenceable(32) %10, i64 noundef %166, i64 noundef 1, i1 noundef zeroext true)
+28552	          to label %170 unwind label %172, !dbg !40240, !noalias !40233 ;; raw_vec.rs:619@infallible_reserve_internal<enum2$<game_ai::small_action::SmallActionPlay> > <- raw_vec.rs:430@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:738@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1429@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28553	
+28554	170:                                              ; preds = %169
+28555	  %171 = load i64, ptr %31, align 8, !dbg !40241, !alias.scope !40230, !noalias !40233 ;; vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28556	  br label %174, !dbg !40240 ;; raw_vec.rs:619@infallible_reserve_internal<enum2$<game_ai::small_action::SmallActionPlay> > <- raw_vec.rs:430@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:738@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1429@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28557	
+28558	172:                                              ; preds = %169
+28559	  %173 = cleanuppad within none []
+28560	  call fastcc void @_RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEBF_(ptr noalias noundef nonnull readonly align 8 dereferenceable(184) %9) #32 [ "funclet"(token %173) ], !dbg !40242 ;; vec.rs:1436@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28561	  cleanupret from %173 unwind label %64
+28562	
+28563	174:                                              ; preds = %170, %165
+28564	  %175 = phi i64 [ %171, %170 ], [ %166, %165 ], !dbg !40243 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28565	    #dbg_value(ptr %10, !19435, !DIExpression(), !40244)
+28566	  %176 = load ptr, ptr %10, align 8, !dbg !40246, !alias.scope !40230, !noalias !40233, !nonnull !8, !noundef !8 ;; raw_vec.rs:138@ptr<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28567	    #dbg_value(ptr %176, !19444, !DIExpression(), !40247)
+28568	    #dbg_value(i64 %175, !19447, !DIExpression(), !40247)
+28569	  %177 = getelementptr inbounds nuw { [177 x i8], i8, [6 x i8] }, ptr %176, i64 %175, !dbg !40248 ;; mut_ptr.rs:961@add<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28570	    #dbg_value(ptr %177, !19367, !DIExpression(), !40249)
+28571	    #dbg_value(ptr %177, !19383, !DIExpression(), !40250)
+28572	  call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(184) %177, ptr noundef nonnull readonly align 8 dereferenceable(184) %9, i64 184, i1 false), !dbg !40251 ;; mod.rs:1933@write<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1433@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28573	  %178 = add i64 %175, 1, !dbg !40243 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28574	  store i64 %178, ptr %31, align 8, !dbg !40243, !alias.scope !40230, !noalias !40233 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:854@attack_summon_action
+28575	  call void @llvm.lifetime.end.p0(ptr nonnull %9), !dbg !40217 ;; fight_check.rs:854@attack_summon_action
+28576	  br label %112, !dbg !40026 ;; fight_check.rs:853@attack_summon_action
+28577	
+28578	179:                                              ; preds = %112
+28579	    #dbg_value(ptr %55, !39943, !DIExpression(), !40252)
+28580	    #dbg_value(ptr %55, !40006, !DIExpression(), !40027)
+28581	  %180 = invoke noundef zeroext i1 @_RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity9can_skill(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %23)
+28582	          to label %188 unwind label %64, !dbg !40253 ;; fight_check.rs:860@attack_summon_action
+28583	
+28584	181:                                              ; preds = %248, %226, %191, %188, %112
+28585	  %182 = load i64, ptr %49, align 8, !dbg !40254, !noundef !8 ;; entity.rs:1693@skill2_effect <- fight_check.rs:869@attack_summon_action
+28586	  %183 = icmp ugt i64 %182, 2, !dbg !40254 ;; entity.rs:1693@skill2_effect <- fight_check.rs:869@attack_summon_action
+28587	  %184 = select i1 %183, ptr %61, ptr @anon.e5f9a016f1220e5cee86475419aee1e5.58, !dbg !40254 ;; entity.rs:1693@skill2_effect <- fight_check.rs:869@attack_summon_action
+28588	    #dbg_value(ptr %184, !40188, !DIExpression(), !40255)
+28589	  %185 = getelementptr inbounds nuw i8, ptr %184, i64 48, !dbg !40256 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:869@attack_summon_action
+28590	  %186 = load i32, ptr %185, align 8, !dbg !40256, !range !18139, !noundef !8 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:869@attack_summon_action
+28591	  %187 = icmp eq i32 %186, -1, !dbg !40256 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:869@attack_summon_action
+28592	  br i1 %187, label %255, label %253, !dbg !40256 ;; option.rs:742@as_ref<game_core::simulation::effect::Effect> <- fight_check.rs:869@attack_summon_action
+28593	
+28594	188:                                              ; preds = %179
+28595	  br i1 %180, label %189, label %181, !dbg !40253 ;; fight_check.rs:860@attack_summon_action
+28596	
+28597	189:                                              ; preds = %188
+28598	  %190 = invoke noundef zeroext i1 @_RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget5check(ptr noalias noundef nonnull readonly align 4 captures(address, read_provenance) dereferenceable(4) %57, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %23, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %72)
+28599	          to label %191 unwind label %64, !dbg !40253 ;; fight_check.rs:860@attack_summon_action
+28600	
+28601	191:                                              ; preds = %189
+28602	  br i1 %190, label %192, label %181, !dbg !40253 ;; fight_check.rs:860@attack_summon_action
+28603	
+28604	192:                                              ; preds = %191
+28605	  %193 = load i64, ptr %58, align 8, !dbg !40257, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:861@attack_summon_action
+28606	  %194 = load i64, ptr %59, align 8, !dbg !40257, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:861@attack_summon_action
+28607	  %195 = load i64, ptr %49, align 8, !dbg !40257, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:861@attack_summon_action
+28608	  %196 = load i64, ptr %50, align 8, !dbg !40257, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:861@attack_summon_action
+28609	  %197 = invoke noundef i64 @_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(56) %55, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %23, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %72)
+28610	          to label %198 unwind label %64, !dbg !40028 ;; fight_check.rs:861@attack_summon_action
+28611	
+28612	198:                                              ; preds = %192
+28613	  %199 = add i64 %195, -1, !dbg !40257 ;; effect.rs:26@range <- fight_check.rs:861@attack_summon_action
+28614	  %200 = mul i64 %199, %194, !dbg !40257 ;; effect.rs:26@range <- fight_check.rs:861@attack_summon_action
+28615	  %201 = load i32, ptr %51, align 8, !dbg !40258, !noundef !8 ;; entity.rs:1511@radius <- fight_check.rs:861@attack_summon_action
+28616	    #dbg_value(i32 %201, !40016, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !40259)
+28617	  %202 = icmp eq i32 %201, 0, !dbg !40260 ;; entity.rs:1512@radius <- fight_check.rs:861@attack_summon_action
+28618	  br i1 %202, label %203, label %205, !dbg !40260 ;; entity.rs:1512@radius <- fight_check.rs:861@attack_summon_action
+28619	
+28620	203:                                              ; preds = %198
+28621	  %204 = load i64, ptr %52, align 8, !dbg !40261, !noundef !8 ;; entity.rs:1513@radius <- fight_check.rs:861@attack_summon_action
+28622	  br label %211, !dbg !40260 ;; entity.rs:1512@radius <- fight_check.rs:861@attack_summon_action
+28623	
+28624	205:                                              ; preds = %198
+28625	  %206 = sext i32 %201 to i64, !dbg !40258 ;; entity.rs:1511@radius <- fight_check.rs:861@attack_summon_action
+28626	    #dbg_value(i64 %206, !40016, !DIExpression(), !40259)
+28627	  %207 = load i64, ptr %52, align 8, !dbg !40262, !noundef !8 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28628	  %208 = add nsw i64 %206, 100, !dbg !40262 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28629	  %209 = mul i64 %207, %208, !dbg !40262 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28630	  %210 = udiv i64 %209, 100, !dbg !40262 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28631	  br label %211, !dbg !40260 ;; entity.rs:1512@radius <- fight_check.rs:861@attack_summon_action
+28632	
+28633	211:                                              ; preds = %205, %203
+28634	  %212 = phi i64 [ %204, %203 ], [ %210, %205 ], !dbg !40259 ;; entity.rs:0@radius <- fight_check.rs:861@attack_summon_action
+28635	  %213 = getelementptr inbounds nuw i8, ptr %72, i64 1136, !dbg !40258 ;; entity.rs:1511@radius <- fight_check.rs:861@attack_summon_action
+28636	  %214 = load i32, ptr %213, align 8, !dbg !40258, !noundef !8 ;; entity.rs:1511@radius <- fight_check.rs:861@attack_summon_action
+28637	    #dbg_value(i32 %214, !40018, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !40263)
+28638	  %215 = icmp eq i32 %214, 0, !dbg !40264 ;; entity.rs:1512@radius <- fight_check.rs:861@attack_summon_action
+28639	  br i1 %215, label %216, label %219, !dbg !40264 ;; entity.rs:1512@radius <- fight_check.rs:861@attack_summon_action
+28640	
+28641	216:                                              ; preds = %211
+28642	  %217 = getelementptr inbounds nuw i8, ptr %72, i64 1664, !dbg !40265 ;; entity.rs:1513@radius <- fight_check.rs:861@attack_summon_action
+28643	  %218 = load i64, ptr %217, align 8, !dbg !40265, !noundef !8 ;; entity.rs:1513@radius <- fight_check.rs:861@attack_summon_action
+28644	  br label %226, !dbg !40264 ;; entity.rs:1512@radius <- fight_check.rs:861@attack_summon_action
+28645	
+28646	219:                                              ; preds = %211
+28647	  %220 = sext i32 %214 to i64, !dbg !40258 ;; entity.rs:1511@radius <- fight_check.rs:861@attack_summon_action
+28648	    #dbg_value(i64 %220, !40018, !DIExpression(), !40263)
+28649	  %221 = getelementptr inbounds nuw i8, ptr %72, i64 1664, !dbg !40266 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28650	  %222 = load i64, ptr %221, align 8, !dbg !40266, !noundef !8 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28651	  %223 = add nsw i64 %220, 100, !dbg !40266 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28652	  %224 = mul i64 %222, %223, !dbg !40266 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28653	  %225 = udiv i64 %224, 100, !dbg !40266 ;; entity.rs:1515@radius <- fight_check.rs:861@attack_summon_action
+28654	  br label %226, !dbg !40264 ;; entity.rs:1512@radius <- fight_check.rs:861@attack_summon_action
+28655	
+28656	226:                                              ; preds = %219, %216
+28657	  %227 = phi i64 [ %218, %216 ], [ %225, %219 ], !dbg !40263 ;; entity.rs:0@radius <- fight_check.rs:861@attack_summon_action
+28658	    #dbg_value(i64 poison, !39945, !DIExpression(), !40267)
+28659	  %228 = add i64 %193, %53, !dbg !40257 ;; effect.rs:26@range <- fight_check.rs:861@attack_summon_action
+28660	  %229 = add i64 %228, %196, !dbg !40257 ;; effect.rs:26@range <- fight_check.rs:861@attack_summon_action
+28661	  %230 = add i64 %229, %200, !dbg !40028 ;; fight_check.rs:861@attack_summon_action
+28662	  %231 = add i64 %230, %197, !dbg !40028 ;; fight_check.rs:861@attack_summon_action
+28663	  %232 = add i64 %231, %212, !dbg !40028 ;; fight_check.rs:861@attack_summon_action
+28664	  %233 = add i64 %232, %227, !dbg !40268 ;; fight_check.rs:862@attack_summon_action
+28665	    #dbg_value(i64 %233, !39947, !DIExpression(), !40269)
+28666	  %234 = mul i64 %233, %233, !dbg !40031 ;; fight_check.rs:863@attack_summon_action
+28667	  %235 = icmp ugt i64 %107, %234, !dbg !40031 ;; fight_check.rs:863@attack_summon_action
+28668	  br i1 %235, label %181, label %236, !dbg !40031 ;; fight_check.rs:863@attack_summon_action
+28669	
+28670	236:                                              ; preds = %226
+28671	  call void @llvm.lifetime.start.p0(ptr nonnull %7), !dbg !40270 ;; fight_check.rs:864@attack_summon_action
+28672	  call void @llvm.lifetime.start.p0(ptr nonnull %6), !dbg !40270 ;; fight_check.rs:864@attack_summon_action
+28673	  %237 = getelementptr inbounds nuw i8, ptr %72, i64 1472, !dbg !40270 ;; fight_check.rs:864@attack_summon_action
+28674	  %238 = load i64, ptr %237, align 8, !dbg !40270, !noundef !8 ;; fight_check.rs:864@attack_summon_action
+28675	  invoke void @_RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_16SmallActionSkill3new(ptr noalias noundef nonnull sret([24 x i8]) align 8 captures(none) dereferenceable(24) %6, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %2, i64 noundef %238)
+28676	          to label %239 unwind label %64, !dbg !40270 ;; fight_check.rs:864@attack_summon_action
+28677	
+28678	239:                                              ; preds = %236
+28679	  call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(24) %7, ptr noundef nonnull align 8 dereferenceable(24) %6, i64 24, i1 false), !dbg !40270 ;; fight_check.rs:864@attack_summon_action
+28680	  store i8 16, ptr %60, align 1, !dbg !40270 ;; fight_check.rs:864@attack_summon_action
+28681	  call void @llvm.lifetime.end.p0(ptr nonnull %6), !dbg !40270 ;; fight_check.rs:864@attack_summon_action
+28682	    #dbg_value(ptr %10, !19360, !DIExpression(), !40271)
+28683	    #dbg_value(ptr %10, !19371, !DIExpression(), !40273)
+28684	    #dbg_declare(ptr %7, !19366, !DIExpression(), !40275)
+28685	    #dbg_declare(ptr %7, !19378, !DIExpression(), !40276)
+28686	    #dbg_value(i64 1, !19374, !DIExpression(), !40273)
+28687	    #dbg_value(i64 1, !19386, !DIExpression(), !40278)
+28688	    #dbg_value(i64 1, !19393, !DIExpression(), !40280)
+28689	    #dbg_value(i8 1, !19398, !DIExpression(), !40280)
+28690	  %240 = load i64, ptr %31, align 8, !dbg !40282, !alias.scope !40283, !noalias !40286, !noundef !8 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28691	    #dbg_value(ptr %10, !19407, !DIExpression(), !40288)
+28692	  %241 = load i64, ptr %30, align 8, !dbg !40290, !alias.scope !40283, !noalias !40286, !noundef !8 ;; raw_vec.rs:149@cap<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28693	  %242 = icmp eq i64 %240, %241, !dbg !40282 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28694	  br i1 %242, label %243, label %248, !dbg !40282 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28695	
+28696	243:                                              ; preds = %239
+28697	    #dbg_value(ptr %10, !19389, !DIExpression(), !40278)
+28698	    #dbg_value(ptr %10, !19396, !DIExpression(), !40280)
+28699	    #dbg_value(ptr %10, !19407, !DIExpression(), !40291)
+28700	    #dbg_value(i64 %240, !19390, !DIExpression(), !40278)
+28701	    #dbg_value(i64 %240, !19397, !DIExpression(), !40280)
+28702	  invoke void @_RNvMs2_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE25reserve_internal_or_panicB17_(ptr noalias noundef nonnull align 8 dereferenceable(32) %10, i64 noundef %240, i64 noundef 1, i1 noundef zeroext true)
+28703	          to label %244 unwind label %246, !dbg !40293, !noalias !40286 ;; raw_vec.rs:619@infallible_reserve_internal<enum2$<game_ai::small_action::SmallActionPlay> > <- raw_vec.rs:430@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:738@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1429@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28704	
+28705	244:                                              ; preds = %243
+28706	  %245 = load i64, ptr %31, align 8, !dbg !40294, !alias.scope !40283, !noalias !40286 ;; vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28707	  br label %248, !dbg !40293 ;; raw_vec.rs:619@infallible_reserve_internal<enum2$<game_ai::small_action::SmallActionPlay> > <- raw_vec.rs:430@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:738@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1429@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28708	
+28709	246:                                              ; preds = %243
+28710	  %247 = cleanuppad within none []
+28711	  call fastcc void @_RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEBF_(ptr noalias noundef nonnull readonly align 8 dereferenceable(184) %7) #32 [ "funclet"(token %247) ], !dbg !40295 ;; vec.rs:1436@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28712	  cleanupret from %247 unwind label %64
+28713	
+28714	248:                                              ; preds = %244, %239
+28715	  %249 = phi i64 [ %245, %244 ], [ %240, %239 ], !dbg !40296 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28716	    #dbg_value(ptr %10, !19435, !DIExpression(), !40297)
+28717	  %250 = load ptr, ptr %10, align 8, !dbg !40299, !alias.scope !40283, !noalias !40286, !nonnull !8, !noundef !8 ;; raw_vec.rs:138@ptr<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28718	    #dbg_value(ptr %250, !19444, !DIExpression(), !40300)
+28719	    #dbg_value(i64 %249, !19447, !DIExpression(), !40300)
+28720	  %251 = getelementptr inbounds nuw { [177 x i8], i8, [6 x i8] }, ptr %250, i64 %249, !dbg !40301 ;; mut_ptr.rs:961@add<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28721	    #dbg_value(ptr %251, !19367, !DIExpression(), !40302)
+28722	    #dbg_value(ptr %251, !19383, !DIExpression(), !40303)
+28723	  call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(184) %251, ptr noundef nonnull readonly align 8 dereferenceable(184) %7, i64 184, i1 false), !dbg !40304 ;; mod.rs:1933@write<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1433@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28724	  %252 = add i64 %249, 1, !dbg !40296 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28725	  store i64 %252, ptr %31, align 8, !dbg !40296, !alias.scope !40283, !noalias !40286 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:864@attack_summon_action
+28726	  call void @llvm.lifetime.end.p0(ptr nonnull %7), !dbg !40270 ;; fight_check.rs:864@attack_summon_action
+28727	  br label %181, !dbg !40031 ;; fight_check.rs:863@attack_summon_action
+28728	
+28729	253:                                              ; preds = %181
+28730	    #dbg_value(ptr %184, !39949, !DIExpression(), !40305)
+28731	    #dbg_value(ptr %184, !40006, !DIExpression(), !40037)
+28732	  %254 = invoke noundef zeroext i1 @_RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity10can_skill2(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %23)
+28733	          to label %256 unwind label %64, !dbg !40306 ;; fight_check.rs:870@attack_summon_action
+28734	
+28735	255:                                              ; preds = %318, %296, %260, %256, %181, %90, %84, %77
+28736	  br label %67, !dbg !40102 ;; non_null.rs:1714@eq<ref$<game_core::simulation::entity::Entity> > <- macros.rs:180@next<ref$<game_core::simulation::entity::Entity> > <- fight_check.rs:841@attack_summon_action
+28737	
+28738	256:                                              ; preds = %253
+28739	  br i1 %254, label %257, label %255, !dbg !40306 ;; fight_check.rs:870@attack_summon_action
+28740	
+28741	257:                                              ; preds = %256
+28742	  %258 = getelementptr inbounds nuw i8, ptr %184, i64 40, !dbg !40306 ;; fight_check.rs:870@attack_summon_action
+28743	  %259 = invoke noundef zeroext i1 @_RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget5check(ptr noalias noundef nonnull readonly align 4 captures(address, read_provenance) dereferenceable(4) %258, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %23, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %72)
+28744	          to label %260 unwind label %64, !dbg !40306 ;; fight_check.rs:870@attack_summon_action
+28745	
+28746	260:                                              ; preds = %257
+28747	  br i1 %259, label %261, label %255, !dbg !40306 ;; fight_check.rs:870@attack_summon_action
+28748	
+28749	261:                                              ; preds = %260
+28750	  %262 = getelementptr inbounds nuw i8, ptr %184, i64 16, !dbg !40307 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28751	  %263 = load i64, ptr %262, align 8, !dbg !40307, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28752	  %264 = getelementptr inbounds nuw i8, ptr %184, i64 24, !dbg !40307 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28753	  %265 = load i64, ptr %264, align 8, !dbg !40307, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28754	  %266 = load i64, ptr %50, align 8, !dbg !40307, !noundef !8 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28755	  %267 = invoke noundef i64 @_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(56) %184, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %23, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %72)
+28756	          to label %268 unwind label %64, !dbg !40038 ;; fight_check.rs:871@attack_summon_action
+28757	
+28758	268:                                              ; preds = %261
+28759	  %269 = add i64 %182, -1, !dbg !40307 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28760	  %270 = mul i64 %265, %269, !dbg !40307 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28761	  %271 = load i32, ptr %51, align 8, !dbg !40308, !noundef !8 ;; entity.rs:1511@radius <- fight_check.rs:871@attack_summon_action
+28762	    #dbg_value(i32 %271, !40020, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !40309)
+28763	  %272 = icmp eq i32 %271, 0, !dbg !40310 ;; entity.rs:1512@radius <- fight_check.rs:871@attack_summon_action
+28764	  br i1 %272, label %273, label %275, !dbg !40310 ;; entity.rs:1512@radius <- fight_check.rs:871@attack_summon_action
+28765	
+28766	273:                                              ; preds = %268
+28767	  %274 = load i64, ptr %52, align 8, !dbg !40311, !noundef !8 ;; entity.rs:1513@radius <- fight_check.rs:871@attack_summon_action
+28768	  br label %281, !dbg !40310 ;; entity.rs:1512@radius <- fight_check.rs:871@attack_summon_action
+28769	
+28770	275:                                              ; preds = %268
+28771	  %276 = sext i32 %271 to i64, !dbg !40308 ;; entity.rs:1511@radius <- fight_check.rs:871@attack_summon_action
+28772	    #dbg_value(i64 %276, !40020, !DIExpression(), !40309)
+28773	  %277 = load i64, ptr %52, align 8, !dbg !40312, !noundef !8 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28774	  %278 = add nsw i64 %276, 100, !dbg !40312 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28775	  %279 = mul i64 %277, %278, !dbg !40312 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28776	  %280 = udiv i64 %279, 100, !dbg !40312 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28777	  br label %281, !dbg !40310 ;; entity.rs:1512@radius <- fight_check.rs:871@attack_summon_action
+28778	
+28779	281:                                              ; preds = %275, %273
+28780	  %282 = phi i64 [ %274, %273 ], [ %280, %275 ], !dbg !40309 ;; entity.rs:0@radius <- fight_check.rs:871@attack_summon_action
+28781	  %283 = getelementptr inbounds nuw i8, ptr %72, i64 1136, !dbg !40308 ;; entity.rs:1511@radius <- fight_check.rs:871@attack_summon_action
+28782	  %284 = load i32, ptr %283, align 8, !dbg !40308, !noundef !8 ;; entity.rs:1511@radius <- fight_check.rs:871@attack_summon_action
+28783	    #dbg_value(i32 %284, !40022, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !40313)
+28784	  %285 = icmp eq i32 %284, 0, !dbg !40314 ;; entity.rs:1512@radius <- fight_check.rs:871@attack_summon_action
+28785	  br i1 %285, label %286, label %289, !dbg !40314 ;; entity.rs:1512@radius <- fight_check.rs:871@attack_summon_action
+28786	
+28787	286:                                              ; preds = %281
+28788	  %287 = getelementptr inbounds nuw i8, ptr %72, i64 1664, !dbg !40315 ;; entity.rs:1513@radius <- fight_check.rs:871@attack_summon_action
+28789	  %288 = load i64, ptr %287, align 8, !dbg !40315, !noundef !8 ;; entity.rs:1513@radius <- fight_check.rs:871@attack_summon_action
+28790	  br label %296, !dbg !40314 ;; entity.rs:1512@radius <- fight_check.rs:871@attack_summon_action
+28791	
+28792	289:                                              ; preds = %281
+28793	  %290 = sext i32 %284 to i64, !dbg !40308 ;; entity.rs:1511@radius <- fight_check.rs:871@attack_summon_action
+28794	    #dbg_value(i64 %290, !40022, !DIExpression(), !40313)
+28795	  %291 = getelementptr inbounds nuw i8, ptr %72, i64 1664, !dbg !40316 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28796	  %292 = load i64, ptr %291, align 8, !dbg !40316, !noundef !8 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28797	  %293 = add nsw i64 %290, 100, !dbg !40316 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28798	  %294 = mul i64 %292, %293, !dbg !40316 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28799	  %295 = udiv i64 %294, 100, !dbg !40316 ;; entity.rs:1515@radius <- fight_check.rs:871@attack_summon_action
+28800	  br label %296, !dbg !40314 ;; entity.rs:1512@radius <- fight_check.rs:871@attack_summon_action
+28801	
+28802	296:                                              ; preds = %289, %286
+28803	  %297 = phi i64 [ %288, %286 ], [ %295, %289 ], !dbg !40313 ;; entity.rs:0@radius <- fight_check.rs:871@attack_summon_action
+28804	    #dbg_value(i64 poison, !39951, !DIExpression(), !40317)
+28805	  %298 = add i64 %263, %53, !dbg !40307 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28806	  %299 = add i64 %298, %270, !dbg !40307 ;; effect.rs:26@range <- fight_check.rs:871@attack_summon_action
+28807	  %300 = add i64 %299, %266, !dbg !40038 ;; fight_check.rs:871@attack_summon_action
+28808	  %301 = add i64 %300, %267, !dbg !40038 ;; fight_check.rs:871@attack_summon_action
+28809	  %302 = add i64 %301, %282, !dbg !40038 ;; fight_check.rs:871@attack_summon_action
+28810	  %303 = add i64 %302, %297, !dbg !40318 ;; fight_check.rs:872@attack_summon_action
+28811	    #dbg_value(i64 %303, !39953, !DIExpression(), !40319)
+28812	  %304 = mul i64 %303, %303, !dbg !40041 ;; fight_check.rs:873@attack_summon_action
+28813	  %305 = icmp ugt i64 %107, %304, !dbg !40041 ;; fight_check.rs:873@attack_summon_action
+28814	  br i1 %305, label %255, label %306, !dbg !40041 ;; fight_check.rs:873@attack_summon_action
+28815	
+28816	306:                                              ; preds = %296
+28817	  call void @llvm.lifetime.start.p0(ptr nonnull %5), !dbg !40320 ;; fight_check.rs:874@attack_summon_action
+28818	  call void @llvm.lifetime.start.p0(ptr nonnull %4), !dbg !40320 ;; fight_check.rs:874@attack_summon_action
+28819	  %307 = getelementptr inbounds nuw i8, ptr %72, i64 1472, !dbg !40320 ;; fight_check.rs:874@attack_summon_action
+28820	  %308 = load i64, ptr %307, align 8, !dbg !40320, !noundef !8 ;; fight_check.rs:874@attack_summon_action
+28821	  invoke void @_RNvMs2_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_17SmallActionSkill23new(ptr noalias noundef nonnull sret([24 x i8]) align 8 captures(none) dereferenceable(24) %4, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %2, i64 noundef %308)
+28822	          to label %309 unwind label %64, !dbg !40320 ;; fight_check.rs:874@attack_summon_action
+28823	
+28824	309:                                              ; preds = %306
+28825	  call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(24) %5, ptr noundef nonnull align 8 dereferenceable(24) %4, i64 24, i1 false), !dbg !40320 ;; fight_check.rs:874@attack_summon_action
+28826	  store i8 17, ptr %62, align 1, !dbg !40320 ;; fight_check.rs:874@attack_summon_action
+28827	  call void @llvm.lifetime.end.p0(ptr nonnull %4), !dbg !40320 ;; fight_check.rs:874@attack_summon_action
+28828	    #dbg_value(ptr %10, !19360, !DIExpression(), !40321)
+28829	    #dbg_value(ptr %10, !19371, !DIExpression(), !40323)
+28830	    #dbg_declare(ptr %5, !19366, !DIExpression(), !40325)
+28831	    #dbg_declare(ptr %5, !19378, !DIExpression(), !40326)
+28832	    #dbg_value(i64 1, !19374, !DIExpression(), !40323)
+28833	    #dbg_value(i64 1, !19386, !DIExpression(), !40328)
+28834	    #dbg_value(i64 1, !19393, !DIExpression(), !40330)
+28835	    #dbg_value(i8 1, !19398, !DIExpression(), !40330)
+28836	  %310 = load i64, ptr %31, align 8, !dbg !40332, !alias.scope !40333, !noalias !40336, !noundef !8 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28837	    #dbg_value(ptr %10, !19407, !DIExpression(), !40338)
+28838	  %311 = load i64, ptr %30, align 8, !dbg !40340, !alias.scope !40333, !noalias !40336, !noundef !8 ;; raw_vec.rs:149@cap<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28839	  %312 = icmp eq i64 %310, %311, !dbg !40332 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28840	  br i1 %312, label %313, label %318, !dbg !40332 ;; vec.rs:1428@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28841	
+28842	313:                                              ; preds = %309
+28843	    #dbg_value(ptr %10, !19389, !DIExpression(), !40328)
+28844	    #dbg_value(ptr %10, !19396, !DIExpression(), !40330)
+28845	    #dbg_value(ptr %10, !19407, !DIExpression(), !40341)
+28846	    #dbg_value(i64 %310, !19390, !DIExpression(), !40328)
+28847	    #dbg_value(i64 %310, !19397, !DIExpression(), !40330)
+28848	  invoke void @_RNvMs2_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE25reserve_internal_or_panicB17_(ptr noalias noundef nonnull align 8 dereferenceable(32) %10, i64 noundef %310, i64 noundef 1, i1 noundef zeroext true)
+28849	          to label %314 unwind label %316, !dbg !40343, !noalias !40336 ;; raw_vec.rs:619@infallible_reserve_internal<enum2$<game_ai::small_action::SmallActionPlay> > <- raw_vec.rs:430@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:738@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1429@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28850	
+28851	314:                                              ; preds = %313
+28852	  %315 = load i64, ptr %31, align 8, !dbg !40344, !alias.scope !40333, !noalias !40336 ;; vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28853	  br label %318, !dbg !40343 ;; raw_vec.rs:619@infallible_reserve_internal<enum2$<game_ai::small_action::SmallActionPlay> > <- raw_vec.rs:430@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:738@reserve<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1429@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28854	
+28855	316:                                              ; preds = %313
+28856	  %317 = cleanuppad within none []
+28857	  call fastcc void @_RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEBF_(ptr noalias noundef nonnull readonly align 8 dereferenceable(184) %5) #32 [ "funclet"(token %317) ], !dbg !40345 ;; vec.rs:1436@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28858	  cleanupret from %317 unwind label %64
+28859	
+28860	318:                                              ; preds = %314, %309
+28861	  %319 = phi i64 [ %315, %314 ], [ %310, %309 ], !dbg !40346 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28862	    #dbg_value(ptr %10, !19435, !DIExpression(), !40347)
+28863	  %320 = load ptr, ptr %10, align 8, !dbg !40349, !alias.scope !40333, !noalias !40336, !nonnull !8, !noundef !8 ;; raw_vec.rs:138@ptr<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28864	    #dbg_value(ptr %320, !19444, !DIExpression(), !40350)
+28865	    #dbg_value(i64 %319, !19447, !DIExpression(), !40350)
+28866	  %321 = getelementptr inbounds nuw { [177 x i8], i8, [6 x i8] }, ptr %320, i64 %319, !dbg !40351 ;; mut_ptr.rs:961@add<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1432@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28867	    #dbg_value(ptr %321, !19367, !DIExpression(), !40352)
+28868	    #dbg_value(ptr %321, !19383, !DIExpression(), !40353)
+28869	  call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(184) %321, ptr noundef nonnull readonly align 8 dereferenceable(184) %5, i64 184, i1 false), !dbg !40354 ;; mod.rs:1933@write<enum2$<game_ai::small_action::SmallActionPlay> > <- vec.rs:1433@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28870	  %322 = add i64 %319, 1, !dbg !40346 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28871	  store i64 %322, ptr %31, align 8, !dbg !40346, !alias.scope !40333, !noalias !40336 ;; vec.rs:1434@push<enum2$<game_ai::small_action::SmallActionPlay> > <- fight_check.rs:874@attack_summon_action
+28872	  call void @llvm.lifetime.end.p0(ptr nonnull %5), !dbg !40320 ;; fight_check.rs:874@attack_summon_action
+28873	  br label %255, !dbg !40041 ;; fight_check.rs:873@attack_summon_action
+28874	}

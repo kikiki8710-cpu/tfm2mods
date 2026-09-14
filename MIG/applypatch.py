@@ -148,7 +148,7 @@ def _shift_prose(cont, which, pos):
     return n
 
 
-V2KEY = {"role": "note", "ty": "type"}
+V2KEY = {"role": "note", "ty": "type", "ret": "returns"}   # 09-14 22차: v3 `sig/ret` ↔ v2 `signature.returns`(배치 A·B 가 force 로 우회)
 
 # ★경고 — **실패가 아니다.** 별도 통에 넣는다. (10차 배치B·C 가 둘 다 지적)
 WARN = []

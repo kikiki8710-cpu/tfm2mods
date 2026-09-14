@@ -1,0 +1,18 @@
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=2	mine=2	ok=true	shot=496 cool=3 tid=3 ms=300 hp=1000000 edge_ticks=106 edge_dmg=17525 cells_raw=2
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=3	mine=3	ok=true	shot=1486 cool=3 tid=7 ms=300 hp=1000000 edge_ticks=106 edge_dmg=52505 cells_raw=3
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=4	mine=4	ok=true	shot=2476 cool=3 tid=11 ms=300 hp=1000000 edge_ticks=106 edge_dmg=87485 cells_raw=4
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=5	mine=5	ok=true	shot=3466 cool=3 tid=5 ms=300 hp=1000000 edge_ticks=106 edge_dmg=122465 cells_raw=5
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=6	mine=6	ok=true	shot=4456 cool=3 tid=9 ms=300 hp=1000000 edge_ticks=106 edge_dmg=157445 cells_raw=6
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=7	mine=7	ok=true	shot=5446 cool=3 tid=13 ms=300 hp=1000000 edge_ticks=106 edge_dmg=192425 cells_raw=7
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=13	mine=13	ok=true	shot=10397 cool=3 tid=16 ms=300 hp=1000000 edge_ticks=106 edge_dmg=367360 cells_raw=13
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=14	mine=14	ok=true	shot=11387 cool=3 tid=17 ms=300 hp=1000000 edge_ticks=106 edge_dmg=402340 cells_raw=14
+113	slots ids=[Some(3), Some(7), Some(11), Some(5), Some(9), Some(13)]	twin ids=[16, 17]
+113	tick=0	ver=2	hp=1000000	ms=300	nochamp=0	kill=0	tatk=500	game=2	mine=2	ok=true	notower
