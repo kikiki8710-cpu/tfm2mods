@@ -1,0 +1,187 @@
+■ 0xd399a0  Location 1개: utils.rs:557:7
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai5utils26nontarget_windup_perceived  (m04.ll)
+■ 0xd97700  Location 1개: tower_discipline.rs:308:21
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline20v3_deadly_edge_cells  (m07.ll)
+■ 0xeb8b80  Location 3개: fight_check.rs:837:93 · entity.rs:1483:7 · fight_check.rs:837:15
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check20attack_summon_action  (m15.ll)
+■ 0xd408e0  Location 4개: team_plan.rs:40:10 · passive_jungle.rs:842:15 · passive_jungle.rs:849:25
+   [확정]
+   본체 3/4  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle10is_cleared  (m04.ll)
+   본체 1/4  _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan8camp_idx  (m09.ll)
+■ 0xd98740  Location 1개: tower_discipline.rs:89:17
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline29can_tower_focused_when_attack  (m07.ll)
+■ 0xcaea70  Location 1개: battle.rs:216:22
+   [클로저/인스턴스만]
+   인스턴스 1  _RNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battleNtB4_13BattleSubPlan16base_positionings7_0Ba_  (m02.ll)
+■ 0xde5300  Location 1개: team_plan.rs:40:10
+   [확정]
+   본체 1/1  _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan8camp_idx  (m09.ll)
+■ 0xd405d0  Location 1개: defense_nexus.rs:281:15
+   [확정]
+   본체 1/1  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus30base_attacking_minion_uncached  (m04.ll)
+■ 0xd9f3c0  Location 3개: cast.rs:43:93 · cast.rs:56:59 · cast.rs:43:15
+   [확정]
+   본체 3/3  _RNvNtNtCshdEBA0ozCnw_7game_ai12small_action4cast15check_nontarget  (m07.ll)
+■ 0xd57420  Location 3개: utils.rs:49:14 · utils.rs:60:19 · utils.rs:61:19
+   [확정]
+   본체 9/3  _RNvMs_NtCshdEBA0ozCnw_7game_ai5utilsNtB4_18MinionHpTrajectory10hp_at_tick  (m05.ll,m11.ll,m14.ll)
+■ 0xc872f0  Location 1개: fight_check.rs:361:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjINtNtNtNtBa  (m00.ll)
+■ 0xe2fd50  Location 1개: battle.rs:494:29
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xe30080  Location 1개: battle.rs:1137:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xe31960  Location 1개: battle.rs:105:25
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xe32470  Location 1개: ganker.rs:124:25
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xe32600  Location 1개: ganker.rs:132:25
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xe32790  Location 1개: ganker.rs:232:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xe30210  Location 1개: around.rs:71:23
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xe32c60  Location 1개: move_actions.rs:105:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xe28060  Location 3개: lane_economy.rs:244:22 · lane_economy.rs:252:6 · lane_economy.rs:253:16
+   [확정]
+   본체 3/3  _RNvNtCshdEBA0ozCnw_7game_ai12lane_economy28line_recall_pressure_penalty  (m11.ll)
+■ 0xd47620  Location 1개: action_score.rs:689:131
+   [클로저/인스턴스만]
+   인스턴스 1  _RNCNvNtCshdEBA0ozCnw_7game_ai12action_score17interaction_scores2_0B5_  (m05.ll)
+■ 0xc9fed0  Location 1개: passive_jungle.rs:357:11
+   [클로저/인스턴스만]
+   인스턴스 1  _RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passi  (m04.ll)
+■ 0xd34750  Location 1개: abstract_input.rs:101:21
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well  (m04.ll)
+■ 0xca1fa0  Location 1개: action_score.rs:765:22
+   [클로저/인스턴스만]
+   인스턴스 1  _RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtCshdEBA0ozCnw_7game_ai12action_score17interaction_s  (m05.ll)
+■ 0xca21c0  Location 1개: action_score.rs:1029:22
+   [클로저/인스턴스만]
+   인스턴스 1  _RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtCshdEBA0ozCnw_7game_ai12action_score34calculate_int  (m05.ll)
+■ 0xca1020  Location 1개: battle.rs:568:25
+   [클로저/인스턴스만]
+   인스턴스 1  _RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6b  (m02.ll)
+■ 0xd34470  Location 1개: abstract_input.rs:1465:10
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29convert_to_move_action_target  (m04.ll)
+■ 0xd808b0  Location 1개: tower_discipline.rs:454:21
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvYINtNtNtCsjihNppCmMEE_4core5slice4iter4IterINtNtBa_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulat  (m07.ll)
+■ 0xe2f890  Location 1개: hide.rs:61:23
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterIBY_INtNtB8_10filter_map9F  (m12.ll)
+■ 0xe31af0  Location 1개: battle.rs:165:25
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xcadcd0  Location 1개: battle.rs:309:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvYINtNtNtCsjihNppCmMEE_4core5slice4iter4IterINtNtBa_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulat  (m02.ll)
+■ 0xcadec0  Location 1개: battle.rs:328:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvYINtNtNtCsjihNppCmMEE_4core5slice4iter4IterINtNtBa_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulat  (m02.ll)
+■ 0xebc140  Location 2개: fight_check.rs:795:93 · fight_check.rs:795:15
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check29attack_structure_skill_action  (m15.ll)
+■ 0xe30840  Location 1개: passive_jungle.rs:238:16
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9Filte  (m12.ll)
+■ 0xc7ee80  Location 2개: position_eval.rs:299:19 · position_eval.rs:305:7
+   [클로저/인스턴스만]
+   인스턴스 2  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz  (m00.ll)
+■ 0xe019d0  Location 2개: buff_value.rs:525:12 · buff_value.rs:526:13
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai10buff_value14v55_seal_value  (m10.ll)
+■ 0xc875a0  Location 1개: fight_check.rs:342:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjINtNtNtNtBa  (m00.ll)
+■ 0xc7ebc0  Location 3개: position_eval.rs:261:19 · position_eval.rs:271:12 · position_eval.rs:267:9
+   [클로저/인스턴스만]
+   인스턴스 3  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz  (m00.ll)
+■ 0xe269a0  Location 2개: lane_minion.rs:153:23 · entity.rs:1483:7
+   [확정]
+   본체 1/1  _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition36should_suppress_direct_minion_attack  (m11.ll)
+■ 0xd79da0  Location 1개: around.rs:1180:65
+   [클로저/인스턴스만]
+   인스턴스 1  _RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNt  (m08.ll)
+■ 0xd7a080  Location 1개: around.rs:1155:65
+   [클로저/인스턴스만]
+   인스턴스 1  _RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNt  (m08.ll)
+■ 0xc7f370  Location 2개: position_eval.rs:189:19 · simulation.rs:1848:5
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz  (m00.ll)
+■ 0xe02020  Location 3개: buff_value.rs:601:66 · simulation.rs:1905:5 · buff_value.rs:616:14
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai10buff_value18v55_banish_penalty  (m10.ll)
+■ 0xd9ddc0  Location 8개: cast.rs:326:41 · cast.rs:439:58 · cast.rs:305:93
+   [확정]
+   본체 4/4  _RNvNtNtCshdEBA0ozCnw_7game_ai12small_action4cast14is_safe_recall  (m07.ll)
+■ 0xc89a90  Location 2개: battle.rs:1003:19 · simulation.rs:1905:5
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjjjAThxxxxyE  (m00.ll)
+■ 0xcaff00  Location 2개: trace.rs:118:17 · entity.rs:1483:7
+   [확정]
+   본체 1/1  _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action5traceNtB2_16SmallActionTrace22expected_goal_position  (m02.ll)
+■ 0xc9e160  Location 4개: blackboard.rs:138:5 · passive_jungle.rs:369:25 · passive_jungle.rs:370:21
+   [클로저/인스턴스만]
+   인스턴스 2  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6  (m01.ll)
+   인스턴스 1  _RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passi  (m04.ll)
+■ 0xebcbd0  Location 1개: fight_check.rs:593:3
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check31should_add_self_etc_buff_action  (m15.ll)
+■ 0xe01450  Location 3개: buff_value.rs:735:20 · simulation.rs:1905:5 · buff_value.rs:746:14
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai10buff_value14v55_mark_value  (m10.ll)
+■ 0xc993e0  Location 3개: battle.rs:428:25 · battle.rs:429:15 · battle.rs:430:29
+   [클로저/인스턴스만]
+   인스턴스 2  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6  (m01.ll)
+   인스턴스 1  _RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6b  (m02.ll)
+■ 0xd25120  Location 6개: passive_jungle.rs:483:16 · passive_jungle.rs:482:19 · simulation.rs:1826:27
+   [클로저/인스턴스만]
+   인스턴스 3  _RINvXs_NtNtCsjihNppCmMEE_4core3ops11index_rangeNtB5_10IndexRangeNtNtNtNtB9_4iter6traits8iterator8Iterator8try  (m04.ll)
+■ 0xe02540  Location 3개: buff_value.rs:62:16 · simulation.rs:1905:5 · buff_value.rs:70:3
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai10buff_value23noncombat_steroid_value  (m10.ll)
+■ 0xe202b0  Location 2개: line_defense.rs:804:19 · simulation.rs:1905:5
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJ  (m11.ll)
+   인스턴스 1  _RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainINtNtB7_7flatten7FlattenINtNtNtBb_5array4iter  (m06.ll)
+■ 0xd390a0  Location 2개: utils.rs:885:19 · utils.rs:977:5
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai5utils26champion_hp_value_uncached  (m04.ll)
+■ 0xca6ec0  Location 6개: goal_data.rs:583:63 · goal_data.rs:584:60 · utils.rs:80:14
+   [클로저/인스턴스만]
+   인스턴스 4  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecTyjEE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4ite  (m01.ll)
+■ 0xc96830  Location 5개: simulation.rs:1905:5 · entity.rs:1483:7 · epic_poke.rs:172:34
+   [클로저/인스턴스만]
+   인스턴스 3  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActi  (m01.ll)
+■ 0xc8fac0  Location 5개: simulation.rs:1905:5 · entity.rs:1483:7 · serpen_poke.rs:173:34
+   [클로저/인스턴스만]
+   인스턴스 3  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActi  (m01.ll)
+■ 0xdffa10  Location 7개: buff_value.rs:224:96 · simulation.rs:1905:5 · buff_value.rs:98:14
+   [확정]
+   본체 4/4  _RNvNtCshdEBA0ozCnw_7game_ai10buff_value14buff_value_v54  (m10.ll)
+■ 0xc8dc90  Location 8개: simulation.rs:1905:5 · entity.rs:1483:7 · serpen_hunt.rs:396:34
+   [클로저/인스턴스만]
+   인스턴스 4  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActi  (m01.ll)
+■ 0xc94a00  Location 8개: simulation.rs:1905:5 · entity.rs:1483:7 · epic_hunt.rs:397:34
+   [클로저/인스턴스만]
+   인스턴스 4  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActi  (m01.ll)
+■ 0xc91770  Location 11개: simulation.rs:1905:5 · entity.rs:1483:7 · line_defense.rs:682:38
+   [클로저/인스턴스만]
+   인스턴스 4  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActi  (m01.ll)

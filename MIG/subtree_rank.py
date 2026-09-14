@@ -8,8 +8,9 @@ CRT)는 따로 표기한다. 도달 가능성(사장 서브트리) 봉인은 IR 
 
 입력: `cg_exe.json`(exe 콜그래프) · `REPORT\\tfm2_ai_adjust\\AI함수지도.html`(이름·모듈·크기) · `_spec\\specs20_v3.json`(명세 유무) ·
       `REPORT\\tfm2_judge_verify\\00_상태원장.md`(ev1)
-사용: python -X utf8 MIG\\subtree_rank.py [루트RVA=0xe4c5c0] [--depth 5]
-출력: `_next\\subtree_<rva>.md`(표) + `_next\\subtree_<rva>.json`(기계용)
+사용: python -X utf8 MIG\\subtree_rank.py [루트RVA=0xe4c5c0[,RVA2,…]] [--depth 5] [--minus 0xe4c5c0] [--tag action]
+      (09-14: 루트 여러 개 = 합집합 · `--minus` = 그 루트의 서브트리를 뺀다(이미 닫은 계층) · `--tag` = 출력 파일명)
+출력: `_next\\subtree_<rva|tag>.md`(표) + `.json`(기계용)
 """
 import io, json, os, re, sys, time
 
@@ -17,27 +18,42 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 HERE = os.path.dirname(os.path.abspath(__file__))
 MAP = r"C:\Users\jungs\Desktop\claude\tfm2\mods_report\tfm2_ai_adjust\AI함수지도.html"
 LEDGER = r"C:\Users\jungs\Desktop\claude\tfm2\mods_report\tfm2_judge_verify\00_상태원장.md"
+
+
+def _newest(base):
+    u"""base 정본과 worktree 사본 중 **더 새로운** 것(09-14: 워크트리에서 자라는 동안 base 가 stale)."""
+    import glob
+    cands = [base] + glob.glob(base.replace(u"\\mods_report\\", u"\\.claude\\worktrees\\*\\mods_report\\"))
+    cands = [c for c in cands if os.path.exists(c)]
+    return max(cands, key=os.path.getmtime) if cands else base
 EXCL_MOD = {"death_battle": u"데스매치 전용(MOBA 미사용 · #17 과 같은 판정)", "deathmatch": u"데스매치 전용"}
 CORE_HINT = (0x1200000, 0x1900000)   # game_core/engine 대역(대략) — 경계 함수는 명세 대상 아님(계약만)
 
 
 def main():
-    a = [x for x in sys.argv[1:] if not x.startswith("--")]
-    root = int(a[0], 16) if a else 0xe4c5c0
+    av = sys.argv[1:]
+    skipv = set()
+    for f in ("--depth", "--minus", "--tag"):
+        if f in av: skipv.add(av.index(f) + 1)
+    a = [x for i, x in enumerate(av) if not x.startswith("--") and i not in skipv]
+    roots = [int(x, 16) for x in u",".join(a).split(u",") if x] if a else [0xe4c5c0]
+    root = roots[0]
     maxd = int(sys.argv[sys.argv.index("--depth") + 1]) if "--depth" in sys.argv else 5
+    minus = int(sys.argv[sys.argv.index("--minus") + 1], 16) if "--minus" in sys.argv else None
+    tagname = sys.argv[sys.argv.index("--tag") + 1] if "--tag" in sys.argv else None
     cg = {int(k): set(v) for k, v in json.load(io.open(os.path.join(HERE, "cg_exe.json"), encoding="utf-8")).items()}
     rev = {}
     for x, cs in cg.items():
         for c in cs:
             rev.setdefault(c, set()).add(x)
-    h = io.open(MAP, encoding="utf-8").read()
+    h = io.open(_newest(MAP), encoding="utf-8").read()
     data = json.loads(re.search(r'<script id="fndata" type="application/json">(.*?)</script>', h, re.S).group(1))
     by = {int(e["a"], 16): e for e in data if not e["a"].startswith("spec-")}
     v3 = json.load(io.open(os.path.join(HERE, "_spec", "specs20_v3.json"), encoding="utf-8"))["specs"]
     spec_addr = {int(s["exe"]["addr"], 16): s["i"] for s in v3 if s.get("exe") and s["exe"].get("addr")}
     ev1 = {}
-    for l in io.open(LEDGER, encoding="utf-8"):
-        m = re.match(r"^\|\s*(\d{2})\s*\|", l)
+    for l in io.open(_newest(LEDGER), encoding="utf-8"):
+        m = re.match(r"^\|\s*(\d{2,3})\s*\|", l)
         if m:
             c = [x.strip() for x in l.strip().strip("|").split("|")]
             ev1[int(m.group(1))] = re.sub(r"[*`]", "", c[5]) if len(c) > 5 else ""
@@ -52,18 +68,27 @@ def main():
         pdata = {f.struct.BeginAddress: f.struct.EndAddress - f.struct.BeginAddress for f in pe.DIRECTORY_ENTRY_EXCEPTION}
     except Exception:
         pdata = {}
-    # BFS
-    depth = {root: 0}; order = [root]; i = 0
-    while i < len(order):
-        n = order[i]; i += 1
-        if depth[n] >= maxd:
-            continue
-        for c in sorted(cg.get(n, ())):
-            if c not in depth and c in by:
-                depth[c] = depth[n] + 1; order.append(c)
+    # BFS (다중 루트 합집합 · 루트끼리는 깊이 0)
+    def bfs(rs, md):
+        dp = {r: 0 for r in rs}; od = list(rs); k = 0
+        while k < len(od):
+            n = od[k]; k += 1
+            if dp[n] >= md:
+                continue
+            for c in sorted(cg.get(n, ())):
+                if c not in dp and c in by:
+                    dp[c] = dp[n] + 1; od.append(c)
+        return dp, od
+    depth, order = bfs(roots, maxd)
+    if minus is not None:
+        mdp, _ = bfs([minus], 99)
+        cut = set(mdp) - set(roots)
+        order = [n for n in order if n not in cut]
+        print(u"--minus 0x%x: %d 노드 제외(이미 닫은 서브트리)" % (minus, len(cut)))
+    nroot = len(roots)
     core_edges = sorted({c for n in order for c in cg.get(n, ()) if c not in by and CORE_HINT[0] <= c < CORE_HINT[1]})
     rows = []
-    for c in order[1:]:
+    for c in order[nroot:]:
         e = by[c]; b = e.get("b") or 0
         if b <= 0:
             b = pdata.get(c, 0)
@@ -84,10 +109,11 @@ def main():
         k = {u"잎": 0, u"중간": 1, u"거대": 2}[r["kind"]]
         return (k, -r["score"] if k < 2 else r["bytes"])
     rows.sort(key=key)
-    tag = "%x" % root
+    tag = tagname or ("%x" % root)
     jp = os.path.join(HERE, "_next", "subtree_%s.json" % tag)
     io.open(jp, "w", encoding="utf-8", newline="\n").write(json.dumps(dict(root=tag, generated=time.strftime("%Y-%m-%d"), rows=rows), ensure_ascii=False, indent=1))
-    L = [u"# `%s::%s`(0x%s) 호출 서브트리 선별표 — 작업 순서 = 아래에서 위로 (생성 %s · 게임 0.5.8)" % (by[root]["m"], by[root]["n"], tag, time.strftime("%Y-%m-%d")),
+    rootdesc = u" + ".join(u"`%s::%s`(0x%x)" % (by[r]["m"], by[r]["n"], r) for r in roots) if len(roots) > 1 else u"`%s::%s`(0x%s)" % (by[root]["m"], by[root]["n"], tag)
+    L = [u"# %s 호출 서브트리 선별표 — 작업 순서 = 아래에서 위로 (생성 %s · 게임 0.5.8%s)" % (rootdesc, time.strftime("%Y-%m-%d"), (u" · `--minus 0x%x` 서브트리 제외" % minus) if minus is not None else u""),
          u"", u"> 생성물(`MIG\\subtree_rank.py 0x%s`) · 손편집 금지. 점수 = 호출자수/크기×1000(재사용↑·크기↓ 우선). 종류: 잎=지도 내 콜리 0 · 중간=<8KB · 거대=≥8KB. "
               u"**⬜도달 가능성(사장 서브트리) 봉인은 미실시** — 착수 시 `irann.py`(교훈 68)로 NA 를 먼저 찍고 이 표에서 뺄 것. 이름 `?` = 지도 미명명(dllmatch/percolate 로 이름부터)." % tag,
          u"> 합계: 서브트리 %d · 잎 %d · 중간 %d · 거대 %d · 이미 명세/ev1 %d · 제외(데스매치) %d · game_core 경계 함수 %d(명세 대상 아님 · 계약만)" % (
