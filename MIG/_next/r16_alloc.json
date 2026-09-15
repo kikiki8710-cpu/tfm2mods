@@ -1,0 +1,98 @@
+{
+ "cbbdb0.partA": [
+  "A",
+  "battle__Battle__action_candidates.partA"
+ ],
+ "cbbdb0.partB": [
+  "B",
+  "battle__Battle__action_candidates.partB"
+ ],
+ "cbbdb0.partC": [
+  "C",
+  "battle__Battle__action_candidates.partC"
+ ],
+ "e83390.partD": [
+  "D",
+  "line_defense__LineDefense__action_candidates.partD"
+ ],
+ "e83390.partE": [
+  "E",
+  "line_defense__LineDefense__action_candidates.partE"
+ ],
+ "e83390.partF": [
+  "F",
+  "line_defense__LineDefense__action_candidates.partF"
+ ],
+ "cb1ce0.partG": [
+  "G",
+  "serpen_hunt__SerpenHunt__action_candidates.partG"
+ ],
+ "cb1ce0.partH": [
+  "H",
+  "serpen_hunt__SerpenHunt__action_candidates.partH"
+ ],
+ "cb1ce0.partI": [
+  "I",
+  "serpen_hunt__SerpenHunt__action_candidates.partI"
+ ],
+ "eaeda0.partJ": [
+  "J",
+  "epic_hunt__EpicHunt__action_candidates.partJ"
+ ],
+ "eaeda0.partK": [
+  "K",
+  "epic_hunt__EpicHunt__action_candidates.partK"
+ ],
+ "cb7540.partL": [
+  "L",
+  "hide__Hide__action_candidates.partL"
+ ],
+ "cb7540.partM": [
+  "M",
+  "hide__Hide__action_candidates.partM"
+ ],
+ "e928f0": [
+  "N",
+  "defense_nexus__DefenseNexus__action_candidates"
+ ],
+ "d35d10": [
+  "N",
+  "abstract_input__attack"
+ ],
+ "cc6170": [
+  "O",
+  "epic_poke__EpicPoke__action_candidates"
+ ],
+ "e7caf0": [
+  "P",
+  "serpen_poke__SerpenPoke__action_candidates"
+ ],
+ "db9430": [
+  "Q",
+  "line_gank__ganker__LineGankerPlan__next_plan"
+ ],
+ "d2f180": [
+  "R",
+  "passive_jungle__PassiveJunglePlan__next_plan"
+ ],
+ "e81680": [
+  "S",
+  "attack_nexus__AttackNexus__action_candidates"
+ ],
+ "cb03b0": [
+  "S",
+  "epic_check__EpicCheck__action_candidates"
+ ],
+ "e8b5e0": [
+  "T",
+  "serpen_check__SerpenCheck__action_candidates"
+ ],
+ "cc4260": [
+  "T",
+  "jungle__Jungle__action_candidates"
+ ],
+ "eb43a0": [
+  "T",
+  "line_wait__LineWait__action_candidates"
+ ]
+}

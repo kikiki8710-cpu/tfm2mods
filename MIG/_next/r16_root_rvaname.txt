@@ -1,0 +1,51 @@
+■ 0xcbbdb0  Location 17개: battle.rs:383:52 · battle.rs:374:66 · battle.rs:372:57
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battleNtB2_13BattleSubPlan17action_candidates  (m02.ll)
+   본체 1/4  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line  (m02.ll)
+■ 0xe928f0  Location 11개: defense_nexus.rs:261:59 · defense_nexus.rs:156:50 · defense_nexus.rs:263:68
+   [확정]
+   본체 4/4  _RNvMs_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13defense_nexusNtB4_19DefenseNexusSubPlan17action_candidates  (m14.ll)
+■ 0xe81680  Location 9개: attack_nexus.rs:129:68 · attack_nexus.rs:131:62 · attack_nexus.rs:127:59
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12attack_nexusNtB2_18AttackNexusSubPlan17action_candidates  (m14.ll)
+■ 0xcb03b0  Location 5개: epic_check.rs:27:68 · epic_check.rs:29:62 · epic_check.rs:25:59
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan10epic_checkNtB2_16EpicCheckSubPlan17action_candidates  (m02.ll)
+■ 0xe8b5e0  Location 5개: serpen_check.rs:39:68 · serpen_check.rs:41:62 · serpen_check.rs:37:59
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12serpen_checkNtB2_18SerpenCheckSubPlan17action_candidates  (m14.ll)
+■ 0xcc4260  Location 10개: jungle.rs:116:59 · jungle.rs:118:68 · jungle.rs:120:62
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6jungleNtB2_13JungleSubPlan17action_candidates  (m02.ll)
+■ 0xcb7540  Location 9개: hide.rs:22:95 · hide.rs:144:95 · hide.rs:58:67
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan4hideNtB2_11HideSubPlan17action_candidates  (m02.ll)
+■ 0xeb43a0  Location 12개: line_wait.rs:66:34 · line_wait.rs:27:8 · line_wait.rs:29:52
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9line_waitNtB2_15LineWaitSubPlan17action_candidates  (m15.ll)
+■ 0xe83390  Location 20개: line_defense.rs:211:57 · line_defense.rs:340:40 · line_defense.rs:837:128
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12line_defenseNtB2_18LineDefenseSubPlan17action_candidates  (m14.ll)
+■ 0xcb1ce0  Location 18개: serpen_hunt.rs:524:57 · serpen_hunt.rs:205:73 · serpen_hunt.rs:203:97
+   [확정]
+   본체 3/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_huntNtB2_17SerpenHuntSubPlan17action_candidates  (m02.ll)
+   본체 1/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_huntNtB2_17SerpenHuntSubPlan20attack_jungle_action  (m02.ll)
+■ 0xeaeda0  Location 18개: epic_hunt.rs:157:50 · epic_hunt.rs:204:71 · epic_hunt.rs:202:97
+   [후보 2(적중 2)]
+   본체 2/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan20attack_jungle_action  (m15.ll)
+   본체 2/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan17action_candidates  (m15.ll)
+■ 0xcc6170  Location 12개: epic_poke.rs:286:57 · epic_poke.rs:288:66 · epic_poke.rs:290:60
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan17action_candidates  (m02.ll)
+■ 0xe7caf0  Location 12개: serpen_poke.rs:289:66 · serpen_poke.rs:291:60 · serpen_poke.rs:287:57
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan17action_candidates  (m14.ll)
+■ 0xd35d10  Location 3개: abstract_input.rs:149:15 · abstract_input.rs:179:33 · entity.rs:1483:7
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input6attack  (m04.ll)
+■ 0xdb9430  Location 12개: ganker.rs:363:52 · ganker.rs:190:68 · ganker.rs:106:97
+   [확정]
+   본체 4/4  _RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan9next_plan  (m08.ll)
+■ 0xd2f180  Location 21개: passive_jungle.rs:232:97 · passive_jungle.rs:508:99 · passive_jungle.rs:560:99
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungleNtB2_17PassiveJunglePlan9next_plan  (m04.ll)
