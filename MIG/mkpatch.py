@@ -80,19 +80,40 @@ def locate(path):
     if not pp:
         raise ValueError(u"경로 형식 오류: %s" % path)
     i, outer, field, idx, key = pp
-    sp = spec()["specs"][i]
+    r = _locate_in(spec()["specs"][i], outer, field, idx, key, v2=False)
+    if r is None:
+        # ★09-15(22차·23차 적발 · `sig/abi`·스칼라 `sig/ret` force 우회 6건): v3 에 없는 키(재생성 전 `abi` ·
+        #   v2 이름 `returns`)는 **v2 정본으로 폴백**해 old 를 검증한다. 조회=v3 우선, 없을 때만 v2.
+        try:
+            r = _locate_in(spec2()["specs"][i], outer, field, idx, key, v2=True)
+        except Exception:
+            r = None
+    return r
+
+
+_V2KEY = {"sig": "signature", "role": "note", "ty": "type", "ret": "returns"}
+_SPEC2 = [None]
+V2 = os.path.join(HERE, "_spec", "specs20.json")
+
+
+def spec2():
+    if _SPEC2[0] is None:
+        _SPEC2[0] = json.load(io.open(V2, encoding="utf-8"))
+    return _SPEC2[0]
+
+
+def _locate_in(sp, outer, field, idx, key, v2):
+    k = (lambda x: _V2KEY.get(x, x)) if v2 else (lambda x: x)
     if outer:
-        # ⚠**여기서는 v2 매핑(`sig`→`signature`)을 하지 마라.** 이 도구는 `V3` 를 읽으니
-        #   경로의 이름이 곧 키다. v2 로의 변환은 `applypatch` 가 적용할 때 한다
-        #   — 두 도구가 **읽는 정본이 다르다**(조회=v3 / 적용=v2).
-        sp = sp.get(outer) or {}
+        # ⚠v3 조회에서는 v2 매핑(`sig`→`signature`)을 하지 않는다 — 경로의 이름이 곧 키다(조회=v3 / 적용=v2).
+        sp = sp.get(k(outer)) or {}
     if idx is None:
-        return sp.get(field)
-    arr = sp.get(field)
+        return sp.get(k(field))
+    arr = sp.get(k(field))
     if not isinstance(arr, list) or int(idx) >= len(arr):
         return None
     row = arr[int(idx)]
-    return row.get(key) if key else row
+    return (row.get(k(key)) if isinstance(row, dict) else None) if key else row
 
 
 class Patch(object):

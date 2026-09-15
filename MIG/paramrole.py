@@ -168,7 +168,10 @@ def defhead(sp):
 def is_sret_arg(a0):
     if not a0:
         return False
-    return ("sret(" in a0) or ("dead_on_unwind" in a0 and "writable" in a0 and "writeonly" in a0)
+    # ★09-15(23차 E 적발 · 167 p[0] G16 P4 오탐): `invoke` 경로가 있는 internal 함수는 sret out-ptr 에 `writeonly` 가
+    #   안 붙는다(`dead_on_unwind noalias nonnull writable captures(none) dereferenceable(N)`). `writeonly` 를 필수에서 뺀다
+    #   — dead_on_unwind+writable 조합은 rustc 가 sret 계열 out-ptr 에만 쓴다.
+    return ("sret(" in a0) or ("dead_on_unwind" in a0 and "writable" in a0)
 
 
 def tcx_arity(sp):
@@ -218,7 +221,39 @@ def ir_slots(arg):
         return 2
     if a.startswith("&") and ("dyn " in core[:6] or core.startswith("[")):
         return 2
+    # ★09-15(23차 B 적발 · 136 G16 오탐): **값으로 넘기는 2-스칼라 튜플 ≤16B** `(i32, i32)`·`(usize, u8)` 은 ScalarPair
+    #   → IR 인자 2슬롯. 참조(`&(..)`)는 포인터 1슬롯이라 제외(core 가 아니라 a 로 판정).
+    if a.startswith("(") and a.endswith(")"):
+        parts, depth, cur = [], 0, u""
+        for ch in a[1:-1]:
+            if ch in "(<[":
+                depth += 1
+            elif ch in ")>]":
+                depth -= 1
+            if ch == "," and depth == 0:
+                parts.append(cur.strip()); cur = u""
+            else:
+                cur += ch
+        if cur.strip():
+            parts.append(cur.strip())
+        if len(parts) == 2 and all(_scalar_sz(x) is not None for x in parts) and sum(_scalar_sz(x) for x in parts) <= 16:
+            return 2
     return 1
+
+
+_SCALARS = {"bool": 1, "char": 4, "i8": 1, "u8": 1, "i16": 2, "u16": 2, "i32": 4, "u32": 4, "f32": 4,
+            "i64": 8, "u64": 8, "f64": 8, "isize": 8, "usize": 8}
+
+
+def _scalar_sz(t):
+    u"""스칼라 1슬롯이면 바이트 크기, 아니면 None(팻포인터·집합체)."""
+    t = t.strip()
+    if t in _SCALARS:
+        return _SCALARS[t]
+    if t.startswith("&") or t.startswith("*const ") or t.startswith("*mut "):
+        core = re.sub(r"^&(?:'\w+\s+)?(?:mut\s+)?|^\*(?:const|mut)\s+", "", t)
+        return None if (core.startswith("dyn ") or core.startswith("[") or core == "str") else 8
+    return None
 
 
 # ── F3. 백틱 짝짓기 — 길이 무관하게 짝을 짓고, 길이 필터는 **뒤에** ────
@@ -514,6 +549,10 @@ def check_spec(sp, weak=False):
             if cls and all(NEGATED(c, at) for c in cls):
                 continue
             txt = u" ".join(args[int(r[1:])] for r in rl) if rl else u""
+            # ★09-15(23차 E · 167 p[0]): `sret` 주장은 문자 그대로 `sret(` 만이 아니라 `dead_on_unwind writable` 형태의
+            #   out-ptr(invoke 경로 internal 함수)도 만족한다 — is_sret_arg 와 같은 판정으로.
+            if at == "sret" and rl and is_sret_arg(txt):
+                continue
             if rl and at not in txt:
                 out.append((j, u"P4 role 이 주장한 IR 속성이 `define` 에 없다",
                             u"p[%d] %s `%s` — IR %s = %s"

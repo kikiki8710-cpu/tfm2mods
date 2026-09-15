@@ -565,6 +565,9 @@ def conv(i, sp):
                     "role": p.get("note"), "ev": evtier(p.get("note"))}
                    for p in (sp.get("signature", {}) or {}).get("params", [])],
         "ret": (sp.get("signature", {}) or {}).get("returns"),
+        # ★09-15(22차·23차 B·E·F 적발): v2 `signature.abi`(exe 인자 대응표 · EXE_ABI 판정 근거)가 v3 에 없어
+        #   mkpatch.locate 가 `sig/abi` 의 old 를 검증 못 하고 force 로만 통과했다 → 그대로 노출.
+        "abi": (sp.get("signature", {}) or {}).get("abi"),
     }
 
     o["logic"] = sp.get("logic")

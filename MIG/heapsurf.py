@@ -76,11 +76,26 @@ def analyze(sym, self_param, base_off, depth, seen, path, out):
             re.match(r"\s*(%\d+) = getelementptr inbounds(?: nuw)? i8, ptr (%\d+), i64 (\d+)", l0)
         if m and m.group(2) in origin:
             origin[m.group(1)] = origin[m.group(2)] + int(m.group(3))
+    # ★09-15(23차 B 적발 · 141 get_input `(없음)` 인데 실제 24쌍): `Option<PathFinder>` 의 `Box<[..]>` drop 은
+    #   drop_in_place 호출이 아니라 **인라인 `__rust_dealloc(ptr %X, i64 SIZE, i64 ALIGN)`** 이다. %X 는 self 파생
+    #   포인터에서 `load ptr` 한 값 → load 원천을 추적해 (dealloc SIZE/ALIGN, self+off) 로 기록한다(BOX_SUBST 후보).
+    loaded = {}
+    for l in body:
+        l0 = l.split(", !dbg")[0]
+        m = re.match(r"\s*(%\d+) = load ptr, ptr (%\d+)", l0)
+        if m and m.group(2) in origin:
+            loaded[m.group(1)] = origin[m.group(2)]
     for l in body:
         l0 = l.split(", !dbg")[0]
         m = re.search(r"(grow_one|drop_glue|drop_in_place)\w*\(ptr[^%]*(%\d+)", l0)
         if m and m.group(2) in origin:
             out.append((m.group(1), origin[m.group(2)], path + [sym[-40:]]))
+        m = re.search(r"__rust_dealloc\(ptr[^%]*(%\d+), i64(?: noundef)? (\d+), i64(?: noundef)? (\d+)", l0)
+        if m and m.group(1) in loaded:
+            out.append(("dealloc(%s/%s)" % (m.group(2), m.group(3)), loaded[m.group(1)], path + [sym[-40:]]))
+        m = re.search(r"\s*(%\d+) = (?:tail )?call[^@]*@__rust_alloc\(i64(?: noundef)? (\d+), i64(?: noundef)? (\d+)", l0)
+        if m:
+            loaded.setdefault("__alloc_" + m.group(1), (m.group(2), m.group(3)))
         m = re.search(r"(?:call|invoke)[^@]*@(_RN\w+)\((.*)$", l0)
         if not m: continue
         callee = m.group(1)

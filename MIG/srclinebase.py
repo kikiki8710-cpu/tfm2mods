@@ -117,7 +117,19 @@ def _term_dbg(src, a, b, label):
         s = src[k].strip()
         if s.startswith(("br ", "switch ", "ret ", "unreachable", "indirectbr ")):
             m = DBG.search(src[k])
-            return m.group(1) if m else None
+            if m:
+                return m.group(1)
+            # ★09-15(23차 E·F 적발 · 169/170 consts[2] · 174/175 case 라벨 3건 오탐): 여러 줄 `switch` 는
+            #   `!dbg` 가 **닫는 `]` 줄**에 붙는다. 헤더에 없으면 `]` 줄까지 내려가 본다. `invoke` 도 2줄(`to label`).
+            if s.startswith("switch ") or " invoke " in (" " + s):
+                for j in range(k + 1, min(k + 400, b, len(src))):
+                    t = src[j].strip()
+                    m2 = DBG.search(src[j])
+                    if t.startswith("]") or t.startswith("to label"):
+                        return m2.group(1) if m2 else None
+                    if t.endswith(":") or not t:
+                        break
+            return None
     return None
 
 

@@ -1,0 +1,31 @@
+■ 0xd851d0  Location 13개: position_eval.rs:374:21 · position_eval.rs:430:65 · position_eval.rs:412:59
+   [확정]
+   본체 4/4  _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached  (m07.ll)
+■ 0xd5bbf0  Location 12개: action_score.rs:1517:17 · action_score.rs:982:93 · action_score.rs:1121:39
+   [확정]
+   본체 4/4  _RNvNtCshdEBA0ozCnw_7game_ai12action_score34calculate_interaction_action_score  (m05.ll)
+■ 0xdc3240  Location 12개: move_actions.rs:430:34 · small_action.rs:75:28 · path_finder.rs:1168:15
+   [확정]
+   본체 2/4  _RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB4_18SmallActionRunAway9get_input  (m08.ll)
+   본체 1/4  _RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext7verdict  (m03.ll)
+   본체 1/4  _RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext16lethal_zone_goal  (m03.ll)
+   인스턴스 1  _RNCNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB6_18SmallActionRunAway9get_inputsi_0Ba_  (m03.ll)
+   인스턴스 1  _RNCNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB6_18SmallActionRunAway9get_inputsf_0Ba_  (m03.ll)
+■ 0xd57540  Location 19개: action_score.rs:617:93 · action_score.rs:886:131 · action_score.rs:932:125
+   [확정]
+   본체 4/4  _RNvNtCshdEBA0ozCnw_7game_ai12action_score17interaction_score  (m05.ll)
+■ 0xdbd260  Location 11개: move_actions.rs:901:36 · move_actions.rs:688:95 · move_actions.rs:769:39
+   [확정]
+   본체 4/4  _RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB5_17SmallActionRecall9get_input  (m08.ll)
+   본체 1/4  _RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB4_18SmallActionRunAway9get_input  (m08.ll)
+   인스턴스 1  _RINvNtCshdEBA0ozCnw_7game_ai10path_field17solve_with_policyNCINvMNtB4_11path_finderNtB11_10PathFinder20calcul  (m08.ll)
+   인스턴스 1  _RINvNtCshdEBA0ozCnw_7game_ai10path_field17solve_with_policyNCINvMNtB4_11path_finderNtB11_10PathFinder20calcul  (m08.ll)
+■ 0xd31f20  Location 4개: abstract_input.rs:346:15 · entity.rs:1483:7 · abstract_input.rs:491:24
+   [확정]
+   본체 3/3  _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target  (m04.ll)
+■ 0xd59940  Location 17개: action_score.rs:10:93 · action_score.rs:281:50 · action_score.rs:242:50
+   [확정]
+   본체 4/4  _RNvNtCshdEBA0ozCnw_7game_ai12action_score22calculate_action_score  (m05.ll)
+■ 0xd84db0  Location 2개: position_eval.rs:317:19 · position_eval.rs:319:7
+   [클로저/인스턴스만]
+   인스턴스 2  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz  (m00.ll)

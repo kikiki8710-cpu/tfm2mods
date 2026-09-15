@@ -531,9 +531,9 @@ def build(rnd, tag, lo, hi, gate_txt, split=True):
           % (i, sp["name"], (sp.get("sig") or {}).get("vis") or u"?",
              len(sp["mem"]), len(sp["consts"]), len(sp["knobs"]), len(sp.get("open") or []), n4))
     a(u"")
-    a(u"★**`vis` 가 `pub` 이 아니면 오라클 직접 진입이 막힌다.** 5차에 `18`(`in:game_ai`)이")
-    a(u"그걸 모르고 들어갔다가 47행을 그대로 남겼다 — `pub` 이 아니면 처음부터 **상위 `pub` 래퍼나**")
-    a(u"**형제 복제본**을 노려라.")
+    a(u"★**`vis` 가 `pub` 이 아니어도 오라클 직접 진입은 된다**(22차 C·D 실증 · METHOD_MAP ⑥): `define hidden` 심볼은")
+    a(u"`extern \"Rust\" { #[link_name=\"<망글 심볼>\"] fn f(..); }` 로 부른다(조건 = game_ai `pub` 항목 1개 이상 참조 · LNK2019).")
+    a(u"막히는 것은 **`internal fastcc`** 뿐(심볼 없음) — 그때만 상위 `pub` 래퍼·형제 복제본을 노려라. ~~5차 「pub 아니면 막힘」~~ 은 stale.")
     a(u"")
     a(u"★**`ev≥4`** = IR 독해(4)·추론(5)뿐이라 **실행으로 확인되지 않은 행**이다. 오라클로 내려라.")
     a(u"⚠단 이 수는 **실행 대상 수가 아니다** — `knobs` 상당수가 인라인된 **다른 함수의 줄**을 가리켜")

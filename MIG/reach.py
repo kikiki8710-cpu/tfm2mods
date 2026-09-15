@@ -31,8 +31,13 @@ CMPRNG = re.compile(r'^\s*(%\d+) = icmp (ult|ugt|ule|uge|slt|sgt|sle|sge) i64 (%
 DEF = re.compile(r'^define .*@(\S+)\(')
 
 
+_LNP = re.compile(r"^\s*\d+\| ")
+
+
 def parse(path):
     lines = io.open(path, encoding="utf-8", errors="replace").read().split("\n")
+    # 09-15: irann 기본 출력이 원문 줄번호 `NNNNN| ` 접두를 달게 됐다 — 벗기고 파싱(옛 주석본도 그대로 통과).
+    lines = [_LNP.sub("", l) for l in lines]
     blocks = collections.OrderedDict()   # name -> {'lines': [(lineno, text)], 'succ': [(target, cond)], 'term': str}
     cur = None; fname = None
     for i, ln in enumerate(lines, 1):

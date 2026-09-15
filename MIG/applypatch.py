@@ -201,7 +201,7 @@ def _subtree(spec, path):
         if key and isinstance(t, dict):
             t = t.get(V2KEY.get(key, key), t.get(key, _MISS))
     else:
-        t = t.get(field, _MISS)
+        t = t.get(V2KEY.get(field, field), t.get(field, _MISS)) if (field not in t and V2KEY.get(field) in t) else t.get(field, _MISS)
     return _MISS if t is None else t
 
 
@@ -397,8 +397,13 @@ def apply_error(D, e, log, skipped=None):
                          u"`mem` 의 `at` 이 `len(reads)` 이상이면 **`writes` 로 간다**)"
                          % (at0, len(arr) - pos - 1)))
             return True
-        jj = int(idx) if idx is not None else None
-        if jj is None or jj >= len(arr):
+        # ★09-15(23차 C 적발 · 157 writes 행 삭제 불가): `mem` 경로는 `resolve()` 가 reads/writes 를 골라 주는데
+        #   delete 가 그 결과를 버리고 `int(idx)` 를 첫 배열(`at=0` 기준)에 그대로 썼다 → 「인덱스 범위 밖」.
+        #   ⟹ delete 는 `idx` 로 다시 resolve 해 (배열, 배열내 인덱스) 를 쓴다.
+        if idx is None:
+            log.append((u"delete 에 인덱스가 없다", e["path"], u"")); return False
+        arr, jj = resolve(cont, field, int(idx))
+        if not isinstance(arr, list) or jj is None or jj >= len(arr):
             log.append((u"delete 인덱스 범위 밖", e["path"], u"")); return False
         g = e.get("guard")
         if g and g not in json.dumps(arr[jj], ensure_ascii=False):
@@ -416,6 +421,10 @@ def apply_error(D, e, log, skipped=None):
 
     # ① 스칼라 필드 (logic / one_line …)
     if idx is None and key is None:
+        # ★09-15(22차 A·B · 23차 D·F 적발 · `/sig/ret` 3건 force 우회): V2KEY(`ret`→`returns`)가 ③ 배열 원소 분기에만
+        #   있고 스칼라 분기엔 없었다 — 13차 「같은 교훈을 한쪽 축에만」의 재발. 스칼라에도 적용한다.
+        if field not in spec and V2KEY.get(field) in spec:
+            field = V2KEY[field]
         cur = spec.get(field)
         # ★**값을 「없음」으로 만들거나, 없던 객체를 새로 채우는** 두 경우. (13차 RVA2 배치 신설)
         #   쓰임: `exe.addr` 을 **null** 로 내리기(= 「이 주소는 이 함수가 아니다」를 기록) ·

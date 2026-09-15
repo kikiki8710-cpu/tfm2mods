@@ -36,6 +36,9 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 MIG = r"C:\tfm2mods\MIG"
 
 
+_LOCAL = re.compile(u"지역|스택|local\\b|sret|임시|후보 튜플|반환\\(", re.I)
+
+
 def norm_base(b):
     u"""`PlayerState(=GamePlayer info)` → `PlayerState`"""
     b = re.sub(u"[（(].*?[)）]", u" ", b or u"")
@@ -70,6 +73,8 @@ def norm_name(n):
     #   0x0/0x8/0x10 세 자리가 전부 같은 이름이 되고 R2 가 오탐을 낸다(실측 1건).
     n = re.split(u"(?<!:):(?!:)|：", n)[0]
     n = re.sub(u"[（(].*", u" ", n)                   # 설명 괄호
+    # ★09-15(23차 B 적발 · G20 R1 「구조적」 2건이 실은 꼬리 ` = 1 (…)` 분열): 값 꼬리는 이름이 아니다 → 자른다.
+    n = re.split(u"\\s+=\\s*", n)[0]
     # ★09-13(18차 D): 숫자 리터럴 첨자는 **보존**한다 — `region_dist[a][2]` 와 `[a][7]` 은 다른 자리다(R2 오탐). 변수 첨자만 `[]`.
     #   단 `nexus[2]`·`bushes[0][0]` 처럼 **숫자만 있는** 첨자는 배열 크기/예시 인덱스 주석이라 `[]` 로(같은 자리). 보존은 **변수 첨자와 섞인 이름**에서만.
     _mixed = bool(re.search(u"\\[[^\\]\\d][^\\]]*\\]", n))
@@ -142,6 +147,11 @@ def check(D):
     g = collections.defaultdict(list)
     for i, j, r in mem:
         b, o = norm_base(r.get("base")), norm_off(r.get("offset"))
+        # ★09-15(23차 F 적발 · [177]↔[179] `후보 튜플(...)` 0x10 구조적 오탐): base 가 **함수 지역 집합체**(스택·지역·sret·
+        #   임시·후보 튜플)면 cross-spec 사실이 아니다 — 함수마다 다른 튜플이다. R1 대상에서 뺀다(soft 로만 남김).
+        if b and o and _LOCAL.search(r.get("base") or u""):
+            soft.append((u"R1지역", (b, o), [NM[i] or str(i)], u"함수 지역 집합체 — cross-spec 비교 대상 아님"))
+            continue
         if b and o:
             g[(b, o)].append((i, j, r))
     for k, v in sorted(g.items()):
@@ -223,6 +233,12 @@ def check(D):
         return {"ugt": k + 1, "sgt": k + 1, "uge": k, "sge": k, "ult": k, "slt": k, "ule": k + 1, "sle": k + 1}[op]
     for k, v in sorted(g.items()):
         vals = sorted(set(json.dumps(r.get("value"), ensure_ascii=False) for (_, _, r) in v))
+        # ★09-15(23차 A 적발 · 139 vs 143 「세르펜 지향 보너스 …거리 게이트」 R4 오탐): 노브는 함수 안 리터럴이라
+        #   `where` 의 **소스 파일이 다르면 다른 노브**다(공유 const 라면 같은 파일 consts.rs 에서 나온다). 경계 밖은 억제.
+        files = set(m.group(0) for (_, _, r) in v for m in [re.search(u"[\\w/]+\\.rs", r.get("where") or u"")] if m)
+        if len(vals) > 1 and len(files) > 1:
+            soft.append((u"R4경계", (k,), sorted(files), u"다른 소스 파일의 동명 노브 — 함수 경계 밖"))
+            continue
         exts = [_extent(r) for (_, _, r) in v]
         if len(vals) > 1 and all(e is not None for e in exts) and len(set(exts)) == 1:
             continue   # 값 표기는 달라도 술어 외연이 같다(예: version `>1` vs `<2`)

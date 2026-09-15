@@ -139,8 +139,10 @@ def _ops(val):
         ("SELECT", re.compile(r"=\s*select\b.*?" + TY + r"\s+" + v + nb)),
         ("PHI", re.compile(r"=\s*phi\b.*?\[\s*" + v + nb + r"\s*,")),
         ("RET", re.compile(r"^\s*ret\s+" + TY + r"\s+" + v + nb)),
+        # ★09-15(23차 C 적발 · 151/153/154 consts[1] `i64 noundef 2`): 속성이 **타입 뒤**에도 붙는다(`i64 noundef 2`)
+        #   → 타입 뒤 `(?:\w+\s+)*` 추가. `sim_kind2.py` 로 129 consts[7]·151/153/154 consts[1] 통과 확인(C 보고).
         ("CALLARG", re.compile(r"(?:tail\s+|musttail\s+)?(?:call|invoke)\b.*?[(,]\s*"
-                               r"(?:\w+\s+)*" + TY + r"\s+" + v + nb)),
+                               r"(?:\w+\s+)*" + TY + r"\s+(?:\w+\s+)*" + v + nb)),
         ("DBGSTR", re.compile(r"#dbg_value\(" + TY + r"\s+" + v + nb +
                               r".*fragment,\s*64,\s*64")),
     )

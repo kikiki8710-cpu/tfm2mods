@@ -6,7 +6,7 @@
 
 **어떤 상황에 무엇을 집는가 = `METHOD_MAP.md` §0**(라우팅표). 이 문서는 *무엇이 있는가* 만 센다.
 
-전체 157개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
+전체 159개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
 
 ## ★exe 함수 정체 판정 — Ghidra 없이 (2026-09-13 신설)
 
@@ -271,3 +271,10 @@ IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.
 | `logsnap.py` | 인게임 검증 전/후 **모드 로그 스냅샷과 diff**. |
 | `modbisect.py` | 크래시 범인 모드 이분탐색 도구. |
 | `apgate.py` | `tfm2_ai_adjust` 의 `apply_*` 바이트패치 체인을 cfg 로 on/off 해서 |
+
+## 미분류 (새로 생긴 도구 — `mktools.py` 의 `CAT` 에 넣어라)
+
+| 도구 | 하는 일 |
+|---|---|
+| `bpcatalog.py` | bpcatalog.py — 밴픽 관련 소스 파일에 속한 IR define(함수) 전수 카탈로그(파일·줄·define 위치·크기). python bpcatalog.py [--out <json>] [--files <regex>] |
+| `bpdump.py` | bpdump.py — bpcatalog.json 의 전 함수를 irann 방식(소스줄 주석·잡음 제거)으로 일괄 덤프한다. python bpdump.py <catalog.json> <outdir> |

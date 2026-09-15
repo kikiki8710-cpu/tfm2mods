@@ -93,7 +93,12 @@ def _users(src, a, b, reg):
         if m and m.group(1) == reg:
             continue
         if pat.search(ln):
-            out.append(k)
+            # ★09-15(23차 F 적발 · 호이스트 1건 오탐): 소비자가 `invoke`(2줄)면 `!dbg` 는 다음 `to label` 줄에 있다
+            #   → 그 줄을 사용자 위치로 삼는다(`CONT` 규칙을 `_users` 에도 적용).
+            if "invoke " in ln and not DBG.search(ln) and k + 1 < min(b, len(src)) and CONT.match(src[k + 1].strip()):
+                out.append(k + 1)
+            else:
+                out.append(k)
     return out
 
 
