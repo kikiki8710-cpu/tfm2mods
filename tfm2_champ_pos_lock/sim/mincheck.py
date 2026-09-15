@@ -105,11 +105,14 @@ def install_adversary():
 def my_fit_loss(runner):
     """내 팀 최종 픽의 라인 적합 손실(세트 합)."""
     loss = 0
+    act, _, _ = runner.pos._safety() if runner.pos.gate == 'exact' else ([runner.pos.pos_active(p) for p in range(5)], None, None)
+    abits = sum(1 << p for p in range(5) if act[p])
     for s in runner.match.sets:
         my_blue = runner.sc.user_team == (runner.match.team1 if s.side else runner.match.team2)
         picks = s.blue_pick if my_blue else s.red_pick
-        masks = [runner.ms.mask_of_name(n) for n in picks]
-        loss += len(picks) - max_match(masks)
+        masks = [runner.ms.mask_of_name(n) & abits for n in picks]
+        # 활성 라인만 채워야 함(비활성 라인 = 자유 슬롯). 활성 라인 수 - 활성 라인 최대 매칭
+        loss += max(0, bin(abits).count('1') - max_match([m for m in masks if m]))
     return loss
 
 
