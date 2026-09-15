@@ -1,0 +1,752 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battleNtB2_13BattleSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle.rs",
+ "src_line": 358,
+ "ir_file": "m02.ll",
+ "ir_from": 27592,
+ "ir_to": 36306,
+ "aux": [
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 76003,
+   "ir_to": 76096,
+   "what": "closure$2 (L421~425 near_enemies 필터) call_mut 심 — engage_pair_range·30000·is_recent_visible·is_ignored_battle_enemy"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 76099,
+   "ir_to": 76134,
+   "what": "closure$4 (L430 filter_map: cache.player_champion[team][p]) call_mut 심"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 24041,
+   "ir_to": 24293,
+   "what": "Vec::from_iter_in<FilterMap<Filter<Range,closure$3>,closure$4>> 인스턴스 — closure$3 (L428~429: ally_battle_stop_tick None && dist² < 14400000001) 인라인 본문"
+  }
+ ],
+ "one_line": "전투 서브플랜 행동 후보 루트: 논타겟 궤적/캐스트라인 강제 회피(RunAway dodge) 게이트와 v48 킬확보·지는판정·카이팅 위치 계산 → base_positioning(536) 후보 → 타워/치명 후처리(537~614)",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "bumpalo::collections::Vec<SmallActionPlay> (32B)",
+    "note": "반환값. ptr@0 · bump@+0x8 · cap@+0x10 · len@+0x18. L364 에서 ptr=8(dangling) bump=data.context.pool cap=len=0 으로 초기화(m02.ll:27759~27765)"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut BattleSubPlan (48B)",
+    "note": "IR 속성 initializes((43,44),(45,46)) = +0x2b v48_dodge_claim · +0x2d last_bail_gate 가 무조건 쓰기 표면(L359/360). 그 외 조건부 쓰기: +0x2b=1(L510) · +0x2d=1(L417)/2(L484) · +0x20 v48_claim_hold_until(L511). 읽기: +0x10 goal@tag · +0x18 goal.focus · +0x20 · +0x29 with_dive(closure$2 env)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "i64 %2 → 스택 %109 로 복사(27711). 이 범위 분기: version<2 → final_stand=false(L363) · L472 resolve_fight_stake 경로 선택 · 콜리(nontarget_windup_perceived·engage_pair_range·check_kill_die_tick 등)에 전달"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng (320B)",
+    "note": "직접 읽기 없음. check_kill_die_tick(L449/451)·fight_participants(L473)·resolve_fight_stake(L478) 에 전달(가변)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "note": "readonly. info.team(+0x930) · info.position@tag(+0x9c0) · info.parameter(+0x180 → judge_accuracy) · info.id(+0x928, CAST_BEAMS 키)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "note": "readonly. cache(+0) · context(+0x8) · blackboard(+0x10, [Blackboard;2] 744B stride)"
+   },
+   {
+    "i": 6,
+    "name": "parameter",
+    "type": "&ScoreParameter (5384B)",
+    "note": "readonly. player.applyed_damage(+0x988) · player.applyed_cc(+0x990) · positioning_score(+0x9f0, PositioningScoreData 2760B → position_score_at_position)"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "type": "&TeamPlan (1064B)",
+    "note": "DI 이름 team_plan(27718). IR 에 dereferenceable 없음(ptr 만). 이 범위: closure$3 env 로 저장(L430 env+0)→ ally_battle_stop_tick[p](+0x0, 16B stride) 읽기 · fight_participants(L473) 에 전달"
+   },
+   {
+    "i": 8,
+    "name": "_debug",
+    "type": "&mut DebugFrameData (224B)",
+    "note": "DI 이름 _debug(27719). 이 함수 본문 직접 읽기/쓰기 없음 — check_kill_die_tick(L449/451)·fight_participants(L473)·resolve_fight_stake(L478) 에 그대로 전달(원문 전 범위 6회 등장 = define + 5회 인자 전달)"
+   }
+  ],
+  "returns": "sret 32B bumpalo Vec<SmallActionPlay>. 살아있는 바이트 = 32B 전부(ptr·bump·cap·len). 원소 184B · 태그 @+0xb1 (tcxdict --enum SmallActionPlay: 니치 untagged=AroundPosition, RunAway=3 Recall=4 Around=5 AroundHide=6 AroundRegion=7 AroundRunAway=8 Positioning=9 AroundPositionBush=11 AroundBush=12 LaneMinionPosition=13 Trace=14 Attack=15 Skill=16 Skill2=17 Ult=18 Stop=19). 이 범위(0~518)가 push 하는 variant = RunAway(3) 1건뿐(L403, new_dodge). RunAway 원소 live 바이트 = new_dodge 의 initializes((0,56),(125,126),(128,132)) → +0x0~0x37(start_tick·goal_x·goal_y·end_delay·goal_risk·prog_best_dist_sq·prog_best_tick) · +0x7d path_finder@tag(None) · +0x80~0x83(with_skill·with_ult·dodge_trajectory·goal_committed) · +0xb1 태그=3; 나머지(+0x38~0x7c path_finder 페이로드 · +0x84~0xb0 · +0xb2~0xb7)는 undef(memcpy 184B 로 복사됨). 반환 경로(이 범위): L418(gate 1) · L484(gate 2) · L518 kite None(%2791) — 셋 다 res 를 32B memcpy 로 %0 에 복사",
+  "tls": [
+   {
+    "name": "CAST_BEAMS",
+    "role": "작성자+소비자(메모)",
+    "key": "(seed = game.seed() [vtable +0x20], tick = game.tick() [vtable +0x28], pid = player.info.id(+0x928)) — m02.ll:34724~34747 에서 %15/%14/%13 스택에 구성 후 클로저 env 에 저장",
+    "layout": "thread_local RefCell<(usize seed, usize tick, usize pid, [Beam;6])> (battle.rs:993, DIGlobalVariable !1585, TLS 전역 328+1+7B). Beam 48B = x1@0 · y1@+0x8 · x2@+0x10 · y2@+0x18 · kind@+0x20(u8: 0=점/원, 그 외=선분) · halfwidth@+0x28. with 클로저 반환 sret 296B = (n usize @0, [Beam;6] @+0x8)",
+    "invalidation": "키 3-튜플 불일치 시 재계산(적 챔피언 recent_visible·Champion·시전 슬롯별 논타겟 프로필로 최대 6빔) 후 키·빔 저장 — m00.ll:93237~93786 LocalKey::with<v48_cast_beams::{closure}> 본문에서 icmp eq ×3 → memcpy 288B 반환 패턴 확인",
+    "call_conditions": "이 범위에서 직접 `LocalKey::with` 호출은 1곳: m02.ll:34749 (L1002<1058<1183<518 = v48_kite_position 인라인 안의 v48_on_cast_line 인라인 안의 v48_cast_beams). 도달 조건 = force_runaway && !(v48_hard && !final_stand) && !(kill_secure 실패 탈출) && !v48_losing && !(v48_in_attack_range && 궤적/캐스트라인 없음) && kite anchor 존재 && attack_effect 존재 && 후보점 s.on_trajectory/on_periodic 아님 — 링(sets)×16방향 루프 안에서 후보점마다 1회(키 같으면 재생). 그 밖에 out-of-line `v48_on_cast_line` 호출 L400(%1824)·L506(%2391)·L1191<518(%2729) 도 내부에서 같은 TLS 를 탄다(콜리 계약 — 본문 미독). 순서(한 틱 최초 발화 기준): L390 position_score_at_position → [L400 v48_on_cast_line] → L449/451 check_kill_die_tick → L478/474 resolve_fight_stake(_roster) → [L506 v48_on_cast_line] → L518 루프 내 1178 position_score_at_position → 1183 CAST_BEAMS.with → 1191 v48_on_cast_line"
+   },
+   {
+    "name": "(콜리 내부 TLS — 미검증)",
+    "role": "소비자(콜리 경유)",
+    "key": "-",
+    "layout": "-",
+    "invalidation": "-",
+    "call_conditions": "프롬프트가 지목한 SIEGE_STANCE_CACHE(v47_siege_stance)·HP_VALUE_MEMO(champion_hp_value)·POS_EVAL_CACHE(position_eval_at)·INTER_CTX(interaction_score) 는 이 범위 IR 에 `LocalKey::with` 로 나타나지 않는다(원문 27592~36306 전체에서 with 호출은 CAST_BEAMS 1건). position_score_at_position(L390·L1178<518) / check_kill_die_tick(L449·451) / resolve_fight_stake(L478) / resolve_fight_stake_roster(L474) 가 내부에서 쓸 수 있으나 그 본문은 이 배치 범위 밖(자식 명세 계약) — 호출 순서만 위 항목에 적음"
+   }
+  ]
+ },
+ "reads": [
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x10",
+   "name": "goal@tag",
+   "note": "L411(==6 AssassinReady) · L441/L491/L518(4 RunAway|7 End → focus 없음) · L463(committed_dir)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x18",
+   "name": "goal.focus",
+   "note": "L441/491/518 Some(focus) 페이로드(usize id)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x20",
+   "name": "v48_claim_hold_until",
+   "note": "L398 tick < hold_until"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x29",
+   "name": "with_dive",
+   "note": "L421 closure$2 env+32 로 &self.with_dive 저장 → L425 is_ignored_battle_enemy 마지막 인자(aux m02.ll:76086~76089)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L367 champ 인덱스 · L370 enemy=1-team · closure$2 L424 · closure$3/4 L429/430"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "L367 i32 → zext 인덱스"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter",
+   "note": "L475/L479 judge_accuracy(&player.info.parameter)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x928",
+   "name": "info.id",
+   "note": "L518→1001 CAST_BEAMS 키 pid"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] — [1 - player.team] (744B stride gep) 을 is_recent_visible 에 전달(L494·L1137<518·closure$2 L424)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool",
+   "note": "L364/L450/L452 bumpalo Bump"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "L511 tick_per_second · L1177<518 adjust_position 인자"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "L1177<518 Game::adjust_position 첫 인자(추정: GameContext 레이아웃상 +0x20=map)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "L511 hold_until = tick + tps*2"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (dyn AbstractGame: data@0, vtable@+0x8)",
+   "note": "vtable +0x20 seed(L999<518) · +0x28 tick(L398·L511·L1000<518) · +0x1f0 get_entity_by_id(L442·L491·L1134<518)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[[Option<&Entity>;5];2]",
+   "note": "L367 [team][pos] · L370/381/494/1137 적 5슬롯 슬라이스 · closure$3/4 [team][p]"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag",
+   "note": "L443/492/1135 team != champ.team (derive PartialEq)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": "위 비교 페이로드"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "==13 Champion (L371/382)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state@tag",
+   "note": "4 Skill/5 Skill2 (L372) · 6 Ult (L382)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "Effect::range/range 합산 (L433·L498·L1140)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult",
+   "note": "radius_adj = mult==0 ? radius : radius*(mult+100)/100 (entity.rs:1511~1515 인라인, L400/433/498/506/1141)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect@Some.0.range",
+   "note": "L433/498/1140"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect@Some.0.growth_range",
+   "note": "(level-1)*growth"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (Option 니치 -1=None)",
+   "note": "L433 unwrap(패닉) · L496/L1139 is_some"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0",
+   "note": "L372 Effect 시작(is_in_range 인자)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag / Some.0.casting",
+   "note": "i32: -1=None → unwrap_failed · 1 Position/2 Direction = 논타겟"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0",
+   "note": "L374 level>2 일 때만"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x530",
+   "name": "skill2_effect@tag / casting",
+   "note": "L374 — gep +0x500 뒤 +48(0x30) 2단 접근이라 본문에 1328 리터럴 없음(C3 경고 사유)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect@Some.0",
+   "note": "L383 level>4 일 때만"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x568",
+   "name": "ult_effect@tag / casting (0x538+0x30)",
+   "note": "L383 — gep +0x538 뒤 +48 2단 접근이라 본문에 1384 리터럴 없음(C3 경고 사유)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "skill2/ult 접근자 게이트(>2/>4) · (level-1)*growth"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "거리 계산 전반"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "L415 max(hp,1)*20 · L447 ready_damage < t.hp"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "radius_adj"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x10",
+   "name": "range",
+   "note": "Entity+0x4a0 과 동일 지점(Entity 기준으로도 적음)"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x18",
+   "name": "growth_range",
+   "note": ""
+  },
+  {
+   "base": "Effect",
+   "offset": "0x30",
+   "name": "casting (CastingType)",
+   "note": "0 Targeting/1 Position/2 Direction/3 None; Option<Effect> 니치 -1"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x988",
+   "name": "player.applyed_damage",
+   "note": "L415 v48_hard: applyed_damage*100 >= max(hp,1)*20"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x990",
+   "name": "player.applyed_cc",
+   "note": "L411 != 0 → v48_hard"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x9f0",
+   "name": "positioning_score (PositioningScoreData 2760B)",
+   "note": "position_score_at_position 4번째 인자(L390·L1178<518)"
+  },
+  {
+   "base": "PositioningScore(sret 56B, %107/%19)",
+   "offset": "0x0",
+   "name": "risk",
+   "note": "dodge_risk(L392) · kite best 비교(L1200)"
+  },
+  {
+   "base": "PositioningScore(sret 56B, %107/%19)",
+   "offset": "0x30",
+   "name": "on_trajectory",
+   "note": "L393/399/504/1180 (gep 48)"
+  },
+  {
+   "base": "PositioningScore(sret 56B, %107/%19)",
+   "offset": "0x31",
+   "name": "on_periodic_trajectory",
+   "note": "L399/504/1180 (gep 49)"
+  },
+  {
+   "base": "FightPrediction(sret 64B, %97/%98)",
+   "offset": "0x38",
+   "name": "line (FightLine)",
+   "note": "==2 Disengage → v48_losing (L478/474)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x0",
+   "name": "ally_battle_stop_tick[p]@tag (16B stride)",
+   "note": "closure$3 L428: 태그 0(None) 이면 통과 (aux m01.ll:24141~24146)"
+  },
+  {
+   "base": "bumpalo Vec<&Entity> (near_allies %102 / near_enemies %104 / roster %99)",
+   "offset": "0x0",
+   "name": "ptr",
+   "note": "슬라이스 전달(L473/474/478)"
+  },
+  {
+   "base": "bumpalo Vec<&Entity> (near_allies %102 / near_enemies %104 / roster %99)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "L472 near_enemies.len()==0 · 슬라이스 len"
+  },
+  {
+   "base": "CAST_BEAMS Beam(48B, with sret 296B 의 +0x8 부터)",
+   "offset": "0x20",
+   "name": "kind",
+   "note": "0=점 else 선분 (L1060<1183<518)"
+  },
+  {
+   "base": "CAST_BEAMS Beam(48B, with sret 296B 의 +0x8 부터)",
+   "offset": "0x28",
+   "name": "halfwidth",
+   "note": "+ champ_r + 15000 과 거리 비교"
+  },
+  {
+   "base": "CAST_BEAMS Beam(48B, with sret 296B 의 +0x8 부터)",
+   "offset": "0x18",
+   "name": "y2 (x1@0,y1@8,x2@16)",
+   "note": "선분 끝점"
+  }
+ ],
+ "writes": [
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x2b",
+   "name": "v48_dodge_claim",
+   "value": "0",
+   "note": "L359 무조건 (m02.ll:27738~27739) — initializes((43,44))"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x2d",
+   "name": "last_bail_gate",
+   "value": "0",
+   "note": "L360 무조건 (27740~27741) — initializes((45,46))"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x2d",
+   "name": "last_bail_gate",
+   "value": "1",
+   "note": "L417 v48_hard && !final_stand 일 때, 직후 return (32504). 코드표(_docs game_ai.txt L589): 1=회피 하드(궁/risk25/CC/연타피격)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x2d",
+   "name": "last_bail_gate",
+   "value": "2",
+   "note": "L484 v48_losing(FightLine::Disengage) 일 때, 직후 return (33448). 코드표: 2=지는 판정. (3=전대상 치명 은 배치 C L604)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x2b",
+   "name": "v48_dodge_claim",
+   "value": "1",
+   "note": "L510 v48_in_attack_range && 궤적/캐스트라인 없음 (33960)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x20",
+   "name": "v48_claim_hold_until",
+   "value": "game.tick() + tick_per_second*2",
+   "note": "L511 (33961~33974). initializes 에 없음 = 조건부 쓰기"
+  },
+  {
+   "base": "sret Vec (res %108)",
+   "offset": "0x0",
+   "name": "ptr/bump/cap/len 초기화",
+   "value": "ptr=8, bump=context.pool, cap=0, len=0",
+   "note": "L364 (27759~27765)"
+  },
+  {
+   "base": "sret Vec (res %108)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "len+1",
+   "note": "L403 push 후 (32437~32438); cap==len 이면 reserve_internal_or_panic(res, len, 1, true) 선행(32415)"
+  },
+  {
+   "base": "sret Vec 원소 [len] (184B)",
+   "offset": "0x0",
+   "name": "SmallActionPlay::RunAway 페이로드",
+   "value": "SmallActionRunAway::new_dodge(data, player, 5) 136B memcpy",
+   "note": "L403 (32390, 32436). live = new_dodge initializes((0,56),(125,126),(128,132))"
+  },
+  {
+   "base": "sret Vec 원소 [len] (184B)",
+   "offset": "0xb1",
+   "name": "태그",
+   "value": "3 (RunAway)",
+   "note": "L403 store i8 3 @ %106+177 (32391~32392)"
+  },
+  {
+   "base": "sret %0",
+   "offset": "0x0",
+   "name": "반환 memcpy 32B ← res",
+   "value": "res",
+   "note": "L418 (32505) · %2791 (35090: L484·kite None·배치 B 일부 반환 경로 공용)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 363,
+   "meaning": "version < 2 → final_stand 단락(false) · L472 version<2 → resolve_fight_stake 경로. (같은 리터럴 2 가 CastingType Direction·level>2·FightLine Disengage(2)·rotate_right(2) 로도 쓰임)"
+  },
+  {
+   "value": 13,
+   "src_line": 371,
+   "meaning": "EntityType::Champion 태그 (L371/382)"
+  },
+  {
+   "value": 4,
+   "src_line": 372,
+   "meaning": "ChampionActionState::Skill 태그 (switch case). 리터럴 4 는 level>4(ult 접근자 L383)·BattleSubPlanGoal::RunAway(4)·committed_dir -1 case 로도 쓰임"
+  },
+  {
+   "value": 5,
+   "src_line": 372,
+   "meaning": "ChampionActionState::Skill2 태그. 리터럴 5 는 new_dodge end_delay(L403)·Assassin(5)·슬롯수 5(stride) 로도"
+  },
+  {
+   "value": 6,
+   "src_line": 382,
+   "meaning": "ChampionActionState::Ult 태그 (L382). L411 goal==6 AssassinReady. 빔 배열 상한 6 (slice_index_fail)"
+  },
+  {
+   "value": -1,
+   "src_line": 372,
+   "meaning": "Option<Effect> 니치 None 판별(casting i32 == -1) — unwrap_failed 또는 is_none"
+  },
+  {
+   "value": 1,
+   "src_line": 372,
+   "folded_from": 2,
+   "meaning": "CastingType::Position 태그(switch case 1)·Direction(2) = 논타겟. 동시에 L511 `shl i64 %tps, 1` = tick_per_second*2 (2초 홀드) 접힘 — folded_from=2 는 이 shl 을 뜻함"
+  },
+  {
+   "value": 9,
+   "src_line": 393,
+   "meaning": "dodge_risk > 9 (>=10) 이면 강제 도주 후보 (sgt 9)"
+  },
+  {
+   "value": 24,
+   "src_line": 411,
+   "meaning": "dodge_risk > 24 (>=25) → v48_hard (문서 표현 risk25)"
+  },
+  {
+   "value": 20,
+   "src_line": 415,
+   "meaning": "max(hp,1)*20 <= applyed_damage*100 ⟺ hp <= applyed_damage*5 → v48_hard (hp 가 받은 피해의 5배 이하)"
+  },
+  {
+   "value": 100,
+   "src_line": 415,
+   "meaning": "위 식의 applyed_damage*100 · radius_adj 의 (mult+100)/100 백분율"
+  },
+  {
+   "value": 3,
+   "src_line": 403,
+   "meaning": "SmallActionPlay::RunAway 메모리 태그(store i8 3 @+0xb1). committed_dir case 3 KitingBack → -1. 본문의 shl i64 %n, 3 (예 33144·33201·35137) 은 Vec<&Entity> 드롭 코드의 len×8 바이트 산술이라 이 상수와 무관 — shl 경고 사유"
+  },
+  {
+   "value": 30000,
+   "src_line": 423,
+   "meaning": "closure$2: dist² <= (engage_pair_range+30000)² 근접 적 판정 여유(aux m02.ll:76055). L1156<518 카이팅 링 2 = attack_range+30000"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 429,
+   "meaning": "120000²+1 — closure$3: 아군 챔피언 dist² < 이 값(=거리 <= 120000) (aux m01.ll:24218)"
+  },
+  {
+   "value": 15000,
+   "src_line": 433,
+   "meaning": "Effect::range(caster)(effect.rs:26 인라인) 의 고정 가산 15000 (타워 사거리) · L1061/1064<518 빔 폭 여유 champ_r+15000"
+  },
+  {
+   "value": 25000,
+   "src_line": 445,
+   "meaning": "close_execute_range = max_range_cached + 25000 (처형 거리 여유)"
+  },
+  {
+   "value": 7,
+   "src_line": 441,
+   "meaning": "BattleSubPlanGoal::End 태그 (4 RunAway 와 함께 focus 없음 case) L441/491/518"
+  },
+  {
+   "value": 0,
+   "src_line": 463,
+   "meaning": "committed_dir case 0 Trace → 1 (0·2·5·6 → 1); Protect(1)/End(7) → 0"
+  },
+  {
+   "value": 8000,
+   "src_line": 518,
+   "meaning": "v48_kite_position:1143 keep_range = attack_range.saturating_sub(8000) (usub.sat)"
+  },
+  {
+   "value": 70000,
+   "src_line": 518,
+   "meaning": "1157 카이팅 링 3 반경 = attack_range+70000"
+  },
+  {
+   "value": 24000,
+   "src_line": 518,
+   "meaning": "1162 escaping 시 앞에 끼우는 자기중심 링 1 반경"
+  },
+  {
+   "value": 48000,
+   "src_line": 518,
+   "meaning": "1163 escaping 시 자기중심 링 2 반경"
+  },
+  {
+   "value": 16,
+   "src_line": 518,
+   "meaning": "1173 방향 후보 수(anon.267 256B = 16×(dx,dy) i64, 단위 1000 = 22.5° 간격)"
+  },
+  {
+   "value": 40,
+   "src_line": 370,
+   "meaning": "적 5슬롯 슬라이스 끝(5×8B) — icmp eq %148, 40 루프 종료 (stride 이지만 루프 상한 근거로 등록)"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::defense_nexus::nexus_final_stand",
+  "game_ai::utils::nontarget_windup_perceived",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "game_ai::position_eval::position_score_at_position",
+  "game_ai::plan_legacy::sub_plan::battle::v48_on_cast_line",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_dodge",
+  "bumpalo::collections::raw_vec::reserve_internal_or_panic",
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::entity::Entity::distance",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "game_ai::plan_legacy::old::fight_model::ready_damage_to_target",
+  "game_ai::fight_check::check_kill_die_tick",
+  "game_core::simulation::state::player::AthleteParameter::judge_accuracy",
+  "game_ai::plan_legacy::old::fight_model::fight_participants",
+  "game_ai::plan_legacy::old::fight_model::resolve_fight_stake",
+  "game_ai::plan_legacy::old::fight_model::resolve_fight_stake_roster",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::utils::distance",
+  "game_core::utils::isqrt",
+  "game_core::utils::dist_to_line_segment",
+  "game_core::simulation::game::Game::adjust_position",
+  "core::slice::rotate_right",
+  "std::thread::local::LocalKey::with",
+  "core::slice::index::slice_index_fail",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "game_ai::plan_legacy::old::battle::engage_pair_range",
+  "game_ai::plan_legacy::old::fight_model::is_ignored_battle_enemy",
+  "core::iter::traits::iterator::Iterator::min_by_key",
+  "core::ptr::drop_glue",
+  "game_core::simulation::entity::Entity::clone"
+ ],
+ "logic": "// battle.rs:0~518 (배치 A)\n// 시그니처: fn action_candidates(&mut self, version, rnd, player, data, parameter, team_plan, _debug) -> bumpalo Vec<SmallActionPlay>\n// 인자 DI 이름 = m02.ll:27712~27719 (#dbg_value: self=%1 version=%109(스택복사) rnd=%3 player=%4 data=%5 parameter=%6 team_plan=%7 _debug=%8)\n//\n// L359  self.v48_dodge_claim = false            // %1+43 (0x2b) store i8 0  [m02.ll:27739]\n// L360  self.last_bail_gate  = 0                // %1+45 (0x2d) store i8 0  [27741]\n// L363  final_stand = version >= 2 && nexus_final_stand(player, data)   // %112 = version<2 → false 단락 [27742~27751]\n// L364  res = bumpalo Vec::new_in(data.context.pool)  // %108: ptr=8(dangling) bump=*(context+0) cap=len=0 [27754~27765]\n// L367  champ = data.cache.player_champion[player.info.team(+0x930)][player.info.position@tag(+0x9c0)].unwrap()\n//        // cache+0x1e0 + team*40 + pos*8 ; None → unwrap_failed(anon.171) [27764~27800, 27967]\n// L370  enemy = 1 - team ; enemies = cache.player_champion[enemy][0..5] (슬라이스 %143, 끝 %144)\n//       has_non_target_action_range = enemies.iter_champions().any(closure$0) 인라인 [27852~27972]:\n//         closure$0(c): nontarget_windup_perceived(version, player, data, c) && c.ty@tag(+0x68)==13(Champion) &&   // L371\n//           match c.action_state@tag(+0x70) {                                                                    // L372/374\n//             4(Skill)  => eff = c.skill_effect(+0x4c8).as_ref().unwrap() (tag +0x4f8: -1=None→panic) ;\n//                          eff.casting(+0x30 → +0x4f8 값) ∈ {1 Position, 2 Direction} && Effect::is_in_range(eff, c, champ)\n//             5(Skill2) => eff = (c.level(+0x5c8) > 2 ? Some(&c.skill2_effect(+0x500)) : None).unwrap() ;   // entity.rs:1693 접근자 인라인\n//                          casting(+0x530) ∈ {1,2} && is_in_range(eff, c, champ)\n//             _ => false }\n// L381  has_non_target_ult_range = enemies.iter_champions().any(closure$1) 인라인 [28007~28094]:\n//         closure$1(c): nontarget_windup_perceived(...) && c.ty==13 && c.action_state==6(Ult) &&               // L382\n//           eff = (c.level > 4 ? Some(&c.ult_effect(+0x538)) : None).unwrap() (tag +0x568) ;                     // L383 (entity.rs:1701)\n//           casting ∈ {1,2} && is_in_range(eff, c, champ)                                                        // L384\n// L390  current_position_score = position_score_at_position(version, player, data, &parameter.positioning_score(+0x9f0), champ.x(+0x660), champ.y(+0x668), PositionEvalPurpose::General(태그 2)) → %107 (PositioningScore 56B)\n// L392  dodge_risk = cps.risk(+0)\n// L393  force_runaway = dodge_risk > 9 && (has_non_target_ult_range || has_non_target_action_range || cps.on_trajectory(+0x30))   [28107~28117]\n// L398  if !force_runaway:  tick = data.cache.game.tick() (vtable +0x28) ; if tick < self.v48_claim_hold_until(+0x20) {           [28120~28132]\n// L399      force_runaway = cps.on_trajectory || cps.on_periodic_trajectory(+0x31)                                              [28135~28139]\n// L400          || v48_on_cast_line(player, data, champ.radius_adj, champ.x, champ.y)   // radius_adj = radius_mult(+0x470)==0 ? radius(+0x680) : radius*(mult+100)/100 (entity.rs:1511~1515 인라인) [32352~32377]\n//        }  else → L536 (배치 B)   // tick >= hold_until 이면 force_runaway 는 393 값 그대로(=false) → %254\n// L401  if !force_runaway → L536 (배치 B, %254)\n// ---- 이하 403~532 = force_runaway 블록(닫힘 532 에서 near_allies/near_enemies 드롭 후 536 으로 합류) ----\n// L403  res.push(SmallActionPlay::RunAway(SmallActionRunAway::new_dodge(data, player, end_delay=5)))   // 태그 3 @+0xb1 [32386~32438]\n// L411  v48_hard_pre = has_non_target_ult_range || dodge_risk > 24 || self.goal@tag(+0x10)==6(AssassinReady) || parameter.player.applyed_cc(+0x990) != 0\n// L415  v48_hard = v48_hard_pre ? true : (max(champ.hp(+0x670),1)*20 <= parameter.player.applyed_damage(+0x988)*100)   // IR: %1861 = applyed_damage*100 < max(hp,1)*20 이 DW_OP_not 로 v48_hard [32457~32468]\n// L416  if v48_hard && !final_stand {                                                                             // 계속 조건 = final_stand || !v48_hard\n// L417      self.last_bail_gate = 1  (+0x2d)                                                                       [32504]\n// L418      return res   // 회피 단일 후보 (memcpy %0←%108 [32505])\n//       }\n// L421  near_enemies(%104) = Vec::from_iter_in(cache.iter_champions(enemy).filter(closure$2), bump)   // aux m02.ll:76003 call_mut\n//         closure$2(t) [env: version, data, champ, player, &self.with_dive(+0x29)]:\n//           r = engage_pair_range(version, data, champ, t)                                    // L422\n//           dist²(t, champ) <= (r + 30000)²                                                    // L423\n//           && data.blackboard[1 - player.team].is_recent_visible(game, player, t)             // L424\n//           && !is_ignored_battle_enemy(version, player, data, t, self.with_dive)              // L425\n// L427  near_allies(%102) = Vec::from_iter_in((0..5).filter(closure$3).filter_map(closure$4), bump)   // aux m01.ll:24041 / m02.ll:76099\n//         closure$3(p) [env: team_plan, cache, player, champ]: team_plan.ally_battle_stop_tick[p](+0, 16B stride) is None(태그 0)   // L428\n//           && cache.player_champion[player.team][p].is_some_and(|c| dist²(c, champ) < 14400000001 (=120000²+1))                // L429\n//         closure$4(p): cache.player_champion[player.team][p]   (Option<&Entity>)                                                // L430\n// L431  nearest_enemy_tower = cache.iter_towers_without_nexus(enemy).min_by_key(closure$5 = dist²(t, champ))   // 첫 원소 인라인 + fold 호출 [32551~32743]\n// L432   .filter(closure$6) [32761~32867]:\n//          attack_range = Effect::range(t.attack_effect.unwrap(), caster=t) + champ.radius_adj + t.radius_adj      // L433 ; tag +0x4c0 == -1 → unwrap_failed\n//             // Effect::range(caster)(effect.rs:26 인라인) = range(+0x4a0) + 15000 + caster.stat_buff_cached.range(+0x438) + (caster.level-1)*growth_range(+0x4a8)\n//          keep iff Entity::distance(t, champ) <= attack_range                                                     // L434 (ugt → None)\n// L441  focus = match self.goal@tag { 4 RunAway | 7 End => None, _ => Some(self.goal.focus(+0x18)) }\n// L442  t = focus.and_then(|id| game.get_entity_by_id(id))   // vtable +0x1f0\n// L443   .filter(|t| t.team(+0x0 tag, +0x8 Player.0) != champ.team)   // derive PartialEq: 태그 같고 (태그!=0 || payload 같음) 이면 같음 → 제외\n// L444   .is_some_and(closure$9):\n// L445      close_execute_range = max_range_cached(data, champ, t) + 25000\n// L446      if dist²(t, champ) > close_execute_range² → false\n// L447      if ready_damage_to_target(data.context, champ, t) < t.hp(+0x670) → false\n// L449      t_die  = check_kill_die_tick(version, rnd, data, player, focus=t,     enemy=near_allies.clone(),  towers=Vec::new_in(bump)(L450),                 _debug)\n// L451      my_die = check_kill_die_tick(version, rnd, data, player, focus=champ, enemy=near_enemies.clone(), towers=Vec::from_iter_in(nearest_enemy_tower, bump)(L452), _debug)\n// L453      v48_kill_secure = t_die > my_die\n// L456      if !v48_kill_secure → 블록 탈출(→ L532 드롭 → L536 배치 B)   // 그 외(None·범위밖·비치명·확보) → L463 계속   [33093~33095]\n// L463  committed_dir: i8 = match self.goal@tag { 0 Trace|2 Kiting|5 Assassin|6 AssassinReady => 1 (L465), 3 KitingBack|4 RunAway => -1 (L466), _ (1 Protect|7 End) => 0 }\n// L472  if version < 2 || near_enemies.len(+0x18) == 0 {\n// L478      pred = resolve_fight_stake(version, rnd, data, player, champ, &near_allies[..], &near_enemies[..], committed_dir, nearest_enemy_tower, judge_accuracy(&player.info.parameter(+0x180)) (L479), _debug)\n//       } else {\n// L473      roster = fight_participants(version, rnd, data, player, champ, &near_allies[..], &near_enemies[..], team_plan, _debug)   // Vec<(&Entity,i64,bool)> 24B 원소\n// L474      pred = resolve_fight_stake_roster(version, data, champ, &roster[..], &near_enemies[..], committed_dir, nearest_enemy_tower, judge_accuracy(...) (L475))\n// L477      drop(roster)\n//       }\n// L478/474 v48_losing = pred.line(+0x38) == 2 (FightLine::Disengage)                                          [33268~33278]\n// L483  if v48_losing { L484 self.last_bail_gate = 2 ; return res (%2791: memcpy + 드롭) }\n// L491  anchor = (goal focus → get_entity_by_id → filter team != champ.team)                                    // 441~443 과 동일 사슬\n// L493   .or_else(|| enemies.iter_champions().filter(|e| blackboard[1-team].is_recent_visible(game, player, e)).min_by_key(closure$12 = dist²(e, champ)))   // L494~495 [33518~33812]\n// L496  if anchor.is_some() && champ.attack_effect.is_some() (tag +0x4c0 != -1) {\n// L498      r = Effect::range_adjust(&champ.attack_effect, champ, anchor) + range(+0x4a0) + (champ.level-1)*growth(+0x4a8) + champ.stat_buff.range(+0x438) + champ.radius_adj + anchor.radius_adj\n// L499      v48_in_attack_range = distance(champ.x, champ.y, anchor.x, anchor.y) <= r      // IR %2366 = dist > r (DW_OP_not)\n// L504      if v48_in_attack_range && !cps.on_trajectory && !cps.on_periodic_trajectory\n// L506         && !v48_on_cast_line(player, data, champ.radius_adj, champ.x, champ.y) {\n// L510          self.v48_dodge_claim = true  (+0x2b store i8 1) [33960]\n// L511          self.v48_claim_hold_until = game.tick() + data.context.setting(+0x8).tick_per_second(+0x12f8) * 2   // shl 1 [33961~33974]\n//               → 블록 탈출(L532 드롭) → L536 배치 B\n//           }  else → L518\n//       } else → L518\n// L518  kite = v48_kite_position(version, player, data, parameter, champ, focus_id (= 441 의 focus Option<usize>), escaping (= 배치 B L519~520 계산 %2430)) 인라인(battle.rs:1132~1210):\n//         1134  anchor = focus_id.and_then(get_entity_by_id).filter(team != champ.team)\n//         1136     .or_else(|| enemies recent_visible(blackboard[1-team]).min_by_key(dist²))  ; None → return None\n//         1139  attack_effect = champ.attack_effect.as_ref()? (tag -1 → None)\n//         1140  attack_range = range_adjust(attack_effect, champ, anchor) + range + (level-1)*growth + stat_buff.range + champ.radius_adj + anchor.radius_adj\n//         1143  keep_range = attack_range.saturating_sub(8000)\n//         1154  sets = [(anchor.x, anchor.y, keep_range), (anchor.x, anchor.y, attack_range+30000), (anchor.x, anchor.y, attack_range+70000), 0, 0] ; len 3     // 1155~1157\n//         1160  if escaping { sets.rotate_right(2) ; sets[0]=(champ.x,champ.y,24000) ; sets[1]=(champ.x,champ.y,48000) ; len 5 }   // 1161~1163\n//         1168  for (cx,cy,radius) in sets {  best = None\n//         1173    for (dx,dy) in DIRS16 (anon.267: 16방향 ×1000 단위, 22.5° 간격) {\n//         1174      len = max(isqrt(dx²+dy²), 1)\n//         1175      px = cx + dx*radius/len ; py = cy + dy*radius/len                                       // 1176\n//         1177      (px,py) = Game::adjust_position(data.context.map(+0x20), data.context.setting(+0x8), px, py)\n//         1178      s = position_score_at_position(version, player, data, &parameter.positioning_score, px, py, General)\n//         1180      if s.on_trajectory || s.on_periodic_trajectory → continue\n//         1183      if v48_on_cast_line(player, data, champ_r, px, py) 인라인 → continue :\n//                       beams = CAST_BEAMS.with(v48_cast_beams(player, data)) (L1002<1058<1183 ; TLS) → (n, [Beam;6]) ; n>6 → slice_index_fail\n//                       any beam: kind(+0x20)==0 ? distance(p, (x1,y1)) <= halfwidth(+0x28) + champ_r + 15000     // 1061\n//                                                : dist_to_line_segment(p, (x1,y1),(x2,y2)) <= halfwidth + champ_r + 15000   // 1064\n//         1189      if !escaping { mid = ((px+champ.x)/2, (py+champ.y)/2) ; if v48_on_cast_line(player, data, champ_r, mid) → continue }   // 1190~1191 (out-of-line 호출)\n//         1197      range_err = |distance(p, anchor) - keep_range| ; step = dist²(p, champ)                    // 1198\n//         1199      best = min by (range_err, s.risk, step) 사전순  (1200~1201: e 같으면 risk 작은 것, risk 도 같으면 step 작은 것)\n//                 }\n//         1205    if best.is_some() → break → Some((x,y)) → 배치 B(줄 521)\n//               }\n//         1210  None → return res (%2791)\n//       kite == None → return res   // %2501/%2524/%2527/%2642 → %2791\n",
+ "knobs": [
+  {
+   "what": "강제 도주 dodge_risk 임계",
+   "where": "battle.rs:393",
+   "value": 9,
+   "effect": "올리면(예 14) 논타겟 궤적/캐스트라인이 있어도 위험도가 더 높아야 회피 후보를 만든다 → 회피 빈도↓"
+  },
+  {
+   "what": "v48_hard 위험 임계",
+   "where": "battle.rs:411",
+   "value": 24,
+   "effect": "올리면 회피 후 '단일 후보 조기 종료(gate 1)' 가 덜 걸려 다른 후보(421~) 로 진행 — 결사 중이 아닐 때 한정"
+  },
+  {
+   "what": "v48_hard HP 배수",
+   "where": "battle.rs:415",
+   "value": 20,
+   "effect": "hp*20 <= applyed_damage*100 (hp <= 5×받은피해). 20 을 올리면 더 낮은 hp 에서만 hard → gate 1 조기종료↓"
+  },
+  {
+   "what": "근접 적 판정 여유",
+   "where": "battle.rs:423 (closure$2)",
+   "value": 30000,
+   "effect": "올리면 near_enemies 에 더 먼 적이 들어와 resolve_fight_stake/check_kill_die_tick 입력이 넓어짐"
+  },
+  {
+   "what": "근접 아군 반경²",
+   "where": "battle.rs:429 (closure$3)",
+   "value": 14400000001,
+   "effect": "120000. 올리면 near_allies 가 늘어 t_die(적 처형 예측)·fight_stake 가 낙관적으로"
+  },
+  {
+   "what": "처형 거리 여유",
+   "where": "battle.rs:445",
+   "value": 25000,
+   "effect": "올리면 더 먼 focus 도 킬확보 검사 대상 → kill_secure 실패 시 블록 탈출(정상 후보) 빈도↑"
+  },
+  {
+   "what": "회피 claim 홀드",
+   "where": "battle.rs:511",
+   "value": "tps*2",
+   "effect": "2초. 늘리면 claim 후 캐스트라인 재확인(L398~400) 창이 길어짐"
+  },
+  {
+   "what": "카이팅 keep_range 감산",
+   "where": "battle.rs:1143 (v48_kite_position 인라인 @518)",
+   "value": 8000,
+   "effect": "올리면 사거리보다 더 안쪽 링을 1순위로 → 더 붙는 카이팅"
+  },
+  {
+   "what": "카이팅 링 2·3 가산",
+   "where": "battle.rs:1156~1157",
+   "value": "30000 / 70000",
+   "effect": "링 1(keep_range) 실패 시 후퇴 링 반경. 올리면 더 멀리 빠짐"
+  },
+  {
+   "what": "탈출 링(자기중심)",
+   "where": "battle.rs:1162~1163",
+   "value": "24000 / 48000",
+   "effect": "escaping 일 때 링 목록 앞에 삽입 — 올리면 첫 탈출 스텝이 길어짐"
+  },
+  {
+   "what": "빔 회피 폭 여유",
+   "where": "battle.rs:1061/1064 (v48_on_cast_line 인라인)",
+   "value": 15000,
+   "effect": "halfwidth+champ_r+15000. 올리면 궤적 근처 후보점을 더 넓게 버림"
+  },
+  {
+   "what": "dodge end_delay",
+   "where": "battle.rs:403",
+   "value": 5,
+   "effect": "new_dodge 3번째 인자(DI end_delay). 의미는 콜리 몫"
+  }
+ ],
+ "unknown": [
+  "L519~520 의 `escaping` 표현식(%2430 phi: [true,%2405]·[%2428,%2426]) 과 L521~535(kite 사용·AroundPosition push 등)는 배치 B 범위 — 이 명세는 kite 인자·반환만 적음",
+  "v48_kite_position 6번째 인자(Option<usize>)는 DI 이름이 없다(`?`). L441 의 focus(goal 4/7 → None, 그 외 goal.focus) 와 같은 값이 %2406/%2407 로 전달됨 — 이름은 추정 focus_id",
+  "DIRS16(anon.94acafa22d01e083ca1cc62f01598c8f.267, m02.ll:275) 방향표 값(1000,0)(924,383)(707,707)(383,924)… 는 전역 상수라 C1 대상이 아니어서 constants 에 넣지 않음(본문엔 memcpy 256B 참조만)",
+  "Effect::range(caster)(effect.rs:26) 의 고정 가산 15000 과 L1061/1064 의 15000 이 같은 의미(표적 반경 기본값)인지는 확인 못 함 — 값 일치만 관측",
+  "`data.blackboard[1 - player.team]`(적 팀 인덱스) 를 is_recent_visible 첫 인자로 넘기는 이유(블랙보드 배열의 인덱스 규약)는 game_core 몫 — IR 사실만 기록",
+  "Game::adjust_position(ptr %2662=context+0x20, ptr %2663=context+0x8, x, y) 의 인자 의미(map, setting)는 GameContext 레이아웃(tcxdict)으로 추정 — _gcbc define 미독",
+  "nexus_final_stand 의 의미는 _docs game_ai.txt L497/L617 '최후 단계(쌍둥이 전멸 + 넥서스 피격)' 과 이름 일치로 추정 — 본문 미독(m04.ll)",
+  "position_score_at_position 내부 TLS(POS_EVAL_CACHE)·check_kill_die_tick 내부 메모·resolve_fight_stake(ResolveFightCache 80B/ResolveFightKey 184B 존재) 의 캐시 동작은 이 범위 밖 — signature.tls 두 번째 항목에 호출 순서만",
+  "out-of-line v48_on_cast_line(L400·L506·L1191) 본문(m02.ll:66030~)은 미독 — 인라인된 1183 사본(빔 점/선분 거리 ≤ halfwidth+champ_r+15000)과 동일하다고 가정하지 않았음(계약만)",
+  "closure$0/1 의 `Effect::is_in_range(eff, c, champ)` 인자 순서 = (effect, caster=c, target=champ) 로 읽음(IR 인자 순서 그대로) — is_in_range 정의(_gcbc) 미독",
+  "L1200 best 갱신 3순위 step(dist² to champ) 비교 `%2762 = step < best.d` 의 DI 이름 `better` — 1순위 range_err·2순위 risk 는 확정, 동률 시 더 낮은 인덱스 유지"
+ ]
+}

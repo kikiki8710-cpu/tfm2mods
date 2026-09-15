@@ -1,0 +1,81 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_huntNtB2_17SerpenHuntSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\serpen_hunt.rs",
+ "src_line": 201,
+ "ir_file": "m02.ll",
+ "ir_from": 11075,
+ "ir_to": 17795,
+ "aux": [],
+ "batch": "I (소스 루트 줄 489~514 · 블록 76개 · 명령 ~294줄 · 그중 255줄이 L513 드롭/해제 반복)",
+ "one_line": "[배치 I] 최적 이동행동의 입력좌표가 투사체 궤적 위면 RunAway(end_delay 5) 단일 후보, 아니면 최적 이동행동 clone 단일 후보 반환 + 지역 Vec 3개 해제",
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo::collections::vec::Vec<SmallActionPlay> (32B)", "note": "이 범위의 5개 return 지점 전부가 여기에 쓴다 — 498/500/503/506 은 from_iter_in([1개]) 결과, 511 은 act_actions(%91) 를 32B memcpy"},
+   {"i": 1, "name": "self", "type": "&mut SerpenHuntSubPlan (1B · need_recall:bool@0x0)", "note": "이 범위(489~514)에서 읽기·쓰기 0건 (IR 속성 noalias·dereferenceable(1) · initializes 없음)"},
+   {"i": 2, "name": "version", "type": "usize", "note": "%102 슬롯에서 재로드해 position_score_at_position 1번째 인자로 전달(m02.ll:17034) — 이 범위 자체 분기 없음"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "note": "이 범위 미사용 (485 get_input 인자 = 배치 H)"},
+   {"i": 4, "name": "player", "type": "&PlayerState (2528B, readonly)", "note": "position_score_at_position 2번째 · new_with_skill 2번째 인자"},
+   {"i": 5, "name": "data", "type": "&OperationData (24B, readonly)", "note": "position_score_at_position 3번째 · new_with_skill 1번째 인자 · data.context.pool(%326, L312 계산) 이 from_iter_in 의 bump"},
+   {"i": 6, "name": "parameter", "type": "&ScoreParameter (5384B, readonly)", "note": "&parameter.positioning_score(+0x9f0 = %348, L428 계산) 를 position_score_at_position 4번째 인자로"},
+   {"i": 7, "name": "team_plan", "type": "ptr (nonnull, 크기 미상 — dereferenceable 없음)", "note": "이 범위 미사용"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData (224B)", "note": "이 범위 미사용 (485 get_input 인자 = 배치 H)"}
+  ],
+  "returns": "sret 32B = bumpalo Vec<SmallActionPlay>{buf.ptr@0x0, buf.a(&Bump)@0x8, buf.cap@0x10, len@0x18} — 니치·패딩 없음, 32B 전부 live. 이 범위의 from_iter_in([x], data.context.pool) 4곳(498/500/503/506)은 cap=1·len=1(m01.ll:163~ from_iter_in → reserve_internal_or_panic(used 0, extra 1, amortized) = max(1, 0*2)=1 · m02.ll:49585~), ptr = bump 에 184B 할당. 511 은 act_actions(%91) 를 그대로 옮김(cap/len 은 배치 H 의 값). 원소 184B · 태그 @0xb1(1B, 니치 · tcxdict --enum SmallActionPlay: RunAway=3 … Stop=19, AroundPosition 은 암묵). ★이 범위가 만드는 원소: (a) 498 RunAway — payload SmallActionRunAway 136B @0x0(live: 0x0~0x84 + path_finder 니치태그 @0x7d · 0x84~0x88 구조체 내부 패딩 · 0x88~0xb1 및 0xb2~0xb8 은 alloca %71 잔여 = 미기록) + 태그 3 @0xb1 (m02.ll:17088~17089). (b) 500/503/506 best_move_action.clone() — variant 는 배치 H 가 고른 move_actions 원소(%2127) 것 그대로, live 바이트 = 그 variant 의 r14 action_candidates_old 표(Clone 은 아웃오브라인 @…Clone5clone).",
+  "tls": "없음 — 이 범위 IR 에 LocalKey::with / thread_local 접근 0건(함수 본체 11075~17795 전체도 grep 0건). position_score_at_position(아웃오브라인, position_eval.rs:1192) 내부의 TLS 사용 여부는 그 함수 명세 소관(이 범위에서는 호출 1회 · 호출 조건 = trajectory_possible && input==Some(Move))."
+ },
+ "reads": [
+  {"base": "Option<Input> (지역 move_action_input=%74, get_input sret 32B)", "offset": "0x0", "name": "tag(i64 · 니치)", "note": "switch: -1=None(tg_game_ai nstart=2^64-1) · 0=Some(Move) · 그 외=Some(Return1/Attack2/Skill3/Skill2 4/Ult5) — m02.ll:17018~17022"},
+  {"base": "Option<Input> (지역 %74)", "offset": "0x8", "name": "Move.x (u64)", "note": "m02.ll:17028 — Some(Move) 케이스에서만 로드"},
+  {"base": "Option<Input> (지역 %74)", "offset": "0x10", "name": "Move.y (u64)", "note": "m02.ll:17025"},
+  {"base": "ScoreParameter", "offset": "0x9f0", "name": "positioning_score (PositioningScoreData 2760B)", "note": "%348 = gep %6, 2544 (L428, 배치 G 에서 계산) → position_score_at_position 4번째 인자로만 전달"},
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "%262 (L236/312, 배치 G 계산) → %326 = context.pool(+0x0) = &Bump — from_iter_in 3번째 인자"},
+  {"base": "PositioningScore (지역 position_score=%72, sret 56B)", "offset": "0x30", "name": "on_trajectory (bool)", "note": "m02.ll:17045~17048 — true 면 +0x31 은 읽지 않음(단락)"},
+  {"base": "PositioningScore (지역 %72)", "offset": "0x31", "name": "on_periodic_trajectory (bool)", "note": "m02.ll:17051~17053 — +0x30 이 false 일 때만"},
+  {"base": "Vec<SmallActionPlay> (지역 %87 move_actions / %91 act_actions / %94 act_actions)", "offset": "0x0", "name": "buf.ptr", "note": "L513 인라인 Bump::dealloc — footer.ptr 와 비교(m02.ll:17134·17151)"},
+  {"base": "Vec<SmallActionPlay> (지역 3개)", "offset": "0x8", "name": "buf.a (&Bump)", "note": "m02.ll:17132~17133"},
+  {"base": "Vec<SmallActionPlay> (지역 3개)", "offset": "0x10", "name": "buf.cap", "note": "m02.ll:17124~17126 — 0 이면 dealloc 생략"},
+  {"base": "bumpalo::Bump", "offset": "0x10", "name": "current_chunk_footer (Cell<NonNull<ChunkFooter>>)", "note": "m02.ll:17135~17136"},
+  {"base": "bumpalo::ChunkFooter (distruct 폴백 · tcx 에 없음)", "offset": "0x20", "name": "ptr (Cell<NonNull<u8>>)", "note": "m02.ll:17146~17147 — 마지막 할당이면 되돌림"}
+ ],
+ "writes": [
+  {"base": "(sret) Vec<SmallActionPlay>", "offset": "0x0", "name": "buf.ptr/buf.a/buf.cap/len 32B 전부", "value": "from_iter_in([1개], data.context.pool) → {bump alloc 184B, %326, 1, 1}", "note": "498 (m02.ll:17090) · 500 (17078) · 503 (17100) · 506 (17228) — 아웃오브라인 from_iter_in 이 %0 에 직접 sret"},
+  {"base": "(sret) Vec<SmallActionPlay>", "offset": "0x0", "name": "32B memcpy", "value": "act_actions(%91) 그대로", "note": "511 (m02.ll:16275) — act_actions.is_empty()==false 경로(L455 분기, 배치 H) 의 반환. 이후 %91 은 드롭하지 않음(이동됨)"},
+  {"base": "SmallActionPlay (지역 %71, 498 경로)", "offset": "0xb1", "name": "tag", "value": "3 (=RunAway)", "note": "m02.ll:17088~17089 — new_with_skill sret 136B 를 %71 에 memcpy 한 뒤 태그만 기록"},
+  {"base": "bumpalo::ChunkFooter", "offset": "0x20", "name": "ptr", "value": "buf.ptr + cap*184", "note": "L513 지역 Vec 드롭의 인라인 Bump::dealloc — `footer.ptr == buf.ptr`(내 버퍼가 마지막 할당)일 때만 되돌림(m02.ll:17155~17165 등 %87·%91·%94 각 1회 + 언와인드 경로). 원소 stride 184 는 `mul i64 %cap, 184`"},
+  {"base": "heap(Bump)", "offset": "-", "name": "184B 할당", "value": "from_iter_in 내부(reserve_internal_or_panic, m02.ll:49585~)", "note": "footer.ptr 를 184B(정렬 8) 내림 — 아웃오브라인이라 이 범위 IR 에 직접 store 없음"},
+  {"base": "SerpenHuntSubPlan (&mut self %1)", "offset": "-", "name": "없음", "value": "-", "note": "이 범위 489~514 에서 self 쓰기 0건 · debug(%8) 쓰기 0건"}
+ ],
+ "constants": [
+  {"value": -1, "src_line": 489, "meaning": "Option<Input>::None 의 니치 태그(2^64-1 · _tcx tg_game_ai.jsonl:1125 nstart=18446744073709551615). switch case → 506 경로"},
+  {"value": 0, "src_line": 489, "meaning": "Input::Move 의 메모리 태그(tcxdict --enum Input idx0=tag0). switch case → 490 분기 진입(x,y 로드)"},
+  {"value": 11, "src_line": 493, "meaning": "PositionEvalPurpose::Objective 의 메모리 태그(니치 niche_start=2 · idx9 → 11). position_score_at_position 7번째 인자 i8"},
+  {"value": 5, "src_line": 498, "meaning": "SmallActionRunAway::new_with_skill 3번째 인자 end_delay(usize · m08.ll DILocalVariable !53154). 궤적 회피 도주의 종료 지연"},
+  {"value": 3, "src_line": 498, "meaning": "SmallActionPlay::RunAway 의 메모리 태그(니치 niche_start=3 · idx0 → 3) — store i8 3 @+0xb1 (m02.ll:17089). 본체 다른 곳의 `shl … 3`(배치 G/H 범위 stride 접힘)과는 무관 — 시프트량 아님"}
+ ],
+ "calls": [
+  "game_ai::position_eval::position_score_at_position",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "game_ai::small_action::SmallActionPlay::clone",
+  "bumpalo::collections::vec::from_iter_in",
+  "bumpalo::collections::vec::Vec::drop",
+  "core::ptr::drop_glue",
+  "llvm.memcpy"
+ ],
+ "logic": "// serpen_hunt.rs:489~514 (배치 I)\n// 진입 문맥(배치 H 소관, 계약만): L455 `if act_actions.is_empty()`(%91.len==0, m02.ll:14506~14510) 의 참 가지 안에서 L475 best_move_action = move_actions.iter().max_by_key(serpen_action_score).unwrap() (%2127, &SmallActionPlay) · L479~483 trajectory_possible: bool · L484~488 `let move_action_input: Option<Input> = if trajectory_possible { best_move_action.clone().get_input(version, rnd, player, data, &parameter.positioning_score, debug) } else { None };` (DI: !20720 line484 type Option<Input> · get_input 호출 m02.ll:17007 · 임시 clone %73 드롭 L486).\n//   ⚠IR 상 trajectory_possible==false 경로(%2223, L482 any 루프 소진)는 get_input 을 호출하지 않고 곧장 %2226(L506 경로)으로 점프한다(m02.ll:16986 `br label %2226 ;L489`) = None 케이스와 같은 코드. 또한 L455 거짓 가지(act_actions 비어있지 않음)는 %1997 → L511.\n\n// ── L489 (DILexicalBlock !20723 · 변수 move_action_input: Input 재바인딩 !20722)\n// 줄 길이 산술(rmeta_srcmap: L489 = 60자 = 들여쓰기 8 + 52) 와 정합하는 형태: `if let Some(move_action_input) = move_action_input {`\ntag = *(move_action_input as *i64)                          // %2232 = load %74 (m02.ll:17018)\nswitch tag {\n  -1 (None)              => goto L506                        // %2226\n  0  (Some(Input::Move)) => goto L490                        // %2233\n  _  (Some(그 외 5종))    => goto L503                        // %2239\n}\n\n// ── L490 (DILexicalBlock !20725 · x,y !20724/!20726 line 490 · 줄 59자 = 10+49 ⇔ `if let Input::Move { x, y } = move_action_input {`)\n// IR 은 x,y 로드에 L489 를 붙였다(let-chain 인라인 아티팩트). L490 자체 분기 명령 없음(태그 0 케이스 = 이미 Move 확정).\nx = move_action_input.+0x8 ; y = move_action_input.+0x10     // %2237, %2235\n\n// ── L491 한글 주석(28자 mb) · L492 `let on_trajectory = {` (DILexicalBlock !20728) · L493 `let position_score = position_score_at_position(` (!20730)\nposition_score: PositioningScore(56B) = position_score_at_position(version, player, data, &parameter.positioning_score /*+0x9f0*/, x, y, PositionEvalPurpose::Objective /*i8 11*/)   // m02.ll:17035\n// ── L495 (83자 = 14+69 ⇔ `position_score.on_trajectory || position_score.on_periodic_trajectory`)\non_trajectory = position_score.on_trajectory /*+0x30*/ || position_score.on_periodic_trajectory /*+0x31*/   // 단락: +0x30 참이면 +0x31 미로드 (17045~17056)\n// L496 `};` — position_score 수명 종료(lifetime.end !26785)\n\n// ── L497 `if on_trajectory {`\nif on_trajectory {\n  // L498: return bumpalo::collections::Vec::from_iter_in([SmallActionPlay::RunAway(SmallActionRunAway::new_with_skill(data, player, 5 /*end_delay*/, false /*with_skill*/))], data.context.pool)\n  ra: SmallActionRunAway(136B) = new_with_skill(data, player, 5, false)   // m02.ll:17072 sret %70\n  elem(%71): memcpy 136B ← ra ; elem.+0xb1 = 3 (RunAway 태그)               // 17086~17089\n  *sret = from_iter_in([elem], data.context.pool)                            // 17090 → cap1 len1\n} else {\n  // L500: return from_iter_in([best_move_action.clone()], data.context.pool)\n  elem(%68) = Clone::clone(best_move_action /*%2127*/)                       // 17066 ; memcpy 184 → %69 ; 17078 from_iter_in\n}\n// L502 `} else {` — Some(Move) 가 아닌 Some(_)\n// L503: return from_iter_in([best_move_action.clone()], data.context.pool)   // %66 clone 17041 · 17100 from_iter_in\n// L505 `} else {` — None (및 trajectory_possible==false 의 스레딩 경로)\n// L506: return from_iter_in([best_move_action.clone()], data.context.pool)   // %64 clone 17002 · 17228 from_iter_in\n// ⟹ 500/503/506 은 바이트 단위로 동일한 결과(같은 %2127 clone · 같은 bump). 차이는 오직 498 RunAway 로 갈 수 있느냐.\n\n// ── L508 `} else {` (L455 act_actions.is_empty() 의 거짓 가지) · L509~510 한글 주석 · L511 `act_actions`\n// %1997 (m02.ll:16275): *sret = memcpy32(act_actions %91) — 이동이므로 %91 은 드롭하지 않음.\n\n// ── L513 `    }` (L455 if 의 닫는 괄호 자리 · 지역 Vec 드롭 · 255 IR줄) — 반환 경로별 순서:\n//   489~506 경로: %2258 drop(move_actions %87) → 인라인 dealloc(%87) → %2295 drop(act_actions %91) → dealloc → %2330 drop(act_actions %94) → dealloc → %2365 → L514\n//   511 경로:     %1997 drop(%87) → dealloc → %2440 → %2330 drop(%94) → dealloc → L514        (%91 은 이동됨)\n//   472 경로(배치 H, %2366→%2368): %1957 drop(%87) → %2369 drop(%91) → %2404 drop(%94) → %2439 → L514\n//   각 drop = <Vec<SmallActionPlay> as Drop>::drop(아웃오브라인 · 원소 drop_in_place) + 인라인 RawVec/Bump::dealloc:\n//     if cap != 0 { footer = *(buf.a + 0x10); if footer.ptr(+0x20) == buf.ptr { footer.ptr = buf.ptr + cap*184 } }   // 마지막 할당만 되돌림(bumpalo 는 하향 할당)\n//   언와인드 정리: %1326 drop_glue(%87)→%333→(%334 phi 로 %91 드롭 여부 분기: 2015 경로만 false)→%2443 drop_glue(%91)→%287 drop_glue(%94)→caller.\n// ── L514 `  }` ret void (%286).\n\n// 사장 코드: reach.txt 「사장 호출부」 = L254 unwrap_failed(범위 밖). 이 범위(489~514) 에 NA 콜리 없음.\n// 이 범위에서 push 되는 variant 집합: {RunAway(태그3 · new_with_skill(data, player, end_delay=5, with_skill=false)), best_move_action 의 variant(clone, 3사이트)}. self 쓰기 0 · debug 쓰기 0 · TLS 0.",
+ "knobs": [
+  {"what": "궤적 회피 도주의 end_delay", "where": "serpen_hunt.rs:498 (new_with_skill 3번째 인자)", "value": 5, "effect": "올리면 투사체 궤적 위에 있을 때 만든 RunAway 가 더 오래 유지(종료 지연 ↑) — 의미는 SmallActionRunAway 명세(r14) 계약에 따름. 내리면 더 빨리 도주 종료"},
+  {"what": "궤적 회피 도주의 with_skill", "where": "serpen_hunt.rs:498 (new_with_skill 4번째 인자)", "value": false, "effect": "true 로 바꾸면 도주 중 이동기 사용 허용(SmallActionRunAway.with_skill @0x80). 현재는 스킬 없는 도주"},
+  {"what": "위치 평가 목적", "where": "serpen_hunt.rs:493~494 (PositionEvalPurpose::Objective, 태그 11)", "value": 11, "effect": "다른 purpose 로 바꾸면 position_score_at_position 의 on_trajectory 산출 문맥이 달라짐(내부는 그 함수 명세 소관)"},
+  {"what": "궤적 판정 OR 결합", "where": "serpen_hunt.rs:495", "value": "on_trajectory || on_periodic_trajectory", "effect": "둘 중 하나만 참이어도 RunAway. `&&` 로 바꾸면 주기 궤적만 있는 경우 최적 이동을 유지"}
+ ],
+ "unknown": [
+  "L491 · L509 · L510 의 한글 주석 본문(rmeta 에 원문 없음 — 줄 길이 69/22/35자, mb 28/8/18 만 확인). 행동엔 영향 없음.",
+  "소스 문장 형태(`if let Some(..)` / `if let Input::Move{x,y}`)는 rmeta_srcmap 줄 길이 산술(60=8+52 · 59=10+49 · 83=14+69 · 146=14+132 등 전 줄 정합)과 DILexicalBlock/DILocalVariable(!20722 type Input @489 · x,y @490)으로 복원한 것 — 컬럼 정보가 없어 한 줄 안 순서는 원리적으로 불가하나 이 범위는 줄마다 식이 하나라 동작 판정에는 영향 없음.",
+  "trajectory_possible==false 경로가 get_input 을 부르지 않고 L506 코드로 직행하는 것은 IR 사실(m02.ll:16986)이며, 소스가 `else { None }`(L487 = 14자 = 10+4 `None` 정합) 이라 컴파일러 점프-스레딩으로 설명된다. 소스 표기는 추정, 동작은 확정.",
+  "position_score_at_position 내부(TLS 사용 여부 · on_trajectory 산출식)는 아웃오브라인 콜리(position_eval.rs:1192, pub) — 이 배치 범위 밖. 호출 계약만 기록.",
+  "best_move_action(%2127) 이 가리키는 move_actions 원소의 variant 집합 및 SmallActionPlay::clone 의 variant 별 live 바이트는 배치 H(L475) · r14 action_candidates_old 표 소관.",
+  "bumpalo::ChunkFooter 는 tcxdict 에 없어 distruct(DWARF 역산) 로 +0x20=ptr 을 확인 — 2차 폴백 근거.",
+  "언와인드 정리 phi %334(m02.ll:11896)의 `false` 유입(%2015)이 어느 반환 경로인지(511 경로에서 %91 이동 후 예외 시 %91 드롭 생략) — 정상 경로엔 영향 없음, 미추적."
+ ]
+}

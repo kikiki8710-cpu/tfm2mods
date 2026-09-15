@@ -1,0 +1,941 @@
+{
+ "name": "PassiveJunglePlan::next_plan",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungleNtB2_17PassiveJunglePlan9next_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs",
+ "src_line": 228,
+ "ir_file": "m04.ll",
+ "ir_from": 29370,
+ "ir_to": 32748,
+ "aux": [
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 10116,
+   "ir_to": 10355,
+   "what": "L239 min_by_key fold (next_plan closure#0 = dist_sq 키) — 언롤 5슬롯 뒤 나머지 슬롯 fold"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 33331,
+   "ir_to": 33506,
+   "what": "valid_deep_push_gank L355~357 적 챔피언 수집 Vec<&Entity>::from_iter_in(iter_champions(적팀).filter(closure#0))"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 65030,
+   "ir_to": 65079,
+   "what": "valid_deep_push_gank closure#0 call_mut (L356~357 술어)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 30446,
+   "ir_to": 30709,
+   "what": "valid_deep_push_gank L367~370 아군 수집 (0..5).filter(in_big_line).filter_map(player_champion).filter(s1_0)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 65082,
+   "ir_to": 65104,
+   "what": "valid_deep_push_gank s1_0 call_mut (L370 hp>40 술어)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 12250,
+   "ir_to": 13027,
+   "what": "lead_action_v37 L474~496 target_lines.iter().find(s1_0) — 라인커버 후보 판정(try_fold)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 20677,
+   "ir_to": 20911,
+   "what": "lead_action_v37 L523~526 target_lines.into_iter().filter(s3_0=is_focused_line && s4_0) → Vec<LineType>"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 64258,
+   "ir_to": 64932,
+   "what": "lead_action_v37 s4_0 call_mut = valid_gank_line(L636~683) 본문 전체(인라인)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 64935,
+   "ir_to": 65002,
+   "what": "valid_gank_line closure#0 call_mut (L638~639 적 술어)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 65005,
+   "ir_to": 65027,
+   "what": "valid_gank_line s2_0 call_mut (L655 아군 hp>40 술어)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 47527,
+   "ir_to": 47715,
+   "what": "lead_action_v37 L530~532 lines.iter().map(s5_0: (line, evaluate_gank_opportunity_with_score(..).1)) → Vec<(LineType,i32)>"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 13414,
+   "ir_to": 13527,
+   "what": "lead_action_v37 L538~540 scored.into_iter().filter(s6_0: score>=min).max_by_key(s7_0: score)"
+  }
+ ],
+ "one_line": "패시브 정글러의 다음 큰 플랜 결정: 카정 근접 교전(Battle) → 캠프 클리어 후 리드 행동(딥푸시 갱/라인커버/갱 셋업/카정 캠프 전환) → 아이템 점수 확률 귀환(ActiveRecall) → None",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "*mut Option<BigPlan> (384B)",
+    "note": "반환 슬롯. None = +0 i64 -1 (L300·L292). Some = +0 태그(tcxdict --enum BigPlan 메모리태그) + 페이로드 +8.."
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut PassiveJunglePlan (104B)",
+    "note": "IR 속성: noalias align 8 dereferenceable(104) · readonly 없음 = &mut · initializes 속성 없음(부분 쓰기) → writes 전수 기재"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "본문 분기 없음. BattlePlan::new/update·buy_item·upgrade_item·is_cleared(poison 전달=미사용)에 그대로 전달"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng (320B)",
+    "note": "&mut. 소비: L291 gen_range(0..=100) · lead_action 내 L422/L548 gen_range(0..1000) · BattlePlan::update · buy_item · upgrade_item · PlayerState::strategy · evaluate_gank_opportunity_with_score"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "note": "readonly"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "note": "readonly. +0 cache · +8 context · +0x10 blackboard[2]"
+   },
+   {
+    "i": 6,
+    "name": "goal_data",
+    "type": "&GoalData (248B)",
+    "note": "readonly. has_deep_pushed_enemy 에서 enemy_region[5] 만 읽음"
+   },
+   {
+    "i": 7,
+    "name": "_positioning_score",
+    "type": "&PositioningScoreData (2760B)",
+    "note": "readonly. 본문 미사용 — BattlePlan::update(L251) 로만 전달"
+   },
+   {
+    "i": 8,
+    "name": "team_plan",
+    "type": "&TeamPlan (1064B)",
+    "note": "IR 속성 nonnull align 8 (dereferenceable 없음). 직접 읽기 = +0x378 next_respawn_tick[적팀][camp_idx] (L591). is_cleared·BattlePlan::update 에 전달"
+   },
+   {
+    "i": 9,
+    "name": "debug",
+    "type": "&mut DebugFrameData (224B)",
+    "note": "본문 직접 쓰기 없음. BattlePlan::update(L251) 로 전달 + s3_0 클로저 캡처(valid_gank_line 인자, 본문에서 미사용)"
+   }
+  ],
+  "returns": "Option<BigPlan> (sret 384B). 살아있는 바이트(variant 별): None → +0 i64 -1 만(나머지 미기록) / Battle(태그 9) → +0=9, +8..+0x120 = BattlePlan 280B memcpy(BattlePlan::new+update 산출물 그대로 · 내부 패딩 포함) · +0x120..0x180 미기록 / ActiveRecall(태그 8) → +0=8 만 / LineGanker(태그 10) → +0=10 · +8 chats.cap=0 · +0x10 chats.ptr=8(dangling) · +0x18 chats.len=0 · +0x20 setup_limit=tick+tps · +0x28 wait_limit=tick+tps*12(딥푸시 L426)|tick+tps*10(갱 L552) · +0x30 line(i8) · +0x31 phase=7(Setup) · +0x32..0x38 패딩 미기록 · +0x38.. 미기록 / LineGankCover(태그 11) → +0=11 · +8/0x10/0x18 chats 빈 Vec(0,8,0) · +0x20 wait_limit=tick+tps*10 · +0x28 line(i8) · +0x29.. 미기록 / PassiveLine(태그 3) → +0=3 · +8 v46_flee_entry 태그 0(None) · +0x10..0x20 미기록(None 페이로드) · +0x20 chats.cap 0 · +0x28 ptr 8 · +0x30 len 0 · +0x38 committers cap 0 · +0x40 ptr 8 · +0x48 len 0 · +0x50 flee_threats cap 0 · +0x58 ptr 8 · +0x60 len 0 · +0x68 v46_pending(160B: +0x68=0 · +0x70 ptr 8 · +0x78..0x88 0 · +0x88 ptr 8 · +0x90..+0x11e memset 0) · +0x11e line(i8) · +0x11f 패딩 미기록 · +0x120.. 미기록",
+  "tls": {
+   "direct": "없음 — 본문(29370~32748)과 aux 12조각 어디에도 LocalKey::with / thread_local 접근이 없다 (grep LocalKey = 0)",
+   "indirect": [
+    {
+     "name": "BattlePlan::update (L251 · m10.ll 23429)",
+     "role": "소비자/작성자 (r14 자식 명세 소관)",
+     "call_conditions": "is_counter_jungle && hp_ratio>49 && 근접 가시 적 존재 && (hp_ratio>=enemy_hp_ratio || my_level>enemy_level) 일 때 1회. 이 안에서 position_eval_at(POS_EVAL_CACHE)·interaction_score(INTER_CTX)·champion_hp_value(HP_VALUE_MEMO)·v47_siege_stance·v48_cast_beams 가 발화하는지는 BattlePlan::update 명세를 볼 것 — next_plan 은 그 순서에 관여하지 않는다(호출 1회, 그 전후 다른 TLS 접점 없음)"
+    },
+    {
+     "name": "MapDef::camp_pos → CAMP_POS_MEMO (game_core g07.ll 152570 · LocalKey<RefCell<(usize,[[Option<(u64,u64)>;2];8])>>)",
+     "role": "소비자+작성자(game_core 순수 메모: MapDef 기하의 캐시)",
+     "key": "(JungleType i8, bool) — 첫 usize 는 메모 유효성 키(추정: 맵 식별) · 미탐색",
+     "call_conditions": "CounterJungle 분기에서만: L585(camp_a) → L592(camp_a, best 후보일 때) → L585(camp_b) → L592(camp_b) → L619(best) 순. 순수 함수 메모라 미러 순서 무관(추정 — game_core 경계, 시그니처만 확인)"
+    },
+    {
+     "name": "is_cleared(m04.ll 62404) · buy_item(m14.ll 8267) · upgrade_item(m14.ll 6620) · evaluate_gank_opportunity_with_score(m04.ll 62981)",
+     "role": "-",
+     "call_conditions": "각 define 본문 grep LocalKey = 0 (직접 접점 없음 · 그 안의 콜리는 미확인)"
+    }
+   ]
+  }
+ },
+ "reads": [
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x0",
+   "name": "chats.cap",
+   "note": "push 시 len==cap 비교(grow_one)"
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x8",
+   "name": "chats.ptr",
+   "note": "push 대상"
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x10",
+   "name": "chats.len",
+   "note": ""
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x48",
+   "name": "team",
+   "note": "L231 is_counter_jungle · L261/L456/L514 is_cleared 인자"
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x50",
+   "name": "player_team",
+   "note": "L231"
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x58",
+   "name": "last_lead_action_tick",
+   "note": "L285 → lead_action_v37 L393 쿨다운"
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x60",
+   "name": "jungle",
+   "note": "JungleType i8 · is_cleared/is_side_cleared 인자"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter",
+   "note": "&AthleteParameter → ego_ratio/aggressive_ratio/order_ratio"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x4a8",
+   "name": "info.items.len",
+   "note": "L278 ==0 이면 item_score 10"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L232/L400/L403 등 · 적팀 = 1-team"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x990",
+   "name": "info.level",
+   "note": "L244 my_level · L246 enemy_level(적 PlayerState)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position(tag i32)",
+   "note": "player_champion[team][position] 인덱스"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] (744B stride)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "dyn AbstractGame"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "슬롯 0x28 tick · 0x40 get_game_mode · 0x1f0 get_entity_by_id(aux s1_0) · 0x208 iter_player"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x130",
+   "name": "twin_towers[team]",
+   "note": "aux s1_0 L476"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[team]",
+   "note": "aux s1_0 L482"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[team] (+0x190 top_tower2 · +0x1a0/0x1b0 mid · +0x1c0/0x1d0 bottom)",
+   "note": "has_deep_pushed_enemy L307 · s1_0 L475: line*32 stride, cache+team*8"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5]",
+   "note": "iter_champions 슬라이스 · 자기 챔프 lookup"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x2218",
+   "name": "region_point[27] (i32)",
+   "note": "CounterJungle L587 (team==1 이면 부호 반전)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "&GameSetting"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "&MapDef"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x30",
+   "name": "item_list",
+   "note": "&Vec<Box<dyn ItemInfo>> (+8 ptr · +0x10 len) · L268"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial",
+   "note": "L439 is_line_phase: {0 None,5 MidBottom,7 Line,8 Total} 만 시간 게이트 적용"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick",
+   "note": "L439/703 리드행동 시간 게이트"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "L410/457/516/575 챔프가 어느 사이드인가(x > height-y → Bottom)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "tps"
+  },
+  {
+   "base": "GoalData",
+   "offset": "0x0",
+   "name": "enemy_region[i].tag (stride 0x18 · +0x8 region · +0x10 last_known)",
+   "note": "has_deep_pushed_enemy L316~319"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x38b8",
+   "name": "regions[30][30]",
+   "note": "CounterJungle L586 pos/32000 → region"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x54d8",
+   "name": "region_dist[27][27]",
+   "note": "has_deep_pushed_enemy L326"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x378",
+   "name": "next_respawn_tick[2][4]",
+   "note": "CounterJungle L591 [적팀][camp_idx]"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "top_minion_state (0x28 mid · 0x50 bottom): +0 front_minion.tag · +8 id · +0x10 minion_power · +0x20 minion_count(i32)",
+   "note": "L465 minion_count<-2 · valid_gank_line L667/678 · s1_0 L488"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty.tag",
+   "note": "has_deep_pushed_enemy: ==2 Tower"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x128",
+   "name": "ty@Tower.info.ty (TowerType)",
+   "note": "<5 이면(1차 타워 생존) 딥푸시 아님"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "적 id → BattlePlanGoal::TryKill · Chat::Battle"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "hp_ratio 분모(0 이면 div0 패닉)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "CounterJungle L594 travel = dist/move_speed"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": ""
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x58",
+   "name": "sub_goal.tag",
+   "note": "L252 update 후 ==4(RunAway) 이면 폐기"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0x11",
+   "name": "focused",
+   "note": "FocusedAreaStrategy Top0/Bottom1/All2 · L444"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0x12",
+   "name": "early_jungle",
+   "note": "EarlyJungleStrategy GrowthAndCover0/Ganking1/CounterJungle2 · L445/447"
+  },
+  {
+   "base": "JungleCampState",
+   "offset": "0x10",
+   "name": "live_list.len",
+   "note": "CounterJungle L597 ==0 이면 캠프 죽음"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x18",
+   "name": "jungle_runner",
+   "note": "get_game_mode(tag 0 Moba).payload+0x18"
+  }
+ ],
+ "writes": [
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x0/0x8/0x10",
+   "name": "chats (Vec<Chat>)",
+   "value": "push 1건 (grow_one 시 cap/ptr 갱신, len+=1)",
+   "note": "6 사이트: L253 Chat::Battle{tag3,+8 enemy_id,+0x10 0} · L423 HideLine{tag11,+1 line,+8 0}(딥푸시) · L470 CoverLine{tag9,+1 line,+8 0} · L498 GankLineCover{tag10,+1 line,+8 0} · L549 HideLine{tag11,+1 line,+8 0}(갱) · L623 CounterJungle{tag18,+1 camp(JungleType),+8 0}. L423/L549 는 rnd.gen_range(0..1000) < order*600/1000+400 일 때만"
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x58",
+   "name": "last_lead_action_tick",
+   "value": "game.tick()",
+   "note": "5 사이트: L419(딥푸시 갱 확정) · L469(라인커버 확정) · L497(갱커버 확정) · L545(갱 셋업 확정) · L613(카정 캠프 전환 확정)"
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x60",
+   "name": "jungle",
+   "value": "best camp (JungleType)",
+   "note": "L625 CounterJungle 분기 종료 시(반환은 None)"
+  },
+  {
+   "base": "PassiveJunglePlan",
+   "offset": "0x48",
+   "name": "team",
+   "value": "1 - player.info.team (적팀)",
+   "note": "L626 CounterJungle 분기 종료 시 → 이후 is_counter_jungle 이 true 가 됨"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x0",
+   "name": "Option<BigPlan>",
+   "value": "-1 | 9 | 8 | 10 | 11 | 3",
+   "note": "signature.returns 참조"
+  },
+  {
+   "base": "BattlePlan(스택 %33)",
+   "offset": "0x107",
+   "name": "entry_src",
+   "value": "9",
+   "note": "L250 new 직후·update 전 (이후 sret 로 memcpy)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 232,
+   "meaning": "player_champion[team] 바운드(팀 2) · L482/L357 등 반복"
+  },
+  {
+   "value": 100,
+   "src_line": 233,
+   "meaning": "hp*100/stat.hp = hp_ratio(%). L242/L402/L452/L509/L561/aux L370/L638/L655 동일"
+  },
+  {
+   "value": 49,
+   "src_line": 235,
+   "meaning": "카정 교전 진입 hp_ratio > 49 (= 50% 이상)"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 237,
+   "meaning": "120000^2+1 — 근접 적 탐색 반경(제곱 <) = 3.75셀"
+  },
+  {
+   "value": 1,
+   "src_line": 246,
+   "meaning": "enemy_player 못 찾으면 enemy_level=1 · Option 태그 1=Some(buy_item .0 / upgrade_item +0) · (shl 피연산자 1 = tps*2 접힘은 다음 항목 folded_from 2 참조)"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 604,
+   "meaning": "tps*2 (카정 리스폰 허용 = 도착 2초 전). `shl i64 %tps, 1`(IR 32279) 로 접힘"
+  },
+  {
+   "value": 60,
+   "src_line": 249,
+   "meaning": "BattlePlanGoal::TryKill(enemy_id, 60) 둘째 필드(리터럴) · L407 hp_gate 기준 60"
+  },
+  {
+   "value": 0,
+   "src_line": 249,
+   "meaning": "BattlePlanGoal 태그 0 = TryKill · Chat 페이로드 둘째 0 · is_cleared extra 0"
+  },
+  {
+   "value": 9,
+   "src_line": 250,
+   "meaning": "battle.entry_src = 9 · BigPlan::Battle 메모리태그 9(L254) · Chat::CoverLine 태그 9(L470)"
+  },
+  {
+   "value": 4,
+   "src_line": 252,
+   "meaning": "BattleSubPlanGoal 태그 4 = RunAway → Battle 폐기 · L269 tier==4 → 100 · L391 cooldown_sec = 4 - ego/500 · camp_idx 바운드 4"
+  },
+  {
+   "value": 3,
+   "src_line": 253,
+   "meaning": "Chat 태그 3 = Battle · BigPlan::PassiveLine 태그 3(L471) · L271 tier==3 → 70 · L319 tps*3 · L865 Rhino↔Bee 짝 · ⚠`shl 3`(=*8 포인터 stride, aux s4_0/s1_0)는 임계 아님"
+  },
+  {
+   "value": 112,
+   "src_line": 269,
+   "meaning": "ItemInfo vtable 슬롯 0x70 = tier() (divtable)"
+  },
+  {
+   "value": 70,
+   "src_line": 271,
+   "meaning": "tier 3 → item_score 70 · L455/513/563 hp_gate2 = 70 - agg*20/1000"
+  },
+  {
+   "value": 50,
+   "src_line": 273,
+   "meaning": "tier 2 → item_score 50 · L348 딥푸시 갱 hp_ratio < 50 이면 스킵"
+  },
+  {
+   "value": 30,
+   "src_line": 273,
+   "meaning": "tier ≤1 → item_score 30 · L704 tps*30 · L537 agg*30"
+  },
+  {
+   "value": 10,
+   "src_line": 278,
+   "meaning": "아이템 살 수 있고 items.len==0 이면 item_score 10 · BigPlan::LineGanker 태그 10(L426/552) · Chat::GankLineCover 태그 10(L498) · L499/554 tps*10"
+  },
+  {
+   "value": 8,
+   "src_line": 292,
+   "meaning": "BigPlan::ActiveRecall 메모리태그 8 (gen < item_score) · 빈 Vec dangling ptr 8"
+  },
+  {
+   "value": -1,
+   "src_line": 300,
+   "meaning": "Option<BigPlan>::None (+0 i64 -1) · find 결과 없음 i8 -1"
+  },
+  {
+   "value": 500,
+   "src_line": 391,
+   "meaning": "cooldown_sec = 4 - ego_ratio/500"
+  },
+  {
+   "value": 20,
+   "src_line": 407,
+   "meaning": "hp_gate = 60 - aggressive*20/1000 (L455/513/563: 70 - agg*20/1000)"
+  },
+  {
+   "value": 1000,
+   "src_line": 407,
+   "meaning": "비율 분모(aggressive/order ratio 스케일 0..1000 추정) · gen_range(0..1000)"
+  },
+  {
+   "value": 5,
+   "src_line": 316,
+   "meaning": "적 슬롯 5 (goal_data.enemy_region[5] · (0..5)) · L865 is_cleared extra tps*5 · Tower2 타입 하한 5 · ⚠`shl i8 line, 5`(=*32 타워 슬롯 stride, L307)는 임계 아님"
+  },
+  {
+   "value": 27,
+   "src_line": 326,
+   "meaning": "region 개수 27 바운드(region_dist[27][27] · region_point[27])"
+  },
+  {
+   "value": 21720,
+   "src_line": 326,
+   "meaning": "MapDef+0x54d8 region_dist 오프셋(gep 상수)"
+  },
+  {
+   "value": 2,
+   "src_line": 326,
+   "meaning": "region_dist[deep_region][enemy_region] < 2 → 딥푸시 적 존재 · L324 idx 1..=2 · L465/588 minion_count/region_point < -2"
+  },
+  {
+   "value": 400,
+   "src_line": 422,
+   "meaning": "콜(HideLine 채팅) 확률 = order*600/1000 + 400 / 1000 (L548 동일)"
+  },
+  {
+   "value": 600,
+   "src_line": 422,
+   "meaning": "order_ratio 가중"
+  },
+  {
+   "value": 12,
+   "src_line": 429,
+   "meaning": "딥푸시 갱 LineGanker wait_limit = tick + tps*12 (갱 셋업은 tps*10)"
+  },
+  {
+   "value": 7,
+   "src_line": 426,
+   "meaning": "LineGankerPhase 메모리태그 7 = Setup (니치 +6) · BigPlan PassiveJungle 태그 7(미사용) · tutorial Line 7"
+  },
+  {
+   "value": 11,
+   "src_line": 423,
+   "meaning": "Chat 태그 11 = HideLine · BigPlan::LineGankCover 태그 11(L499)"
+  },
+  {
+   "value": -2,
+   "src_line": 465,
+   "meaning": "라인커버 조건 bb[team].line.minion_count < -2 · L588 region_point(부호 보정) < -2 면 카정 후보 탈락"
+  },
+  {
+   "value": 2216,
+   "src_line": 703,
+   "meaning": "GameSetting+0x8a8 epic_jungle.first_spawn_tick (gep 상수)"
+  },
+  {
+   "value": 30624999999,
+   "src_line": 490,
+   "meaning": "175000^2 - 1 — 최전방 미니언이 내 타워/쌍둥이/넥서스에서 >= 175000 떨어져야 라인커버 (aux s1_0)"
+  },
+  {
+   "value": 6400000001,
+   "src_line": 490,
+   "meaning": "80000^2+1 — 그 라인 아군이 최전방 미니언에 < 80000 이면 라인커버 확정 (aux s1_0)"
+  },
+  {
+   "value": -40,
+   "src_line": 537,
+   "meaning": "min_gank_score = -40 - aggressive*30/1000 (i32 · sdiv -1000)"
+  },
+  {
+   "value": -1000,
+   "src_line": 537,
+   "meaning": "agg*30 / -1000 = -(agg*30/1000)"
+  },
+  {
+   "value": 18,
+   "src_line": 623,
+   "meaning": "Chat 태그 18 = CounterJungle(camp, 0)"
+  },
+  {
+   "value": 90000000000,
+   "src_line": 620,
+   "meaning": "300000^2 — best 캠프가 챔프에서 > 300000(9.4셀) 이면 카정 콜 채팅 생략"
+  },
+  {
+   "value": 32000,
+   "src_line": 586,
+   "meaning": "셀 크기 — camp_pos/32000 → regions[y][x] 인덱스"
+  },
+  {
+   "value": 960000,
+   "src_line": 586,
+   "meaning": "30셀*32000 — regions[30][30] 바운드 검사(pos < 960000)"
+  },
+  {
+   "value": 14520,
+   "src_line": 586,
+   "meaning": "MapDef+0x38b8 regions 오프셋(gep 상수)"
+  },
+  {
+   "value": 8728,
+   "src_line": 587,
+   "meaning": "AbstractGameWithCache+0x2218 region_point (gep 상수)"
+  },
+  {
+   "value": 888,
+   "src_line": 591,
+   "meaning": "TeamPlan+0x378 next_respawn_tick (gep 상수)"
+  },
+  {
+   "value": 19600000001,
+   "src_line": 667,
+   "meaning": "140000^2+1 — (aux valid_gank_line) 내 라인 minion_count>1 이면 적이 자기 타워 140000 안이면 갱 불가"
+  },
+  {
+   "value": 10000000001,
+   "src_line": 672,
+   "meaning": "100000^2+1 — (aux valid_gank_line) 적이 자기 타워 100000 안이면 갱 불가"
+  },
+  {
+   "value": 3000,
+   "src_line": 678,
+   "meaning": "(aux valid_gank_line) bb[team].line.minion_power > 3000 이면 갱 불가"
+  },
+  {
+   "value": 59,
+   "src_line": 638,
+   "meaning": "(aux valid_gank_line closure#0) 적 hp_ratio > 59 만 갱 대상"
+  },
+  {
+   "value": 40,
+   "src_line": 655,
+   "meaning": "(aux s2_0/vdpg s1_0) 아군 hp_ratio > 40 만 셈"
+  },
+  {
+   "value": 480,
+   "src_line": 232,
+   "meaning": "AbstractGameWithCache+0x1e0 player_champion (gep 상수)"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::passive_jungle::is_cleared",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::game::blackboard::Blackboard::in_big_line",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_ai::plan_legacy::old::battle::BattlePlan::new",
+  "game_ai::plan_legacy::old::battle::BattlePlan::update",
+  "game_ai::buy_item",
+  "game_ai::upgrade_item",
+  "game_core::simulation::state::player::AthleteParameter::ego_ratio",
+  "game_core::simulation::state::player::AthleteParameter::aggressive_ratio",
+  "game_core::simulation::state::player::AthleteParameter::order_ratio",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_core::simulation::map_def::MapDef::line_region",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::plan_legacy::team_plan::camp_idx",
+  "game_core::utils::distance",
+  "game_core::simulation::entity::jungle::JungleRunner::get_camp_state",
+  "game_core::simulation::map_regions::is_near_line",
+  "game_core::simulation::state::player::LineType::get_start_position",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_ai::plan_legacy::old::passive_jungle::evaluate_gank_opportunity_with_score",
+  "rand::rngs::std::StdRng::gen_range",
+  "alloc::raw_vec::RawVec::grow_one",
+  "bumpalo::collections::vec::Vec::from_iter_in",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::option::unwrap_failed"
+ ],
+ "logic": "fn next_plan(&mut self, version, rnd, player, data, goal_data, _positioning_score, team_plan, debug) -> Option<BigPlan>\n\n[절1 · L231~256 카정 근접 교전] (IR 29438~30128)\n if self.team != self.player_team {            // is_counter_jungle() (passive_jungle.rs:104 인라인) — 적 정글에 있을 때만\n   champ = data.cache.player_champion[player.team][player.position].unwrap()   // L232 (team<2 바운드·null unwrap 패닉)\n   hp_ratio = champ.hp*100 / champ.stat_cached.hp                              // L233 (div0 패닉)\n   if hp_ratio > 49 {                                                          // L235\n     team = 1 - player.team                                                    // L236 적팀\n     near_enemy = cache.iter_champions(team)                                   // L237~239 (5슬롯 언롤 + aux fold)\n        .filter(|x| dist_sq(x, champ) < 14400000001 && data.blackboard[team].is_recent_visible(game, player, x))\n        .min_by_key(|x| dist_sq(x, champ))\n     if let Some(enemy) = near_enemy {                                         // L241\n       enemy_hp_ratio = enemy.hp*100/enemy.stat_cached.hp                      // L242\n       my_level = player.info.level                                            // L244\n       enemy_level = cache.player_by_champion_id(enemy.id).map(|p| p.info.level).unwrap_or(1)   // L245~246\n       if hp_ratio >= enemy_hp_ratio || my_level > enemy_level {               // L248 (IR 평가순: hp 비교 → 레벨 비교, or)\n         battle = BattlePlan::new(version, BattlePlanGoal::TryKill(enemy.id, 60), data, player)   // L249\n         battle.entry_src = 9                                                  // L250\n         battle.update(version, rnd, player, data, _positioning_score, team_plan, debug)   // L251\n         if battle.sub_goal != RunAway(tag 4) {                                // L252\n           self.chats.push(Chat::Battle(enemy.id, 0))                          // L253\n           return Some(BigPlan::Battle(battle))                                // L254 (sret +0=9, +8..280B memcpy)\n         }  // RunAway 면 battle drop 후 아래로\n       }\n     }\n   }\n }\n\n[절2 · L261~300 클리어 판정·아이템·리드행동·확률 귀환]\n if !is_cleared(self.jungle, self.team, version(poison), rnd(poison), player, data, team_plan, 0, debug(poison)) { return None }   // L261 → L300 (+0=-1)\n can_buy_item     = buy_item(version, rnd, player, cache.game, ctx)      // L263 Option<usize>\n can_upgrade_item = upgrade_item(version, rnd, player, cache.game, ctx)  // L264 Option<(usize,usize)>\n item_score = if let Some((_, item)) = can_upgrade_item {               // L265 (+0x10 = .1 = item idx)\n     tier = ctx.item_list[item].tier()   // L268 (len 바운드 패닉) vtable+0x70\n     if tier==4 {100} else if tier==3 {70} else if tier==2 {50} else {30}   // L269/271/273\n   } else if can_buy_item.is_some() { if player.info.items.len()==0 {10} else {0} }   // L278\n   else { 0 }\n if let Some(p) = self.lead_action(version, rnd, player, data, goal_data, team_plan, self.last_lead_action_tick, debug) { return Some(p) }   // L285~288 (lead_action = lead_action_v37 래퍼, 전부 인라인)\n gen = rnd.gen_range(0..=100i64)                                         // L291 RangeInclusive<i64>\n if gen < item_score { Some(BigPlan::ActiveRecall) /*+0=8*/ } else { None /*-1*/ }   // L292 (signed slt)\n\n[lead_action_v37 · L386~634 · 인라인 (IR 30202~32683)]\n ego = player.info.parameter.ego_ratio()                                 // L390\n cooldown_sec = 4 - ego/500                                              // L391\n cooldown = tps * cooldown_sec                                            // L392\n if game.tick().saturating_sub(last_lead_action_tick) < cooldown { return None }   // L393~394\n champ = cache.player_champion[player.team][player.position]              // L400 (Option, 바운드 team<2)\n // --- 딥푸시 갱 (L401~429) ---\n if champ.is_some() {\n   hp_ratio = champ.hp*100/stat.hp                                        // L402\n   eplayer = game.iter_player().find(|p| p.info.team == 1-team)           // L403 (2528B stride 슬라이스)\n   hp_gate = 60 - aggressive_ratio()*20/1000                              // L406~407\n   if !(hp_ratio < hp_gate) && eplayer.is_some() && !blackboard[team].is_recent_visible(game, eplayer, champ) {   // L408 (IR 순: hp → eplayer → 가시)\n     target_lines = [ if champ.x > height - champ.y {Bottom} else {Top}, Mid ]   // L410 (height=setting+0x12c0)\n     for line in target_lines {                                            // L416 filter → find 첫 통과\n       if !has_deep_pushed_enemy(player, data, goal_data, line) { continue }   // L417\n       if !valid_deep_push_gank(version, rnd, player, data, goal_data, line, debug) { continue }   // L418\n       self.last_lead_action_tick = tick                                   // L419\n       if rnd.gen_range(0..1000usize) < order_ratio()*600/1000 + 400 { self.chats.push(Chat::HideLine(line, 0)) }   // L421~423\n       return Some(BigPlan::LineGanker(LineGankerPlan{ chats: Vec::new(), setup_limit: tick+tps, wait_limit: tick+tps*12, line, phase: Setup(7) }))   // L426~429\n     }\n   }\n }\n // --- L439 시간 게이트 ---\n if ctx.is_line_phase() /* tutorial ∈ {None0, MidBottom5, Line7, Total8} */ && !(tick < setting.epic_jungle.first_spawn_tick.saturating_sub(tps*30)) { return None }   // L439~440 (에픽 첫 스폰 30초 전부터 리드행동 금지)\n strategy = player.strategy(rnd, game)                                   // L443\n focused_area = strategy.focused  (+0x11)                                // L444\n match strategy.early_jungle (+0x12) {                                   // L445/447\n\n  GrowthAndCover(0) => {                                                 // L451~504\n   champ.unwrap(); hp_ratio                                               // L451~452\n   if hp_ratio < 70 - aggressive*20/1000 { return None }                  // L454~456\n   if !is_side_cleared(self.jungle, self.team, .., 0) { return None }     // L456 인라인(861~868): is_cleared(jungle, team, extra 0) && is_cleared(pair(jungle), team, extra tps*5) · pair: Rhino0↔Bee3, Mushroom1↔Stump2\n   target_lines = [side(champ), Mid]                                      // L457\n   bb = &blackboard[team]                                                 // L463\n   if let Some(line) = target_lines.iter().find(|l| !(0..5).any(|ep| bb.in_big_line(ep, l)) && bb.minion_state(l).minion_count < -2) {   // L464~465 (아군 큰목표가 그 라인에 없고 우리 미니언 수 -3 이하)\n     self.last_lead_action_tick = tick                                    // L469\n     self.chats.push(Chat::CoverLine(line, 0))                            // L470\n     return Some(BigPlan::PassiveLine(PassiveLinePlan::new(line)))        // L471 (전 필드 0/빈 Vec · line)\n   }\n   if let Some(line) = target_lines.iter().find(s1_0) {                  // L474~496 (aux)\n     // s1_0: t = tower(line,team).or(tower2).or(twin_towers[team] 중 line.get_start_position(setting,team) 에 가장 가까운 것).or(nexus[team]).unwrap()   L475~483\n     //       front = bb[team].minion_state(line).front_minion? → game.get_entity_by_id(front)?   L488~489\n     //       dist_sq(front, t) > 30624999999 (>=175000)   L490\n     //       && (0..5).filter(in_big_line(ep,line)).filter_map(player_champion[team][ep]).any(|a| dist_sq(a, front) < 6400000001 (80000))   L485~486\n     self.last_lead_action_tick = tick                                    // L497\n     self.chats.push(Chat::GankLineCover(line, 0))                        // L498\n     return Some(BigPlan::LineGankCover(LineGankCoverPlan{ chats: Vec::new(), wait_limit: tick+tps*10, line }))   // L499\n   }\n   return None\n  }\n\n  Ganking(1) => {                                                        // L508~556\n   champ.unwrap(); hp_ratio                                               // L508~509\n   eplayer = game.iter_player().find(team==1-team).unwrap()               // L510 (없으면 unwrap 패닉)\n   if hp_ratio < 70 - aggressive*20/1000 { return None }                  // L512~514\n   if !is_side_cleared(self.jungle, self.team, ..) { return None }        // L514\n   if blackboard[team].is_recent_visible(game, eplayer, champ) { return None }   // L514 (내 챔프가 적에게 최근 가시)\n   target_lines = [side(champ), Mid]                                      // L516\n   lines: Vec<LineType> = target_lines.into_iter().filter(|l| focused_area.is_focused_line(l) /* Top0: l<2 · Bottom1: l!=Top · All2: 항상 */ && valid_gank_line(version, rnd, player, data, team_plan, l, debug)).collect_in(ctx.pool)   // L523~526 (aux s3_0/s4_0)\n   //   valid_gank_line(L636~683, aux): enemies = iter_champions(1-team).filter(is_near_line(ctx,x,line) && x.hp_ratio>59 && bb[1-team].is_recent_visible(game,player,x))\n   //     nearest = enemies.min_by_key(dist to champ)?  (없으면 false)   L643~646\n   //     allies = (0..5).filter(bb[team].in_big_line(i,line)).filter_map(player_champion[team][i]).filter(hp_ratio>40)   L652~655\n   //     ms = bb[team].minion_state(line)   L657\n   //     if enemies.len > allies.len → false   L659\n   //     tower = iter_towers_without_nexus(1-team).min_by_key(dist to champ)   L663~665\n   //     if tower: (ms.minion_count>1 && dist_sq(nearest,tower) < 19600000001) → false ; dist_sq(nearest,tower) < 10000000001 → false   L667/672\n   //     if ms.minion_power > 3000 → false ; else true   L678\n   scored: Vec<(LineType,i32)> = lines.iter().map(|l| (l, evaluate_gank_opportunity_with_score(rnd, player, data, l, 0).1)).collect   // L530~532 (aux s5_0)\n   min_gank_score = -40 - (aggressive as i32)*30/1000                    // L537\n   best = scored.into_iter().filter(|(_,s)| !(s < min_gank_score)).max_by_key(|(_,s)| s)   // L538~540 (aux s6_0/s7_0)\n   let Some((line,_)) = best else { return None }                        // L541\n   self.last_lead_action_tick = tick                                      // L545\n   if rnd.gen_range(0..1000) < order_ratio()*600/1000+400 { self.chats.push(Chat::HideLine(line, 0)) }   // L547~549\n   return Some(BigPlan::LineGanker(LineGankerPlan{ chats: Vec::new(), setup_limit: tick+tps, wait_limit: tick+tps*10, line, phase: Setup(7) }))   // L552~554\n  }\n\n  CounterJungle(2) => {                                                  // L560~626\n   champ.unwrap(); hp_ratio                                               // L560~561\n   if hp_ratio < 70 - aggressive*20/1000 { return None }                  // L562~564\n   tick = game.tick(); enemy_team = 1 - player.team                       // L566~567\n   if !is_side_cleared(self.jungle, player.team /*★self.team 아님*/, ..) { return None }   // L569\n   (camp_a, camp_b) = match focused_area { Top => (Stump2, Mushroom1), Bottom => (Bee3, Rhino0), All => if height-champ.y >= champ.x {(Stump2, Mushroom1)} else {(Bee3, Rhino0)} }   // L571~575\n   best: Option<(camp, remain)> = None\n   for camp in [camp_a, camp_b] {                                         // L583 (2회 언롤)\n     pos = map.camp_pos(camp, player.team == 1)                           // L585 (bool = 내 팀이 1인가)\n     region = map.regions[pos.y/32000][pos.x/32000]                       // L586 (바운드 30·27)\n     rp = cache.region_point[region]; if player.team != 0 { rp = -rp }     // L587\n     if rp < -2 { continue }                                              // L588\n     respawn = team_plan.next_respawn_tick[enemy_team][camp_idx(camp)]     // L590~591\n     travel = distance(champ.xy, camp_pos(camp, team==1)) / champ.stat_cached.move_speed   // L592~594 (div0 패닉)\n     state = game.get_game_mode()[Moba].jungle_runner.get_camp_state(enemy_team, camp)   // L596 (Moba 아니면 unwrap — 사장)\n     if state.live_list.len != 0 { if best.is_none() { best = (camp, 0) } }   // L597~598 캠프 살아있음\n     else if respawn - 1 < travel + tick + tps*2 {                        // L604 (respawn <= 도착시각+2초)\n       remain = respawn.saturating_sub(tick)                              // L605\n       if best.is_none() || remain < best.1 { best = (camp, remain) }     // L606\n     }\n   }\n   let Some((camp, remain)) = best else { return None }                  // L612\n   self.last_lead_action_tick = tick                                      // L613\n   if remain == 0 && dist_sq(champ, camp_pos(camp, team==1)) <= 90000000000 { self.chats.push(Chat::CounterJungle(camp, 0)) }   // L619~623 (살아있는 캠프가 300000 이내일 때만 콜)\n   self.jungle = camp; self.team = enemy_team                             // L625~626 (★플랜 자체 상태 전환 — 다음 틱부터 is_counter_jungle)\n   return None                                                            // L627 (BigPlan 반환 없음)\n  }\n }\n\n[has_deep_pushed_enemy · L305~336 인라인]\n t = cache.tower(line, player.team).or(cache.tower2(line, player.team))?   // L307 (None → false)\n if !(t.ty == Tower(2) && t.tower.ty >= 5 /*Top2/Mid2/Bottom2 = 1차 타워 파괴*/) { return false }   // L308\n for ep in 0..5 {                                                        // L316\n   Some(ri) = goal_data.enemy_region[ep] else continue\n   if tick.saturating_sub(ri.last_known) > tps*3 { continue }            // L318~319\n   for idx in 1..=2 { deep = map.line_region(line, team, idx); if map.region_dist[deep][ri.region] < 2 { return true } }   // L324~326\n }\n false\n\n[valid_deep_push_gank · L337~385 인라인 + aux]\n champ = player_champion[team][pos]? (None → false)                     // L340~341\n if hp_ratio < 50 { return false }                                        // L347~348\n enemies = iter_champions(1-team).filter(|x| is_near_line(ctx, x.xy, line) && blackboard[1-team].is_recent_visible(game, player, x)).collect   // L355~357\n if enemies.is_empty() { return false }                                   // L362\n allies = (0..5).filter(|i| blackboard[team].in_big_line(i, line)).filter_map(|i| player_champion[team][i]).filter(|x| hp_ratio(x) > 40).collect   // L367~370\n if allies.is_empty() { return false }                                    // L374\n if enemies.len > allies.len + 1 { return false }                         // L379\n true",
+ "knobs": [
+  {
+   "what": "카정 교전 진입 최소 체력",
+   "where": "passive_jungle.rs:235",
+   "value": 49,
+   "effect": "올리면 카정 중 적을 만나도 더 건강할 때만 교전(Battle) 시도"
+  },
+  {
+   "what": "카정 근접 적 탐색 반경(제곱)",
+   "where": "passive_jungle.rs:237",
+   "value": 14400000001,
+   "effect": "올리면 더 먼 적까지 교전 대상"
+  },
+  {
+   "what": "TryKill 목표 둘째 파라미터",
+   "where": "passive_jungle.rs:249",
+   "value": 60,
+   "effect": "BattlePlanGoal::TryKill(id, 60) 로 전달 — 의미는 BattlePlan 명세(r14) 참조"
+  },
+  {
+   "what": "아이템 티어별 귀환 점수",
+   "where": "passive_jungle.rs:269~273",
+   "value": "4→100 / 3→70 / 2→50 / 그외→30",
+   "effect": "gen_range(0..=100) < 점수 확률로 ActiveRecall. 100 이면 사실상 확정(gen 최대 100 은 <100 실패 ≈ 1/101)"
+  },
+  {
+   "what": "첫 아이템 구매 귀환 점수",
+   "where": "passive_jungle.rs:278",
+   "value": 10,
+   "effect": "살 수 있고 아이템 0개면 ~10% 귀환"
+  },
+  {
+   "what": "리드행동 쿨다운 초",
+   "where": "passive_jungle.rs:391",
+   "value": "4 - ego/500",
+   "effect": "ego 0→4초, 1000→2초. 상수 4 올리면 리드 행동 빈도 감소"
+  },
+  {
+   "what": "딥푸시 갱 체력 게이트",
+   "where": "passive_jungle.rs:407",
+   "value": "60 - agg*20/1000",
+   "effect": "공격성 높을수록 낮은 체력에도 시도"
+  },
+  {
+   "what": "딥푸시 판정 적 정보 신선도",
+   "where": "passive_jungle.rs:319",
+   "value": "tps*3",
+   "effect": "적 위치 정보가 3초보다 오래되면 무시"
+  },
+  {
+   "what": "딥푸시 region 거리",
+   "where": "passive_jungle.rs:326",
+   "value": 2,
+   "effect": "적이 우리 딥 라인 region 에서 <2 거리면 딥푸시"
+  },
+  {
+   "what": "딥푸시 갱 수적 허용",
+   "where": "passive_jungle.rs:379",
+   "value": "enemies.len <= allies.len + 1",
+   "effect": "적이 아군+1 이하일 때만"
+  },
+  {
+   "what": "콜 채팅 확률",
+   "where": "passive_jungle.rs:422/548",
+   "value": "order*600/1000 + 400 (/1000)",
+   "effect": "order_ratio 0→40%, 1000→100%"
+  },
+  {
+   "what": "LineGanker 대기 한계",
+   "where": "passive_jungle.rs:429/554",
+   "value": "tps*12 (딥푸시) / tps*10 (갱)",
+   "effect": "올리면 갱 대기 길어짐"
+  },
+  {
+   "what": "리드행동 시간 게이트",
+   "where": "passive_jungle.rs:439/703",
+   "value": "first_spawn_tick - tps*30",
+   "effect": "에픽 첫 스폰 30초 전 이후 리드행동 전면 금지(라인 페이즈 튜토리얼 유형에서)"
+  },
+  {
+   "what": "라인커버 체력 게이트(3분기 공통)",
+   "where": "passive_jungle.rs:455/513/563",
+   "value": "70 - agg*20/1000",
+   "effect": ""
+  },
+  {
+   "what": "짝 캠프 클리어 유예",
+   "where": "passive_jungle.rs:865~868",
+   "value": "tps*5",
+   "effect": "is_side_cleared 둘째 is_cleared 의 extra 인자"
+  },
+  {
+   "what": "라인커버 미니언 수 임계",
+   "where": "passive_jungle.rs:465",
+   "value": -2,
+   "effect": "minion_count < -2 (우리 라인이 밀림) 이면 PassiveLine 커버"
+  },
+  {
+   "what": "갱커버 최전방-타워 거리",
+   "where": "passive_jungle.rs:490",
+   "value": 30624999999,
+   "effect": "최전방 미니언이 타워에서 ≥175000 이어야"
+  },
+  {
+   "what": "갱커버 아군-최전방 거리",
+   "where": "passive_jungle.rs:490",
+   "value": 6400000001,
+   "effect": "아군이 최전방 80000 안에 있어야"
+  },
+  {
+   "what": "갱 최소 점수",
+   "where": "passive_jungle.rs:537",
+   "value": "-40 - agg*30/1000",
+   "effect": "낮출수록 나쁜 갱도 시도"
+  },
+  {
+   "what": "valid_gank_line 적 체력 하한",
+   "where": "passive_jungle.rs:638",
+   "value": 59,
+   "effect": "적 hp>59% 만 갱 대상(빈사 적은 오히려 제외)"
+  },
+  {
+   "what": "valid_gank_line 타워 안전 반경",
+   "where": "passive_jungle.rs:667/672",
+   "value": "140000(우리 미니언>1) / 100000",
+   "effect": ""
+  },
+  {
+   "what": "valid_gank_line 미니언 파워 상한",
+   "where": "passive_jungle.rs:678",
+   "value": 3000,
+   "effect": ""
+  },
+  {
+   "what": "카정 후보 region_point 하한",
+   "where": "passive_jungle.rs:588",
+   "value": -2,
+   "effect": "적 캠프 region 의 region_point(팀 부호 보정) < -2 면 제외"
+  },
+  {
+   "what": "카정 리스폰 허용",
+   "where": "passive_jungle.rs:604",
+   "value": "respawn <= tick + travel + tps*2",
+   "effect": "도착 2초 안에 리스폰될 캠프만"
+  },
+  {
+   "what": "카정 콜 거리",
+   "where": "passive_jungle.rs:620",
+   "value": 90000000000,
+   "effect": "살아있는 best 캠프가 300000 이내일 때만 CounterJungle 채팅"
+  }
+ ],
+ "unknown": [
+  "L403/L510 `eplayer` 의 `find` 술어가 `p.info.team == 1-team` 인 것은 IR 로 확정이나, 원소 순서상 첫 매치(적팀 첫 선수)를 쓴다 — 의도(특정 포지션?)는 IR 로 알 수 없음",
+  "L408 의 `A || B || C` 실제 소스 순서 — column 정보 부재. IR 평가순(hp_gate → eplayer None → is_recent_visible)만 확정",
+  "L585 `camp_pos(camp, player.team==1)` 의 bool 의미(어느 팀 캠프 좌표를 주나) — game_core 경계, 시그니처만 확인. CAMP_POS_MEMO 키의 첫 usize 도 미탐색",
+  "aggressive_ratio/ego_ratio/order_ratio 의 스케일(0..1000 추정 — 분모 1000/500 에서 역추정)",
+  "in_big_line(bb, idx, line) 의 정확한 의미 — bb.big_goal[idx] 를 읽어 line 과 비교(g07.ll 156563 첫 40줄만 확인) '선수 idx 의 큰 목표가 그 라인' 으로 추정",
+  "evaluate_gank_opportunity_with_score(rnd, player, data, line, 0) -> (bool, i32, i32) 의 내부 — 계약만(.1 을 점수로 사용, 다섯째 인자 리터럴 0)",
+  "buy_item/upgrade_item 내부 — 계약만(Option<usize> / Option<(usize,usize)>, .1 이 item_list 인덱스)",
+  "is_cleared 의 version/rnd/debug 인자가 poison 으로 전달됨 = 그 함수 안에서 미사용(ArgumentPromotion) — r13 잎 명세 참조",
+  "BigPlan::Battle 페이로드 280B 안의 미기록 바이트는 BattlePlan::new/update 산출물에 종속 — 본 명세 범위 밖",
+  "GameSetting+0x12c0 `height` 로 사이드 판정: `x > height - y` → Bottom — 맵 좌표계(원점) 가정은 IR 밖",
+  "L1306 unwrap_failed(get_game_mode 가 Moba 아님)는 reach 판정 사장(NA · gamemode=0) — 봉인"
+ ]
+}

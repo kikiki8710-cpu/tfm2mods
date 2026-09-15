@@ -1,0 +1,845 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_huntNtB2_17SerpenHuntSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\serpen_hunt.rs",
+ "src_line": 201,
+ "ir_file": "m02.ll",
+ "ir_from": 11075,
+ "ir_to": 17795,
+ "aux": [
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 564,
+   "ir_to": 742,
+   "what": "L243~312 Vec::from_iter_in<Map<Filter<Iter,s2_0>,s3_0>> — filter 호출 루프 + map(|a| a.clone())"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 75123,
+   "ir_to": 75783,
+   "what": "L243~310 필터 클로저 s2_0 의 call_mut 본체(F1)"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 4249,
+   "ir_to": 4277,
+   "what": "s2_0s4_0: |target,t| !t.attack_effect.unwrap().is_in_range_ex(t,target,t.x,t.y,target.x,target.y,15000) (Skill 갈래 L270)"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 4280,
+   "ir_to": 4308,
+   "what": "s2_0s6_0: 위와 동일(Skill2 갈래 L285)"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 4311,
+   "ir_to": 4339,
+   "what": "s2_0s8_0: 위와 동일(Ult 갈래 L300)"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 75786,
+   "ir_to": 75807,
+   "what": "L233 타워 필터 클로저 s_0 call_mut 심(can_target && block_target_tick==0)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 2147,
+   "ir_to": 5070,
+   "what": "L314 Vec::retain<s4_0> — F2(아군 대상 Skill/Skill2/Ult 힐·실드·버프 게이트) 인라인 전체"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 12423,
+   "ir_to": 12948,
+   "what": "L325 iter_towers(1-team).any(s4_0s_0) — Chain::try_fold<any::check>, 술어 = dist²<120000²+1 && is_visible_from(champ.team)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 5073,
+   "ir_to": 5262,
+   "what": "L423 Vec::retain<s5_0> — self.score(...) >= -30"
+  }
+ ],
+ "one_line": "세르펜 사냥 서브플랜의 행동 후보 목록 생성 — need_recall 판정→Recall 단독 / v27 규율 행동 단독 / 공격 후보(battle·summon·jungle)를 타워·대상·아군스킬·score 필터로 거른 뒤 get_move_action(추적·도주·대기)과 합쳐(431~514, 배치 H·I) 반환",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "ir": "%0",
+    "type": "bumpalo::collections::Vec<SmallActionPlay> (32B)",
+    "attrs": "dead_on_unwind noalias writable sret([32 x i8]) align 8 captures(none) dereferenceable(32)",
+    "note": "반환 Vec. ptr@+0x0 · bump@+0x8 · cap@+0x10 · len@+0x18 전부 기록됨(new_in 이 ptr=8(dangling)/cap=0/len=0 으로 초기화 후 push 가 ptr·cap·len 갱신). 이 배치 안의 반환 경로 3곳: L223(Recall 1개) · L227(from_iter_in [action;1]) — 둘 다 32B 통째 memcpy"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "ir": "%1",
+    "type": "&mut SerpenHuntSubPlan (1B: need_recall bool @+0x0)",
+    "attrs": "noalias noundef dereferenceable(1) — readonly 없음 = &mut",
+    "mutability": "&mut",
+    "note": "initializes 속성 없음. 쓰기 표면 = +0x0 need_recall 1바이트뿐(writes 참조)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "ir": "%2",
+    "type": "usize",
+    "attrs": "i64 noundef",
+    "note": "이 배치 범위에선 분기 없음 — 콜리 인자로만 전달(v27·battle_action·get_move_action 내부 콜리·F2 aoe_heal_covers_low_ally·score). 스택 %102 에 저장돼 클로저가 &version 으로 캡처"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "ir": "%3",
+    "type": "&mut StdRng (320B)",
+    "attrs": "noalias noundef align 16 dereferenceable(320) — readonly 없음 = &mut",
+    "mutability": "&mut",
+    "note": "직접 쓰기 없음. 콜리로만 전달(v27·battle_action·strategy·AroundPosition::new·range_misjudge_roll·check_kill_die_tick·L656 gen_range(12000..=inner)·score)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "ir": "%4",
+    "type": "&PlayerState (2528B)",
+    "attrs": "noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528)",
+    "mutability": "&",
+    "note": "info.team(+0x930)·info.position(+0x9c0)·info.parameter(+0x180) 읽음"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "ir": "%5",
+    "type": "&OperationData (24B: cache@+0x0 &AbstractGameWithCache · context@+0x8 &GameContext · blackboard@+0x10)",
+    "attrs": "noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24)",
+    "mutability": "&",
+    "note": "cache.game 팻포인터(+0x0 data_ptr / +0x8 vtable_ptr) 로 get_game_mode(+0x40)·get_entity_by_id(+0x1f0)·get_tick(+0x28) 디스패치"
+   },
+   {
+    "i": 6,
+    "name": "parameter",
+    "ir": "%6",
+    "type": "&ScoreParameter (5384B)",
+    "attrs": "noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(5384)",
+    "mutability": "&",
+    "note": "이 배치에선 &parameter.positioning_score(+0x9f0) 를 get_move_action 에 넘기고, F2(L423 score) 에 통째로 캡처"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "ir": "%7",
+    "type": "&TeamPlan (1064B · DI: ref$<TeamPlan>)",
+    "attrs": "noundef nonnull align 8 — noalias/readonly/dereferenceable 전부 없음(원인 미확인, unknown 참조)",
+    "mutability": "& (DI 기준)",
+    "note": "v27_objective_discipline_action(L226)·v25_objective_posture(L543) 의 self 로만 전달. 본문에서 직접 필드 읽기 없음"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "ir": "%8",
+    "type": "&mut DebugFrameData (224B)",
+    "attrs": "noalias noundef align 8 dereferenceable(224) — readonly 없음 = &mut",
+    "mutability": "&mut",
+    "note": "L551 debug.infos(+0xa0 HashMap<usize,Vec<String>>) entry(champ.id).or_insert.push(String) — data.context.debug(+0x3b) 참일 때만. 그 외 check_kill_die_tick·score 에 전달"
+   }
+  ],
+  "returns": "bumpalo Vec<SmallActionPlay> (sret 32B: ptr@0 · bump@+0x8 · cap@+0x10 · len@+0x18). 원소 184B · 태그 @+0xb1(1B, 니치: untagged=AroundPosition, niche_start=3 — RunAway 3 · Recall 4 · Around 5 · AroundHide 6 · AroundRegion 7 · AroundRunAway 8 · Positioning 9 · AroundPositionBush 11 · AroundBush 12 · LaneMinionPosition 13 · Trace 14 · Attack 15 · Skill 16 · Skill2 17 · Ult 18 · Stop 19). 이 배치가 push 하는 variant: Recall(4, 136B payload) · RunAway(3, 136B) · AroundPosition(암묵, 184B) · Trace(14, 152B) · Stop(19, 페이로드 없음 — tag 만 store). 원소 안 live 바이트 = payload 크기까지 + 0xb1 태그(Trace 152B: +0x98..+0xb0 미기록 · RunAway/Recall 136B: +0x88..+0xb0 미기록 · Stop: +0x0..+0xb0 전부 미기록) — 런타임 비교 시 이 구간은 마스크 필요. 반환 경로 중 L223·L227 은 이 배치 안에서 함수를 끝내고(→%286), 나머지는 L431 이후(배치 H·I)로 이어짐",
+  "tls": {
+   "direct": "없음 — 이 배치 범위(본체 11261~14415 + aux 9조각) 안에 LocalKey::with / thread_local 접근 0건(grep 실측)",
+   "indirect_call_order": [
+    "L226 team_plan.v27_objective_discipline_action(version, rnd, player, data, Serpen)",
+    "L236 fight_check::battle_action(version, rnd, player, data, 5) → attack_summon_action(player, data) → self.attack_jungle_action(team, pos, data)",
+    "L237 PlayerState::strategy(player, rnd, game)",
+    "L243~312 F1: should_ignore_object_finish_kill_priority_target · Effect::is_in_range · is_in_range_ex",
+    "L314 F2: EffectType::expected_heal/expected_shield/expected_buff · buff_value::aoe_heal_covers_low_ally",
+    "L423 self.score(version, parameter, rnd, player, data, a, debug) — 후보마다",
+    "L523 utils::nontarget_windup_perceived(version, player, data, c) — 적 챔피언 ≤5회",
+    "L535 position_eval::position_score_at_position(version, player, data, positioning_score, champ.x, champ.y, Objective)",
+    "L543 team_plan.v25_objective_posture(version, player, data, Serpen)",
+    "L568 / L649 v23_should_break_objective_hunt_anchor(player, data, champ, serpen, camp)",
+    "L597 fight_check::check_kill_die_tick(version, rnd, data, player, champ, near_enemies.clone(), Vec::new_in, debug)",
+    "L605~608 utils::range_misjudge_rng / range_misjudge_roll · battle::max_range_can_use / max_range_nearly_can_use — near_enemies 마다"
+   ],
+   "note": "SIEGE_STANCE_CACHE·CAST_BEAMS·HP_VALUE_MEMO·POS_EVAL_CACHE·INTER_CTX 중 어느 것을 어느 콜리가 만지는지는 이 배치가 독립 재현 규칙상 확인하지 않았다(콜리 명세 = r13~r15 계약). 미러 설계는 위 호출 순서를 그대로 따르면 된다"
+  }
+ },
+ "reads": [
+  {
+   "base": "SerpenHuntSubPlan",
+   "offset": "0x0",
+   "name": "need_recall",
+   "note": "L204·L220 읽기(bool)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L203 · 2 미만 bounds check"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position(tag i32)",
+   "note": "L203 player_champion 두번째 인덱스 · attack_jungle_action 인자"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter (AthleteParameter)",
+   "note": "L592 positioning_accuracy(&…)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "&dyn AbstractGame 팻포인터 앞 8B"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "vtable+0x28 get_tick · +0x40 get_game_mode · +0x1f0 get_entity_by_id"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5]",
+   "note": "[team][pos] Option<&Entity> (stride 40/8)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xd0",
+   "name": "jungles (bumpalo Vec<&Entity>: ptr@+0xd0, len@+0xe8)",
+   "note": "F2 L326"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xf0",
+   "name": "others[2] (32B stride: ptr@+0, len@+0x18)",
+   "note": "L638 · F2 L327 — others[1-team]"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "Vec::new_in"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "L612"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map (&MapDef)",
+   "note": "L568·L649 camp_pos"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug (bool)",
+   "note": "L550"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "L612 me_die_tick < tps"
+  },
+  {
+   "base": "GameMode",
+   "offset": "0x0",
+   "name": "tag (0=Moba)",
+   "note": "get_game_mode 반환 {i64,ptr}"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1d0",
+   "name": "jungle_runner.serpen.live_list.ptr",
+   "note": "L205·L239·L564"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1d8",
+   "name": "jungle_runner.serpen.live_list.len",
+   "note": "0 → None"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team (TeamType tag)",
+   "note": "F1 L259 · F2 L318·is_visible_from"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": "팀 id 비교 · visible_state 인덱스"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x38",
+   "name": "visible_state[2] (24B each, tag@+0 · 0=Visible)",
+   "note": "F2 is_visible_from"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty (EntityType tag)",
+   "note": "13=Champion · 2=Tower"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state tag",
+   "note": "L524 4/5/6 = Skill/Skill2/Ult"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "max_range 헬퍼"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "radius 보정"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect (Option<Effect> 56B)",
+   "note": "L206·L257·L566·L639"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "max_range"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "max_range"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (-1=None)",
+   "note": "unwrap"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect",
+   "note": "F1 L267 · F2 L320 · L524"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4d0",
+   "name": "skill_effect.ty.vtable",
+   "note": "EffectType vtable(+0x40 heal · +0x48 shield · +0x50 buff · +0x60 rush · +0x68 move_on_hit)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag / casting",
+   "note": "-1=None · 1=Position · 2=Direction"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect",
+   "note": "level>2 게이트"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x530",
+   "name": "skill2_effect@tag",
+   "note": "IR 에선 (0x500 선택 ptr)+48 로 접근해 절대값 1328 은 본문에 없음(qcspec 경고 사유)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect",
+   "note": "level>4 게이트"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x568",
+   "name": "ult_effect@tag",
+   "note": "IR 에선 (0x538 선택 ptr)+48 로 접근해 절대값 1384 는 본문에 없음(qcspec 경고 사유)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "Trace target · debug key"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": ">2 / >4"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (max hp)",
+   "note": "hp_ratio 분모"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x6a0",
+   "name": "block_target_tick",
+   "note": "L233 타워 필터"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x6b9",
+   "name": "can_target",
+   "note": "L233 타워 필터"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0xf",
+   "name": "object_finish (0=KillPriority)",
+   "note": "L237·L577"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x0",
+   "name": "focus_enemy@tag (-1 = Option<ObjectivePosture> None 니치)",
+   "note": "L544·L556"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x8",
+   "name": "focus_enemy@Some.0",
+   "note": "L557"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x20",
+   "name": "wait_pos.0",
+   "note": "L549"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x28",
+   "name": "wait_pos.1",
+   "note": "L549"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x38",
+   "name": "near_enemy_count",
+   "note": "L546"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x50",
+   "name": "kind (2=Screen 3=WaitGroup 4=SoftDisengage)",
+   "note": "L545·L546·L556·L569"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x30",
+   "name": "on_trajectory",
+   "note": "L537"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x31",
+   "name": "on_periodic_trajectory",
+   "note": "L537"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "tag",
+   "note": "F1·F2·L226·L423"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "Attack/Skill/Skill2/Ult payload .target (id)",
+   "note": "F1·F2"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x9f0",
+   "name": "positioning_score",
+   "note": "L428 인자"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos (HashMap<usize, Vec<String>>)",
+   "note": "L551 (읽고 씀)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "SerpenHuntSubPlan",
+   "offset": "0x0",
+   "name": "need_recall",
+   "value": "1 (L207: champ.hp <= 3*dmg) / 0 (L213: hp_ratio > 29)",
+   "note": "&mut self 의 유일한 쓰기 표면. m02.ll:11377~11378 phi+store. 두 조건 모두 아니면 값 유지"
+  },
+  {
+   "base": "(sret Vec)",
+   "offset": "0x0",
+   "name": "ptr/bump/cap/len",
+   "value": "L221~223 Recall 1개 · L227 from_iter_in 1개 · L428 get_move_action 결과(%87, 배치 H 로 전달)",
+   "note": "bumpalo Vec 원소 184B, 태그 +0xb1"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos[champ.id].push(String)",
+   "value": "format!(@anon.126 … {:?} posture.kind)",
+   "note": "data.context.debug 참일 때만(L550~551). rustc_entry/or_insert/grow_one/push_mut"
+  },
+  {
+   "base": "rnd",
+   "offset": "-",
+   "name": "StdRng 상태",
+   "value": "콜리 경유(L656 gen_range 12000..=inner 등)",
+   "note": "직접 쓰기 없음"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 203,
+   "meaning": "player_champion 1차 배열 길이(team < 2 bounds check) · L545 kind > 2 · L569 kind-3 <u 2 · L524 casting Direction · F1 Tower ty"
+  },
+  {
+   "value": 3,
+   "src_line": 207,
+   "meaning": "need_recall 판정: champ.hp <= dmg*3 (세르펜 평타 3방, `mul i64 %156, 3`). 본문의 `shl …, 3` 은 8B 포인터 stride 라 이 상수와 무관"
+  },
+  {
+   "value": 100,
+   "src_line": 212,
+   "meaning": "hp_ratio = hp*100/max_hp (L212·L328·radius mult 보정)"
+  },
+  {
+   "value": 29,
+   "src_line": 213,
+   "meaning": "hp_ratio > 29 이면 need_recall 해제 (=30% 이상)"
+  },
+  {
+   "value": 5,
+   "src_line": 222,
+   "meaning": "end_delay=5 (Recall·RunAway·AroundPosition·Trace 전부) · JungleType::Serpen 태그(v27/v25/camp_pos 의 i8 5) · ChampionActionState::Skill2"
+  },
+  {
+   "value": 4,
+   "src_line": 222,
+   "meaning": "SmallActionPlay::Recall 메모리 태그(+0xb1) · ObjectivePostureKind::SoftDisengage · ChampionActionState::Skill · level > 4 (Ult 해금)"
+  },
+  {
+   "value": -1,
+   "src_line": 226,
+   "meaning": "Option 니치 None(태그 i8/i32 -1): v27 반환 tag@+0xb1 · attack/skill effect tag · posture tag · expected_buff tag"
+  },
+  {
+   "value": 0,
+   "src_line": 233,
+   "meaning": "block_target_tick == 0 · GameMode::Moba · ObjectFinishStrategy::KillPriority · VisibleState::Visible · radius_mult==0 · Vec::new_in 초기값"
+  },
+  {
+   "value": 13,
+   "src_line": 252,
+   "meaning": "EntityType::Champion 메모리 태그 (F1 L252 · L523)"
+  },
+  {
+   "value": 15,
+   "src_line": 245,
+   "meaning": "SmallActionPlay::Attack 태그; F1 은 `tag-15 <u 4` 로 Attack/Skill/Skill2/Ult(15~18) 판별"
+  },
+  {
+   "value": 7,
+   "src_line": 253,
+   "meaning": "니치 디코드: tag>2 ? tag-3 : 7 — 7=AroundPosition(untagged) 논리 인덱스"
+  },
+  {
+   "value": 12,
+   "src_line": 253,
+   "meaning": "F1 switch 논리 인덱스 12=Attack(태그15) · 13=Skill · 14=Skill2 · 15=Ult (=tag-3)"
+  },
+  {
+   "value": 15000,
+   "src_line": 270,
+   "meaning": "is_in_range_ex 여유(적 타워 사거리+15000 안이면 스킬 후보 제거) · Trace attack_range_margin 기본값 · L656 dist+15000 < range"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 324,
+   "meaning": "120000²+1 — dist² < 이 값 ⟺ 거리 <= 120000(3.75셀): 대상 근처 가시 적 판정(F2)"
+  },
+  {
+   "value": 79,
+   "src_line": 329,
+   "meaning": "hp_ratio > 79 (=80% 이상) 이면 힐 후보는 aoe_heal_covers_low_ally 게이트를 추가로 통과해야 유지"
+  },
+  {
+   "value": -30,
+   "src_line": 425,
+   "meaning": "self.score(...) < -30 인 공격 후보 제거"
+  },
+  {
+   "value": 11,
+   "src_line": 535,
+   "meaning": "PositionEvalPurpose::Objective 메모리 태그(니치) — position_score_at_position purpose 인자"
+  },
+  {
+   "value": 6,
+   "src_line": 528,
+   "meaning": "ChampionActionState::Ult 태그 · iter_towers 배열 길이 6"
+  },
+  {
+   "value": 1,
+   "src_line": 524,
+   "meaning": "CastingType::Position(1)/Direction(2) 만 논타겟으로 봄 · 1-team(적 팀) · TeamType::Neutral"
+  },
+  {
+   "value": 14,
+   "src_line": 558,
+   "meaning": "SmallActionPlay::Trace 메모리 태그(+0xb1)"
+  },
+  {
+   "value": 3,
+   "src_line": 539,
+   "meaning": "SmallActionPlay::RunAway 메모리 태그(+0xb1, `store i8 3`) · ObjectivePostureKind::WaitGroup. `shl …, 3` 은 stride 라 무관"
+  },
+  {
+   "value": 19,
+   "src_line": 659,
+   "meaning": "SmallActionPlay::Stop 메모리 태그(+0xb1)"
+  },
+  {
+   "value": 25000,
+   "src_line": 601,
+   "meaning": "can_enemy_hit_objective(enemy, serpen, 25000) 여유"
+  },
+  {
+   "value": 2000,
+   "src_line": 594,
+   "meaning": "max_v = 2000 - positioning_accuracy (range_misjudge_roll 상한)"
+  },
+  {
+   "value": 1000,
+   "src_line": 606,
+   "meaning": "misjudge roll 은 천분율: 사거리 * roll / 1000"
+  },
+  {
+   "value": 40,
+   "src_line": 608,
+   "meaning": "max_range_nearly_can_use(enemy, champ, 40) — emr_near"
+  },
+  {
+   "value": 60,
+   "src_line": 625,
+   "meaning": "max_range_nearly_can_use(enemy, champ, 60) — me_die_tick < tps 일 때 emr"
+  },
+  {
+   "value": 10,
+   "src_line": 613,
+   "meaning": "enemy.remain_action_time() > 10 틱"
+  },
+  {
+   "value": 999,
+   "src_line": 613,
+   "meaning": "(max_range_can_use*roll) > 999 ⟺ mr(/1000) >= 1 — 소스는 `mr > 0` 추정(표기 불가)"
+  },
+  {
+   "value": 10000,
+   "src_line": 656,
+   "meaning": "inner = range.saturating_sub(10000)"
+  },
+  {
+   "value": 12000,
+   "src_line": 656,
+   "meaning": "inner 하한 · 여유 최소값 · gen_range(12000..=inner) 시작"
+  },
+  {
+   "value": 45000,
+   "src_line": 656,
+   "meaning": "inner 상한(umin)"
+  }
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v27_objective_discipline_action",
+  "game_ai::small_action::move_actions::SmallActionRecall::new",
+  "game_ai::small_action::SmallActionPlay::reserve_internal_or_panic",
+  "bumpalo::collections::vec::Vec::from_iter_in",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::traits::iterator::Iterator::try_fold",
+  "core::iter::adapters::map::Map::fold",
+  "game_ai::fight_check::battle_action",
+  "game_ai::fight_check::attack_summon_action",
+  "game_ai::plan_legacy::sub_plan::serpen_hunt::SerpenHuntSubPlan::attack_jungle_action",
+  "core::iter::traits::collect::Extend::extend",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "bumpalo::collections::vec::Vec::retain",
+  "game_ai::plan_legacy::sub_plan::serpen_hunt::SerpenHuntSubPlan::score",
+  "game_ai::plan_legacy::old::fight_model::should_ignore_object_finish_kill_priority_target",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "game_core::simulation::effect::Effect::is_in_range_ex",
+  "game_ai::small_action::SmallActionPlay::clone",
+  "game_ai::buff_value::aoe_heal_covers_low_ally",
+  "game_core::simulation::AbstractGameWithCache::iter_towers",
+  "game_ai::utils::nontarget_windup_perceived",
+  "game_ai::position_eval::position_score_at_position",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v25_objective_posture",
+  "game_ai::small_action::around::SmallActionAroundPosition::new",
+  "hashbrown::rustc_entry",
+  "hashbrown::raw::RawTable::insert_no_grow",
+  "alloc::fmt::format::format_inner",
+  "alloc::raw_vec::RawVec::grow_one",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_should_break_objective_hunt_anchor",
+  "game_ai::small_action::SmallActionPlay::push",
+  "game_core::simulation::state::player::AthleteParameter::positioning_accuracy",
+  "game_ai::fight_check::check_kill_die_tick",
+  "game_ai::plan_legacy::old::fight_model::can_enemy_hit_objective",
+  "game_ai::utils::range_misjudge_rng",
+  "game_ai::utils::range_misjudge_roll",
+  "game_ai::plan_legacy::old::battle::max_range_can_use",
+  "game_ai::plan_legacy::old::battle::max_range_nearly_can_use",
+  "game_core::simulation::entity::Entity::remain_action_time",
+  "game_core::simulation::entity::Entity::distance",
+  "game_ai::small_action::SmallActionPlay::truncate",
+  "rand::Rng::gen_range",
+  "core::ptr::drop_glue"
+ ],
+ "logic": "// serpen_hunt.rs:0~428 (배치 G)\n// ── 함수 머리 serpen_hunt.rs:201 · 정본 = m02.ll:11075~ · 이 배치 = 루트 줄 203~428 + 그 줄에 뿌리를 둔 클로저 5개(aux)\n// 표기: `L<n>` = 소스 루트 줄 · `%N` = m02.ll 레지스터 · 오프셋은 tcxdict 정본 이름 · 「→ 배치 X(줄 N)」 = 다른 배치 범위로 넘어가는 br\n//\n// L203 (m02.ll:11261~11283): team = player.info.team(+0x930); if team >= 2 → panic_bounds_check(2)\n//        champ = data.cache(+0).player_champion(+0x1e0)[team][player.info.position(+0x9c0 i32)]  ; None(null) → unwrap_failed(%120)\n// L204 (11288~11290): if self.need_recall(+0x0 bool) {\n// L212 (11310~11313 · 11391~11394):   max_hp = champ.stat_cached.hp(+0x628); max_hp==0 → panic_const_div_by_zero\n//                                     hp_ratio = champ.hp(+0x670) * 100 / max_hp\n// L213 (11396~11397):   if hp_ratio > 29 { self.need_recall = false }   // IR `icmp ugt 29` — 소스 표기(>29 / >=30)는 표기 불가\n//        } else {\n// L205 (11297~11348):   gm = data.cache.game.<vtable+0x40 get_game_mode>() ; tag(+0)!=0(Moba 아님) → unwrap_failed(%167)\n//                       m = gm.payload(&MobaMode) ; live = m.jungle_runner.serpen.live_list(ptr +0x1d0, len +0x1d8)\n//                       serpen: Option<&Entity> = live.first().and_then(|id| game.<vtable+0x1f0 get_entity_by_id>(*id))   // len==0 → None ; get_entity null → None\n//                       if let Some(serpen) = serpen {\n// L206 (11353~11363):     serpen.attack_effect(+0x490) 의 tag(+0x4c0)== -1(None) → unwrap_failed(%161)\n//                         dmg = Effect::expected_damage_target(&serpen.attack_effect, data.context(+0x8), serpen as &dyn(vtable @anon.54 = Entity), champ)\n// L207 (11365~11369):     if !(champ.hp(+0x670) > dmg*3) { self.need_recall = true }   // 즉 champ.hp <= 3*dmg\n//                       }\n//        }\n//        (%162: phi need_recall = [1 ← L207 경로, 0 ← L213 경로] → store self+0x0)\n// L220 (11382~11384): if self.need_recall {\n// L221 (11413~11422):   res = bumpalo Vec::new_in(data.context.pool(+0x0 of GameContext))   // ptr=8(dangling)·bump·cap=0·len=0\n// L222 (11425 · 17751~17790):   res.push(SmallActionPlay::Recall(SmallActionRecall::new(data, player, end_delay=5)))   // 136B → 184B 슬롯, tag@+0xb1 = 4(Recall)\n// L223 (17792~17794):   return res   (sret 32B memcpy) → %286 = 함수 끝(L514, 배치 I 의 합류 라벨)\n//        }\n// L226 (11405~11409): if let Some(action) = team_plan.v27_objective_discipline_action(version, rnd, player, data, target=JungleType::Serpen(i8 5)) {   // sret 184B · tag@+0xb1 == -1 → None\n// L227 (11430~11437):   return bumpalo::vec![in data.context.pool; action]   (from_iter_in<[SmallActionPlay;1]>) → %286(L514, 배치 I)\n//        }\n// L231~233 (11444~11685): nearest_enemy_tower: Option<&Entity>\n//        = data.cache.iter_towers_without_nexus(1 - team)        // sret 120B = Chain<Flatten<IntoIter<[Option<&Entity>;6]>>, Copied<slice::Iter<&Entity>>>\n//          .filter(|t| t.can_target(+0x6b9) && t.block_target_tick(+0x6a0) == 0)     // 클로저 s_0 (첫 6칸은 인라인 루프 11533~11599, 나머지 슬라이스는 try_fold<find::check<s_0>> 11624)\n//          .min_by_key(|t| dist²(t, champ))   // (11649~11682: dx=|t.x-champ.x|, dy=|t.y-champ.y|, dx²+dy² ; Map<Filter<..>>::fold(min_by) 11682) ; 결과 ptr → %96\n// L236 (11702~11750): act_actions(%94) = { 인라인 헬퍼(L668~673, 파일 미상 — 아래 unknown):\n//          res = Vec::new_in(pool);\n//          res.extend(fight_check::battle_action(version, rnd, player, data, _end_delay=5));      // L670\n//          res.extend(fight_check::attack_summon_action(player, data));                           // L671\n//          res.extend(self.attack_jungle_action(team, position(i32), data));                      // L672\n//          res }\n// L237 (11762~11779): strategy = PlayerState::strategy(player, rnd, data.cache.game)  (24B Strategy)\n//        object_finish_objective(%93): Option<&Entity> =\n//          if strategy.object_finish(+0xf) == KillPriority(0) {\n// L238 (11784~11810):   get_game_mode() ; Moba 아님 → unwrap_failed(%327) ; live_list.len==0 → None\n// L239 (11813~11826):   live_list.first().and_then(get_entity_by_id)\n//          } else { None }\n// L243~312 (11835~11873 · aux m01.ll:564~742): act_actions(%91) = act_actions.iter().filter(F1).map(|a| a.clone()).collect_in(pool)\n//        F1 = 클로저 s2_0 (call_mut aux m02.ll:75123~75783) · 캡처 = (game data_ptr, game vtable, player, &object_finish_objective, champ, &nearest_enemy_tower)\n//        F1(a) → keep(true) 판정 (IR 극성 = 분기 방향, %313 phi):\n//          L245: if let Some(id) = a 의 대상 id(small_action.rs:309 헬퍼 — tag∈{15,16,17,18}=Attack/Skill/Skill2/Ult 이면 Some(+0x8)) {\n//          L246:   if let Some(target) = game.get_entity_by_id(id) {\n//          L247:     if fight_model::should_ignore_object_finish_kill_priority_target(player, target, *object_finish_objective) { return false }\n//                  }}\n//          L252: if let Some(id) = a 의 대상 id { if let Some(t) = get_entity_by_id(id) { if t.ty(+0x68) != Champion(13) { return true } } }   // 비-챔피언 대상은 무조건 유지\n//          L253: match a {   // 니치 디코드: tag>2 ? tag-3 : 7(AroundPosition)\n//            RunAway·Recall·Around·AroundHide·AroundRegion·AroundRunAway·Positioning·AroundPosition·AroundPositionBush·AroundBush·LaneMinionPosition·Trace·Stop → false\n//            Attack(15):  L256: target = get_entity_by_id(a.target(+0x8)) else false\n//                         L257: eff = champ.attack_effect(+0x490).unwrap()   (tag -1 → unwrap_failed)\n//                         L258: if !eff.is_in_range(champ, target) → false\n//                               nearest_enemy_tower None → true\n//                               Some(t): if !(t.attack_effect.unwrap().is_in_range(t, champ) && target.ty != Tower(2)) → true\n//                         L259:          else → return (target.team == champ.team)   // TeamType PartialEq(entity.rs:1127): tag 다르면 false, 둘 다 Neutral → true, Player 면 id 비교\n//                                        (해석: 적 타워가 나를 때릴 수 있는 위치에서 타워가 아닌 상대 진영 대상 평타 후보는 버린다)\n//            Skill(16):   L266: target = get_entity_by_id(a.target(+0x8)) else false\n//                         L267: eff = champ.skill_effect(+0x4c8).unwrap()   (tag +0x4f8 == -1 → unwrap_failed)\n//                         L268: if !eff.is_in_range(champ, target) → false ; 타워 게이트 = Attack 과 동일(L269 팀 비교, 불일치 → false; 통과 시 계속)\n//                         L269: if !(eff.ty.<EffectType vtable+0x68 expected_move_on_hit>() || eff.ty.<+0x60 expected_rush_effect>()) → false\n//                         L270: nearest_enemy_tower None → true ; Some(t) → return s2_0s4_0(target, t) = !t.attack_effect.unwrap().is_in_range_ex(t, target, t.x, t.y, target.x, target.y, 15000)\n//            Skill2(17):  L281~285: 위와 동일, eff = (champ.level(+0x5c8) > 2 ? &champ.skill2_effect(+0x500) : &None).unwrap(), 중첩 클로저 s2_0s6_0\n//            Ult(18):     L296~300: 위와 동일, eff = (champ.level > 4 ? &champ.ult_effect(+0x538) : &None).unwrap(), 중첩 클로저 s2_0s8_0\n//          }\n// L314 (11885~11893 · aux m01.ll:2147~5070): act_actions.retain(F2)   · 캡처 = (data, champ, player, &version)\n//        F2(a) → keep 판정 (%1260 = 유지, %1269 = 제거):\n//          L315: match a { Skill(16) → L317.., Skill2(17) → L351.., Ult(18) → L385.., 그 외(RunAway~Trace·Attack·Stop) → 유지 }\n//          [Skill 갈래 L317~335 · Skill2 L351~369 · Ult L385~403 는 effect 만 다르고 동일 구조]\n//          L317: target = get_entity_by_id(a.target(+0x8)) ; None → 제거\n//          L318: if target.team != champ.team → 유지   (적 대상 스킬은 그대로)\n//          L320: eff = champ.skill_effect.unwrap()  (None → 제거)   [Skill2: level>2 ? skill2_effect : None · Ult: level>4 ? ult_effect : None]\n//          L321: has_heal   = eff.ty.<vtable+0x40 expected_heal>(data.context, champ as &dyn) != 0\n//          L322: has_shield = eff.ty.<+0x48 expected_shield>(ctx, champ) != 0\n//          L323: has_buff   = eff.ty.<+0x50 expected_buff>(ctx, champ).is_some()   (sret 288B, tag@+0x48 != -1)\n//          L324~327: near_enemy = [player_champion[1-team] · iter_towers(1-team) · cache.jungles(+0xd0) · cache.others(+0xf0)[1-team]]\n//                    .any(|e| dist²(e, target) < 14400000001 && e.is_visible_from(&champ.team))   // 120000²+1 · is_visible_from(entity.rs:1481): Neutral→true, Player(t)→visible_state(+0x38)[t].tag == Visible(0)\n//          L328: hp_ratio = target.hp(+0x670)*100 / target.stat_cached.hp(+0x628)   (0 → div_by_zero panic)\n//          L329: if has_heal && !has_buff && hp_ratio > 79 {\n//          L331:    keep = (!has_shield || near_enemy) && buff_value::aoe_heal_covers_low_ally(version, eff, data, player, target)\n//                } else {\n//          L335:    keep = !has_shield || has_buff || near_enemy   (has_heal&&has_buff 는 무조건 유지)\n//                }\n// L423 (11903~11917 · aux m01.ll:5073~5262): act_actions.retain(|a| { L424: s = self.score(version, parameter, rnd, player, data, a, debug); L425: !(s < -30) })   // score < -30 → 제거\n// L428 (11930~14415): move_actions(%87) = get_move_action(version, rnd, player, data, &parameter.positioning_score(+0x9f0), team_plan, debug)   // serpen_hunt.rs:517 인라인, 아래 전개\n//   L517~519: res = Vec::new_in(pool) ; champ = player_champion[team][pos].unwrap()(%408)\n//   L522~528: has_non_target_action_range = player_champion[1-team].iter().flatten().any(|c|\n//       L523:   utils::nontarget_windup_perceived(version, player, data, c) && c.ty == Champion(13)\n//       L524:   && match c.champion.action_state(+0x70) {\n//                 Skill(4)  → e = c.skill_effect.unwrap() (tag +0x4f8: -1 → unwrap_failed) ; e.casting(+0x30) ∈ {Position(1), Direction(2)} && Effect::is_in_range(e, c, champ)\n//       L526:    Skill2(5) → e = (c.level>2 ? skill2_effect : None).unwrap() ; 동일\n//       L528:    Ult(6)    → e = (c.level>4 ? ult_effect : None).unwrap() ; 동일\n//                 _ → false })\n//   L535: position_score = position_eval::position_score_at_position(version, player, data, positioning_score, champ.x(+0x660), champ.y(+0x668), purpose=Objective(i8 11))   // sret 56B PositioningScore\n//   L537: if position_score.on_trajectory(+0x30) || has_non_target_action_range || position_score.on_periodic_trajectory(+0x31) {\n//   L539:   res.push(RunAway(SmallActionRunAway::new_with_skill(data, player, end_delay=5, with_skill=true)))   // tag 3\n//   L540:   return res → move_actions → L431(배치 H)\n//         }\n//   L543: posture = team_plan.v25_objective_posture(version, player, data, target=Serpen(i8 5))   // sret 88B Option<ObjectivePosture>, None = focus_enemy tag(+0)== -1\n//   L544: if let Some(posture) = posture {\n//   L545:   if posture.kind(+0x50) > 2 {   // WaitGroup(3)|SoftDisengage(4)\n//   L546:     if kind == SoftDisengage(4) && posture.near_enemy_count(+0x38) != 0 {\n//   L547:       res.push(RunAway(new_with_skill(data, player, 5, false)))  }\n//   L549:     res.push(AroundPosition(SmallActionAroundPosition::new(rnd, data, posture.wait_pos.0(+0x20), .1(+0x28), end_delay=5)))   // 니치 untagged(태그 store 없음)\n//   L550:     if data.context.debug(+0x3b) {\n//   L551:       debug.infos(+0xa0 HashMap<usize,Vec<String>>).entry(champ.id(+0x5c0)).or_insert(vec![]).push(format!(@anon.126 …{:?}, posture.kind))  }\n//   L553:     return res → L431(배치 H)\n//           }\n//   L556:   if kind == Screen(2) && posture.focus_enemy(+0x0 tag)==Some {\n//   L557:     focus_enemy = posture.focus_enemy(+0x8)\n//   L558:     res.push(Trace(SmallActionTrace::new_attack_range(data, focus_enemy, end_delay=5)))   // = new_attack_range_margin(…, 15000): attack_range_only=true\n//           }  (그 외 Commit/HoldCamp/Screen-무초점 → 통과)\n//         }\n//   L564: serpen = get_game_mode() Moba(m) → m.…live_list.first().and_then(get_entity_by_id) ; Moba 아님 → unwrap_failed(%1293)\n//   L565: objective_in_attack_range = false ; if let Some(serpen) = serpen {\n//   L566:   mr = max_range(champ, serpen) [인라인 헬퍼 L16~26]: eff = champ.attack_effect.unwrap()(None → unwrap_failed)\n//             = eff.range(+0x4a0) + champ.stat_buff_cached.range(+0x438) + eff.growth_range(+0x4a8)*(champ.level(+0x5c8)-1)\n//               + Effect::range_adjust(eff, champ, serpen) + radius(champ) + radius(serpen)\n//             radius(e) = e.stat_buff_cached.radius_mult(+0x470)==0 ? e.radius(+0x680) : e.radius*(mult+100)/100\n//   L567:   if dist²(champ, serpen) <= mr² { objective_in_attack_range = true }\n//           else {\n//   L568:     camp = MapDef::camp_pos(data.context.map(+0x20), Serpen(i8 5), team==0)\n//             if !objective_helpers::v23_should_break_objective_hunt_anchor(player, data, champ, serpen, camp.x, camp.y) {\n//   L569:       if !(posture.is_some() && posture.kind ∈ {WaitGroup(3), SoftDisengage(4)}) {   // `kind-3 <u 2`\n//   L570:         res.push(Trace(new_attack_range(data, serpen.id(+0x5c0), 5)))   (SmallActionPlay::push 호출)\n//   L572:         return res → L431(배치 H)\n//         } } } }\n//   L577: strategy = player.strategy(rnd, game) ; not_kill_priority = strategy.object_finish(+0xf) != KillPriority(0)\n//   L592: positioning_accuracy = AthleteParameter::positioning_accuracy(&player.info.parameter(+0x180)) ; min_v = positioning_accuracy\n//   L594: max_v = 2000 - positioning_accuracy\n//   L596: near_enemies: bumpalo Vec<&Entity> = data.cache.iter_champions().filter_map(..).filter(F3(champ)).collect   // F3 본문은 m01/m06 의 iter_champions 클로저 심(이 배치 미독해 — unknown)\n//   L597: me_die_tick = fight_check::check_kill_die_tick(version, rnd, data, player, champ, near_enemies.clone(), Vec::new_in(pool), debug)\n//   L600: runaway = false ; force_runaway = false ; for enemy in near_enemies {\n//   L601:   if !(serpen.is_none() || not_kill_priority || fight_model::can_enemy_hit_objective(enemy, serpen, 25000)) { continue }\n//   L605:   jrng = utils::range_misjudge_rng(version, data, player, enemy.id)   (16B)\n//   L606:   mr       = battle::max_range_can_use(champ, enemy)  * utils::range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000\n//   L607:   emr      = max_range_can_use(enemy, champ)          * roll / 1000\n//   L608:   emr_near = battle::max_range_nearly_can_use(enemy, champ, 40) * roll / 1000\n//   L609:   dist = dist²(champ, enemy)\n//   L612:   if me_die_tick < data.context.setting(+0x8).tick_per_second(+0x12f8) {\n//   L625:     emr = max_range_nearly_can_use(enemy, champ, 60) * roll / 1000\n//   L627:     if dist > mr² && emr < mr { L629: res.push(Trace(SmallActionTrace::new(data, enemy.id, 5)))  }   // attack_range_only=false\n//   L630:     else if dist <= emr² { runaway = true; force_runaway = true }\n//           } else {\n//   L613:     if Entity::remain_action_time(enemy) > 10 && (max_range_can_use(champ,enemy)*roll) > 999 {   // ≡ mr >= 1 (표기 불가: 소스는 `mr > 0` 추정)\n//   L614:       if dist > mr² { L615: res.push(Trace(new(data, enemy.id, 5))) }\n//   L617:     } else if emr < mr && dist > mr² { L619: res.push(Trace(new(data, enemy.id, 5))) }\n//   L620:     else if dist <= emr_near² { runaway = true }\n//           } }\n//   L638: for e in data.cache.others(+0xf0)[1-team] { L639: if let Some(atk)=e.attack_effect { L640: range = max_range(e, champ); L641: if dist²(champ,e) <= range² { runaway=true; force_runaway=true; break } } }\n//   L649: break_objective_anchor = serpen.map_or(false, |s| v23_should_break_objective_hunt_anchor(player, data, champ, s, camp_pos(Serpen, team==0)))\n//   L651: if runaway && (break_objective_anchor || !objective_in_attack_range || force_runaway) {\n//   L652:   res.push(RunAway(new_with_skill(data, player, 5, false)))\n//   L653: } else if objective_in_attack_range {\n//   L654:   res.truncate(0)\n//   L655:   if let Some(serpen) = serpen {\n//   L656:     margin = 안전 공격 여유 [인라인 헬퍼 L16~29, 문자열 \"v27 serpen safe attack position\"(@anon.129) 의 소유 함수 추정]:\n//               range = max_range(champ, serpen) ; inner = clamp(range.saturating_sub(10000), 12000, 45000) ; dist = Entity::distance(champ, serpen)\n//               if dist + 15000 < range { if inner + dist > range { rnd.gen_range(12000..=inner) } else { 12000 } } else { inner }\n//   L657:     res.push(Trace(new_attack_range_margin(data, serpen.id, 5, margin)))   // attack_range_only=true\n//   L659:   } else { res.push(Stop) }   // tag 19\n//   L661: } else if res.is_empty() {\n//   L662:   res.push(RunAway(new_with_skill(data, player, 5, false)))\n//         }\n//   L665: return res → move_actions(%87) ; near_enemies drop → %1311 = L431(배치 H)\n// ── 이 배치 범위 끝. L431 이후(act_actions·move_actions 병합·평가) = 배치 H, L489~514 = 배치 I\n",
+ "knobs": [
+  {
+   "what": "귀환 진입 임계(세르펜 평타 몇 방에 죽나)",
+   "where": "serpen_hunt.rs:207",
+   "value": 3,
+   "effect": "올리면(예 4) 더 높은 HP 에서도 need_recall=true 가 되어 사냥을 포기하고 귀환한다; 내리면 더 낮은 HP 까지 버틴다"
+  },
+  {
+   "what": "귀환 해제 HP%",
+   "where": "serpen_hunt.rs:213",
+   "value": 29,
+   "effect": "hp_ratio 가 이 값을 넘으면 need_recall 해제. 올리면 귀환 상태가 더 오래 유지된다"
+  },
+  {
+   "what": "아군 대상 스킬 근처 적 판정 거리",
+   "where": "serpen_hunt.rs:324~327",
+   "value": 14400000001,
+   "effect": "120000² +1. 올리면 더 먼 적도 '근처'로 쳐서 실드/힐 후보가 더 자주 유지된다"
+  },
+  {
+   "what": "힐 후보 대상 HP% 하드 게이트",
+   "where": "serpen_hunt.rs:329",
+   "value": 79,
+   "effect": "대상 HP 가 이보다 높으면 aoe_heal_covers_low_ally 가 참이어야 유지. 내리면 힐 후보가 더 빨리 걸러진다"
+  },
+  {
+   "what": "공격 후보 score 하한",
+   "where": "serpen_hunt.rs:425",
+   "value": -30,
+   "effect": "내리면(-50) 점수 낮은 공격 후보도 남는다; 올리면(0) 더 공격적으로 걸러진다"
+  },
+  {
+   "what": "적 타워 사거리 여유(스킬 후보 제거)",
+   "where": "serpen_hunt.rs:270·285·300",
+   "value": 15000,
+   "effect": "올리면 타워에서 더 먼 대상에 대한 스킬도 버린다"
+  },
+  {
+   "what": "세르펜 안전 공격 여유 범위",
+   "where": "serpen_hunt.rs:656 헬퍼 L22",
+   "value": "12000..=45000, range-10000",
+   "effect": "Trace 의 attack_range_margin. 하한을 올리면 세르펜에서 더 떨어져 공격 위치를 잡는다"
+  },
+  {
+   "what": "적 챔피언 도주 판정 사거리 계수",
+   "where": "serpen_hunt.rs:608·625",
+   "value": "40 / 60",
+   "effect": "max_range_nearly_can_use 의 여유 인자. 올리면 적 사거리를 더 넓게 봐 runaway 가 더 자주 켜진다"
+  },
+  {
+   "what": "적 근접 판정 tps 게이트",
+   "where": "serpen_hunt.rs:612",
+   "value": "me_die_tick < tick_per_second",
+   "effect": "1초 안에 죽는 상황이면 60 계수·강제도주 경로, 아니면 40 계수·remain_action_time>10 경로"
+  },
+  {
+   "what": "세르펜 타격 가능 적 여유",
+   "where": "serpen_hunt.rs:601",
+   "value": 25000,
+   "effect": "KillPriority 전략일 때 세르펜을 이 여유 안에서 때릴 수 있는 적만 추적/도주 계산 대상"
+  }
+ ],
+ "unknown": [
+  "L236 인라인 헬퍼(L668~673: Vec::new_in→battle_action→attack_summon_action→attack_jungle_action 을 extend)의 소유 파일·이름 — DISubprogram 을 추적하지 않았다(사슬 `L669<236` 의 scope 만 확인). 동작은 IR 로 확정",
+  "L316/L566/L640/L656 의 `max_range` 헬퍼(파일 L16~26)와 L656 의 안전여유 헬퍼(L16~29) 소유 파일 — 같은 파일의 두 함수로 보이며 문자열 @anon.129 \"v27 serpen safe attack position\" 이 근처에 있으나 이 배치 범위 IR 에서 그 문자열의 사용처(store/format)는 나타나지 않았다(전역 상수만 확인)",
+  "%7 team_plan 이 `noalias/readonly/dereferenceable` 없이 `nonnull align 8` 만 가진 이유 — DI 는 ref$<TeamPlan>(불변 참조). TeamPlan 에 UnsafeCell 계열 필드가 있는지 tcxdict 38필드 중 앞부분만 확인(추정: 내부 가변성). 이 배치 동작엔 영향 없음",
+  "F1 L258/L268/L283/L298 타워 게이트의 소스 표기 — IR 상 `!is_some_and(|t| t.attack_effect.is_in_range(t,champ) && target.ty!=Tower && target.team!=champ.team)` 로 읽히나 `map_or`/`is_none_or` 등 어느 조합인지는 표기 불가(외연 동일)",
+  "F1 의 `L309` 헬퍼 이름(small_action.rs:309, DISubprogram 은 get_action(308) 만 잡힘) — Attack/Skill/Skill2/Ult 의 +0x8 을 Option<usize> 로 돌려주는 메서드. 동작 확정, 이름 미확정",
+  "F1 Skill 갈래 L269 `expected_move_on_hit || expected_rush_effect` 게이트 — divtable EffectType 일치율 94% 로 슬롯 0x68/0x60 이름을 얻었고 런타임 구현체는 Arc<dyn> 이라 도구로 못 본다. 이 게이트 때문에 이동 효과 없는 논타겟 스킬 후보가 전부 제거되는 것으로 읽히는데(IR 극성 확정) 의도(버그 vs 설계)는 미확인",
+  "L524 Skill2/Ult 갈래에서 level 부족(<=2 / <=4)이면 &None 을 unwrap 해 패닉하는 코드(unwrap_failed %396/%406) — 시전 중이면 해금돼 있어 도달 불가로 추정, 실측 없음",
+  "L537 `%421`(+0x31 on_periodic_trajectory)에 DI 이름 `on_trajectory` 가 붙어 있음 — 소스 지역변수명과 필드명 불일치(tcxdict 는 +0x30 on_trajectory · +0x31 on_periodic_trajectory). 판정식은 IR 대로 `+0x30 || has_non_target || +0x31`",
+  "L596 near_enemies 의 filter_map/filter 클로저(iter_champions 심, m01/m06)는 이 배치가 읽지 않았다 — 캡처는 champ 하나(%38: begin,end,champ). 술어 미독해(미탐색)",
+  "L613 `%812 > 999` 의 소스 표기(`mr > 0` 추정) — 나눗셈 전 값과 비교하는 형태로 접혀 있어 표기 불가",
+  "L227·L223 의 `return` 이 %286(L514)로 합류하는데 %286 블록 자체는 배치 I 범위 — 여기선 '함수 끝'으로만 적음",
+  "constants 의 2·5·1 등 소형 값은 여러 의미로 재사용된다(meaning 에 열거). qcspec 의 shl 경고는 `shl i64 %n, 3`(포인터 stride 8) 때문이며 판정 상수 아님",
+  "s2_0 필터의 `%36 == -1` 조기 종료(fi_s2s3.ll 34번 블록: clone 결과 tag -1) — 니치 아티팩트로 보이며 실제 도달 여부 미확인"
+ ]
+}

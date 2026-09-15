@@ -1,0 +1,174 @@
+{
+ "A": {
+  "dossier": "5de697e313fefe67",
+  "specs": [
+   "spec_188_BattleSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_188_BattleSubPlan__action_candidates.md": "bf465247925adb39"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:34"
+ },
+ "B": {
+  "dossier": "c66086bd88e554c3",
+  "specs": [
+   "spec_196_LineDefenseSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_196_LineDefenseSubPlan__action_candidates.md": "e29e38541fee5aed"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:34"
+ },
+ "C": {
+  "dossier": "6d8df6a9f5d4c832",
+  "specs": [
+   "spec_197_SerpenHuntSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_197_SerpenHuntSubPlan__action_candidates.md": "4dd3785d543debbc"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "D": {
+  "dossier": "f1927b90d9874cc8",
+  "specs": [
+   "spec_198_EpicHuntSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_198_EpicHuntSubPlan__action_candidates.md": "a7d9b2fc33548404"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "E": {
+  "dossier": "414f070203a597db",
+  "specs": [
+   "spec_194_HideSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_194_HideSubPlan__action_candidates.md": "6a4716569a033785"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "F": {
+  "dossier": "5aa7045066cd8c9e",
+  "specs": [
+   "spec_199_EpicPokeSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_199_EpicPokeSubPlan__action_candidates.md": "fd1c19bb76ab40f4"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "G": {
+  "dossier": "b8ffba3ecbe8eb7a",
+  "specs": [
+   "spec_200_SerpenPokeSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_200_SerpenPokeSubPlan__action_candidates.md": "e1674257f000e1f8"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "H": {
+  "dossier": "bab9ec034b2c3672",
+  "specs": [
+   "spec_189_DefenseNexusSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_189_DefenseNexusSubPlan__action_candidates.md": "fb91ad958cfe7734"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "I": {
+  "dossier": "c6fde09a99c31ea2",
+  "specs": [
+   "spec_202_LineGankerPlan__next_plan.md"
+  ],
+  "spec_hashes": {
+   "spec_202_LineGankerPlan__next_plan.md": "64311266e1996b2a"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "J": {
+  "dossier": "348e5e13b64f5cb4",
+  "specs": [
+   "spec_203_PassiveJunglePlan__next_plan.md"
+  ],
+  "spec_hashes": {
+   "spec_203_PassiveJunglePlan__next_plan.md": "12f5e65e3c85e530"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "K": {
+  "dossier": "278e686d660a8a1c",
+  "specs": [
+   "spec_190_AttackNexusSubPlan__action_candidates.md",
+   "spec_191_EpicCheckSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_190_AttackNexusSubPlan__action_candidates.md": "b52300b7db35eddd",
+   "spec_191_EpicCheckSubPlan__action_candidates.md": "2bc1c2efeda83dda"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "L": {
+  "dossier": "ad18ba3885cd3b1b",
+  "specs": [
+   "spec_192_SerpenCheckSubPlan__action_candidates.md",
+   "spec_193_JungleSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_192_SerpenCheckSubPlan__action_candidates.md": "3a8ba5d1ae347c6c",
+   "spec_193_JungleSubPlan__action_candidates.md": "fdad2468dbd40d37"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "M": {
+  "dossier": "314ad1a945e1023f",
+  "specs": [
+   "spec_195_LineWaitSubPlan__action_candidates.md"
+  ],
+  "spec_hashes": {
+   "spec_195_LineWaitSubPlan__action_candidates.md": "dec76b3c848ea367"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ },
+ "N": {
+  "dossier": "bafdf8aafc1a92c9",
+  "specs": [
+   "spec_201_abstract_input__attack.md"
+  ],
+  "spec_hashes": {
+   "spec_201_abstract_input__attack.md": "b6c660f9f2079c06"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "c966cbd00622bae0",
+  "built": "2026-09-16 01:45:35"
+ }
+}

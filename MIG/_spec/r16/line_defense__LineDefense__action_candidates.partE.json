@@ -1,0 +1,791 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12line_defenseNtB2_18LineDefenseSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\line_defense.rs",
+ "src_line": 440,
+ "ir_file": "m14.ll",
+ "ir_from": 21211,
+ "ir_to": 28586,
+ "aux": [
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 926,
+   "ir_to": 1104,
+   "what": "Vec<SmallActionPlay>::from_iter_in<Map<Filter<Iter,closure#3>,closure#4>> — 466~552 collect · map closure#4(=|a| a.clone()) 인라인"
+  },
+  {
+   "ir_file": "m14.ll",
+   "ir_from": 59817,
+   "ir_to": 60485,
+   "what": "closure#3 (466~551 filter 술어) call_mut 심 — 캡처 env[0..9]=data,f_atk,&enemy_tower_not_covering_champ,f,f_skill,player,&nearest_enemy_tower,f_skill2,f_ult"
+  },
+  {
+   "ir_file": "m14.ll",
+   "ir_from": 6150,
+   "ir_to": 6178,
+   "what": "closure#3 안 중첩 closure (494~495) — nearest_enemy_tower.is_none_or(|t| !t.attack_effect.is_in_range_ex(t,target,…,15000))"
+  },
+  {
+   "ir_file": "m14.ll",
+   "ir_from": 6181,
+   "ir_to": 6209,
+   "what": "동일 중첩 closure (516~517, Skill2)"
+  },
+  {
+   "ir_file": "m14.ll",
+   "ir_from": 6212,
+   "ir_to": 6240,
+   "what": "동일 중첩 closure (538~539, Ult)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 8382,
+   "ir_to": 13039,
+   "what": "act_actions.retain(closure#5) (556~731) — 캡처 env=data,f,&version,player · Skill/Skill2/Ult 3분기가 문자 단위 동일(57줄 오프셋)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 46907,
+   "ir_to": 46989,
+   "what": "closure#5 안 중첩 (578/635/692 iter_towers.any) call_mut — dist²≤120000² && t.is_visible_from(f)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 15591,
+   "ir_to": 16116,
+   "what": "위 중첩의 Chain<Flatten<…>> try_fold 본체(같은 술어 인라인)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 46776,
+   "ir_to": 46819,
+   "what": "closure#5 안 중첩 (598/655/712 iter_minions.any) call_mut — dist²≤120000² 만"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 8094,
+   "ir_to": 8167,
+   "what": "위 중첩의 Chain<Copied<Iter>> try_fold 본체"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 13042,
+   "ir_to": 13211,
+   "what": "act_actions.retain(closure#6) (736) — !v30_line_champion_action_tower_aggro_risk(version,data,player,a)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 13214,
+   "ir_to": 13459,
+   "what": "act_actions.retain(closure#7) (742~755) — 판단정확도 게이트 + self.score(a) 임계"
+  },
+  {
+   "ir_file": "m14.ll",
+   "ir_from": 60488,
+   "ir_to": 60561,
+   "what": "get_move_action_v46 closure#4 (258 near_enemies filter) call_mut — e.is_visible_from(champ) && dist²<160000²"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 35114,
+   "ir_to": 35290,
+   "what": "near_enemies from_iter_in(Filter<FilterMap<Iter<Option<&Entity>>,iter_champions#0>,gmav46#4>)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 28597,
+   "ir_to": 28749,
+   "what": "get_move_action_v46 closure#1 (231~236 twin_towers.min_by_key) fold — key=dist²(t, LineType::get_start_position(&line,setting,team))"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 47878,
+   "ir_to": 47903,
+   "what": "get_move_action_v46 closure#10 (341~342 iter_minions.any) call_mut — champ_atk.is_in_range_ex(champ,m,…,30000)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 8398,
+   "ir_to": 8474,
+   "what": "위 try_fold 본체"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 47906,
+   "ir_to": 47931,
+   "what": "get_move_action_v46 closure#11 (343~344 iter_towers.any) call_mut — 같은 술어 30000"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 20871,
+   "ir_to": 21076,
+   "what": "위 try_fold 본체"
+  }
+ ],
+ "one_line": "[배치 E · 456~766] 이전 틱 행동(old_actions)을 「이동 중 유지 가능한 공격/스킬」로 걸러 act_actions 를 만들고(3단 retain), 인라인된 get_move_action_v46 으로 move_actions(도주/추격/타워대기/미니언대기)를 만든다",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "bumpalo Vec<SmallActionPlay> 32B",
+    "note": "ptr@0 · bump@+8 · cap@+0x10 · len@+0x18 · 원소 184B · 태그@+0xb1. ⚠내 범위는 sret 을 직접 채우지 않는다 — act_actions(%122)·move_actions(%110) 두 로컬 Vec 를 만들어 배치 F(769~)로 넘긴다"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&LineDefenseSubPlan(3B: style@0 · line@1 · minion_action_type@2)",
+    "note": "IR 속성에 readonly 없음(=&mut 가능). 내 범위: 읽기 line(+1, 230행) · self 포인터를 score()(closure#7 742행)에 전달. 내 범위 안 self 쓰기 0건"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "%131 alloca 로 spill 되어 클로저에 &version 으로 캡처. 내 범위 안에서 version 자체 분기 없음(콜리 인자로만 전달)"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "gen_range(757·743) · SliceRandom::choose(759) · range_misjudge_roll(271/272/273/278/313) · check_kill_die_tick · lane_minion_position_action · score() 가 소비 → 상태 전진(부작용) · ⚠Around::new 의 rnd 인자는 `_rnd`(미사용, DILocalVariable) — rnd 소비 없음"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "읽기 +0x930 team · +0x180 parameter(AthleteParameter: judge_line_accuracy · positioning_accuracy)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0 cache(&AbstractGameWithCache) · +8 context(&GameContext: +0 pool(bump) · +8 setting · +0x3b debug) · +0x10 blackboard(&[Blackboard;2])"
+   },
+   {
+    "i": 6,
+    "name": "parameter",
+    "type": "&(5384B, readonly)",
+    "note": "읽기 +0 wave_snapshot Option tag(i64 bool) · +8 payload(&MinionWaveSnapshot) · +0x9f0 positioning_score. 클로저#7 에서 score() 로 전달"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "type": "ptr readnone",
+    "note": "내 범위 미사용"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut (224B)",
+    "note": "+0xa0 HashMap<usize,Vec<String>> — ctx.debug 일 때 champ.id 키로 format!(\"{}\", has_enemy_minion_in_range) push(347행). closure#7 score() 에도 전달"
+   }
+  ],
+  "returns": "sret Vec<SmallActionPlay> 는 배치 F 가 채움. 내 범위 산출물: ①act_actions(%122, Vec 32B) = old_actions 필터·retain 결과 ②move_actions(%110, Vec 32B) = get_move_action_v46 의 res. 원소 184B · 태그@+0xb1(tcxdict --enum SmallActionPlay: RunAway 3 · Around 5 · LaneMinionPosition 13 · Trace 14 · Attack 15 · Skill 16 · Skill2 17 · Ult 18 · Stop 19 · AroundPosition 무태그). 내 범위가 push 하는 variant 의 live 바이트: RunAway(3) 페이로드 SmallActionRunAway 136B → 0x0~0x87 + 태그 0xb1(나머지 0x88~0xb0·0xb2~0xb7 은 memcpy 136B/184B 로 원본 alloca 잔여 = 미초기화) · Trace(14) SmallActionTrace 152B → 0x0~0x97 + 0xb1 · Around(5) SmallActionAround 136B → 0x0~0x87(+0x80 position_eval_purpose · +0x81 escape_mode) + 0xb1 · lane_minion_position_action 반환 variant(r14 계약) 그대로 memcpy 184B · 761행 choose().clone() 결과(임의 variant, Clone 이 채운 바이트)",
+  "tls": [
+   {
+    "name": "(직접 접근 없음)",
+    "role": "소비자(간접)",
+    "key": "-",
+    "layout": "-",
+    "invalidation": "-",
+    "call_conditions": "내 범위 IR(m14.ll 23985~26987 의 루트줄 456~766 블록 + aux 전부)에 LocalKey::with / thread_local 호출 0건. TLS 를 가진 것으로 알려진 콜리를 부르는 순서(766행 get_move_action_v46 인라인 안, IR 원문 줄): ①24596 line_phase_position_eval_purpose(player,data) ②24693 nontarget_windup_perceived(version,player,data,c) — 적 챔피언 5슬롯 루프, 209~216행, 조건 c!=null ③24822 line_phase_position_eval_purpose(재호출, 223행) ④24826 position_score_at_position(version,player,data,positioning_score,champ.x,champ.y,purpose) (222행 · POS_EVAL_CACHE 는 이 안(추정 · 자식 명세 소관)) ⑤25128 check_kill_die_tick(version,rnd,data,player,champ,near_enemies.clone(),Vec::new_in(bump),debug) (259행 · METHOD_MAP §1-⑥ 실측: 엔티티 id 키 TLS 메모) ⑥25689 range_misjudge_rng(version,data,player,enemy.id) (270행, near_enemies 루프마다) ⑦26650 lane_minion_position_action(...) (356행 · front_minion 이 nexus 보다 먼 경우만). v47_siege_stance(5255줄 · 루트 774) · Blackboard::is_recent_visible(5624 · 823) 는 배치 F. champion_hp_value / interaction_score / v48_cast_beams 직접 호출은 내 범위에 없음(score()·check_kill_die_tick 내부 여부는 자식 명세)"
+   }
+  ]
+ },
+ "reads": [
+  {
+   "base": "LineDefenseSubPlan",
+   "offset": "0x1",
+   "name": "line",
+   "note": "230행 · LineType 태그(Top0/Mid1/Bottom2) → 타워·블랙보드 라인 선택"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "team(%160) · enemy=1-team"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "parameter",
+   "note": "AthleteParameter::judge_line_accuracy(738) · positioning_accuracy(254)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": ""
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "context+0 = pool(bump) · context+8 = setting · context+0x3b = debug(bool)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "[Blackboard;2] 744B stride, team 인덱스"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "get_start_position 인자 · setting+0x12f8 tick_per_second"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug",
+   "note": "346행 debug 문자열 기록 게이트"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "278 max_poke_range 인자 · 290 me_die_tick ≥ tps*2 · 295 me_die_tick < tps"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (&dyn AbstractGame 팻포인터)",
+   "note": "vtable+0x1f0(496) = get_entity_by_id(id) → Option<&Entity>"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xd0",
+   "name": "jungles (Vec ptr@0xd0 len@0xe8)",
+   "note": "closure#5 579/636/693 — 실드 스킬 유지 판정"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xf0",
+   "name": "others[team] (Vec 32B stride)",
+   "note": "325행 적 others 사거리 체크 · closure#5 580/594 등"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x130",
+   "name": "twin_towers[team]",
+   "note": "231행 min_by_key 후보"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[team]",
+   "note": "237·240행"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower / mid_tower / bottom_tower [team] (line*32 stride)",
+   "note": "230행 line 별 1차 타워"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2 / mid_tower2 / bottom_tower2 [team]",
+   "note": "230행 .or() 폴백"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos] (80B, 5×8B per team)",
+   "note": "champ(206) · 아군 5슬롯(263) · 적 5슬롯(209·258 · closure#5 577/592)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "top/mid/bottom_minion_state.front_minion (Option<usize>: tag@+0 payload@+8, line*40 stride)",
+   "note": "243~244행 front_minion → get_entity_by_id"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team (TeamType: discr@0 Player=0/Neutral=1 · Player idx@+8)",
+   "note": "TeamType::eq(478/487/509/531/560/746) · is_visible_from(1136~1137)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x38",
+   "name": "visible_state[team] (24B stride, tag 0=Visible)",
+   "note": "is_visible_from → visible_state[viewer.team]==Visible"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType: 2 Tower · 13 Champion)",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state@tag (4 Skill · 5 Skill2 · 6 Ult)",
+   "note": "211~215행 비타겟 스킬 시전 중 판정"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "327행 Effect::range(entity) 인라인"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult",
+   "note": "327행 Entity::radius() 인라인"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect (Option<Effect>, casting 니치@0x4c0 == -1 → None)",
+   "note": "f_atk(459) · 326행 others.attack_effect · 340행 champ_atk · 457행 타워 attack_effect"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "327"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "327 (level-1)*growth_range"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect (Option<Effect>, 니치@0x4f8)",
+   "note": "f_skill(460) · 211 · 265 · closure#5 562"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect (level>2 일 때만 유효, 아니면 EMPTY 정적)",
+   "note": "461 · 213 · 266 · closure#5 619"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect (level>4)",
+   "note": "462 · 215 · 267 · closure#5 676"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "263 아군 카운트 제외 · 270 range_misjudge_rng 키 · Trace/Around 생성자 target · 347 debug 키"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "skill2/ult 존재 판정(>2 / >4) · 327 growth"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (max_hp)",
+   "note": "closure#5 568 hp_ratio 분모(0 이면 div_by_zero 패닉)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "closure#5 568"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "327"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x0",
+   "name": "ty (Arc<dyn EffectType>: +0 ptr · +8 vtable)",
+   "note": "vtable+0x40 expected_heal · +0x48 expected_shield · +0x50 expected_buff(sret 288B) · +0x120 can_move (divtable 일치율 94%)"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x30",
+   "name": "casting (CastingType 0 Targeting/1 Position/2 Direction/3 None · Option<Effect> 니치 -1)",
+   "note": "211~215 비타겟(1|2) 판정"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "target id (Attack/Skill/Skill2/Ult 페이로드 +8)",
+   "note": "closure#3 472~529 · closure#5 559 · closure#7 744"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "tag",
+   "note": "-1(0xFF) = Option<SmallActionPlay>::None (356행 lane_minion_position_action 결과 · retain 내부)"
+  },
+  {
+   "base": "SmallActionAround",
+   "offset": "0x80",
+   "name": "position_eval_purpose",
+   "note": "354·361행 .purpose 세팅"
+  },
+  {
+   "base": "position_score(56B sret)",
+   "offset": "0x30",
+   "name": "bool@+48 (이름 미상) / on_trajectory@+49",
+   "note": "224행 도주 조건"
+  },
+  {
+   "base": "debug",
+   "offset": "0xa0",
+   "name": "HashMap<usize,Vec<String>>",
+   "note": "347행 (ctx.debug 일 때만)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "act_actions(%122 로컬 Vec)",
+   "offset": "0x0..0x20",
+   "value": "552행 collect · 556/736/742 retain(len 감소·원소 memmove) · 760 truncate(0) · 761 push(choose clone)",
+   "note": "배치 F 로 전달"
+  },
+  {
+   "base": "move_actions(%110 로컬 Vec)",
+   "offset": "0x0..0x20",
+   "value": "get_move_action_v46 res(%44) memcpy 32B (227행 조기반환 / 365행)",
+   "note": "배치 F 로 전달"
+  },
+  {
+   "base": "rnd(&mut StdRng)",
+   "offset": "-",
+   "value": "gen_range·choose·range_misjudge_roll·Around::new·check_kill_die_tick·lane_minion_position_action·score 호출을 통한 상태 전진",
+   "note": "호출 횟수는 분기·near_enemies 수·act_actions 길이에 의존 → 재현 시 호출 순서 동일 필수"
+  },
+  {
+   "base": "debug",
+   "offset": "0xa0",
+   "value": "entry(champ.id).or_insert(Vec::new()).push(format!(anon.121, has_enemy_minion_in_range))",
+   "note": "ctx.debug(+0x3b) 참일 때만 · 347행"
+  },
+  {
+   "base": "static prof::PHASE_NANOS / PHASE_CALLS",
+   "offset": "phase*8",
+   "value": "atomicrmw add (phase 93·94·83·81)",
+   "note": "prof::ENABLED 가 0 이 아닐 때만 · 판정 무관"
+  },
+  {
+   "base": "self",
+   "offset": "-",
+   "value": "(없음)",
+   "note": "내 범위에서 self 에 store 0건"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 461,
+   "meaning": "level > 2 → skill2_effect 존재(아니면 EMPTY 정적 Option=None). 213·266·closure#5 619 동일. 또 EntityType::Tower 태그(478/487/509/531 target.is_tower) · CastingType::Direction(211~215)"
+  },
+  {
+   "value": 4,
+   "src_line": 462,
+   "meaning": "level > 4 → ult_effect 존재. 215·267·closure#5 676 동일. 또 ChampionActionState::Skill 태그(211)"
+  },
+  {
+   "value": 13,
+   "src_line": 468,
+   "meaning": "SmallActionPlay 메모리태그 13 = LaneMinionPosition → closure#3 에서 즉시 false(제외). 또 EntityType::Champion 태그(472 is_champion · 490/512/534 · gmav46 210)"
+  },
+  {
+   "value": 5,
+   "src_line": 226,
+   "meaning": "생성자 end_delay=5 (RunAway::new_with_skill(data,player,5,…)/Trace::new(data,id,5)/Trace::new_keep_range(data,id,5,r)/Around::new(version,rnd,data,player,id,5) · DILocalVariable 확인: Trace::new_keep_range(data,target,end_delay,keep_range) · RunAway::new_with_skill(data,player,end_delay,with_skill) · Around::new(_version,_rnd,data,_player,target,end_delay) — Around 는 version/rnd/player 를 안 쓴다(밑줄 접두)). 또 ChampionActionState::Skill2 태그(213) · SmallActionPlay Around 태그(353·360) · ⚠본문의 `shl nuw nsw i8 %line, 5`(230행 line*32 = 타워 배열 stride 접힘) 는 이 상수의 용법이 아님"
+  },
+  {
+   "value": 6,
+   "src_line": 215,
+   "meaning": "ChampionActionState::Ult 태그"
+  },
+  {
+   "value": 1,
+   "src_line": 290,
+   "folded_from": 2,
+   "meaning": "me_die_tick >= tps*2 — `shl i64 %tps, 1` 로 접힘(2초). 또 264행 near_ally_count+1 · CastingType::Position(211~215) · TeamType::Neutral discr"
+  },
+  {
+   "value": 3,
+   "src_line": 226,
+   "meaning": "SmallActionPlay 메모리태그 3 = RunAway (226·336 push). 또 closure#3/5/7 태그→논리인덱스 변환 `tag-3`(idx = tag>2 ? tag-3 : 7) · ⚠본문의 `shl i64 %len, 3`(231/579행 포인터 배열 stride 접힘) 는 이 상수의 용법이 아님"
+  },
+  {
+   "value": 14,
+   "src_line": 298,
+   "meaning": "SmallActionPlay 메모리태그 14 = Trace (298·302·306·317 push)"
+  },
+  {
+   "value": 15000,
+   "src_line": 495,
+   "meaning": "closure#3 중첩: 적 타워 attack_effect.is_in_range_ex(tower,target,tower.xy,target.xy, 15000) 여유값 — 타워가 target 을 (15000 여유로) 못 덮을 때만 스킬 유지"
+  },
+  {
+   "value": 30000,
+   "src_line": 342,
+   "meaning": "gmav46 341~344: champ_atk.is_in_range_ex(champ, m|t, …, 30000) — 적 미니언/타워가 평타 사거리+30000 안 → has_enemy_minion_in_range"
+  },
+  {
+   "value": 1000,
+   "src_line": 757,
+   "meaning": "rnd.gen_range(0..1000) > judgement_line_accuracy (757 · closure#7 743). 또 271/272/273/278/313 `범위*roll/1000`(오판 롤 천분율)"
+  },
+  {
+   "value": 2000,
+   "src_line": 256,
+   "meaning": "max_v = 2000 - positioning_accuracy (range_misjudge_roll 의 상한; min_v = positioning_accuracy)"
+  },
+  {
+   "value": 40,
+   "src_line": 273,
+   "meaning": "emr_near = max_range_nearly_can_use(enemy, champ, 40)*roll/1000"
+  },
+  {
+   "value": 60,
+   "src_line": 313,
+   "meaning": "me_die_tick < tps 분기의 emr = max_range_nearly_can_use(enemy, champ, 60)*roll/1000"
+  },
+  {
+   "value": 10,
+   "src_line": 296,
+   "meaning": "enemy.remain_action_time() > 10 (틱)"
+  },
+  {
+   "value": 999,
+   "src_line": 296,
+   "meaning": "`mr_raw(=roll*max_range_can_use) > 999` ⟺ mr(= mr_raw/1000) >= 1 ⟺ mr != 0 — udiv 비교가 접힘"
+  },
+  {
+   "value": 25600000000,
+   "src_line": 258,
+   "meaning": "160000² — near_enemies(258: dist² < 160000², 가시 적 챔피언) · near_ally_count(263: id≠champ.id && dist² < 160000²)"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 577,
+   "meaning": "120000²+1 → dist² <= 120000² — closure#5 의 「target 근처 적 존재」 판정(577/578/579/580 · 592/593/594/597~598 · Skill2/Ult 동일)"
+  },
+  {
+   "value": 79,
+   "src_line": 569,
+   "meaning": "closure#5: target hp_ratio(hp*100/max_hp) > 79 (=80% 이상) 이면 힐 스킬은 aoe_heal_covers_low_ally 가 참일 때만 유지"
+  },
+  {
+   "value": 100,
+   "src_line": 568,
+   "meaning": "hp_ratio = hp*100/max_hp. 또 327 radius*(mult+100)/100"
+  },
+  {
+   "value": -31,
+   "src_line": 753,
+   "meaning": "closure#7: score > -31 ⟺ score >= -30 (비아군 대상 · 비게이트 유지 임계)"
+  },
+  {
+   "value": -1,
+   "src_line": 753,
+   "meaning": "closure#7: score > -1 ⟺ score >= 0 (아군 대상 스킬 유지 임계). 또 Option 니치 None(-1) 검사 다수(casting·tag@0xb1·expected_buff+0x48)"
+  },
+  {
+   "value": 0,
+   "src_line": 292,
+   "meaning": "bruiser_engage = expected_trade_net_hp(data,champ,enemy) > 0. 또 VisibleState::Visible 태그 0 · 760 truncate(0)"
+  },
+  {
+   "value": 12,
+   "src_line": 473,
+   "meaning": "closure#3 switch 논리인덱스 12/13/14/15 = Attack/Skill/Skill2/Ult(태그 15~18) 만 통과, 그 외 인덱스(0~11·16) → false"
+  },
+  {
+   "value": -15,
+   "src_line": 472,
+   "meaning": "`tag-15 <u 4` ⟺ tag∈{15,16,17,18}(Attack/Skill/Skill2/Ult) — get_action().target_id 존재 variant"
+  },
+  {
+   "value": -16,
+   "src_line": 744,
+   "meaning": "closure#7 `tag-16 <u 3` ⟺ tag∈{16,17,18}(Skill/Skill2/Ult) — 아군 대상 여부 검사 대상. closure#5 557 은 switch 13/14/15(논리인덱스)"
+  },
+  {
+   "value": 93,
+   "src_line": 465,
+   "meaning": "ProfTimer phase 93(_t_af, 465~553) · 94(_t_ar, 555~732) · 83(_t_sr, 735~765) · 81(get_move_action_v46 202~366) — prof::ENABLED 일 때만, 판정 무관"
+  },
+  {
+   "value": 132,
+   "src_line": 553,
+   "meaning": "PHASE_NANOS/PHASE_CALLS 배열 길이 bounds check(프로파일링) — 판정 무관"
+  },
+  {
+   "value": 1000000000,
+   "src_line": 553,
+   "meaning": "Duration → ns 환산(프로파일링) — 판정 무관"
+  }
+ ],
+ "calls": [
+  "gc::simulation::effect::Effect::is_in_range",
+  "gc::simulation::effect::Effect::is_in_range_ex",
+  "gc::simulation::effect::Effect::range_adjust",
+  "gc::simulation::effect::Effect::expected_damage_target",
+  "gc::simulation::entity::Entity::can_skill",
+  "gc::simulation::entity::Entity::can_skill2",
+  "gc::simulation::entity::Entity::can_ult",
+  "gc::simulation::entity::Entity::remain_action_time",
+  "gc::simulation::state::player::LineType::get_start_position",
+  "gc::simulation::state::player::AthleteParameter::judge_line_accuracy",
+  "gc::simulation::state::player::AthleteParameter::positioning_accuracy",
+  "gc::simulation::AbstractGameWithCache::iter_minions",
+  "gc::simulation::AbstractGameWithCache::iter_towers",
+  "ai::position_eval::line_phase_position_eval_purpose",
+  "ai::position_eval::position_score_at_position",
+  "ai::utils::nontarget_windup_perceived",
+  "ai::utils::range_misjudge_rng",
+  "ai::utils::range_misjudge_roll",
+  "ai::utils::is_dash_worth",
+  "ai::fight_check::check_kill_die_tick",
+  "ai::fight_check::effect_buff_target",
+  "ai::buff_value::aoe_heal_covers_low_ally",
+  "ai::tower_discipline::v30_line_champion_action_tower_aggro_risk",
+  "ai::plan_legacy::old::battle::max_range_can_use",
+  "ai::plan_legacy::old::battle::max_range_nearly_can_use",
+  "ai::plan_legacy::old::battle::max_poke_range",
+  "ai::plan_legacy::old::battle::expected_trade_net_hp",
+  "ai::plan_legacy::sub_plan::line_defense::LineDefenseSubPlan::score",
+  "ai::small_action::lane_minion::lane_minion_position_action",
+  "ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "ai::small_action::trace::SmallActionTrace::new",
+  "ai::small_action::trace::SmallActionTrace::new_keep_range",
+  "ai::small_action::around::SmallActionAround::new",
+  "ai::small_action::SmallActionPlay::clone",
+  "bumpalo::collections::vec::Vec::retain",
+  "bumpalo::collections::vec::Vec::truncate",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic",
+  "bumpalo::collections::vec::Vec::from_iter_in",
+  "rand::seq::SliceRandom::choose",
+  "rand::Rng::gen_range",
+  "hashbrown::map::HashMap::rustc_entry",
+  "hashbrown::raw::RawTable::insert_no_grow",
+  "alloc::raw_vec::RawVec::grow_one",
+  "alloc::fmt::format::format_inner",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed"
+ ],
+ "logic": "// line_defense.rs:456~766 (배치 E)\n// 입력(배치 D 산출): f=%958 = cache.player_champion[team][pos].unwrap() (내 챔피언, 451행) · nearest_enemy_tower=%126 (Option<&Entity>, 452~454행) · old_actions=%128 (Vec<SmallActionPlay>, 이전 틱 행동) · positioning_score=%237=parameter+0x9f0 · team=%160=player+0x930 · enemy=%183=1-team\n\n// ── 457: 적 타워가 나를 못 덮는가\nenemy_tower_not_covering_champ: bool = match nearest_enemy_tower { None => true, Some(t) => !t.attack_effect().as_ref().unwrap().is_in_range(t, f) }   // t+0x490 · None 이면 unwrap 패닉(anon.38)\n// 459~462\nf_atk    = &f.attack_effect (f+0x490, &Option<Effect>)\nf_skill  = &f.skill_effect  (f+0x4c8)\nf_skill2 = if f.level > 2 { &f+0x500 } else { &EMPTY(anon.22 = None) }\nf_ult    = if f.level > 4 { &f+0x538 } else { &EMPTY }\n_t_af = ProfTimer::start(93)   // 465, ENABLED 일 때만\n\n// ── 466~552: act_actions = old_actions.iter().filter(closure#3).map(|a| a.clone()).collect_in(bump)\n//   closure#3(a) — m14.ll 59817~ (캡처: data,f_atk,&enemy_tower_not_covering_champ,f,f_skill,player,&nearest_enemy_tower,f_skill2,f_ult):\n  468: if a.tag == 13 (LaneMinionPosition) { return false }\n  472: if a.tag ∈ {15,16,17,18} { let t = game.get_entity_by_id(a.target_id(+8));            // closure#1 = is_some_and(|t| !t.is_champion())\n         if let Some(t) = t && t.ty != Champion(13) { return true } }                          // 비챔피언 대상(미니언·구조물·정글) 공격/스킬은 무조건 유지\n  473: match a.tag (논리인덱스 tag-3):\n    Attack(15) → 476: target = get_entity_by_id(a.target_id) else return false\n                 477: effect = f_atk.unwrap()   // f.attack_effect None 이면 패닉(anon.39)\n                 478: if enemy_tower_not_covering_champ || target.is_tower() || target.team == f.team { return effect.is_in_range(f, target) } else { return false }   // 적 타워 아래서 적 챔피언 평타 후보 제거\n    Skill(16)  → 485: target = get_entity_by_id(...) else false\n                 486: effect = f_skill.unwrap()   // None → 패닉(anon.40)\n                 487: if !(enemy_tower_not_covering_champ || target.is_tower() || target.team == f.team) { return false }; if !effect.is_in_range(f, target) { return false }\n                 488~489: if !effect.ty.can_move()(vtable+0x120) { return false }             // 이동 중 시전 불가 스킬 제거\n                 490~492: if target.team != f.team && target.is_champion() { dmg = effect.expected_damage_target(data.context, f, target, anon.41); return is_dash_worth(data, player, f, target, dmg) }\n                 494~495: return nearest_enemy_tower.is_none_or(|t| !t.attack_effect.unwrap().is_in_range_ex(t, target, t.x, t.y, target.x, target.y, 15000))   // 중첩 closure(m14.ll 6150) · 타워 attack_effect None 이면 패닉(anon.10)\n    Skill2(17) → 507~517: 위 Skill 과 동일하되 f_skill2 사용(anon.42 · 중첩 closure m14.ll 6181)\n    Ult(18)    → 529~539: 동일하되 f_ult (anon.43 · m14.ll 6212)\n    그 외(RunAway3·Recall4·Around5~Trace14·Stop19·AroundPosition) → false\n553: drop _t_af → PHASE_NANOS[93]+=elapsed · PHASE_CALLS[93]+=1\n555: _t_ar = ProfTimer::start(94)\n\n// ── 556~731: act_actions.retain(closure#5)  — m01.ll 8382~13039 (캡처: data, f, &version, player) · Skill(557~599)/Skill2(616~656)/Ult(673~713) 3분기 문자단위 동일(IR 비교로 확인, effect 선택만 다름)\n  557: match a.tag: Skill(16)→559 / Skill2(17)→616 / Ult(18)→673 / 그 외 → keep(true)\n  559: target = get_entity_by_id(a.target_id) else → 삭제(false)\n  560: if target.team != f.team { keep }                                     // 아군 대상 스킬만 검사\n  562: let Some(effect) = f.skill_effect (Skill2: level>2 ? +0x500 : EMPTY / Ult: level>4 ? +0x538) else → 삭제   // casting@+0x30 == -1 → None\n  563: has_heal   = effect.ty.expected_heal  (vtable+0x40)(ctx=data.context, f, anon.11) != 0     // DW_OP_not 확인: dbg has_heal = !(ret==0)\n  564: has_shield = effect.ty.expected_shield(vtable+0x48)(ctx, f, anon.11) != 0\n  565: has_buff   = effect.ty.expected_buff  (vtable+0x50)(sret 288B, ctx, f, anon.11).is_some()   // 니치: ret+0x48 i32 == -1 → None\n  567~572: if has_heal && !has_buff {\n             hp_ratio = target.hp(+0x670)*100 / target.max_hp(+0x628)   // max_hp==0 → div_by_zero 패닉\n             if hp_ratio > 79 && !aoe_heal_covers_low_ally(version, effect, data, player, target) { return false } }   // 체력 80%+ 아군에게 힐 낭비 금지\n  576~580: if has_shield && !has_buff {   // 실드는 target 근처(<=120000) 에 적이 있어야 유지\n             if enemy_champs(cache.player_champion[enemy]).flatten().any(|c| dist²(target,c) <= 120000² && c.is_visible_from(f)) { keep }   // 577\n             if cache.iter_towers(enemy).any(|t| dist²(target,t) <= 120000² && t.is_visible_from(f)) { keep }              // 578 (m06.ll 46907)\n             if cache.jungles.iter().any(|j| dist²(target,j) <= 120000² && j.is_visible_from(f)) { keep }                  // 579\n             if cache.others[enemy].iter().any(|o| dist²(target,o) <= 120000²) { keep }                                    // 580 (가시성 검사 없음)\n             return false }\n  590~599: if !has_heal && !has_shield {   // 순수 버프/딜 스킬\n             let Some(_) = fight_check::effect_buff_target(version, effect, data.context, f, anon.11) (sret 288B, +0x48==-1 → None) else { keep }   // 591: 버프 대상 정의 없음 → 유지\n             has_near_combat = enemy_champs.any(|c| dist²(target,c)<=120000² && c.is_visible_from(f))   // 592\n                            || iter_towers(enemy).any(같은 술어)                                          // 593\n                            || others[enemy].any(|o| dist²<=120000²)                                     // 594\n                            || iter_minions(enemy).any(|m| dist²(target,m) <= 120000²)                  // 597~598 (m06.ll 46776)\n             return has_near_combat }                                                                    // 599\n  그 외 조합(has_buff 이거나 heal/shield 검사 통과) → keep\n  // is_visible_from(viewer): viewer.team Neutral(discr 1) → true / Player(t) → self.visible_state[t](+0x38+24t).tag == 0(Visible)\n732: drop _t_ar(94)\n735: _t_sr = ProfTimer::start(83)\n\n// ── 736: act_actions.retain(|a| !v30_line_champion_action_tower_aggro_risk(version, data, player, a))   // m01.ll 13042 · 타워 어그로 위험 행동 제거\n738: judgement_line_accuracy = player.parameter(+0x180).judge_line_accuracy()\n\n// ── 742~755: act_actions.retain(closure#7)  — m01.ll 13214 (캡처: rnd, &judgement_line_accuracy, data, f, self, &version, parameter, player, debug)\n  743: gated = rnd.gen_range(0..1000) > judgement_line_accuracy          // ★원소마다 롤(rnd 소비)\n  744~746: target_is_ally = a.tag ∈ {16,17,18} && get_entity_by_id(a.target_id).is_some_and(|t| t.team == f.team)\n  749: if gated { if !target_is_ally { keep } else { score = self.score(version, parameter, rnd, player, data, a, debug); keep iff score >= 0 } }\n  752~753: else { score = self.score(...);  keep iff (target_is_ally ? score >= 0 : score >= -30) }   // IR: (score > -31 && ally) ? score > -1 : score > -31\n\n// ── 757~762: 판단 오차 — 후보가 2개 이상이고 롤이 정확도를 넘으면 무작위 1개만 남김\n757: if rnd.gen_range(0..1000) > judgement_line_accuracy && act_actions.len() > 1 {\n  759: choosed = act_actions.choose(rnd).unwrap().clone()\n  760: act_actions.truncate(0)\n  761: act_actions.push(choosed) }\n765: drop _t_sr(83)\n\n// ── 766: move_actions = self.get_move_action_v46(version, rnd, player, data, positioning_score, parameter.wave_snapshot.as_ref()(+0 tag/+8), debug)   — line_defense.rs:202~366 완전 인라인\n  202: _t = ProfTimer::start(81); 203: res = Vec::new_in(bump)\n  204: position_eval_purpose = line_phase_position_eval_purpose(player, data)\n  206: champ = cache.player_champion[team][pos].unwrap()   // None → 패닉(anon.122)\n  209~216: has_non_target_action_range = cache.player_champion[enemy].iter().flatten().any(|c|\n             nontarget_windup_perceived(version, player, data, c) && c.ty == Champion(13) &&\n             match c.action_state(+0x70) { Skill(4) => c.skill_effect.unwrap(), Skill2(5) => c.skill2_effect().unwrap(), Ult(6) => c.ult_effect().unwrap(), _ => return false }   // unwrap: casting@+0x30 == -1 → 패닉(anon.44/45/46)\n             .casting ∈ {Position(1), Direction(2)} && effect.is_in_range(c, champ))          // 적이 비타겟 스킬 시전 중이고 내가 그 사거리 안\n  222~223: position_score = position_score_at_position(version, player, data, positioning_score, champ.x, champ.y, line_phase_position_eval_purpose(player, data))   // 56B sret · purpose 재호출\n  224~227: if position_score.+48(bool) || has_non_target_action_range || position_score.on_trajectory(+49) {\n             res.push(RunAway(tag3) = SmallActionRunAway::new_with_skill(data, player, end_delay=5, with_skill=true)); return res }   // ★조기 반환 → move_actions\n  230: line = self.line(+1)\n       tower = cache.{top,mid,bottom}_tower[line][team] (0x180+line*32) .or( *_tower2[line][team] (0x190+line*32) )\n  231~236: .or( cache.twin_towers[team].iter().min_by_key(|t| dist²(t, LineType::get_start_position(&line, ctx.setting, team))).copied() )   // m12.ll 28597 fold · 동률이면 앞 원소\n  237: .or( cache.nexus[team] )\n  238: nearest_tower = ….unwrap()   // 전부 None → 패닉(anon.123)\n  240: nexus = cache.nexus[team].unwrap()   // 패닉(anon.124)\n  243~244: front_minion: Option<&Entity> = blackboard[team].{top,mid,bottom}_minion_state[line].front_minion(Option<usize>).map(|id| game.get_entity_by_id(id))  (None 가능)\n  253: runaway = false\n  254~256: positioning_accuracy = player.parameter.positioning_accuracy(); min_v = positioning_accuracy; max_v = 2000 - positioning_accuracy\n  258: near_enemies = cache.player_champion[enemy].iter_champions().filter(|e| e.is_visible_from(champ) && dist²(e, champ) < 160000²).collect_in(bump)   // m14.ll 60488\n  259: me_die_tick = check_kill_die_tick(version, rnd, data, player, champ, near_enemies.clone(), Vec::new_in(bump), debug)\n  263: near_ally_count = cache.player_champion[team].iter_champions().filter(|x| x.id != champ.id && dist²(x, champ) < 160000²).count()\n  264: local_outnumbered = near_enemies.len() <= near_ally_count + 1      // ⚠IR 극성: `icmp ule len, cnt+1` (이름과 반대로 읽히지만 IR 정본)\n  265~267: has_moving_skill(이름 미상 %1676) = (champ.can_skill() && champ.skill_effect.unwrap().ty.can_move()) || (can_skill2() && skill2_effect.unwrap().ty.can_move()) || (can_ult() && ult_effect.unwrap().ty.can_move())   // effect None(casting -1) 이면 그 항은 false(unwrap 패닉 아님 · `let Some` 패턴)\n  269: for enemy in near_enemies.iter() {\n    270: jrng = range_misjudge_rng(version, data, player, enemy.id)   // {i64,i64} 16B\n    271: mr       = max_range_can_use(champ, enemy)        * range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000\n    272: emr      = max_range_can_use(enemy, champ)        * roll / 1000\n    273: emr_near = max_range_nearly_can_use(enemy, champ, 40) * roll / 1000\n    274: dist = dist²(champ, enemy)\n    278: poke_range = max_poke_range(champ, enemy, tps) * roll / 1000   // tps = setting+0x12f8\n    // trace_action(emr_x) (281~284 헬퍼): if poke_range > emr_x { Trace::new_keep_range(data, enemy.id, 5, poke_range) } else { Trace::new(data, enemy.id, 5) }  → tag 14\n    290~292: bruiser_engage = local_outnumbered && has_moving_skill && emr >= mr && me_die_tick >= tps*2 && expected_trade_net_hp(data, champ, enemy) > 0\n    295: if me_die_tick < tps {\n      313: emr60 = max_range_nearly_can_use(enemy, champ, 60) * roll / 1000\n      315~317: if dist > mr² && emr60 < mr { res.push(trace_action(emr60)) }\n      318: else { runaway = runaway || dist <= emr60² } }\n    296: else if enemy.remain_action_time() > 10 && mr >= 1 {\n      297~298: if dist > mr² { res.push(trace_action(emr)) } }\n    300~302: else if dist > mr² && emr < mr { res.push(trace_action(emr)) }\n    303~306: else if bruiser_engage { if dist > mr² { res.push(Trace::new(data, enemy.id, 5)) } }\n    308: else if dist <= emr_near² { runaway = true }\n  }\n  325~328: for e in cache.others[enemy].iter(): if let Some(atk)=e.attack_effect (+0x4c0 != -1) { range = e.stat_buff_cached.range(+0x438) + atk.range(+0x4a0) + (e.level-1)*atk.growth_range(+0x4a8) + atk.range_adjust(e, champ) + e.radius() + champ.radius();   // radius() = radius_mult==0 ? radius : radius*(mult+100)/100\n             if dist²(champ, e) <= range² { → 336 } }\n  335~336: if runaway || (위 any 참) { res.push(RunAway(tag3) = SmallActionRunAway::new_with_skill(data, player, 5, false)); runaway_pushed = true }\n  340: champ_atk = champ.attack_effect.unwrap()   // 패닉(anon.125)\n  341~344: has_enemy_minion_in_range = cache.iter_minions(enemy).any(|m| champ_atk.is_in_range_ex(champ, m, champ.x, champ.y, m.x, m.y, 30000)) || cache.iter_towers(enemy).any(|t| 같은 술어 30000)\n  346~347: if ctx.debug(+0x3b) { debug.map(+0xa0).entry(champ.id).or_insert(Vec::new()).push(format!(anon.121, has_enemy_minion_in_range)) }\n  351: if has_enemy_minion_in_range && runaway_pushed { return res }   // 도주 + 적 미니언 사정권 → 대기 후보 없음\n  352: if front_minion.is_none_or(|m| dist²(m, nexus) < dist²(nearest_tower, nexus)) {   // 웨이브가 우리 타워보다 뒤(넥서스 쪽)이거나 없음\n    353~354: res.push(Around(tag5) = SmallActionAround::new(version, rnd, data, player, nearest_tower.id, 5).with(position_eval_purpose @+0x80)) }\n  else {\n    356~358: if let Some(action) = lane_minion_position_action(version, rnd, data, player, line, positioning_score, wave_snapshot, 5, position_eval_purpose) (tag@0xb1 != -1) { res.push(action) }\n    360~361: res.push(Around(tag5) = SmallActionAround::new(version, rnd, data, player, front_minion.id, 5).with(purpose)) }\n  365~366: drop near_enemies; drop _t(81); return res }\n→ move_actions = res(%110) · 이후 %2184(769행) = 배치 F\n// ── 배치 경계: 진입 = %1029/%1030(452~454행 nearest_enemy_tower 저장 꼬리, 배치 D)→%1045(457행). 탈출 = %2130/%2164 → %2184(769행, 배치 F). unwind 경로 = %950(→배치 F 879행 cleanup) · %1084/%1169(→배치 D 정리, L0) · %1110/%1128(→%2697/%2698 878행 cleanup, 배치 F) — 판정 무관.",
+ "knobs": [
+  {
+   "what": "실드/버프 스킬 유지용 「target 근처 적」 반경",
+   "where": "line_defense.rs:577~598 (closure#5, m01.ll)",
+   "value": 14400000001,
+   "effect": "120000 을 올리면 더 먼 적이 있어도 아군 대상 실드/버프 스킬이 이동 중 후보로 남는다(과잉 시전↑) · 내리면 접촉 직전에만 남는다"
+  },
+  {
+   "what": "힐 스킬 유지 HP 비율 임계",
+   "where": "line_defense.rs:569",
+   "value": 79,
+   "effect": "올리면(예 89) 체력 90% 아군에게도 힐 후보가 남는다(힐 낭비↑) · 내리면 저체력에만 힐"
+  },
+  {
+   "what": "near_enemies / near_ally 반경",
+   "where": "line_defense.rs:258·263",
+   "value": 25600000000,
+   "effect": "160000 을 올리면 더 먼 적/아군이 교전 인원 계산에 들어가 local_outnumbered·me_die_tick 이 바뀐다"
+  },
+  {
+   "what": "판단 정확도 게이트 롤 상한",
+   "where": "line_defense.rs:743·757",
+   "value": 1000,
+   "effect": "천분율. judgement_line_accuracy(선수 능력치) 가 1000 이면 게이트 절대 안 걸림 · 상한을 올리면 능력치 대비 오판(무작위 1개만 남김·아군스킬 점수 검사 생략) 빈도↑"
+  },
+  {
+   "what": "오판 롤 범위 상한 기준",
+   "where": "line_defense.rs:256",
+   "value": 2000,
+   "effect": "max_v = 2000 - positioning_accuracy. 올리면 사거리 오판 진폭↑(mr/emr 왜곡↑)"
+  },
+  {
+   "what": "적 타워 커버 여유(스킬 유지)",
+   "where": "line_defense.rs:495·517·539",
+   "value": 15000,
+   "effect": "올리면 타워 사거리 밖이어도 여유 안이면 스킬을 버린다(타워 근처 스킬 사용↓)"
+  },
+  {
+   "what": "적 미니언/타워 사정권 여유(대기 후보 억제)",
+   "where": "line_defense.rs:342·344",
+   "value": 30000,
+   "effect": "올리면 더 먼 미니언/타워도 「사정권」으로 봐 도주 중 Around 후보가 더 자주 생략된다"
+  },
+  {
+   "what": "브루저 교전 조건 생존 시간",
+   "where": "line_defense.rs:290",
+   "value": 1,
+   "effect": "shl 1 = tps*2 (2초). 올리면 더 오래 버틸 수 있을 때만 bruiser_engage(추격 Trace) · 내리면 공격적"
+  },
+  {
+   "what": "me_die_tick < tps 위기 분기 사거리 여유",
+   "where": "line_defense.rs:313",
+   "value": 60,
+   "effect": "위기 시 적 사거리 nearly 여유. 올리면 위기 도주(runaway) 판정 범위↑"
+  },
+  {
+   "what": "평시 emr_near 여유",
+   "where": "line_defense.rs:273",
+   "value": 40,
+   "effect": "dist <= emr_near² 이면 runaway. 올리면 더 멀리서도 도주"
+  },
+  {
+   "what": "적 행동 잔여시간 임계",
+   "where": "line_defense.rs:296",
+   "value": 10,
+   "effect": "적이 10틱 넘게 행동에 묶여 있으면 사거리 밖일 때 추격(Trace) 허용"
+  },
+  {
+   "what": "아군 대상 스킬 유지 점수 임계 / 비아군 임계",
+   "where": "line_defense.rs:753",
+   "value": -31,
+   "effect": "score >= -30 유지(비아군) · 아군 대상은 >= 0. -31 을 내리면(예 -51) 낮은 점수 행동도 남아 후보 다양성↑"
+  },
+  {
+   "what": "생성자 end_delay",
+   "where": "line_defense.rs:226·298~317·336·353·360",
+   "value": 5,
+   "effect": "RunAway/Trace/Around 의 end_delay. 의미(틱 지연 vs 유지)는 자식 명세 소관 — 올리면 행동 유지/지연 길어짐(추정)"
+  }
+ ],
+ "unknown": [
+  "265~267 의 bool %1676 의 소스 변수명 — dbg_value 없음. IR 로 동작은 확정(can_skill&&skill.ty.can_move || can_skill2&&… || can_ult&&…). vtable+0x120 = can_move 는 divtable 일치율 94% 로 확정 근거가 정적 vtable 하나뿐(Arc<dyn> 런타임 구현체별 의미는 동일 슬롯)",
+  "264 local_outnumbered 의 IR 극성이 `near_enemies.len() <= near_ally_count+1` — 이름과 반대(열세가 아니라 「우세/동수」). 소스 표기(>= 뒤집기 등) 는 표기 불가 · 동작은 확정",
+  "222 position_score(56B) 의 +48 bool 필드 이름 — dbg_value 없음(+49 는 on_trajectory). 자식 명세(position_score_at_position) 참조",
+  "565·591 의 expected_buff/effect_buff_target 반환(288B) 의 None 판정이 +0x48 i32 == -1 인 근거 = IR(option.rs:633 is_some 인라인) · 타입은 Option<DataEffectDef>(288B) 로 추정(tcxdict DataEffectDef 288B · 니치 위치는 tcxdict --enum 이 Option 까지는 안 준다)",
+  "get_move_action_v46 296~308 의 else-if 사슬은 IR 블록 구조(1790/1796/1797/1798/1802/1804/1807/1808/1813/1814)로 복원 — 소스의 정확한 중첩 형태(`else if` vs 중첩 if)는 외연 동일이라 표기 불가",
+  "SmallActionPlay 원소의 미초기화 바이트: RunAway(136B)/Around(136B)/Trace(152B) 페이로드 뒤 ~0xb0 과 0xb2~0xb7 은 alloca 잔여(memcpy 184B) — 런타임 대조 시 무시 필요(§4-B 패딩)",
+  "old_actions(%128)·nearest_enemy_tower(%126)·f(%958) 의 생성은 배치 D(≤454행) — 계약만 사용",
+  "1029/1030 블록(root 452·454 혼합)은 배치 D 의 nearest_enemy_tower 저장 꼬리 — 내 범위엔 457행 br 만 해당",
+  "closure#5 의 578/593 iter_towers.any 술어에서 f.team 이 Neutral 인 경우 is_visible_from 이 true(챔피언이 Neutral 일 일은 없음 → 실질 무관)",
+  "range_misjudge_rng / range_misjudge_roll / check_kill_die_tick / score / lane_minion_position_action / v30_… / aoe_heal_covers_low_ally / is_dash_worth / effect_buff_target 내부는 자식 명세(r13/r14) 계약만 — 이 중 TLS 를 쓰는 것(check_kill_die_tick 실측)의 호출 순서만 signature.tls 에 기록"
+ ]
+}

@@ -1,0 +1,142 @@
+{
+ "name": "SerpenCheckSubPlan::action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12serpen_checkNtB2_18SerpenCheckSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\serpen_check.rs",
+ "src_line": 14,
+ "ir_file": "m14.ll",
+ "ir_from": 30237,
+ "ir_to": 31553,
+ "aux": [],
+ "one_line": "서펜 스틸 Lurk(SerpenCheck) 서브플랜의 후보 생성 — 위험(논타겟 윈드업·궤적·근접 적)이면 도주 단일, 아니면 v25 태세→서펜 캠프/경유지 대기 + 전투 후보",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo::Vec<SmallActionPlay> (32B)", "note": "writeonly sret. +0 ptr · +8 bump(&Bump = data.context.pool) · +0x10 cap · +0x18 len. 원소 184B"},
+   {"i": 1, "name": "self", "type": "&mut SerpenCheckSubPlan (1B)", "note": "IR: noalias captures(none), readonly 없음 = &mut. 유일 필드 move_check:bool @+0. 쓰기 1곳(writes 참조)"},
+   {"i": 2, "name": "version", "type": "usize", "note": "이 함수 본문엔 분기 없음. nontarget_windup_perceived · position_score_at_position · v25_objective_posture · battle_action 에 그대로 전달"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "note": "본문에서 직접 읽지 않음. AroundPosition::new(4곳)·battle_action 에 전달(콜리가 소비)"},
+   {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly"},
+   {"i": 5, "name": "data", "type": "&OperationData (24B)", "note": "+0 cache(&AbstractGameWithCache) · +8 context(&GameContext) · +0x10 blackboard(&[Blackboard;2])"},
+   {"i": 6, "name": "parameter", "type": "&ScoreParameter (5384B)", "note": "본문은 +0x9f0(positioning_score: PositioningScoreData) 주소만 취해 position_score_at_position 에 넘김. 다른 필드 읽지 않음"},
+   {"i": 7, "name": "team_plan", "type": "&TeamPlan (1064B)", "note": "IR 속성 nonnull 만(readonly 없음)이나 본문은 v25_objective_posture(self=team_plan) 호출에만 사용. 콜리 시그니처가 &self(readonly) 라 사실상 읽기 전용(추정 근거: m09.ll:15168 define 의 %0 readonly)"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData (224B)", "note": "noalias, readonly 없음 = &mut. context.debug=true 일 때만 +0xa0 infos 에 문자열 push(writes 참조)"}
+  ],
+  "returns": "sret bumpalo::Vec<SmallActionPlay>. 살아있는 바이트 = Vec 헤더 32B 전부(ptr/bump/cap/len). 원소 184B · 태그 @+0xb1(177) · 이 함수가 직접 push 하는 variant 3종: RunAway(태그 3 · 페이로드 SmallActionRunAway 136B → live = [0,136)+[177] · [136,177)·[178,184) 미기록) · Trace(태그 14 · SmallActionTrace 152B → live = [0,152)+[177] · [152,177)·[178,184) 미기록) · AroundPosition(암묵 variant · 태그 store 없음 · SmallActionAroundPosition 184B 통째 memcpy → live 는 생성자 규약). 그 외 battle_action·attack_summon_action 의 반환 Vec 을 extend(원소 memcpy) — 그쪽 variant 표는 각 명세 참조. 경로별 원소 순서: (a) 위험 단일 → [RunAway(with_skill=true)] · (b) 태세 WaitGroup/SoftDisengage → [RunAway(with_skill=false) if SoftDisengage&&near_enemy>0][AroundPosition(wait_pos)] · (c) 그 외 → [Trace(focus) if Screen&&focus][AroundPosition(camp|rhino)][RunAway if 근접 적][battle_action…][attack_summon_action…]",
+  "tls": {
+   "name": "(직접 접점 없음) — 콜리 경유만",
+   "role": "소비자(간접)",
+   "key": "본문에 LocalKey::with 0건(grep LocalKey|__getit|CACHE|MEMO = 0). 콜리 순서: ①MapDef::camp_pos(L23, 조건부) → game_core CAMP_POS_MEMO(TLS RefCell<[[Option<(u64,u64)>;2];8]>, g07.ll:152570·351647) ②nontarget_windup_perceived(L36, 적 챔프마다) ③position_score_at_position(L48, purpose=Objective(11)) → position_eval 계열 캐시(POS_EVAL_CACHE 등 — 그 명세 참조) ④v25_objective_posture(L57) ⑤camp_pos(L77·L83) ⑥Blackboard::is_recent_visible(L90) ⑦battle_action(L99, is_visible 참일 때) → interaction_score/INTER_CTX·HP_VALUE_MEMO 등은 이 안 ⑧attack_summon_action(L101)",
+   "layout": "해당 없음(본 함수 자체 TLS 없음)",
+   "invalidation": "해당 없음",
+   "call_conditions": "③은 L20~L35 를 지나면 무조건 1회(champ 좌표) · ⑦⑧은 도주 단일(L52)·태세 WaitGroup/SoftDisengage(L67) 조기 return 을 안 탄 경우에만, 그리고 ⑦은 game.is_visible(enemy_team, champ.id) 참일 때만"
+  }
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext (L15)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (L17·L90)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] → [enemy_team] 을 is_recent_visible 의 self 로 (L90)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump → Vec::new_in (L15)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting → is_blue_side 인라인이 width/height 읽음 (L20)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → camp_pos (L23·L77·L83)"},
+  {"base": "GameContext", "offset": "0x3b", "name": "debug", "note": "bool. true 면 debug.infos 기록 (L64). gep 59"},
+  {"base": "GameSetting", "offset": "0x12b8", "name": "width", "note": "is_blue_side: (x - y + height) > width (map_regions.rs:7~8, gep 4792)"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "gep 4800"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "gep 2352. <2 아니면 panic_bounds_check"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 zext → player_champion[team][pos] 인덱스 (gep 2496)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] (gep 480). [team][pos] None 이면 unwrap_failed. L35/L90 은 [enemy_team] 5칸을 순회(stride 8, 종료 40)"},
+  {"base": "AbstractGameWithCache", "offset": "0xf0", "name": "others", "note": "[bumpalo Vec<&Entity>;2] (gep 240) → [enemy_team].ptr(+0)/len(+0x18) 순회 (L92)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame 팻포인터(data@+0, vtable@+8) → is_recent_visible 인자, vtable+0xf8(is_visible) 간접호출 (L90·L98)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "gep 1632 (champ·적 챔프·others)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "gep 1640"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "gep 1472. debug.infos 키(L65) · is_visible 인자(L98)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "gep 104. ==13(Champion) 확인 (L36 closure, Entity::is_in_skill 인라인)"},
+  {"base": "Entity", "offset": "0x70", "name": "ty@Champion.0.action_state@tag", "note": "gep 112. switch 4=Skill/5=Skill2/6=Ult (entity.rs:1572 is_in_skill 인라인)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@Some.0.casting@tag", "note": "gep 1272. -1=None→unwrap_failed · 1(Position)|2(Direction)→is_in_range · 그외(0 Targeting/3 None) skip"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "gep 1224. &Effect(56B) → is_in_range self"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "gep 1480. >2 면 skill2_effect, >4 면 ult_effect 사용(아니면 정적 기본 Effect @anon…22) — entity.rs:1693/1701 skill2_effect/ult_effect 인라인"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect@Some.0", "note": "gep 1280. casting@+0x30(=0x530)"},
+  {"base": "Entity", "offset": "0x538", "name": "ult_effect@Some.0", "note": "gep 1336. casting@+0x30(=0x568)"},
+  {"base": "Effect", "offset": "0x30", "name": "casting", "note": "gep 48 (skill2/ult 경로에서 선택된 Effect 기준)"},
+  {"base": "ScoreParameter", "offset": "0x9f0", "name": "positioning_score", "note": "gep 2544. 주소만 position_score_at_position 4번째 인자로"},
+  {"base": "PositioningScore(sret 56B)", "offset": "0x30", "name": "on_trajectory", "note": "gep 48 (L50)"},
+  {"base": "PositioningScore(sret 56B)", "offset": "0x31", "name": "on_periodic_trajectory", "note": "gep 49 (L50). ⚠DI 는 이 값을 `on_trajectory` 로 이름붙임 — tcx 오프셋이 정본"},
+  {"base": "Option<ObjectivePosture>(sret 88B)", "offset": "0x0", "name": "focus_enemy@tag", "note": "i64 -1 = None(Option<ObjectivePosture> 니치) · 1 = focus_enemy Some (L58·L70)"},
+  {"base": "ObjectivePosture", "offset": "0x8", "name": "focus_enemy.0", "note": "Trace 대상 (L71)"},
+  {"base": "ObjectivePosture", "offset": "0x20", "name": "wait_pos.0", "note": "gep 32 (L63)"},
+  {"base": "ObjectivePosture", "offset": "0x28", "name": "wait_pos.1", "note": "gep 40 (L63)"},
+  {"base": "ObjectivePosture", "offset": "0x38", "name": "near_enemy_count", "note": "gep 56. !=0 && kind==SoftDisengage → RunAway (L60)"},
+  {"base": "ObjectivePosture", "offset": "0x50", "name": "kind", "note": "gep 80. u8 >2 → WaitGroup(3)/SoftDisengage(4) 분기 · ==2 Screen (L59·L70)"},
+  {"base": "DebugFrameData", "offset": "0xa0", "name": "infos", "note": "gep 160. HashMap<usize,Vec<String>> entry(champ.id) (L65)"},
+  {"base": "AbstractGame vtable", "offset": "0xf8", "name": "is_visible", "note": "gep 248. divtable AbstractGame 0xf8 → is_visible(game, team=enemy_team, entity_id=champ.id) -> bool (L98)"},
+  {"base": "bumpalo Vec<&Entity>", "offset": "0x18", "name": "len", "note": "gep 24 (others[enemy_team]·battle_action/attack_summon_action 반환 Vec)"}
+ ],
+
+ "writes": [
+  {"base": "SerpenCheckSubPlan(self)", "offset": "0x0", "name": "move_check", "value": "i8 1", "note": "★&mut self 쓰기 전수 = 이 1곳. 조건: !move_check && (!is_enemy_side(team,champ.x,champ.y) || dist²(champ, camp_pos(Rhino, team==0)) < 70000²+1). m14.ll:30414 (store i8 1, ptr %1 · dbg 루트 L0 — 소스 줄 소실, L25 블록 %99 에서 실행)"},
+  {"base": "(sret) Vec<SmallActionPlay>", "offset": "0x0 -> ptr/bump/cap/len", "value": "new_in(bump) 후 push 로 len 증가, memcpy 32B 로 sret 에 복사", "note": "m14.ll:30302~30308(초기화 ptr=8(dangling) bump cap=0 len=0) · 30726/30794/30844/31083/31264/31314/31453/31546 (원소 memcpy 184B) · 31476/31487 extend · 30855/31492/31550 (sret memcpy)"},
+  {"base": "DebugFrameData(debug)", "offset": "0xa0 -> infos[champ.id].push(String)", "value": "format!(\"{:?}\", posture.kind)", "note": "context.debug 일 때만 (L64~65). rustc_entry/insert_no_grow/format_inner/grow_one. 행동 무영향 텔레메트리"},
+  {"base": "StdRng(rnd)", "offset": "(콜리)", "value": "AroundPosition::new(4곳)·battle_action 이 &mut 로 소비", "note": "본문 직접 쓰기 없음"}
+ ],
+
+ "constants": [
+  {"value": 4900000001, "src_line": 25, "meaning": "70000² + 1 — Rhino 캠프 접근 판정(제곱거리 ult). 이보다 작으면 move_check=true"},
+  {"value": 22500000000, "src_line": 78, "meaning": "150000² — 서펜 캠프와의 제곱거리 ugt: 멀면 경유(rhino/serpen 분기), 아니면 서펜 캠프 주변 대기"},
+  {"value": 22500000001, "src_line": 91, "meaning": "150000² + 1 — 최근 시야 적 챔피언(L91) / 적 others(L92) 와의 제곱거리 ult → RunAway 추가"},
+  {"value": 0, "src_line": 23, "meaning": "JungleType::Rhino(태그 0) — camp_pos 첫 인자 (L23·L83)"},
+  {"value": 5, "src_line": 77, "meaning": "JungleType::Serpen(태그 5) — camp_pos(L77) · v25_objective_posture target(L57). ⚠같은 리터럴 5 가 end_delay(RunAway/AroundPosition/Trace/battle_action 인자)로도 쓰임 — 별 항목"},
+  {"value": 11, "src_line": 48, "meaning": "PositionEvalPurpose::Objective(메모리태그 11 · 논리 idx 9) — position_score_at_position purpose"},
+  {"value": 13, "src_line": 36, "meaning": "EntityType::Champion 태그 — 적 엔티티가 챔피언인지 (is_in_skill 인라인)"},
+  {"value": 4, "src_line": 37, "meaning": "ChampionActionState::Skill 태그(switch) / ObjectivePostureKind::SoftDisengage(L60 icmp eq i8 4) / Entity.level > 4 → ult_effect(entity.rs:1701)"},
+  {"value": 6, "src_line": 37, "meaning": "ChampionActionState::Ult 태그(switch)"},
+  {"value": -1, "src_line": 37, "meaning": "Option<Effect> None(casting 니치 -1) → unwrap_failed / Option<ObjectivePosture> None(focus_enemy 니치 -1, L58)"},
+  {"value": 1, "src_line": 37, "meaning": "CastingType::Position(1) — 논타겟 판정(1|2 → is_in_range). 또 focus_enemy Some 태그(L70) · 저장값 move_check=1"},
+  {"value": 2, "src_line": 37, "meaning": "CastingType::Direction(2) — 논타겟 / Entity.level > 2 → skill2_effect(entity.rs:1693) / ObjectivePostureKind: >2(WaitGroup·SoftDisengage) · ==2(Screen) (L59·L70)"},
+  {"value": 3, "src_line": 52, "meaning": "SmallActionPlay::RunAway 메모리태그(store i8 3 @+177) — L52·L61·L95"},
+  {"value": 14, "src_line": 72, "meaning": "SmallActionPlay::Trace 메모리태그(store i8 14 @+177) — L72"},
+  {"value": 5, "src_line": 52, "meaning": "end_delay=5 — RunAway::new_with_skill(L52·L61)·RunAway::new(L95)·AroundPosition::new(L63·L80·L84·L87)·Trace::new_attack_range(L72)·battle_action(_end_delay, L99)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::utils::nontarget_windup_perceived",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "game_ai::position_eval::position_score_at_position",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v25_objective_posture",
+  "game_ai::small_action::trace::SmallActionTrace::new_attack_range",
+  "game_ai::small_action::around::SmallActionAroundPosition::new",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::fight_check::battle_action",
+  "game_ai::fight_check::attack_summon_action",
+  "game_ai::small_action::SmallActionPlay::reserve_internal_or_panic",
+  "core::iter::traits::collect::Extend::extend",
+  "hashbrown::map::HashMap::rustc_entry",
+  "hashbrown::raw::RawTable::insert_no_grow",
+  "alloc::fmt::format::format_inner",
+  "alloc::raw_vec::RawVec::grow_one",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue"
+ ],
+
+ "logic": "fn action_candidates(&mut self, version, rnd, player, data, parameter, team_plan, debug) -> Vec<SmallActionPlay>\nL15  bump = data.context.pool; res = Vec::new_in(bump)\nL17  team = player.info.team (bounds<2); champ = data.cache.player_champion[team][player.info.position as usize].unwrap()\nL19  if !self.move_check {\nL20    if is_enemy_side(team, champ.x, champ.y)   // = (team==0) XOR is_blue_side(x,y), is_blue_side = (x - y + setting.height) > setting.width  (map_regions.rs:58, 7~8)\nL23      camp = context.map.camp_pos(JungleType::Rhino, is_blue_side=team==0)\nL25      if |champ.x-camp.x|² + |champ.y-camp.y|² < 4900000001 (70000²+1) { self.move_check = true }\n       else { self.move_check = true }   // 아군 진영이면 즉시 통과 (store 는 dbg L0 블록 %99 공유)\n     }\n     mc = self.move_check (phi %101)\nL35  enemy_team = 1 - team\n     has_non_target_action_range = cache.player_champion[enemy_team].iter().flatten().any(|c|\nL36    nontarget_windup_perceived(version, player, data, c) && c.ty==Champion(13) &&\nL37    match c.action_state { Skill(4) => e=c.skill_effect.unwrap()(casting -1 → panic) ,\nL39                           Skill2(5) => e = if c.level>2 {c.skill2_effect} else {DEFAULT_EFFECT(@anon…22)} ,\nL41                           Ult(6)    => e = if c.level>4 {c.ult_effect} else {DEFAULT_EFFECT} , _ => false }\n       && matches!(e.casting, Position(1)|Direction(2)) && e.is_in_range(caster=c, target=champ))\nL48  ps: PositioningScore = position_score_at_position(version, player, data, &parameter.positioning_score, champ.x, champ.y, PositionEvalPurpose::Objective(11))\nL50  if ps.on_trajectory(+0x30) || has_non_target_action_range || ps.on_periodic_trajectory(+0x31) {\nL52    res.push(RunAway(SmallActionRunAway::new_with_skill(data, player, end_delay=5, with_skill=true)))   // 태그 3\nL53    return res }\nL57  posture: Option<ObjectivePosture> = team_plan.v25_objective_posture(version, player, data, target=JungleType::Serpen(5))\nL58  if let Some(p) = posture {\nL59    if p.kind as u8 > 2 {            // WaitGroup(3) | SoftDisengage(4)\nL60      if p.kind==SoftDisengage(4) && p.near_enemy_count != 0 {\nL61        res.push(RunAway(new_with_skill(data, player, 5, with_skill=false))) }   // 태그 3\nL63      res.push(AroundPosition(SmallActionAroundPosition::new(rnd, data, p.wait_pos.0, p.wait_pos.1, end_delay=5)))   // 암묵 variant, 태그 store 없음\nL64      if context.debug { L65 debug.infos.entry(champ.id).or_default().push(format!(\"{:?}\", p.kind)) }\nL67      return res\n       } else if p.kind==Screen(2) && p.focus_enemy.is_some() {\nL71      focus = p.focus_enemy.unwrap()\nL72      res.push(Trace(SmallActionTrace::new_attack_range(data, target=focus, end_delay=5)))   // 태그 14\n       }   // Commit(0)/HoldCamp(1)/Screen-without-focus → 아무것도 안 함\n     }\nL77  camp = map.camp_pos(Serpen(5), team==0)\nL78  if dist²(champ, camp) > 22500000000 (150000²) {\nL79    if mc { L80 res.push(AroundPosition::new(rnd, data, camp.0, camp.1, 5)) }\n       else { L83 rhino = map.camp_pos(Rhino(0), team==0); L84 res.push(AroundPosition::new(rnd, data, rhino.0, rhino.1, 5)) }\n     } else { L87 res.push(AroundPosition::new(rnd, data, camp.0, camp.1, 5)) }\nL90  danger = cache.player_champion[enemy_team].iter().flatten().any(|c| data.blackboard[enemy_team].is_recent_visible(cache.game, player, c) && L91 dist²(c, champ) < 22500000001)\n       || L92 cache.others[enemy_team].iter().any(|e| dist²(e, champ) < 22500000001)   // 단락: 앞이 참이면 others 미순회\nL94  if danger { L95 res.push(RunAway(SmallActionRunAway::new(data, player, end_delay=5))) }   // 태그 3\nL98  if cache.game.is_visible(enemy_team, champ.id) {   // vtable+0xf8\nL99    res.extend(battle_action(version, rnd, player, data, 5)) }\nL101 res.extend(attack_summon_action(player, data))\nL103 return res",
+
+ "knobs": [
+  {"what": "Rhino 캠프 도달 판정 반경", "where": "serpen_check.rs:25", "value": 4900000001, "effect": "올리면(반경↑) 적 진영에서 더 멀리서도 move_check 가 켜져 바로 서펜 캠프로 향한다. 내리면 Rhino 캠프에 더 붙어야 통과"},
+  {"what": "서펜 캠프 원거리 임계", "where": "serpen_check.rs:78", "value": 22500000000, "effect": "올리면 더 먼 거리까지 '근거리'로 보아 바로 서펜 캠프 주변 대기(AroundPosition camp) — move_check 미충족 시 Rhino 경유 분기가 줄어든다"},
+  {"what": "근접 적 도주 반경", "where": "serpen_check.rs:91~92", "value": 22500000001, "effect": "올리면 더 먼 적(최근 시야 챔피언·others)에도 RunAway 후보를 추가 → 대기 자리에서 자주 물러남"},
+  {"what": "position_eval purpose", "where": "serpen_check.rs:48", "value": 11, "effect": "Objective 프로파일. 바꾸면 on_trajectory 판정 컨텍스트가 바뀜"},
+  {"what": "end_delay", "where": "serpen_check.rs:52,61,63,72,80,84,87,95,99", "value": 5, "effect": "생성되는 모든 후보의 end_delay 인자. 의미는 각 SmallAction 생성자 명세"}
+ ],
+
+ "unknown": [
+  "L25 `self.move_check = true` store 의 dbg 루트가 line 0 이라 'else { move_check=true }' 의 정확한 소스 줄(줄 안 순서) 은 표기 불가 — 동작(아군 진영이면 무조건 true, 적 진영이면 Rhino 70000 이내일 때 true) 은 IR 분기(m14.ll:30380 br %79)로 확정",
+  "L36 `c.ty==Champion(13)` 비교(m14.ll:30485~30487)에 dbg 가 없어 nontarget_windup_perceived 와의 소스 순서(A && B 의 B 가 is_in_skill 내부인지 별도 술어인지)는 표기 불가 — 평가 순서는 IR 로 확정(nontarget 호출 후 tag 비교)",
+  "@anon.b0108feec1ab8ff62b7a37c1a95c251f.22 (level 미달 시 쓰는 정적 값, m14.ll:28) = casting 바이트 FF FF FF FF = Option<Effect>::None ⟹ 적이 level≤2 로 Skill2 상태 / level≤4 로 Ult 상태면 switch -1 → unwrap_failed(패닉). 실전 도달 가능 여부(그 레벨에서 그 액션 상태가 가능한가)는 game_core 규칙이라 미확인",
+  "PositioningScore +0x31 의 DI 이름이 on_trajectory 인 이유(소스에 `let on_trajectory = ps.on_periodic_trajectory`류 지역변수?)는 확정 못 함. tcx: +0x30 on_trajectory · +0x31 on_periodic_trajectory 를 정본으로 적음",
+  "camp_pos 는 game_core TLS CAMP_POS_MEMO 를 쓰는 함수(g07.ll:152570) — 그 캐시 키/무효화는 이 명세 범위 밖",
+  "battle_action / attack_summon_action 의 extend 원소 variant 집합은 각 명세(r14/r13) 참조 — 여기서는 sret 32B 헤더(ptr@0,len@0x18)만 읽어 memcpy"
+ ]
+}

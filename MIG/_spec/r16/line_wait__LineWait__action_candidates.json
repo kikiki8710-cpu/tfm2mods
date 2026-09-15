@@ -1,0 +1,159 @@
+{
+ "name": "LineWaitSubPlan::action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9line_waitNtB2_15LineWaitSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\line_wait.rs",
+ "src_line": 144,
+ "ir_file": "m15.ll",
+ "ir_from": 20693,
+ "ir_to": 22514,
+ "aux": [
+  {"ir_file": "m01.ll", "ir_from": 20505, "ir_to": 20674, "note": "Vec<SmallActionPlay>::retain::<action_candidates::closure#0> — L154 retain 본체(술어 = !v30_line_champion_action_tower_aggro_risk)"},
+  {"ir_file": "m12.ll", "ir_from": 29060, "ir_to": 29211, "note": "base_positioning min_by_key fold — 키 = dist²(twin_tower, line.get_start_position(setting, team)) (L21<147)"},
+  {"ir_file": "m12.ll", "ir_from": 16799, "ir_to": 16816, "note": "attack_tower_action min_by_key fold 래퍼(→ m06 10657)"},
+  {"ir_file": "m06.ll", "ir_from": 10657, "ir_to": 11009, "note": "attack_tower_action chain(flatten 6타워 + twin_towers).filter(can_target && block_target_tick==0).min_by_key(dist² to champ) fold 본체"},
+  {"ir_file": "m11.ll", "ir_from": 24096, "ir_to": 24184, "note": "attack_tower_action copied-slice filter_fold (twin_towers 구간 find)"},
+  {"ir_file": "m11.ll", "ir_from": 33739, "ir_to": 33791, "note": "attack_tower_action try_fold find::check (twin_towers 구간 첫 원소 탐색, 본체 %507 호출)"},
+  {"ir_file": "m15.ll", "ir_from": 58639, "ir_to": 58662, "note": "attack_tower_action filter 술어 call_mut: t.can_target(+0x6b9) && t.block_target_tick(+0x6a0)==0"},
+  {"ir_file": "m06.ll", "ir_from": 45757, "ir_to": 45846, "note": "attack_tower_action filter_fold→map_fold→min_by_key key 조각"}
+ ],
+ "one_line": "라인 대기(LineWait) 서브플랜 후보 — 기지 포지셔닝(타워/앞미니언 뒤 180000) + 도주 + 전투/라인미니언/소환/타워공격/구조물스킬 후보를 모은 뒤 v30 타워 어그로 위험 후보를 retain 으로 제거",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo::Vec<SmallActionPlay> (32B)", "note": "writeonly sret. +0 ptr · +8 bump · +0x10 cap · +0x18 len. 원소 184B"},
+   {"i": 1, "name": "self", "type": "&mut LineWaitSubPlan (1B)", "note": "DI 타입 ref_mut. IR 속성 noalias 만(readonly·captures(none) 없음 — 클로저 env 에 &self 가 캡처돼 get_start_position 의 self 로 전달). ★store 0건 = &mut 이지만 쓰기 없음(전수 grep: `store …, ptr %1` 0). 유일 필드 line:LineType @+0"},
+   {"i": 2, "name": "version", "type": "usize", "note": "alloca %30 에 저장(retain 클로저 env 가 &version 캡처). 분기 없음. line_minion_action_candidates · v22 · v30 · Around::new 에 전달. ⚠battle_action 에는 poison 전달(_version)"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "note": "Around::new(_rnd) · AroundPosition::new 에 전달. ⚠battle_action 에는 poison(_rnd)"},
+   {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly"},
+   {"i": 5, "name": "data", "type": "&OperationData (24B)", "note": "cache@0 · context@8 · blackboard@0x10 모두 읽음"},
+   {"i": 6, "name": "_parameter", "type": "&ScoreParameter (5384B)", "note": "DI 이름 `_parameter` · captures(none) · 본문 사용 0건(미사용)"}
+  ],
+  "returns": "sret bumpalo::Vec<SmallActionPlay>. 헤더 32B 전부 live(retain 이 len 을 재기록). 원소 184B · 태그 @+0xb1(177). 직접 push variant: Around(태그 5 · SmallActionAround 136B → live [0,136)+[177] · +0x80 position_eval_purpose=LaneSafe(10) 로 덮어씀) · AroundPosition(암묵 · 184B 통째 · +0xb0 purpose=LaneSafe(10) 덮어씀) · RunAway(태그 3 · 136B → live [0,136)+[177]) · Attack(태그 15 · SmallActionAttack 24B → Option<SmallActionPlay> extend 경로라 [0,177) memcpy + [177]=15 + [178,184) memcpy = 184B 전부 기록되나 [24,177)·[178,184) 는 생성자 미기록 바이트의 복사). extend 원소(battle_action · line_minion_action_candidates · attack_summon_action · attack_structure_skill_action)는 각 명세. ★순서: [base_positioning 1개: Around(tower)|Around(tower)|AroundPosition(behind)] → [RunAway] → [battle_action…] → [line_minion_action_candidates…] → [attack_summon_action…] → [Attack(tower)?] → [attack_structure_skill_action…] → retain(!v30_aggro_risk) 로 순서 유지 압축(제거 원소는 drop_glue)",
+  "tls": {
+   "name": "(직접 접점 없음) — 콜리 경유만",
+   "role": "소비자(간접)",
+   "key": "본문 LocalKey::with 0건. 콜리 순서: ①LineType::get_start_position(L22<21<147, twin_towers 원소마다) ②MapDef::lane_path(L59<46<147, behind 경로만) ③Game::adjust_position(L83<46<147) ④battle_action(L149, 무조건) → INTER_CTX·HP_VALUE_MEMO 등 ⑤line_minion_action_candidates(L150) ⑥attack_summon_action(L151) ⑦AbstractGameWithCache::iter_towers(L105<152) ⑧Effect::range_adjust(L113<152) ⑨v22_lane_tower_pressure_attack_allowed(L119<152, 사거리 통과 시) ⑩attack_structure_skill_action(L153) ⑪v30_line_champion_action_tower_aggro_risk(L154, 후보 원소마다). ⚠position_score_at_position / position_eval_at 직접 호출 없음(serpen_check·jungle 과 다름) — 후보의 purpose=LaneSafe 는 하류 평가기(evaluation_position)가 소비",
+   "layout": "해당 없음",
+   "invalidation": "해당 없음",
+   "call_conditions": "④⑤⑥⑩⑪은 무조건. ⑦~⑨는 champ Some 일 때. ⑨는 nearest_enemy_tower Some && attack_effect Some && dist² ≤ max_dist² 일 때만"
+  }
+ },
+
+ "reads": [
+  {"base": "LineWaitSubPlan(self)", "offset": "0x0", "name": "line", "note": "LineType 0=Top 1=Mid 2=Bottom. switch 로 타워/미니언상태 선택 · line_minion_action_candidates 인자 · get_start_position self"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] → [team] (L31<147)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump (L145 · L17<147)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting → get_start_position · adjust_position 인자"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → lane_path · adjust_position (gep 32)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "gep 2352 (<2 아니면 panic_bounds_check, 라인별 3곳 + L104)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "gep 2496 (L104<152)"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower", "note": "gep 384 [team] (line==Top)"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2", "note": "gep 400 [team]"},
+  {"base": "AbstractGameWithCache", "offset": "0x1a0", "name": "mid_tower", "note": "gep 416 [team] (line==Mid)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1b0", "name": "mid_tower2", "note": "gep 432 [team]"},
+  {"base": "AbstractGameWithCache", "offset": "0x1c0", "name": "bottom_tower", "note": "gep 448 [team] (line==Bottom)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1d0", "name": "bottom_tower2", "note": "gep 464 [team]"},
+  {"base": "AbstractGameWithCache", "offset": "0x130", "name": "twin_towers", "note": "gep 304 [team] bumpalo Vec<&Entity>(ptr@0 len@0x18) → min_by_key (L20~25<147)"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus", "note": "gep 368 [team] (L26·L29<147)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "gep 480 [team][pos] (L104<152, None → 타워공격 없음)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame → vtable+0x1f0 get_entity_by_id(front_minion id) (L32<147)"},
+  {"base": "AbstractGame vtable", "offset": "0x1f0", "name": "get_entity_by_id", "note": "gep 496"},
+  {"base": "Blackboard", "offset": "0x0", "name": "top_minion_state.front_minion", "note": "Option<usize>: tag@+0 값@+8. line==Mid → +0x28(gep 40) mid_minion_state · Bottom → +0x50(gep 80) bottom_minion_state (L31<147)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "gep 1632"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "gep 1640"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "gep 1472 (Around target = nearest_tower.id · Attack target = enemy tower id)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "TeamType: 0=Player 1=Neutral. behind(): Neutral 이면 unwrap_failed (entity.rs:1136 player_team)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "팀 번호 → lane_path 인자"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "gep 104 ==1(Minion) 아니면 panic(line_wait.rs:95)"},
+  {"base": "Entity", "offset": "0x108", "name": "ty@Minion.info.move_index", "note": "gep 264. 경로 인덱스(<7 아니면 panic_bounds_check)"},
+  {"base": "Entity", "offset": "0x11a", "name": "ty@Minion.info.line@tag", "note": "gep 282 → lane_path 인자"},
+  {"base": "Entity", "offset": "0x6b9", "name": "can_target", "note": "gep 1721 (적 타워 필터)"},
+  {"base": "Entity", "offset": "0x6a0", "name": "block_target_tick", "note": "gep 1696 ==0 (적 타워 필터)"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "gep 1600 ×30"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "gep 1216. -1=None → 타워공격 없음 (L110<152)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "gep 1168 &Effect → range_adjust"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect@Some.0.range", "note": "gep 1184"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range", "note": "gep 1192"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "gep 1480 (level-1)*growth_range"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "gep 1080"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "gep 1136 (챔프·타워)"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "gep 1664 (챔프·타워)"},
+  {"base": "SmallActionAround", "offset": "0x80", "name": "position_eval_purpose", "note": "gep 128 store 10(LaneSafe) — with_position_eval_purpose 인라인 (L36·L43<147)"},
+  {"base": "SmallActionAroundPosition", "offset": "0xb0", "name": "position_eval_purpose", "note": "gep 176 store 10 (L48<147)"},
+  {"base": "lane_path sret [(u64,u64);7]", "offset": "0x0", "name": "path[i]", "note": "stride 16, i∈0..7 (gep 0/8/16/…/104)"}
+ ],
+
+ "writes": [
+  {"base": "LineWaitSubPlan(self)", "offset": "(없음)", "value": "-", "note": "★&mut self 이지만 본문·aux 전 범위에 self 로의 store 0건(m15.ll 20693~22514 `store …, ptr %1` grep 0). initializes 속성 없음"},
+  {"base": "(sret) Vec<SmallActionPlay>", "offset": "0x0 -> ptr/bump/cap/len", "value": "new_in(bump) · push(RunAway L148 · Attack L152) · extend×5 · retain 이 len 재기록(m01.ll:20524 len=0 후 20672 new_len) · 32B memcpy", "note": "m15.ll 20730~20738 초기화 · 21714/21781/21800/21813/22495 extend · 22467 원소 memcpy · 22511 sret memcpy"},
+  {"base": "(지역) base_positioning res Vec (%20)", "offset": "(alloca)", "value": "Around/AroundPosition 1개 push 후 L147 extend", "note": "언와인드 시 drop_glue(m15.ll:20813)"},
+  {"base": "SmallActionAround(지역 %16/%18)", "offset": "0x80", "value": "i8 10 (LaneSafe)", "note": "m15.ll:21601 · 21652 (with_position_eval_purpose 인라인)"},
+  {"base": "SmallActionAroundPosition(지역 %15)", "offset": "0xb0", "value": "i8 10 (LaneSafe)", "note": "m15.ll:21554"},
+  {"base": "StdRng(rnd)", "offset": "(콜리)", "value": "Around::new · AroundPosition::new 이 소비", "note": "본문 직접 쓰기 없음. battle_action 에는 poison 전달(안 씀)"}
+ ],
+
+ "constants": [
+  {"value": 32400000001, "src_line": 41, "meaning": "180000² + 1 — 앞미니언↔가장 가까운 아군 타워 제곱거리 ult: 미니언이 타워 180000 안이면 타워 주변 Around, 밖이면 미니언 뒤 180000 지점 AroundPosition"},
+  {"value": 180000, "src_line": 46, "meaning": "behind(front_minion, d=180000): 미니언의 레인 경로 진행거리에서 180000 을 뺀(usub.sat, L68) 지점 좌표"},
+  {"value": 30, "src_line": 114, "meaning": "move_speed × 30 — 타워 공격 사거리 합의 이동 여유(dbg L114)"},
+  {"value": 100, "src_line": 113, "meaning": "Entity::radius(): radius*(100+radius_mult)/100 (entity.rs:1515)"},
+  {"value": 10, "src_line": 36, "meaning": "PositionEvalPurpose::LaneSafe 메모리태그(논리 idx 8) — Around(+0x80)/AroundPosition(+0xb0) 에 store (L36·L43·L48<147)"},
+  {"value": 5, "src_line": 35, "meaning": "end_delay=5 (Around::new L35·L42<147 · AroundPosition::new L47<147 · RunAway::new L148) / SmallActionPlay::Around 메모리태그(store i8 5 @+177, L35·L42<147)"},
+  {"value": 3, "src_line": 148, "meaning": "SmallActionPlay::RunAway 메모리태그 (store @+177). ⚠본문의 `shl nuw nsw i64 %73, 3`(m15.ll:20848) 은 twin_towers len×8 포인터 stride 이지 이 값과 무관"},
+  {"value": 15, "src_line": 120, "meaning": "SmallActionPlay::Attack 메모리태그 (L120<152 store, extend 시 22420 재기록)"},
+  {"value": 1, "src_line": 57, "meaning": "EntityType::Minion 태그(behind 는 미니언 전제, 아니면 panic L95) / (level-1) / 경로 루프 시작 i=1"},
+  {"value": 0, "src_line": 32, "meaning": "block_target_tick==0(타워 필터) / TeamType::Player 태그(behind, trunc→0 이어야 통과) / radius_mult==0 / moved_distance 초기값"},
+  {"value": -1, "src_line": 110, "meaning": "Option<Effect> None(attack_effect casting 니치) → 타워공격 후보 없음 / iter_towers chain 상태 태그(-1·-2 는 이터레이터 내부)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::state::player::LineType::get_start_position",
+  "game_ai::small_action::around::SmallActionAround::new",
+  "game_ai::small_action::around::SmallActionAroundPosition::new",
+  "game_core::simulation::map_def::MapDef::lane_path",
+  "game_core::utils::distance",
+  "game_core::utils::isqrt",
+  "game_core::simulation::game::Game::adjust_position",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new",
+  "game_ai::fight_check::battle_action",
+  "game_ai::small_action::lane_minion::line_minion_action_candidates",
+  "game_ai::fight_check::attack_summon_action",
+  "game_core::simulation::AbstractGameWithCache::iter_towers",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_ai::tower_discipline::v22_lane_tower_pressure_attack_allowed",
+  "game_ai::small_action::cast::SmallActionAttack::new",
+  "game_ai::fight_check::attack_structure_skill_action",
+  "bumpalo::collections::vec::Vec::retain",
+  "game_ai::tower_discipline::v30_line_champion_action_tower_aggro_risk",
+  "game_ai::small_action::SmallActionPlay::reserve_internal_or_panic",
+  "core::iter::traits::collect::Extend::extend",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "core::ptr::drop_glue"
+ ],
+
+ "logic": "fn action_candidates(&mut self, version, rnd, player, data, _parameter) -> Vec<SmallActionPlay>\nL145 bump = data.context.pool; res = Vec::new_in(bump)\nL147 res.extend(self.base_positioning(version, rnd, player, data)):   // line_wait.rs:17~53 인라인\n  L17   sub = Vec::new_in(bump); purpose = PositionEvalPurpose::LaneSafe(10)\n  L19   team = player.info.team (<2); optb: Option<&Entity> = match self.line { Top => cache.top_tower[team].or(top_tower2[team]), Mid => mid_tower.or(mid_tower2), Bottom => bottom_tower.or(bottom_tower2) }\n  L20~25 optb = optb.or( cache.twin_towers[team].iter().min_by_key(|t| dist²(t, self.line.get_start_position(context.setting, team))) )   // 빈 Vec 이면 None · 동률 첫 원소\n  L26   optb = optb.or(cache.nexus[team])\n  L27   nearest_tower = optb.unwrap()\n  L29   nexus = cache.nexus[team].unwrap()\n  L31   ms = data.blackboard[team].{top|mid|bottom}_minion_state (self.line 기준)\n  L32   fm = ms.front_minion.and_then(|id| cache.game.get_entity_by_id(id))\n  L34   if fm.is_none() || dist²(fm, nexus) < dist²(nearest_tower, nexus) {   // 앞미니언이 타워보다 넥서스에 가까움(=타워 뒤)\n  L35     sub.push(Around(SmallActionAround::new(version, rnd, data, player, target=nearest_tower.id, 5).with_position_eval_purpose(LaneSafe)))   // 태그 5\n  L41   } else if dist²(fm, nearest_tower) < 32400000001 (180000²+1) {\n  L42     sub.push(Around(SmallActionAround::new(…, nearest_tower.id, 5).with_position_eval_purpose(LaneSafe)))\n        } else {\n  L46     (bx,by) = behind(fm, 180000):   // line_wait.rs:55~95 인라인\n    L56     team = fm.player_team() (Neutral → unwrap_failed); L57 fm.ty must be Minion(1) else panic\n    L59     path: [(u64,u64);7] = context.map.lane_path(fm.minion.line, team)\n    L62~63  moved = Σ_{i=1..<move_index} distance(path[i-1], path[i])   (move_index<7 아니면 panic_bounds_check)\n    L66     moved += distance(path[move_index], fm.pos)\n    L68     moved = moved.saturating_sub(180000)\n    L72~73  (x,y) = path[0]\n    L76     for i in 1..7 { seg = distance((x,y), path[i]);\n    L77       if seg > moved { L78~82 nx = x + (path[i].x - x)*moved/isqrt(dx²+dy²); ny = y + (path[i].y - y)*moved/isqrt(…); (isqrt==0 → div_by_zero panic) L83 return game::adjust_position(map, setting, nx, ny) }\n    L88       moved -= seg; (x,y) = path[i] }\n    L94     return path[6]\n  L47     sub.push(AroundPosition(SmallActionAroundPosition::new(rnd, data, bx, by, 5).with_position_eval_purpose(LaneSafe)))   // 암묵 variant\n        }\n  L52   sub )\nL148 res.push(RunAway(SmallActionRunAway::new(data, player, 5)))   // 태그 3\nL149 res.extend(battle_action(_version=poison, _rnd=poison, player, data, _end_delay=poison))\nL150 res.extend(line_minion_action_candidates(version, data, player, self.line))\nL151 res.extend(attack_summon_action(player, data))\nL152 res.extend(self.attack_tower_action(version, player, data)):   // line_wait.rs:104~121 인라인 · Option<SmallActionPlay>\n  L104  champ = cache.player_champion[team][pos]? (None → None)\n  L105  enemy_team = 1 - team\n  L107  tower = cache.iter_towers(enemy_team)   // [top,top2,mid,mid2,bottom,bottom2][enemy] flatten ⧺ twin_towers[enemy]\n              .filter(|t| t.can_target && t.block_target_tick == 0).min_by_key(|t| dist²(t, champ))? (None → None)\n  L109  move_speed = champ.stat_cached.move_speed\n  L110  atk = champ.attack_effect.as_ref()? (None → None)\n  L112  dist = dist²(tower, champ)\n  L113  max = atk.range + champ.stat_buff_cached.range + (champ.level-1)*atk.growth_range + atk.range_adjust(champ, tower) + champ.radius()\n  L114  max += move_speed*30 + tower.radius()\n  L115  if dist > max² → None\n  L119  if !v22_lane_tower_pressure_attack_allowed(version, data, player, tower) → None\n  L120  Some(Attack(SmallActionAttack::new(data, tower.id))) )   // 태그 15\nL153 res.extend(attack_structure_skill_action(player, data))\nL154 res.retain(|a| !v30_line_champion_action_tower_aggro_risk(version, data, player, a))   // aux m01.ll:20583/20608 — true 면 제거\nL156 return res",
+
+ "knobs": [
+  {"what": "앞미니언↔타워 근접 판정(타워 대기 vs 미니언 뒤)", "where": "line_wait.rs:41", "value": 32400000001, "effect": "올리면 미니언이 타워에서 더 멀어도 타워 주변(Around tower) 대기를 택함 → 라인 전진 대기 감소"},
+  {"what": "미니언 뒤 대기 거리", "where": "line_wait.rs:46 (behind d)", "value": 180000, "effect": "올리면 앞미니언 경로상 더 뒤쪽(아군 쪽)에서 대기 · 내리면 미니언에 붙어 대기"},
+  {"what": "타워 공격 사거리 이동 여유", "where": "line_wait.rs:114", "value": 30, "effect": "move_speed×30. 올리면 더 먼 적 타워에도 Attack 후보 생성(v22 게이트는 별도)"},
+  {"what": "후보 purpose", "where": "line_wait.rs:36,43,48", "value": 10, "effect": "LaneSafe. 바꾸면 하류 위치 평가 프로파일이 바뀜"},
+  {"what": "end_delay", "where": "line_wait.rs:35,42,47,148", "value": 5, "effect": "생성 후보의 end_delay"}
+ ],
+
+ "unknown": [
+  "L34 비교 `dist²(fm,nexus) < dist²(tower,nexus)` 의 방향(ult %184(fm) , %187(tower))은 IR 로 확정. 소스에서 `||` 좌우 순서(fm None 검사가 먼저)는 IR 분기 순서 기준",
+  "L113/L114 사거리 합에서 move_speed*30 이 어느 줄 항인지: dbg 는 %625(mul 30)=L114, %626(add)=L26<113 — Effect::range(caster) 인라인(effect.rs:26)에 range+stat_buff.range+(level-1)*growth 가 있고 move_speed*30·tower.radius 는 L114 로 추정. 합 자체는 확정",
+  "iter_towers 이터레이터(136B) 내부 상태 태그 -1/-2 · chain/flatten 인라인 분기(m15.ll 21885~22136)는 표준 라이브러리 어댑터라 의미 해석 생략 — 결과는 filter+min_by_key 로 확정",
+  "battle_action 에 version/rnd/end_delay 가 poison 으로 전달됨(콜리의 _version/_rnd/_end_delay 미사용 확정). 재현 시 아무 값이나 넘겨도 되나 정본 콜리 명세(r14)에서 미사용 재확인 권장",
+  "behind() L81~82 의 sdiv 오버플로 검사(-9223372036854775808 / -1)는 rustc 자동 검사 — 판정 상수 아님(constants 에서 제외)",
+  "get_start_position(&LineType, &GameSetting, team) 의 반환 의미(라인 시작 좌표)는 이름·인자로 추정, g15.ll:115823 본문은 안 봄",
+  "v30_line_champion_action_tower_aggro_risk(version, data, player, &SmallActionPlay 184B) -> bool 의 판정 내용은 범위 밖(m07.ll:52737) — 여기선 true=제거 극성만 확정(m01.ll:20584 br %27 → %47 삭제 경로)"
+ ]
+}

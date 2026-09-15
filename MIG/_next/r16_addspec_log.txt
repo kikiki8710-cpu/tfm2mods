@@ -1,0 +1,16 @@
+#197 battle__Battle__action_candidates 0xcbbdb0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 188  ③ 원장 §1 에 행 추가
+#198 defense_nexus__DefenseNexus__action_candidates 0xe928f0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 189  ③ 원장 §1 에 행 추가
+#199 attack_nexus__AttackNexus__action_candidates 0xe81680 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 190  ③ 원장 §1 에 행 추가
+#200 epic_check__EpicCheck__action_candidates 0xcb03b0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 191  ③ 원장 §1 에 행 추가
+#201 serpen_check__SerpenCheck__action_candidates 0xe8b5e0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 192  ③ 원장 §1 에 행 추가
+#202 jungle__Jungle__action_candidates 0xcc4260 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 193  ③ 원장 §1 에 행 추가
+#203 hide__Hide__action_candidates 0xcb7540 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 194  ③ 원장 §1 에 행 추가
+#204 line_wait__LineWait__action_candidates 0xeb43a0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 195  ③ 원장 §1 에 행 추가
+#205 line_defense__LineDefense__action_candidates 0xe83390 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 196  ③ 원장 §1 에 행 추가
+#206 serpen_hunt__SerpenHunt__action_candidates 0xcb1ce0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 197  ③ 원장 §1 에 행 추가
+#207 epic_hunt__EpicHunt__action_candidates 0xeaeda0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 198  ③ 원장 §1 에 행 추가
+#208 epic_poke__EpicPoke__action_candidates 0xcc6170 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 199  ③ 원장 §1 에 행 추가
+#209 serpen_poke__SerpenPoke__action_candidates 0xe7caf0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 200  ③ 원장 §1 에 행 추가
+#210 abstract_input__attack 0xd35d10 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 201  ③ 원장 §1 에 행 추가
+#211 line_gank__ganker__LineGankerPlan__next_plan 0xdb9430 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 202  ③ 원장 §1 에 행 추가
+#212 passive_jungle__PassiveJunglePlan__next_plan 0xd2f180 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 203  ③ 원장 §1 에 행 추가

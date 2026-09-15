@@ -1,0 +1,723 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12line_defenseNtB2_18LineDefenseSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\line_defense.rs",
+ "src_line": 440,
+ "ir_file": "m14.ll",
+ "ir_from": 21211,
+ "ir_to": 28586,
+ "aux": [
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 13462,
+   "ir_to": 13655,
+   "what": "Vec<SmallActionPlay>::retain<closure s8_0> — L788~789 ret.retain(|a| !self.unsafe_v19_non_champion_walkup(version,rnd,player,data,parameter,a,has_runaway,debug)) (본체 인라인)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 13658,
+   "ir_to": 13827,
+   "what": "Vec<SmallActionPlay>::retain<closure sb_0> — L810 battle_actions.retain(|a| !tower_discipline::v30_line_champion_action_tower_aggro_risk(version,data,player,a))"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 32157,
+   "ir_to": 32947,
+   "what": "Chain<Flatten<array::IntoIter<Option<&Entity>,6>>,Copied<slice::Iter<&Entity>>>::try_fold<filter_try_fold<closure$11(s9_0), any::check<closure$12(sa_0)>>> — L796~806 tower_with_enemy_in_range 의 배열부(top/mid/bottom ×2 타워, 적 챔피언 5 언롤)"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 28250,
+   "ir_to": 28968,
+   "what": "Copied<slice::Iter<&Entity>>::try_fold<filter_try_fold<closure$11, any::check<closure$12>>> — 같은 술어의 twin_towers 슬라이스부(m06 32945 에서 tail call)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 23001,
+   "ir_to": 23131,
+   "what": "Map<slice::Iter<SmallActionPlay>, max_by_key::key<closure sd_0>>::fold<max_by::fold> — L837 move_actions.iter().max_by_key(|a| self.score(version,parameter,rnd,player,data,a,debug)) (동점이면 뒤 원소)"
+  }
+ ],
+ "one_line": "[배치 F, L769~879] 타워 어그로 도주 강제 → 후보 retain(v19) → 타워 아래 전투 후보 추가 → 적 사거리 침범 도주 → 최고점 이동행동 1개 반환(궤적 위험 시 RunAway 대체)",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "bumpalo Vec<SmallActionPlay> 32B",
+    "note": "ptr@0 · bump@+8 · cap@+0x10 · len@+0x18. 배치 F 가 채우는 지점 6곳: L876 ret(%122) memcpy 32B(m14.ll:27310) / L833·L863 from_iter_in([RunAway]) (28392, 28286) / L865·L868·L871 from_iter_in([best_move_action.clone()]) (28270, 28296, 28327) — from_iter_in 3번째 인자 %1079 = data.context.pool(bump)"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut LineDefenseSubPlan(3B: +0 style · +1 line · +2 minion_action_type)",
+    "note": "배치 F 범위에선 **쓰기 0**. 읽기도 직접은 없고 콜리에 &self 로 전달만 — L789 unsafe_v19_non_champion_walkup(정의 m14.ll:28602, %0 readonly) · L837 score(m14.ll:29906, %0 readonly)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "스택 슬롯 %131 로 재로드. 배치 F 에선 분기 없음 — L774 v47_siege_stance · L789 · L809 battle_action · L810 v30 · L824 range_misjudge_rng · L837 score · L853 get_input · L860 position_score_at_position 인자로만"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "L788(s8_0 경유 unsafe_v19) · L809 battle_action · L825 range_misjudge_roll(m14.ll:27523, 첫 인자) · L837 score · L853 get_input 에 &mut 전달 — 부작용은 콜리 소유"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "+0x930 info.team(%160, 배치 D 산출 재사용) · +0x9c0 info.position(%175) · +0x180 info.parameter(%1174, 배치 E 산출 · L817 positioning_accuracy)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0 cache(&AbstractGameWithCache · %176) · +8 context(&GameContext · %143 · +0 pool=bump %1079 · +0x3b debug L779) · +0x10 blackboard(&[Blackboard;2] · %2296 · L828/L804 는 [1-team] 인덱스)"
+   },
+   {
+    "i": 6,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B)",
+    "note": "+0x9f0 positioning_score(PositioningScoreData 2760B · %237 배치 D 산출) → L853 get_input 6번째 · L860 position_score_at_position 4번째 인자. 그 외 L788/L837 에 통째 전달"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "type": "&TeamPlan (readnone)",
+    "note": "배치 F 범위에서 미사용(%7 참조 0)"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "+0xa0 infos(HashMap<usize,Vec<String>>) L780 쓰기(context.debug 일 때만) · L788/L837/L853 콜리에 &mut 전달"
+   }
+  ],
+  "returns": "sret 32B bumpalo Vec<SmallActionPlay>: 4슬롯(ptr·bump·cap·len) 전부 live. 원소 184B · 태그 @+0xb1(1B · 니치 untagged=AroundPosition(암묵) · niche_start=3: RunAway 3 · Recall 4 · Around 5 · AroundHide 6 · AroundRegion 7 · AroundRunAway 8 · Positioning 9 · AroundPositionBush 11 · AroundBush 12 · LaneMinionPosition 13 · Trace 14 · Attack 15 · Skill 16 · Skill2 17 · Ult 18 · Stop 19). 배치 F 의 반환 경로 6개: ①L876 `ret`(%122) 그대로(배치 D/E 가 채운 원소를 L776 truncate(0)·L788 retain 으로 깎은 뒤 — 비어 있지 않을 때만) ②L833 / ③L863 = vec![RunAway(SmallActionRunAway::new_with_skill(data, player, end_delay=5, with_skill=false))] 태그 3 · live = +0x0..+0x84 (start_tick@0 · goal_x@8 · goal_y@0x10 · end_delay@0x18 · goal_risk@0x20 · prog_best_dist_sq@0x28 · prog_best_tick@0x30 · path_finder Option<PathFinder>@0x38(72B) · with_skill@0x80 · with_ult@0x81 · dodge_trajectory@0x82 · goal_committed@0x83) · 0x84..0x88 패딩 · 0x88..0xb1 미기록(undef) · 0xb1 태그 3 · 0xb2..0xb8 미기록 ④L865 / ⑤L868 / ⑥L871 = vec![best_move_action.clone()] — variant 은 move_actions(%110) 원소 중 최고점(L837) 것이라 컴파일 시 확정 불가: 배치 E(L766) 가 만든 이동 후보 ∪ L778 RunAway(with_skill=true, 태그 3) ∪ L812 battle_actions(fight_check::battle_action 결과, v30 retain 후). 모든 경로에서 len 은 ①은 임의, ②~⑥은 1.",
+  "tls": [
+   {
+    "name": "SIEGE_STANCE_CACHE (tower_discipline::SiegeStanceCache, thread_local RefCell)",
+    "role": "소비자(간접) — 배치 F 는 직접 LocalKey::with 를 부르지 않고 L774 `v47_siege_stance(version, data, player, nearest_tower)`(m14.ll:27112, 정의 m07.ll:48393) 안에서 `LocalKey<RefCell<SiegeStanceCache>>::with` 2회(closure 0 / s_0) 호출",
+    "key": "콜리 내부(미탐색 — 배치 F 범위 밖). 인자는 (version, data, player, &tower Entity)",
+    "layout": "미탐색",
+    "invalidation": "미탐색",
+    "call_conditions": "★순서: 배치 F 진입 후 **첫 TLS 접점**. 조건 = nearest_tower.is_some()(%1046 false) && nearest_tower.ty==Tower(2) && info.nearest_enemy.is_some() && nearest_enemy.1 == champ.id(+0x5c0). 그 밖의 경우 배치 F 에서 v47_siege_stance 호출 없음. 반환 {i64,i64}=Option<usize>(소커 챔피언 entity id) 를 nearest_enemy.1 과 비교"
+   },
+   {
+    "name": "POS_EVAL_CACHE (position_eval_at)",
+    "role": "소비자(간접)",
+    "key": "미탐색",
+    "layout": "미탐색",
+    "invalidation": "미탐색",
+    "call_conditions": "L860 `position_score_at_position(version, player, data, &parameter.positioning_score, x, y, purpose)`(m14.ll:28242, 정의 m07.ll:34232) → 그 본체가 `position_eval_at` 을 호출(m07.ll 34232~34265 grep). 조건 = ret 비어있음 && trajectory_possible(L845~849 참) && get_input 이 Some(Input::Move(x,y)) 반환. 순서: v47(L774) → [score L837 ×N → interaction_score 간접] → get_input(L853) → position_score_at_position(L860)"
+   },
+   {
+    "name": "INTER_CTX (interaction_score) — 간접 2단",
+    "role": "소비자(간접)",
+    "key": "미탐색",
+    "layout": "미탐색",
+    "invalidation": "미탐색",
+    "call_conditions": "L837 max_by_key 키 클로저 sd_0 가 move_actions 원소마다 `LineDefenseSubPlan::score`(m14.ll:29906) 호출 → score 본체가 `interaction_score` 1회 참조(m14.ll 29906~30234 grep). 호출 횟수 = move_actions.len(). ret 이 비어 있을 때만(L792)"
+   },
+   {
+    "name": "CAST_BEAMS(v48) · HP_VALUE_MEMO(champion_hp_value)",
+    "role": "배치 F 직접·1단 콜리 어디에도 없음",
+    "key": "-",
+    "layout": "-",
+    "invalidation": "-",
+    "call_conditions": "L789 unsafe_v19_non_champion_walkup(m14.ll 28602~29733) 1단 grep 에 v47_tower_focus_position_dangerous 만 있고 v48/hp_value 없음 · battle_action(m15.ll 23700~) · get_input(m11.ll 42814~43329) · v30(m07.ll 52737~53029) 1단 grep 0건. 2단 이상은 미탐색"
+   }
+  ]
+ },
+ "reads": [
+  {
+   "base": "Entity(nearest_tower %126→%2186)",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "L770 ==2(Tower) (m14.ll:26997~27000). tcxdict --enum EntityType: Tower 태그 2"
+  },
+  {
+   "base": "Entity(nearest_tower)",
+   "offset": "0x88",
+   "name": "ty@Tower.info.nearest_enemy@tag (Option<(usize,usize)>)",
+   "note": "L771 trunc i1 → is_some (m14.ll:27081~27087). Tower 독립구조체 +0x18 = Entity+0x70+0x18"
+  },
+  {
+   "base": "Entity(nearest_tower)",
+   "offset": "0x98",
+   "name": "ty@Tower.info.nearest_enemy@Some.0.1 (usize = 대상 entity id)",
+   "note": "L771 == champ.id (27095~27107, Option<usize>::eq) · L774 == v47 반환값(27123) · L780 debug 맵 키(27210)"
+  },
+  {
+   "base": "Entity(nearest_tower)",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "L780 format!(\"v47 siege soak hold: tower {}\") 인자(27251)"
+  },
+  {
+   "base": "Entity(champ %958 = cache.player_champion[team][pos])",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "L771 (27100~27101) · L780 infos 키"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x660",
+   "name": "x",
+   "note": "L829 (%2327→27554) · L847 (27839) · aux L796 (m06.ll:32301)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x668",
+   "name": "y",
+   "note": "L829 · L847 · aux L796"
+  },
+  {
+   "base": "Entity(적 챔피언 c, cache.player_champion[1-team][i])",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "L824 range_misjudge_rng 4번째 인자(27509~27510)"
+  },
+  {
+   "base": "Entity(c)",
+   "offset": "0x660",
+   "name": "x",
+   "note": "L829 dist² (27546~27547)"
+  },
+  {
+   "base": "Entity(c)",
+   "offset": "0x668",
+   "name": "y",
+   "note": "L829"
+  },
+  {
+   "base": "Entity(c)",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "L830 is_in_action 인라인(entity.rs:1548): !=13(Champion) → 행동중 아님 (27578~27584)"
+  },
+  {
+   "base": "Entity(c)",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state@tag",
+   "note": "L830 is_in_action: Champion 이고 tag>=3(Attack3/Skill4/Skill2 5/Ult6) 이면 행동중 (27581~27584)"
+  },
+  {
+   "base": "Entity(c)",
+   "offset": "0x308",
+   "name": "rush_state@tag (니치 8B)",
+   "note": "L849 closure$17: >=0(untagged RushPenetrate) || ==-9223372036854775805(Rush 태그 niche_start+3) (27957~27965, 5인 언롤 27988~28090)"
+  },
+  {
+   "base": "Entity(t, 아군 타워 · aux)",
+   "offset": "0x6b9",
+   "name": "can_target",
+   "note": "aux L796 closure$11 = Entity::can_target() 인라인(entity.rs:1478): can_target && block_target_tick==0 (m06.ll:32280~32287)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x6a0",
+   "name": "block_target_tick",
+   "note": "aux L796 ==0 (m06.ll:32283~32285)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (Option<Effect> 니치 4B)",
+   "note": "aux L798 ==-1(None) → tower_attack_range=0 (m06.ll:32345~32348)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x4a0",
+   "name": "attack_effect@Some.0.range",
+   "note": "aux L799 Effect::range(effect.rs:26) 인라인 (m06.ll:32354~32355)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x4a8",
+   "name": "attack_effect@Some.0.growth_range",
+   "note": "aux L799 (level-1)*growth_range (32356~32357, 32390~32392)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "aux L799 (32365~32366)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "aux L799 level-1 (32363~32364, 32390)"
+  },
+  {
+   "base": "Entity(t · c)",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult(i32)",
+   "note": "aux L799/L803 Entity::radius() 인라인(entity.rs:1511~1515): mult==0 → radius, else radius*(mult+100)/100 (32367~32385, 32467~32485)"
+  },
+  {
+   "base": "Entity(t · c)",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "aux L799/L803 (32374~32375, 32381~32382)"
+  },
+  {
+   "base": "Entity(t · c)",
+   "offset": "0x660",
+   "name": "x",
+   "note": "aux L796 dist(t,champ) · L805 dist(t,c) (32293~32294, 32508~32509)"
+  },
+  {
+   "base": "Entity(t · c)",
+   "offset": "0x668",
+   "name": "y",
+   "note": "aux L796 · L805"
+  },
+  {
+   "base": "PlayerState(player)",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L795 iter_towers_without_nexus 인자(%160 재사용, 27306) · L846 p.team 비교(27878) · aux L801 team=1-team (m06.ll:32403~32404)"
+  },
+  {
+   "base": "PlayerState(player)",
+   "offset": "0x180",
+   "name": "info.parameter (AthleteParameter)",
+   "note": "L817 positioning_accuracy(&parameter) (%1174 = %4+384, 27367)"
+  },
+  {
+   "base": "OperationData(data)",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": "%176 · L795 · L823/L848 player_champion · L828/L845 game 팻포인터"
+  },
+  {
+   "base": "OperationData(data)",
+   "offset": "0x8",
+   "name": "context (&GameContext)",
+   "note": "%143 · L779 +0x3b debug(27134~27136) · +0x0 pool → from_iter_in bump(%1079)"
+  },
+  {
+   "base": "OperationData(data)",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2])",
+   "note": "%2296(27337~27338) · L828 blackboard[1-team](%183 · 27471 gep) · aux L804 blackboard[1-team](m06.ll:32491)"
+  },
+  {
+   "base": "GameContext(context)",
+   "offset": "0x3b",
+   "name": "debug",
+   "note": "L779 (27134~27137)"
+  },
+  {
+   "base": "GameContext(context)",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "%1079 = load %143 (24113, 배치 D 산출) → L833/863/865/868/871 from_iter_in 할당자"
+  },
+  {
+   "base": "AbstractGameWithCache(cache)",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "L828 is_recent_visible 2번째 인자(27536) · L845 iter_projectile self(27822)"
+  },
+  {
+   "base": "AbstractGameWithCache(cache)",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "L828(27537) · L845 vtable+0x210 = AbstractGame::iter_projectile (divtable, 27823~27826)"
+  },
+  {
+   "base": "AbstractGameWithCache(cache)",
+   "offset": "0x1e0",
+   "name": "player_champion[1-team][0..5] (Option<&Entity>)",
+   "note": "%184 = +480 + (1-team)*40 (배치 D 산출 21558) · L823 closure$14 루프(27476~27487, stride 8 · 40 종료) · L848 closure$17 5인 언롤(27948, 27979, 28010, 28041, 28072)"
+  },
+  {
+   "base": "Projectile(p, iter_projectile 원소)",
+   "offset": "0x0",
+   "name": "team@tag (TeamType)",
+   "note": "L846 ==0(Player) (27864~27867)"
+  },
+  {
+   "base": "Projectile(p)",
+   "offset": "0x8",
+   "name": "team@Player.0 (usize)",
+   "note": "L846 == player.team → 아군 투사체 skip (27877~27879)"
+  },
+  {
+   "base": "Projectile(p)",
+   "offset": "0x40",
+   "name": "move_type@tag (ProjectileMoveType 니치 8B)",
+   "note": "L846 ProjectileMoveType::is_targeting(projectile.rs:134) 인라인: 태그 6(Target)·7(TargetSplash) 또는 untagged BouncingTarget 의 target_id@+0x40 tag==1(Some) 이면 targeting → skip (27883~27898)"
+  },
+  {
+   "base": "Projectile(p)",
+   "offset": "0x100",
+   "name": "x",
+   "note": "L847 dist²(champ, p) (27905~27906)"
+  },
+  {
+   "base": "Projectile(p)",
+   "offset": "0x108",
+   "name": "y",
+   "note": "L847"
+  },
+  {
+   "base": "PositioningScore(%89, L860 sret 56B)",
+   "offset": "0x30",
+   "name": "on_trajectory",
+   "note": "L862 (28246~28248)"
+  },
+  {
+   "base": "PositioningScore(%89)",
+   "offset": "0x31",
+   "name": "on_periodic_trajectory",
+   "note": "L862 (28249~28251)"
+  },
+  {
+   "base": "Option<Input>(%92, L853 get_input sret 32B)",
+   "offset": "0x0",
+   "name": "tag (None=-1 · Input::Move=0)",
+   "note": "L857 ==-1 → None (28211~28213, None 인코딩 근거 get_input m11.ll:42866 `store i64 -1` from_residual) · L858 ==0 → Move (28224)"
+  },
+  {
+   "base": "Option<Input>(%92)",
+   "offset": "0x8",
+   "name": "Move.x",
+   "note": "L858 (28217~28218)"
+  },
+  {
+   "base": "Option<Input>(%92)",
+   "offset": "0x10",
+   "name": "Move.y",
+   "note": "L858 (28220~28221)"
+  },
+  {
+   "base": "ScoreParameter(parameter)",
+   "offset": "0x9f0",
+   "name": "positioning_score (PositioningScoreData 2760B)",
+   "note": "%237(배치 D 21733) → L853 get_input · L860 position_score_at_position"
+  },
+  {
+   "base": "DebugFrameData(debug)",
+   "offset": "0xa0",
+   "name": "infos (HashMap<usize,Vec<String>>)",
+   "note": "L780 rustc_entry(%8+160) (27209~27210)"
+  },
+  {
+   "base": "SmallActionPlay(move_actions 원소)",
+   "offset": "0xb1",
+   "name": "tag",
+   "note": "L787 has_runaway: tag-3 <=u … switch {0,1,5}=RunAway3/Recall4/AroundRunAway8 (27039~27064)"
+  },
+  {
+   "base": "bumpalo Vec(move_actions %110 · ret %122 · battle_actions %99)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "L787(27009) · L792 ret.len(27299~27300, %1190=%122+24) · L811 battle_actions.len(27395~27397) · L837(27638)"
+  },
+  {
+   "base": "bumpalo Vec(move_actions %110)",
+   "offset": "0x10",
+   "name": "cap",
+   "note": "L778 push 시 len==cap → reserve_internal_or_panic (27166~27169)"
+  },
+  {
+   "base": "bumpalo Vec(move_actions %110 · battle_actions %99)",
+   "offset": "0x0",
+   "name": "ptr",
+   "note": "L787(27006) · L812 extend 원본 ptr(27420) · L837(27636)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "DebugFrameData(debug %8)",
+   "offset": "0xa0",
+   "name": "infos[champ.id] (Vec<String>)",
+   "value": "push(format!(\"v47 siege soak hold: tower {}\", nearest_tower.id))",
+   "note": "L779~780, context.debug==true && v47_soak_hold 일 때만 (m14.ll:27209~27270 · entry→or_insert(vec![])→push_mut). 순수 텔레메트리"
+  },
+  {
+   "base": "ret(%122, 지역 Vec)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "0",
+   "note": "L776 truncate(0) (27130) — nearest_tower 가 나를 물고 있고 v47_soak_hold 아닐 때. 배치 D/E 가 채운 후보 전량 폐기"
+  },
+  {
+   "base": "ret(%122)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "retain 결과",
+   "note": "L788 retain<s8_0> (27291, aux m01.ll:13653) — unsafe_v19_non_champion_walkup==true 인 원소 제거"
+  },
+  {
+   "base": "move_actions(%110, 지역 Vec · 배치 E L766 산출)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "0",
+   "note": "L777 truncate(0) (27141)"
+  },
+  {
+   "base": "move_actions(%110)",
+   "offset": "ptr[len]",
+   "name": "push(SmallActionPlay::RunAway)",
+   "value": "SmallActionRunAway::new_with_skill(data, player, 5, true) · 태그 3 @+0xb1",
+   "note": "L778 (27147~27200): 136B memcpy → +177 store i8 3 → reserve → 184B memcpy → len+1"
+  },
+  {
+   "base": "move_actions(%110)",
+   "offset": "ptr[len..]",
+   "name": "extend(battle_actions)",
+   "value": "fight_check::battle_action(version,rnd,player,data,5) 결과(v30 retain 후, 비어 있지 않을 때)",
+   "note": "L812 (27420~27422)"
+  },
+  {
+   "base": "sret %0",
+   "offset": "0x0",
+   "name": "Vec<SmallActionPlay> 32B",
+   "value": "6 경로 (signature.returns 참조)",
+   "note": "L876 memcpy(27310) · L833(28392) · L863(28286) · L865(28270) · L868(28296) · L871(28327)"
+  },
+  {
+   "base": "rnd(%3, &mut StdRng)",
+   "offset": "-",
+   "name": "RNG 상태",
+   "value": "콜리 소유",
+   "note": "L825 range_misjudge_roll(27523) · L809 battle_action · L788/L837/L853 콜리 — 배치 F 직접 store 없음"
+  },
+  {
+   "base": "@PHASE_NANOS / @PHASE_CALLS (game_core::simulation::prof 전역)",
+   "offset": "[95]·[96]·[97]",
+   "name": "프로파일 누적",
+   "value": "atomicrmw add",
+   "note": "prof::ENABLED 일 때만. 97 = L836 _t_mb(27738) 드롭 L838(27808~27812) · 96 = L852 _t_mp(28142) 드롭 L854(28196~28199) · 95 = 함수 전체 타이머(배치 D L441) 드롭 L879(28501~28503). 텔레메트리"
+  },
+  {
+   "base": "self(%1)",
+   "offset": "-",
+   "name": "-",
+   "value": "-",
+   "note": "★배치 F 범위에서 self 쓰기 0건 (store to %1 없음 · 콜리 unsafe_v19/score 는 %0 readonly)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 770,
+   "meaning": "EntityType::Tower 메모리태그(tcxdict --enum EntityType) — nearest_tower.ty 판별 (m14.ll:26999)"
+  },
+  {
+   "value": 5,
+   "src_line": 778,
+   "meaning": "SmallActionRunAway::new_with_skill 3번째 인자 end_delay=5 (L778 with_skill=true · L833 · L863 with_skill=false 모두 5) · L809 battle_action 5번째 인자도 5(의미는 battle_action 계약 — 미탐색) ※shl 피연산자 아님(호출 인자 리터럴 27147 `i64 5`) — QC 경고는 함수 다른 범위의 shl 5 와 값이 겹친 것"
+  },
+  {
+   "value": 3,
+   "src_line": 778,
+   "meaning": "SmallActionPlay::RunAway 메모리태그 (store i8 3 @+177: 27153 · 28391 · 28285) ※shl 아님(store i8 3)"
+  },
+  {
+   "value": -3,
+   "src_line": 787,
+   "meaning": "has_runaway: 태그-3 로 정규화 (27043). 접힌 matches!(a, RunAway|Recall|AroundRunAway)"
+  },
+  {
+   "value": 0,
+   "src_line": 787,
+   "folded_from": 3,
+   "meaning": "switch case 0 = 태그 3 RunAway → has_runaway=true (27047). tag<=2 는 select 7(AroundPosition 암묵) 로 보내 false"
+  },
+  {
+   "value": 1,
+   "src_line": 787,
+   "folded_from": 4,
+   "meaning": "switch case 1 = 태그 4 Recall → true (27048)"
+  },
+  {
+   "value": 5,
+   "src_line": 787,
+   "folded_from": 8,
+   "meaning": "switch case 5 = 태그 8 AroundRunAway → true (27052)"
+  },
+  {
+   "value": 59,
+   "src_line": 779,
+   "meaning": "GameContext+0x3b debug bool 오프셋(10진) — 판정값 아님, gep 상수 (27134)"
+  },
+  {
+   "value": 2000,
+   "src_line": 819,
+   "meaning": "max_v = 2000 - positioning_accuracy (27431). positioning_accuracy ∈[10,1000](g15.ll:126073 range) → 롤 구간 [acc, 2000-acc] 을 1000 기준 대칭으로"
+  },
+  {
+   "value": 1000,
+   "src_line": 825,
+   "meaning": "emr = max_range_can_use(c,champ) * roll / 1000 + 10000 — 롤(퍼밀) 스케일 (27528)"
+  },
+  {
+   "value": 10000,
+   "src_line": 825,
+   "meaning": "emr 에 더하는 절대 여유 10000 (≈0.31셀) (27529)"
+  },
+  {
+   "value": 13,
+   "src_line": 830,
+   "meaning": "EntityType::Champion 태그 — is_in_action 인라인 (27580)"
+  },
+  {
+   "value": 3,
+   "src_line": 830,
+   "meaning": "ChampionActionState 태그 3=Attack 이상(Attack/Skill/Skill2/Ult)이면 행동중 (`ult 3` 27583) ※shl 아님(icmp samesign ult %x, 3)"
+  },
+  {
+   "value": 0,
+   "src_line": 832,
+   "meaning": "mr(max_range_can_use(champ,c)) != 0 이면 도주 안 함 — 내가 닿을 수 있는 적이면 skip (27592)"
+  },
+  {
+   "value": 97,
+   "src_line": 836,
+   "meaning": "prof phase id (_t_mb, max_by_key 구간) (27738)"
+  },
+  {
+   "value": 96,
+   "src_line": 852,
+   "meaning": "prof phase id (_t_mp, get_input 구간) (28142)"
+  },
+  {
+   "value": 528,
+   "src_line": 845,
+   "meaning": "AbstractGame vtable+0x210 = iter_projectile 슬롯 (divtable) (27824)"
+  },
+  {
+   "value": 176400000000,
+   "src_line": 847,
+   "meaning": "420000² — 비타겟 적 투사체가 내 위치 420000(≈13.1셀) 안이면 trajectory_possible (27926 `ult`)"
+  },
+  {
+   "value": -9223372036854775805,
+   "src_line": 849,
+   "meaning": "RushState::Rush 메모리태그(niche_start 2^63 + 3). `sgt -1`(=untagged RushPenetrate) 와 or → 적 챔피언이 돌진 중 (27963~27965)"
+  },
+  {
+   "value": -1,
+   "src_line": 857,
+   "meaning": "Option<Input>::None 태그(get_input m11.ll:42866 from_residual) → 입력 없으면 L871 (28212)"
+  },
+  {
+   "value": 0,
+   "src_line": 858,
+   "meaning": "Input::Move 태그 0 (tcxdict --enum Input) (28224)"
+  },
+  {
+   "value": 2500000001,
+   "src_line": 796,
+   "meaning": "aux closure$11: dist²(t,champ) < 50000²+1 = 50000 이내 아군 타워만 (m06.ll:32322)"
+  },
+  {
+   "value": -1,
+   "src_line": 798,
+   "meaning": "aux closure$12: attack_effect@tag(4B) == -1 → None → tower_attack_range=0 (m06.ll:32347)"
+  },
+  {
+   "value": 100,
+   "src_line": 799,
+   "meaning": "aux Entity::radius() 인라인: radius*(radius_mult+100)/100 (m06.ll:32383~32385, 32483~32485)"
+  }
+ ],
+ "calls": [
+  "game_ai::tower_discipline::v47_siege_stance",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "game_ai::small_action::SmallActionPlay::truncate",
+  "game_ai::small_action::SmallActionPlay::reserve_internal_or_panic",
+  "hashbrown::rustc_entry",
+  "std::collections::hash::map::Entry::or_insert",
+  "alloc::fmt::format::format_inner",
+  "alloc::vec::Vec::push_mut",
+  "bumpalo::collections::vec::Vec::retain",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::adapters::chain::Chain::try_fold",
+  "game_ai::fight_check::battle_action",
+  "core::iter::traits::collect::Extend::extend",
+  "game_core::simulation::state::player::AthleteParameter::positioning_accuracy",
+  "game_ai::utils::range_misjudge_rng",
+  "game_ai::utils::range_misjudge_roll",
+  "game_ai::plan_legacy::old::battle::max_range_can_use",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::entity::Entity::block_input",
+  "bumpalo::collections::vec::Vec::from_iter_in",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed",
+  "game_ai::plan_legacy::sub_plan::line_defense::LineDefenseSubPlan::score",
+  "core::iter::adapters::map::Map::fold",
+  "core::option::unwrap_failed",
+  "game_core::simulation::ProjectileIter::next",
+  "game_ai::small_action::SmallActionPlay::clone",
+  "game_ai::small_action::SmallActionPlay::get_input",
+  "game_ai::position_eval::line_phase_position_eval_purpose",
+  "game_ai::position_eval::position_score_at_position",
+  "game_ai::small_action::SmallActionPlay::drop",
+  "core::ptr::drop_glue",
+  "core::panicking::panic_bounds_check",
+  "game_ai::plan_legacy::sub_plan::line_defense::LineDefenseSubPlan::unsafe_v19_non_champion_walkup",
+  "game_ai::tower_discipline::v30_line_champion_action_tower_aggro_risk",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "game_ai::small_action::SmallActionPlay::call_once"
+ ],
+ "logic": "// line_defense.rs:769~879 (배치 F)\n// 진입: 배치 E(L766 거대 인라인 문, 블록 %2164/%2151/%2130) → %2184 (m14.ll:26988). 이 시점의 값:\n//   ret=%122 (bumpalo Vec<SmallActionPlay>, 배치 D/E 가 채움) · move_actions=%110 (L766 산출 Vec) · %128 = L447 Vec(배치 D, 여기선 드롭만)\n//   champ=%958 = cache.player_champion[team][pos] (L451) · team=%160=player.info.team · %183 = 1-team · %184 = &cache.player_champion[1-team] ([5 x ptr], L889 헬퍼 인라인, 배치 D)\n//   nearest_tower=%126 (Option<&Entity>, L452) · %1046 = nearest_tower.is_none() (L457 phi: %1029 null store→true · %1030 null 검사→true · %1042→false)\n//   %237 = &parameter.positioning_score(+0x9f0) · %1174 = &player.info.parameter(+0x180) · %143 = data.context · %1079 = context.pool(bump) · %131 = version 스택슬롯\n\n// ── L769~780 타워 어그로 소커 판정 ──\nif let Some(nearest_tower) = nearest_tower {                       // br %1046 (26992): None → L787\n  if let EntityType::Tower(info) = &nearest_tower.ty {            // L770 +0x68 == 2 (26999)\n    if info.nearest_enemy.map(|e| e.1) == Some(champ.id) {        // L771: +0x88 tag is_some (27086) && +0x98 == champ+0x5c0 (27107, Option<usize>::eq)\n      let siege = v47_siege_stance(version, data, player, nearest_tower);   // L774 (27112) → {i64,i64} Option<usize>(소커 id) ★TLS SIEGE_STANCE_CACHE(콜리 내부)\n      let v47_soak_hold = siege.is_some() && siege.unwrap() == info.nearest_enemy.1;   // 27119~27125 (Option<usize>::eq 2439)\n      if !v47_soak_hold {                                          // 27126 false → %2230\n        ret.truncate(0);                                           // L776 (27130)\n        move_actions.truncate(0);                                  // L777 (27141)\n        move_actions.push(SmallActionPlay::RunAway(SmallActionRunAway::new_with_skill(data, player, 5, true)));   // L778 (27147 · 태그 3 @+177 27153 · push 27163~27200)\n        // L775 → L787 (27202)\n      } else if data.context.debug {                               // L779 +0x3b (27134~27137); false → L787 (27137)\n        debug.infos.entry(champ.id).or_insert(vec![]).push(format!(\"v47 siege soak hold: tower {}\", nearest_tower.id));   // L780 (27209~27270) 텔레메트리 → L787\n      }\n      // (v47_soak_hold && !debug) → L787\n    }   // nearest_enemy 불일치 → L787 (27108)\n  }     // Tower 아님 → L787 (27000)\n}\n\n// ── L787~792 후보 정리 ──\nlet has_runaway = move_actions.iter().any(|a| matches!(a, RunAway(_) | Recall(_) | AroundRunAway(_)));   // L787 (27002~27077): 원소 +0xb1 태그, tag<=2→7(AroundPosition)·else tag-3, switch {0,1,5}→true; 빈 Vec→false. %103 에 i8 저장(27274)\nret.retain(|a| !self.unsafe_v19_non_champion_walkup(version, rnd, player, data, parameter, a, has_runaway, debug));   // L788~789 (27276~27292, aux m01.ll:13557 — 콜리 true 면 삭제)\nif !ret.is_empty() {                                               // L792 (%122+24 ==0 ? 27299~27301)\n  return ret;                                                      // L876 memcpy %0←%122 (27310) → L878 drop move_actions(27312~) → L879 drop %128 · phase95 타이머 → ret\n}\n\n// ── L795~814 아군 타워 아래 전투 후보 ──\nlet towers = data.cache.iter_towers_without_nexus(player.team);   // L795 (27306) = [top,top2,mid,mid2,bottom,bottom2][team](Option ×6) chain twin_towers[team]\nlet tower_with_enemy_in_range = towers\n  .filter(|t| t.can_target() && dist²(t.pos, champ.pos) < 2500000001)   // L796 closure$11(s9_0): +0x6b9 && +0x6a0==0 (entity.rs:1478 인라인) && ≤50000 (aux m06.ll:32280~32323)\n  .any(|t| {                                                       // L797 closure$12(sa_0) 캡처 (cache, blackboard, player)\n    let tower_attack_range = t.attack_effect.as_ref()              // L798 +0x4c0 tag==-1 → None → 0 (m06.ll:32345~32348)\n        .map(|e| e.range(t) + t.radius()).unwrap_or(0);            // L799: Effect::range = stat_buff_cached.range(+0x438) + e.range(+0x4a0) + (level(+0x5c8)-1)*growth_range(+0x4a8) ; Entity::radius = mult(+0x470)==0 ? radius(+0x680) : radius*(mult+100)/100 (32354~32395)\n    let team = 1 - player.team;                                    // L801 (32403~32404)\n    cache.iter_champions(team).any(|c| {                           // L802 player_champion[team][0..5] 5인 언롤 (32411~)\n      let range_with_enemy = c.radius() + tower_attack_range;      // L803 (32467~32501)\n      data.blackboard[team].is_recent_visible(cache.game, player, c)   // L804 (32492) — blackboard[적팀]: 「Blackboard[team]=team 자체 정보, 관측은 1-team」(_docs game_core:21) 이므로 적 c 의 최근 시야\n        && dist²(t.pos, c.pos) <= range_with_enemy²                // L805 (32508~32531 `ugt` → skip)\n    })\n  });                                                              // 슬라이스부(twin_towers)는 m11.ll:28250 동일 술어\nif tower_with_enemy_in_range {                                     // L808 (27364)\n  let mut battle_actions = fight_check::battle_action(version, rnd, player, data, 5);   // L809 (27373) sret 32B Vec\n  battle_actions.retain(|a| !v30_line_champion_action_tower_aggro_risk(version, data, player, a));   // L810 (27383, aux m01.ll:13736 — true 면 삭제)\n  if !battle_actions.is_empty() {                                  // L811 (27395~27398)\n    move_actions.extend(battle_actions);                           // L812 (27421)\n  } else { drop(battle_actions); }                                 // L814 (27402)\n}\n\n// ── L817~833 적 사거리 침범 도주 ──\nlet positioning_accuracy = player.info.parameter.positioning_accuracy();   // L817 (27367) ∈[10,1000]\nlet min_v = positioning_accuracy;                                  // L818\nlet max_v = 2000 - positioning_accuracy;                           // L819 (27431)\nif cache.iter_champions(1 - team).any(|c| {                        // L823 closure$14 인라인 (27473~27610): %184 [5 x ptr] stride 8, null skip\n    let jrng = range_misjudge_rng(version, data, player, c.id);    // L824 (27511) → 16B NoiseRng(%11)\n    let emr = max_range_can_use(c, champ) * range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000 + 10000;   // L825 (27519, 27523, 27527~27529) — 적의 사거리를 오판 롤로 스케일\n    let mr = max_range_can_use(champ, c);                          // L826 (27531)\n    data.blackboard[1 - team].is_recent_visible(cache.game, player, c)   // L828 (27538, %2329 = blackboard[%183])\n      && dist²(c.pos, champ.pos) <= emr*emr                        // L829 (27546~27575 `ugt` → skip)\n      && !c.is_in_action()                                         // L830 entity.rs:1548 인라인: ty==Champion(13) && action_state.tag>=3 → 행동중 → skip (27578~27585)\n      && !c.block_input()                                          // L830 (27588) ※ readonly 라 mr 검사보다 먼저 계산됨(27592~27594 `or`) — 소스상 순서는 표기 불가(column 부재), 외연 동일\n      && mr == 0                                                   // L831~832 (27592: mr!=0 → skip)\n}) {\n  return vec![SmallActionPlay::RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false))];   // L833 (27615 · 태그3 28391 · from_iter_in 28392 · bump=%1079) → L878/879 드롭·타이머 → ret\n}\n\n// ── L836~838 최고점 이동행동 ──\nlet _t_mb = ProfTimer::start(97);                                  // L836 (27622~27633, 27738) prof::ENABLED 일 때만 Instant::now\nlet best_move_action = move_actions.iter()\n  .max_by_key(|a| self.score(version, parameter, rnd, player, data, a, debug))   // L837 (27636~27733, aux m12.ll:23095 score → i64 · compare>0 이면 앞 원소 유지 = 동점 시 뒤 원소)\n  .unwrap();                                                       // L837: move_actions 비어 있으면 unwrap_failed 패닉 (27704~27705 → 27816)\ndrop(_t_mb);                                                       // L838 PHASE_NANOS[97]+=elapsed · PHASE_CALLS[97]+=1 (27758~27813)\n\n// ── L845~849 궤적 위험 ──\nlet trajectory_possible = cache.game.iter_projectile()             // L845 vtable+0x210 (27822~27826) → ProjectileIter(40B), next() 루프 (27844)\n  .any(|p| p.team != TeamType::Player(player.team)                 // L846 +0 tag==0 && +8==team → skip (27864~27879)\n         && !p.move_type.is_targeting()                            // L846 projectile.rs:134 인라인: Target(6)|TargetSplash(7)|BouncingTarget{target_id:Some} → skip (27883~27898)\n         && dist²(champ.pos, (p.x,p.y)) < 176400000000)            // L847 (27905~27927) 420000²\n  || cache.iter_champions(1 - team).any(|c| matches!(c.rush_state, Rush{..} | RushPenetrate{..}));   // L848~849 closure$17 5인 언롤 (27948~28090): +0x308 >=0 || ==-2^63+3\n// (projectile 발견 → 28106 trajectory_possible=1 (L851) → %2555 / rush 발견 → %2555 / 둘 다 없음 → 28100 false (L857) → L871)\n\n// ── L851~871 이동 입력 궤적 검증 ──\nif trajectory_possible {\n  let _t_mp = ProfTimer::start(96);                                // L852 (28120~28148)\n  let move_action_input = best_move_action.clone().get_input(version, rnd, player, data, &parameter.positioning_score, debug);   // L853 (28136 clone → 28157 get_input sret 32B Option<Input>) ; 클론 드롭 28209\n  drop(_t_mp);                                                     // L854 PHASE[96] (28179~28199)\n  if let Some(input) = move_action_input {                         // L857 tag != -1 (28212~28213); None → L871\n    if let Input::Move(x, y) = input {                             // L858 tag==0 (28224) x=+8 y=+0x10\n      let purpose = line_phase_position_eval_purpose(player, data);   // L861 (28231) i8\n      let position_score = position_score_at_position(version, player, data, &parameter.positioning_score, x, y, purpose);   // L860 (28242) sret 56B PositioningScore ★TLS POS_EVAL_CACHE(콜리 내부 position_eval_at)\n      if position_score.on_trajectory || position_score.on_periodic_trajectory {   // L862 +0x30 || +0x31 (28246~28253)\n        return vec![SmallActionPlay::RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false))];   // L863 (28258 · 태그3 28285 · from_iter_in 28286)\n      } else {\n        return vec![best_move_action.clone()];                     // L865 (28264 · 28270)\n      }\n    } else {\n      return vec![best_move_action.clone()];                       // L868 (28237 · 28296)\n    }\n  }\n}\nreturn vec![best_move_action.clone()];                             // L871 (28112 · 28327) — trajectory_possible=false 또는 get_input None\n\n// ── L878~879 종료(전 반환 경로 공통) ──\n// drop move_actions(%110) (27312 / 28307 / 28398) → drop ret(%122) (28340 / 28421 — L876 경로는 이미 이동돼 %122 드롭 없음 27310→27312→%2683→%2635) → drop %128(L447 Vec, 28363 / 28444) → 함수 타이머(%130, phase 95, 배치 D L441) 드롭 (28466~28504) → ret void (28508)\n// 배치 F 안의 정상 흐름은 다른 배치로 돌아가지 않는다(모든 br 목적지가 범위 내 또는 cleanup pad %2213/%2427/%2309/%1084/%1110/%946/%950). 예외 경로 unwind 만 %1169/%1128 (배치 E 의 cleanup) 으로 이어진다.",
+ "knobs": [
+  {
+   "what": "RunAway 액션 end_delay",
+   "where": "line_defense.rs:778 · 833 · 863 (m14.ll:27147, 27615, 28258)",
+   "value": 5,
+   "effect": "SmallActionRunAway.end_delay(+0x18). 올리면 도주 액션의 종료 지연이 길어진다(정확한 소비처는 SmallActionRunAway 계약 — 미탐색)"
+  },
+  {
+   "what": "적 사거리 오판 롤 구간 중심",
+   "where": "line_defense.rs:819 (27431)",
+   "value": 2000,
+   "effect": "roll ∈ [acc, 2000-acc]/1000 배. 올리면 적 사거리를 평균적으로 더 크게 오판(더 멀리서 도주) · 내리면 과소평가(덜 도주)"
+  },
+  {
+   "what": "적 사거리 절대 여유",
+   "where": "line_defense.rs:825 (27529)",
+   "value": 10000,
+   "effect": "emr 에 더하는 상수. 올리면 적이 더 멀리 있어도 '사거리 안' 으로 보고 RunAway(with_skill=false) 를 반환(L833)"
+  },
+  {
+   "what": "비타겟 투사체 궤적 위험 반경(제곱)",
+   "where": "line_defense.rs:847 (27926)",
+   "value": 176400000000,
+   "effect": "420000². 올리면 더 먼 적 투사체도 trajectory_possible 로 보고 get_input→position_score 검증(L853~863)을 더 자주 수행 · 내리면 검증 생략(L871 바로 반환)"
+  },
+  {
+   "what": "타워 아래 전투 후보 — 아군 타워 탐색 반경(제곱)",
+   "where": "line_defense.rs:796 (aux m06.ll:32322)",
+   "value": 2500000001,
+   "effect": "50000²+1. 올리면 더 먼 아군 타워도 후보가 돼 그 타워 사거리 안 적이 있으면 battle_action 후보가 추가된다"
+  },
+  {
+   "what": "has_runaway 판정 variant 집합",
+   "where": "line_defense.rs:787 (27046~27064)",
+   "value": "태그 {3,4,8}",
+   "effect": "RunAway/Recall/AroundRunAway 가 move_actions 에 있으면 unsafe_v19_non_champion_walkup 에 has_runaway=true 로 전달(그 안의 의미는 콜리 계약 — 미탐색)"
+  }
+ ],
+ "unknown": [
+  "L830~832 `!c.block_input()` 과 `mr == 0` 의 소스상 순서 — column 부재. IR 은 block_input(readonly) 을 먼저 호출한 뒤 `or i1 (mr!=0), block_input` 로 접음(27588~27594). 외연 동일(표기 불가)",
+  "L771 `info.nearest_enemy` (Option<(usize,usize)>) 의 .0 의미 — .1 이 entity id 임은 champ.id 비교로 확정, .0 은 배치 F 에서 안 읽음(미탐색 — Tower AI 갱신 지점은 _gcbc)",
+  "L809 battle_action 5번째 인자 5 · L778 new_with_skill end_delay 5 의 단위/소비처 — 콜리 계약(r14/r13 잎이 아님) 미탐색",
+  "L837 score(...) 의 판정 내용 · L789 unsafe_v19_non_champion_walkup(line_defense.rs:72, m14.ll:28602~29733) · L810 v30_line_champion_action_tower_aggro_risk(m07.ll:52737) 의 본체 — 배치 F 범위 밖(시그니처만 기록)",
+  "SmallActionRunAway::new_with_skill 이 채우는 필드 값(goal_x/y 등) — 콜리(m08.ll:92086) 미탐색. live 바이트는 struct 레이아웃(tcxdict 136B) 기준",
+  "TLS 절의 key/layout/invalidation — v47_siege_stance·position_eval_at·interaction_score 내부는 각 잎 명세(r13/r15) 소관. 배치 F 는 호출 지점·조건·순서만 확정",
+  "L857 Option<Input>::None == -1 은 get_input 본체의 from_residual store(m11.ll:42866) 로 확인. tcxdict 에 Option<Input> 레이아웃 없음(제네릭) — 니치값 -1 의 이유(6 이 아닌) 는 미탐색",
+  "L845 iter_projectile 이 ExpectedGame 이 아닌 다른 AbstractGame 구현체일 때의 순서 — divtable 은 ExpectedGame 정적 vtable 기준(런타임 구현체 미확정)",
+  "constants 의 59(GameContext.debug gep) 는 판정값이 아니라 오프셋이나 C1 대조를 위해 등재 — reads 에 정본"
+ ]
+}

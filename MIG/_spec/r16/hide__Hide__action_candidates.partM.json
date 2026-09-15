@@ -1,0 +1,74 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan4hideNtB2_11HideSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\hide.rs",
+ "src_line": 19,
+ "ir_file": "m02.ll",
+ "ir_from": 20312,
+ "ir_to": 25343,
+ "aux": [
+  {"ir_file": "m12.ll", "ir_from": 12641, "ir_to": 12849, "note": "hide.rs:110 min_by_key 의 잔여 원소 fold(closure$7 필터 + closure$8 키 + min_by 비교). 첫 원소 탐색은 본체 %244~%328 에 인라인, 2번째 이후는 이 define 이 돈다"}
+ ],
+ "one_line": "[배치 M · hide.rs:103~139] 적에게 보이는데 check_move 가 꺼져 있으면 가장 가까운 가시 적을 찾아 주변 아군/적 수와 1v1 승산으로 전투(battle_action) 또는 도주(RunAway)를 후보에 넣고, 마지막에 attack_summon_action 을 합쳐 반환",
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo::collections::vec::Vec<SmallActionPlay> (32B)", "note": "ptr@0 · bump@+0x8 · cap@+0x10 · len@+0x18. 지역 alloca %46 을 만들어 채운 뒤 hide.rs:138 에서 32B memcpy 로 반환(IR 25340). 원소 184B · 태그 @+0xb1(니치, untagged=AroundPosition) — tcxdict --enum SmallActionPlay"},
+   {"i": 1, "name": "self", "type": "&mut HideSubPlan (16B)", "note": "IR 속성 noalias·비-readonly = &mut. 배치 M 범위에서는 **읽기만**(+0x9 check_move, IR 23986). self 쓰기(check_move=1 @L45·L52, enemy_spotted_me @L27·L30)는 전부 배치 L 범위"},
+   {"i": 2, "name": "version", "type": "usize", "note": "배치 M 범위에선 분기 없음. battle_action 1번 인자로 그대로 전달(IR 25182·25240·25317)"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "note": "can1v1win 1번 인자 · battle_action 2번 인자로 전달만"},
+   {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly. can1v1win/battle_action/attack_summon_action/new_with_skill 에 전달"},
+   {"i": 5, "name": "data", "type": "&OperationData (24B)", "note": "readonly. +0 cache(&AbstractGameWithCache) 로 player_champion 순회 · 콜리 전달"},
+   {"i": 6, "name": "_parameter", "type": "&ScoreParameter (5384B)", "note": "readonly. 배치 M 범위 미사용"},
+   {"i": 7, "name": "_debug", "type": "&mut DebugFrameData (224B)", "note": "readnone. 미사용"}
+  ],
+  "returns": "sret bumpalo Vec<SmallActionPlay> 32B 전부 live(ptr·bump·cap·len). 배치 M 이 push 하는 variant = **RunAway(태그 3)** 1종 뿐(hide.rs:126 · 132). 그 외 원소는 battle_action(124/128/133)·attack_summon_action(136) 반환 Vec 을 extend 로 이어붙인 것(원소 내용은 그 함수 계약). RunAway 원소 live 바이트 = +0x0..+0x84 (SmallActionRunAway 136B 중 new_with_skill initializes((0,56),…) 가 채우는 범위 + with_skill@+0x80 등 bool 4개) + 태그 +0xb1=3 · 나머지(+0x88..+0xb0, +0xb2..+0xb7) 는 미기록(memcpy 136B 뒤 184B 복사라 alloca 쓰레기)",
+  "tls": []
+ },
+ "reads": [
+  {"base": "HideSubPlan", "offset": "0x9", "name": "check_move", "note": "hide.rs:107 두 번째 조건. %1424 (IR 23986) 에서 재로드 — 배치 L(L45·L52) 에서 1 로 바뀔 수 있어서. 값 1 이면 108~133 전체 건너뜀"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5] (Option<&Entity>, 니치 null=None)", "note": "base gep(+480) 는 배치 L(L22, IR 20420). 배치 M 은 행 인덱싱만: %245=[1-team] (L108, IR 20915) · %66=[team] (L22 정의, L115 에서 사용). 5슬롯 순회 · null 슬롯 skip"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag (TeamType: 0=Player,1=Neutral)", "note": "champ(%68) 의 팀 태그. is_visible_from 인라인(entity.rs:1136 player_team): Neutral 이면 무조건 가시. IR 20992(L110) · 24410(L118 언스위치 freeze)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0 (usize)", "note": "champ 의 팀 번호 t. t<2 bounds 검사(panic_bounds_check) 뒤 visible_state[t] 인덱스. IR 20998 · 24413"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[t]@tag (stride 24B: {i64,[2 x i64]})", "note": "적 x 의 visible_state[t].tag == 0(Visible) 이면 가시(data.rs:122 is_visible). IR 21013~21016(L110) · 24759~24762(L118)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "L114 `x.id != champ.id`(자기 제외). champ.id 는 %75(배치 L gep) 를 %1433 에서 재로드(IR 24042), x.id = gep+1472 (IR 24063)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(utils.rs:2158 인라인): |x1-x2|²+|y1-y2|². champ.x=%336(IR 21260) · 각 x 의 x(IR 21252 등)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "위와 짝. champ.y=%338(IR 21264)"},
+  {"base": "bumpalo Vec<SmallActionPlay> (콜리 반환 32B)", "offset": "0x18", "name": "len", "note": "battle_action/attack_summon_action 반환 Vec 의 +0 ptr · +0x18 len 을 읽어 extend(IR 25244~25247 · 25255~25258 · 25321~25324 · 25332~25335)"}
+ ],
+ "writes": [
+  {"base": "res (지역 bumpalo Vec %46 → sret %0)", "offset": "0x18", "name": "len", "value": "+1 per push", "note": "RunAway push 2곳: L126(IR 25232~25234) · L132(IR 25312~25314). len==cap 이면 reserve_internal_or_panic(res, len, 1, true) 먼저(IR 25211 · 25291). 원소 184B memcpy → ptr[len]. extend 4곳(L124·128·133·136) 은 콜리 내부에서 len 갱신"},
+  {"base": "SmallActionPlay (push 원소 alloca %25/%22)", "offset": "0xb1", "name": "tag", "value": "3 (=RunAway)", "note": "new_with_skill sret 136B 를 memcpy 후 `store i8 3` @+177 (IR 25188 · 25268)"},
+  {"base": "(sret) %0", "offset": "0x0", "name": "Vec 32B", "value": "memcpy(res)", "note": "hide.rs:138 (IR 25340). 배치 M 범위에는 self(%1) 쓰기 없음"}
+ ],
+ "constants": [
+  {"value": 22500000001, "src_line": 114, "meaning": "150000²+1 — `dist² < 150000²+1` ⟺ dist² ≤ 150000² (4.6875셀). L114 아군 근접 판정(IR 24096 등 5회) 과 L117 적 근접 판정(IR 24473 등 10회) 이 같은 값. 원소는 icmp ult 로 나오니 소스는 `<= 150000*150000` 또는 `< …+1` 중 하나(표기 불가·동작 확정)"},
+  {"value": 5, "src_line": 126, "meaning": "end_delay=5 — SmallActionRunAway::new_with_skill(data, player, end_delay=5, with_skill=false) 의 3번 인자(L126 IR 25173 · L132 IR 24420) 및 battle_action(version, rnd, player, data, _end_delay=5) 의 5번 인자(L124·128·133). 콜리 DI 변수명으로 확인(new_with_skill %3=end_delay · battle_action %5=_end_delay)"},
+  {"value": 3, "src_line": 126, "meaning": "SmallActionPlay::RunAway 메모리 태그(니치: idx0 → 3). `store i8 3` @+0xb1 (IR 25188 · 25268)"}
+ ],
+ "calls": [
+  "game_ai::utils::can1v1win",
+  "game_ai::fight_check::battle_action",
+  "game_ai::fight_check::attack_summon_action",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "bumpalo::collections::vec::reserve_internal_or_panic",
+  "core::iter::traits::collect::Extend::extend",
+  "core::iter::adapters::map::Map::fold",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue"
+ ],
+ "logic": "// hide.rs:103~139 (배치 M)\n// 승계(배치 L 정의, IR 로 재확인): team=%54=player+0x930 · champ=%68=data.cache.player_champion[team][pos].unwrap() · is_visible_to_enemy=%79=data.cache.game.vtable[0xf8](AbstractGame::is_visible)(1-team, champ.id) (hide.rs:23) · %74 = 1-team(적 팀) · res=%46 빈 bumpalo Vec(ptr=8,bump=data.context.bump,cap=0,len=0)\n\n// 진입: 배치 L 의 line 57 분기(%123 check_move==0 → %211 / %128·%131 → 직접) 와 line 58~101 블록 끝(%1349·%1359·%1404·%1419 → %1424) · line 101 끝(%1427 → %1428 → line 136)\n\n// hide.rs:107  if is_visible_to_enemy && !self.check_move {        // 두 조건 모두 필요. %211: br %79 → %244/%243 · %1424: check_move 재로드(IR 23986) → 1 이면 %243(136), 0 이면 %244(108)\n//   근거: CFG 에서 %79=0 으로 접으면 %1424·%244 도달 불가(cfg79.py BFS: 156블록 중 없음) ⟹ %1424 경로는 %79=1 이 정적으로 확정된 경로(jump-threading). 두 조건의 소스 표기 순서는 표기 불가(column 없음).\n\n// hide.rs:108  data.iter_champions(1-team)                          // %245 = &player_champion[1-team] (5 x Option<&Entity>)\n// hide.rs:109    .filter(|x| x.is_visible_from(champ))              // closure#7 인라인: champ.team==Neutral(tag 1) → true / Player(t): t<2 bounds(아니면 panic_bounds_check 2) → x.visible_state[t].tag==0(Visible)\n// hide.rs:110    .min_by_key(|x| x.distance_sq(champ))              // closure#8: |x.x-champ.x|²+|x.y-champ.y|² (utils.rs:2158). 슬롯 0~4 를 순서대로 훑어 필터 통과 첫 원소를 %328 에서 잡고(first=(dist²,ptr)), 잔여는 aux fold(m12.ll:12641)로: 같은 필터·같은 키·min_by(cmp(acc,new)>Greater 일 때만 교체 = 동률이면 앞 원소 유지). 5슬롯 전부 실패 → %327: nearest_enemy=None\n//   let nearest_enemy: Option<&Entity>\n\n// hide.rs:112  if let Some(enemy) = nearest_enemy {                 // %1429: null 검사 → None 이면 %1587(line 132)\n\n// hide.rs:114/115  let nearby_allies = data.iter_champions(team).filter(|x| x.id != champ.id && x.distance_sq(champ) < 22500000001).count();\n//     // %66 = player_champion[team] 5슬롯 완전 언롤(%1432~%1580). null skip · id==champ.id 는 0 · 아니면 zext(dist² ult 150000²+1) 누적. ⚠거리 기준점은 enemy 가 아니라 **champ 자신**(%1434/%1435 = champ.x/y 재로드 IR 24043~24044)\n\n// hide.rs:117/118  let nearby_enemies = data.iter_champions(1-team).filter(|x| x.is_visible_from(champ) && x.distance_sq(champ) < 22500000001).count();\n//     // %245 5슬롯 완전 언롤. champ.team 으로 루프 언스위치(IR 24410~24415 freeze): Neutral → %1588 경로(가시 검사 생략) / Player(t) → %1705: t<2 이면 %1710 경로(visible_state[t].tag==0 && dist²) / t>=2 이면 %1709 경로(첫 non-null 슬롯에서 panic_bounds_check(t,2))\n\n// hide.rs:120  let dominated = nearby_allies < nearby_enemies;       // icmp ult %1581,%1877 (IR 25162, samesign)\n// hide.rs:121  let can_fight = !dominated && can1v1win(rnd, player, data, champ, enemy);   // dominated 면 can1v1win 호출 자체를 안 함(IR 25164 → %1881). DI: can_fight=%1880 는 %1882(호출 뒤)에서만\n\n// hide.rs:123  if can_fight {\n// hide.rs:124      res.extend(battle_action(version, rnd, player, data, 5));      // sret %26 → extend(res, vec.ptr, vec.len) → %1909 → line 136\n//              } else {\n// hide.rs:126      res.push(SmallActionPlay::RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false)));   // sret %24 136B → %25 memcpy · tag 3 @+0xb1 · len==cap 이면 reserve_internal_or_panic(res,len,1,true) · ptr[len]=184B memcpy · len+=1\n// hide.rs:127      if !dominated {                                                // IR 25236: br %1878 → %243(136) / %1899(128). 즉 「1v1 승산 없음이지만 수적 열세는 아님」일 때만\n// hide.rs:128          res.extend(battle_action(version, rnd, player, data, 5));  // sret %23\n//                  }\n//              }\n//   → line 136\n// } else {   // nearest_enemy == None (%1587)\n// hide.rs:132      res.push(RunAway(new_with_skill(data, player, 5, false)));    // sret %21 → %22 · tag 3 · push 동일 수순(IR 25266~25314)\n// hide.rs:133      res.extend(battle_action(version, rnd, player, data, 5));      // sret %20 (IR 25317~25325)\n// }\n// }  // end if 107\n\n// hide.rs:136  res.extend(attack_summon_action(player, data));       // %243: sret %19 → extend(IR 25335). 107 이 거짓인 경로(%211·%1424·%1428) 도 전부 여기로 합류\n// hide.rs:138  res                                                  // memcpy 32B → sret %0 (IR 25340)\n// hide.rs:139  }                                                    // ret (IR 25342). 언와인드 %57: drop_glue(bumpalo Vec<SmallActionPlay>)(res) 뒤 caller 로 (IR 20402)\n\n// 배치 M 이 push 하는 variant 집합 = {RunAway(태그 3)} 2사이트(126·132), 생성자 인자 (data, player, end_delay=5, with_skill=false) 동일. 나머지 원소는 battle_action ×3 · attack_summon_action ×1 의 반환 Vec 을 extend.\n// 배치 M 범위 내 self(%1) 쓰기: 없음. TLS(LocalKey::with) 접점: 없음(함수 전체 0건, 콜리 can1v1win/battle_action/attack_summon_action 내부는 그 명세 소관).\n// 사장 코드: reach.txt 사장 호출부 0 — NA 봉인 대상 없음.",
+ "knobs": [
+  {"what": "주변 아군/적 집계 반경", "where": "hide.rs:114 · 117 (IR 24096 · 24473)", "value": 22500000001, "effect": "올리면(반경 확대) 더 먼 아군·적까지 세어 dominated 판정이 넓은 범위의 수적 비교가 된다. 아군·적 두 필터가 같은 값이라 한쪽만 바꾸면 비대칭 판정이 된다"},
+  {"what": "도주/전투 행동의 end_delay", "where": "hide.rs:124·126·128·132·133 (i64 5)", "value": 5, "effect": "SmallActionRunAway.end_delay(+0x18) 초기값. battle_action 쪽은 콜리가 `_end_delay` 로 받아 미사용(콜리 DI 이름 기준·본문은 그 명세 소관)"},
+  {"what": "RunAway 의 with_skill", "where": "hide.rs:126 · 132 (i1 false)", "value": false, "effect": "true 로 바꾸면 도주 중 스킬 사용 허용(SmallActionRunAway.with_skill@+0x80 — 소비처는 RunAway::get_input 명세 소관)"}
+ ],
+ "unknown": [
+  "hide.rs:107 조건식의 두 항(is_visible_to_enemy, !self.check_move) 소스 표기 순서 — column 정보 부재. 동작(둘 다 참이어야 108 진입)은 CFG 접기로 확정",
+  "hide.rs:127 조건이 소스에서 `!dominated` 인지 `nearby_allies >= nearby_enemies` 인지 — 같은 i1 %1878 을 재사용해 외연 동일(표기 불가)",
+  "hide.rs:114·117 의 `< 22500000001` 이 소스에서 `<= 150000*150000` 인지 `< 22500000001` 인지 — icmp ult 정규화로 외연 동일(표기 불가)",
+  "hide.rs:110 min_by_key 의 비교 콜리 `@gc::…Entity…call_once`(aux m12.ll:12822) 내부는 u64 Ord::cmp 로 추정(min_by 관례) — 정확한 define 은 안 읽음(미탐색)",
+  "SmallActionRunAway 원소의 live 바이트 정밀 표(+0x84..+0x87 패딩 · path_finder Option 니치 @+0x7d 등)는 new_with_skill 의 initializes 속성 전체를 안 옮김(잘림) — 그 함수 명세 소관",
+  "hide.rs:103 의 IR 4줄은 전부 `llvm.lifetime.end(bx %38 / by %39)`(원문 23984~23985 · 23996~23997, 주석본에선 잡음 제거됨) — 배치 L 의 57~103 블록을 닫는 `}` 로 확정(bx/by 는 L 범위 지역변수). 판정 로직 없음",
+  "hide.rs:104~106 · 111 · 113 · 116 · 119 · 122 · 125 · 129~131 · 134~135 · 137 은 IR 에 루트 줄이 없음(빈 줄/주석/닫는 괄호로 추정, rmeta 줄길이 산술 미실시)"
+ ]
+}

@@ -1,0 +1,94 @@
+{
+ "name": "attack",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input6attack",
+ "src": "game-ai\\src\\abstract_input.rs",
+ "src_line": 148,
+ "ir_file": "m04.ll",
+ "ir_from": 44657,
+ "ir_to": 44931,
+ "aux": [],
+ "one_line": "대상(target)에 대한 평타 입력을 만든다 — 사거리 안이면 Input::Attack(InputTarget), 아니면 사거리−여유 지점(비가시면 대상 좌표)으로 안전 이동(Option<Input>)",
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "Option<game_core::Input> 32B", "note": "IR 속성 writeonly sret dereferenceable(32). None = +0 i64 −1(니치 = u64::MAX, m04.ll:44703·44710·44730·44734) · Some(Input::Attack(t)) = +0 i64 2(태그 Attack, tcxdict --enum game_core::Input) + +8..+0x20 InputTarget 24B memcpy(44747~44748) · 그 밖의 경로는 safe_move_avoiding_enemy_well 이 같은 sret 를 직접 채운다(44786·44925)"},
+   {"i": 1, "name": "version", "type": "usize", "note": "이 함수 안에서 분기 없음 — get_input_target(44740)·safe_move_avoiding_enemy_well(44786·44925) 인자로만 전달"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B, align 16)", "note": "readonly 없음 = &mut. 이 함수는 직접 읽고 쓰지 않는다 — get_input_target(44740) 에만 전달. 쓰기 표면은 그 콜리 소관"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "+0x930 info.team(44671~44672, bounds<2 검사) · +0x9c0 info.position@tag(as_index, entity.rs:581 인라인, 44682~44684). get_input_target·safe_move 인자로도 전달"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache(&AbstractGameWithCache; +0x1e0 player_champion[2][5] Option<&Entity>) · +8 context(&GameContext; +8 setting · +0x20 map — adjust_position 인자 44914~44920)"},
+   {"i": 5, "name": "positioning_score", "type": "&PositioningScoreData(2760B)", "note": "이 함수 안에선 읽지 않음 — get_input_target(44740) 에만 전달"},
+   {"i": 6, "name": "target", "type": "&Entity(1728B)", "note": "DI 이름 target(그리고 인라인 헬퍼의 self). 읽는 필드: +0x38 visible_state[team]@tag(44771~44773) · +0x68 ty@tag(is_tower, 44872) · +0x470 stat_buff_cached.radius_mult · +0x680 radius · +0x660 x · +0x668 y. CastingTarget::check·range_adjust·get_input_target 인자"}
+  ],
+  "returns": "sret 32B Option<Input>. 살아있는 바이트: None 경로 = +0 8B 만(+8..+0x20 미기록 undef) · Some(Attack) 경로 = +0 태그 2 + +8..+0x20 = get_input_target 이 %8(alloca 24B) 에 쓴 InputTarget 그대로(InputTarget 자체 태그 4B @+8, +0xc..+0x10 패딩은 get_input_target 이 안 썼으면 undef, Target 페이로드 +0x10 8B / Dir·Pos +0x10..+0x20 16B) · safe_move_avoiding_enemy_well 경로 = 그 콜리의 sret 규약(r13 명세) 그대로 전달(이 함수는 손대지 않음)",
+  "tls": [
+   {"name": "(직접 접점 없음)", "role": "함수 본문 44657~44931 grep: LocalKey/with/thread_local 0건 — TLS 를 직접 읽거나 쓰지 않는다", "key": "-", "layout": "-", "invalidation": "-", "call_conditions": "TLS 접점은 전부 콜리 내부. 호출 순서(미러 재현 시 유지): ①Entity::can_attack(44699, L150) ②CastingTarget::check(44726, L156) ③Entity::attack_speed_mult(44739, L160) ④get_input_target(44740, L160 — INTER_CTX/POS_EVAL_CACHE 등이 있다면 이 안) ⑤(input_target None 이고 대상 가시) Effect::range_adjust(44817, L170) → Game::adjust_position(44920, L181) → safe_move_avoiding_enemy_well(44925, L183) / (비가시) safe_move_avoiding_enemy_well(44786, L185). v47_siege_stance·v48_cast_beams·champion_hp_value·position_eval_at·interaction_score 심볼은 이 함수 IR 에 0건"}
+  ]
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L149 (44671~44672) player_champion 1차 인덱스 · bounds<2 아니면 panic_bounds_check(44677)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag (as_index)", "note": "L149 (44682~44684, entity.rs:581 인라인) player_champion 2차 인덱스(i32 zext)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache (&AbstractGameWithCache)", "note": "L149 (44685)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos] (Option<&Entity>, null=None)", "note": "L149 (44686~44691) `?` — None 이면 sret None(44703)"},
+  {"base": "Entity(champ)", "offset": "0x4c0", "name": "attack_effect@tag (casting@tag 4B, 니치 None=−1)", "note": "L154 (44716~44718) `champ.attack_effect.as_ref()?` — None 이면 sret None(44730)"},
+  {"base": "Entity(champ)", "offset": "0x490", "name": "attack_effect@Some.0 (&Effect 56B 시작)", "note": "L154 (44715) effect 포인터 = champ+0x490; range_adjust self(44817)·get_input_target 8번째 인자(44740)"},
+  {"base": "Entity(champ)", "offset": "0x4b8", "name": "attack_effect@Some.0.target (CastingTarget 4B)", "note": "L156 (44725~44726) CastingTarget::check(&effect.target, champ, target)"},
+  {"base": "Entity(champ)", "offset": "0x0", "name": "team@tag (TeamType: 0 Player / 1 Neutral)", "note": "L165 (44753~44755, entity.rs:1136 player_team 인라인) 태그 bit0=1(Neutral) 이면 is_visible_from = true 로 바로 가시 경로"},
+  {"base": "Entity(champ)", "offset": "0x8", "name": "team@Player.0 (팀 번호)", "note": "L165 (44762~44766, entity.rs:1137) bounds<2 아니면 panic(44778)"},
+  {"base": "Entity(target)", "offset": "0x38", "name": "visible_state[team]@tag (VisibleState: 0 Visible / 1 Invisible / 2 Unknown, stride 24)", "note": "L165 (44771~44775, data.rs:122 is_visible 인라인) 태그==0 이면 가시 경로(L166~), 아니면 L185"},
+  {"base": "Entity(target)", "offset": "0x660", "name": "x", "note": "L166 (44793) dx = champ.x − target.x · L179 기준점 · L185 safe_move 인자(44783)"},
+  {"base": "Entity(target)", "offset": "0x668", "name": "y", "note": "L167 (44798) · L180 · L185 (44785)"},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": "L166 (44791)"},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": "L167 (44797)"},
+  {"base": "Entity(champ)", "offset": "0x4a0", "name": "attack_effect@Some.0.range (Effect+0x10)", "note": "L170 (44807~44808, effect.rs:26 Effect::range 인라인)"},
+  {"base": "Entity(champ)", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range (Effect+0x18)", "note": "L170 (44809~44810) × (level−1)"},
+  {"base": "Entity(champ)", "offset": "0x5c8", "name": "level", "note": "L170 (44811~44813) level−1"},
+  {"base": "Entity(champ)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "L170 (44815~44816) Effect::range 합산 항"},
+  {"base": "Entity(champ)", "offset": "0x470", "name": "stat_buff_cached.radius_mult (i32)", "note": "L170 (44818~44821, entity.rs:1511~1515 radius 인라인) 0 이면 radius 그대로, 아니면 radius*(mult+100)/100"},
+  {"base": "Entity(champ)", "offset": "0x680", "name": "radius", "note": "L170 (44826·44833)"},
+  {"base": "Entity(target)", "offset": "0x470", "name": "stat_buff_cached.radius_mult (i32)", "note": "L170 (44841~44844) target.radius()"},
+  {"base": "Entity(target)", "offset": "0x680", "name": "radius", "note": "L170 (44849·44856)"},
+  {"base": "Entity(target)", "offset": "0x68", "name": "ty@tag (EntityType)", "note": "L173 (44872~44875, entity.rs:1386 is_tower 인라인) (tag & 14)==2 ⇔ tag∈{2 Tower, 3 Nexus}"},
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "L181 (44914~44915)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map (&MapDef 28112B)", "note": "L181 (44916~44917) adjust_position 1번째 인자"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting (&GameSetting 5432B)", "note": "L181 (44918~44919) adjust_position 2번째 인자"}
+ ],
+ "writes": [
+  {"base": "(sret) Option<Input>", "offset": "0x0", "name": "태그", "value": "−1(None: 44703 L149 champ None · 44710 L151 !can_attack · 44730 L154 attack_effect None · 44734 L157 casting_target 불일치) / 2(Attack: 44748 L163)", "note": "None 경로는 +0 8B 만 기록"},
+  {"base": "(sret) Option<Input>", "offset": "0x8", "name": "Attack.target (InputTarget 24B)", "value": "memcpy 24B ← %8 input_target(get_input_target 결과) (44746~44747 L162~163)", "note": "Some 경로에서만"},
+  {"base": "%8 (alloca 24B, 로컬 input_target: Option<InputTarget>)", "offset": "0x0", "name": "get_input_target sret", "value": "콜리가 채움(44740) · +0 i32 == −1 이면 None(44741~44742 L162)", "note": "Option<InputTarget> None 니치 = InputTarget 태그 4B −1(None variant 3 뒤 니치)"}
+ ],
+ "constants": [
+  {"value": 2, "src_line": 149, "meaning": "player_champion 1차 배열 길이 2(팀) bounds 검사(44673) · L165 team bounds(44766) · Input::Attack 메모리태그 2(44748, tcxdict --enum game_core::Input) · L173 is_tower 비교값 (tag&14)==2(44875)"},
+  {"value": -1, "src_line": 149, "meaning": "Option<Input>::None 니치 태그 u64::MAX (44703·44710·44730·44734) · attack_effect None 니치 i32 −1 @0x4c0 (44718) · Option<InputTarget>::None i32 −1 (44742) · level−1 의 add −1 (44813) · sdiv 오버플로 검사 sz==−1 (44886)"},
+  {"value": 14, "src_line": 173, "meaning": "is_tower 마스크 `ty@tag & 14 == 2` — EntityType 태그 2(Tower)·3(Nexus) 를 한 번에 잡는다(entity.rs:1386 인라인)"},
+  {"value": 2000, "src_line": 173, "meaning": "attack_margin — 대상이 타워/넥서스면 사거리에서 2000(0.0625셀) 만 빼고 접근"},
+  {"value": 15000, "src_line": 173, "meaning": "attack_margin — 대상이 구조물이 아니면 사거리에서 15000(≈0.47셀) 빼고 접근(사거리 끝에 걸치지 않도록 여유)"},
+  {"value": 100, "src_line": 170, "meaning": "Entity::radius 인라인(entity.rs:1515): radius*(radius_mult+100)/100 — 퍼센트 배율 (44834~44836·44857~44859)"},
+  {"value": -9223372036854775808, "src_line": 179, "meaning": "i64::MIN — sdiv 오버플로 패닉 검사 (44887·44898) 컴파일러 삽입, 판정 아님"}
+ ],
+ "calls": [
+  "game_core::simulation::entity::Entity::can_attack",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::simulation::entity::Entity::attack_speed_mult",
+  "game_ai::abstract_input::get_input_target",
+  "game_core::utils::isqrt",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::game::Game::adjust_position",
+  "game_ai::abstract_input::safe_move_avoiding_enemy_well",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "llvm.usub.sat.i64",
+  "llvm.memcpy.p0.p0.i64"
+ ],
+ "logic": "fn attack(version, rnd:&mut StdRng, player, data, positioning_score, target:&Entity) -> Option<Input>\nL149: let champ = data.cache.player_champion[player.info.team][player.info.position as usize]?   // 44671~44703; team>=2 → panic_bounds_check; None → return None\nL150: if !champ.can_attack() { return None }                                     // 44699~44710 (L151)\nL154: let effect = champ.attack_effect.as_ref()?                                 // 44716~44730: Entity+0x4c0 == −1 → None\nL156: if !effect.target.check(champ, target) { return None }                     // 44725~44734 (L157) CastingTarget::check(&effect.target(+0x4b8), caster=champ, target)\nL160: let input_target: Option<InputTarget> = get_input_target(version, rnd, player, data, positioning_score, target, effect, champ.attack_speed_mult())   // 44739~44740\nL162: if let Some(t) = input_target { return Some(Input::Attack(t)) }           // 44741~44748: 태그 2 + 24B memcpy\nL165: if target.is_visible_from(champ) {                                         // 44753~44775: champ.team Neutral → true; Player(t) → target.visible_state[t] == Visible(0)\nL166:   let dx = champ.x − target.x; L167: let dy = champ.y − target.y;         // 44790~44800 (i64)\nL168:   let sz = isqrt(dx*dx + dy*dy)                                            // 44802~44805\nL170:   let full_range = effect.range(champ) + effect.range_adjust(champ, target) + champ.radius() + target.radius()\n          // effect.range(champ) = effect.range(+0x4a0) + (champ.level−1)*growth_range(+0x4a8) + champ.stat_buff_cached.range(+0x438)   (effect.rs:26 인라인, 44807~44816·44864~44865)\n          // radius() = if radius_mult==0 { radius } else { radius*(radius_mult+100)/100 }   (entity.rs:1511~1515 인라인, 44818~44863)\n          // 합산 순서 IR: (stat.range + range) + (level−1)*growth + range_adjust + champ.radius + target.radius (44864~44868)\nL173:   let attack_margin = if target.is_tower() { 2000 } else { 15000 }        // 44872~44876: (ty@tag & 14)==2\nL178:   let from_distance = full_range.saturating_sub(attack_margin)            // 44879\nL179:   let x = target.x + from_distance*dx / sz   (sdiv; sz==0 → panic div_by_zero)   // 44881~44909\nL180:   let y = target.y + from_distance*dy / sz                                 // 44897~44912\nL181:   let (x, y) = Game::adjust_position(data.context.map, data.context.setting, x, y)   // 44914~44922\nL183:   return safe_move_avoiding_enemy_well(version, player, data, champ, x, y)   // 44925 (sret 직접 전달)\nL185: } else { return safe_move_avoiding_enemy_well(version, player, data, champ, target.x, target.y) }   // 44782~44786\nL188: 끝",
+ "knobs": [
+  {"what": "구조물 대상 접근 여유(attack_margin)", "where": "abstract_input.rs:173 (m04.ll:44876 select 2000)", "value": 2000, "effect": "올리면 타워/넥서스에 더 깊이(사거리 안쪽으로) 붙어 서고, 내리면 사거리 끝에서 멈춘다 — 경로 오차로 사거리 밖에 서는 빈도가 는다"},
+  {"what": "비구조물 대상 접근 여유(attack_margin)", "where": "abstract_input.rs:173 (m04.ll:44876 select 15000)", "value": 15000, "effect": "올리면 챔피언/미니언 대상에 더 가까이 붙어 평타 접근 지점을 잡고(피격 위험↑·이동 시간↑), 내리면 사거리 끝 지점을 목표로 삼는다"}
+ ],
+ "unknown": [
+  "get_input_target 이 None 을 돌려주는 조건(사거리 밖 · 회피 등)은 그 명세(r15) 소관 — 이 함수는 결과만 소비한다",
+  "safe_move_avoiding_enemy_well 의 sret 내용(Move/None 등)은 r13 명세 소관 — 이 함수는 sret 를 그대로 넘긴다",
+  "Effect::range_adjust(effect, champ, target)·CastingTarget::check·Entity::can_attack·attack_speed_mult·Game::adjust_position 내부는 game_core 경계 — 시그니처만 확인(_gcbc g06.ll:51785·86744·63321·66878 / g15.ll:72245)",
+  "L173 `is_tower()` 가 Nexus(태그 3)를 포함하는 것은 마스크 14 로 확정. 소스가 `matches!(ty, Tower|Nexus)` 인지 별도 헬퍼인지는 표기 불가(외연 동일)"
+ ]
+}

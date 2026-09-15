@@ -1,0 +1,748 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan4hideNtB2_11HideSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\hide.rs",
+ "src_line": 19,
+ "ir_file": "m02.ll",
+ "ir_from": 20312,
+ "ir_to": 25343,
+ "aux": [
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 7684,
+   "ir_to": 7947,
+   "what": "Map<Filter<FilterMap<Iter<Option<&Entity>>,iter_champions0>,closure$3>,min_by_key::key<closure$4>>::fold<min_by::fold<compare>> — L61~63 nearest_enemy 의 필터(closure$3: blackboard[1-player.team].is_recent_visible(game,player,e) && e.distance_sq(bush_pos)<250000²+1)·키(closure$4: e.distance_sq(champ))·min_by(Ord::cmp, 동점이면 앞 원소 유지) 인라인 본체. 본체 m02.ll:21511 에서 (첫 원소 key, 첫 원소) 를 init 으로 호출"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 12641,
+   "ir_to": 12849,
+   "note": "hide.rs:110 min_by_key 의 잔여 원소 fold(closure$7 필터 + closure$8 키 + min_by 비교). 첫 원소 탐색은 본체 %244~%328 에 인라인, 2번째 이후는 이 define 이 돈다"
+  }
+ ],
+ "one_line": "[배치 L · hide.rs:0~101] Hide 서브플랜 행동 후보 루트: 적 시야 노출 갱신 → check_move 전엔 부시 위치 기준 Morgard/Serpen 캠프로 이동(AroundPosition) → check_move 후엔 부시 근처 최근접 적을 찾아 노출 시 아군/적 수·1v1 판정으로 전투(battle_action+Trace)/도주(RunAway), 비노출 시 부시 대기(AroundBush)+정글 스틸(Attack/Skill/Skill2). 배치 M(103~139) = check_move 거짓 분기·enemy_spotted_me 분기·반환",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "bumpalo Vec<SmallActionPlay> 32B",
+    "note": "ptr@0 · bump@+8 · cap@+0x10 · len@+0x18. 본 배치는 지역 res(%46, L20 m02.ll:20383~20389 Vec::new_in(bump)) 에 push/extend 만 하고, sret 로의 memcpy 는 L136/139(배치 M) 에서 | (배치 M) ptr@0 · bump@+0x8 · cap@+0x10 · len@+0x18. 지역 alloca %46 을 만들어 채운 뒤 hide.rs:138 에서 32B memcpy 로 반환(IR 25340). 원소 184B · 태그 @+0xb1(니치, untagged=AroundPosition) — tcxdict --enum SmallActionPlay"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut HideSubPlan(16B)",
+    "note": "IR 속성 `noalias captures(none) dereferenceable(16)` — readonly 없음 = &mut. initializes 속성 없음(쓰기가 전부 조건부). 필드: +0 bush(usize) · +8 out_line(AroundBushOutlineType 1B) · +9 check_move(bool) · +0xa enemy_spotted_me(bool). 본 배치 쓰기 = +0xa(L27=1, L30=0) · +9(L45/L52=1) — writes 참조 | (배치 M) IR 속성 noalias·비-readonly = &mut. 배치 M 범위에서는 **읽기만**(+0x9 check_move, IR 23986). self 쓰기(check_move=1 @L45·L52, enemy_spotted_me @L27·L30)는 전부 배치 L 범위"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "전 함수에서 분기 없음 — battle_action 1번째 인자로만 전달(본 배치 L80 m02.ll:23732 · L87 23790; 배치 M 에 3곳 더). grep `%2` 전수 = 5 호출뿐 | (배치 M) 배치 M 범위에선 분기 없음. battle_action 1번 인자로 그대로 전달(IR 25182·25240·25317)"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "L43/L50 AroundPosition::new_with_out_line · L96 AroundBush::new_with_out_line · L76 can1v1win · L80/L87 battle_action 에 그대로 전달. 이 함수 본체가 직접 읽지 않음 | (배치 M) can1v1win 1번 인자 · battle_action 2번 인자로 전달만"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "+0x930 info.team(L22) · +0x9c0 info.position@tag(L22, i32) 읽음. L61 클로저 캡처(is_recent_visible player 인자) · L84/L91 RunAway::new_with_skill · L96 AroundBush::new_with_out_line(_player) · can1v1win · battle_action 전달 | (배치 M) readonly. can1v1win/battle_action/attack_summon_action/new_with_skill 에 전달"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0 cache(&AbstractGameWithCache) · +8 context(&GameContext; +0 pool=bump, +8 setting, +0x20 map) · +0x10 blackboard(&[Blackboard;2]) | (배치 M) readonly. +0 cache(&AbstractGameWithCache) 로 player_champion 순회 · 콜리 전달"
+   },
+   {
+    "i": 6,
+    "name": "_parameter",
+    "type": "&ScoreParameter(5384B)",
+    "note": "DI 이름 `_parameter`. 전 함수에서 미사용(define 줄 외 `%6` 출현 0) — 시그니처만 채움 | (배치 M) readonly. 배치 M 범위 미사용"
+   },
+   {
+    "i": 7,
+    "name": "_debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "DI 이름 `_debug`. IR 속성 readnone = 전 함수에서 읽지 않음(정정: tcx 시그니처는 `&mut DebugFrameData`, 이 함수엔 %8 없음 — 인자 8개 %0~%7) | (배치 M) readnone. 미사용"
+   }
+  ],
+  "returns": "sret 32B bumpalo Vec<SmallActionPlay>(ptr·bump·cap·len 4슬롯 전부 live) — 채움은 배치 M(L136/139). 원소 184B · 태그 @+0xb1(1B · 니치: untagged=AroundPosition, niche_start=3, 태그=3+idx). 본 배치가 push 하는 variant 와 살아있는 바이트: ①AroundPosition(태그 없음, +0xb1=outline_type 0..2 가 곧 니치 비태그값) = new_with_out_line sret 184B 통째(L43/L50) ②AroundBush(태그 12) = sret 120B 를 슬롯 [0,0x78) 에 memcpy, +0x70 out_line, [0x71,0x78)·[0x78,0xb1)·[0xb2,0xb8) undef(alloca 잔재), +0xb1=12 (L94/L96) ③Trace(태그 14) = 인라인 생성 [0,8) explicit_min_range=None(0) · +0x55 path_finder@tag=2(None) · [0x58,0x96) start_tick/target/goal_x/goal_y/margin 15000/end_delay 5/escape_commit_until 0/bool×5=0/last_escape=2(None) · [8,0x55)·[0x56,0x58)·[0x96,0xb1) undef · +0xb1=14 (L81) ④RunAway(태그 3) = new_with_skill sret 136B initializes((0,56),(125,126),(128,132)) → [0,0x38)·+0x7d path_finder@tag·[0x80,0x84) bool×4 live, 나머지 [0x38,0x7d)·[0x7e,0x80)·[0x84,0xb1) undef · +0xb1=3 (L84/L91) ⑤Attack(15)/Skill(16)/Skill2(17) = sret 24B initializes((0,17)) → [0,0x11) start_tick·target·is_act live, [0x11,0xb1) undef, +0xb1=태그 (steal_jungle_action L180/L195/L211, 별도 Vec 에 push 후 L101 extend). 그 밖에 L80/L87 battle_action 결과 Vec 를 extend(원소 구성은 battle_action 명세)",
+  "tls": [],
+  "tls_note": "본 배치 범위(hide.rs:0~101 루트 IR 2,986줄 + aux fold)에 `LocalKey::with`/thread_local 접점 0건(grep 0). v47_siege_stance·v48_cast_beams·champion_hp_value·position_eval_at·interaction_score 어느 것도 이 함수 본체에서 직접 호출되지 않음 — TLS 는 콜리 내부(can1v1win m04.ll:54936 · battle_action m15.ll:23700 · expected_damage_target g06.ll:52355 등)의 몫이며 호출 순서는 logic 의 분기 순서 그대로(L76 can1v1win → L80/L87 battle_action; L173/189/205 expected_damage_target 은 정글 루프 안 순서)"
+ },
+ "reads": [
+  {
+   "base": "HideSubPlan(self)",
+   "offset": "0x0",
+   "name": "bush",
+   "note": "L35(m02.ll:20504)·L58(20838)·L147(21684) BUSH_POSITIONS 검색 키 `map.bushes[y][x] == self.bush` · L94(21531)/L96(21527) AroundBush 생성자 bush 인자"
+  },
+  {
+   "base": "HideSubPlan(self)",
+   "offset": "0x8",
+   "name": "out_line(AroundBushOutlineType)",
+   "note": "L94(21542)/L96(21551) AroundBush 생성자 out_line 인자로 그대로 전달(i8 0 None/1 Outline/2 Inline)"
+  },
+  {
+   "base": "HideSubPlan(self)",
+   "offset": "0x9",
+   "name": "check_move",
+   "note": "L28(20455) · L34(20467) · L57(20578/20583/20591) 분기"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L22(20390) team; 배열 인덱스 <2 검사(20393) · enemy_team = 1-team(20433) · camp_pos blue_side = team==0(20622)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag(i32→usize)",
+   "note": "L22(20411~20412) player_champion 두번째 인덱스"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache(&AbstractGameWithCache)",
+   "note": "L22(20413)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context(&GameContext)",
+   "note": "L20(20378~20379) · L39(20615) setting · L35/L58/L147(20477/20811/21660) map"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard(&[Blackboard;2])",
+   "note": "L61(21314~21315) → [enemy_team](21387 gepS) is_recent_visible self 인자; aux 안에선 [1-player.info.team] 로 재계산+bounds check(m12.ll:7808~7815)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool(&Bump)",
+   "note": "L20(20381) res=Vec::new_in(bump) · L143(21632) steal res"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting(&GameSetting)",
+   "note": "L39(20615~20616) is_top_side 인라인"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map(&MapDef)",
+   "note": "L35/L58/L147 bushes 조회 · L40/L48 camp_pos self"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "L39(20617~20618) is_top_side: ry = height − by"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x1c98",
+   "name": "bushes[30][30](usize)",
+   "note": "L35(20503,20569~20571)/L58(20837,20903~20905)/L147(21683,21749~21751) bushes[y][x] == self.bush (x,y 각각 <30 bounds check → panic_bounds_check)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr(&dyn AbstractGame)",
+   "note": "L23(20430) is_visible self · L61 캡처(21342) · L81(23823) get_entity_by_id/tick self"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "L23(20432,20440 슬롯+0xf8 is_visible) · L81(23824~23826 슬롯+0x1f0 get_entity_by_id · 23833 슬롯+0x28 tick)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5](Option<&Entity>, 40B stride)",
+   "note": "L22(20420~20423) [team][pos] → champ(unwrap, None 이면 option.rs:1013 unwrap_failed 20446) · L60(21306) [enemy_team] 5칸 슬라이스 · L70(22596) [team] · L73(22978) [enemy_team]"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xd0",
+   "name": "jungles.buf.ptr(Vec<&Entity>)",
+   "note": "L156(21821~21822) 정글 엔티티 순회 시작"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xe8",
+   "name": "jungles.len",
+   "note": "L156(21824~21825) 순회 끝 = ptr + len*8"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "champ: L23(20438) is_visible 인자 · L69(22591,22612~22615 e.id != champ.id) · enemy: L81(23814) Trace target · jungle: L180/L195/L211(22050/22246/22446) Attack/Skill/Skill2 target | (배치 M) L114 `x.id != champ.id`(자기 제외). champ.id 는 %75(배치 L gep) 를 %1433 에서 재로드(IR 24042), x.id = gep+1472 (IR 24063)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "distance_sq 인라인(entity.rs:2158): champ L42/L49/L63/L69/L72/L150/L175/L191/L207 · 적 L62 · 정글 L163 · target_entity L81(23845) | (배치 M) distance_sq(utils.rs:2158 인라인): |x1-x2|²+|y1-y2|². champ.x=%336(IR 21260) · 각 x 의 x(IR 21252 등)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "위와 짝 | (배치 M) 위와 짝. champ.y=%338(IR 21264)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag(TeamType: 0 Player/1 Neutral)",
+   "note": "L72(22959~22961) is_visible_from(champ) 인라인: Neutral 이면 항상 가시(1043 경로), Player 면 visible_state[team]"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0(usize)",
+   "note": "L72(22962~22964, 23271 <2 bounds → panic 23651) visible_state 인덱스"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x38",
+   "name": "visible_state[2]@tag(24B stride; 0=Visible)",
+   "note": "L72(23309~23312) 적 e.visible_state[champ.team]@tag == 0 이어야 nearby_enemies 에 셈"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag(EntityType)",
+   "note": "L158(21879~21881) ==4 Jungle (is_jungle 인라인 entity.rs:1378)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x98",
+   "name": "ty@Jungle.info.camp_type.0(usize)",
+   "note": "L158(21885~21887) == enemy_team — 적 진영 캠프인 정글만 스틸 대상"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "L168(21916) champ; max_dist 가산 move_speed*20 (L176/192/208)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "jungle: L179(22040)/L194(22236)/L210(22436) hp <= expected_dmg"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "champ: Effect::range 인라인(effect.rs:26) (level−1)*growth_range L174/190/206(21949,22145,22315) · L203(22315~22317) skill2_effect(): level>2 여야 Some"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "champ: Effect::range 인라인 가산 L174/190/206(21950/22146/22346)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult(i32)",
+   "note": "Entity::radius 인라인(entity.rs:1511~1515) champ(21958)/jungle(21981) L174·190·206"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "Entity::radius 인라인 champ(21964/21970)·jungle(21987/21995)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0(Effect 56B)",
+   "note": "L172~174(21939 atk=champ+0x490) expected_damage_target/range_adjust self · +0x4a0 range · +0x4a8 growth_range 읽음(21947~21948)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag(i32 니치; -1=None)",
+   "note": "L172(21934~21936) != -1 이어야 공격 후보"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0(Effect)",
+   "note": "L187~190(22127 skill=champ+0x4c8; +0x4d8 range 22143 · +0x4e0 growth 22144)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f0",
+   "name": "skill_effect@Some.0.target(CastingTarget)",
+   "note": "L188(22130) CastingTarget::check(&skill.target, champ, jungle)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag(i32; -1=None)",
+   "note": "L187(22122~22124)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0(Effect)",
+   "note": "L203(22317 select: level>2 ? &champ.skill2_effect : &NONE(@anon.19, tag -1)) · +0x510 range/+0x518 growth = skill2+16/+24(22342~22345) · +0x528 target = +40(22327) · +0x530 tag = +48(22319~22321)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "[enemy_team] (744B stride)",
+   "note": "L61(21387) is_recent_visible self = data.blackboard[1-team]"
+  },
+  {
+   "base": "HideSubPlan",
+   "offset": "0x9",
+   "name": "check_move",
+   "note": "hide.rs:107 두 번째 조건. %1424 (IR 23986) 에서 재로드 — 배치 L(L45·L52) 에서 1 로 바뀔 수 있어서. 값 1 이면 108~133 전체 건너뜀"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5] (Option<&Entity>, 니치 null=None)",
+   "note": "base gep(+480) 는 배치 L(L22, IR 20420). 배치 M 은 행 인덱싱만: %245=[1-team] (L108, IR 20915) · %66=[team] (L22 정의, L115 에서 사용). 5슬롯 순회 · null 슬롯 skip"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag (TeamType: 0=Player,1=Neutral)",
+   "note": "champ(%68) 의 팀 태그. is_visible_from 인라인(entity.rs:1136 player_team): Neutral 이면 무조건 가시. IR 20992(L110) · 24410(L118 언스위치 freeze)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0 (usize)",
+   "note": "champ 의 팀 번호 t. t<2 bounds 검사(panic_bounds_check) 뒤 visible_state[t] 인덱스. IR 20998 · 24413"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x38",
+   "name": "visible_state[t]@tag (stride 24B: {i64,[2 x i64]})",
+   "note": "적 x 의 visible_state[t].tag == 0(Visible) 이면 가시(data.rs:122 is_visible). IR 21013~21016(L110) · 24759~24762(L118)"
+  },
+  {
+   "base": "bumpalo Vec<SmallActionPlay> (콜리 반환 32B)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "battle_action/attack_summon_action 반환 Vec 의 +0 ptr · +0x18 len 을 읽어 extend(IR 25244~25247 · 25255~25258 · 25321~25324 · 25332~25335)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "HideSubPlan(self)",
+   "offset": "0xa",
+   "name": "enemy_spotted_me",
+   "value": "1 (L27 m02.ll:20465) / 0 (L30 m02.ll:20589)",
+   "note": "L26 is_visible_to_enemy 참이면 true; 거짓이고 self.check_move 참이면 false; 거짓이고 check_move 거짓이면 손대지 않음. 배치 M(L107~)이 이 값을 읽는지는 그쪽 명세"
+  },
+  {
+   "base": "HideSubPlan(self)",
+   "offset": "0x9",
+   "name": "check_move",
+   "value": "1 (L45 m02.ll:20751 · L52 m02.ll:20667)",
+   "note": "check_move 가 거짓일 때만 도달(L34) — 챔피언이 목표 캠프 위치 반경 100000 안에 들어오면 true 로 전환. 이후 L57 분기는 같은 틱에 갱신값(%95 재로드 20578)을 본다"
+  },
+  {
+   "base": "res(%46 지역 Vec)",
+   "offset": "0x0",
+   "name": "Vec::new_in(bump) 32B 초기화",
+   "value": "ptr=8(dangling)·bump·cap=0·len=0",
+   "note": "L20 m02.ll:20383~20389"
+  },
+  {
+   "base": "res(%46)",
+   "offset": "0x0 -> 원소[len]",
+   "name": "push AroundPosition(태그 없음)",
+   "value": "SmallActionAroundPosition::new_with_out_line(rnd, data, ex, ey, end_delay=5, outline_type=1 Outline)",
+   "note": "L43(m02.ll:20757 생성 · 20795~20797 push) Morgard 경로 / L50(20673 · 20711~20713) Serpen 경로. 184B 통째 memcpy, +0xb1 별도 store 없음(=untagged)"
+  },
+  {
+   "base": "res(%46)",
+   "offset": "0x0 -> 원소[len]",
+   "name": "push AroundBush(태그 12)",
+   "value": "L94: SmallActionAroundBush::new_with_target(data, nearest_enemy, self.bush, self.out_line) / L96: ::new_with_out_line(rnd, data, player, self.bush, self.out_line)",
+   "note": "L94 m02.ll:21543 생성·21558 태그·21602~21604 push / L96 21552·22506·22550~22552"
+  },
+  {
+   "base": "res(%46)",
+   "offset": "0x0 -> 원소[len]",
+   "name": "push Trace(태그 14)",
+   "value": "SmallActionTrace::new(data, target=enemy.id, end_delay=5) 인라인(trace.rs:43~48)",
+   "note": "L81 m02.ll:23861~23881 필드 store(+0=0 · +0x55=2 · +0x58 tick · +0x60 target · +0x68/+0x70 target_entity.x/y 또는 0,0 · +0x78 15000 · +0x80 5 · +0x88 0 · [0x90,0x95) 0 · +0x95 2 · +0xb1 14) · 23924~23926 push. can_fight 경로에서 battle_action extend 뒤에 push"
+  },
+  {
+   "base": "res(%46)",
+   "offset": "0x0 -> 원소[len]",
+   "name": "push RunAway(태그 3)",
+   "value": "SmallActionRunAway::new_with_skill(data, player, end_delay=5, with_skill=false)",
+   "note": "L84 m02.ll:23723 생성·23738 태그·23782~23784 push(!can_fight) / L91 22970·23933·23977~23979 push(노출됐는데 nearest_enemy 없음)"
+  },
+  {
+   "base": "res(%46)",
+   "offset": "0x0 -> 원소[len..]",
+   "name": "extend(battle_action(version, rnd, player, data, 5))",
+   "value": "Vec<SmallActionPlay> 통째 append(ptr,len)",
+   "note": "L80 m02.ll:23732 호출·23808 extend(can_fight) / L87 23790·23797(!can_fight && !dominated)"
+  },
+  {
+   "base": "res(%46)",
+   "offset": "0x0 -> 원소[len..]",
+   "name": "extend(steal_jungle_action 결과 %16)",
+   "value": "Attack(15)/Skill(16)/Skill2(17) 0~3×정글 수",
+   "note": "L101 m02.ll:23992 Extend::extend(res, steal.ptr, steal.len). 비노출(L93) 경로 전용"
+  },
+  {
+   "base": "steal res(%16 지역 Vec, steal_jungle_action 인라인)",
+   "offset": "0x0 -> 원소[len]",
+   "name": "push Attack(15)/Skill(16)/Skill2(17)",
+   "value": "SmallActionAttack::new(data, jungle.id) / SmallActionSkill::new(data, jungle.id) / SmallActionSkill2::new(data, jungle.id)",
+   "note": "L180 m02.ll:22052·22057·22103~22105 / L195 22248·22253·22298~22300 / L211 22448·22453·22497~22499. sret 24B → 184B 슬롯 memcpy 후 태그 store(+0xb1=177)"
+  },
+  {
+   "base": "res(%46)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "+1 per push",
+   "note": "push 마다 m02.ll:20713/20797/21604/22552/23784/23926/23979 store"
+  },
+  {
+   "base": "res (지역 bumpalo Vec %46 → sret %0)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "+1 per push",
+   "note": "RunAway push 2곳: L126(IR 25232~25234) · L132(IR 25312~25314). len==cap 이면 reserve_internal_or_panic(res, len, 1, true) 먼저(IR 25211 · 25291). 원소 184B memcpy → ptr[len]. extend 4곳(L124·128·133·136) 은 콜리 내부에서 len 갱신"
+  },
+  {
+   "base": "SmallActionPlay (push 원소 alloca %25/%22)",
+   "offset": "0xb1",
+   "name": "tag",
+   "value": "3 (=RunAway)",
+   "note": "new_with_skill sret 136B 를 memcpy 후 `store i8 3` @+177 (IR 25188 · 25268)"
+  },
+  {
+   "base": "(sret) %0",
+   "offset": "0x0",
+   "name": "Vec 32B",
+   "value": "memcpy(res)",
+   "note": "hide.rs:138 (IR 25340). 배치 M 범위에는 self(%1) 쓰기 없음"
+  }
+ ],
+ "constants": [
+  {
+   "value": 248,
+   "src_line": 23,
+   "meaning": "AbstractGame vtable 슬롯 +0xf8 = is_visible(team, id) (divtable). is_visible_to_enemy = game.is_visible(enemy_team, champ.id)"
+  },
+  {
+   "value": 71,
+   "src_line": 35,
+   "meaning": "game_core::BUSH_POSITIONS 길이(BUSH_NONZERO_COUNT, path_finder.rs:77/100) — 71개 (x,y) 부시 셀 상수 배열이 @anon.148(1136B) 로 인라인돼 L35/L58/L147 세 번 스택 복사(memcpy 20484/20818/21664)"
+  },
+  {
+   "value": 30,
+   "src_line": 35,
+   "meaning": "MapDef.bushes[30][30] 그리드 폭 — x,y 각각 <30 bounds check(20547/20551 · 20881/20885 · 21727/21731). 임계 아님"
+  },
+  {
+   "value": 32000,
+   "src_line": 37,
+   "meaning": "셀→월드 변환(셀 폭). L37 bx=x*32000+16000 / L59 / L149(steal 안 closure#1)"
+  },
+  {
+   "value": 16000,
+   "src_line": 37,
+   "meaning": "셀 중심 오프셋. L37 by 는 -32000*y-16000 형태로 접혀 height 뺄셈에 흡수(20611~20612)"
+  },
+  {
+   "value": 4,
+   "src_line": 40,
+   "meaning": "JungleType::Morgard 메모리태그 4 (tcxdict --enum JungleType) — is_top_side 참일 때 camp_pos(map, Morgard, team==0) (20630). 또 L158 EntityType::Jungle 태그 4 (21881)"
+  },
+  {
+   "value": 5,
+   "src_line": 48,
+   "meaning": "JungleType::Serpen 태그 5 — is_top_side 거짓일 때 camp_pos(map, Serpen, team==0) (20626). 또 end_delay=5: L43/L50 AroundPosition · L80/L87 battle_action 5번째 인자 · L81 Trace · L84/L91 RunAway"
+  },
+  {
+   "value": 10000000000,
+   "src_line": 42,
+   "meaning": "100000² — champ↔캠프 위치 거리²가 이보다 크면(>) AroundPosition 으로 이동, 아니면 check_move=true (L42 20747 / L49 20663)"
+  },
+  {
+   "value": 1,
+   "src_line": 43,
+   "meaning": "AroundBushOutlineType::Outline(1) — AroundPosition::new_with_out_line 6번째 인자 i8 1 (20673/20757). 또 enemy_spotted_me/check_move 에 store 하는 true"
+  },
+  {
+   "value": 62500000001,
+   "src_line": 62,
+   "meaning": "250000²+1 — 부시 월드 좌표↔적 챔피언 거리² < 이 값(= ≤250000, 약 7.8셀) 이어야 nearest_enemy 후보 (21457 · aux m12.ll:7866)"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 69,
+   "meaning": "150000²+1 — L69 아군 수(자기 제외)·L72 적 수(is_visible_from 조건) 세는 반경 dist² < 이 값(≤150000, 약 4.7셀) (22645 등 unrolled 10곳)"
+  },
+  {
+   "value": 22500000000,
+   "src_line": 163,
+   "meaning": "steal_range²(150000² · L143 `steal_range = 150000` dbg_value) — 정글↔부시 위치 거리² > 이 값이면 스틸 대상 제외 (21912)"
+  },
+  {
+   "value": 150000,
+   "src_line": 143,
+   "meaning": "steal_range (dbg_value 로만 남음 · 산술은 22500000000 으로 접힘). 부시 위치 기준 스틸 탐색 반경"
+  },
+  {
+   "value": 12,
+   "src_line": 94,
+   "meaning": "SmallActionPlay::AroundBush 메모리태그 12 (21558 / L96 22506)"
+  },
+  {
+   "value": 14,
+   "src_line": 81,
+   "meaning": "SmallActionPlay::Trace 메모리태그 14 (23881)"
+  },
+  {
+   "value": 15000,
+   "src_line": 81,
+   "meaning": "SmallActionTrace.attack_range_margin 초기값(trace.rs:new 인라인, 23873)"
+  },
+  {
+   "value": 2,
+   "src_line": 81,
+   "meaning": "Option<PathFinder>::None 니치 태그(+0x55=23863) · Option<bool> last_escape None(+0x95=23879) — Trace::new 인라인. 또 L203 `level > 2` (22316) skill2_effect() 게이트 · L72 team<2 bounds"
+  },
+  {
+   "value": 3,
+   "src_line": 84,
+   "meaning": "SmallActionPlay::RunAway 메모리태그 3 (23738 / L91 23933)"
+  },
+  {
+   "value": 496,
+   "src_line": 81,
+   "meaning": "AbstractGame vtable 슬롯 +0x1f0 = get_entity_by_id(id)→Option<&Entity> (23825) — Trace goal_x/goal_y 용"
+  },
+  {
+   "value": 40,
+   "src_line": 81,
+   "meaning": "AbstractGame vtable 슬롯 +0x28 = tick() (23833) — Trace.start_tick. (또 player_champion 행 stride 40B, 정글 iter 등은 stride)"
+  },
+  {
+   "value": 15,
+   "src_line": 180,
+   "meaning": "SmallActionPlay::Attack 메모리태그 15 (22057)"
+  },
+  {
+   "value": 16,
+   "src_line": 195,
+   "meaning": "SmallActionPlay::Skill 메모리태그 16 (22253)"
+  },
+  {
+   "value": 17,
+   "src_line": 211,
+   "meaning": "SmallActionPlay::Skill2 메모리태그 17 (22453)"
+  },
+  {
+   "value": -1,
+   "src_line": 172,
+   "meaning": "Option<Effect> None 니치(i32 casting@tag -1): attack_effect +0x4c0(21935) · skill_effect +0x4f8(22123) · skill2 +0x530(22321 · @anon.19 NONE 상수도 -1)"
+  },
+  {
+   "value": 20,
+   "src_line": 176,
+   "meaning": "max_dist = 사거리합 + move_speed*20 — 20틱 이동 여유(22031 / L192 22227 / L208 22427)"
+  },
+  {
+   "value": 100,
+   "src_line": 174,
+   "meaning": "Entity::radius 인라인(entity.rs:1515): radius*(100+radius_mult)/100 (mult==0 이면 radius 그대로 1513) — champ·jungle 양쪽 L174/190/206"
+  },
+  {
+   "value": 0,
+   "src_line": 30,
+   "meaning": "self.enemy_spotted_me=false store(20589) · L22/L39 team==0(20622 blue_side) · L72 visible_state@tag==0 Visible(23312) · L81 goal 기본 (0,0)"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 114,
+   "meaning": "150000²+1 — `dist² < 150000²+1` ⟺ dist² ≤ 150000² (4.6875셀). L114 아군 근접 판정(IR 24096 등 5회) 과 L117 적 근접 판정(IR 24473 등 10회) 이 같은 값. 원소는 icmp ult 로 나오니 소스는 `<= 150000*150000` 또는 `< …+1` 중 하나(표기 불가·동작 확정)"
+  },
+  {
+   "value": 5,
+   "src_line": 126,
+   "meaning": "end_delay=5 — SmallActionRunAway::new_with_skill(data, player, end_delay=5, with_skill=false) 의 3번 인자(L126 IR 25173 · L132 IR 24420) 및 battle_action(version, rnd, player, data, _end_delay=5) 의 5번 인자(L124·128·133). 콜리 DI 변수명으로 확인(new_with_skill %3=end_delay · battle_action %5=_end_delay)"
+  },
+  {
+   "value": 3,
+   "src_line": 126,
+   "meaning": "SmallActionPlay::RunAway 메모리 태그(니치: idx0 → 3). `store i8 3` @+0xb1 (IR 25188 · 25268)"
+  }
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::small_action::around::SmallActionAroundPosition::new_with_out_line",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic",
+  "core::ptr::drop_glue",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::iter::adapters::map::Map::fold",
+  "game_ai::small_action::around::SmallActionAroundBush::new_with_target",
+  "game_ai::small_action::around::SmallActionAroundBush::new_with_out_line",
+  "game_ai::utils::can1v1win",
+  "game_ai::fight_check::battle_action",
+  "core::iter::traits::collect::Extend::extend",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "game_core::simulation::entity::Entity::can_attack",
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::entity::Entity::can_skill2",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_ai::small_action::cast::SmallActionAttack::new",
+  "game_ai::small_action::cast::SmallActionSkill::new",
+  "game_ai::small_action::cast::SmallActionSkill2::new",
+  "core::ops::function::FnOnce::call_once",
+  "game_ai::fight_check::attack_summon_action",
+  "bumpalo::collections::vec::reserve_internal_or_panic"
+ ],
+ "calls_note": "vtable 간접호출(calls 에 못 넣음): L23 game.is_visible(슬롯+0xf8, 20442) · L81 game.get_entity_by_id(슬롯+0x1f0, 23827) · game.tick(슬롯+0x28, 23835). 인라인돼 call 이 없는 것: is_top_side(map_regions.rs:21) · Entity::distance_sq(entity.rs:2157) · Entity::radius(1509) · Effect::range(effect.rs:25) · EntityType::is_jungle(1377) · Entity::is_visible_from(1481) · Entity::skill2_effect(1692) · SmallActionTrace::new(trace.rs:43) · HideSubPlan::steal_jungle_action(hide.rs:142, private · define 없음) · bumpalo Vec::new_in/push. FnOnce::call_once 는 aux fold 안 min_by 의 Ord::cmp 호출(m12.ll:7920)",
+ "logic": "// hide.rs:0~101 (배치 L)\n// 진입: 함수 머리. 인자 = (&mut self HideSubPlan16B, version, rnd, player, data, _parameter, _debug) -> Vec<SmallActionPlay>\n\n// L20  res = Vec::new_in(data.context.pool)                                   // m02.ll:20378~20389\n// L22  team = player.info.team(+0x930); assert team<2 (panic_bounds_check 20397)\n//      champ = data.cache.player_champion[team][player.info.position@tag(+0x9c0)].unwrap()   // 20410~20423 · None→unwrap_failed 20446\n// L23  is_visible_to_enemy = game.is_visible(enemy_team=1-team, champ.id)      // vtable+0xf8 · 20430~20442\n// L26  if is_visible_to_enemy {\n// L27      self.enemy_spotted_me = true;                                       // store i8 1 → self+0xa 20465\n//      } else if self.check_move {                                             // 20455~20457 (표기: `else if` 인지 `else { if }` 인지 표기 불가 — 블록 구조는 이와 동치)\n// L30      self.enemy_spotted_me = false;                                      // 20589\n//      }\n// L34  if !self.check_move {                                                   // 20467~20470 / 20457\n// L35      let (x,y) = BUSH_POSITIONS.into_iter().filter(|&(x,y)| map.bushes[y][x] == self.bush).next().unwrap();\n//                 // map = data.context.map(+0x20) · bushes @MapDef+0x1c98 [y][x] · 71개 상수 셀 @anon.148 · unwrap 실패 20597\n// L37      bx = x*32000+16000; by = y*32000+16000;                             // 20607~20612 (by 는 −(…) 로 접힘)\n// L39      if is_top_side(context, bx, by) {   // = (setting.height(+0x12c0) − by) >= bx (MIR map_regions.rs:22~24) · IR %147 = !is_top (20621) → 149(L48) / 151(L40)\n// L40          (ex,ey) = map.camp_pos(JungleType::Morgard(4), blue_side = team==0)   // 20630\n// L42          if champ.distance_sq(ex,ey) > 100000² {                         // 20726~20747 (dx,dy=|Δ| · dx²+dy² ugt 10000000000)\n// L43              res.push(AroundPosition(SmallActionAroundPosition::new_with_out_line(rnd, data, ex, ey, 5, Outline(1))))   // 20757 · push 20778~20797\n//              } else {\n// L45              self.check_move = true;                                     // 20751\n//              }\n// L48      } else {\n//              (ex,ey) = map.camp_pos(JungleType::Serpen(5), team==0)          // 20626\n// L49          if champ.distance_sq(ex,ey) > 100000² {                         // 20642~20663\n// L50              res.push(AroundPosition(new_with_out_line(rnd, data, ex, ey, 5, Outline)))   // 20673 · 20694~20713\n//              } else {\n// L52              self.check_move = true;                                     // 20667\n//              }\n//          }\n//      }\n// L57  if self.check_move {                                                    // 재로드 20578 (123) / 20583 (128: visible&&check_move) / 20591 (131: !visible&&check_move)\n//      // ---- 거짓 분기: → 배치 M(줄 107) — 123→%211(107) · 128→%244(108/110, enemy_spotted_me=true 상수접힘) · 131→%243(136, enemy_spotted_me=false 접힘)\n// L58      let (x,y) = BUSH_POSITIONS…filter(map.bushes[y][x]==self.bush).next().unwrap();   // 20811~20907 · 실패 21288\n// L59      bx = x*32000+16000; by = y*32000+16000;                             // 21298~21305 (스택 %39/%38 — 클로저가 참조 캡처)\n// L60      enemies = data.cache.player_champion[enemy_team]   (5칸 Option<&Entity>)   // 21306~21313\n// L61      nearest_enemy: Option<&Entity> = iter_champions(enemies)\n//              .filter(|e| data.blackboard[enemy_team].is_recent_visible(game, player, e)   // 21414 (aux m12.ll:7823 는 blackboard[1-player.info.team] 로 재계산)\n// L62                   && e.distance_sq(bx,by) < 250000²+1)                    // 21430~21457 / aux 7839~7866\n// L63          .min_by_key(|e| e.distance_sq(champ))                            // 첫 원소 key 21488~21508 → fold 21511(aux) · 동점 시 앞 원소 유지(aux 7920~7924)\n//              // 결과 { i64 key, ptr } — ptr null = None (21515~21518)\n// L66      if is_visible_to_enemy {                                            // 21519 / 21524\n// L67          if let Some(enemy) = nearest_enemy {                            // 21535 (None → L91)\n// L70              nearby_allies = iter_champions(player_champion[team]).filter(|e| e.id != champ.id && e.distance_sq(champ) < 150000²+1).count()   // closure$5(L69) · 5칸 unrolled 22596~22919 · 결과 %1035\n// L73              nearby_enemies = iter_champions(player_champion[enemy_team]).filter(|e| e.is_visible_from(champ) && e.distance_sq(champ) < 150000²+1).count()\n//                      // closure$6(L72) · is_visible_from 인라인(entity.rs:1481): champ.team Neutral(태그1)→항상 참(1043 경로 22973~22919) / Player(t)→ t<2 검사(23271, 실패 panic 23651) 후 e.visible_state[t]@tag==0(23309~23313) · 결과 %1332(23710)\n// L75              dominated = nearby_allies < nearby_enemies                   // 23712 icmp ult\n// L76              can_fight = !dominated && can1v1win(rnd, player, data, champ, enemy)   // 23714 (dominated 면 호출 생략) · 23717\n// L78              if can_fight {                                              // 23728\n// L80                  res.extend(battle_action(version, rnd, player, data, 5))   // 23732 · extend 23808\n// L81                  res.push(Trace(SmallActionTrace::new(data, enemy.id, 5)))   // 인라인: t=game.get_entity_by_id(enemy.id)(23827) · start_tick=game.tick()(23835) · goal=(t.x,t.y) or (0,0)(23839~23860) · margin 15000 · end_delay 5 · path_finder/last_escape None · 태그 14 (23861~23881) · push 23903~23926\n//                  } else {\n// L84                  res.push(RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false)))   // 23723 · 태그 3 23738 · push 23760~23784\n// L86                  if !dominated {                                         // 23786\n// L87                      res.extend(battle_action(version, rnd, player, data, 5))   // 23790 · 23797\n//                      }\n//                  }\n//                  → 배치 M(줄 107) %1424\n// L91          } else {   // nearest_enemy None\n//                  res.push(RunAway(new_with_skill(data, player, 5, false)))     // 22970 · 태그 3 23933 · push 23955~23979 → 배치 M(107) %1424\n//              }\n// L93      } else {   // !is_visible_to_enemy\n//              if let Some(enemy) = nearest_enemy {                            // 21532\n// L94              res.push(AroundBush(SmallActionAroundBush::new_with_target(data, enemy, self.bush, self.out_line)))   // 21543 · 태그 12 21558 · push 21580~21604\n//              } else {\n// L96              res.push(AroundBush(SmallActionAroundBush::new_with_out_line(rnd, data, player, self.bush, self.out_line)))   // 21552 · 태그 12 22506 · push 22528~22552\n//              }\n// L101         res.extend(self.steal_jungle_action(rnd, player, data));        // 전부 인라인(hide.rs:142~, define 없음) · extend 23992 → 배치 M(107) %1428\n//              // ===== steal_jungle_action(&self, rnd, player, data) 인라인 본체 (루트 줄 101, IR 21619~22502 + 23990~23993) =====\n//              // L143 steal_res = Vec::new_in(bump); steal_range = 150000       // 21632~21639\n//              // L144 champ = cache.player_champion[team][pos].unwrap()         // 21640~21643 (재로드 · 21756 unwrap_failed)\n//              // L147 bush = BUSH_POSITIONS.into_iter().filter(|&(x,y)| map.bushes[y][x]==self.bush).next()   // closure#0 · 21660~21753\n//              // L149     .map(|(x,y)| (x*32000+16000, y*32000+16000))         // closure#1 · 21767~21770\n//              // L150     .unwrap_or((champ.x, champ.y)) → (bx,by)              // 21774~21808 (phi %505/%506)\n//              // L156 for jungle in cache.jungles (Vec<&Entity> +0xd0 ptr / +0xe8 len) {   // 21821~21871 · 끝나면 %1427 extend\n//              // L158     if !jungle.ty.is_jungle(enemy_team) { continue }     // ty@tag(+0x68)==4 && ty.Jungle.info.camp_type.0(+0x98)==enemy_team (21879~21888)\n//              // L163     if jungle.distance_sq(bx,by) > steal_range² { continue }   // 21891~21913 ugt 22500000000\n//              // L168     move_speed = champ.stat_cached.move_speed(+0x640)    // 21916\n//              // L171     if champ.can_attack() {                                // 21918\n//              // L172         if let Some(atk) = &champ.attack_effect {         // +0x4c0 != -1 (21934~21936)\n//              // L173             expected_dmg = atk.expected_damage_target(context, champ as &dyn AbstractEntity, jungle)   // 21942 (vtable @anon.54)\n//              // L174             range = atk.range(champ) + atk.range_adjust(champ, jungle) + champ.radius() + jungle.radius()\n//              //                      // Effect::range 인라인 = range(+0x4a0) + growth(+0x4a8)*(level(+0x5c8)−1) + stat_buff_cached.range(+0x438) (21947~21957) · range_adjust 21952 · radius 인라인 21958~22002\n//              // L175             dist_sq = jungle.distance_sq(champ)             // 22005~22030 (champ.x/y, 부시 아님)\n//              // L176             max_dist = range + move_speed*20                // 22031~22038\n//              // L179             if jungle.hp(+0x670) <= expected_dmg && dist_sq <= max_dist² {   // 22039~22045 (select = 양쪽 다 계산, 소스 순서 표기 불가)\n//              // L180                 steal_res.push(Attack(SmallActionAttack::new(data, jungle.id)))   // 22052 · 태그 15 22057 · push 22079~22105\n//              //                  }\n//              //              }\n//              //          }\n//              // L186     if champ.can_skill() {                                 // 21929\n//              // L187         if let Some(skill) = &champ.skill_effect {        // +0x4f8 != -1 (22122~22124)\n//              // L188             if skill.target.check(champ, jungle) {         // CastingTarget::check(+0x4f0, champ, jungle) 22130\n//              // L189                 expected_dmg = skill.expected_damage_target(context, champ, jungle)   // 22138\n//              // L190                 range = skill.range(champ) + skill.range_adjust(champ, jungle) + champ.radius() + jungle.radius()   // 22143~22198\n//              // L191                 dist_sq = jungle.distance_sq(champ)         // 22201~22226\n//              // L192                 max_dist = range + move_speed*20            // 22227~22234\n//              // L194                 if jungle.hp <= expected_dmg && dist_sq <= max_dist² {   // 22235~22241\n//              // L195                     steal_res.push(Skill(SmallActionSkill::new(data, jungle.id)))   // 22248 · 태그 16 22253 · push 22275~22300\n//              //                      }\n//              //                  }\n//              //              }\n//              //          }\n//              // L202     if champ.can_skill2() {                                // 22117\n//              // L203         if let Some(skill2) = champ.skill2_effect() {     // 인라인(entity.rs:1692): level>2 ? &skill2_effect(+0x500) : &NONE · tag +0x530 != -1 (22315~22322)\n//              // L204             if skill2.target.check(champ, jungle) {        // +0x528 · 22329\n//              // L205                 expected_dmg = skill2.expected_damage_target(context, champ, jungle)   // 22337\n//              // L206                 range = skill2.range(champ) + range_adjust + champ.radius() + jungle.radius()   // 22342~22398\n//              // L207                 dist_sq = jungle.distance_sq(champ)         // ~22426\n//              // L208                 max_dist = range + move_speed*20            // 22427~22434\n//              // L210                 if jungle.hp <= expected_dmg && dist_sq <= max_dist² {   // 22435~22441\n//              // L211                     steal_res.push(Skill2(SmallActionSkill2::new(data, jungle.id)))   // 22448 · 태그 17 22453 · push 22475~22499\n//              //                      }\n//              //                  }\n//              //              }\n//              //          }\n//              //      }   // loop 22312 → 21857\n//              // L219 (steal_res 는 언와인드 시 drop_glue 21610 · 정상 경로엔 extend 로 소유권 이전)\n//              // ===== steal_jungle_action 끝 =====\n//          }\n//      } else { → 배치 M (hide.rs:107~) }\n// 이후 반환(L136~139: res → sret memcpy · 언와인드 cleanup %57 은 L139 drop_glue) = 배치 M\n\n// 사장 코드: reach.py(version=2 · gamemode=0) 결과 블록 351 전부 live · NA 봉인 대상 0\n\n// hide.rs:103~139 (배치 M)\n// 승계(배치 L 정의, IR 로 재확인): team=%54=player+0x930 · champ=%68=data.cache.player_champion[team][pos].unwrap() · is_visible_to_enemy=%79=data.cache.game.vtable[0xf8](AbstractGame::is_visible)(1-team, champ.id) (hide.rs:23) · %74 = 1-team(적 팀) · res=%46 빈 bumpalo Vec(ptr=8,bump=data.context.bump,cap=0,len=0)\n\n// 진입: 배치 L 의 line 57 분기(%123 check_move==0 → %211 / %128·%131 → 직접) 와 line 58~101 블록 끝(%1349·%1359·%1404·%1419 → %1424) · line 101 끝(%1427 → %1428 → line 136)\n\n// hide.rs:107  if is_visible_to_enemy && !self.check_move {        // 두 조건 모두 필요. %211: br %79 → %244/%243 · %1424: check_move 재로드(IR 23986) → 1 이면 %243(136), 0 이면 %244(108)\n//   근거: CFG 에서 %79=0 으로 접으면 %1424·%244 도달 불가(cfg79.py BFS: 156블록 중 없음) ⟹ %1424 경로는 %79=1 이 정적으로 확정된 경로(jump-threading). 두 조건의 소스 표기 순서는 표기 불가(column 없음).\n\n// hide.rs:108  data.iter_champions(1-team)                          // %245 = &player_champion[1-team] (5 x Option<&Entity>)\n// hide.rs:109    .filter(|x| x.is_visible_from(champ))              // closure#7 인라인: champ.team==Neutral(tag 1) → true / Player(t): t<2 bounds(아니면 panic_bounds_check 2) → x.visible_state[t].tag==0(Visible)\n// hide.rs:110    .min_by_key(|x| x.distance_sq(champ))              // closure#8: |x.x-champ.x|²+|x.y-champ.y|² (utils.rs:2158). 슬롯 0~4 를 순서대로 훑어 필터 통과 첫 원소를 %328 에서 잡고(first=(dist²,ptr)), 잔여는 aux fold(m12.ll:12641)로: 같은 필터·같은 키·min_by(cmp(acc,new)>Greater 일 때만 교체 = 동률이면 앞 원소 유지). 5슬롯 전부 실패 → %327: nearest_enemy=None\n//   let nearest_enemy: Option<&Entity>\n\n// hide.rs:112  if let Some(enemy) = nearest_enemy {                 // %1429: null 검사 → None 이면 %1587(line 132)\n\n// hide.rs:114/115  let nearby_allies = data.iter_champions(team).filter(|x| x.id != champ.id && x.distance_sq(champ) < 22500000001).count();\n//     // %66 = player_champion[team] 5슬롯 완전 언롤(%1432~%1580). null skip · id==champ.id 는 0 · 아니면 zext(dist² ult 150000²+1) 누적. ⚠거리 기준점은 enemy 가 아니라 **champ 자신**(%1434/%1435 = champ.x/y 재로드 IR 24043~24044)\n\n// hide.rs:117/118  let nearby_enemies = data.iter_champions(1-team).filter(|x| x.is_visible_from(champ) && x.distance_sq(champ) < 22500000001).count();\n//     // %245 5슬롯 완전 언롤. champ.team 으로 루프 언스위치(IR 24410~24415 freeze): Neutral → %1588 경로(가시 검사 생략) / Player(t) → %1705: t<2 이면 %1710 경로(visible_state[t].tag==0 && dist²) / t>=2 이면 %1709 경로(첫 non-null 슬롯에서 panic_bounds_check(t,2))\n\n// hide.rs:120  let dominated = nearby_allies < nearby_enemies;       // icmp ult %1581,%1877 (IR 25162, samesign)\n// hide.rs:121  let can_fight = !dominated && can1v1win(rnd, player, data, champ, enemy);   // dominated 면 can1v1win 호출 자체를 안 함(IR 25164 → %1881). DI: can_fight=%1880 는 %1882(호출 뒤)에서만\n\n// hide.rs:123  if can_fight {\n// hide.rs:124      res.extend(battle_action(version, rnd, player, data, 5));      // sret %26 → extend(res, vec.ptr, vec.len) → %1909 → line 136\n//              } else {\n// hide.rs:126      res.push(SmallActionPlay::RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false)));   // sret %24 136B → %25 memcpy · tag 3 @+0xb1 · len==cap 이면 reserve_internal_or_panic(res,len,1,true) · ptr[len]=184B memcpy · len+=1\n// hide.rs:127      if !dominated {                                                // IR 25236: br %1878 → %243(136) / %1899(128). 즉 「1v1 승산 없음이지만 수적 열세는 아님」일 때만\n// hide.rs:128          res.extend(battle_action(version, rnd, player, data, 5));  // sret %23\n//                  }\n//              }\n//   → line 136\n// } else {   // nearest_enemy == None (%1587)\n// hide.rs:132      res.push(RunAway(new_with_skill(data, player, 5, false)));    // sret %21 → %22 · tag 3 · push 동일 수순(IR 25266~25314)\n// hide.rs:133      res.extend(battle_action(version, rnd, player, data, 5));      // sret %20 (IR 25317~25325)\n// }\n// }  // end if 107\n\n// hide.rs:136  res.extend(attack_summon_action(player, data));       // %243: sret %19 → extend(IR 25335). 107 이 거짓인 경로(%211·%1424·%1428) 도 전부 여기로 합류\n// hide.rs:138  res                                                  // memcpy 32B → sret %0 (IR 25340)\n// hide.rs:139  }                                                    // ret (IR 25342). 언와인드 %57: drop_glue(bumpalo Vec<SmallActionPlay>)(res) 뒤 caller 로 (IR 20402)\n\n// 배치 M 이 push 하는 variant 집합 = {RunAway(태그 3)} 2사이트(126·132), 생성자 인자 (data, player, end_delay=5, with_skill=false) 동일. 나머지 원소는 battle_action ×3 · attack_summon_action ×1 의 반환 Vec 을 extend.\n// 배치 M 범위 내 self(%1) 쓰기: 없음. TLS(LocalKey::with) 접점: 없음(함수 전체 0건, 콜리 can1v1win/battle_action/attack_summon_action 내부는 그 명세 소관).\n// 사장 코드: reach.txt 사장 호출부 0 — NA 봉인 대상 없음.",
+ "knobs": [
+  {
+   "what": "캠프 접근 완료 반경(check_move 전환)",
+   "where": "hide.rs:42 / 49",
+   "value": 10000000000,
+   "effect": "champ↔목표 캠프(Morgard/Serpen) 거리² 가 이보다 크면 계속 AroundPosition 으로 이동. 내리면(반경 축소) 캠프에 더 가까이 가야 check_move=true 가 돼 부시 대기 단계로 늦게 넘어감 · 올리면 더 멀리서 전환"
+  },
+  {
+   "what": "부시 기준 최근접 적 탐색 반경(제곱+1)",
+   "where": "hide.rs:62 (aux m12.ll:7866)",
+   "value": 62500000001,
+   "effect": "올리면(=250000 확대) 더 먼 적도 nearest_enemy 로 잡혀 노출 시 전투/도주 판정·비노출 시 AroundBush(new_with_target) 대상이 됨 · 내리면 적 없음 경로(L91 RunAway / L96 new_with_out_line) 가 늘어남"
+  },
+  {
+   "what": "아군/적 수 세는 반경(제곱+1)",
+   "where": "hide.rs:69 / 72",
+   "value": 22500000001,
+   "effect": "dominated(아군<적) 판정 반경. 올리면 먼 적·아군까지 세어 수적 판정이 광역화, 내리면 근접 전투만 반영"
+  },
+  {
+   "what": "정글 스틸 탐색 반경 steal_range",
+   "where": "hide.rs:143 (산술 163 은 22500000000 으로 접힘)",
+   "value": 150000,
+   "effect": "부시 위치(없으면 champ 위치) 기준 이 거리 안의 적 진영 정글만 Attack/Skill/Skill2 후보. 올리면 더 먼 캠프도 스틸 후보"
+  },
+  {
+   "what": "스틸 사거리 이동 여유(move_speed 배수)",
+   "where": "hide.rs:176 / 192 / 208",
+   "value": 20,
+   "effect": "max_dist = 사거리합 + move_speed*20. 올리면 사거리 밖 정글도 '닿는다'고 보고 후보 생성 증가"
+  },
+  {
+   "what": "스틸 조건 hp ≤ expected_dmg",
+   "where": "hide.rs:179 / 194 / 210",
+   "value": 0,
+   "effect": "한 방(공격/스킬 1회 기대 피해)에 죽는 정글만 후보 — 비교값 없음(등호). 여유를 두려면 expected_dmg 에 계수를 곱하는 형태로 바꿔야 함"
+  },
+  {
+   "what": "행동 end_delay",
+   "where": "hide.rs:43 / 50 / 80 / 81 / 84 / 87 / 91",
+   "value": 5,
+   "effect": "AroundPosition·battle_action·Trace·RunAway 에 일괄 5 — 올리면 각 소행동의 종료 지연이 길어짐(의미는 각 소행동 명세)"
+  },
+  {
+   "what": "Trace 공격 사거리 여유",
+   "where": "hide.rs:81 (trace.rs:new 인라인)",
+   "value": 15000,
+   "effect": "SmallActionTrace.attack_range_margin 초기값(소비처는 Trace::get_input 명세) — Trace::new 의 기본값이라 이 함수에서 바꾸려면 생성 후 필드 덮어쓰기"
+  },
+  {
+   "what": "캠프 선택 규칙",
+   "where": "hide.rs:39",
+   "value": "is_top_side → Morgard(4) / else Serpen(5)",
+   "effect": "부시가 맵 위쪽(대각선 기준 height−y ≥ x)이면 Morgard 캠프, 아래쪽이면 Serpen 캠프로 이동 — 캠프 종류를 바꾸면 Hide 플랜의 대기 위치가 바뀜"
+  },
+  {
+   "what": "AroundPosition outline_type",
+   "where": "hide.rs:43 / 50",
+   "value": 1,
+   "effect": "Outline(1) 고정. 0 None/2 Inline 으로 바꾸면 AroundPosition 의 부시 외곽/내부 처리 변경(의미는 AroundPosition 명세)"
+  },
+  {
+   "what": "RunAway with_skill",
+   "where": "hide.rs:84 / 91",
+   "value": false,
+   "effect": "도주 시 스킬 미사용(new_with_skill 4번째 i1 false). true 로 바꾸면 스킬 도주"
+  },
+  {
+   "what": "주변 아군/적 집계 반경",
+   "where": "hide.rs:114 · 117 (IR 24096 · 24473)",
+   "value": 22500000001,
+   "effect": "올리면(반경 확대) 더 먼 아군·적까지 세어 dominated 판정이 넓은 범위의 수적 비교가 된다. 아군·적 두 필터가 같은 값이라 한쪽만 바꾸면 비대칭 판정이 된다"
+  },
+  {
+   "what": "도주/전투 행동의 end_delay",
+   "where": "hide.rs:124·126·128·132·133 (i64 5)",
+   "value": 5,
+   "effect": "SmallActionRunAway.end_delay(+0x18) 초기값. battle_action 쪽은 콜리가 `_end_delay` 로 받아 미사용(콜리 DI 이름 기준·본문은 그 명세 소관)"
+  },
+  {
+   "what": "RunAway 의 with_skill",
+   "where": "hide.rs:126 · 132 (i1 false)",
+   "value": false,
+   "effect": "true 로 바꾸면 도주 중 스킬 사용 허용(SmallActionRunAway.with_skill@+0x80 — 소비처는 RunAway::get_input 명세 소관)"
+  }
+ ],
+ "unknown": [
+  "(배치 L) L26~30 의 소스 표기(`else if self.check_move` 한 문장인지 `else { if … }` 인지) — 블록 구조는 동치라 동작엔 영향 없음(표기 불가: column 정보 없음)",
+  "(배치 L) L179/L194/L210 의 `hp <= dmg && dist <= max²` 두 조건의 소스 순서 — IR 이 select(양쪽 계산) 로 접혀 표기 불가. 부작용 없는 순수 비교라 동작 무관",
+  "(배치 L) L76 `can_fight` 가 `!dominated && can1v1win(...)` 한 줄인지, `if dominated {false} else {can1v1win}` 인지 — 같은 줄(L76) 에서 분기·호출 모두 나와 한 줄 표현으로 봄(표기 불가)",
+  "(배치 L) can1v1win(rnd, player, data, champ, enemy) 의 내부 판정·TLS 사용 — r14 계약만 인용(m04.ll:54936 미독해). rnd/player 는 DI 이름 `_rnd`/`_player`(미사용)",
+  "(배치 L) battle_action(version, rnd, player, data, 5) 의 5번째 usize 인자 이름·의미 — m15.ll:23700 define 의 DI 에 arg 5 이름이 안 남음(추정: end_delay, 같은 줄의 다른 생성자들이 5 를 end_delay 로 받음). 내부 미독해",
+  "(배치 L) expected_damage_target(effect, context, caster as &dyn AbstractEntity, target) 반환 usize 의 정확한 정의(치명타·방어 반영 여부) — g06.ll:52355 미독해",
+  "(배치 L) range_adjust(effect, caster, target) 반환 의미(투사체/대상 크기 보정 추정) — game_core 본문 미독해, 시그니처만",
+  "(배치 L) CastingTarget::check(&target, caster, target_entity) 의 판정 내용 — g?? 미독해, 시그니처만",
+  "(배치 L) Blackboard::is_recent_visible(self, game, player, target) — 왜 blackboard[enemy_team] 을 쓰는지(적 진영 관측판인지 '적에 대한 지식판' 인지)는 Blackboard 명세 몫. IR 인덱스는 1-team 으로 확정",
+  "(배치 L) steal_jungle_action 의 L149 closure#1·L150 unwrap_or 는 IR 상 phi(%505/%506) 로만 남아 `.map().unwrap_or()` 체인 형태는 DI 줄번호(149/150)+iter 체인(option.rs:1043/1041)으로 복원 — 소스 원문 표기 불가",
+  "(배치 L) AroundPosition 은 untagged variant 라 +0xb1 이 outline_type(0..2) — new_with_out_line 이 그 바이트를 반드시 0..2 로 쓰는지는 그 생성자 명세(m08.ll:103172) 몫. 여기선 태그 store 가 없다는 사실만 확정",
+  "(배치 L) L107 이후(check_move 거짓 · enemy_spotted_me 분기) 와 sret 채움(L136/139) 은 배치 M 범위 — 이 배치는 진입 엣지(%211/%243/%244/%1424/%1428)만 기록",
+  "(배치 L) reads 의 Entity+0x98 은 tcxdict 가 `ty@Bear.info.target_pos@tag` 등 동일 오프셋 variant 여러 개를 주지만, L158 은 ty@tag==4(Jungle) 확정 문맥이라 Jungle.info(+0x70).camp_type(+0x28).0 = +0x98 로 읽음(MIR EntityType::is_jungle 과 일치)",
+  "(배치 M) hide.rs:107 조건식의 두 항(is_visible_to_enemy, !self.check_move) 소스 표기 순서 — column 정보 부재. 동작(둘 다 참이어야 108 진입)은 CFG 접기로 확정",
+  "(배치 M) hide.rs:127 조건이 소스에서 `!dominated` 인지 `nearby_allies >= nearby_enemies` 인지 — 같은 i1 %1878 을 재사용해 외연 동일(표기 불가)",
+  "(배치 M) hide.rs:114·117 의 `< 22500000001` 이 소스에서 `<= 150000*150000` 인지 `< 22500000001` 인지 — icmp ult 정규화로 외연 동일(표기 불가)",
+  "(배치 M) hide.rs:110 min_by_key 의 비교 콜리 `@gc::…Entity…call_once`(aux m12.ll:12822) 내부는 u64 Ord::cmp 로 추정(min_by 관례) — 정확한 define 은 안 읽음(미탐색)",
+  "(배치 M) SmallActionRunAway 원소의 live 바이트 정밀 표(+0x84..+0x87 패딩 · path_finder Option 니치 @+0x7d 등)는 new_with_skill 의 initializes 속성 전체를 안 옮김(잘림) — 그 함수 명세 소관",
+  "(배치 M) hide.rs:103 의 IR 4줄은 전부 `llvm.lifetime.end(bx %38 / by %39)`(원문 23984~23985 · 23996~23997, 주석본에선 잡음 제거됨) — 배치 L 의 57~103 블록을 닫는 `}` 로 확정(bx/by 는 L 범위 지역변수). 판정 로직 없음",
+  "(배치 M) hide.rs:104~106 · 111 · 113 · 116 · 119 · 122 · 125 · 129~131 · 134~135 · 137 은 IR 에 루트 줄이 없음(빈 줄/주석/닫는 괄호로 추정, rmeta 줄길이 산술 미실시)"
+ ],
+ "new_knobs": [],
+ "resolved": [],
+ "still_unknown": [],
+ "_merged_from": [
+  "L",
+  "M"
+ ]
+}

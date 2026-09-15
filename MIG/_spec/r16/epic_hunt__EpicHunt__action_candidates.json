@@ -1,0 +1,1575 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\epic_hunt.rs",
+ "src_line": 200,
+ "ir_file": "m15.ll",
+ "ir_from": 12793,
+ "ir_to": 18168,
+ "layer": "행동 계층 루트(SubPlan vtable 디스패치 진입 · exe 콜그래프 호출자 없음)",
+ "aux": [
+  {
+   "ir_file": "m15.ll",
+   "ir_from": 57265,
+   "ir_to": 57286,
+   "what": "closure#2(233) call_mut — 타워 필터 술어 `x.can_target()` (entity.rs:1478 인라인)"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 32254,
+   "ir_to": 32306,
+   "what": "closure#2 find::check ControlFlow — twin_towers 슬라이스 절반의 첫 통과 원소 탐색(L234 min_by_key 의 첫 원소)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 17058,
+   "ir_to": 17075,
+   "what": "L234 min_by_key(closure#3) fold 심 — 120B 이터레이터 복사 후 min_by fold 호출"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 28332,
+   "ir_to": 28584,
+   "what": "L234 min_by fold 본체 — 나머지 원소마다 key=x.distance_sq(champ) 계산 후 최소 유지(동률이면 앞 원소)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 1107,
+   "ir_to": 1285,
+   "what": "L244 Vec::from_iter_in(Map<Filter<Iter<SmallActionPlay>, closure#5>, closure#6>) — 필터 통과 원소를 clone 해 bump Vec 에 push(map 클로저#6 = `|a| a.clone()`, L313)"
+  },
+  {
+   "ir_file": "m15.ll",
+   "ir_from": 57289,
+   "ir_to": 57949,
+   "what": "closure#5(245~312) call_mut — act_actions 필터 술어 본체(L246~301)"
+  },
+  {
+   "ir_file": "m15.ll",
+   "ir_from": 6226,
+   "ir_to": 6254,
+   "what": "closure#5::{closure#6}(271~272) — `|t| !t.attack_effect.unwrap().is_in_range_ex(t, target, t.x, t.y, target.x, target.y, 15000)` (Skill arm)"
+  },
+  {
+   "ir_file": "m15.ll",
+   "ir_from": 6257,
+   "ir_to": 6285,
+   "what": "closure#5::{closure#8}(286~287) — 동일 본문(Skill2 arm)"
+  },
+  {
+   "ir_file": "m15.ll",
+   "ir_from": 6288,
+   "ir_to": 6316,
+   "what": "closure#5::{closure#10}(301~302) — 동일 본문(Ult arm)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 14098,
+   "ir_to": 17021,
+   "what": "L315 Vec::retain(closure#7) 본체(316~404 인라인) — 아군 대상 힐/실드 스킬 정리"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 17703,
+   "ir_to": 18228,
+   "what": "closure#7 Skill arm L326 `iter_towers(1-team).any(closure)` try_fold(ControlFlow)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 18231,
+   "ir_to": 18756,
+   "what": "closure#7 Ult arm L394 동일"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 18759,
+   "ir_to": 19284,
+   "what": "closure#7 Skill2 arm L360 동일"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 47339,
+   "ir_to": 47421,
+   "what": "closure#7 타워 any 술어 call_mut(L360 arm) — dist_sq(target,t) < 120000^2+1 && (champ.team Neutral || t.visible_state[champ.team]==Visible)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 47424,
+   "ir_to": 47506,
+   "what": "동일(L394 arm)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 47509,
+   "ir_to": 47591,
+   "what": "동일(L326 arm)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 17024,
+   "ir_to": 17213,
+   "what": "L424 Vec::retain(closure#8) 본체 — `self.score(version, parameter, rnd, player, data, action, debug) >= -30` 만 남김"
+  },
+  {
+   "ir_file": "m15.ll",
+   "ir_from": 57189,
+   "ir_to": 57262,
+   "what": "get_move_action::{closure#1}(L598) call_mut — near_enemies 필터: (champ.team Neutral || e.visible_state[champ.team]==Visible) && champ.distance_sq(e) < 160000^2"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 35827,
+   "ir_to": 36003,
+   "what": "L598 Vec<&Entity>::from_iter_in(Filter<iter_champions(1-team), closure#1>) — near_enemies 수집"
+  },
+  {
+   "ir_file": "m15.ll",
+   "ir_from": 57952,
+   "ir_to": 58059,
+   "what": "v27_objective_safe_attack_position closure$0 call_mut — threats 술어(L57~59)"
+  },
+  {
+   "ir_file": "m15.ll",
+   "ir_from": 58062,
+   "ir_to": 58118,
+   "what": "v27_objective_safe_attack_position closure$1 call_mut — allies 술어(L83~85)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 36006,
+   "ir_to": 36181,
+   "what": "bumpalo Vec<&Entity>::from_iter_in(iter_champions.filter(closure$0)) — threats 수집(L56~60). 술어 외 추가 필터 없음(Option null 만 거름)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 36184,
+   "ir_to": 36359,
+   "what": "bumpalo Vec<&Entity>::from_iter_in(iter_champions.filter(closure$1)) — allies 수집(L83~86)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 31526,
+   "ir_to": 31623,
+   "what": "threats.iter().map(|t| distance(champ,t)).min() fold — closure s_0 (v27 L67~68)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 31422,
+   "ir_to": 31523,
+   "what": "threats.iter().map(|t| distance((x,y),t)).min() fold — closure s5_0 (v27 L121~123)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 23134,
+   "ir_to": 23264,
+   "what": "move_actions.iter().max_by_key(|a| self.score(..)) fold — action_candidates closure sb_0 (L476). 키 = EpicHuntSubPlan::score(self,version,rnd,player,data,parameter,a,debug); 동점이면 뒤 원소"
+  }
+ ],
+ "one_line": "EpicHunt(모가드 사냥) 서브플랜의 후보 행동 생성: need_recall 갱신→귀환/규율 단일후보 조기반환→전투·소환수·정글 공격후보 필터/정리→get_move_action 이동후보 합성(J: 200~429) → 이후 타워·에픽 위치·최적 이동 선별(K: 432~515)",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "bumpalo::collections::vec::Vec<SmallActionPlay> (32B)",
+    "note": "반환 슬롯. ptr@0 · bump@+8 · cap@+0x10 · len@+0x18. 빈 Vec 은 ptr=8(dangling) cap=len=0. 원소 184B · 태그 @+0xb1(1B) · +0xb2..+0xb8 패딩 6B(미기록). J 범위에서 직접 기록: L224(Recall 1개) · L228(v27 액션 1개, from_iter_in([action])). 그 외 경로는 지역 res/act_actions/move_actions 를 만들고 K(432+)가 sret 를 채운다. | (배치 K) ptr@0 · bump@+8 · cap@+0x10 · len@+0x18 · 원소 184B(태그 @+0xb1). 배치 K 의 반환 경로는 전부 len 1 의 from_iter_in([x]) 이거나 act_actions(%97, L244 벡터)를 32B memcpy 로 그대로 넘김(L512)"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut EpicHuntSubPlan (1B: need_recall bool @0x0)",
+    "note": "&mut. IR 속성 noalias·dereferenceable(1)(readonly 아님). writes = need_recall 갱신 L207(→true)·L214(→false). initializes 속성 없음(부분 갱신). | (배치 K) 배치 K 범위에서 self 에 대한 store 0건. L476 max_by_key 클로저 env 에 포인터로 캡처돼 EpicHuntSubPlan::score(self,..) 인자로만 전달됨(aux m12 23228). 쓰기는 없음"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize (i64 %2)",
+    "note": "AI 버전. J 범위에서 자체 분기 없음 — 콜리(v27/v25/score/nontarget_windup_perceived/range_misjudge_rng/check_kill_die_tick/aoe_heal_covers_low_ally/position_score_at_position)에 그대로 전달. 스택 슬롯 %108 에 저장돼 클로저#7(retain) 환경에 &version 으로 캡처. | (배치 K) %108 alloca 에 저장돼 있음(배치 J). K 범위에선 L446(v27 인라인) · L463 range_misjudge_rng · L476 epic_action_score · L486 get_input · L494 position_score_at_position 에 그대로 전달만 함. K 범위 안 version 분기 0건"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut rand::rngs::StdRng (320B, align 16)",
+    "note": "&mut. J 범위 소비처(순서): L227 v27_objective_discipline_action · L238/L579 PlayerState::strategy(정의부 readnone=미사용) · L424 score · L550 SmallActionAroundPosition::new · L608~610(적마다 3회)·L627(die_tick<tps 시 4회째) range_misjudge_roll · L658→29 objective_wiggle_margin 의 gen_range(12000..=inner)(조건부). | (배치 K) ★RNG 소비 순서(K 범위): ①L463 루프(적 챔프 null 아닌 순, 최대 5회) range_misjudge_roll(rnd,&jrng,min_v,max_v) ②L476 epic_action_score(..rnd..)/score 를 move_actions 원소 순으로 ③L486 get_input(..rnd..) ④(L446 경로) SmallActionAroundPosition::new_with_radius(rnd,..). 단 L446 은 L456 이전에 오므로 실제 시간순은 L446 → L463 → L476 → L486"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState (2528B, readonly)",
+    "note": "info.team@0x930 · info.position@tag 0x9c0 · info.parameter@0x180(AthleteParameter, L594) 직접 읽음. 나머지는 콜리 전달. | (배치 K) info.parameter(+0x180) 로 positioning_effective/positioning_accuracy 호출 · 클로저 aux 에서 info.team(+0x930) 읽음"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData (24B, readonly)",
+    "note": "cache@0x0(&AbstractGameWithCache) · context@0x8(&GameContext). blackboard@0x10 은 J 범위에서 안 읽음. | (배치 K) cache(+0) · context(+8) · blackboard(+0x10)"
+   },
+   {
+    "i": 6,
+    "name": "parameter",
+    "type": "&ScoreParameter (5384B, readonly)",
+    "note": "J 범위 직접 읽기 없음. &parameter.positioning_score(+0x9f0=2544) 를 L536 position_score_at_position 에, parameter 전체를 L424 score 에 전달. | (배치 K) positioning_score(+0x9f0) 를 position_score_at_* 와 get_input 에 전달 · positioning_score.cx/cy(+0x14a8/+0x14b0) 를 L446 후보 셀 중심으로 읽음"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "type": "&TeamPlan (ptr %7, nonnull, 크기 속성 없음)",
+    "note": "DI 이름 team_plan(!26456). J 범위: L227 v27_objective_discipline_action · L544 v25_objective_posture 의 self 로만 전달(직접 읽기 없음). | (배치 K) 배치 K 범위에서 미사용(load 0건)"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData (224B)",
+    "note": "DI 이름 debug(!26457) · 타입 ref_mut$<game_core::simulation::game::frame::DebugFrameData>(!18578). &mut. J 범위 쓰기: L552 `debug.infos(+0xa0 HashMap<usize,Vec<String>>).entry(champ.id).or_default().push(format!(\"v25 morgard hunt posture: {:?}\", posture.kind))` — context.debug(+0x3b) 가 true 일 때만. 그 외 L424 score 에 전달. | (배치 K) ★쓰기: L448 debug.infos(+0xa0).entry(champ.id).or_insert(vec![]).push(\"v27 morgard safe attack position\".to_string()) — context.debug(+0x3b) 가 true 일 때만. 그 밖엔 epic_action_score/score/get_input 에 &mut 로 전달(콜리 쓰기)"
+   }
+  ],
+  "returns": "sret bumpalo Vec<SmallActionPlay>(위 i=0). 살아있는 바이트: 헤더 32B 전부(ptr·bump·cap·len). 원소 184B 중 live 는 variant 별(태그 @0xb1): RunAway(3)=SmallActionRunAway 136B+태그 · Recall(4)=SmallActionRecall 136B+태그 · Trace(14)=SmallActionTrace 152B+태그 · AroundPosition(암묵 untagged, 184B 전부) · Stop(19)=태그만 · Attack/Skill/Skill2/Ult(15~18)=24B 페이로드+태그(target_id@+8). 태그 뒤 6B 패딩과 variant 미사용 꼬리는 미기록(undef). J 범위가 push 하는 variant: Recall(4)@L223 · v27 반환 액션(임의)@L228 · [move_actions 로컬(K 가 소비)] RunAway(3)@L540/548/654/664 · AroundPosition@L550 · Trace(14)@L559/572/617/621/631/659 · Stop(19)@L661 · [act_actions 로컬] battle_action/attack_summon_action/attack_jungle_action 산출(Attack/Skill/Skill2/Ult 등)을 필터·retain 한 것.",
+  "initializes": "self(%1): 속성 없음(조건부 부분 쓰기). sret(%0): writable·dead_on_unwind — 정상 반환 시 32B 전부 기록.",
+  "tls": {
+   "name": "(직접 접점 없음)",
+   "role": "간접 소비자만 — 이 함수 본체·J 범위 aux 어디에도 LocalKey::with / thread_local 참조가 없다(주석본 eaeda0.ll 전체 grep 0건).",
+   "key": "해당 없음",
+   "layout": "해당 없음",
+   "invalidation": "해당 없음",
+   "call_conditions": "TLS 를 쓰는 콜리를 J 범위가 부르는 순서(미러 설계용): ①L205 Effect::expected_damage_target(need_recall==false 경로) ②L227 v27_objective_discipline_action(need_recall==false) ③L237 battle_action→attack_summon_action→attack_jungle_action ④L244 closure#5(should_ignore_object_finish_kill_priority_target·is_in_range) ⑤L315 retain#7(expected_heal/shield/buff vtable·aoe_heal_covers_low_ally) ⑥L424 retain#8→EpicHuntSubPlan::score(각 액션마다) ⑦L429 get_move_action: L523 nontarget_windup_perceived(적 챔프마다) → L536 position_score_at_position(purpose=Objective 11) → L544 v25_objective_posture → L570 MapDef::camp_pos(★game_core 내부 LocalKey<RefCell<(usize,[[Option<(u64,u64)>;2];8])>> 메모, g02.ll:6914 — 순수 좌표 캐시라 순서 무관)+v23_should_break_objective_hunt_anchor → L599 check_kill_die_tick(TLS 메모 함수, 키에 엔티티 id) → L607~627 range_misjudge_rng/roll·max_range_can_use/nearly → L651 camp_pos+v23_should_break… . 자식 명세(r13/r14/r15)의 tls 절이 정본."
+  }
+ },
+ "reads": [
+  {
+   "base": "EpicHuntSubPlan",
+   "offset": "0x0",
+   "name": "need_recall",
+   "note": "L203(분기)·L221(재읽기, 갱신 후)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L202 bounds<2 · 1-team 으로 적 진영 인덱스 | (배치 K) closure$0(aux m15 57967) blackboard[team] 인덱스(bounds check <2). 본체의 team(%110)은 배치 J 가 L202 에서 읽은 값"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag (u32)",
+   "note": "L202 player_champion[team][position]"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter (AthleteParameter)",
+   "note": "L594 positioning_accuracy(&self)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (&dyn AbstractGame: data@0, vtable@+8)",
+   "note": "vtable 슬롯 +0x40 get_game_mode · +0x1f0 get_entity_by_id (divtable)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5] (Option<&Entity>)",
+   "note": "L202/L520 [team][pos] · L325/L523/L598 [1-team] 순회"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xd0",
+   "name": "jungles.ptr",
+   "note": "L327 순회(closure#7)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xe8",
+   "name": "jungles.len",
+   "note": "L327"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xf0",
+   "name": "others[2] (stride 32: ptr@0 · len@+0x18)",
+   "note": "L328(closure#7)·L640 [1-team] 순회"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "Vec::new_in 의 bump (L222/L237/L429/L598)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "L614"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map (&MapDef)",
+   "note": "L570/L651 camp_pos"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug (bool)",
+   "note": "L551 디버그 로그 게이트"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "L614 me_die_tick < tps"
+  },
+  {
+   "base": "GameMode",
+   "offset": "0x0",
+   "name": "@tag (0=Moba)",
+   "note": "get_game_mode 반환 {i64,ptr}; Moba 아니면 unwrap 패닉(L204/L239/L565)"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1a0",
+   "name": "jungle_runner.epic.live_list.ptr",
+   "note": "first() = 에픽 엔티티 id | (배치 K) L443 live_list[0] = 에픽 엔티티 id"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1a8",
+   "name": "jungle_runner.epic.live_list.len",
+   "note": "0 이면 에픽 없음 | (배치 K) L443 ==0 → 에픽 없음"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag (TeamType: 0 Player / 1 Neutral)",
+   "note": "closure#5 L260/270/285/300 target.team==champ.team · closure#7 L319 · 가시성 인덱스(Neutral 이면 무조건 통과)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0 (usize)",
+   "note": "팀 인덱스(visible_state 첨자, bounds<2)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x38",
+   "name": "visible_state[2] (stride 24 · tag@0: 0=Visible)",
+   "note": "closure#7 L325~327 · closure#1 L598: e.visible_state[champ.team]==Visible"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "5=Epic(L206) · 13=Champion(L253·L523 is_champion) · 2=Tower(closure#5)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state@tag",
+   "note": "L525 is_in_skill: 4=Skill 5=Skill2 6=Ult | (배치 K) L470 is_in_action = Champion && tag>=3(Attack/Skill/Skill2/Ult)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x88",
+   "name": "ty@Epic.info.focused@tag (Option<usize>)",
+   "note": "L207"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x90",
+   "name": "ty@Epic.info.focused@Some.0",
+   "note": "L207 == champ.id"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "effect.rs:26 range() 인라인(L567/L642/L658) | (배치 K) Effect::range 합산항"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "entity.rs:1511 radius() 인라인"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect (Option<Effect> 56B)",
+   "note": "L205/L258/L567/L641/L658 · closure#2·#6·#7"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "range() 인라인"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "range() 인라인: growth*(level-1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (casting, -1=None)",
+   "note": "unwrap 패닉 게이트"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect (Option<Effect>)",
+   "note": "L268/L321/L525(casting@0x4f8: 1 Position·2 Direction 만)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag/casting",
+   "note": "-1=None"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect (Option<Effect>)",
+   "note": "entity.rs:1693 skill2_effect(): level>2 일 때만, 아니면 정적 None(@anon.58/32)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect (Option<Effect>)",
+   "note": "entity.rs:1701 ult_effect(): level>4 일 때만"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "L207 · L552 · Trace 대상 id · range_misjudge_rng enemy_id | (배치 K) L434 champ.id · L444 epic.id(공격 후보 target 비교) · L448 debug 키 · L463 c.id(range_misjudge_rng) · closure$1 ally.id!=champ.id"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "skill2/ult_effect 게이트 · range() 성장 | (배치 K) growth_range 계수"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "L213 champ · L329 target"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "distance_sq 인라인(utils.rs:7 abs_diff²합) | (배치 K) 거리 계산 전반(champ/epic/threat/ally/enemy)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "거리 계산 전반"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "L207 dmg 비교 · L213/L329 hp_ratio | (배치 K) v27 L44 epic.hp · L65 champ.hp"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "radius() 인라인 | (배치 K) objective_attack_range 에 champ.radius()+target.radius() 가산"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x6a0",
+   "name": "block_target_tick",
+   "note": "closure#2 can_target(): ==0"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x6b9",
+   "name": "can_target (bool)",
+   "note": "closure#2 can_target()"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x0",
+   "name": "ty (Arc<dyn EffectType>: ArcInner ptr@0 · vtable@+8)",
+   "note": "데이터 = ptr + ((vtable.align-1)&~15) + 16. vtable 슬롯 +0x40 expected_heal · +0x48 expected_shield · +0x50 expected_buff · +0x60 expected_rush_effect · +0x68 expected_move_on_hit (divtable 94% 일치 @anon…1131 g02.ll)"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x30",
+   "name": "casting (CastingType)",
+   "note": "L525: 1 Position / 2 Direction"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0xf",
+   "name": "object_finish (ObjectFinishStrategy: 0 KillPriority / 1 BattlePriority)",
+   "note": "L238 · L579"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x0",
+   "name": "focus_enemy@tag (Option<usize>; i64 -1 = Option<ObjectivePosture>::None 니치)",
+   "note": "L545/L557/L571"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x8",
+   "name": "focus_enemy@Some.0",
+   "note": "L558 Trace 대상"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x20",
+   "name": "wait_pos.0",
+   "note": "L550"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x28",
+   "name": "wait_pos.1",
+   "note": "L550"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x38",
+   "name": "near_enemy_count",
+   "note": "L547 !=0"
+  },
+  {
+   "base": "ObjectivePosture",
+   "offset": "0x50",
+   "name": "kind (0 Commit 1 HoldCamp 2 Screen 3 WaitGroup 4 SoftDisengage)",
+   "note": "L546/L547/L557/L571"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x30",
+   "name": "on_trajectory",
+   "note": "L538"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x31",
+   "name": "on_periodic_trajectory",
+   "note": "L538 (DI 지역명 on_trajectory 로 바인딩)"
+  },
+  {
+   "base": "BuffState(Option)",
+   "offset": "0x48",
+   "name": "duration@tag (i32 -1 = None)",
+   "note": "closure#7 L324 expected_buff(...).is_some()"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "@tag",
+   "note": "3 RunAway…19 Stop · 니치 -1 = Option None(L227)"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "Attack/Skill/Skill2/Ult.target_id",
+   "note": "small_action.rs:309 get_action().target_id (태그 15~18 만)"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos (HashMap<usize,Vec<String>>)",
+   "note": "L552 entry"
+  },
+  {
+   "base": "Option<&Entity>(nearest_enemy_tower, %102 alloca)",
+   "offset": "0x0",
+   "name": "ptr(null=None)",
+   "note": "L432 if let Some(nearest_tower) — 배치 J 가 L232/L234 에서 채운 값"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "L433 ==2 (EntityType::Tower) · L470(closure$12) !=13 (Champion)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x88",
+   "name": "ty@Tower.info.nearest_enemy@tag (=Tower+0x18, Option<(usize,usize)>)",
+   "note": "L434 is_some(trunc i1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x98",
+   "name": "ty@Tower.info.nearest_enemy.Some.0.1 (=Tower+0x28)",
+   "note": "L434 == champ.id → 타워가 나를 조준중"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x308",
+   "name": "rush_state@tag",
+   "note": "L484 (signed)>=0 → 암묵 RushPenetrate · ==-9223372036854775805 → Rush"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp(max)",
+   "note": "v27 L44/L65 분모 max(.,1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag(i32)",
+   "note": "objective_attack_range L16: ==-1(None) → unwrap panic"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (Effect 선두)",
+   "note": "objective_attack_range L17: &Effect 를 range_adjust(atk,champ,target) 에 전달"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect@Some.0.range",
+   "note": "effect.rs:26 Effect::range 인라인"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect@Some.0.growth_range",
+   "note": "×(level-1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult(i32)",
+   "note": "entity.rs:1511 radius(): 0 이면 radius 그대로, 아니면 radius*(mult+100)/100 — champ·epic 양쪽"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter(AthleteParameter)",
+   "note": "L100/L124 positioning_effective(&param) · L457 positioning_accuracy(&param)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache(&AbstractGameWithCache)",
+   "note": "L443/L480 game 팻포인터 · L446 player_champion"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context(&GameContext)",
+   "note": "L447 debug 플래그 · L446 map.walls · bump(from_iter_in 인자 %350)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard(&[Blackboard;2])",
+   "note": "L468 blackboard[1-team].is_recent_visible · closure$0 blackboard[team].is_recent_visible"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game(&dyn AbstractGame: data@0, vtable@+8)",
+   "note": "vtable+0x40 get_game_mode(L443) · +0x1f0 get_entity_by_id(L443) · +0x210 iter_projectile(L480) — divtable AbstractGame"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[[Option<&Entity>;5];2]",
+   "note": "[team] 슬라이스(%119 · allies/L444 champ 재조회 %120) · [1-team] 슬라이스(%381~%382 · threats/L463/L483)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map(&MapDef)",
+   "note": "v27 L110 walls"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug(bool)",
+   "note": "L447 true 면 L448 디버그 문자열 기록"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x78",
+   "name": "walls[30][30] usize",
+   "note": "v27 L110 walls[yb][xb] != 0 → 후보 셀 제외"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x9f0",
+   "name": "positioning_score(PositioningScoreData)",
+   "note": "%372 — position_score_at_*·get_input 인자"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x14a8",
+   "name": "positioning_score.cx",
+   "note": "v27 L98 xi(후보 격자 중심 셀)"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x14b0",
+   "name": "positioning_score.cy",
+   "note": "v27 L99 yi"
+  },
+  {
+   "base": "PositioningScore(sret 56B)",
+   "offset": "0x0",
+   "name": "risk",
+   "note": "v27_positioning_value L38 −risk×risk_weight/100"
+  },
+  {
+   "base": "PositioningScore(sret 56B)",
+   "offset": "0x10",
+   "name": "gain",
+   "note": "v27_positioning_value L38 +gain×gain_weight/100"
+  },
+  {
+   "base": "PositioningScore(sret 56B)",
+   "offset": "0x30",
+   "name": "on_trajectory",
+   "note": "v27 L37 궤도 페널티 · L496 on_trajectory"
+  },
+  {
+   "base": "PositioningScore(sret 56B)",
+   "offset": "0x31",
+   "name": "on_periodic_trajectory",
+   "note": "v27 L37 · L496"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "tag(니치)",
+   "note": "L444 tag-15 <u 4 → 15 Attack/16 Skill/17 Skill2/18 Ult · L446 v27 반환 Option<SmallActionPlay>: 0xFF=None"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "Attack/Skill/Skill2/Ult.target",
+   "note": "L444 == epic.id"
+  },
+  {
+   "base": "bumpalo Vec<SmallActionPlay>(act_actions %97)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "L442/L456 is_empty · L444 iter"
+  },
+  {
+   "base": "bumpalo Vec<SmallActionPlay>(move_actions %93)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "L476 iter(비면 unwrap panic)"
+  },
+  {
+   "base": "bumpalo Vec<&Entity>(threats %22 / allies %19)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "v27 L61/L87 is_empty · L70/L91/L120 iter"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x0",
+   "name": "team@tag",
+   "note": "L481 ==0(Player) 이면 +8 비교"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": "L481 == my team → 제외"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x40",
+   "name": "move_type@tag",
+   "note": "projectile.rs:134 is_targeting 인라인: 6 Target·7 TargetSplash·(암묵 BouncingTarget 이고 +0x40==1) → targeting"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x100",
+   "name": "x",
+   "note": "L482 dist²(champ,p)"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x108",
+   "name": "y",
+   "note": "L482"
+  },
+  {
+   "base": "Option<Input>(sret 32B, get_input)",
+   "offset": "0x0",
+   "name": "tag(i64)",
+   "note": "L490 -1=None · 0=Move · 그 외=다른 Input"
+  },
+  {
+   "base": "Option<Input>(sret 32B, get_input)",
+   "offset": "0x8",
+   "name": "Move.x",
+   "note": "L491"
+  },
+  {
+   "base": "Option<Input>(sret 32B, get_input)",
+   "offset": "0x10",
+   "name": "Move.y",
+   "note": "L491"
+  }
+ ],
+ "writes": [
+  {
+   "base": "EpicHuntSubPlan",
+   "offset": "0x0",
+   "name": "need_recall",
+   "value": "1(true)",
+   "note": "L207 (need_recall==false 경로): (epic.focused==Some(champ.id) && dmg*3 >= champ.hp) || champ.hp <= dmg 일 때. store 는 %186 블록에 합쳐짐(m15.ll:13136) | (배치 J) L214 (need_recall==true 경로): champ.hp*100/champ.stat_cached.hp > 29 일 때(같은 store m15.ll:13136, phi 0)"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos[champ.id].push(String)",
+   "value": "format!(\"v25 morgard hunt posture: {:?}\", posture.kind)",
+   "note": "L552, context.debug==true && posture.kind ∈ {WaitGroup,SoftDisengage} 경로에서만(m15.ll:14212~14348). 힙 쓰기(HashMap entry + Vec<String> push)"
+  },
+  {
+   "base": "StdRng",
+   "offset": "0x0",
+   "name": "rnd 상태 전진(콜리 경유)",
+   "value": "range_misjudge_roll ×3~4/적 · gen_range(12000..=inner) · AroundPosition::new · score · v27",
+   "note": "직접 write 없음. 순서는 signature.params[3]"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x0",
+   "name": "Vec 헤더 32B",
+   "value": "L224 [Recall] / L228 [v27 action]",
+   "note": "J 범위의 직접 sret 기록 2곳. 나머지는 K"
+  },
+  {
+   "base": "DebugFrameData(debug, &mut)",
+   "offset": "0xa0",
+   "name": "infos: HashMap<usize, Vec<String>>",
+   "value": "entry(champ.id).or_insert(Vec::new()).push(String::from(\"v27 morgard safe attack position\"))",
+   "note": "L448 · 조건 context.debug(+0x3b)==true 이고 v27 이 Some 을 준 경우만(m15.ll 17086~17203)"
+  },
+  {
+   "base": "bumpalo Vec<SmallActionPlay>(act_actions %97, 지역)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "0 (truncate(0))",
+   "note": "L435 타워 어그로 시 clear (m15.ll 15741)"
+  },
+  {
+   "base": "bumpalo Vec<SmallActionPlay>(move_actions %93, 지역)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "0 → 1 (truncate(0) 후 push)",
+   "note": "L436 clear · L437 push(RunAway(new_with_skill(data,player,5,true))) (m15.ll 15746~15760)"
+  },
+  {
+   "base": "(sret) bumpalo Vec<SmallActionPlay>",
+   "offset": "0x0",
+   "name": "ptr/bump/cap/len",
+   "value": "from_iter_in([1개], context.pool) 또는 act_actions 32B memcpy",
+   "note": "반환점 L450/L473/L499/L501/L504/L507/L512"
+  },
+  {
+   "base": "EpicHuntSubPlan(self, &mut)",
+   "offset": "0x0",
+   "name": "-",
+   "value": "(쓰기 없음)",
+   "note": "배치 K 범위 store 0건 — sweep 부작용 비교 대상 아님"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 202,
+   "meaning": "player_champion 1차원(팀 2) bounds · Tower 태그(closure#5 target.ty != 2) · visible_state 첨자 bounds"
+  },
+  {
+   "value": 5,
+   "src_line": 206,
+   "meaning": "EntityType::Epic 메모리태그(L206) · 모든 생성자의 end_delay=5 · player_champion 2차원 5"
+  },
+  {
+   "value": 3,
+   "src_line": 207,
+   "meaning": "dmg*3 >= champ.hp 위험 배수(`mul i64 %162, 3`, m15.ll:13122) · SmallActionPlay::RunAway 메모리태그(store i8 3). ⚠aux 의 `shl … 3` 은 jungles len×8 포인터 stride(접힘 상수 아님·이 항목과 무관)"
+  },
+  {
+   "value": 100,
+   "src_line": 213,
+   "meaning": "hp_ratio = hp*100/max_hp (L213·L329) · radius()*(100+mult)/100"
+  },
+  {
+   "value": 29,
+   "src_line": 214,
+   "meaning": "hp_ratio > 29 (즉 ≥30%) 이면 need_recall 해제"
+  },
+  {
+   "value": 4,
+   "src_line": 227,
+   "meaning": "JungleType::Morgard(4) — v27/v25/camp_pos 의 target · SmallActionPlay::Recall 메모리태그(L223 store i8 4) · ChampionActionState::Skill(4, L525)"
+  },
+  {
+   "value": -1,
+   "src_line": 227,
+   "meaning": "니치 None: Option<SmallActionPlay>(@0xb1) · Option<Effect>(casting i32) · Option<ObjectivePosture>(i64) · Option<BuffState>(@0x48 i32)"
+  },
+  {
+   "value": 6,
+   "src_line": 232,
+   "meaning": "iter_towers_without_nexus 의 고정 타워 배열 길이 6(top/top2/mid/mid2/bottom/bottom2) · ChampionActionState::Ult(6)"
+  },
+  {
+   "value": 13,
+   "src_line": 253,
+   "meaning": "EntityType::Champion 메모리태그 — closure#5 L253 is_champion · L523"
+  },
+  {
+   "value": 15,
+   "src_line": 254,
+   "meaning": "closure#5/#7 switch: tag-15 < 4 ⇔ Attack(15)/Skill(16)/Skill2(17)/Ult(18) 만 target_id 보유"
+  },
+  {
+   "value": 10,
+   "src_line": 254,
+   "meaning": "llvm.assume(tag != 10) — SmallActionPlay 니치 아티팩트(판정 아님) · L615 enemy.remain_action_time() > 10"
+  },
+  {
+   "value": 15000,
+   "src_line": 272,
+   "meaning": "closure#5 중첩클로저: 타워.attack_effect.is_in_range_ex(…, offset=15000) — 이동/돌진 스킬 대상이 타워 사거리+15000 안이면 제외 · L658 objective_wiggle_margin: dist+15000 < range"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 325,
+   "meaning": "120000^2+1 — closure#7: 대상(아군) 주변 120000(3.75셀) 이내 가시 적 챔프/타워/정글/others 존재 판정(dist_sq < 이 값 ⇔ ≤120000^2)"
+  },
+  {
+   "value": 79,
+   "src_line": 330,
+   "meaning": "closure#7: 힐 대상 hp_ratio > 79(즉 ≥80%) 이면 aoe_heal_covers_low_ally 필요"
+  },
+  {
+   "value": -30,
+   "src_line": 426,
+   "meaning": "closure#8: score < -30 이면 액션 제거(≥ -30 유지)"
+  },
+  {
+   "value": 11,
+   "src_line": 536,
+   "meaning": "PositionEvalPurpose::Objective 메모리태그(니치 idx9→11)"
+  },
+  {
+   "value": 14,
+   "src_line": 559,
+   "meaning": "SmallActionPlay::Trace 메모리태그(store i8 14)"
+  },
+  {
+   "value": 25000,
+   "src_line": 603,
+   "meaning": "can_enemy_hit_objective(enemy, epic, range_margin=25000)"
+  },
+  {
+   "value": 2000,
+   "src_line": 596,
+   "meaning": "max_v = 2000 - positioning_accuracy (오판 롤 상한, per-mille)"
+  },
+  {
+   "value": 1000,
+   "src_line": 608,
+   "meaning": "mr = max_range * roll / 1000 (per-mille 스케일)"
+  },
+  {
+   "value": 40,
+   "src_line": 610,
+   "meaning": "max_range_nearly_can_use(enemy, champ, 40) — emr_near 여유"
+  },
+  {
+   "value": 60,
+   "src_line": 627,
+   "meaning": "max_range_nearly_can_use(enemy, champ, 60) — 1초 내 사망 시 재계산 emr 여유"
+  },
+  {
+   "value": 999,
+   "src_line": 615,
+   "folded_from": 0,
+   "meaning": "`mr > 0` 이 `roll*max_range > 999`(나누기 1000 전 값) 로 접힘 — ≥1000 ⇔ mr ≥ 1"
+  },
+  {
+   "value": 25600000000,
+   "src_line": 598,
+   "meaning": "160000^2 — near_enemies: champ.distance_sq(e) < 160000^2(5셀 미만)"
+  },
+  {
+   "value": 12000,
+   "src_line": 22,
+   "meaning": "objective_wiggle_margin: inner 하한·gen_range 하한·폴백 12000"
+  },
+  {
+   "value": 10000,
+   "src_line": 22,
+   "meaning": "objective_wiggle_margin: inner = range.saturating_sub(10000)"
+  },
+  {
+   "value": 45000,
+   "src_line": 22,
+   "meaning": "objective_wiggle_margin: inner 상한 45000"
+  },
+  {
+   "value": 19,
+   "src_line": 661,
+   "meaning": "SmallActionPlay::Stop 메모리태그(store i8 19)"
+  },
+  {
+   "value": 1,
+   "src_line": 232,
+   "meaning": "1 - team = 적 진영 인덱스 · ObjectFinishStrategy BattlePriority(1)"
+  },
+  {
+   "value": 2,
+   "src_line": 433,
+   "meaning": "EntityType::Tower 메모리태그(tcxdict --enum EntityType idx2=tag2). `icmp eq i64 %1133, 2`"
+  },
+  {
+   "value": 5,
+   "src_line": 437,
+   "meaning": "SmallActionRunAway::new_with_skill(data,player,end_delay=5,with_skill) 의 end_delay — L437(with_skill=true) · L473(false) · L499(false)"
+  },
+  {
+   "value": 3,
+   "src_line": 437,
+   "meaning": "SmallActionPlay::RunAway 메모리태그(store i8 3 @+0xb1) — L437/L473/L499 · 또 L144 new_with_radius end_delay=3. (본문의 `shl .., 3` 은 &Entity 슬라이스 stride ×8 접힘으로 이 상수와 무관)"
+  },
+  {
+   "value": -15,
+   "src_line": 444,
+   "meaning": "tag-15 <u 4 → 태그 15..18 = Attack/Skill/Skill2/Ult (공격 계열 후보 판별)"
+  },
+  {
+   "value": 4,
+   "src_line": 444,
+   "meaning": "위 범위 폭(4 variant)"
+  },
+  {
+   "value": 100,
+   "src_line": 446,
+   "meaning": "hp% 계산·가중치 % 분모(v27 L44/L65/L38, radius() mult)"
+  },
+  {
+   "value": 36,
+   "src_line": 446,
+   "meaning": "v27 L45: 에픽 hp% < 36 이면 None(막타 구간엔 안전 위치 이동 안 함)"
+  },
+  {
+   "value": 67600000001,
+   "src_line": 446,
+   "meaning": "260000²+1 — closure$0 L59: 적 챔프가 나로부터 260000(8.1셀) 이내면 threat"
+  },
+  {
+   "value": 48400000001,
+   "src_line": 446,
+   "meaning": "220000²+1 — closure$0 L59 적이 에픽 220000 이내면 threat · closure$1 L85 아군이 에픽 220000 이내면 ally"
+  },
+  {
+   "value": 50,
+   "src_line": 446,
+   "meaning": "v27 L70: champ hp% < 50 이면 접촉 여유 70000 아니면 40000 · L71 max_range_nearly_can_use(t,champ,50) 인자 · v27_positioning_value 의 positioning 기준점 50"
+  },
+  {
+   "value": 70000,
+   "src_line": 446,
+   "meaning": "v27 L71 hp<50% 일 때 접촉 판정 여유"
+  },
+  {
+   "value": 40000,
+   "src_line": 446,
+   "meaning": "v27 L71 hp>=50% 일 때 접촉 판정 여유"
+  },
+  {
+   "value": 100000,
+   "src_line": 446,
+   "meaning": "v27 L71 max(max_range_nearly_can_use(t,champ,50), 100000) — 위협 사거리 하한"
+  },
+  {
+   "value": 45,
+   "src_line": 446,
+   "meaning": "v27 L74: 접촉 없어도 hp%<45 이고 최근접 위협 ≤220000 이면 계속"
+  },
+  {
+   "value": 220001,
+   "src_line": 446,
+   "meaning": "v27 L74 nearest < 220001 (=≤220000, 직선거리)"
+  },
+  {
+   "value": 30000,
+   "src_line": 446,
+   "meaning": "v27 L78 keep_attack_range = attack_range.saturating_sub(30000) · L137 best.nearest < cur_nearest.saturating_add(30000)"
+  },
+  {
+   "value": 10,
+   "src_line": 446,
+   "meaning": "v27_positioning_value L35 gain_weight = 100+(50-positioning)/10"
+  },
+  {
+   "value": 95,
+   "src_line": 446,
+   "meaning": "gain_weight clamp 하한(-59 비교로 접힘)"
+  },
+  {
+   "value": 105,
+   "src_line": 446,
+   "meaning": "gain_weight clamp 상한"
+  },
+  {
+   "value": -59,
+   "src_line": 446,
+   "meaning": "clamp 하한 접힘: (50-positioning) < -59 → 95"
+  },
+  {
+   "value": 75,
+   "src_line": 446,
+   "meaning": "risk_weight clamp 하한 (L36: 100+(positioning-50)/2)"
+  },
+  {
+   "value": 125,
+   "src_line": 446,
+   "meaning": "risk_weight clamp 상한"
+  },
+  {
+   "value": -51,
+   "src_line": 446,
+   "meaning": "clamp 하한 접힘: (positioning-50) < -51 → 75"
+  },
+  {
+   "value": -100,
+   "src_line": 446,
+   "meaning": "L38 risk×risk_weight / -100 (감점)"
+  },
+  {
+   "value": 320000,
+   "src_line": 446,
+   "meaning": "v27 L102/L126 적 간격 항 min(nearest,320000)/10000 (0..32) · L95 응집 항 (320000-dist(centroid)).sat/10000"
+  },
+  {
+   "value": 10000,
+   "src_line": 446,
+   "meaning": "점수 스케일(거리/10000) · L465 emr = mr×roll/1000 + 10000"
+  },
+  {
+   "value": 8,
+   "src_line": 446,
+   "meaning": "★현 위치 점수에만 더해지는 상수(L102 경로 %1512=nearest/10000+8). 후보 셀의 range_slack(최대 80000/10000=8)에 대응하는 '현 위치 = 여유 만점' 가정으로 읽힘. dbg 는 v27_positioning_value L38 에 귀속돼 있으나 후보 경로 L38 계산엔 8 이 없어 소속 줄은 미확정(unknown 참조)"
+  },
+  {
+   "value": 7,
+   "src_line": 446,
+   "meaning": "v27 L106/L107 후보 격자 dx,dy ∈ 0..7 (중심 cx,cy 기준 −3..+3)"
+  },
+  {
+   "value": -3,
+   "src_line": 446,
+   "meaning": "xb = cx-3+dx, yb = cy-3+dy"
+  },
+  {
+   "value": 29,
+   "src_line": 446,
+   "meaning": "v27 L110 격자 상한(30×30) xb>29 || yb>29 제외"
+  },
+  {
+   "value": 32000,
+   "src_line": 446,
+   "meaning": "셀 크기(좌표 변환) L114/L115"
+  },
+  {
+   "value": 16000,
+   "src_line": 446,
+   "meaning": "셀 중심(좌표 변환)"
+  },
+  {
+   "value": -1,
+   "src_line": 446,
+   "meaning": "L123 threats 비었을 때 nearest_enemy = u64::MAX(unwrap_or) · L446 Option<SmallActionPlay> None 니치(@0xb1 == 0xFF) · L490 Option<Input> None 태그 · objective_attack_range L16 attack_effect None(i32 -1)"
+  },
+  {
+   "value": 80000,
+   "src_line": 446,
+   "meaning": "v27 L127 range_slack = min(keep_attack_range.sat_sub(dist(cand,epic)), 80000)/10000 (0..8)"
+  },
+  {
+   "value": 144000001,
+   "src_line": 446,
+   "meaning": "12000²+1 — v27 L140: best 가 현 위치에서 12000 이내면 None(제자리)"
+  },
+  {
+   "value": 25000,
+   "src_line": 446,
+   "meaning": "v27 L144 SmallActionAroundPosition::new_with_radius(rnd,data,x,y,end_delay=3,around_radius=25000)"
+  },
+  {
+   "value": 2000,
+   "src_line": 459,
+   "meaning": "max_v = 2000 - positioning_accuracy (min_v = positioning_accuracy) — range_misjudge_roll 범위"
+  },
+  {
+   "value": 1000,
+   "src_line": 465,
+   "meaning": "emr = max_range_can_use(c,champ) × roll / 1000 + 10000"
+  },
+  {
+   "value": 13,
+   "src_line": 470,
+   "meaning": "EntityType::Champion 태그 — is_in_action 인라인"
+  },
+  {
+   "value": 176400000000,
+   "src_line": 482,
+   "meaning": "420000² — 비조준 적 투사체가 나로부터 420000(13.1셀) 이내면 trajectory_possible"
+  },
+  {
+   "value": 9,
+   "src_line": 481,
+   "meaning": "ProjectileMoveType 태그 assume(!=9) — 컴파일러 아티팩트(니치 범위)"
+  },
+  {
+   "value": 6,
+   "src_line": 481,
+   "meaning": "ProjectileMoveType::Target 메모리태그(switch 4 = 6-2) → is_targeting"
+  },
+  {
+   "value": -9223372036854775805,
+   "src_line": 484,
+   "meaning": "RushState::Rush 메모리태그(0x8000000000000003) — 적 챔프 돌진 중"
+  },
+  {
+   "value": 11,
+   "src_line": 494,
+   "meaning": "PositionEvalPurpose 인자(i8 11) — L101/L125/L494 position_score_at_* 공통"
+  },
+  {
+   "value": 1,
+   "src_line": 446,
+   "meaning": "umax(max_hp,1) 0 나눗셈 가드 · Option<(usize,usize)> Some 태그 · BouncingTarget target_id 태그 1 → targeting"
+  }
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const_div_by_zero",
+  "game_core::Effect::expected_damage_target",
+  "game_ai::plan_legacy::team_plan::TeamPlan::v27_objective_discipline_action",
+  "game_ai::small_action::SmallActionRecall::new",
+  "bumpalo::collections::vec::Vec::from_iter_in",
+  "game_core::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::Iterator::try_fold",
+  "core::iter::Iterator::min_by_key",
+  "game_ai::fight_check::battle_action",
+  "core::iter::Extend::extend",
+  "game_ai::fight_check::attack_summon_action",
+  "game_ai::plan_legacy::sub_plan::epic_hunt::EpicHuntSubPlan::attack_jungle_action",
+  "game_core::PlayerState::strategy",
+  "bumpalo::collections::vec::Vec::retain",
+  "game_ai::plan_legacy::sub_plan::epic_hunt::EpicHuntSubPlan::score",
+  "game_ai::utils::nontarget_windup_perceived",
+  "game_core::Effect::is_in_range",
+  "game_core::Effect::is_in_range_ex",
+  "game_ai::position_eval::position_score_at_position",
+  "game_ai::small_action::SmallActionRunAway::new_with_skill",
+  "game_ai::plan_legacy::team_plan::TeamPlan::v25_objective_posture",
+  "game_ai::small_action::SmallActionTrace::new_attack_range",
+  "game_ai::small_action::SmallActionTrace::new",
+  "game_ai::small_action::SmallActionTrace::new_attack_range_margin",
+  "game_ai::small_action::SmallActionAroundPosition::new",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic",
+  "bumpalo::collections::vec::Vec::push",
+  "bumpalo::collections::vec::Vec::truncate",
+  "hashbrown::HashMap::rustc_entry",
+  "hashbrown::RawTable::insert_no_grow",
+  "alloc::fmt::format_inner",
+  "alloc::raw_vec::RawVec::grow_one",
+  "game_core::Effect::range_adjust",
+  "game_core::MapDef::camp_pos",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_should_break_objective_hunt_anchor",
+  "game_core::AthleteParameter::positioning_accuracy",
+  "game_ai::fight_check::check_kill_die_tick",
+  "game_ai::plan_legacy::old::fight_model::can_enemy_hit_objective",
+  "game_ai::utils::range_misjudge_rng",
+  "game_ai::utils::range_misjudge_roll",
+  "game_ai::plan_legacy::old::battle::max_range_can_use",
+  "game_ai::plan_legacy::old::battle::max_range_nearly_can_use",
+  "game_core::Entity::remain_action_time",
+  "game_core::Entity::distance",
+  "rand::Rng::gen_range",
+  "game_ai::plan_legacy::old::fight_model::should_ignore_object_finish_kill_priority_target",
+  "game_core::AbstractGameWithCache::iter_towers",
+  "game_ai::buff_value::aoe_heal_covers_low_ally",
+  "core::ops::function::FnMut::call_mut",
+  "core::clone::Clone::clone",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::utils::distance",
+  "game_core::simulation::state::player::AthleteParameter::positioning_effective",
+  "game_ai::position_eval::position_score_at_cell",
+  "game_ai::small_action::around::SmallActionAroundPosition::new_with_radius",
+  "hashbrown::map::HashMap::rustc_entry",
+  "std::collections::hash::map::Entry::or_insert",
+  "alloc::raw_vec::RawVecInner::try_allocate_in",
+  "alloc::raw_vec::handle_error",
+  "alloc::vec::Vec::push_mut",
+  "game_core::simulation::state::player::AthleteParameter::positioning_accuracy",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::entity::Entity::block_input",
+  "game_ai::plan_legacy::sub_plan::epic_hunt::epic_action_score",
+  "game_core::simulation::ProjectileIter::next",
+  "game_ai::small_action::SmallActionPlay::clone",
+  "game_ai::small_action::SmallActionPlay::get_input"
+ ],
+ "logic": "// epic_hunt.rs:0~429 (배치 J)\n// 인자: self=&mut EpicHuntSubPlan{need_recall} · version · rnd · player · data{cache,context} · parameter · team_plan · debug. 반환 sret = bumpalo Vec<SmallActionPlay>.\n// 자식 명세 있는 콜리는 계약만 적는다. 이하 `game` = data.cache.game(&dyn AbstractGame), `ctx` = data.context, `bump` = ctx.pool.\n\n// ── L202 ──\nlet team = player.info.team(@0x930);  assert team < 2;\nlet champ: &Entity = cache.player_champion[team][player.info.position(@0x9c0)].unwrap();   // None 이면 unwrap 패닉(m15.ll:13017)\n\n// ── L203~221 need_recall 갱신 (&mut self 유일한 쓰기) ──\nif !self.need_recall {                                                                   // L203 (%125 false → 127)\n    // L204: 에픽 엔티티 = 모바 모드의 jungle_runner.epic.live_list 첫 id → get_entity_by_id\n    let mode = game.get_game_mode();  Moba 아니면 unwrap 패닉(m15.ll:13145)\n    if mode.live_list.len(@0x1a8) != 0 {\n        if let Some(epic) = game.get_entity_by_id(*live_list.ptr(@0x1a0)[0]) {\n            // L205: dmg = epic.attack_effect.unwrap()(@0x490, tag@0x4c0==-1 → 패닉).expected_damage_target(ctx, caster=epic as &dyn AbstractEntity(@anon.56 vtable), target=champ)\n            let dmg = expected_damage_target(...);\n            if epic.ty@tag(@0x68) == 5 /*Epic*/ {                                           // L206\n                let info = &epic.ty.Epic.info;\n                // L207: 극성 = 분기방향. (A && B) || C 순서로 평가된다\n                if (info.focused(@0x88/0x90) == Some(champ.id(@0x5c0)) && dmg*3 >= champ.hp(@0x670)) || champ.hp <= dmg {\n                    self.need_recall = true;                                                // store i8 1 @self+0 (m15.ll:13136)\n                }\n            }\n        }\n    }\n} else {                                                                                  // L213\n    let hp_ratio = champ.hp*100 / champ.stat_cached.hp(@0x628);   // 0 이면 div_by_zero 패닉\n    if hp_ratio > 29 { self.need_recall = false; }                                          // L214 (store i8 0)\n}\n\n// ── L221~225 귀환 단일 후보 ──\nif self.need_recall {                                                                     // L221 (재읽기)\n    let mut res = Vec::new_in(bump);                                                       // L222\n    res.push(SmallActionPlay::Recall(SmallActionRecall::new(data, player, end_delay=5)));  // L223 (tag 4 @0xb1)\n    return res;                                                                            // L224 → sret\n}\n\n// ── L227~228 목표 규율 액션 ──\nif let Some(action) = team_plan.v27_objective_discipline_action(version, rnd, player, data, target=JungleType::Morgard(4)) {   // 184B, tag@0xb1 == -1 → None\n    return Vec::from_iter_in([action], bump);                                              // L228 → sret (1개)\n}\n\n// ── L231~234 최근접 적 타워 ──\nlet champ = champ;  // L231 재바인딩(동일 값 %121)\nlet nearest_enemy_tower: Option<&Entity> = cache.iter_towers_without_nexus(team=1-team)   // L232 (6 고정 타워 Option 배열 + twin_towers 슬라이스 Chain)\n    .filter(|x| x.can_target())      // L233 closure#2 = x.can_target(@0x6b9) && x.block_target_tick(@0x6a0)==0  (entity.rs:1478)\n    .min_by_key(|x| x.distance_sq(champ));   // L234 closure#3 = |x.x-c.x|²+|x.y-c.y|² (@0x660/0x668) · 동률이면 앞 원소\n\n// ── L237 공격 후보 원천 = get_act_action(version, rnd, player, data) 인라인(epic_hunt.rs:670~676) ──\nlet mut act_actions = Vec::new_in(bump);                                                   // 671\nact_actions.extend(fight_check::battle_action(_version, _rnd, player, data, _end_delay));  // 672 (미사용 인자는 poison 으로 전달)\nact_actions.extend(fight_check::attack_summon_action(player, data));                       // 673\nact_actions.extend(self.attack_jungle_action(_rnd, player, data));                          // 674 (fastcc: player→(team,position) 승격, self·rnd 소거)\n\n// ── L238~240 킬 우선 전략 시 에픽 참조 ──\nlet object_finish_objective: Option<&Entity> =\n    if player.strategy(rnd, game).object_finish(@0xf) == KillPriority(0) {                  // L238 (strategy 정의부에서 rnd 미사용)\n        game.get_game_mode() /*Moba 아니면 패닉*/ .live_list.first().and_then(|id| game.get_entity_by_id(*id))   // L239~240\n    } else { None };\n\n// ── L244~313 act_actions 필터 (closure#5, 캡처: game·player·&object_finish_objective·champ·&nearest_enemy_tower) → clone 수집 ──\nlet act_actions: Vec<_> = act_actions.iter().filter(|action| {\n    // L246~249: 킬우선 무시 대상이면 제거\n    if let Some(id) = action.target_id() /*tag 15~18 의 +8*/ {\n        if game.get_entity_by_id(id).is_some_and(|t| fight_model::should_ignore_object_finish_kill_priority_target(player, t, object_finish_objective)) { return false; }\n    }\n    // L253: 대상이 챔피언이 아니면 무조건 유지\n    if let Some(id) = action.target_id() { if let Some(t) = game.get_entity_by_id(id) { if !t.is_champion() /*ty@0x68 != 13*/ { return true; } } }\n    // L254: 챔피언 대상 공격류만 세부 판정. 그 외 variant(RunAway~Trace·AroundPosition·Stop) → false\n    match action {\n      Attack(a) => {                                                                     // L257~261\n        let Some(target) = game.get_entity_by_id(a.target_id) else { return false };\n        let eff = champ.attack_effect.as_ref().unwrap();                                    // L258\n        eff.is_in_range(caster=champ, target)                                              // L259\n          && nearest_enemy_tower.is_none_or(|t| {                                          // L259~260 (closure#4)\n               let tower_hits_me = t.attack_effect.unwrap().is_in_range(t, champ);\n               !(tower_hits_me && target.ty != Tower(2)) || target.team == champ.team })   // 팀 판별 동일: Player 면 인덱스까지 비교, Neutral 끼리면 true\n      }\n      Skill(a) => {                                                                      // L267~272\n        let Some(target) = get_entity_by_id(a.target_id) else { return false };\n        let eff = champ.skill_effect.as_ref().unwrap();                                     // L268 (@0x4c8, tag@0x4f8)\n        eff.is_in_range(champ, target)                                                     // L269\n          && nearest_enemy_tower.is_none_or(|t| !(t.atk.is_in_range(t,champ) && target.ty != Tower) || target.team == champ.team)   // L269~270\n          && ( !(eff.ty.expected_move_on_hit() /*vt+0x68*/ || eff.ty.expected_rush_effect() /*vt+0x60*/)   // L270: 이동/돌진 스킬이 아니면 통과\n               || nearest_enemy_tower.is_none_or(|t| !t.attack_effect.unwrap().is_in_range_ex(caster=t, target, cx=t.x, cy=t.y, tx=target.x, ty=target.y, offset=15000)) )   // L271~272 closure#6\n      }\n      Skill2(a) => { 동일 골격, eff = champ.skill2_effect() /*level(@0x5c8)>2 ? &@0x500 : None*/ .unwrap(); L282~287, closure#8 }\n      Ult(a)    => { 동일 골격, eff = champ.ult_effect()    /*level>4 ? &@0x538 : None*/ .unwrap(); L297~302, closure#10 }\n      _ => false\n    }\n}).map(|a| a.clone()).collect_in(bump);   // L313 (from_iter_in @L244)\n\n// ── L315~423 retain #1 (closure#7, 캡처: data·champ·player·&version) — 아군 대상 힐/실드 정리 ──\nact_actions.retain(|action| match action {\n    Skill(a) | Skill2(a) | Ult(a) => {                                                    // L316 (Skill 318~336 / Skill2 352~370 / Ult 386~404 동형)\n        let Some(target) = game.get_entity_by_id(a.target_id) else { return false /*제거*/ };   // L318/352/386\n        if target.team != champ.team { return true /*적 대상은 유지*/ }                     // L319/353/387\n        let Some(eff) = champ.skill_effect /*Skill2: skill2_effect() · Ult: ult_effect()*/ else { return false };   // L321/355/389\n        let heal   = eff.ty.expected_heal(ctx, champ, @anon.11) != 0;                      // L322 vt+0x40\n        let shield = eff.ty.expected_shield(ctx, champ, @anon.11) != 0;                    // L323 vt+0x48\n        let buff   = eff.ty.expected_buff(ctx, champ, @anon.11).is_some();                // L324 vt+0x50 → Option<BuffState>(@0x48 != -1)\n        let near = |e: &Entity| target.distance_sq(e) < 120000²+1 && (champ.team==Neutral || e.visible_state[champ.team]==Visible);\n        let near_enemy = cache.player_champion[1-team].iter().flatten().any(near)          // L325\n                      || cache.iter_towers(1-team).any(near)                               // L326\n                      || cache.jungles.iter().any(near)                                    // L327\n                      || cache.others[1-team].iter().any(|e| target.distance_sq(e) < 120000²+1);   // L328 (가시성 검사 없음)\n        let hp_ratio = target.hp*100 / target.stat_cached.hp;                              // L329 (div0 패닉)\n        if heal && !buff && hp_ratio > 79 && !buff_value::aoe_heal_covers_low_ally(version, &champ.skill_effect/*arm 별 효과 슬롯*/, data, player, anchor=target) { return false }   // L330~332\n        !shield || buff || near_enemy                                                       // L336\n    }\n    _ => true\n});\n\n// ── L424~428 retain #2 (closure#8, 캡처: self·&version·parameter·rnd·player·data·debug) ──\nact_actions.retain(|action| self.score(version, parameter, rnd, player, data, action, debug) >= -30);   // L425~426 (i64 signed)\n\n// ── L429 move_actions = get_move_action(version, rnd, player, data, &parameter.positioning_score(+0x9f0), team_plan, debug) 인라인(epic_hunt.rs:517~668) ──\nlet move_actions: Vec<SmallActionPlay> = {\n    let mut res = Vec::new_in(bump);                                                       // 518\n    let champ = cache.player_champion[team][pos].unwrap();                                 // 520\n    // 523~530: 적 챔프가 비대상 스킬 예비동작으로 나를 겨눌 수 있는가\n    let has_non_target_action_range = cache.player_champion[1-team].iter().flatten().any(|c|\n        utils::nontarget_windup_perceived(version, player, data, caster=c) && c.is_champion()\n        && match c.action_state@tag(@0x70) {\n             4 /*Skill*/  => { let e = c.skill_effect.unwrap(); matches!(e.casting(@0x4f8), Position(1)|Direction(2)) && e.is_in_range(c, champ) }   // 525\n             5 /*Skill2*/ => { let e = c.skill2_effect().unwrap(); 같은 조건 }              // 527\n             6 /*Ult*/    => { let e = c.ult_effect().unwrap();    같은 조건 }              // 529\n             _ => false });\n    // 536~541\n    let ps = position_eval::position_score_at_position(version, player, data, positioning_score, x=champ.x, y=champ.y, purpose=Objective(11));   // 56B PositioningScore\n    let on_trajectory = ps.on_periodic_trajectory(@0x31);\n    if ps.on_trajectory(@0x30) || has_non_target_action_range || on_trajectory {          // 538\n        res.push(RunAway(SmallActionRunAway::new_with_skill(data, player, 5, with_skill=true)));   // 540 (tag 3)\n        return res;                                                                        // 541\n    }\n    // 544~554 목표 태세\n    let posture = team_plan.v25_objective_posture(version, player, data, target=Morgard(4));   // Option<ObjectivePosture>(88B, +0 i64==-1 → None)\n    let mut objective_in_attack_range = false;\n    if let Some(p) = &posture {                                                              // 545\n        match p.kind(@0x50) {\n          WaitGroup(3) | SoftDisengage(4) => {                                              // 546\n              if p.kind == SoftDisengage && p.near_enemy_count(@0x38) != 0 { res.push(RunAway(new_with_skill(data, player, 5, false))); }   // 547~548\n              res.push(AroundPosition(SmallActionAroundPosition::new(rnd, data, target_x=p.wait_pos.0(@0x20), target_y=p.wait_pos.1(@0x28), 5)));   // 550 (untagged variant)\n              if ctx.debug(@0x3b) { debug.infos(@0xa0).entry(champ.id).or_default().push(format!(\"v25 morgard hunt posture: {:?}\", p.kind)); }   // 551~553\n              return res;                                                                    // 554\n          }\n          Screen(2) if p.focus_enemy(@0x0).is_some() => { res.push(Trace(SmallActionTrace::new_attack_range(data, target=p.focus_enemy.unwrap()(@0x8), 5))); }   // 557~559 (tag 14) — 계속 진행\n          _ => {}\n        }\n    }\n    // 565~574 에픽 사거리 판정\n    let epic: Option<&Entity> = game.get_game_mode()/*Moba 아니면 패닉*/ .live_list.first().and_then(|id| game.get_entity_by_id(*id));   // 565\n    if let Some(e) = epic {                                                                  // 566\n        let mr = objective_attack_range(champ, e);                                           // 567 = epic_hunt.rs:16~17 인라인: champ.attack_effect.unwrap().range(champ, e) + champ.radius() + e.radius()\n              // effect.rs:26 range() = range(@0x4a0) + growth_range(@0x4a8)*(level-1) + caster.stat_buff_cached.range(@0x438) + range_adjust(caster, target)\n              // entity.rs:1511 radius() = radius_mult(@0x470)==0 ? radius(@0x680) : radius*(100+mult)/100\n        if champ.distance_sq(e) > mr*mr {                                                    // 569\n            let camp = ctx.map.camp_pos(ty=Morgard(4), is_blue_side = team==0);                // 570\n            if !objective_helpers::v23_should_break_objective_hunt_anchor(player, data, champ, objective=e, camp.0, camp.1)   // 570\n               && !posture.map_or(false, |p| matches!(p.kind, WaitGroup|SoftDisengage)) {    // 571\n                res.push(Trace(SmallActionTrace::new_attack_range(data, target=e.id, 5)));   // 572\n                return res;                                                                  // 573~574\n            }\n            // (break 이거나 WaitGroup/SoftDisengage 면 epic 은 Some 으로 유지하고 계속)\n        } else { objective_in_attack_range = true; }                                          // 569 else\n    }\n    // 579~633 근접 적 순회 (추격/도주 판정)\n    let object_finish_battle = player.strategy(rnd, game).object_finish != KillPriority;     // 579 (BattlePriority)\n    let mut runaway = false; let mut force_runaway = false;\n    let pa = player.info.parameter(@0x180).positioning_accuracy();                            // 594\n    let (min_v, max_v) = (pa, 2000 - pa);                                                    // 594~596\n    let near_enemies: Vec<&Entity> = cache.iter_champions(1-team)                            // 598 closure#1: (champ.team Neutral || e.visible_state[champ.team]==Visible) && champ.distance_sq(e) < 160000²\n        .filter(..).collect_in(bump);\n    let me_die_tick = fight_check::check_kill_die_tick(version, _rnd, data, judger=player, focus=champ, enemy=&near_enemies.clone(), towers=&Vec::new_in(bump), _debug);   // 599~600\n    for enemy in near_enemies.iter() {                                                       // 602\n        if let Some(e) = epic { if !object_finish_battle && !fight_model::can_enemy_hit_objective(enemy, objective=e, range_margin=25000) { continue; } }   // 603 (킬우선이면 에픽을 못 때리는 적은 무시)\n        let jrng = utils::range_misjudge_rng(version, data, player, enemy_id=enemy.id);       // 607 ({i64,i64} 16B, 이후 &jrng)\n        let mr       = battle::max_range_can_use(champ, enemy)        * utils::range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000;   // 608 (롤1)\n        let emr      = battle::max_range_can_use(enemy, champ)        * range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000;          // 609 (롤2)\n        let emr_near = battle::max_range_nearly_can_use(enemy, champ, 40) * range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000;    // 610 (롤3)\n        let dist = champ.distance_sq(enemy);                                                 // 611\n        if me_die_tick < ctx.setting.tick_per_second(@0x12f8) {                              // 614 (1초 내 사망 예측)\n            let emr = battle::max_range_nearly_can_use(enemy, champ, 60) * range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000;   // 627 (롤4, 그늘 변수)\n            if dist > mr*mr && emr < mr { res.push(Trace(SmallActionTrace::new(data, target=enemy.id, 5))); }   // 629~631\n            else if dist <= emr*emr { runaway = true; force_runaway = true; }                // 632~633\n        } else if enemy.remain_action_time() > 10 && mr > 0 /*IR: roll*range > 999*/ {      // 615\n            if dist > mr*mr { res.push(Trace(SmallActionTrace::new(data, enemy.id, 5))); }  // 616~617\n        } else if emr < mr && dist > mr*mr {                                                 // 619\n            res.push(Trace(SmallActionTrace::new(data, enemy.id, 5)));                       // 621\n        } else if dist <= emr_near*emr_near { runaway = true; }                              // 622\n    }\n    // 640~643 적 others(소환수 등) 사거리\n    for e in cache.others[1-team].iter() {                                                   // 640\n        if let Some(atk) = &e.attack_effect {                                                // 641\n            let range = atk.range(caster=e, target=champ) + e.radius() + champ.radius();      // 642\n            if champ.distance_sq(e) <= range*range { runaway = true; force_runaway = true; break; }   // 643\n        }\n    }\n    // 651~667 최종 합성\n    let break_objective_anchor = epic.is_some_and(|e| v23_should_break_objective_hunt_anchor(player, data, champ, e, camp_pos(map, Morgard, team==0)));   // 651\n    if runaway && (break_objective_anchor || !objective_in_attack_range || force_runaway) {   // 653\n        res.push(RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false)));       // 654\n    } else if objective_in_attack_range {                                                    // 655 (runaway 이고 위 조건 거짓이면 반드시 in_range)\n        res.truncate(0);                                                                     // 656 (res.clear())\n        if let Some(e) = epic {                                                              // 657\n            let range = objective_attack_range(champ, e);                                    // 658\n            let margin = objective_wiggle_margin(rnd, champ, range);   // epic_hunt.rs:20~30 인라인:\n                // let mut inner = clamp(range.saturating_sub(10000), 12000, 45000);  let dist = champ.distance(e);\n                // if dist + 15000 < range { inner = if inner + dist > range { rnd.gen_range(12000..=inner) } else { 12000 } }\n                // margin = inner\n            res.push(Trace(SmallActionTrace::new_attack_range_margin(data, target=e.id, 5, attack_range_margin=margin)));   // 659\n        } else { res.push(Stop); }                                                           // 661 (tag 19)\n    } else if res.is_empty() {                                                               // 663\n        res.push(RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false)));       // 664\n    }\n    res                                                                                      // 667 (near_enemies drop)\n};\n// → 배치 K(줄 432, 블록 %1128): nearest_tower / attacking_objective / best_move_action 선별 후 sret 기록.\n// 예외 경로: L224·L228 은 J 가 sret 를 직접 채우고 ret(%310). 언와인드 cleanup(%357/%367/%703/%1987) 은 지역 Vec drop 만.\n\n// epic_hunt.rs:432~515 (배치 K)\n// 진입 문맥(배치 J 소관, 계약만): champ=%121=cache.player_champion[team][pos](L202) · team=%110=player.info.team · nearest_enemy_tower=%102(Option<&Entity>, L232/L234) · act_actions=%97(L244 벡터) · act_actions0=%100(L237 벡터) · move_actions=%93(L429 벡터) · version=%108 · bump=%350=context.pool. 배치 J 의 L429 블록에서 %1128 로 진입(m15.ll 15685).\n\n// ---- L432~L437 타워 어그로 도주 (m15.ll 15689~15765) ----\nif let Some(nearest_tower) = nearest_enemy_tower {                      // L432 null 검사\n  if nearest_tower.ty@tag(+0x68) == 2 /*Tower*/ {                       // L433 → info = &Tower(+0x70)\n    if info.nearest_enemy.is_some()(+0x88 tag)                          // L434\n       && info.nearest_enemy.1(+0x98) == champ.id(+0x5c0) {             //      타워가 나를 조준중\n      act_actions.truncate(0);                                          // L435 (%97)\n      move_actions.truncate(0);                                         // L436 (%93)\n      move_actions.push(SmallActionPlay::RunAway(                       // L437 태그 3 @+0xb1\n        SmallActionRunAway::new_with_skill(data, player, end_delay=5, with_skill=true)));\n    }\n  }\n}\n\n// ---- L442~L451 에픽 공격 중이면 v27 안전 공격 위치 ----\nif !act_actions.is_empty() {                                            // L442 len(+0x18)!=0, 비면 → L456\n  // L443: let GameMode::Moba(moba) = game.get_game_mode()(vtable+0x40) else unwrap_failed(443:71);\n  //       let Some(epic) = moba.jungle_runner.epic.live_list.first()(+0x1a8 len, +0x1a0 ptr)\n  //                        .and_then(|id| game.get_entity_by_id(*id)(vtable+0x1f0)) else → L456\n  if let Some(epic) = ... {\n    // L444: attacking_objective = act_actions.iter().any(|a| (a.tag(+0xb1)-15) <u 4 /*Attack|Skill|Skill2|Ult*/ && a.target(+0x8) == epic.id)\n    //       (루프 진입 전 len==0 재검사 → L457, 컴파일러 잔재)\n    if attacking_objective {                                            // L445 (거짓이면 → L456)\n      // L446 (m15.ll 15898~17058): let action = self.v27_objective_safe_attack_position(version, rnd, player, data, &parameter.positioning_score, epic) — 완전 인라인, 아래 v27 절\n      if let Some(action) = action {                                    // @+0xb1 != 0xFF\n        if context.debug(+0x3b) {                                       // L447\n          debug.infos(+0xa0).entry(champ.id).or_insert(Vec::new())      // L448\n               .push(\"v27 morgard safe attack position\".to_string());\n        }\n        return bumpalo::vec![in bump; action];                          // L450 from_iter_in([action]) · L451 = 언와인드 drop\n      }\n    }\n  }\n}\n\n// ---- v27_objective_safe_attack_position (epic_hunt.rs:43~145, L446 인라인) → Option<SmallActionPlay> ----\n//  L43  let Some(champ) = data.cache.player_champion[team][pos](%120 재로드) else None\n//  L44  objective_hp_ratio = epic.hp(+0x670)*100 / max(epic.stat_cached.hp(+0x628),1)\n//  L45  if objective_hp_ratio < 36 → None\n//  L49  attack_range = objective_attack_range(champ, epic)   // epic_hunt.rs:16~17 인라인:\n//         L16 atk = champ.attack_effect(+0x4c0 tag; -1=None → unwrap panic 16:46).as_ref().unwrap()  (&Effect = champ+0x490)\n//         L17 = [effect.rs:26 Effect::range] champ.stat_buff_cached.range(+0x438) + atk.range(+0x4a0) + (champ.level(+0x5c8)-1)*atk.growth_range(+0x4a8)\n//              + Effect::range_adjust(atk, champ, epic)\n//              + radius(champ) + radius(epic)   // entity.rs:1511~1515: mult=stat_buff_cached.radius_mult(+0x470, i32); mult==0 ? radius(+0x680) : radius*(mult+100)/100\n//  L52  if dist²(champ, epic) > attack_range² → None            // 사거리 밖이면 안전위치 불필요\n//  L56~60 threats: bumpalo Vec<&Entity> = cache.player_champion[1-team](%381..%382).iter_champions() (None 제거)\n//         .filter(closure$0: e ↦ blackboard[player.info.team].is_recent_visible(game, player, e)\n//                              && (dist²(e,champ) ≤ 260000² || dist²(e,epic) ≤ 220000²))  [aux m15 57952~58059]\n//  L61  if threats.is_empty() → drop, None\n//  L65  hp_ratio = champ.hp*100 / max(champ.max_hp,1)\n//  L67~68 current_nearest_enemy = threats.iter().map(|t| distance(champ,t)).min().unwrap()   [aux m12 31526 fold, first 원소는 본체 inline]\n//  L70~72 threat_contact = threats.iter().any(|t| dist²(champ,t) ≤ (max(max_range_nearly_can_use(t, champ, 50), 100000) + (hp_ratio<50 ? 70000 : 40000))²)\n//  L74  if !threat_contact && !(hp_ratio < 45 && current_nearest_enemy < 220001) → drop, None\n//  L78  keep_attack_range = attack_range.saturating_sub(30000)\n//  L83~86 allies: Vec<&Entity> = cache.player_champion[team](%119..+40).iter_champions().filter(closure$1: a ↦ a.id != champ.id && dist²(a,epic) ≤ 220000²)  [aux m15 58062~58118]\n//  L87~91 ally_centroid = allies.is_empty() ? None : Some((Σa.x/n, Σa.y/n))   (u64 정수 나눗셈) ; allies drop\n//  L95  cohesion(x,y) := ally_centroid.map_or(0, |(ax,ay)| (320000).saturating_sub(distance((x,y),(ax,ay))) / 10000)   (closure$6, 0..32)\n//  L98~99 xi = parameter.positioning_score.cx(+0x14a8) as i32, yi = .cy(+0x14b0) as i32\n//  L100~101 cur_pv = v27_positioning_value(version, player, position_score_at_position(version, player, data, &positioning_score, champ.x, champ.y, 11))\n//       v27_positioning_value(L34~38): positioning = player.info.parameter.positioning_effective();\n//         gain_weight = clamp(100 + (50-positioning)/10, 95, 105); risk_weight = clamp(100 + (positioning-50)/2, 75, 125);   (sdiv, 0 방향 절삭)\n//         trajectory_penalty = (score.on_trajectory(+0x30) || score.on_periodic_trajectory(+0x31)) ? max(positioning-50, 0) : 0;\n//         value = score.gain(+0x10)*gain_weight/100 - score.risk(+0x0)*risk_weight/100 - trajectory_penalty   (i64 sdiv)\n//  L102~103 current_score = cur_pv + min(current_nearest_enemy, 320000)/10000 + 8 + cohesion(champ.x, champ.y)   // ★8 = 현 위치 range_slack 만점 가정(추정, 상수 표 참조)\n//  L105 best: Option<(x,y,score,nearest)> = None\n//  L106~135 for dx in 0..7 { xb = xi-3+dx; if xb > 29 { continue }        // 내부 루프 진입 조건\n//             for dy in 0..7 { yb = yi-3+dy;\n//               L110 if xb<0 || yb<0 || yb>29 || map.walls[yb][xb](+0x78, [30][30]) != 0 → continue\n//               L114~115 x = xb*32000+16000, y = yb*32000+16000\n//               L116 if dist²((x,y), epic) > keep_attack_range² → continue          // 에픽을 계속 때릴 수 있는 셀만\n//               L120~123 nearest_enemy = threats.iter().map(|t| distance((x,y),t)).min().unwrap_or(u64::MAX)   [aux m12 31422 fold]\n//               L124~125 pv = v27_positioning_value(version, player, position_score_at_cell(version, player, data, &positioning_score, xb, yb, 11))\n//               L126 enemy_spacing = min(nearest_enemy, 320000)/10000\n//               L127 range_slack = min(keep_attack_range.saturating_sub(distance((x,y), epic)), 80000)/10000\n//               L128 score = pv + enemy_spacing + range_slack + cohesion(x,y)\n//               L130~131 if best.map_or(true, |b| score > b.score) { best = Some((x,y,score,nearest_enemy)) }   // 동점 유지(먼저 것)\n//             } }\n//  L136 let Some(best) = best else → drop threats, None\n//  L137 if best.score < current_score && best.nearest < current_nearest_enemy.saturating_add(30000) → None   // 점수도 낮고 적과의 간격도 충분히 안 벌어지면 이동 안 함\n//  L140 if dist²(champ, best) < 12000²+1 (=≤12000) → None                    // 사실상 제자리\n//  L144 Some(SmallActionPlay::AroundPosition(SmallActionAroundPosition::new_with_radius(rnd, data, best.x, best.y, end_delay=3, around_radius=25000)))   // 태그 없음(untagged), @+0xb1=outline_type\n//  L145 threats drop\n\n// ---- L456~L512 공격 후보 없을 때의 이동 후보 확정 ----\nif act_actions.is_empty() {                                             // L456 (L442 거짓·L443 None·L445 거짓·L446 None 전부 여기로)\n  positioning_accuracy = player.info.parameter.positioning_accuracy();  // L457\n  min_v = positioning_accuracy; max_v = 2000 - positioning_accuracy;    // L458~459\n  // L463~473: 아웃레인지 판정 — 적 챔프(cache.player_champion[1-team], 5칸, None 건너뜀) 를 find(closure$12):\n  //   L464 jrng = range_misjudge_rng(version, data, player, c.id)               (16B 시드, rnd 미소비)\n  //   L465 emr = max_range_can_use(c, champ) * range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000 + 10000\n  //   L466 mr  = max_range_can_use(champ, c)\n  //   L468 if !blackboard[1-team].is_recent_visible(game, player, c) → false\n  //   L469 if dist²(c, champ) > emr² → false                                    (적이 나를 사거리(오판 포함) 안에 둠)\n  //   L470 if c.is_in_action() (ty==Champion(13) && action_state.tag(+0x70) >= 3) → false\n  //   L472 if mr != 0 || c.block_input() → false                                (내가 c 를 칠 수 있거나 c 가 행동불능이면 제외)\n  //   → true\n  if let Some(_) = ... {                                                 // L463 성립\n    return bumpalo::vec![in bump; RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false))];   // L473\n  }\n  // L476: best_move_action = move_actions.iter().max_by_key(|a| self.score(version, rnd, player, data, parameter, a, debug)).unwrap()\n  //        (첫 원소는 epic_action_score(version,rnd,player,data,parameter,a,debug) 로 인라인 · 나머지는 aux m12 23134 fold 에서 EpicHuntSubPlan::score 호출 · 동점이면 뒤 원소 · move_actions 비면 unwrap panic 476:128)\n  // L480~482: trajectory_possible = game.iter_projectile()(vtable+0x210).any(closure$14: p ↦\n  //        p.team != TeamType::Player(team)   (+0x0 tag==0 && +0x8==team 이면 제외)\n  //        && !p.is_targeting()  [projectile.rs:134: move_type(+0x40) ∈ {Target(6), TargetSplash(7), BouncingTarget(암묵)이고 +0x40==1}]\n  //        && dist²(champ, (p.x(+0x100), p.y(+0x108))) < 420000²)\n  // L483~484: enemy_rushing = cache.player_champion[1-team].iter().flatten().any(closure$15: c ↦ matches!(c.rush_state(+0x308), Rush(0x8000000000000003) | RushPenetrate(암묵: signed>=0)))\n  //   (trajectory_possible 가 true 면 L484 는 평가 안 함 — %1921→%1922)\n  if trajectory_possible || enemy_rushing {                              // L483 → L485/486\n    move_action_input = best_move_action.clone().get_input(version, rnd, player, data, &parameter.positioning_score, debug);   // L486 (Option<Input> 32B) · L487 clone drop\n    if let Some(Input::Move{x,y}) = move_action_input {                 // L490 tag 0 · -1=None → L507 · 그 외 → L504\n      position_score = position_score_at_position(version, player, data, &positioning_score, x, y, 11);   // L494\n      on_trajectory = position_score.on_trajectory(+0x30) || position_score.on_periodic_trajectory(+0x31);   // L496\n      if on_trajectory {                                                 // L498\n        return bumpalo::vec![in bump; RunAway(SmallActionRunAway::new_with_skill(data, player, 5, false))];   // L499 (목적지가 투사체 궤도 위면 도주로 대체)\n      } else {\n        return bumpalo::vec![in bump; best_move_action.clone()];        // L501\n      }\n    } else if move_action_input.is_some() {                              // Move 아닌 Input\n      return bumpalo::vec![in bump; best_move_action.clone()];          // L504\n    }\n  }\n  return bumpalo::vec![in bump; best_move_action.clone()];              // L507 (조건 불성립·None 모두)\n} else {\n  return act_actions;                                                    // L512 %97 → sret 32B memcpy (move)\n}\n// L514~515: 함수 끝 drop — move_actions(%93) · act_actions %97(L512 제외) · act_actions0 %100 순. 언와인드 정리 블록 %1143/%357/%311 도 같은 순서.\n// 다른 배치로 넘어가는 지점: 배치 K 진입은 배치 J 의 %575/%1109/%1121 → %1128 뿐. K 에서 J 로 되돌아가는 br 없음(반환·언와인드 패드 %357/%311/%352 는 공용 정리 블록)",
+ "knobs": [
+  {
+   "what": "need_recall 진입: 에픽 예상피해 배수",
+   "where": "epic_hunt.rs:207",
+   "value": 3,
+   "effect": "올리면(dmg*N ≥ hp) 에픽이 나를 노릴 때 더 일찍 귀환 판단"
+  },
+  {
+   "what": "need_recall 해제 HP%",
+   "where": "epic_hunt.rs:214",
+   "value": 29,
+   "effect": "hp_ratio > 29 에서 해제. 올리면 더 회복해야 사냥 복귀"
+  },
+  {
+   "what": "이동/돌진 스킬 대상 타워 여유",
+   "where": "epic_hunt.rs:272 (closure#5 중첩)",
+   "value": 15000,
+   "effect": "올리면 타워 근처 챔피언에게 대시 스킬을 더 안 씀"
+  },
+  {
+   "what": "아군 힐/실드 정리: 근접 적 반경",
+   "where": "epic_hunt.rs:325~328 (closure#7)",
+   "value": 14400000001,
+   "effect": "120000²+1. 올리면 더 먼 적도 '근접'으로 봐 실드류를 더 유지"
+  },
+  {
+   "what": "힐 대상 HP% 상한",
+   "where": "epic_hunt.rs:330",
+   "value": 79,
+   "effect": "대상 HP > 79% 이면 aoe_heal_covers_low_ally 통과 필요. 내리면 힐 남발 억제"
+  },
+  {
+   "what": "행동 점수 하한",
+   "where": "epic_hunt.rs:426 (closure#8)",
+   "value": -30,
+   "effect": "score < -30 제거. 올리면 후보가 줄어 보수적"
+  },
+  {
+   "what": "킬우선 시 적 무시 여유",
+   "where": "epic_hunt.rs:603",
+   "value": 25000,
+   "effect": "can_enemy_hit_objective range_margin. 올리면 더 많은 적을 위협으로 인정"
+  },
+  {
+   "what": "오판 롤 상한",
+   "where": "epic_hunt.rs:596",
+   "value": 2000,
+   "effect": "max_v = 2000 - positioning_accuracy. per-mille"
+  },
+  {
+   "what": "emr_near 여유",
+   "where": "epic_hunt.rs:610",
+   "value": 40,
+   "effect": "max_range_nearly_can_use 인자. 올리면 도주(runaway) 판정이 넓어짐"
+  },
+  {
+   "what": "1초 내 사망 시 emr 여유",
+   "where": "epic_hunt.rs:627",
+   "value": 60,
+   "effect": "올리면 사망 임박 시 도주 판정이 넓어짐"
+  },
+  {
+   "what": "적 행동 잔여시간 문턱",
+   "where": "epic_hunt.rs:615",
+   "value": 10,
+   "effect": "remain_action_time > 10 이면 '사거리 밖이면 추격' 분기"
+  },
+  {
+   "what": "근접 적 반경",
+   "where": "epic_hunt.rs:598 (get_move_action closure#1)",
+   "value": 25600000000,
+   "effect": "160000². 올리면 더 먼 적까지 near_enemies 에 포함"
+  },
+  {
+   "what": "에픽 주변 흔들림 여유",
+   "where": "epic_hunt.rs:22~29 (objective_wiggle_margin)",
+   "value": 12000,
+   "effect": "inner 하한/폴백. 10000(range 차감)·45000(상한)·15000(dist+15000<range 조건)과 함께"
+  },
+  {
+   "what": "사망 임박 기준",
+   "where": "epic_hunt.rs:614",
+   "value": "tick_per_second(설정)",
+   "effect": "me_die_tick < tps(1초). 설정값이라 상수 아님"
+  },
+  {
+   "what": "v27 발동 에픽 hp% 하한",
+   "where": "epic_hunt.rs:45 (m15.ll 15964)",
+   "value": 36,
+   "effect": "올리면 에픽 체력이 더 높을 때부터 안전위치 이동을 포기(막타 구간 확대) · 내리면 저체력에도 위치 조정"
+  },
+  {
+   "what": "threat 판정 반경(나 기준)",
+   "where": "epic_hunt.rs:59 closure$0 (m15.ll 58021)",
+   "value": 67600000001,
+   "effect": "260000² — 올리면 더 먼 적도 위협으로 잡아 v27 이 더 자주 발동"
+  },
+  {
+   "what": "threat/ally 판정 반경(에픽 기준)",
+   "where": "epic_hunt.rs:59/85 (m15.ll 58053/58112)",
+   "value": 48400000001,
+   "effect": "220000² — 에픽 주변 적/아군 인식 범위"
+  },
+  {
+   "what": "접촉 여유(저체력/고체력)",
+   "where": "epic_hunt.rs:70~71 (m15.ll 16273~16274)",
+   "value": "70000 / 40000",
+   "effect": "올리면 적이 더 멀어도 '접촉'으로 봐 위치 조정 발동"
+  },
+  {
+   "what": "위협 사거리 하한",
+   "where": "epic_hunt.rs:71 (m15.ll 16302)",
+   "value": 100000,
+   "effect": "max_range_nearly_can_use 가 작아도 최소 100000 으로 봄"
+  },
+  {
+   "what": "비접촉 발동 hp%·거리",
+   "where": "epic_hunt.rs:74 (m15.ll 16339~16340)",
+   "value": "45 / 220001",
+   "effect": "접촉 없어도 hp<45% 이고 220000 이내 위협이면 발동"
+  },
+  {
+   "what": "keep_attack_range 여유",
+   "where": "epic_hunt.rs:78 (m15.ll 16345)",
+   "value": 30000,
+   "effect": "올리면 후보 셀이 에픽에 더 가까운 곳으로 제한"
+  },
+  {
+   "what": "포지셔닝 가중치 clamp",
+   "where": "epic_hunt.rs:35~36 (m15.ll 16528~16540)",
+   "value": "gain 95..105 / risk 75..125",
+   "effect": "포지셔닝 스탯이 점수에 미치는 폭"
+  },
+  {
+   "what": "적 간격 상한",
+   "where": "epic_hunt.rs:102/126 (m15.ll 16563/16899)",
+   "value": 320000,
+   "effect": "min(nearest,320000)/10000 — 적과 32셀 이상 떨어져도 추가 점수 없음"
+  },
+  {
+   "what": "range_slack 상한",
+   "where": "epic_hunt.rs:127 (m15.ll 16914)",
+   "value": 80000,
+   "effect": "에픽 사거리 여유 점수 최대 8"
+  },
+  {
+   "what": "현 위치 고정 가산",
+   "where": "epic_hunt.rs:102(추정) (m15.ll 16681)",
+   "value": 8,
+   "effect": "내리면 현 위치 점수가 낮아져 이동 후보가 더 자주 채택"
+  },
+  {
+   "what": "best 채택 간격 조건",
+   "where": "epic_hunt.rs:137 (m15.ll 16688)",
+   "value": 30000,
+   "effect": "best 점수가 현 위치보다 낮아도 적과 30000 이상 더 벌어지면 채택"
+  },
+  {
+   "what": "제자리 판정 거리",
+   "where": "epic_hunt.rs:140 (m15.ll 16707)",
+   "value": 144000001,
+   "effect": "12000² — 올리면 짧은 이동은 버림"
+  },
+  {
+   "what": "AroundPosition 파라미터",
+   "where": "epic_hunt.rs:144 (m15.ll 16712)",
+   "value": "end_delay 3 / around_radius 25000",
+   "effect": "이동 행동의 종료 지연·배회 반경"
+  },
+  {
+   "what": "RunAway end_delay",
+   "where": "epic_hunt.rs:437/473/499",
+   "value": 5,
+   "effect": "도주 행동 유지 틱 여유"
+  },
+  {
+   "what": "range_misjudge 범위",
+   "where": "epic_hunt.rs:458~459 (m15.ll 17271)",
+   "value": "min=positioning_accuracy, max=2000-positioning_accuracy",
+   "effect": "적 사거리 오판 폭 — 2000 을 올리면 저능력 선수의 오판이 커짐"
+  },
+  {
+   "what": "emr 보정",
+   "where": "epic_hunt.rs:465 (m15.ll 17369~17370)",
+   "value": "/1000 +10000",
+   "effect": "적 사거리 인식에 +10000 여유"
+  },
+  {
+   "what": "투사체 위험 반경",
+   "where": "epic_hunt.rs:482 (m15.ll 17686)",
+   "value": 176400000000,
+   "effect": "420000² — 비조준 투사체가 이 안에 있으면 목적지 궤도 검사 후 도주 대체"
+  }
+ ],
+ "unknown": [
+  "(배치 J) L244/L313 의 `.filter(closure#5)`/`.map(closure#6)` 호출 자체가 소스 313줄에, from_iter_in 이 244줄에 찍힌다 — 클로저#5 본문은 246~301(칸 정보 0 이라 `Vec::from_iter_in(iter.filter(..).map(..), bump)` 형태인지 let-바인딩 클로저인지 표기 불가 · 동작은 확정).",
+  "(배치 J) L615 `mr > 0` 은 IR 에서 `roll*max_range > 999`(1000 나누기 전) 로 접혀 있어 `>0` 인지 `>=1` 인지 표기 불가(외연 동일).",
+  "(배치 J) L538 DI 지역명 `on_trajectory` 가 PositioningScore.on_periodic_trajectory(+0x31)에 바인딩되고 +0x30 on_trajectory 는 직접 읽힌다 — 소스가 `ps.on_trajectory || … || on_trajectory` 인지 필드명이 바뀐 것인지 표기 불가(읽는 바이트는 확정).",
+  "(배치 J) closure#5 Attack/Skill arm 의 `target.team == champ.team` 항이 `!(A && B) || C` 인지 `!(A && B && !C)` 인지 표기 불가(외연 동일 · 분기 순서: A(타워가 나를 사거리) → B(대상≠타워) → C(팀 동일)).",
+  "(배치 J) L227 v27_objective_discipline_action · L544 v25_objective_posture · L425 score · L599 check_kill_die_tick · L536 position_score_at_position · L608~ max_range_can_use/nearly · range_misjudge_rng/roll · aoe_heal_covers_low_ally · should_ignore_object_finish_kill_priority_target · v23_should_break_objective_hunt_anchor · nontarget_windup_perceived · battle_action/attack_summon_action/attack_jungle_action 내부 = 자식 명세(r13~r15) 소관, 여기선 계약만.",
+  "(배치 J) EffectType vtable 슬롯 이름(+0x40 heal/+0x48 shield/+0x50 buff/+0x60 rush/+0x68 move_on_hit)은 divtable 의 정적 vtable(@anon…1131, 일치율 94%) 기준 — Arc<dyn> 런타임 구현체별 확인은 못 함.",
+  "(배치 J) expected_heal/shield/buff 의 4번째 인자 @anon.11(24B 제로 Vec 헤더 + Debug fmt 포인터 상수)의 의미(빈 슬라이스/기본 파라미터로 추정) — expected_* 시그니처는 game_core 자식 소관.",
+  "(배치 J) L604~606, L624~626, L634~639, L644~650 등 IR 이 없는 소스 줄은 주석/빈 줄/닫는 괄호로 추정(rmeta_srcmap 미대조).",
+  "(배치 J) get_act_action(670~676)·objective_attack_range(16~17)·objective_wiggle_margin(20~30)·get_move_action(517~668) 은 같은 파일의 비공개 헬퍼가 전부 인라인된 것(별도 define 없음 — fnparts 로 확인). 배치 K 범위(432~515)와 이 헬퍼 줄 범위(517~668)는 겹치지 않는다.",
+  "(배치 J) MapDef::camp_pos 내부 LocalKey 메모(g02.ll:6914)의 키·무효화 규칙은 game_core 소관(순수 좌표 캐시로 추정 — 미러 순서 무관 판정은 추정).",
+  "(배치 K) Tower.nearest_enemy: Option<(usize,usize)> 의 .1 이 엔티티 id 인 것은 champ.id 와의 비교로 확정(m15.ll 15736). .0 의 의미(거리? 틱?)는 K 범위에서 안 읽어 미확인 — game_core Tower 갱신 코드(_gcbc) 미탐색",
+  "(배치 K) 상수 8(m15.ll 16681, `add nuw nsw i32 %1476, 8`, dbg=v27_positioning_value L38)의 소속 소스 줄: 후보 셀 경로의 L38 계산(m15.ll 16958~16962)에는 8 이 없고 range_slack(≤8) 이 그 자리에 있어 L102 현 위치 점수식의 상수로 판단(추정). 합산식 자체는 IR 로 확정",
+  "(배치 K) L444 `attacking_objective` 판정에 사용되는 target(+0x8) 은 Attack/Skill/Skill2/Ult 4 variant 모두 +0x8 (tcxdict) — Ult 의 target 이 같은 위치인지는 tcxdict SmallActionUlt 로 확인함(0x8 target). 다만 L444 이 4 variant 를 한 덩어리로 검사하므로 소스가 matches! 인지 개별 arm 인지는 표기 불가(외연 동일)",
+  "(배치 K) v27 L130 best 갱신은 `score > best.score`(엄격) 로 확정(m15.ll 16972 icmp sle → 유지). L106/107 루프 순서(dx 외측·dy 내측)는 phi 구조로 확정. 후보 셀 순회 순서는 재현 시 동점 처리에 영향",
+  "(배치 K) blackboard 인덱스가 두 곳에서 다르다: closure$0(L58) 은 blackboard[player.info.team], L468 은 blackboard[1-team](%215). 둘 다 IR 그대로 기록했고 의도(_docs: Blackboard[team]=team 자체 정보, 관측은 1-team)는 별도 검증 안 함",
+  "(배치 K) epic_hunt.rs L451 · L453~455 · L460~462 · L474~475 · L477~479 · L488~489 · L495 · L500 · L502~503 · L505~506 · L508~511 · L513 은 IR 에 루트 줄이 없음(주석·빈 줄·닫는 괄호로 추정, rmeta_srcmap 미대조)",
+  "(배치 K) team_plan(%7) 은 K 범위에서 load 0건. J 범위 사용 여부는 배치 J 소관",
+  "(배치 K) range_misjudge_rng/roll · max_range_can_use/nearly · position_score_at_position/at_cell · epic_action_score · EpicHuntSubPlan::score · get_input · is_recent_visible · range_adjust · block_input 내부는 계약만(자식 명세/game_core 경계) — TLS 메모 여부는 그 명세 참조",
+  "(배치 K) L476 max_by_key 의 첫 원소 키는 본체에서 epic_action_score 직접 호출(m15.ll 17555), fold 에서는 EpicHuntSubPlan::score 호출(aux m12 23228) — score 가 epic_action_score 의 단순 래퍼라는 가정(r14 계약)으로 같은 키로 봄. 래퍼가 self 상태를 읽는다면 첫 원소만 다를 수 있음(미검증)"
+ ],
+ "new_knobs": [],
+ "resolved": [],
+ "still_unknown": [],
+ "_merged_from": [
+  "J",
+  "K"
+ ]
+}

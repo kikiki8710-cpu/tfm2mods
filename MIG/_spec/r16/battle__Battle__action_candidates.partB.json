@@ -1,0 +1,647 @@
+{
+ "name": "action_candidates",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battleNtB2_13BattleSubPlan17action_candidates",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle.rs",
+ "src_line": 358,
+ "ir_file": "m02.ll",
+ "ir_from": 27592,
+ "ir_to": 36306,
+ "aux": [
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 3931,
+   "ir_to": 4087,
+   "what": "Iter<Option<&Entity>>::try_fold<any::check<base_positioning::{closure#16}(se_0)>> — bp:306~309 enemy_in_tower_range 술어 본체(is_recent_visible && dist²(tower,c) ≤ (tower_attack_range + c.radius())²)"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 4090,
+   "ir_to": 4246,
+   "what": "동형 try_fold<any::check<{closure#18}(sg_0)>> — bp:325~ (version<2 전용, reach 사장) NA 봉인"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 4435,
+   "ir_to": 4497,
+   "what": "base_positioning::{closure#9}(s7_0) — bp:215~216 chase 술어: t.team != champ.team && blackboard[1-player.team].is_recent_visible(game, player, t)"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 75979,
+   "ir_to": 76000,
+   "what": "{closure#10}(s8_0) call_mut — bp:251 타워 필터 = Entity::can_target()(entity.rs:1477: +0x6b9 can_target && +0x6a0 block_target_tick==0)"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 32144,
+   "ir_to": 32196,
+   "what": "Copied<Iter<&Entity>>::try_fold<find::check<s8_0>> — bp:252 타워 체인의 twin_towers 슬라이스 절반 필터 래퍼(s8_0 call_mut 호출)"
+  }
+ ],
+ "one_line": "배치 B: 강제도주 블록 꼬리(L519~532 카이팅 지점 AroundPosition 조기 return)와 L536 = base_positioning 인라인(goal 별 Trace/RunAway/AroundPosition/AroundHide 후보 생성 → res.extend)",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "bumpalo Vec<SmallActionPlay> 32B",
+    "note": "ptr@0 · bump@+8 · cap@+0x10 · len@+0x18. 배치 B 안의 채움 지점: L532 return 경로 %2791 `memcpy %0 ← %108(res) 32B`(m02.ll:35090). L536 은 res 에 extend 만 하고 sret 채움은 배치 C(L607/L613)"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut BattleSubPlan(48B)",
+    "note": "initializes((43,44),(45,46)) = +0x2b v48_dodge_claim · +0x2d last_bail_gate(배치 A L359/360 이 0 으로 초기화). ★배치 B 의 &mut 쓰기 = bp:110 self.support_target ← Some(near_enemy.id): +0x0 태그 store i64 1 (m02.ll:29017) · +0x8 store id (m02.ll:29018). 읽기: +0x0/+0x8 support_target · +0x10 goal@tag · +0x18 goal.focus · +0x28 avoid_unnecessary_tower_trace · +0x2c tactic@tag"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "L536 진입 시 %109 alloca 에서 재로드(%255, m02.ll:28143) → base_battle_action 1번째 인자 · SmallActionAroundHide::new / SmallActionAround::new 1번째 인자 · kite_reposition_point 1번째 인자 · bp:293 `version > 1` 분기(%1470 = icmp ugt %255, 1 · reach 가 version=2 로 접어 참 확정 → bp:320~345 사장)"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "L526 / bp:198 SmallActionAroundPosition::new_with_radius 1번째 인자 · bp:147 SmallActionAroundHide::new 2번째 인자 · (NA) bp:332/340 SmallActionAround::new. ⚠base_battle_action 호출엔 rnd 가 전달되지 않음(fastcc 5인자: version, player, data, goal_tag, focus — tcx 시그니처의 &mut StdRng 는 데드인자 제거)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "+0x930 info.team(%124, 배치 A 산출) · 모든 SmallAction 생성자·v21/v48 호출에 전달 · is_recent_visible 3번째 인자 · 클로저 s7_0/se_0 캡처"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0 cache(%135 &AbstractGameWithCache: +0 game dyn 팻포인터(%417 data,%419 vtable) · +0x1e0 player_champion[2][5]) · +8 context(%118 &GameContext: +0x20 map → MapDef+0x6d70 fountains[team]) · +0x10 blackboard(&[Blackboard;2], 744B stride, 인덱스 = 1-player.team)"
+   },
+   {
+    "i": 6,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B)",
+    "note": "배치 B 에서는 v21_support_pressure_too_risky(bp:113) · kite_reposition_point(bp:196) 에 그대로 전달만. 필드 직접 읽기 없음"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "type": "&TeamPlan(ptr)",
+    "note": "배치 B 범위 안에서 미사용"
+   },
+   {
+    "i": 8,
+    "name": "_debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "배치 B 범위 안에서 미사용"
+   }
+  ],
+  "returns": "sret 32B bumpalo Vec<SmallActionPlay>(ptr·bump·cap·len 4슬롯 전부 live). 원소 184B · 태그 @+0xb1(1B, 니치: untagged=AroundPosition, niche_start=3 → 메모리태그 = idx+3). 배치 B 가 push 하는 variant 와 live 바이트: ①Trace(태그 14) = legacy_battle_trace_action 인라인(battle.rs:972, bp:114/140/151/203/218) — live: +0x0 explicit_min_range@tag=0(None) · +0x55 path_finder@tag=2(None) · +0x58 start_tick=game.tick() · +0x60 target · +0x68/+0x70 goal_x/y=target 엔티티 x/y(엔티티 없으면 0,0) · +0x78 attack_range_margin=15000 · +0x80 end_delay=5 · +0x88 escape_commit_until=0 · +0x90 avoid_unnecessary_tower=인자 · +0x91..+0x94 (attack_range_only, abandoned, avoid_enemy_zone, dive_ignore_tower_escape)=i32 0 · +0x95 last_escape@tag=2(None) · +0xb1=14. 미기록(undef): +0x8..+0x54(explicit_min_range 페이로드+path_finder 페이로드) · +0x56..+0x57 · +0x96..+0xb0. ②Trace 변종 legacy_attack_range_trace_action(battle.rs:980, bp:136 tactic==BacklineDPS) — 동일하되 +0x91 attack_range_only=1 · +0x92/+0x93/+0x94 = 0 각각 i8 store. ③RunAway(태그 3) = SmallActionRunAway::new / new_with_ult 의 sret 136B 를 memcpy 후 +0xb1=3 — live 는 생성자 계약(r14 잎: SmallActionRunAway 0..+0x84 · path_finder@tag +0x7d) · +0x88..+0xb0 undef. ④AroundPosition(untagged, 태그 없음) = SmallActionAroundPosition::new_with_radius sret 184B 통째 memcpy(L525/bp:197) — +0xb1 은 페이로드의 outline_type@tag(니치 밖 값). ⑤AroundHide(태그 6) = SmallActionAroundHide::new sret 120B memcpy 후 +0xb1=6 · +0x78..+0xb0 undef. ⑥AroundRunAway(태그 8, SmallActionAround +0x81 escape_mode=1) = NA(version<2 전용 bp:332~342). 배치 B 에서 Vec 로 나가는 건 L532 return 경로(res 그대로)뿐이고 L536 은 res.extend(base_positioning 결과)",
+  "tls": [
+   {
+    "name": "CAST_BEAMS (v48_cast_beams RefCell 메모)",
+    "role": "소비자/작성자(콜리 내부)",
+    "key": "자식 명세(r14 v48_on_cast_line) 참조",
+    "layout": "sret 296B (usize, [(u8,i64,i64,i64,i64,u64);6]) — 자식 명세 참조",
+    "invalidation": "자식 명세 참조",
+    "call_conditions": "L520 `v48_on_cast_line(player, data, champ.radius(), champ.x, champ.y)` 아웃오브라인 호출(m02.ll:34010). 조건: 강제도주 블록(L401 force_runaway) 안 · L519 `!(current_position_score.on_trajectory || .on_periodic_trajectory)` 일 때만 평가(단락). ★순서: 이 호출은 v48_kite_position(L518) 인자 평가이므로 **L518 본체(배치 A · 내부에 v48_on_cast_line→v48_cast_beams RefCell::with 가 인라인, m02.ll:34749)보다 먼저** 발화한다"
+   },
+   {
+    "name": "MAX_RANGE_CACHE (RefCell<MaxRangeCache>, old::battle::max_range_cached)",
+    "role": "소비자/작성자(콜리 내부)",
+    "key": "자식 명세 참조(m10.ll:50689 define · m00.ll:79611 LocalKey::with)",
+    "layout": "미확인(자식 명세)",
+    "invalidation": "미확인",
+    "call_conditions": "①bp:111 `max_range_cached(data, champ, near_enemy)` 직접 호출(m02.ll:29019) — 조건: L536 진입 · self.support_target Some · get_entity_by_id Some · (support_target 가 아군이면 가시 적 min_by_key 가 Some). ②bp:113 `v21_support_pressure_too_risky(...)` 내부에서 6곳 호출(m05.ll:58219~59241 grep) — 조건: ①에 더해 dist²(near_enemy,champ) > (mr+25000)² 이고 near_enemy.team != champ.team"
+   },
+   {
+    "name": "POS_EVAL_CACHE 계열(position_score_at_position 경유, 간접)",
+    "role": "간접(콜리의 콜리)",
+    "key": "r15 position_eval_at 명세 참조",
+    "layout": "미확인",
+    "invalidation": "미확인",
+    "call_conditions": "bp:196 `kite_reposition_point(version, player, data, parameter, champ, ne.x, ne.y, attack_range)`(m02.ll:29950) 내부에서 position_score_at_position 2회(m02.ll:74099~74527 grep) — 조건: goal==Kiting · base_battle 비어있음 · nearest_enemy Some · dist² ≤ max_range² · game.is_visible(team, ne.id). 배치 B 본문에는 position_score_at_position 직접 호출 없음(L390/L518 은 배치 A). v47_siege_stance·champion_hp_value·interaction_score 직접/1단계 간접 호출 = 0건(base_battle_action 7,900줄 본체 grep 0건 · 2단계 이상 미확인)"
+   }
+  ]
+ },
+ "reads": [
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x0",
+   "name": "support_target@tag",
+   "note": "bp:100 `if let Some(x)=self.support_target`(trunc i64→i1, m02.ll:28775/28784)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x8",
+   "name": "support_target@Some.0",
+   "note": "bp:100 get_entity_by_id 인자(m02.ll:28792)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x10",
+   "name": "goal@tag",
+   "note": "bp:73 switch(0..7, m02.ll:28186) · bp:120 switch(m02.ll:28802) · bp:123 base_battle_action goal_tag 인자"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x18",
+   "name": "goal.focus",
+   "note": "bp:73 focus(변종 0,1,2,3,5,6 공통 페이로드) · base_battle_action 5번째 인자"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x28",
+   "name": "avoid_unnecessary_tower_trace",
+   "note": "bp:114/135~141/152/204/219 Trace 의 avoid_unnecessary_tower 값·분기(gep 40)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x2c",
+   "name": "tactic@tag",
+   "note": "bp:135 `== BacklineDPS(2)`(m02.ll:32191~32196)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "클로저 s7_0/se_0 안에서 재로드(1-team 으로 blackboard 인덱스, 배열길이 2 bounds check)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "%135. bp:74/99 player_champion 재로드, get_entity_by_id/tick/is_visible vtable 호출 수신자"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "%118. bp:95 bump(+0) · bp:281 map(+0x20)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "bp:105/165/265/306 등 `&blackboard[1-team]`(744B stride)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "bp:281 (m02.ll:31289)"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x6d70",
+   "name": "fountains[team] (lx,ly,rx,ry) 32B stride",
+   "note": "bp:281 gep 28016 + team*32 (m02.ll:31292~31303)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (dyn AbstractGame 팻포인터)",
+   "note": "vtable 슬롯: +0x28 tick(bp:114 등 start_tick) · +0xf8 is_visible(team,id)(bp:189) · +0x1f0 get_entity_by_id(bp:75/100/114/126/214)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "%138 슬롯 재로드(bp:74 %262, bp:99 %412) · [1-team] 5슬롯 = 적 챔프 순회(%143..%144) · [team] = bp:270 아군 순회(%137)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag (TeamType: 0 Player(usize)/1 Neutral)",
+   "note": "bp:76/101/113/215 derive PartialEq: 태그 같고 (태그 0 이면 +0x8 페이로드 같음)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": "팀 인덱스. bp:78 visible_state 인덱스로도 사용(bounds check <2)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x38",
+   "name": "visible_state[team]@tag (24B stride, 0=Visible)",
+   "note": "bp:78 Entity::is_visible_from(champ)(entity.rs:1481): x.visible_state[champ.team]==Visible"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "Effect::range(effect.rs:26) 합산항"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult(i32)",
+   "note": "Entity::radius()(entity.rs:1509~1515): 0 이면 radius 그대로, 아니면 radius*(100+mult)/100"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect (Option<Effect>, 태그 @+0x4c0 i32 -1=None)",
+   "note": "bp:170 unwrap(None 이면 unwrap_failed 패닉) · bp:302/322 map"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "Effect::range 항"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "× (level-1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect (태그 @+0x4f8 -1=None · target@+0x4f0 · range +0x4d8 · growth +0x4e0)",
+   "note": "bp:173~176 can_skill && target.check(champ,ne) → skill_range"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect (Entity::skill2_effect(): level>2 일 때만 &self.skill2_effect, 아니면 정적 None @anon.19)",
+   "note": "bp:180~183 (태그 @+0x530 · target @+0x528 · range +0x510 · growth +0x518)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect (Entity::ult_effect(): level>4 일 때만, 아니면 정적 None)",
+   "note": "bp:259~260 ty.expected_move_distance().is_some() && casting@+0x568 ∈ {1 Position, 2 Direction}"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "real_focus_id / near_enemy.id / nearest_enemy.id / tower.id / 아군 자기제외(bp:269)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "Effect::range 의 growth×(level-1) · skill2/ult 접근자 게이트(>2, >4)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "bp:263 champ hp% · bp:291 tower hp% — 0 이면 panic_const_div_by_zero"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "dist² 계산 전역"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "bp:263/291 hp*100/max"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "Entity::radius() 기본값"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x6a0",
+   "name": "block_target_tick",
+   "note": "closure#10 can_target(): ==0"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x6b9",
+   "name": "can_target(bool)",
+   "note": "closure#10"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x30",
+   "name": "casting@tag (CastingType)",
+   "note": "bp:260 `(tag-1) <u 2` = Position|Direction. Effect+0x28 target(CastingTarget) 은 check() 인자"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x30",
+   "name": "on_trajectory",
+   "note": "L519 (%233, 배치 A L393 에서 로드된 값 재사용)"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x31",
+   "name": "on_periodic_trajectory",
+   "note": "L519 (m02.ll:33980~33983)"
+  },
+  {
+   "base": "bumpalo Vec<SmallActionPlay>",
+   "offset": "0x18",
+   "name": "len",
+   "note": "bp:131 base_battle.iter() · bp:162/239 is_empty · bp:354 extend"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "태그",
+   "note": "bp:131 `tag-15 <u 4` = Attack(15)|Skill(16)|Skill2(17)|Ult(18) (assume tag != 10)"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "Attack/Skill/Skill2/Ult.target",
+   "note": "bp:131 == real_focus_id (SmallActionAttack 등 +0x8 target)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x0",
+   "name": "support_target@tag",
+   "value": "1 (Some)",
+   "note": "bp:110 (m02.ll:29017). 조건: support_target Some & 엔티티 존재 & (아군이면 가시 적 min 이 Some)"
+  },
+  {
+   "base": "BattleSubPlan",
+   "offset": "0x8",
+   "name": "support_target@Some.0",
+   "value": "near_enemy.id (Entity+0x5c0)",
+   "note": "bp:110 (m02.ll:29018) — 아군 support_target 를 가장 가까운 가시 적으로 교체"
+  },
+  {
+   "base": "(sret) Vec",
+   "offset": "0x0",
+   "name": "ptr·bump·cap·len",
+   "value": "res(%108) 32B memcpy",
+   "note": "L532 return 경로 %2791 (m02.ll:35090). L521 truncate(0) 후 L525 push 1개 → len=1"
+  },
+  {
+   "base": "res(%108) Vec<SmallActionPlay>",
+   "offset": "0x18",
+   "name": "len",
+   "value": "0 → 1 (L521 truncate / L525 push) · L536 extend(base_positioning res)",
+   "note": "L525 push: cap==len 이면 reserve_internal_or_panic(res, used_cap, 1, true) 후 memcpy 184B (m02.ll:35062~35085)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 5,
+   "src_line": 536,
+   "meaning": "end_delay 인자(SmallActionRunAway::new/new_with_ult · AroundPosition::new_with_radius · AroundHide::new · Trace end_delay 스토어 @+0x80). L526 도 5. 배열길이 5(플레이어 슬롯)와 겹침"
+  },
+  {
+   "value": 4000,
+   "src_line": 526,
+   "meaning": "L526 `SmallActionAroundPosition::new_with_radius(rnd, data, x, y, 5, 4000)` around_radius(m02.ll:35035) — 카이팅 지점 도착 반경(1/8셀)"
+  },
+  {
+   "value": 24000,
+   "src_line": 536,
+   "meaning": "bp:198 `new_with_radius(rnd, data, kx, ky, 5, 24000)` around_radius(m02.ll:29965) — kite_reposition_point 반경(0.75셀)"
+  },
+  {
+   "value": 15000,
+   "src_line": 536,
+   "meaning": "Trace.attack_range_margin(legacy_battle_trace_action 인라인, 5회 스토어 @+0x78)"
+  },
+  {
+   "value": 25000,
+   "src_line": 536,
+   "meaning": "bp:111 `mr = max_range_cached(data,champ,near_enemy) + 25000`(m02.ll:29030) · bp:127 `support_min_action_range(champ,f) + 25000`(m02.ll:31983) — 사거리 여유(≈0.78셀)"
+  },
+  {
+   "value": 40000000001,
+   "src_line": 536,
+   "meaning": "bp:166 closure#7 필터 `dist²(x,champ) < 200000²+1`(=≤200000, 6.25셀) — Kiting 최근접 적 후보 반경(m02.ll:29494)"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 536,
+   "meaning": "bp:266/269 `dist² < 150000²+1`(≤150000, 4.69셀) — visible_enemies / nearby_allies 카운트 반경(m02.ll:30869, 30981)"
+  },
+  {
+   "value": 90000000001,
+   "src_line": 536,
+   "meaning": "bp:286 `to_heal_area < 300000²+1`(분수 중심까지 ≤300000, 9.4셀) → RunAway 추가 · bp:291 재사용(m02.ll:31349)"
+  },
+  {
+   "value": 22499999999,
+   "src_line": 536,
+   "meaning": "bp:291 `dist²(tower,champ) > 22499999999` = `>= 150000²` — 최근접 타워가 150000(4.69셀) 이상 멀면 RunAway(m02.ll:31451)"
+  },
+  {
+   "value": 2500000001,
+   "src_line": 536,
+   "meaning": "bp:301 `dist²(tower,champ) < 50000²+1`(≤50000, 1.56셀) — 타워 코앞이면 enemy_in_tower_range 판정 진입(m02.ll:31678). bp:320 동일값은 NA(version<2)"
+  },
+  {
+   "value": 21,
+   "src_line": 536,
+   "meaning": "bp:291 `tower.hp*100/tower.max_hp < 21` — 타워 HP 21% 미만이면 RunAway(m02.ll:31471)"
+  },
+  {
+   "value": 40,
+   "src_line": 536,
+   "meaning": "bp:273 `hp_ratio > 40` (champ hp%) — 40% 초과이고 is_desperate 면 궁 도주(new_with_ult) 생략(m02.ll:31262)"
+  },
+  {
+   "value": 2,
+   "src_line": 536,
+   "meaning": "①bp:273 `visible_enemies < nearby_allies + 2`(m02.ll:31263) ②bp:180 Entity::skill2_effect 게이트 `level > 2`(entity.rs:1693, m02.ll:29736) ③bp:260 `(casting-1) <u 2`(Position|Direction) ④bp:135 tactic==2 BacklineDPS ⑤goal 태그 2 Kiting(switch)"
+  },
+  {
+   "value": 100,
+   "src_line": 536,
+   "meaning": "Entity::radius() `radius*(100+mult)/100` · hp% `hp*100/max`"
+  },
+  {
+   "value": 4,
+   "src_line": 536,
+   "meaning": "①bp:259 Entity::ult_effect 게이트 `level > 4`(entity.rs:1701, m02.ll:30672) ②bp:131 `tag-15 <u 4`(Attack..Ult 4종) ③goal 태그 4 RunAway"
+  },
+  {
+   "value": -15,
+   "src_line": 536,
+   "meaning": "bp:131 has_focus_action: `add tag,-15; icmp ult 4` = matches!(Attack15|Skill16|Skill2 17|Ult18)(m02.ll:32037)"
+  },
+  {
+   "value": 1,
+   "src_line": 536,
+   "meaning": "bp:293 `version > 1`(reach 접힘: version=2 → 참 · else 가지 bp:320~345 사장) · support_target 태그 Some=1 스토어 · goal 태그 1 Protect · `level-1`(growth_range 배수, add -1) · (본문의 `shl i64 %x, 1` 은 배치 A L511 의 ×2 로 이 항목과 무관 — 시프트량 아님)"
+  },
+  {
+   "value": -1,
+   "src_line": 536,
+   "meaning": "Option<Effect> None 니치 태그(i32 -1 @ effect+0x30): attack/skill/skill2/ult_effect 유무 검사 · iter_towers_without_nexus 이터레이터 상태 -1(소진)"
+  },
+  {
+   "value": 14,
+   "src_line": 536,
+   "meaning": "SmallActionPlay::Trace 메모리태그(idx 11 + 3) 스토어 @+0xb1 (5회)"
+  },
+  {
+   "value": 3,
+   "src_line": 536,
+   "meaning": "SmallActionPlay::RunAway 메모리태그(idx 0 + 3) 스토어 @+0xb1 · goal 태그 3 KitingBack · base_battle_action goal_tag=3 인자(bp:237/314/337) · (본문의 `shl i64 %cap, 3` 은 L532 bumpalo dealloc 의 cap×8(&Entity 크기) 접힘으로 이 항목과 무관 — 시프트량 아님)"
+  },
+  {
+   "value": 6,
+   "src_line": 536,
+   "meaning": "SmallActionPlay::AroundHide 메모리태그(idx 3 + 3) @+0xb1 (bp:146) · goal 태그 6 AssassinReady · 타워 배열 길이 6"
+  },
+  {
+   "value": 8,
+   "src_line": 536,
+   "meaning": "(NA version<2) SmallActionPlay::AroundRunAway 메모리태그(idx 5 + 3) bp:334/342 · 포인터 stride"
+  },
+  {
+   "value": 0,
+   "src_line": 521,
+   "meaning": "L521 `res.truncate(0)`(m02.ll:35029) — 강제도주 블록에서 카이팅 지점이 나오면 기존 후보 전부 버림 · bp:314/337 base_battle_action focus=0 · 각종 None/0 스토어"
+  },
+  {
+   "value": 7,
+   "src_line": 536,
+   "meaning": "goal 태그 7 End → bp:351 `todo!()` 패닉(\"not yet implemented\" 19B, m02.ll:29240)"
+  },
+  {
+   "value": 19,
+   "src_line": 536,
+   "meaning": "panic 메시지 길이(\"not yet implemented\")"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::sub_plan::battle::base_battle_action",
+  "game_ai::plan_legacy::sub_plan::battle::kite_reposition_point",
+  "game_ai::plan_legacy::sub_plan::battle::v48_on_cast_line",
+  "game_ai::plan_legacy::sub_plan::support_min_action_range",
+  "game_ai::plan_legacy::sub_plan::battle_common::v21_support_pressure_too_risky",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_ult",
+  "game_ai::small_action::around::SmallActionAroundPosition::new_with_radius",
+  "game_ai::small_action::around::SmallActionAroundHide::new",
+  "game_ai::small_action::around::SmallActionAround::new",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::entity::Entity::can_skill2",
+  "game_core::simulation::entity::Entity::can_ult",
+  "bumpalo::collections::vec::Vec::from_iter_in",
+  "bumpalo::collections::vec::Vec::push",
+  "bumpalo::collections::vec::Vec::truncate",
+  "bumpalo::collections::vec::Vec::extend",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic",
+  "bumpalo::collections::vec::Vec::drop",
+  "core::ptr::drop_glue",
+  "core::iter::adapters::map::Map::fold",
+  "core::iter::traits::iterator::Iterator::try_fold",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "core::option::unwrap_failed",
+  "core::panicking::panic",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "// battle.rs:519~536 (배치 B)\n// 표기: `L<n>` = action_candidates 소스 줄, `bp:<n>` = base_positioning(battle.rs:72~357, L536 에 통째 인라인) 소스 줄(;L 사슬의 끝에서 두 번째). dist²(a,b) = |ax-bx|²+|ay-by|² (Entity+0x660/+0x668). radius(e) = e.radius(+0x680) 을 stat_buff_cached.radius_mult(+0x470)==0 이면 그대로, 아니면 *(100+mult)/100 (entity.rs:1509). Effect::range(e, caster) = e.range(+0x10) + caster.stat_buff_cached.range(+0x438) + e.growth_range(+0x18)*(caster.level-1) (effect.rs:26). bb = data.blackboard[1 - player.team] (744B stride).\n// 공통 문맥(배치 A 산출): res=%108(bumpalo Vec, L364) · champ=%139 · team=%124 · enemy_team=%142=1-team · enemy 슬롯 %143..%144 = cache.player_champion[enemy_team][0..5] · current_position_score=%107(L390 position_score_at_position) · %233 = current_position_score.on_trajectory(L393 로드) · near_allies=%102(bumpalo Vec<&Entity>, 배치 A)\n\n// ===== L519~L532 : 강제도주 블록(L401 force_runaway) 꼬리 =====\n// L518(배치 A) = `if let Some((x,y)) = v48_kite_position(version, player, data, parameter, enemy, focus_id(%2406/%2407), <L519~520 bool>)` — 아래는 그 마지막 bool 인자와 Some 가지.\nL519  on_traj = current_position_score.on_trajectory(%233) || current_position_score.on_periodic_trajectory(+0x31)   // 단락: 참이면 L520 평가 안 함 → 인자 = true\nL520  else 인자 = v48_on_cast_line(player, data, radius(champ), champ.x, champ.y)   // ★TLS CAST_BEAMS 접점(콜리 내부) · 이 인자 평가가 L518 본체보다 먼저\n      → 배치 A(L518, %2429 이후 v48_kite_position 인라인 본체)\nL521  (L518 이 Some((x,y)) 로 끝나면 %2773) res.truncate(0)                       // 기존 후보 전부 폐기\nL525  res.push(SmallActionPlay::AroundPosition(                                 // untagged variant, 184B memcpy, 필요 시 reserve_internal_or_panic\nL526      SmallActionAroundPosition::new_with_radius(rnd, data, x, y, /*end_delay*/5, /*around_radius*/4000)))\n      → %2791: sret ← res(32B memcpy) ; return   // 배치 A 의 다른 return 사이트(%2205,%2501,%2524,%2527,%2642)도 여기로 합류\nL532  = near_allies(%102, bumpalo Vec<&Entity>) 스코프 종료 드롭 — 두 복사본: ①return 경로(%2791→%2810..) ②L511 뒤 폴스루(%2090→..→%2897→%254=L536). 판정 로직 없음: <Vec<&Entity> as Drop>::drop(원소 &Entity 라 no-op) 뒤 bumpalo dealloc 인라인(cap!=0 && bump.footer.ptr == vec.ptr 이면 footer.ptr += cap*8 로 되감기) + 언와인드용 cleanuppad 사본\nL534  = %107(current_position_score) lifetime.end 2건뿐(스코프 닫는 `}`) — 로직 없음\n\n// ===== L536 : res.extend(self.base_positioning(version, rnd, player, data, parameter)) =====\n// 진입 %254 ← %245(L398 `now >= self.v48_claim_hold_until`) · %1825(L401 !force_runaway) · %2897(강제도주 블록 폴스루). 나가는 곳 %2898 Extend(res ← bp 결과) → %2901 = L537(배치 C)\n// --- bp:73~95 real_focus_id ---\nbp:73  match self.goal { Trace(f)|Protect(f)|Kiting(f)|KitingBack(f)|Assassin(f)|AssassinReady(f) => focus=f (태그 0,1,2,3,5,6) ; RunAway(4)|End(7) => real_focus_id = 0 로 %406 직행 }\nbp:74  champ = cache.player_champion[team][pos].unwrap()   (None 이면 unwrap_failed)\nbp:75  focus_e = game.get_entity_by_id(focus) ; None 이면 real_focus_id = focus 그대로(%407 = %259)\nbp:76  if focus_e.team == champ.team {            // TeamType derive-eq: 태그 같고 (Player 면 페이로드 같음) — Protect 처럼 아군을 focus 로 둔 경우\nbp:78     nearest = iter_champions(enemy_team).filter(|x| x.is_visible_from(champ))   // x.visible_state[champ.team]@tag == 0 Visible (Neutral 팀이면 필터 없음 — 실전 도달 불가)\nbp:79                .min_by_key(|x| dist²(x, focus_e))                                  // 첫 원소 인라인 + Map::fold(closure#0/#1)\nbp:80     real_focus_id = nearest.unwrap_or(focus_e).id\n       } else { real_focus_id = focus_e.id }\nbp:95  bp_res = Vec::new_in(context.bump)  (%81)\nbp:99  champ = player_champion[team][pos].unwrap() 재로드 (%412)\n// --- bp:100~114 support_target 추적(Trace 후보) ---\nbp:100 if let Some(st) = self.support_target { if let Some(st_e) = game.get_entity_by_id(st) {\nbp:101   near_enemy = if st_e.team == champ.team {\nbp:105-106   iter_champions(enemy_team).filter(|x| bb.is_recent_visible(game, player, x)).min_by_key(|x| dist²(x, st_e))   // closure#3/#4\nbp:109       (None 이면 이 블록 통째 skip → bp:120)\n         } else { st_e }\nbp:110   ★self.support_target = Some(near_enemy.id)      // &mut self 쓰기 +0x0=1, +0x8=id\nbp:111   mr = max_range_cached(data, champ, near_enemy) + 25000       // TLS MAX_RANGE_CACHE(콜리 내부)\nbp:112   if dist²(near_enemy, champ) > mr² {\nbp:113     if !v21_should_skip_support_trace(version, player, data, parameter, champ, near_enemy)   // 인라인(battle.rs:1292): near_enemy.team==champ.team 이면 false, 아니면 v21_support_pressure_too_risky(player,data,parameter,champ,near_enemy)\nbp:114       bp_res.push(legacy_battle_trace_action(data, near_enemy.id, self.avoid_unnecessary_tower_trace))   // Trace(14): start=game.tick(), goal=target 좌표(엔티티 없으면 0,0), margin 15000, end_delay 5, escape_commit 0, 4 bool 0, last_escape None\n         } } }\n// --- bp:120 goal 별 `other` 생성 (switch self.goal@tag) ---\nbp:120 other = match self.goal {\n  // Trace(0) | Assassin(5):\nbp:123   base_battle = base_battle_action(version, player, data, goal_tag, focus)     // rnd 미전달(fastcc 5인자)\nbp:126   focus_far = game.get_entity_by_id(real_focus_id).map_or(false, |f| {        // closure#5\nbp:127       mr = support_min_action_range(champ, f) + 25000 ;\nbp:128       dist²(f, champ) > mr² })\nbp:131   has_focus_action = base_battle.iter().any(|a| matches!(a.tag, 15|16|17|18 /*Attack|Skill|Skill2|Ult*/) && a.target(+0x8) == real_focus_id)   // closure#6 인라인(assume tag!=10)\nbp:133   if has_focus_action && !focus_far { bp:134 Vec::new() }          // 이미 focus 를 때리는 액션이 있고 가까움 → 위치 후보 없음\nbp:135   else if self.tactic == BacklineDPS(2) { bp:136-137 vec![legacy_attack_range_trace_action(data, real_focus_id, self.avoid_unnecessary_tower_trace)] }   // Trace(14) + attack_range_only=1\nbp:140   else { bp:140-141 vec![legacy_battle_trace_action(data, real_focus_id, self.avoid_unnecessary_tower_trace)] }\nbp:144   drop(base_battle)   // ★탐침용 — 여기서 extend 하지 않음(battle 액션은 배치 C L539 가 다시 base_battle_action 으로 붙임)\n  // AssassinReady(6):\nbp:146-148 vec![SmallActionPlay::AroundHide(SmallActionAroundHide::new(version, rnd, data, player, real_focus_id, 5))]   // 태그 6\n  // Protect(1):\nbp:152   if self.avoid_unnecessary_tower_trace { bp:153 vec![legacy_battle_trace_action(data, real_focus_id, true)] }\nbp:155   else { vec![legacy_battle_trace_action(data, real_focus_id, false)] }    // = 인자 그대로 전달, 두 줄로 갈라짐\n  // Kiting(2):\nbp:160   base_battle = base_battle_action(version, player, data, 2, focus)\nbp:162   if base_battle.is_empty() {\nbp:165-167  nearest_enemy = iter_champions(enemy_team).filter(|x| bb.is_recent_visible(game,player,x) && dist²(x,champ) < 200000²+1).min_by_key(|x| dist²(x,champ))   // closure#7/#8\nbp:169     if let Some(ne) = nearest_enemy {\nbp:170       attack_range = Effect::range(champ.attack_effect().unwrap(), champ) + attack_effect.range_adjust(champ, ne)\nbp:171                      + radius(champ) + radius(ne)\n             max_range = attack_range\nbp:173       if champ.can_skill() && champ.skill_effect.unwrap().target.check(champ, ne) {\nbp:174-176      skill_range = Effect::range(skill_effect, champ) + skill_effect.range_adjust(champ,ne) + radius(champ) + radius(ne) ; max_range = max(skill_range, max_range) }\nbp:180       if champ.can_skill2() && champ.skill2_effect().unwrap().target.check(champ, ne) {     // skill2_effect(): level<=2 면 None → unwrap 패닉 경로\nbp:181-183      skill2_range = (동일식, skill2_effect) ; max_range = max(skill2_range, max_range) }\nbp:186       d = dist²(ne, champ)\nbp:189       if d <= max_range² && game.is_visible(team, ne.id) {          // vtable +0xf8\nbp:190-191     other = vec![SmallActionPlay::RunAway(SmallActionRunAway::new(data, player, 5))]\nbp:196         (kx,ky) = kite_reposition_point(version, player, data, parameter, champ, ne.x, ne.y, attack_range /*max_range 아님*/)\nbp:197-198     other.push(SmallActionPlay::AroundPosition(SmallActionAroundPosition::new_with_radius(rnd, data, kx, ky, 5, 24000)))\n             } else {   // 사거리 밖이거나 비가시\nbp:204         if self.avoid_unnecessary_tower_trace { bp:205 other = vec![legacy_battle_trace_action(data, ne.id, true)] } else { bp:207 vec![...(data, ne.id, false)] }   // bp:203 push\n             }\n           } else {   // nearest_enemy None\nbp:214       f = game.get_entity_by_id(real_focus_id)\nbp:215-216   chase = f.map_or(false, |t| t.team != champ.team && bb.is_recent_visible(game, player, t))   // closure#9(s7_0, aux m02.ll:4435)\nbp:217       if chase { bp:219 if self.avoid_unnecessary_tower_trace { bp:220 vec![legacy_battle_trace_action(data, real_focus_id, true)] } else { bp:222 vec![...false] } }   // bp:218 push\nbp:226-227   else { other = vec![SmallActionPlay::RunAway(SmallActionRunAway::new(data, player, 5))] }\n           }\n         } else { bp:233 other = Vec::new() }     // base_battle 비어있지 않으면 위치 후보 없음\nbp:235   drop(base_battle)\n  // KitingBack(3):\nbp:237   base_battle = base_battle_action(version, player, data, 3, focus)\nbp:239   other = if base_battle.is_empty() { bp:240-241 vec![RunAway(SmallActionRunAway::new(data, player, 5))] } else { bp:245 Vec::new() }\nbp:247   drop(base_battle)\n  // RunAway(4):\nbp:250   towers = cache.iter_towers_without_nexus(team)      // Chain<Flatten<[Option<&Entity>;6]>, Copied<Iter<&Entity>>> 120B 이터레이터\nbp:251-252 nearest_tower = towers.filter(|t| t.can_target())   // closure#10: +0x6b9 can_target && +0x6a0 block_target_tick==0\n                                .min_by_key(|t| dist²(t, champ))  // closure#11\nbp:254   bp_res2 = Vec::new()  (%57)\nbp:259-260 has_move_ult = champ.ult_effect().map_or(false, |u| u.ty.expected_move_distance().is_some() && matches!(u.casting, Position(1)|Direction(2)))   // ult_effect(): level>4 아니면 None · EffectType vtable +0x58\nbp:262   if has_move_ult && champ.can_ult() {\nbp:263     hp_ratio = champ.hp*100 / champ.stat_cached.hp     (max 0 → div_by_zero 패닉)\nbp:265-266 visible_enemies = iter_champions(enemy_team).filter(|e| bb.is_recent_visible(game,player,e) && dist²(e,champ) < 150000²+1).count()   // closure#13\nbp:269-270 nearby_allies = iter_champions(team).filter(|a| a.id != champ.id && dist²(a,champ) < 150000²+1).count()   // closure#14 (5슬롯 언롤)\nbp:273     is_desperate = visible_enemies < nearby_allies + 2        // DI 이름 그대로(극성은 IR 기준)\n           if !(hp_ratio > 40 && is_desperate) {\nbp:276       bp_res2.push(RunAway(SmallActionRunAway::new_with_ult(data, player, 5))) } }\nbp:281   (lx,ly,rx,ry) = context.map.fountains[team] ; bp:282 cx=(lx+rx)/2, cy=(ly+ry)/2\nbp:285   to_heal_area = dist²(champ, (cx,cy))\nbp:286   if to_heal_area < 300000²+1 { bp:287 bp_res2.push(RunAway(SmallActionRunAway::new(data, player, 5))) }\nbp:290   if let Some(tw) = nearest_tower {\nbp:291     d_t = dist²(tw, champ) ; if d_t >= 150000² || tw.hp*100/tw.stat_cached.hp < 21 || to_heal_area < 300000²+1 {\nbp:292       bp_res2.push(RunAway(SmallActionRunAway::new(data, player, 5))) }\nbp:293     else if version > 1 {          // ★reach 접힘 참(version=2)\nbp:300       bp_res2.push(RunAway(SmallActionRunAway::new(data, player, 5)))\nbp:301       if d_t < 50000²+1 {\nbp:302-303     tower_attack_range = tw.attack_effect().map(|e| Effect::range(e, tw) + radius(tw)).unwrap_or(0)    // closure#17\nbp:305-309     enemy_in_tower_range = iter_champions(enemy_team).any(|c| bb.is_recent_visible(game,player,c) && dist²(tw,c) <= (tower_attack_range + radius(c))²)   // closure#16 aux m02.ll:3931\nbp:312         if enemy_in_tower_range { bp:314 bp_res2.extend(base_battle_action(version, player, data, 3 /*KitingBack*/, 0)) } } }\nbp:320     else { // NA(version<2 전용) bp:320~345: d_t<50000² 이면 타워 사거리 계산 후 AroundRunAway(SmallActionAround::new(..tw.id,5), escape_mode=1) push · 적 사거리 안이면 base_battle_action(3,0) extend · 아니면 bp:340~342 AroundRunAway push }\n         } else { bp:346 bp_res2.push(RunAway(SmallActionRunAway::new(data, player, 5))) }\nbp:349   other = bp_res2\n  // End(7):\nbp:351   todo!() → panic(\"not yet implemented\")\n         }\nbp:354 bp_res.extend(other)   (%627 → %2898)\nbp:356 return bp_res  → L536 res.extend(bp_res) → 배치 C(L537)",
+ "knobs": [
+  {
+   "what": "카이팅 지점 도착 반경(강제도주 블록)",
+   "where": "battle.rs:526",
+   "value": 4000,
+   "effect": "올리면 AroundPosition 이 더 넓은 원 안에서 도착 판정 → 덜 정밀한 카이팅 위치"
+  },
+  {
+   "what": "kite_reposition_point 도착 반경",
+   "where": "battle.rs:198(base_positioning)",
+   "value": 24000,
+   "effect": "Kiting 사거리 안 재배치 지점의 허용 반경"
+  },
+  {
+   "what": "Trace 사거리 여유",
+   "where": "battle.rs:972(legacy_battle_trace_action) attack_range_margin",
+   "value": 15000,
+   "effect": "올리면 추적 시 더 멀리서 멈춤"
+  },
+  {
+   "what": "support/focus 추적 개시 거리 여유",
+   "where": "battle.rs:111 / 127",
+   "value": 25000,
+   "effect": "올리면 max_range+여유 밖일 때만 Trace 를 붙이므로 추적 후보가 덜 생김"
+  },
+  {
+   "what": "Kiting 최근접 적 탐색 반경",
+   "where": "battle.rs:166",
+   "value": 40000000001,
+   "effect": "200000²+1. 올리면 더 먼 적도 카이팅 대상"
+  },
+  {
+   "what": "궁 도주 판정용 적/아군 카운트 반경",
+   "where": "battle.rs:266, 269",
+   "value": 22500000001,
+   "effect": "150000²+1"
+  },
+  {
+   "what": "궁 도주 생략 HP%",
+   "where": "battle.rs:273",
+   "value": 40,
+   "effect": "hp% > 40 이고 가시 적 < 근처 아군+2 면 new_with_ult 생략. 내리면 궁 도주가 더 자주 후보에 듦"
+  },
+  {
+   "what": "궁 도주 생략 아군 여유",
+   "where": "battle.rs:273",
+   "value": 2,
+   "effect": "visible_enemies < nearby_allies + 2"
+  },
+  {
+   "what": "분수 근접 RunAway 반경",
+   "where": "battle.rs:286/291",
+   "value": 90000000001,
+   "effect": "300000²+1"
+  },
+  {
+   "what": "타워 원거리 판정",
+   "where": "battle.rs:291",
+   "value": 22499999999,
+   "effect": "dist² > 이 값(=≥150000²) 이면 타워 무시하고 RunAway"
+  },
+  {
+   "what": "타워 HP% 하한",
+   "where": "battle.rs:291",
+   "value": 21,
+   "effect": "타워 HP<21% 면 타워 밑 방어 대신 RunAway"
+  },
+  {
+   "what": "타워 코앞 판정",
+   "where": "battle.rs:301",
+   "value": 2500000001,
+   "effect": "50000²+1. 이 안이면 적이 타워 사거리 안인지 보고 base_battle_action(KitingBack) 추가"
+  }
+ ],
+ "unknown": [
+  "min_by_key/count 폴드의 나머지 원소 처리 본체(m12.ll 12852~13060 closure#0/#1, 13063~13270 closure#3/#4, 13273~13512 closure#7/#8, m06.ll 27822~28074 closure#10/#11)는 aux 로 넣지 않았다 — 첫 원소 술어·키가 본문에 인라인돼 있어 동일 술어의 반복으로 판단(줄수 200+ 라 미독). 술어가 첫 원소와 다를 가능성은 검토 안 함(미탐색)",
+  "EffectType vtable +0x58(슬롯 11) = expected_move_distance 판정 근거는 DI 이름 `is_some<tuple$<usize,u64>>` 와 trait 선언 순서(tcx: expected_move_distance -> Option<(usize,u64)>)뿐 — divtable 은 Arc<dyn> 이라 못 씀. 슬롯 수 산술(3 헤더 + 8번째 = 11)과 일치",
+  "dist² 계산의 인라인 사슬 `L2158 → L3147 → L9` 의 함수 이름(game_core utils.rs:2158?)은 tcx 최근접 매칭이 다른 utils.rs(transfer) 를 골라 미확정 — 연산 자체(|dx|²+|dy|²)는 IR 로 확정",
+  "L153/L155·L205/L207·L220/L222 가 두 줄로 갈라진 이유(같은 legacy_battle_trace_action 호출이 avoid true/false 로 분리 · true 쪽만 `L43<101<..` 한 단계 더 인라인) — 소스 표기(if/else vs 인자식) 표기 불가(column 없음)",
+  "is_desperate(bp:273) 의 DI 이름과 IR 극성(`visible_enemies < nearby_allies + 2` 가 참일 때 궁 도주 생략)이 직관과 반대로 보이나 IR 정본 그대로 적음. DW_OP_not 여부는 보지 않음",
+  "blackboard 인덱스가 `1 - player.team`(적 팀 슬롯)인 이유(Blackboard 의미론) 미확인 — is_recent_visible 자식 명세(game_core) 소관",
+  "Neutral 팀 분기(bp:76 두 팀 모두 Neutral → 필터 없이 min_by_key %293)는 champ.team 이 항상 Player 라 실전 도달 불가로 판단(런타임 미검증)",
+  "base_battle_action(7,900줄)·kite_reposition_point·v21_support_pressure_too_risky 내부의 2단계 이상 TLS 접점은 미확인(1단계 grep 만: kite→position_score_at_position 2회, v21→max_range_cached 6회, base_battle_action 0건)",
+  "L532 의 정확한 소스 문장(`}` 인지 `return res` 인지)은 column 부재로 표기 불가 — 두 드롭 사본(return 경로 %2791 / 폴스루 %2090)이 모두 L532 를 가리키는 것만 확정",
+  "reach 사장(NA) 처리: bp:320~345(version<2) 의 SmallActionAround::new ×2 · push ×2 · base_battle_action(3,0) · Extend · closure#18 any — logic 에 한 줄로만 봉인, 상수·오프셋은 미전수"
+ ]
+}

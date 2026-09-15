@@ -1,0 +1,653 @@
+{
+ "name": "LineGankerPlan::next_plan",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan9next_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\line_gank\\ganker.rs",
+ "src_line": 99,
+ "ir_file": "m08.ll",
+ "ir_from": 94975,
+ "ir_to": 98368,
+ "aux": [
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 14487,
+   "ir_to": 14694,
+   "what": "L124~125 `iter_champions(적팀).filter(closure#2).min_by_key(closure#3)` 의 fold — 술어 = data.blackboard[1-team].is_recent_visible(game, player, x)(14607) · 키 = x.distance2(champ)(14625~14653, 캡처 +48=champ) · compare<1 이면 현재 최소 유지(첫 최소 유지)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 14697,
+   "ir_to": 14904,
+   "what": "L132~133 동일 구조 fold(closure#4/#5) — 메타데이터 제외 14487~14694 와 바이트 동일(diff 0)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 14907,
+   "ir_to": 15114,
+   "what": "L232~233 동일 구조 fold(closure#15/#16) — 메타데이터 제외 바이트 동일(diff 0)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 53156,
+   "ir_to": 53334,
+   "what": "L160~163 bumpalo Vec<usize>::from_iter_in(player_champion[team].iter().enumerate().filter(closure#6).map(closure#7)) — map 은 `(i,_)→i`(인덱스 push, 53314) · 술어는 m08 112913 call_mut 심"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 53337,
+   "ir_to": 53515,
+   "what": "L165~168 from_iter_in(player_champion[1-team] … filter(closure#8).map(closure#9)) — 구조 동일, 술어 = m08 112983"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 53518,
+   "ir_to": 53696,
+   "what": "L175~180 루프 내부 near_allies_p from_iter_in(filter closure#11 · map closure#12) — 술어 = m08 113084"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 53699,
+   "ir_to": 53877,
+   "what": "L182~185 루프 내부 near_enemies_p from_iter_in(filter closure#13 · map closure#14) — 술어 = m08 113214"
+  },
+  {
+   "ir_file": "m08.ll",
+   "ir_from": 112913,
+   "ir_to": 112980,
+   "what": "closure#6 (L161~162) call_mut: `x.is_some_and(|x| x.distance2(champ) <= dist_cut*dist_cut)` — 캡처 {champ, &dist_cut}; None 이면 false(112978)"
+  },
+  {
+   "ir_file": "m08.ll",
+   "ir_from": 112983,
+   "ir_to": 113081,
+   "what": "closure#8 (L166~167) call_mut: `x.is_some_and(|c| data.blackboard[1-player.team].is_recent_visible(game, player, c) && c.distance2(champ) <= dist_cut²)` — 블랙보드 인덱스 = 1-team(113029~113034), bounds<2 패닉 113039"
+  },
+  {
+   "ir_file": "m08.ll",
+   "ir_from": 113084,
+   "ir_to": 113211,
+   "what": "closure#11 (L176~178) call_mut: `x.is_some_and(|c| c.id == champ.id || c.distance2(cache.player_champion[1-team][*e].unwrap()) <= dist_cut²)` — 자기 자신은 무조건 포함(113136~113137 → true), e 는 루프 변수 &usize(캡처 +24)"
+  },
+  {
+   "ir_file": "m08.ll",
+   "ir_from": 113214,
+   "ir_to": 113326,
+   "what": "closure#13 (L183~184) call_mut: `x.is_some_and(|x| x.distance2(cache.player_champion[1-team][*e].unwrap()) <= dist_cut²)` — e 자신도 거리 0 이라 포함"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 23823,
+   "ir_to": 24016,
+   "what": "L171 `iter_towers_without_nexus(1-team).min_by_key(closure#10)` 의 Chain<Flatten<array IntoIter<Option<&Entity>,6>>,Copied<slice Iter>> fold — 배열부(6 슬롯 타워) 소진 후 슬라이스부(m11 17703) 로 위임"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 17703,
+   "ir_to": 17849,
+   "what": "L171 fold 의 Copied<slice::Iter<&Entity>> 부분(twin_towers 등 슬라이스 타워)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 39469,
+   "ir_to": 39546,
+   "what": "closure#10 (L171) 키 call_mut: `t.distance2(champ)`(39479~39496, 캡처 +0=champ) + min_by_key compare(첫 최소 유지)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 7077,
+   "ir_to": 7090,
+   "what": "L171 Map<Chain…>::fold 래퍼(120B 이터레이터 상태 복사 후 m06 23823 호출)"
+  }
+ ],
+ "one_line": "라인 갱커 BigPlan 전이 판정: 노출·인원우위/열세 대응 → 목표 부시 도착 여부 → 근처 적별 킬가능(die_tick)·타워복귀시간·인원비 게이트로 make_gank_battle → check_kill → 사거리 내 최근접 적",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "Option<BigPlan> 384B",
+    "note": "None = +0 i64 -1 (m08.ll:95059 L102 · 97158 L155 · 98207 L245), 나머지 376B 미기록. Some(BigPlan::Battle) = +0 i64 9(메모리태그, tcxdict --enum BigPlan idx7→9) + +8..+0x120 BattlePlan 280B memcpy(97034~97036 L136), +0x120..+0x180 미기록. make_gank_battle 경로(7곳)는 sret %0 를 그대로 넘겨 콜리가 채운다(살아있는 바이트 = make_gank_battle 명세) — 호출 후 +0 == -1 이면 None 으로 판정해 계속 진행(97044~97046 등)"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut LineGankerPlan(48B: +0 chats Vec<Chat> · +0x18 setup_limit · +0x20 wait_limit · +0x28 line LineType · +0x29 phase LineGankerPhase)",
+    "note": "IR 속성 noalias dereferenceable(48), readonly 없음 · initializes 없음 ⇒ &mut. 쓰기 표면 = chats push 1곳뿐(L135: grow_one(%1) 97011 · 원소 store 97021~97025 · len(+0x10) store 97027). phase(+0x29)·line(+0x28)·wait_limit(+0x20) 는 읽기만. make_gank_battle 에는 self 가 ArgumentPromotion 으로 탈락(포이즌) — 콜리는 self 를 안 읽는다"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "본 함수 안 version 분기 0건. BattlePlan::new(97030) · make_gank_battle(7곳) · check_kill(97474) 의 첫 인자로 전달만"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B, ChaCha12)",
+    "note": "직접 소비 0건. make_gank_battle · check_kill 에 전달만(check_kill 쪽 define 은 %2 readnone)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "+0x930 info.team(95064, bounds<2 95093) · +0x9c0 info.position@tag(95075, i32→zext, player_champion 인덱스) 직접 읽음. is_recent_visible · get_die_tick_player · 클로저 캡처로 전달"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0 cache(&AbstractGameWithCache 8840B) · +8 context(&GameContext 64B) · +0x10 blackboard(&[Blackboard;2])"
+   },
+   {
+    "i": 6,
+    "name": "positioning_score",
+    "type": "&PositioningScoreData(2760B)",
+    "note": "본 함수에서 미읽음 — make_gank_battle(7곳) · check_kill 에 전달만"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "type": "&TeamPlan(1064B; IR 는 `ptr nonnull` 만 — tcx sig 는 공유참조)",
+    "note": "본 함수에서 미읽음 — make_gank_battle 에 전달만"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "context.debug 일 때만 씀: L151 add_text(97083) · L200 infos(+0xa0) entry(e.id).or_default().push(String)(97590~97734)"
+   }
+  ],
+  "returns": "Option<BigPlan>(sret) — None(-1) / Some(Battle(BattlePlan{goal Response, entry_src 3})) / make_gank_battle 의 반환 그대로",
+  "tls": {
+   "name": "(없음)",
+   "role": "직접 접점 0",
+   "key": "-",
+   "layout": "-",
+   "invalidation": "-",
+   "call_conditions": "본 함수 본체(94975~98368) 및 aux 15 조각 전부에서 LocalKey::with · thread_local 심볼 0건(grep). v47_siege_stance(SIEGE_STANCE_CACHE)·v48_cast_beams(CAST_BEAMS)·champion_hp_value(HP_VALUE_MEMO)·position_eval_at(POS_EVAL_CACHE)·interaction_score(INTER_CTX) 는 이 함수가 직접 부르지 않는다. TLS 가 있다면 콜리 내부(make_gank_battle · check_kill · get_die_tick_player · BattlePlan::new) — 호출 순서는 logic 의 줄 순서(L127→L136→L212/214/217/221→L225→L227→L241) 그대로이며 한 호출에서 Some 이 나오면 즉시 반환하므로 그 뒤 콜리는 실행되지 않는다"
+  }
+ },
+ "reads": [
+  {
+   "base": "LineGankerPlan(self)",
+   "offset": "0x29",
+   "name": "phase@tag (니치: 6 WaitResponse/7 Setup/8 Cancel/0..5 = ChangeJungle(JungleType))",
+   "note": "L101 95052~95055 `icmp ult i8 tag, 6` → ChangeJungle 이면 즉시 None"
+  },
+  {
+   "base": "LineGankerPlan(self)",
+   "offset": "0x28",
+   "name": "line (LineType 0 Top/1 Mid/2 Bottom)",
+   "note": "L353<142 95136~95137(타워 배열 인덱스 line<<5) · get_start_position self 인자(&self.line, 95239) · minion_state switch(95346) · lane_path 인자(95470) · L144 target_bush_v41 인자(95508~95509)"
+  },
+  {
+   "base": "LineGankerPlan(self)",
+   "offset": "0x20",
+   "name": "wait_limit",
+   "note": "L218 97782 `wait_limit.saturating_sub(tick)`"
+  },
+  {
+   "base": "LineGankerPlan(self)",
+   "offset": "0x10",
+   "name": "chats.len",
+   "note": "L135 97001~97002 push 전 len 읽기(cap 과 비교 97006~97007)"
+  },
+  {
+   "base": "LineGankerPlan(self)",
+   "offset": "0x0",
+   "name": "chats.cap",
+   "note": "L135 97006"
+  },
+  {
+   "base": "LineGankerPlan(self)",
+   "offset": "0x8",
+   "name": "chats.ptr",
+   "note": "L135 97015~97016"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L106 95063~95064 (bounds<2) · 적팀 = 1-team(95104)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag (i32, as_index)",
+   "note": "L106 95074~95076 · L188 get_die_tick_player pos 인자(97528)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": "95077"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext)",
+   "note": "95176 · 95540"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2])",
+   "note": "95343 · 95969"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (&dyn AbstractGame: +0 data · +8 vtable)",
+   "note": "95101~95103 · vtable 슬롯 +0xf8 is_visible(95112~95114) · +0x1f0 get_entity_by_id(95389~95391) · +0x28 tick(97784~97785) — divtable AbstractGame"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos] ([[Option<&Entity>;5];2], 원소 8B)",
+   "note": "L106 95083~95086 (unwrap 95118) · L113 아군 5슬롯 언롤(95584 …) · L115 적 5슬롯(95960) · L190 97537~97538 · 클로저 캡처"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower/mid_tower/bottom_tower[team] (line<<5 로 선택, +0x180+line*32)",
+   "note": "L353<142 95142~95147"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2/mid_tower2/bottom_tower2[team] (+0x190+line*32)",
+   "note": "L353<142 95148~95152 tower.or(tower2)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x130",
+   "name": "twin_towers[team] (bumpalo Vec: ptr@0 · len@+0x18)",
+   "note": "L354<142 95157~95164 min_by_key(dist² to line 시작점)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[team]",
+   "note": "L360/363<142 95308~95310 · 95323~95325"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "get_start_position 인자 95177~95178"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map (&MapDef)",
+   "note": "lane_path 95468~95470 · L148 bushes 95527~95528"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug (bool)",
+   "note": "L150 95534~95536 · L199 97580 재사용"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "L219 97805~97807 ×3"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x1c98",
+   "name": "bushes[30][30] (usize, [y][x] 순, stride 240B/8B)",
+   "note": "L148 95529~95532 champ_bush = bushes[min(y/32000,29)][min(x/32000,29)]"
+  },
+  {
+   "base": "Blackboard[team]",
+   "offset": "0x0",
+   "name": "top/mid/bottom_minion_state.front_minion (Option<usize>; line 별 +0/+0x28/+0x50, tag +0 · 값 +8)",
+   "note": "L365~366<142 95344~95368, 95384~95385 (인덱스 %52 = 자기 팀)"
+  },
+  {
+   "base": "Blackboard[1-team]",
+   "offset": "0x0",
+   "name": "(&self 로 is_recent_visible 에 전달)",
+   "note": "L117 96020 · L132 · L124 · L232 · closure#8 — 전부 blackboard[1-team](적팀 슬롯)이 self"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "champ.id is_visible 키(95109~95110) · 적 id → make_gank_battle target_id(97041, 97797, 97821, 97889, 97895, 98314) · Chat 페이로드(96987~96988) · closure#11 자기판정"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "dist² 계산 전역(95249, 95542, 95604 …) · L148 x/32000 · L151 add_text x"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "dist² · L148 y/32000 · L151 y+20000"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "L112/L119 hp*100/max_hp (95633, 96078) — 0 이면 div_by_zero 패닉(95648, 96093)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "L112/L119 95639~95641, 96084"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "L193 97563~97564 (0 이면 div_by_zero 97574)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (i32 -1 = None)",
+   "note": "L237 98229~98231 unwrap(98252)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (Effect, &self → range_adjust)",
+   "note": "L237 98235, 98247"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "Effect::range 인라인(effect.rs:26) 98238~98239"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "98240~98241 ×(level-1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "98242~98243"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "98244~98245"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "Entity::radius 인라인(entity.rs:1511~1515) 98258~98261 · 98281~98284 (champ·적 각각)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "98265~98266 · 98272~98276 (mult==0 이면 그대로, 아니면 radius*(mult+100)/100)"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos (HashMap<usize,Vec<String>>)",
+   "note": "L200 97407(%901) rustc_entry 97590"
+  },
+  {
+   "base": "LanePath [(u64,u64);7]",
+   "offset": "0x30",
+   "name": "[3] (lane_path 결과의 4번째 점, DI 이름 center)",
+   "note": "L369<142 95471~95475 (+48 x, +56 y)"
+  },
+  {
+   "base": "check_kill 반환 Option<(usize,usize)> 24B",
+   "offset": "0x0",
+   "name": "tag(+0 bit0) · +8 e(target id) · +0x10 t(min_trace)",
+   "note": "L225 97998~97999 · 98175~98179"
+  }
+ ],
+ "writes": [
+  {
+   "base": "LineGankerPlan(self)",
+   "offset": "0x0",
+   "name": "chats (Vec<Chat> 24B 원소)",
+   "value": "push(Chat::BattleHelp(nearest_enemy.id, 0)) — 태그 i8 6 @+0 · +8 = enemy.id · +0x10 = 0",
+   "note": "L135 만: cap==len 이면 grow_one(%1)(97011, ptr/cap 갱신) → 원소 store(97021~97025) → len(+0x10) = len+1 store(97027). initializes 속성 없음 · self 의 다른 필드 쓰기 0건(전 본문 grep)"
+  },
+  {
+   "base": "sret Option<BigPlan>",
+   "offset": "0x0",
+   "name": "tag / 페이로드",
+   "value": "-1(None: L102 95059 · L155 97158 · L245 98207) · 9 + BattlePlan 280B(L136 97034~97036) · make_gank_battle 결과(콜리가 채움, 7곳)",
+   "note": "L136 은 BattlePlan::new sret %45 → +263(0x107 entry_src)=3 store(97032~97033) 후 memcpy"
+  },
+  {
+   "base": "DebugFrameData(debug)",
+   "offset": "0x0",
+   "name": "texts (add_text)",
+   "value": "L151: add_text(champ.x, champ.y+20000, format!(\"bush: {:?}, champ_bush: {:?}\"), Color(1,0,0,1), 1)",
+   "note": "context.debug 일 때만(97054~97083)"
+  },
+  {
+   "base": "DebugFrameData(debug)",
+   "offset": "0xa0",
+   "name": "infos[e_ent.id] push",
+   "value": "L200: format!(\"target: {:?}, near_allies_p: {:?}, near_enemies_p: {:?}, move_to_tower_tick: {}, me_die_tick: {}, enemy_die_tick: {}\")",
+   "note": "context.debug 일 때만(97590~97734) · entry(id).or_default() 로 없으면 빈 Vec 삽입(97606~97624)"
+  },
+  {
+   "base": "로컬 bumpalo Vec<usize> ×4 (%37 near_allies_p · %35 near_enemies_p · %32/%30 루프 내부 동명)",
+   "offset": "0x0",
+   "name": "from_iter_in 결과(32B 헤더: ptr@0 · bump@+8 · cap@+0x10 · len@+0x18)",
+   "value": "L163/L168/L175/L182 — 원소 = 포지션 인덱스(usize)",
+   "note": "루프 내부 것은 매 반복 drop(97841 …), 바깥 것은 반환 직전 drop(97936, 98327)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 6,
+   "src_line": 101,
+   "meaning": "LineGankerPhase 니치 시작(WaitResponse=6/Setup=7/Cancel=8; tag<6 = ChangeJungle 암묵 variant, tcxdict --enum LineGankerPhase). `icmp ult i8 tag, 6` → ChangeJungle 이면 None(95054). ⚠같은 값 6 이 L135 Chat::BattleHelp 메모리태그로도 쓰인다(97021, tcxdict --enum Chat 6)"
+  },
+  {
+   "value": 2,
+   "src_line": 106,
+   "meaning": "team 배열 bounds(<2, 95066) · L136 BattlePlanGoal::Response 태그 2(97029, tcxdict --enum BattlePlanGoal idx2→2, Direct)"
+  },
+  {
+   "value": 62500000001,
+   "src_line": 111,
+   "meaning": "250000² + 1 — `dist² < 62500000001` ⇔ 거리 ≤ 250000(7.8셀). L111 아군(95629) · L118 적(96074) 광역 인원 집계 반경"
+  },
+  {
+   "value": 100,
+   "src_line": 112,
+   "meaning": "hp*100/max_hp 백분율(95641, 96086). L237 radius*(mult+100)/100 에도 100(98274~98276)"
+  },
+  {
+   "value": 39,
+   "src_line": 112,
+   "meaning": "`hp% > 39` ⇔ HP 40% 이상만 인원 집계(95643 아군 · 96088 적)"
+  },
+  {
+   "value": 3,
+   "src_line": 136,
+   "meaning": "BattlePlan.entry_src(+0x107) = 3 (97033) — 갱커 노출·열세 대응 진입 표식. L219 tps*3(97808)에도 3 ⚠QC shl 경고 사유: 본문 `shl i64 %98, 3`(95173)은 슬라이스 원소 8B stride(ptr 산술)이고 이 상수와 무관 — 시프트량 아님"
+  },
+  {
+   "value": 9,
+   "src_line": 136,
+   "meaning": "BigPlan::Battle 메모리태그(tcxdict --enum BigPlan idx7→9, 97034)"
+  },
+  {
+   "value": 60,
+   "src_line": 127,
+   "meaning": "make_gank_battle 의 min_trace 인자(DI 이름, m08 94354 정의) — L127·212·214·217·221·241 여섯 곳 리터럴 60(=1초@60tps 추정, 콜리 명세 참조). L227 만 check_kill 이 준 t 를 넘긴다"
+  },
+  {
+   "value": 32000,
+   "src_line": 148,
+   "meaning": "셀 크기 — champ.x/32000, y/32000 으로 bushes 그리드 셀 좌표(95515, 95521)"
+  },
+  {
+   "value": 29,
+   "src_line": 148,
+   "meaning": "bushes[30][30] 인덱스 clamp(umin 29, 95519, 95526)"
+  },
+  {
+   "value": 20000,
+   "src_line": 151,
+   "meaning": "디버그 텍스트 y 오프셋(champ.y+20000, 97055)"
+  },
+  {
+   "value": 150000,
+   "src_line": 158,
+   "meaning": "dist_cut — 근접 인원 집계 반경(4.7셀). 클로저#6/#8/#11/#13 에서 `dist² <= dist_cut²` 로 소비(캡처 &dist_cut). 본문엔 store i64 150000(97091)"
+  },
+  {
+   "value": -1,
+   "src_line": 187,
+   "meaning": "Option<SmallAction>::None 태그(97512 · L188 도 같은 -1 alloca %27) → get_die_tick_player 6번째 인자. Option<BigPlan>::None(-1) 판정에도 같은 값(97045, 97828, 97833, 97902, 97907, 98186, 98321)"
+  },
+  {
+   "value": 99999999,
+   "src_line": 195,
+   "meaning": "적 타워가 없을 때 move_to_tower_tick 기본값(97578) — 사실상 무한(L209 `<=120` 게이트 항상 실패 → L216 분기로)"
+  },
+  {
+   "value": 30,
+   "src_line": 205,
+   "meaning": "`enemy_die_tick > 30`(97584) — 적을 30틱(0.5초@60) 안에 못 죽이면 인원우위(allies.len > enemies.len) 없을 때 이 적은 건너뜀"
+  },
+  {
+   "value": 121,
+   "src_line": 209,
+   "meaning": "`move_to_tower_tick < 121` ⇔ ≤120틱(2초@60): 적이 자기 타워까지 2초 안이면 빠른 킬 분기(L211~215), 아니면 L216 분기(97739). 표기(`<=120` vs `<121`)는 외연 동일이라 표기 불가"
+  },
+  {
+   "value": 61,
+   "src_line": 211,
+   "meaning": "`enemy_die_tick < 61` ⇔ ≤60틱(1초) 안에 죽일 수 있으면 인원비 무관 갱 시도(97778)"
+  },
+  {
+   "value": 120,
+   "src_line": 216,
+   "meaning": "`me_die_tick > 120`(97774) — 내가 2초 이상 버티고 아군≥적 이면 갱 시도(L217)"
+  },
+  {
+   "value": 5,
+   "src_line": 190,
+   "meaning": "player_champion[1-team][*e] bounds(<5, 97533) · closure#11/#13 동일 ⚠QC shl 경고 사유: `shl i8 %82, 5`(95142)는 line*32(top_tower..bottom_tower2 배열 stride)이며 이 상수와 무관"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::LineGankerPlan::target_bush_v41",
+  "game_ai::plan_legacy::old::LineGankerPlan::make_gank_battle",
+  "game_ai::plan_legacy::old::BattlePlan::new",
+  "game_ai::plan_legacy::handler::check_kill",
+  "game_ai::goal_data::get_die_tick_player",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::map_regions::is_in_jungle_area",
+  "game_core::simulation::map_regions::near_jungle_bush",
+  "game_core::simulation::map_def::MapDef::lane_path",
+  "game_core::simulation::state::player::LineType::get_start_position",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::entity::Entity::distance",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::game::frame::DebugFrameData::add_text",
+  "bumpalo::collections::vec::from_iter_in",
+  "core::iter::adapters::map::Map::fold",
+  "core::iter::adapters::copied::Copied::next",
+  "alloc::raw_vec::RawVec::grow_one",
+  "alloc::fmt::format::format_inner",
+  "hashbrown::map::HashMap::rustc_entry",
+  "hashbrown::raw::RawTable::insert_no_grow",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "// ganker.rs:99~246 (fn 루트 99). reach.py(version=2·gamemode=0): 블록 258 전부 살아있음 · 사장 0 · 접힌 분기 0 — NA 봉인 없음.\n// 극성은 분기 방향으로 읽음. 인라인 헬퍼는 `<파일:줄>` 로 표시.\n//\n// L101  if let LineGankerPhase::ChangeJungle(_) = self.phase { return None }      // tag(+0x29) < 6 (95052~95055) → L102 store -1\n// L106  let team = player.info.team;  let pos = player.info.position as usize;    // bounds<2\n//       let champ = data.cache.player_champion[team][pos].unwrap();            // 95083~95086, unwrap_failed 95118\n// L107  if game.is_visible(1 - team, champ.id)                                  // vtable +0xf8, 적팀에 내가 보이는가 (95112~95115)\n//        && is_in_jungle_area(context, champ.x, champ.y) {                      // 95540~95547 (`&&`: 둘째는 첫째 참일 때만 호출)\n//   L113  let near_wide_allies_len = cache.player_champion[team].iter().flatten()      // 5슬롯 언롤(자기 자신 포함)\n//            .filter(|x| x.distance2(champ) < 62500000001                            // L111 ≤250000\n//                     && x.hp*100 / x.stat_cached.hp > 39).count();                  // L112 HP≥40% (max_hp 0 → div0 패닉)\n//   L115  let near_wide_enemies_len = cache.player_champion[1-team].iter().flatten()\n//   L117     .filter(|x| data.blackboard[1-team].is_recent_visible(game, player, x)    // ★블랙보드 인덱스 = 1-team (96020)\n//   L118            && x.distance2(champ) < 62500000001\n//   L119            && x.hp*100 / x.stat_cached.hp > 39).count();                     // L120\n//   L122  if near_wide_allies_len > near_wide_enemies_len && near_wide_enemies_len != 0 {   // 96437~96440\n//   L124    let nearest_enemy = cache.iter_champions(1-team)                           // 적 5슬롯 언롤 + m12 14487 fold\n//                .filter(|x| blackboard[1-team].is_recent_visible(game, player, x))    // closure#2\n//                .min_by_key(|x| x.distance2(champ));                                  // closure#3 (첫 최소 유지)\n//   L126    if let Some(e) = nearest_enemy {\n//   L127      if let Some(p) = self.make_gank_battle(version, rnd, player, data, positioning_score, team_plan, e.id, 60, debug) { return Some(p) }   // 97043~97046, None 이면 L142 로\n//           }                                                                            // None 이어도 L142 로(96929)\n//         } else {\n//   L132    let nearest_enemy = cache.iter_champions(1-team).filter(is_recent_visible).min_by_key(dist² to champ);   // closure#4/#5, 동일 fold\n//   L134    if let Some(e) = nearest_enemy {\n//   L135      self.chats.push(Chat::BattleHelp(e.id, 0));                                 // 태그 6, 96987~97027\n//   L136      let mut b = BattlePlan::new(version, BattlePlanGoal::Response, data, player); b.entry_src = 3;\n//             return Some(BigPlan::Battle(b));                                            // 태그 9 + memcpy 280B\n//           }                                                                            // None 이면 L142 로(96658)\n//         }\n//       }\n// L142  let _ = self.target_bush(player, data);          // ★인라인(ganker.rs:351~377). 값은 어디에도 안 쓰임(%18 재로드 0건) — unwrap 패닉 부작용만 남음:\n//         //  352 champ = player_champion[team][pos].unwrap()  (재로드 95129, unwrap 95280)\n//         //  353 optb = tower[line][team].or(tower2[line][team])                          (+0x180+line*32 / +0x190+line*32, 95142~95152)\n//         //  354 t = cache.twin_towers[team].iter().min_by_key(|t| t.distance2(self.line.get_start_position(context.setting, team)))   (95239~95272)\n//         //  359 nearest_tower = optb.or(t)  (closure#1: 95287~95302)\n//         //  360 nearest_tower = nearest_tower.unwrap_or(cache.nexus[team].unwrap())   (361 unwrap 95318)\n//         //  363 nexus = cache.nexus[team].unwrap()                                    (95335)\n//         //  365 ms = blackboard[team].minion_state(self.line)  (<blackboard.rs:379~382> switch line → +0/+0x28/+0x50, 95346~95361)\n//         //  366 front_minion = ms.front_minion.and_then(|m| game.get_entity_by_id(m))  (closure#2, vtable +0x1f0, 95389~95391)\n//         //  368 reference = front_minion.filter(|x| x.distance2(nexus) >= nearest_tower.distance2(nexus))  (closure#3; 95463 `ult` 참이면 버림)\n//         //        Some(x) → 373 near_jungle_bush(context, champ.x, champ.y, x.x, x.y)\n//         //        None    → 369 center = context.map.lane_path(self.line, team)[3];  370 near_jungle_bush(context, champ.x, champ.y, center.x, center.y)\n//         //  374 .unwrap()   (Option<(u64,u64)> 태그만 검사 95495~95500)\n// L144  let bush = self.target_bush_v41(player, data);                                   // fastcc(line, team, pos, cache, context) → usize (95508~95510)\n// L148  let champ_bush = context.map.bushes[min(champ.y/32000, 29)][min(champ.x/32000, 29)];   // 95513~95533 ([y][x] 순)\n// L150  if context.debug {  L151 debug.add_text(champ.x, champ.y + 20000, format!(\"bush: {:?}, champ_bush: {:?}\", bush, champ_bush), Color(1,0,0,1), 1) }\n// L154  if champ_bush != bush { L155 return None }                                       // 97049~97052 (eq → 진행)\n// L158  let dist_cut: u64 = 150000;\n// L160  let near_allies_p: bumpalo Vec<usize> = cache.player_champion[team].iter().enumerate()\n//           .filter(|(_, x)| x.is_some_and(|x| x.distance2(champ) <= dist_cut*dist_cut))   // closure#6 (m08 112913), 자기 자신 포함(거리 0)\n// L163      .map(|(i, _)| i).collect_in(context.pool);                                      // 97106~97116 (bump = context+0 %803)\n// L165  let near_enemies_p: bumpalo Vec<usize> = cache.player_champion[1-team].iter().enumerate()\n//           .filter(|(_, x)| x.is_some_and(|c| blackboard[1-team].is_recent_visible(game, player, c) && c.distance2(champ) <= dist_cut²))   // closure#8 (112983)\n// L168      .map(|(i, _)| i).collect_in(pool);                                              // 97137~97155\n// L170  let nearest_enemy_tower = cache.iter_towers_without_nexus(1-team)                   // 97172 (120B 이터레이터)\n// L171      .min_by_key(|t| t.distance2(champ));                                             // closure#10 (m12 39469) · fold m06 23823 / m11 17703 · 97189~97372\n// L173  for e in near_enemies_p.iter() {                                                    // 97430~97440 (ptr 순회, e: &usize)\n//   L175  let near_allies_p = cache.player_champion[team].iter().enumerate()                // 루프 지역 재바인딩(%32)\n//             .filter(|(_, x)| x.is_some_and(|c| c.id == champ.id || c.distance2(player_champion[1-team][*e].unwrap()) <= dist_cut²))   // closure#11 (113084)\n//   L180      .map(|(i,_)| i).collect_in(pool);\n//   L182  let near_enemies_p = cache.player_champion[1-team].iter().enumerate()             // (%30)\n//             .filter(|(_, x)| x.is_some_and(|x| x.distance2(player_champion[1-team][*e].unwrap()) <= dist_cut²))   // closure#13 (113214)\n//   L185      .map(|(i,_)| i).collect_in(pool);\n//   L187  let enemy_die_tick = get_die_tick_player(data, 1-team, *e, &near_allies_p, None, None);     // 97511~97516 (Option<SmallAction>::None = -1)\n//   L188  let me_die_tick    = get_die_tick_player(data, team, pos, &near_enemies_p, None, None);     // 97528~97532\n//   L190  let e_ent = cache.player_champion[1-team][*e].unwrap();                          // bounds<5 97533, unwrap 97553\n//   L191  let move_to_tower_tick = if let Some(tower) = nearest_enemy_tower {\n//   L192~194   e_ent.distance(tower) / e_ent.stat_cached.move_speed                        // 97558, 97563~97570 (speed 0 → div0 패닉)\n//           } else { 99999999 };                                                             // 97578\n//   L199  if context.debug { L200 debug.infos.entry(e_ent.id).or_default().push(format!(\"target: {:?}, near_allies_p: {:?}, near_enemies_p: {:?}, move_to_tower_tick: {}, me_die_tick: {}, enemy_die_tick: {}\", e_ent.id, near_allies_p, near_enemies_p, move_to_tower_tick, me_die_tick, enemy_die_tick)) }\n//   L205  if enemy_die_tick > 30 && near_allies_p.len() <= near_enemies_p.len() { continue }   // 97583~97585 + 97744~97748 (ugt 30 참 & !(allies>enemies) → 1001 drop → 다음 e)\n//   L209  if move_to_tower_tick <= 120 {                                                   // ult 121 (97739)\n//   L211    if enemy_die_tick <= 60 {                                                       // ult 61 (97778)\n//   L212      if let Some(p) = self.make_gank_battle(…, e_ent.id, 60, debug) { return Some(p) }   // 97887~97908\n//   L213    } else if near_allies_p.len() > near_enemies_p.len() {                          // 97882~97886\n//   L214      if let Some(p) = self.make_gank_battle(…, e_ent.id, 60, debug) { return Some(p) }   // 97894~97903\n//           }\n//   L216  } else if me_die_tick > 120 && near_allies_p.len() >= near_enemies_p.len() {      // 97773~97775 · 97790~97794(`allies < enemies` 참이면 다음 else-if 로)\n//   L217    if let Some(p) = self.make_gank_battle(…, e_ent.id, 60, debug) { return Some(p) }   // 97797~97834\n//   L218  } else if self.wait_limit.saturating_sub(game.tick())                            // vtable +0x28 · usub.sat 97804\n//   L219             > context.setting.tick_per_second * 3 {                                // 97805~97809 → 참이면 아무것도 안 함(1047: drop → 다음 e)\n//   L220  } else if near_allies_p.len() > near_enemies_p.len() {                            // 97814~97818\n//   L221    if let Some(p) = self.make_gank_battle(…, e_ent.id, 60, debug) { return Some(p) }   // 97820~97829\n//         }\n// L223  }  // 루프 지역 Vec 2개 drop 후 다음 e\n// L225  if let Some((e, t)) = check_kill(version, rnd, player, data, positioning_score, debug) {   // 97474 · Option<(usize,usize)> +8 e, +0x10 t (98175~98179)\n// L226    if near_allies_p.len() > near_enemies_p.len() {                                   // 바깥 Vec(%37 vs %35) 98006~98011\n// L227      if let Some(p) = self.make_gank_battle(…, e, t, debug) { return Some(p) }        // ★min_trace = check_kill 의 t (98181~98187)\n//         }\n//       }\n// L232  let nearest_enemy = cache.iter_champions(1-team).filter(|x| blackboard[1-team].is_recent_visible(game, player, x))   // closure#15, 98081~98121 언롤\n// L233      .min_by_key(|x| x.distance2(champ));                                             // closure#16, fold m12 14907\n// L235  if let Some(ne) = nearest_enemy {                                                    // 98197~98198\n// L236    let d = ne.distance(champ);                                                        // 98203 (Entity::distance, 제곱 아님)\n// L237    let attack_range = champ.attack_effect.as_ref().unwrap().range(champ)             // <effect.rs:26> = champ.stat_buff_cached.range + eff.range + (champ.level-1)*eff.growth_range (98238~98257, 98304~98305)\n//                          + eff.range_adjust(champ, ne)                                     // 98247 (게임 경계)\n//                          + champ.radius() + ne.radius();                                    // <entity.rs:1511~1515>: radius_mult==0 ? radius : radius*(mult+100)/100 (98258~98303)\n// L240    if d > attack_range { return None }                                                // 98310~98311 (ugt → 1152 None)\n// L241    return self.make_gank_battle(…, ne.id, 60, debug);                                 // 98314~98322 — 콜리 결과가 None(-1)이어도 그대로 None 반환\n//       }\n// L245  None                                                                                // 98207\n// L246  } // 바깥 near_allies_p/near_enemies_p drop",
+ "knobs": [
+  {
+   "what": "광역 인원 집계 반경(노출 시 우위 판정)",
+   "where": "ganker.rs:111·118 (m08.ll:95629, 96074)",
+   "value": 62500000001,
+   "effect": "올리면(예: 300000²+1) 더 먼 아군·적까지 세어 인원우위/열세 판정이 넓은 범위로 바뀐다 · 내리면 바로 옆 인원만 센다. 아군·적 두 곳을 같이 바꿔야 대칭이 유지된다"
+  },
+  {
+   "what": "인원 집계 HP 하한(%)",
+   "where": "ganker.rs:112·119 (95643, 96088)",
+   "value": 39,
+   "effect": "올리면(예: 59) 저체력 챔피언을 인원에서 더 많이 제외해 우위 판정이 보수적으로 · 내리면(0) 빈사도 인원으로 센다"
+  },
+  {
+   "what": "근접 인원·킬계산 반경 dist_cut",
+   "where": "ganker.rs:158 (97091)",
+   "value": 150000,
+   "effect": "올리면 near_allies_p/near_enemies_p 에 더 먼 챔피언이 들어가 get_die_tick_player 의 공격자/피격자 집합이 커지고(die_tick 감소) 인원비 게이트도 넓어진다 · 내리면 갱 대상 후보(바깥 near_enemies_p) 자체가 줄어 루프가 짧아진다"
+  },
+  {
+   "what": "적 처치 예상 틱 상한(인원우위 없을 때)",
+   "where": "ganker.rs:205 (97584)",
+   "value": 30,
+   "effect": "올리면 더 오래 걸리는 킬도 인원비 무관하게 후보로 남는다(공격적) · 내리면 즉사급만 후보(소극적)"
+  },
+  {
+   "what": "적의 타워 복귀 시간 임계(틱)",
+   "where": "ganker.rs:209 (97739, `<121`)",
+   "value": 121,
+   "effect": "올리면 타워에서 먼 적도 '빠른 킬' 분기(L211~215)로 들어가 60틱 킬 조건이 적용 · 내리면 대부분 L216 분기(내 생존 120틱 + 아군≥적) 로 흘러간다"
+  },
+  {
+   "what": "빠른 킬 판정 틱(인원비 무관 갱)",
+   "where": "ganker.rs:211 (97778, `<61`)",
+   "value": 61,
+   "effect": "올리면 인원 열세여도 갱을 시도하는 범위가 넓어진다 · 내리면 인원우위(L213) 조건으로만 갱"
+  },
+  {
+   "what": "내 생존 예상 틱 하한",
+   "where": "ganker.rs:216 (97774)",
+   "value": 120,
+   "effect": "올리면 내가 더 안전할 때만(적 타워 멀 때) 갱 · 내리면 위험해도 갱"
+  },
+  {
+   "what": "대기 잔여시간 유예(초)",
+   "where": "ganker.rs:219 (97808, tps*3)",
+   "value": 3,
+   "effect": "올리면 wait_limit 까지 여유가 많을 때 '아군우위 갱'(L220~221) 을 더 오래 미룬다 · 0 이면 항상 L220 판정으로"
+  },
+  {
+   "what": "make_gank_battle min_trace",
+   "where": "ganker.rs:127·212·214·217·221·241 (리터럴 60, 6곳)",
+   "value": 60,
+   "effect": "콜리 make_gank_battle 명세의 min_trace 소비 방식에 따름(추정: 추적 최소 틱). L227 만 check_kill 이 준 t 를 쓰므로 여기 값을 바꿔도 그 경로는 불변"
+  },
+  {
+   "what": "노출·열세 시 응답 플랜 진입 표식",
+   "where": "ganker.rs:136 (97033, entry_src=3)",
+   "value": 3,
+   "effect": "BattlePlan.entry_src 는 텔레메트리/후속 판정 표식 — 값 변경은 BattlePlan 소비처(battle.rs)에 따라 효과가 달라진다(이 함수에선 저장만)"
+  }
+ ],
+ "unknown": [
+  "L142 `self.target_bush(player, data)` 인라인 결과(near_jungle_bush 의 (u64,u64))가 어떤 변수에도 안 쓰인다(%18 재로드 0건) — 소스가 `let _ = …` 인지, 결과를 쓰는 코드가 dead-store 제거된 것인지 IR 로는 구분 불가(표기 불가). 동작상으로는 unwrap 패닉(부시 못 찾음) 부작용만 남는다",
+  "is_recent_visible 의 self 가 왜 blackboard[1-team](적팀 슬롯)인지 — IR 사실(96020·113034·14604 전부 1-team). Blackboard.last_visible[pos] 가 '그 팀 챔피언의 피관측 기록'이라면 자연스럽지만 근거는 game_core blackboard.rs:346 본문 미독(범위 밖). 재현 시 인덱스만 그대로 따르면 됨",
+  "L154 `champ_bush != bush → None` 의 bush 값 의미(bushes 그리드의 id 체계, 0 이 '부시 아님'인지) — MapDef.bushes 채움 규칙은 map_def 계층 미독. target_bush_v41 내부(94136~)도 본 배치 범위 밖(시그니처만)",
+  "L191 `if let Some(tower)` 의 Some/None 판정은 %900(=nearest_enemy_tower==null) 로 루프 밖에서 한 번 계산돼 재사용된다(97406) — 소스 표기(`match`/`map_or`)는 표기 불가",
+  "L218~219 조건의 소스 표기: IR 은 `usub.sat(wait_limit, tick) > tps*3` 참이면 아무 것도 안 하고 다음 e 로 간다. `else if cond {}` 인지 `else if !cond && allies>enemies` 인지 외연 동일 — 표기 불가",
+  "column 정보 부재로 같은 줄 안의 `&&` 좌우 순서(L107·L122·L205·L216)는 분기 방향으로만 복원했다(첫 항 거짓이면 둘째 항 미평가)",
+  "L60 Color 생성(1.0,0.0,0.0,1.0)은 common::color::Color::new 인라인 추정 — 필드 순서 RGBA 는 float 4개 store 순서로만 판단",
+  "make_gank_battle · check_kill · get_die_tick_player · BattlePlan::new 내부의 TLS 사용 여부는 각 자식 명세 소관(본 함수 직접 접점 0)",
+  "L151 Color(1.0,0.0,0.0,1.0)(97076~97082, float store)은 qcspec 이 실수 리터럴을 못 잡아 constants 에서 뺐다(writes 에 기재)"
+ ]
+}
