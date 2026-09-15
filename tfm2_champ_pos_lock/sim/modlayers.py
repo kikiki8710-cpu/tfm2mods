@@ -52,35 +52,38 @@ class PosState:
                 if c in self.allowed[p]:
                     m |= 1 << p
             des[c] = m
-        active = 0
-        for p in range(5):
-            if self.named_count(p) > 0:
-                active |= 1 << p
-        have = [0] * 32; need = [0] * 32
-        while True:
-            free = MASK_ALL & ~active
-            eff = {c: ((d & active) if (d & active) else (free if free else MASK_ALL)) for c, d in des.items()}
+        named = sum(1 << p for p in range(5) if self.named_count(p) > 0)
+
+        def table(a):
+            free = MASK_ALL & ~a
+            eff = [((d & a) if (d & a) else (free if free else MASK_ALL)) for d in des.values()]
+            have = [0] * 32; need = [0] * 32
             for S in range(1, 32):
-                if S & active != S:
-                    have[S] = need[S] = 0
+                if S & a != S:
                     continue
                 n = 0; l = 0
-                for m in eff.values():
+                for m in eff:
                     if m & S:
                         n += 1; l |= m
-                opp = min(5, bin(l & active).count('1'))
+                opp = min(5, bin(l & a).count('1'))
                 lock = 4 * {0: 0, 1: opp, 2: 2 * opp}[self.style]
                 have[S] = n; need[S] = bin(S).count('1') + 2 * self.ban_count + opp + lock
-            fail = 0
-            for p in range(5):
-                if not active & (1 << p):
-                    continue
-                if any(have[S] < need[S] for S in range(1, 32) if S & (1 << p) and S & active == S):
-                    fail |= 1 << p
-            if not fail:
-                break
-            active &= ~fail
-        self._saf = ([bool(active & (1 << p)) for p in range(5)], have, need)
+            return have, need
+
+        excl = [sum(1 for d in des.values() if d == 1 << p) for p in range(5)]
+        best = None
+        for a in range(32):
+            if a & ~named:
+                continue
+            have, need = table(a)
+            mn = min([have[S] - need[S] for S in range(1, 32) if S & a == S] or [0])
+            if a and mn < 0:
+                continue
+            key = (bin(a).count('1'), sum(excl[p] for p in range(5) if a & (1 << p)), mn)
+            if best is None or key > best[0]:
+                best = (key, a, have, need)
+        _, a, have, need = best
+        self._saf = ([bool(a & (1 << p)) for p in range(5)], have, need)
         return self._saf
 
     def pos_active(self, p):

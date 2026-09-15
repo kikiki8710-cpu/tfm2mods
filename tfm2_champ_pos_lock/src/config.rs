@@ -432,58 +432,76 @@ impl PosState {
             .map(|c| { let mut m = 0u8; for p in 0..5 { if self.allowed[p].iter().any(|x| x == c) { m |= 1 << p; } } m })
             .collect();
         let b = ban.unwrap_or(usize::MAX);
-        let mut have = [0u16; 32];
-        let mut need = [0u16; 32];
-        let mut worst = [0u8; 5];
-        // 시작 활성 집합 = 목록이 있는(로스터에 실재하는 지정이 있는) 포지션
-        let mut active_bits: u8 = 0;
-        for p in 0..5 {
-            if self.allowed[p].iter().any(|c| roster.contains(&c.as_str()) || g.is_none()) { active_bits |= 1 << p; }
-        }
-        let mut have_first = [0u16; 32];
-        let mut need_first = [0u16; 32];
-        let mut first = true;
-        loop {
-            let free = MASK_ALL & !active_bits;
-            // 실효 마스크 = 규칙 ①②③ (mask_of 와 동일 식)
-            let eff: Vec<u8> = des.iter().map(|&d| {
-                let dd = d & active_bits;
-                if dd != 0 { dd } else if free != 0 { free } else { MASK_ALL }
-            }).collect();
+        let named_bits: u8 = (0..5)
+            .filter(|&p| self.allowed[p].iter().any(|c| roster.contains(&c.as_str()) || g.is_none()))
+            .fold(0u8, |m, p| m | (1 << p));
+        // 활성 집합 A 에서의 (have, need) 표 — S ⊄ A 는 0.
+        let table = |a: u8, have: &mut [u16; 32], need: &mut [u16; 32]| {
+            let free = MASK_ALL & !a;
+            let eff: Vec<u8> = des.iter().map(|&d| { let dd = d & a; if dd != 0 { dd } else if free != 0 { free } else { MASK_ALL } }).collect();
             for s in 1..32usize {
-                if s & active_bits as usize != s { have[s] = 0; need[s] = 0; continue; }
-                let mut n = 0usize;
-                let mut l = 0u8;
+                if s & a as usize != s { have[s] = 0; need[s] = 0; continue; }
+                let mut n = 0usize; let mut l = 0u8;
                 for &m in &eff { if m as usize & s != 0 { n += 1; l |= m; } }
-                let lcnt = (l & active_bits).count_ones() as usize; // 상대 픽·잠금은 활성 라인 안에서만 의미
-                let opp = lcnt.min(5);
+                let opp = ((l & a).count_ones() as usize).min(5);
                 let lock = (SERIES_GAMES - 1) * match style { 2 => 2 * opp, 1 => opp, _ => 0 };
                 let nd = if b == usize::MAX { usize::MAX } else { s.count_ones() as usize + 2 * b + opp + lock };
                 have[s] = n.min(u16::MAX as usize) as u16;
                 need[s] = nd.min(u16::MAX as usize) as u16;
             }
-            if first { have_first = have; need_first = need; first = false; }
-            let mut fail: u8 = 0;
-            for p in 0..5 {
-                if active_bits & (1 << p) == 0 { continue; }
+        };
+        let feasible = |a: u8, have: &[u16; 32], need: &[u16; 32]| -> (bool, i64) {
+            let mut mn = i64::MAX;
+            for s in 1..32usize {
+                if s & a as usize != s { continue; }
+                let sl = have[s] as i64 - need[s] as i64;
+                if sl < mn { mn = sl; }
+            }
+            (mn >= 0 || a == 0, mn)
+        };
+        // ★[2026-09-16 4차] 순서 의존 제거: A ⊆ named 32가지를 전부 검사해 **살아남는 포지션 수 최대**(동률이면 최소 슬랙 최대)를 택한다.
+        //   (한 포지션을 끄면 그 지정이 사라진 챔프의 마스크가 바뀌어 다른 묶음의 필요치가 달라지므로 순차 제거는 결과가 순서에 좌우된다.)
+        // 동률 처리: ①살아남는 포지션 수 ②그 포지션에만 지정된(전용) 챔프 수 합(유저 의도 보존) ③최소 슬랙.
+        let excl: [u32; 5] = core::array::from_fn(|p| des.iter().filter(|&&d| d == 1 << p).count() as u32);
+        let mut best: Option<(u8, (u32, u32, i64))> = None;
+        let mut th = [0u16; 32]; let mut tn = [0u16; 32];
+        for a in 0..32u8 {
+            if a & !named_bits != 0 { continue; }
+            table(a, &mut th, &mut tn);
+            let (ok, mn) = feasible(a, &th, &tn);
+            if !ok { continue; }
+            let ex: u32 = (0..5).filter(|&p| a & (1 << p) != 0).map(|p| excl[p]).sum();
+            let key = (a.count_ones(), ex, mn);
+            if best.map_or(true, |(_, k)| key > k) { best = Some((a, key)); }
+        }
+        let a = best.map(|x| x.0).unwrap_or(0);
+        let mut have = [0u16; 32]; let mut need = [0u16; 32]; let mut worst = [0u8; 5];
+        table(a, &mut have, &mut need);
+        for p in 0..5 {
+            if a & (1 << p) != 0 {
                 let mut ws = (i64::MAX, 1usize << p);
                 for s in 1..32usize {
-                    if s & (1 << p) == 0 || s & active_bits as usize != s { continue; }
-                    let slack = have[s] as i64 - need[s] as i64;
-                    if slack < ws.0 { ws = (slack, s); }
+                    if s & (1 << p) == 0 || s & a as usize != s { continue; }
+                    let sl = have[s] as i64 - need[s] as i64;
+                    if sl < ws.0 { ws = (sl, s); }
                 }
                 worst[p] = ws.1 as u8;
-                if ws.0 < 0 { fail |= 1 << p; }
+            } else if named_bits & (1 << p) != 0 {
+                // 꺼진 포지션: A∪{p} 에서 p 를 포함하는 가장 나쁜 S (왜 못 켜는지 표시용)
+                let ap = a | (1 << p);
+                table(ap, &mut th, &mut tn);
+                let mut ws = (i64::MAX, 1usize << p);
+                for s in 1..32usize {
+                    if s & (1 << p) == 0 || s & ap as usize != s { continue; }
+                    let sl = th[s] as i64 - tn[s] as i64;
+                    if sl < ws.0 { ws = (sl, s); }
+                }
+                worst[p] = ws.1 as u8;
+                for s in 1..32usize { if s & (1 << p) != 0 && s & ap as usize == s { have[s] = th[s]; need[s] = tn[s]; } }
             }
-            if fail == 0 { break; }
-            active_bits &= !fail;
         }
         let mut active = [false; 5];
-        for p in 0..5 { active[p] = active_bits & (1 << p) != 0; }
-        // 표시용 have/need: 꺼진 포지션은 첫 반복(원본 목록) 값, 살아남은 포지션은 최종 값
-        for s in 1..32usize {
-            if have[s] == 0 && need[s] == 0 { have[s] = have_first[s]; need[s] = need_first[s]; }
-        }
+        for p in 0..5 { active[p] = a & (1 << p) != 0; }
         Safety { key: 0, active, have, need, worst }
     }
 }
