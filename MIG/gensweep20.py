@@ -72,7 +72,10 @@ RLIB_DIRS = [r"C:\tfm2mods\sdk_058\deps_ailink", r"C:\tfm2mods\sdk_058\mod-sdk\d
 #     정규화로 한다. 그 대조에서 **주소를 안 바꾼 12개는 0.6~1.2배**(= 판이 달라도 비율 유지)인데
 #     **주소를 바꾼 6개는 전부 그 밴드 밖**이었다(#12 4,480배 · #04 12.1배 · #11 1/343 · #16 1/24.6 ·
 #     #10 1.78→0 · #15 0→0) ⟹ 옛 수치가 **다른 함수**를 재고 있었다는 독립 확인이다.
-FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
+FIRED = {
+         # ★r15 거대 7 + 래퍼 1(i=180~187) · 2026-09-15 판 1(슬롯 186/186 설치 · 판 종료 494.9s 관측 · _r15_probe1\probe20_r15_run1.txt)
+         187: 194857643, 180: 99100031, 183: 20960537, 181: 9785357, 186: 8490788, 182: 3291756, 185: 3059936, 184: 1802717,
+         4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          8: 1554463, 1: 676759, 9: 428286, 14: 148803, 13: 132642,
          6: 107627, 0: 101915, 3: 29128, 11: 10041, 5: 3403,
          # ★r7 잎 20(i=20~39) · 2026-09-13 판 3(슬롯 96 · 설치 39/39 · Gen.G vs 디플러스 SET1 · 372s 스냅샷 —
@@ -306,6 +309,10 @@ EXTRA_SWEEP = [
 ]
 
 EXE_ABI = {
+    # ★r15 #194(i185) get_input_target(09-15 · 배치 I): LTO 가 `position_score_at_cell` 을 인라인하며 %5 `&PositioningScoreData`(2760B) 를
+    #   (cx@+0xab8, cy@+0xac0) 두 i64 스칼라로 ArgumentPromotion(exe 10 vs IR 9 · argscan +0x28/+0x30 `imul 0x7d00`). IR 사본이 %5 에서
+    #   읽는 gep 는 그 둘뿐 → 가짜 2760B 버퍼에 두 필드만 채운다(FAKE).
+    185: [0, 1, 2, 3, 4, ("FAKE", 2760, [(0xab8, 5, "i64"), (0xac0, 6, "i64")]), 7, 8, 9],
     18: [0, 1, "RNG", 2, 3, 4, 5],
     # ★r13 #138(i129) should_add_self_etc_buff_action(09-14): 소스 `&Effect` → IR (%3 Arc data, %4 vtable ptr) → exe 는 %4 를
     #   `*(vtable+0x10)`(align · [entry+0x20]) · `*(vtable+0x90)`(etc_buff fn · [entry+0x28]) 두 스칼라로 **재승격**(22차 B·C·D 대응표 일치 ·
@@ -329,6 +336,9 @@ BISECT_NO_STRFREE = 0   # ★임시 이분 스위치(2026-09-13) — 0 으로 �
 BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — 중첩 Vec 누락) — 0 유지
 
 SELF_RESTORE = {
+    # ★r15(09-15) RunAway/Recall get_input `&mut self` 136B(a1 · sret a0)
+    182: (1, 136, [], 8),
+    184: (1, 136, [], 8),
     # ★r14(09-14) get_input 계열 `&mut self`(a1 · sret 이 a0) — PathFinder Box 는 BOX_SUBST
     168: (1, 120, [], 8),
     176: (1, 152, [], 8),
@@ -427,6 +437,9 @@ SELF_RESTORE = {
 #   (호출자가 분기) ⟹ 상태 + 반환을 둘 다 판정한다.
 LIVE_RET = {44, 83, 97}   # 83 = sret 열거형(SubPlan) 과 self 부작용을 둘 다 판정(09-14)
 SELF_DIFF = {
+    # ★r15(09-15) RunAway/Recall — PathFinder key ptr·패딩 skip
+    182: {"skip": [(56, 8), (121, 3), (126, 2)]},
+    184: {"skip": [(0, 8), (65, 3), (70, 2)]},
     # ★r14(09-14) get_input 계열 — PathFinder key ptr·패딩 skip(Box 포인터 8B 는 BOX_SUBST 자동)
     168: {"skip": [(40, 8), (105, 3), (110, 2)]},
     176: {"skip": [(16, 8), (81, 3), (86, 2)]},
@@ -681,6 +694,9 @@ HEAP_SUBST = {
 #   값 = {idx: [(off, size, align, (tag_off, none_val)|None, (len_off, esz)|None)]} — off/tag_off/len_off 는 self 절대 오프셋.
 #   내용 비교 = self+len_off 값 × esz 바이트(path_len 만큼 · 나머지는 미초기화). 포인터 8B 는 본체 루프에서 자동 skip.
 BOX_SUBST = {
+    # ★r15(09-15) RunAway/Recall get_input — pf@0x38/0x0 · heapsurf dealloc(1120/8)@pf+0x28 · (70/1)@pf+0x30 실측
+    182: [(96, 1120, 8, [(125, 2, 'eq')], (72, 16)), (104, 70, 1, [(125, 2, 'eq')], (72, 1))],
+    184: [(40, 1120, 8, [(69, 2, 'eq')], (16, 16)), (48, 70, 1, [(69, 2, 'eq')], (16, 1))],
     168: [(80, 1120, 8, [(109, 2, 'eq')], (56, 16)), (88, 70, 1, [(109, 2, 'eq')], (56, 1))],
     176: [(56, 1120, 8, [(85, 2, 'eq')], (32, 16)), (64, 70, 1, [(85, 2, 'eq')], (32, 1))],
     177: [(88, 1120, 8, [(117, 2, 'eq')], (64, 16)), (96, 70, 1, [(117, 2, 'eq')], (64, 1))],
@@ -895,6 +911,11 @@ RET_LIVE = {
 _OPT_INPUT = [(0x00, 8, []), (0x08, 16, [(0x00, 8, [0])]),
               (0x08, 4, [(0x00, 8, [2, 3, 4, 5])]), (0x10, 8, [(0x00, 8, [2, 3, 4, 5]), (0x08, 4, [0, 1, 2])]), (0x18, 8, [(0x00, 8, [2, 3, 4, 5]), (0x08, 4, [1, 2])])]
 SRET_LIVE = {
+    # ★r15(09-15): 182/184 get_input = Option<Input> · 180/187 PositioningScore 56B = 8필드 0x0~0x31(0x32~0x37 패딩 미기록 — 배치 A/D/G 실측) ·
+    #   185 get_input_target = Option<InputTarget> 24B(태그 **i32** @+0: -1 None · 0 Target(+8 8B) · 1 Dir/2 Pos(+8·+16) · 3 InputTarget::None · +4..8 패딩 undef)
+    182: _OPT_INPUT, 184: _OPT_INPUT,
+    180: [(0x00, 0x32, [])], 187: [(0x00, 0x32, [])],
+    185: [(0x00, 4, []), (0x08, 8, [(0x00, 4, [0])]), (0x08, 16, [(0x00, 4, [1, 2])])],
     # ★r14 행동 계층 중간(09-14): get_input 계열 15 = Option<Input>(SmallActionPlay 141 · Skill 151 · Skill2 153 · Ult 154 · AroundPositionBush 157 · abstract skill 163/skill2 164 ·
     #   LaneMinionPosition 167 · AroundBush 168 · Positioning 172 · AroundHide 173 · Trace 176 · AroundRegion 177 · AroundPosition 178 · Around 179)
     141: _OPT_INPUT, 151: _OPT_INPUT, 153: _OPT_INPUT, 154: _OPT_INPUT, 157: _OPT_INPUT, 163: _OPT_INPUT, 164: _OPT_INPUT,
@@ -1036,7 +1057,8 @@ SRET_LIVE = {
     ],
 }
 
-MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"},
+MUT_OK_ARG = {181: {8: "DebugFrameData"}, 183: {6: "DebugFrameData"}, 186: {10: "DebugFrameData"},   # r15(09-15)
+              35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"},
               # r9(09-13 저녁) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
               67: {6: "DebugFrameData"}, 74: {5: "DebugFrameData"}, 75: {6: "DebugFrameData"}, 69: {8: "DebugFrameData", 1: "LegacyPlanHandler"},
               u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"},
@@ -1049,7 +1071,8 @@ MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "De
               107: {7: "DebugFrameData"}, 108: {7: "DebugFrameData"}, 109: {5: "LegacyPlanHandler", 6: "DebugFrameData"}, 110: {5: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
-SRET_FORCE = {167: 32, 156: 184, 161: 184, 140: 120, 146: 120, 145: 24, 155: 384,   # r14(09-14)
+SRET_FORCE = {180: 56, 185: 24,   # r15(09-15) position_eval_at_uncached internal sret 56 · get_input_target internal sret 24
+              167: 32, 156: 184, 161: 184, 140: 120, 146: 120, 145: 24, 155: 384,   # r14(09-14)
               u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280, 105: 392,
               80: 280, 98: 16}   # r10: #85(i80) try_engage internal → Option<BattlePlan> 280B · #103(i98) evaluate_steal_for_target internal → 16B   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {

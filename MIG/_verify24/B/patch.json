@@ -1,0 +1,762 @@
+{
+ "round": 24,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[181]/consts[7]/meaning",
+   "kind": "오탐",
+   "old": "타워 집중 판정 여유: dist(champ,tower) <= (d-사거리) + 15000 + 타워사거리 + 반지름들",
+   "new": "타워 집중 판정 여유: dist(champ,tower) <= (d-사거리) + 15000 + 타워사거리 + 반지름들 (★G12 오탐: m05.ll:41051 `%436 = add i64 %388, 15000` 의 !dbg 는 effect.rs:26[Effect::range]<1071 — LLVM Reassociate 가 L1071 `tower_range` 의 add 슬롯을 재사용해 L1074 의 `d + 15000` 을 실었다. add 6개 = range() 2개(26<1071) + L1074 4개(`d+15000`·`+tower_range`·`+tower.radius()`·`+champ.radius()`)로 리터럴은 L1074 소속이 확정. 41053~41057 `%438…%441 add`·`%442 icmp ule` 는 전부 !dbg 루트 1074)",
+   "evidence": "m05.ll:41051 `%436 = add i64 %388, 15000, !dbg` → 사슬 effect.rs:26[range]<action_score.rs:1071 · 41052 `%437 = add i64 %436, %394`(26<1071) · 41053 `%438 = add i64 %437, %402`(1074) · 41054~41056 add(1074) · 41057 `%442 = icmp ule i64 %411, %441`(1074). %388 = 40979 `llvm.usub.sat(%387,%386)`(L1069 d). L1067 의 같은 range() 인스턴스(40969~40970 `26<1067` add 2개 + 40971~40973 `1067` add 3개)와 add 개수를 대조하면 L1071 자체 스코프의 add 는 0개 — 15000 이 L1071 리터럴이면 `;1071` 단독 add 가 1개 있어야 한다. ⟹ 명세 1074 가 옳고 srclinecheck 가 Reassociate 로 옮겨진 !dbg 를 그대로 믿은 오탐",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[181]/sig/params[1]/role",
+   "kind": "오탐",
+   "old": "이 함수는 직접 읽지도 쓰지도 않는다. 전달만: check_kill_die_tick(콜리 속성 readnone — 실사용 없음) · defensive_crisis(L1352·L1474·L1528, 콜리 속성 RW — 롤 소비 가능).",
+   "new": "IR %1 = `ptr noalias noundef nonnull align 16 dereferenceable(320)`(속성 없음 = 이 define 은 읽기/쓰기 표명 없음). 본문 직접 load/store 0건. 전달만: check_kill_die_tick(L1032, m15.ll:27042 콜리 define 의 %1 은 읽지 않음(captures(none)) — 실사용 없음) · defensive_crisis(L1352·L1474·L1528, m10.ll:33864 콜리 %1 은 `noalias align 16 dereferenceable(320)` 로 RW — 롤 소비 가능). 경로별 최대 호출 = §H 1 · §I 1+5(L1528 아군 슬롯 루프) · §A 0.",
+   "evidence": "m05.ll:40106 define 의 %1 속성 = `ptr noalias noundef nonnull align 16 dereferenceable(320) %1`(readnone 없음). 옛 문면의 `readnone` 은 m15.ll:27042 `check_kill_die_tick(... ptr noalias readnone align 16 captures(none) %1 ...)` 콜리 쪽 속성인데 G16 P4 가 이 define 의 주장으로 읽었다 — 낱말을 콜리 소속으로 옮겨 적음. 본문 store 대상 %1 grep 0건(m05.ll:40106~44246)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[181]/sig/params[8]/role",
+   "kind": "오탐",
+   "old": "직접 쓰기 0. 전달: DebugFrameData::add_log ×6 (L1014·L1387·L1415·L1503·L1544·L1559 — logs Vec push = 힙 성장) · v55_mark_value(L1298, RW) · defensive_crisis(L1352·L1474·L1528, RW) · check_kill_die_tick(readnone).",
+   "new": "IR %8 = `ptr noalias noundef nonnull align 8 dereferenceable(224)`(속성 없음). 직접 쓰기 0. 전달: DebugFrameData::add_log ×6 (L1014·L1387·L1415·L1503·L1544·L1559 — logs Vec push = 힙 성장 · 전부 ctx.debug(+0x3b) 게이트 뒤) · v55_mark_value(L1298, RW) · defensive_crisis(L1352·L1474·L1528, RW) · check_kill_die_tick(L1032 — m15.ll:27042 콜리 %7 은 읽지 않음(captures(none)) = 미사용). stdout 출력 0건.",
+   "evidence": "m05.ll:40106 define 의 %8 속성 = `ptr noalias noundef nonnull align 8 dereferenceable(224) %8`(readnone 없음). 옛 문면 `check_kill_die_tick(readnone)` 은 m15.ll:27042 콜리 define 의 `%7 = ptr noalias readnone align 8 captures(none)` 을 가리킨 것 — G16 P4 오독. add_log 호출 6곳 = m05.ll:40782·43386·43545·43626·43967·44167 · 본문 `_print`/stdout 0건",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[181]/mem",
+   "at": 70,
+   "guard": "expected_mark 슬롯(fn ptr)",
+   "guard_key": "name",
+   "new": {
+    "base": "EffectType::vtable(Arc<dyn> +0x8)",
+    "offset": "0xa8",
+    "name": "expected_mark 슬롯(fn ptr)",
+    "note": "L1312·L1440 `%1301 = load ptr, vtable+168` → sret 48B Option<MarkProfile>(태그 i64 +0x0: 0=None · 페이로드 MarkProfile 40B@+0x8 = base/accum_pct/per_hit/max_hits/window usize ×5, tcxdict) — 본 함수는 태그만 읽는다. 같은 vtable 의 다른 슬롯: +0x60 expected_rush_effect(L1131) · +0x68 expected_move_on_hit(L1131) · +0x90 etc_buff(L1310·L1438) · +0x98 expected_ally_aura_heal_at(L1524) · +0xb0 expected_on_attack_damage(L1309·L1437) — shared.EffectType_vtable(_gcbc/g04.ll:927 정적 vtable) 슬롯표와 일치. dyn 데이터 = Arc ptr + ((vtable.align(+0x10)-1)&~15) + 16 (m05.ll:41917~41922)",
+    "dir": "r",
+    "chk": "확인불가(vtable — tcx 사전에 타입 없음 · shared.EffectType_vtable 로 확정)",
+    "ev": 3
+   },
+   "kind": "보강",
+   "evidence": "m05.ll:43018~43025 `%1300 = gep %769, 168 · %1301 = load ptr · call void %1301(ptr sret([48 x i8]) %57, ptr %775, ptr %455, ptr %87, …) · %1302 = load i64, ptr %57 · icmp eq %1302, 0 · select 5/0`(L1312) · 43712~43719 동일(L1440). MarkProfile = tcxdict 40B struct(effect/type.rs:364) 5×usize → Option 은 태그 8B 선두 = 48B",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[181]/mem",
+   "at": 77,
+   "guard": "태그 (i64 · 0=None)",
+   "guard_key": "name",
+   "new": {
+    "base": "Option<MarkProfile> (expected_mark sret 48B)",
+    "offset": "0x0",
+    "name": "태그 (i64 · 0=None)",
+    "note": "L1312·L1440 etc_buff 판정: None 이면 5, Some 이면 0. 페이로드(+0x8 MarkProfile 40B)는 이 함수가 읽지 않음 — sret 48B 중 살아있는 바이트 = +0x0..+0x8 만(m05.ll:43022 `%1302 = load i64, ptr %57` · 43716 `%1620 = load i64, ptr %38`, 다른 load 0건). tcxdict MarkProfile 40B(5×usize, 니치 없음) ⟹ Option 태그 i64 선두",
+    "dir": "r",
+    "chk": "확인불가(tcx 사전에 Option<MarkProfile> 타입 없음 · MarkProfile 40B 는 tcxdict OK)",
+    "ev": 3
+   },
+   "kind": "보강",
+   "evidence": "m05.ll:43020~43025 · 43714~43719 (sret %57/%38 의 load 는 +0 i64 뿐) · tcxdict MarkProfile = 40B struct 필드 5(usize)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[181]/open[8]",
+   "kind": "보강",
+   "old": "Blackboard::is_recent_visible(self=&blackboard[1-team], game(dyn 2워드), player, entity) 인자 의미는 콜리 소관 — _docs game_core:21 로 [1-team]=적팀 정보를 우리 팀이 관측한 판 임을 확인.",
+   "new": "★해소 — Blackboard::is_recent_visible 는 shared.is_recent_visible 확정 항목(_gcbc/g07.ll:157005 · (A) is_visible 즉시 true (B) last_visible[owner.pos]+120 >= tick)이고, 본 함수의 호출 5+1곳(m05.ll:41616·41682·41748·41814·41880 L1115 언롤 5슬롯 · 61913 closure$0 L1029)은 전부 `&blackboard[1-player.info.team]`(m05.ll:41562 gep [744B]×%140 · 61904 `sub 1, team`+bounds) · game(dyn 2워드 %137/%139) · player(%2) · 후보 엔티티 를 넘긴다 = 「적 팀 블랙보드 = 적이 우리에게 관측된 판」. 물음 없음 — notes 로 이동 대상.",
+   "evidence": "specs20_v3 shared.is_recent_visible(확정) + m05.ll:41562 `%632 = getelementptr inbounds nuw { … }, ptr %629, i64 %140`(blackboard base %629 = data+16, %140 = 1-team) · 61901~61913 closure$0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[181]/open[9]",
+   "kind": "실오류",
+   "old": "L1258 attack_cooldown() 인라인의 EntityType 별 오프셋(Minion 184·Tower 272·Jungle 232·Epic/Serpen 496·Ghoul 176·SmallJiangshi 200·Bear 240·Eagle 216·Revenant 208·Champion 176)은 IR phi 그대로이며 tcxdict 로 Champion(+0xb0)만 교차검증. None/Nexus(태그 0·3)는 쿨다운 없음 = 통과.",
+   "new": "★해소 — L1258 attack_cooldown() 인라인의 EntityType 별 오프셋(Entity 선두 기준, m05.ll:42604~42664 switch/phi): 태그1 Minion 184 · 2 Tower 272 · 4 Jungle 232 · 5 Epic 496 · 6 Serpen 496 · 7 Ghoul 232 · 8 SmallJiangshi 176 · 9 Bear 200 · 10 Eagle 240 · 11 Revenant 216 · 12 Illusion 208 · 13 Champion 176(+0xb0). 전부 tcxdict 교차검증 = 0x70(info 페이로드) + 각 struct 의 attack_cooldown(Minion 0x48 · Tower 0xa0 · Jungle 0x78 · Epic/Serpen 0x180 · Ghoul 0x78 · SmallJiangshi 0x40 · Bear 0x58 · Eagle 0x80 · Revenant 0x68 · Illusion 0x60 · Champion 0x40). None/Nexus(태그 0·3)는 쿨다운 없음 = 통과(%1085 직행). ⚠champ 는 cache.player_champion 원소라 실전에선 항상 Champion(13) — 다른 arm 은 데이터상 사장.",
+   "evidence": "m05.ll:42604~42619 `switch i64 %1084 … i64 7, label %1091 / i64 8, label %1093 / i64 9, label %1094 / i64 10, label %1095 / i64 11, label %1096 / i64 12, label %1097` · 42664 `%1099 = phi i64 [ 232, %1091 ], [ 208, %1097 ], [ 216, %1096 ], [ 240, %1095 ], [ 200, %1094 ], [ 176, %1093 ], [ 272, %1090 ], [ 184, %1082 ], [ 496, %1092 ]` · tcxdict Ghoul.attack_cooldown=0x78 · SmallJiangshi=0x40 · Bear=0x58 · Eagle=0x80 · Revenant=0x68 · Illusion=0x60 (+0x70 = 232/176/200/240/216/208). 옛 표는 Ghoul 176·SmallJiangshi 200·Bear 240·Eagle 216·Revenant 208 로 한 칸씩 밀려 있었고 Illusion 이 빠져 있었다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[181]/open[3]",
+   "kind": "보강",
+   "old": "심볼 이름·타입으로만 판독(distance_sq 키 · closure 술어) — 본문 미독. 동률 시 min_by_key 는 첫 최솟값(표준 의미).",
+   "new": "심볼 이름·타입으로 판독(distance_sq 키 · closure 술어) + fold 본문 확인(24차 B): m06.ll:29867 `%66 = icmp ugt i64 %29, %65` · 29868 `%67 = select i1 %66, ptr %35, ptr %30`(현재 최솟값 키 > 새 키 일 때만 교체 = 엄격 부등) ⟹ 동률 시 첫 원소 유지(표준 min_by_key 의미) 확정. 필터 술어는 m05.ll:61926~62011 call_mut 두 판(closure$1 L1060 · closure$3 L1111) 모두 `icmp ult distance_sq, 22500000000`.",
+   "evidence": "m06.ll:29867~29868 · m05.ll:61965 `%25 = icmp ult i64 %24, 22500000000` · 62009 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[181]/open[5]",
+   "kind": "보강",
+   "old": "+0xa8 expected_mark 의 반환(sret 48B, 태그 i64 0=None) 페이로드 타입 미확인.",
+   "new": "+0xa8 expected_mark 의 반환(sret 48B, 태그 i64 0=None) 페이로드 = MarkProfile 40B(tcxdict effect/type.rs:364: base/accum_pct/per_hit/max_hits/window usize ×5, 니치 없음 → Option 태그 8B 선두, 페이로드 +0x8) 확정 — 본 함수는 태그(+0x0)만 읽는다(m05.ll:43022·43716).",
+   "evidence": "tcxdict MarkProfile (40B · struct · 필드 5) · m05.ll:43020 `call void %1301(ptr sret([48 x i8]) … %57 …)` · 43022 `%1302 = load i64, ptr %57` 외 %57 load 0건",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[181]/sig/abi",
+   "kind": "보강",
+   "old": "internal fastcc (SDK 내부 링크) · exe 0xd5bbf0 19,586B · 호출자 1 = interaction_score 0xd57540 (호출부 0xd57cc4)",
+   "new": "internal fastcc (SDK 내부 링크) · exe 0xd5bbf0 19,586B(.pdata 0xd5bbf0~0xd60872) · 호출자 1 = interaction_score 0xd57540, 호출부 2곳 0xd57cc4·0xd57eea(IR 호출 4곳 m05.ll:37422/37443/37469/37495 가 백엔드 분기 병합으로 2:1 — exe .text 전체 `call d5bbf0` 2건). ★exe 인자 배치 = IR define 과 동일 9/9(argscan 24차 B: pushes rbp,r15,r14,r13,r12,rsi,rdi,rbx · sub rsp,0x938 · 스택 슬롯 entry+0x20~+0x40 5개 + 레지스터 4): rcx=version(%0) rdx=_rnd(%1) r8=player(%2) r9=data(%3) [+0x20]=parameter(%4) [+0x28]=action(%5) [+0x30]=effect(%6) [+0x38]=t(%7) [+0x40]=_debug(%8) — 호출부 d57c96~d57cbf `mov [rsp+0x40],r14 / [rsp+0x38],rax / [rsp+0x30],rcx / [rsp+0x20],r13 / [rsp+0x28],rdx` 로 교차 확인. DeadArgElim/ArgumentPromotion 없음.",
+   "evidence": "`python -X utf8 argscan.py 0xd5bbf0` → `entry_rsp+0x20 (arg5 · IR %4) x19 … +0x40 (arg9 · IR %8) x11 ⟹ 스택 인자 5개 + 레지스터 4 = exe 인자 9` · `argscan.py 0xd5bbf0 --caller 0xd57540` → `call 2곳`(d57cc4·d57eea) · pefile .text 스캔 `call rel32→0xd5bbf0` 2건",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/logic",
+   "kind": "실오류",
+   "old": "fights_back={w.1}\") }   // anon.153",
+   "new": "fights_back={w.fights_back}(=.0)\") }   // anon.153 · w = NoncombatSteroidWindow{fights_back@0, minion_wave@1}(tcxdict 2B)",
+   "evidence": "m05.ll:43307~43314 `%1442 = call { i8, i8 } noncombat_steroid_window` · `%1443 = extractvalue .0` → `store i8 %1443, ptr %1445`(=%52+288) · 43374 포맷 인자 `store ptr %1445, ptr %1474`(마지막 {} 자리) · tcxdict NoncombatSteroidWindow: 0x0 fights_back · 0x1 minion_wave. 옛 문면 `w.1` 은 minion_wave 를 가리켜 틀림(디버그 로그 전용 · 점수 무영향)",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[181]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "guard": "info.team",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=PlayerState offset=0x930 name=info.team (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "guard": "info.position@tag (i32)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=PlayerState offset=0x9c0 name=info.position@tag (i32) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "guard": "cache",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=OperationData offset=0x0 name=cache (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "guard": "context",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=OperationData offset=0x8 name=context (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "guard": "blackboard",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=OperationData offset=0x10 name=blackboard (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "guard": "player_champion[2][5]",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=AbstractGameWithCache offset=0x1e0 name=player_champion[2][5] (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "guard": "player_champion_cache[2][5] (ChampionCache 800B)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=AbstractGameWithCache offset=0x280 name=player_champion_cache[2][5] (ChampionCache 800B) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "guard": "attack_per_sec[target_pos]",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionCache offset=0x190 name=attack_per_sec[target_pos] (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "guard": "skill_per_sec[target_pos]",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionCache offset=0x1b8 name=skill_per_sec[target_pos] (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "guard": "skill2_per_sec[target_pos]",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionCache offset=0x1e0 name=skill2_per_sec[target_pos] (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "guard": "ult_per_sec[target_pos]",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionCache offset=0x208 name=ult_per_sec[target_pos] (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "guard": "pool (&Bump)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=GameContext offset=0x0 name=pool (&Bump) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "guard": "setting (&GameSetting)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=GameContext offset=0x8 name=setting (&GameSetting) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "guard": "tutorial (TutorialType i8)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=GameContext offset=0x38 name=tutorial (TutorialType i8) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "guard": "debug (bool)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=GameContext offset=0x3b name=debug (bool) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "guard": "epic_jungle.first_spawn_tick",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=GameSetting offset=0x8a8 name=epic_jungle.first_spawn_tick (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "guard": "tick_per_second",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=GameSetting offset=0x12f8 name=tick_per_second (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "guard": "tower_attack_disable_tick",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=GameSetting offset=0x13f8 name=tower_attack_disable_tick (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "guard": "player (ChampionScoreParameter 216B)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x918 name=player (ChampionScoreParameter 216B) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "guard": "player.applyed_damage",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x988 name=player.applyed_damage (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "guard": "player.risk_damage",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x998 name=player.risk_damage (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "guard": "player.risk_epic_damage",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x9a0 name=player.risk_epic_damage (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "guard": "player.risk_possible_tower",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x9b0 name=player.risk_possible_tower (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "guard": "positioning_score (PositioningScoreData 2760B)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x9f0 name=positioning_score (PositioningScoreData 2760B) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "guard": "near_allies.buf.ptr",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x14b8 name=near_allies.buf.ptr (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "guard": "near_allies.len",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x14d0 name=near_allies.len (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "guard": "near_enemies.buf.ptr",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x14d8 name=near_enemies.buf.ptr (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "guard": "near_enemies.len",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x14f0 name=near_enemies.len (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "guard": "v3_turnback_hold (bool)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ScoreParameter offset=0x1500 name=v3_turnback_hold (bool) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "guard": "id",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionScoreParameter offset=0x58 name=id (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "guard": "applyed_damage",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionScoreParameter offset=0x70 name=applyed_damage (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "guard": "risk_damage",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionScoreParameter offset=0x80 name=risk_damage (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "guard": "risk_epic_damage",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionScoreParameter offset=0x88 name=risk_epic_damage (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "guard": "risk_possible_tower",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=ChampionScoreParameter offset=0x98 name=risk_possible_tower (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "guard": "team@tag (TeamType 0=Player/1=Neutral)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x0 name=team@tag (TeamType 0=Player/1=Neutral) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "guard": "team@Player.0 (usize)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x8 name=team@Player.0 (usize) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "guard": "ty@tag (EntityType)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x68 name=ty@tag (EntityType) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[38]",
+   "from": 4,
+   "to": 3,
+   "guard": "ty@Tower.info.nearest_enemy@tag (Option<(usize,usize)>)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x88 name=ty@Tower.info.nearest_enemy@tag (Option<(usize,usize)>) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[39]",
+   "from": 4,
+   "to": 3,
+   "guard": "ty@Champion.info.attack_cooldown",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0xb0 name=ty@Champion.info.attack_cooldown (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[40]",
+   "from": 4,
+   "to": 3,
+   "guard": "ty@Champion.info.skill_cooldown",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0xb8 name=ty@Champion.info.skill_cooldown (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[41]",
+   "from": 4,
+   "to": 3,
+   "guard": "ty@Champion.info.skill2_cooldown",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0xc0 name=ty@Champion.info.skill2_cooldown (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[42]",
+   "from": 4,
+   "to": 3,
+   "guard": "ty@Champion.info.ult_cooldown",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0xc8 name=ty@Champion.info.ult_cooldown (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[43]",
+   "from": 4,
+   "to": 3,
+   "guard": "stat_buff_cached.range",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x438 name=stat_buff_cached.range (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[44]",
+   "from": 4,
+   "to": 3,
+   "guard": "stat_buff_cached.radius_mult (i32)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x470 name=stat_buff_cached.radius_mult (i32) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[45]",
+   "from": 4,
+   "to": 3,
+   "guard": "stat_buff_cached.undying (bool)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x488 name=stat_buff_cached.undying (bool) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[46]",
+   "from": 4,
+   "to": 3,
+   "guard": "attack_effect (Option<Effect>)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x490 name=attack_effect (Option<Effect>) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[47]",
+   "from": 4,
+   "to": 3,
+   "guard": "attack_effect@Some.range",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x4a0 name=attack_effect@Some.range (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[48]",
+   "from": 4,
+   "to": 3,
+   "guard": "attack_effect@Some.growth_range",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x4a8 name=attack_effect@Some.growth_range (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[49]",
+   "from": 4,
+   "to": 3,
+   "guard": "attack_effect@tag (i32 니치 · -1=None)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x4c0 name=attack_effect@tag (i32 니치 · -1=None) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[50]",
+   "from": 4,
+   "to": 3,
+   "guard": "skill_effect (Option<Effect>)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x4c8 name=skill_effect (Option<Effect>) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[51]",
+   "from": 4,
+   "to": 3,
+   "guard": "skill_effect@Some.target (CastingTarget)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x4f0 name=skill_effect@Some.target (CastingTarget) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[52]",
+   "from": 4,
+   "to": 3,
+   "guard": "skill_effect@tag",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x4f8 name=skill_effect@tag (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[53]",
+   "from": 4,
+   "to": 3,
+   "guard": "skill2_effect (Option<Effect>)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x500 name=skill2_effect (Option<Effect>) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[54]",
+   "from": 4,
+   "to": 3,
+   "guard": "skill2_effect@Some.target",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x528 name=skill2_effect@Some.target (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[55]",
+   "from": 4,
+   "to": 3,
+   "guard": "skill2_effect@tag",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x530 name=skill2_effect@tag (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[56]",
+   "from": 4,
+   "to": 3,
+   "guard": "ult_effect (Option<Effect>)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x538 name=ult_effect (Option<Effect>) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[57]",
+   "from": 4,
+   "to": 3,
+   "guard": "ult_effect@Some.target",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x560 name=ult_effect@Some.target (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[58]",
+   "from": 4,
+   "to": 3,
+   "guard": "ult_effect@tag",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x568 name=ult_effect@tag (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[59]",
+   "from": 4,
+   "to": 3,
+   "guard": "id",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x5c0 name=id (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[60]",
+   "from": 4,
+   "to": 3,
+   "guard": "level",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x5c8 name=level (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[61]",
+   "from": 4,
+   "to": 3,
+   "guard": "stat_cached.hp (최대 HP)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x628 name=stat_cached.hp (최대 HP) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[62]",
+   "from": 4,
+   "to": 3,
+   "guard": "stat_cached.move_speed",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x640 name=stat_cached.move_speed (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[63]",
+   "from": 4,
+   "to": 3,
+   "guard": "x",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x660 name=x (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[64]",
+   "from": 4,
+   "to": 3,
+   "guard": "y",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x668 name=y (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[65]",
+   "from": 4,
+   "to": 3,
+   "guard": "hp",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x670 name=hp (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[66]",
+   "from": 4,
+   "to": 3,
+   "guard": "radius",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Entity offset=0x680 name=radius (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[67]",
+   "from": 4,
+   "to": 3,
+   "guard": "ty (Arc<dyn EffectType> ptr +0x0 / vtable +0x8)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Effect offset=0x0 name=ty (Arc<dyn EffectType> ptr +0x0 / vtable +0x8) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[68]",
+   "from": 4,
+   "to": 3,
+   "guard": "range",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Effect offset=0x10 name=range (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[69]",
+   "from": 4,
+   "to": 3,
+   "guard": "growth_range",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=Effect offset=0x18 name=growth_range (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[72]",
+   "from": 4,
+   "to": 3,
+   "guard": "Option 태그 (i32 -1=None)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=BuffState(Option, 288B) offset=0x48 name=Option 태그 (i32 -1=None) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[73]",
+   "from": 4,
+   "to": 3,
+   "guard": "toughness",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=BuffState offset=0xb8 name=toughness (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[74]",
+   "from": 4,
+   "to": 3,
+   "guard": "cc_immune (bool)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=BuffState offset=0xf8 name=cc_immune (bool) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[75]",
+   "from": 4,
+   "to": 3,
+   "guard": "undying (bool)",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=BuffState offset=0x118 name=undying (bool) (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/mem[78]",
+   "from": 4,
+   "to": 3,
+   "guard": "risk",
+   "evidence": "tcxaudit(tcxdict 정본) OK — base=PositioningScore (sret 56B) offset=0x0 name=risk (24차 B memaudit.py 80행 전수: OK 75 · 확인불가 5)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/consts[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict --enum GameMode: DeathMatch 메모리태그 2 · --enum EntityType: Tower 태그 2 (IR m05.ll:40693 `icmp eq i64 %253, 2` · 40900 `icmp eq i64 %336, 2`)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/consts[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict --enum TutorialType: Line 메모리태그 7 (Direct) · IR m05.ll:41087 `i8 7, label %461`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/consts[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict --enum TutorialType: Total 메모리태그 8 · IR m05.ll:41088 `i8 8, label %461`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/consts[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict --enum TutorialType: MidBottom 메모리태그 5 · IR m05.ll:41089 `i8 5, label %461`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[181]/consts[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict --enum PositionEvalPurpose: AttackStance idx 10 → 메모리태그 12(니치 start 2) · IR m05.ll:42025 `i8 noundef 12` 인자",
+   "found_by": "reused"
+  }
+ ],
+ "brief_errors": [
+  "G3 「siblings.plan == null 인데 자유 함수 화이트리스트에 없다」는 게이트 결함이다: 181 은 심볼 `_RNvNt…12action_score34calculate_interaction_action_score`(impl 타입 없음) 자유 함수인데 specgate.py:161 FREE_FN 이 r15 함수(181)를 안 담고 있다 — 화이트리스트에 181 추가가 정답(명세 정정 대상 아님).",
+  "G12 consts[7] 「실제 후보 1071」은 LLVM Reassociate 가 add 슬롯을 재사용해 생긴 !dbg 이동을 그대로 믿은 오탐이다 — srclinecheck 에 「상수 add 의 유일 소비 사슬(add→…→icmp/select)의 종결 명령 루트 줄」을 약한 후보(구제)로 넣어야 같은 형태(리터럴이 앞 줄의 인라인 사슬 dbg 를 물려받음)가 반복 적발되지 않는다.",
+  "도시에 §1 「ev≥4(미실행) 118」·초점 ⑤ 오라클 목록(182~187)은 배치 B 몫이 아니다 — 181 은 `internal fastcc` 라 오라클 진입 불가(IR 로만)이고, 담당 1함수 도시에에 다른 배치 함수의 오라클 지시가 섞여 있어 초점 ②③⑤⑦ 의 대부분(Option<Input>·PathFinder drop·TLS 절·185 인자 승격)이 181 에는 해당 항목이 없다(181 명세에 `signature.tls` 절 자체가 없음 · 본문 TLS 접촉 0건).",
+  "G16 P4 가 `role` 문면의 낱말 `readnone` 을 콜리 속성 서술까지 이 define 의 주장으로 읽는다(params[1]·[8] 2건 전부 콜리 m15.ll:27042 의 속성) — 「콜리 속성」·「콜리 define」 같은 한정어 뒤의 속성 낱말은 제외해야 한다."
+ ]
+}

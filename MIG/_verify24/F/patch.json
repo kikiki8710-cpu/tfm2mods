@@ -1,0 +1,648 @@
+{
+ "round": 24,
+ "batch": "F",
+ "errors": [
+  {
+   "path": "/specs[186]/logic",
+   "kind": "실오류",
+   "old": "L457 in_range_minion = #{e: e.team==champ.team && e.ty==Minion && champ.attack_effect.is_in_range(t, e)}   // champ.attack_effect None 이면 unwrap 패닉",
+   "new": "L457 in_range_minion = #{e: e.team==champ.team && e.ty==Minion && t.attack_effect.is_in_range(t, e)}   // ★t(타워) 자신의 attack_effect(사거리) — champ 것이 아니다. t.attack_effect None 이면 같은 팀 미니언을 만나는 순간 unwrap 패닉(L459)",
+   "evidence": "m05.ll:39642 `%954 = getelementptr inbounds nuw i8, ptr %8, i64 1216`(%8 = t) · 39645 `%957 = icmp eq i32 %956, -1` · 39646 `%958 = getelementptr inbounds nuw i8, ptr %8, i64 1168`(= t+0x490 attack_effect) · 39699 `call … Effect11is_in_range(ptr %958, ptr %8, ptr %963)` — 오라클 o186 S inrange=0/1/2(minions=1, tdmg=500): in_range 2 → cond true(8) · 1 → false(0) MATCH · tnoatk=1 케이스 실행 시 `panicked at game-ai\\src\\action_score.rs:461:61 called Option::unwrap() on a None value`",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/logic",
+   "kind": "실오류",
+   "old": "Some(e) → e.hp ≥ champ.attack_effect.expected_damage_target(ctx, t, e) || in_range_minion>1, None → in_range_minion>1 }, _ → false }",
+   "new": "Some(e) → e.hp ≥ t.attack_effect.expected_damage_target(ctx, t, e) || in_range_minion>1, None → in_range_minion>1 }, _ → false }   // ★타워가 조준 대상 e 에 주는 기대피해(t.attack_effect · None 이면 unwrap 패닉 L461) — 「타워 한 방에 안 죽는 대상을 조준 중이거나 사거리 안 아군 미니언 2+」",
+   "evidence": "m05.ll:39926 `%1048 = call … Effect22expected_damage_target(ptr %958, ptr %54, ptr %8, …, ptr %1042)` (%958 = t+0x490, caster %8 = t, target %1042 = e) · 39927 `%1049 = icmp uge i64 %1047, %1048`(e.hp ≥) · 오라클 o186 tdmg=99/100/101(e.hp=100): 99→cond true(8)·100→true(8)·101→false(0) 6/6 MATCH — champ.attack_effect(cdmg=5) 는 판정에 무관했다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/mem[36]/note",
+   "kind": "실오류",
+   "old": "루프 e / champ(L459-461) · +0x4c0 casting tag == -1 이면 None(unwrap 패닉) · +0x4b0 start_timing",
+   "new": "루프 e / ★t=Tower(L459-461: 타워 자신의 attack_effect 로 사거리·기대피해 판정 — champ 가 아니다) · +0x4c0 casting tag == -1 이면 None(unwrap 패닉) · +0x4b0 start_timing",
+   "evidence": "m05.ll:39642~39646 %954/%958 의 베이스가 %8(t) · 오라클 o186 tnoatk=1 → action_score.rs:461:61 unwrap 패닉",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[17]/src_line",
+   "kind": "실오류",
+   "old": 161,
+   "new": 165,
+   "evidence": "m05.ll:38385 `switch i8 %9 … ;L161` = 첫 arm(Pull) 패턴줄(rustc SwitchInt span=첫 패턴) · Push arm 블록 343 의 `br label %541, !dbg !43666`(!43666 = line 1 · 아티팩트) · rmeta srcmap: L161=45자=L164(4자 이름 Pull/Push 패턴줄) · L162=27=14+`return -9999;` · L165=24=14+`return 10;` · L163/L166=13=12+`}` ⟹ 10 은 L165",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[6]/where",
+   "kind": "오탐",
+   "old": "action_score.rs:424-428/454-469",
+   "new": "action_score.rs:424~428/454~469",
+   "evidence": "G19 오탐(도구 결함): knobval.src_anchors 의 NUM=`-?\\d+` 가 `424-428` 을 424·-428 로 파싱 → 앵커가 L424(m05.ll:39539~39542)뿐이라 240(39953 `select i1 %942, i64 160, i64 240 ;L463`)·160/80(39957 ;L469)이 창 밖. 정본 표기 관례는 `a~b`(88행)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[7]/where",
+   "kind": "오탐",
+   "old": "action_score.rs:32-55",
+   "new": "action_score.rs:32~55",
+   "evidence": "G19 오탐(도구 결함 2종): ①`32-55` 파싱(위와 같음) ②값 20/30/50/70/100 은 반환 병합 phi(m05.ll:38804 `[ 20, %116 ] [ 30, %134 ] [ 70, %152 ] [ 50, %158 ] [ 100, %168 ]` · line 0)에만 있어 소스줄 창으로는 절대 관측 안 됨. 블록 116/134/152/158/168 = L55/L32/L38/L37/L46 반환 — 오라클 o186 mne=1~4·buff1=0/1 케이스 17/17 MATCH",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[11]/src_line",
+   "kind": "실오류",
+   "old": 91,
+   "new": 92,
+   "evidence": "rmeta srcmap(줄 길이, 개행 포함): L91 64B=63자 = 4+`PositionEvalPurpose::`21+`LineStyle(LineStyle::Aggressive)`32+` => 8,`6 · L92 63B=62자 = Defensive(31) · 나머지 10 arm 도 4+21+len(name)+len(` => N,`) 로 12/12 정합(N=0..12, 7 결번) · m07.ll:24603 `%44 = trunc nuw i8 %6 to i1` · 24604 `%45 = select i1 %44, i64 4608, i64 4096`(line 0 = 두 arm 이 서로 다른 줄의 병합) · tcxdict --enum LineStyle: Aggressive 0/Defensive 1 · 오라클 o187 시나리오1 LineStyle 두 값 30/30 슬롯 일치",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[11]/meaning",
+   "kind": "실오류",
+   "old": "pe_purpose_ord: LineStyle(Defensive=태그1) — 소스 91~92 줄 어느 쪽인지는 L0 로 소실",
+   "new": "pe_purpose_ord: LineStyle(Defensive=태그1) — 소스 92줄(arm 리터럴 `9` · 줄 길이 산술 62자=Defensive) · 24604 select 의 line 0 은 두 arm(91/92)이 다른 줄임을 뜻함",
+   "evidence": "위 src_line 근거와 동일 · G12 는 병합 위치(line 0) 명령의 inlinedAt 프레임(101·296)을 강후보로 세워 오탐",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[10]/meaning",
+   "kind": "오탐",
+   "old": "pe_purpose_ord: LineStyle(Aggressive=태그0) (24604 select)",
+   "new": "pe_purpose_ord: LineStyle(Aggressive=태그0) — 소스 91줄(arm 리터럴 `8` · 줄 길이 산술 63자=Aggressive) (24604 select · line 0 병합 위치라 G12 후보에 안 잡힌다)",
+   "evidence": "G12 오탐(도구 결함): 24604 `select … ;L0<101<296` 의 leaf 가 line 0 인데 inlinedAt 프레임 101·296 이 강후보로 올라가 91 을 기각했다. 진짜 줄은 srcmap 줄 길이 산술로 91(위 [11] 근거)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[15]/meaning",
+   "kind": "오탐",
+   "old": "pe_purpose_ord: General (phi 기본 · 24617)",
+   "new": "pe_purpose_ord: General (phi 기본 · 24617 · 소스 84줄 `    PositionEvalPurpose::General => 0,` 38자 정합 — switch 24567 `i8 0, label %49` 가 arm 블록 없이 병합 블록으로 직행해 그 줄의 `!dbg` 가 없다)",
+   "evidence": "G12 오탐(도구 결함): 24567~24568 `switch i8 %35 … i8 0, label %49` 직행 + 24617 phi `[ 0, %7 ]` → phi 구제가 인입 블록 %7 의 종결자(switch ;L83)를 잡아 83 만 약후보. rmeta srcmap L84 39B=38자 = 4+21+7+` => 0,`6",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[25]/meaning",
+   "kind": "실오류",
+   "old": "aux: try_with 의 Option<Option<..>> 외곽 니치(태그 255) 검사 — 컴파일러 아티팩트, 유효 데이터에선 불발 (75594)",
+   "new": "aux: LocalKey::with 의 `match self.try_with(f)`(std thread/local.rs:426~428) — Result<Option<PositioningScore>, AccessError> 의 Err 니치(바이트 +49 == 255=-1) 검사 → panic_access_error. 컴파일러 아티팩트, 유효 데이터(+49 ∈ {0,1,2})에선 불발 (75594·75598)",
+   "evidence": "m00.ll:75594 `%103 = icmp eq i8 %39, -1 ;!60965` → dloc !60965 = local.rs:426 in with<RefCell<PosEvalCache>, closure_env$0, Option<PositioningScore>> · 75598 panic_access_error ;!60964(=428) · 툴체인 std 원문 local.rs:426 `match self.try_with(f) {` 427 `Ok(r) => r,` 428 `Err(err) => panic_access_error(err),` · 문면의 'Option<Option<' 은 G1 자기모순의 원인",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[25]/src_line",
+   "kind": "실오류",
+   "old": 426,
+   "new": 298,
+   "evidence": "426 은 std local.rs 줄(own 파일 아님) — 이 명령의 !dbg 사슬(!60965)에 position_eval.rs 프레임이 없다(with 모노모프는 별도 define). 자기 파일 규약상 그 모노모프를 인스턴스화한 호출 24637 `call … with…closure#0(…) ;L298` 의 298 을 쓴다. ⚠G12 는 여전히 후보([83,101,296,299,305,307,309,312] = 값 `1` 리터럴 오염: litpat 의 `-?` 접두 완화가 -1 을 1 과 동일시)에 없다고 낼 것 — 도구 결함",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[0]/meaning",
+   "kind": "보강",
+   "old": "PositionEvalPurpose 니치 무효값(assume ne 9) — 판정 아님, 인코딩 정합 (24562)",
+   "new": "PositionEvalPurpose 니치 무효값(assume ne 9) — 9 = untagged variant LineStyle(idx 7)이 니치 번호표(niche_start 2 + idx)에서 차지하는 자리라 실제 태그로는 안 쓰인다(General 2 … Lane 8 · [9 결번] · LaneSafe 10 · Objective 11 · AttackStance 12). 판정 아님, 인코딩 정합 (24562)",
+   "evidence": "tcxdict --enum PositionEvalPurpose: 니치 untagged=7, niche_variants=0..=10, niche_start=2 · 메모리태그 General 2/RunAway 3/Recall 4/Around 5/Positioning 6/Trace 7/Lane 8/LineStyle 없음(암묵 0·1)/LaneSafe 10/Objective 11/AttackStance 12 · m00.ll:75516 key.purpose load `!range !61149` = !{i8 0, i8 13}",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[13]/note",
+   "kind": "보강",
+   "old": "aux: hit 시 49B 복사(75588)",
+   "new": "aux: hit 시 val 56B 전부 복사 — 49B(75588 memcpy %37=slot+48) + 태그 1B(75602 phi %39 → 75605) + 패딩 6B(75589 memcpy %40=slot+98 → 75607) ⟹ 슬롯에 저장된 uncached 의 패딩이 그대로 반환된다(o187 기본 세계 실측 pad=00×6)",
+   "evidence": "m00.ll:75588 `memcpy(%4, %37, 49)` · 75589 `memcpy(%5, %40, 6)` · 75603~75607 sret 조립(49B + i8 + 6B) · o187 시나리오0 dump pad=[00,00,00,00,00,00]",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/open[1]/q",
+   "kind": "실오류",
+   "old": "LineStyle(Aggressive)=4096 / LineStyle(Defensive)=4608 이 소스 91·92 어느 줄인지 — 24604 select 가 `;L0` 로 줄 소실. 값 대응(태그0→4096, 태그1→4608 · trunc nuw i8→i1)은 확정",
+   "new": "LineStyle(Aggressive)=4096 은 소스 91줄, LineStyle(Defensive)=4608 은 92줄 — ★해소(24차 F): rmeta srcmap 줄 길이 산술(L91 63자=Aggressive arm `=> 8,` · L92 62자=Defensive arm `=> 9,` · 12 arm 전부 4+21+len(이름)+len(` => N,`) 정합) + 24604 select 의 line 0 = 두 arm 이 다른 줄. 값 대응(태그0→4096, 태그1→4608 · trunc nuw i8→i1)은 확정 · 오라클 o187 슬롯 일치",
+   "evidence": "consts[10]/[11] 근거와 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/open[2]/q",
+   "kind": "실오류",
+   "old": "다른 함수가 POS_EVAL_CACHE 를 읽거나 쓰는지 — 이 명세 범위(본체+두 클로저) 밖. 미탐색(grep …PosEvalCacheEE4with… 를 전 IR 에 돌리면 됨)",
+   "new": "다른 함수가 POS_EVAL_CACHE 를 읽거나 쓰는지 — ★해소(24차 F): 전 IR(_gaibc m00~m15) grep 결과 PosEvalCache 의 LocalKey::with 모노모프는 position_eval_at 의 closure#0/#1 두 개뿐(define m00.ll:75374·75614 · 호출 m07.ll:24637·24698) — 다른 작성자·소비자 없다. TLS 정적 = POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL(32B: +0 RefCell<PosEvalCache> 24B · +24 lazy state(1=초기화)) · 초기값 borrow 0 · slots Box<[None;512]> · seed 0 (m08.ll:1540~1692 get_or_init_slow)",
+   "evidence": "grep -c PosEvalCacheEE4with _gaibc/m*.ll → m00 8(define 2) · m07 6(call 2) · 그 외 0 · m08.ll:1650 __rust_alloc(53248) · 1687~1689 store 0/ptr/0",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[186]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[18]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[21]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[24]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[25]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[26]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[27]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[28]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/consts[30]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334) — 경계 케이스(value+5 · 999 · 29999 · 3v/2v · total*3/10 · 16199/16200 틱 · e.hp≥d · in_range>1 · min(coef, coef*v/hp))",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[186]/knobs[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o186.rs · run186.py 335케이스 · 케이스당 프로세스 1개 · MATCH 334/334 + 의도된 패닉 1 · StdRng 복제본 소비량 동기 334/334)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[18]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/consts[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) — idx=(x^(y<<21)^(id<<42)^ord)*0x9E3779B97F4A7C15>>55 재구현이 5 플레이어×12 purpose×3 변형 전부 슬롯 일치 · 센티널 hit · tick/version 불일치 miss · seed 변경 전체 초기화 · 충돌 덮어쓰기",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[187]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PeSlot(104B: 0x0 tick · 0x8 key 40B · 0x30 val 56B) / RefCell<PosEvalCache> DWARF 24B + 오라클 실행 확증(24차 F o187.rs · TLS 정적 POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL 직독 + prof::PHASE_CALLS[90]/[91] · 시나리오0/1/2 · 슬롯 예측 180/180 MATCH) TLS 직독 dump(tick·key 5성분·val·+0x61 태그 2/0) 일치",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "프롬프트(v24_prompt_F)의 초점 ②(Option<Input>/Option<InputTarget>/&mut self 136B PathFinder drop) · ⑦(internal 3 의 exe↔IR 인자 대응표 180/181/185) 는 배치 F 담당(186·187)에 해당 항목이 없다 — 공용 문안이 배치별로 걸러지지 않았다(186 은 i64 반환 · 187 은 sret 56B · 둘 다 &mut self 없음).",
+  "도시에 §1 표의 187 `open 7` 중 open[2](POS_EVAL_CACHE 다른 접근자)·open[1](91/92) 은 각각 grep 한 번·srcmap 한 번으로 닫히는 항목이었다 — 「grep 을 전 IR 에 돌리면 됨」이라고 적힌 미탐색을 라운드가 넘어가도록 두지 말고 mkdossier 가 «자체 해소 가능(명령 명시)» 항목을 따로 표시해 주면 좋겠다.",
+  "§5 스키마로는 `sig.tls.<키>`(purpose_ord/role/mirror_hint …)를 가리킬 수 없다(applypatch PATH 는 outer/field[idx]/key 까지 · dict 필드는 문면 치환 불가) — 187 의 TLS 절 정정 3건은 산문으로만 보고한다. 이번 라운드가 ★TLS 절 검증을 초점으로 걸었으니 계약에 `/specs[i]/sig/tls/<키>` 지원이 필요하다.",
+  "knobval.py(G19) 는 MIG 루트로 승격됐는데 `MIG = dirname(dirname(HERE))` 가 남아 단독 실행 시 `C:\\_spec\\specs20_v3.json` 을 찾는다(FileNotFoundError) — specgate 경유는 되지만 `--detail` 진단이 막혀 있다."
+ ]
+}

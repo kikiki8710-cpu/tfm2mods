@@ -1,0 +1,25 @@
+{
+ "round": "24",
+ "batch": "F",
+ "errors_applied": 0,
+ "ev_applied": 70,
+ "failed": 5,
+ "stamps": {
+  "/specs[186]/logic": "6ac34a323738d27f",
+  "/specs[186]/mem[36]/note": "c76beaf867ab6972",
+  "/specs[186]/consts[17]/src_line": "bc52dd634277c4a3",
+  "/specs[186]/knobs[6]/where": "e821c55beccef806",
+  "/specs[186]/knobs[7]/where": "840805490b83a830",
+  "/specs[187]/consts[11]/src_line": "8241649609f88ccd",
+  "/specs[187]/consts[11]/meaning": "52e89098087e3c9d",
+  "/specs[187]/consts[10]/meaning": "d597aa802688399a",
+  "/specs[187]/consts[15]/meaning": "7811ff8dce5cee46",
+  "/specs[187]/consts[25]/meaning": "fc647a5dcb90dfc5",
+  "/specs[187]/consts[25]/src_line": "76ebdb6d45c61ca1",
+  "/specs[187]/consts[0]/meaning": "f04f6f98a13107a8",
+  "/specs[187]/mem[13]/note": "27426003395231d1",
+  "/specs[187]/open[1]/q": "4ba8b39e01ccf0c9",
+  "/specs[187]/open[2]/q": "4ba8b39e01ccf0c9"
+ },
+ "restamped": true
+}

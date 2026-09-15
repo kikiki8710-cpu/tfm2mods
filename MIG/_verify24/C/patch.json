@@ -1,0 +1,717 @@
+{
+ "round": 24,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[182]/logic",
+   "kind": "실오류",
+   "old": "filter(|e| blackboard[team].is_recent_visible(game, player, e))",
+   "new": "filter(|e| blackboard[enemy_team].is_recent_visible(game, player, e))   // ★bb 인덱스 = 1-team (적 팀 blackboard = 적 챔피언의 최근가시 표)",
+   "evidence": "m08.ll:106530 `%140 = getelementptr {…Blackboard…}, ptr %133, i64 %126` · 106458 `%126 = sub nuw nsw i64 1, %53`(=1-team) · L105 %144/%150/%156/%162/%168 와 L260 %1452(109933) 전부 이 %140 을 넘김. 동일 규약 = collect_visible_enemy_positions m03.ll:145995~146011 (`%19 = sub i64 1, %18` → blackboard[%19]). 의미: Blackboard.last_visible[pos] 는 그 배열 원소가 가리키는 팀(=관측 대상 팀)의 포지션별 최근 가시 tick(g07.ll is_recent_visible: bb.last_visible[p.position]+120 >= tick). 오라클 o182 케이스 4·5·11: bb[team] 변형 예측 MISMATCH · bb[1-team] 예측 MATCH(goal 32000,928000 vs 144000,912000 등)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/logic",
+   "kind": "실오류",
+   "old": "is_recent_visible(bb[team],e)",
+   "new": "is_recent_visible(bb[enemy_team],e)",
+   "evidence": "m08.ll:109933 `%1452 = invoke … is_recent_visible(ptr %140, …)` — %140 = blackboard[1-team](106530). 오라클 실행 확인(24차 C o182 15케이스 · 독립 재구현 IR판 MATCH 15/15 · _verify24/C/oracle/o182_case*.log)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/mem[5]/note",
+   "kind": "실오류",
+   "old": "&[Blackboard;2] → [team] 을 is_recent_visible 에 (L105/L260)",
+   "new": "&[Blackboard;2] → [1-team](적 팀 원소 = 적 챔피언 포지션별 last_visible 표) 을 is_recent_visible 에 (L105/L260 · 106530 gep 인덱스 %126=1-team)",
+   "evidence": "m08.ll:106530 `%140 = getelementptr {…Blackboard…}, ptr %133, i64 %126` · 106458 `%126 = sub nuw nsw i64 1, %53`(=1-team) · L105 %144/%150/%156/%162/%168 와 L260 %1452(109933) 전부 이 %140 을 넘김. 동일 규약 = collect_visible_enemy_positions m03.ll:145995~146011 (`%19 = sub i64 1, %18` → blackboard[%19]). 의미: Blackboard.last_visible[pos] 는 그 배열 원소가 가리키는 팀(=관측 대상 팀)의 포지션별 최근 가시 tick(g07.ll is_recent_visible: bb.last_visible[p.position]+120 >= tick). 오라클 o182 케이스 4·5·11: bb[team] 변형 예측 MISMATCH · bb[1-team] 예측 MATCH(goal 32000,928000 vs 144000,912000 등)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/logic",
+   "kind": "실오류",
+   "old": "map.walls[xi][yi] != 0 { continue }   // L312",
+   "new": "map.walls[yi][xi] != 0 { continue }   // L312 (행 stride 240B = yi · 열 8B = xi — moba 맵은 전치대칭이라 실행으론 안 갈림)",
+   "evidence": "m08.ll:108631 `%943 = getelementptr i64, ptr %910, i64 %941`(%910 = map+0x78, %941 = xi → +8B*xi) · 109448 `%1262 = getelementptr [30 x i64], ptr %943, i64 %1258`(%1258 = yi → +240B*yi) ⟹ 주소 = walls + yi*240 + xi*8 = [[usize;30];30] 의 [yi][xi]. 오라클: moba 맵 walls 는 전치대칭(nonzero 90 · walls[a][b]!=walls[b][a] 0건)이라 실행으로는 안 갈림(walls[xi][yi] 변형도 15/15 MATCH) — IR gep 이 유일 근거",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/mem[14]/note",
+   "kind": "실오류",
+   "old": "L312 walls[xi][yi] != 0 → 후보 제외",
+   "new": "L312 walls[yi][xi] != 0 → 후보 제외 (108631 gep i64 xi → +8B · 109448 gep [30 x i64] yi → +240B)",
+   "evidence": "m08.ll:108631 `%943 = getelementptr i64, ptr %910, i64 %941`(%910 = map+0x78, %941 = xi → +8B*xi) · 109448 `%1262 = getelementptr [30 x i64], ptr %943, i64 %1258`(%1258 = yi → +240B*yi) ⟹ 주소 = walls + yi*240 + xi*8 = [[usize;30];30] 의 [yi][xi]. 오라클: moba 맵 walls 는 전치대칭(nonzero 90 · walls[a][b]!=walls[b][a] 0건)이라 실행으로는 안 갈림(walls[xi][yi] 변형도 15/15 MATCH) — IR gep 이 유일 근거",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[29]/meaning",
+   "kind": "보강",
+   "old": "iter_towers 결과의 고정 배열 길이 6 (타워 Option 6칸 순회 인라인) — 임계 아님",
+   "new": "iter_towers 결과 [Option<&Entity>;6] 고정 배열 길이 6 (타워 Option 6칸 순회 인라인 · 106352 `icmp ult i64 %82, 6` 는 bounds assume · dbg `self[8..+8] = i64 6`)",
+   "evidence": "G15 NEG 의 원인 = meaning 의 「임계 아님」 부정문이 kindchk.neg_hit 로 낱말을 비우고 규칙③(CMP_ORD)이 임계로 되돌림. 길이 낱말 + DBGSTR 지지(m08.ll:106308 `self[8..+8] = i64 6`)로 구제되게 문면 교체. tcxdict AbstractGameWithCache: top_tower~bottom_tower2 Option 6개(+0x180..+0x1d0) + twin_towers 슬라이스 chain",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/knobs[6]/value",
+   "kind": "실오류",
+   "old": "1/3/5 (nearby 0~1/2/3+, 반경 200000)",
+   "new": "nearby>2→5, ==2→3, else 1",
+   "evidence": "G20 공유사실 통일(184 문면 채택). m08.ll:107698~107701 `%624 = icmp ugt %619, 2 · %625 = icmp eq %619, 2 · select 3/1 · select 5`. 오라클 실행 확인(24차 C o182 15케이스 · 독립 재구현 IR판 MATCH 15/15 · _verify24/C/oracle/o182_case*.log) (case 9 nearby=3→rw5 · case 10 nearby=2→rw3 · case 4 nearby=1→rw1)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/knobs[6]/effect",
+   "kind": "보강",
+   "old": "근처 적 수에 따라 위험 점수 가중. 올리면 귀환거리보다 위험 회피 우선",
+   "new": "근처 적 수(nearby = enemy_positions[..count] 중 dist_sq(champ,p) < 40000000000 = 반경 200000, L225)에 따라 위험 점수 가중. 올리면 귀환거리보다 위험 회피 우선",
+   "evidence": "m08.ll:107677 `%617 = icmp ult i64 %616, 40000000000` · 107697 nearby 집계. value 칸에서 옮긴 반경 정보",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/logic",
+   "kind": "보강",
+   "old": "isqrt(dist_sq(champ",
+   "new": "usqrt(dist_sq(champ",
+   "evidence": "L131/L129 인라인 사슬 `;L66<131 … L74<131 … L80<131` = game-core\\src\\utils.rs:65 `usqrt(u64)`(tcx sp l=65 · mir=True 인라인 가능); isqrt(i64) 는 utils.rs:85 별도 정의. m08.ll:106839~106877(ctlz+SQRT_TABLE 룩업+뉴턴). 오라클 실행 확인(24차 C o182 15케이스 · 독립 재구현 IR판 MATCH 15/15 · _verify24/C/oracle/o182_case*.log)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/open",
+   "kind": "보강",
+   "old": "실제 저장값은 isqrt 된 거리(+경로 잔량*32000)",
+   "new": "실제 저장값은 usqrt(utils.rs:65) 된 거리(+경로 잔량*32000)",
+   "evidence": "같은 근거(utils.rs:65 usqrt 인라인 사슬)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/logic",
+   "kind": "보강",
+   "old": "home_idx = home_cell.y*30 + home_cell.x; c1_home_me = b1_free.map(|f| f.d[(champ_cell.y*30+champ_cell.x)*900 + home_idx])   // L303~305 (u16, 0xFFFF=도달불가)",
+   "new": "home_idx = min(home_cell.y,29)*30 + min(home_cell.x,29); c1_home_me = b1_free.map(|f| f.d[(min(champ_cell.y,29)*30+min(champ_cell.x,29))*900 + home_idx])   // L303~305 (u16, 0xFFFF=도달불가 · 108503/108509/108513/108517 umin 29 — 단 L377/L444 맨해튼 거리는 클램프 안 된 home_cell(%575/%576)을 씀: 108640 `sub nsw i64 %575, %941`)",
+   "evidence": "m08.ll:108503 `%880 = umin(%879, 29)` · 108509 `%883` · 108513 `%884 = umin(%575, 29)` · 108517 `%885 = umin(%576, 29)` · 108532 `%892 = %891 + %884`(home_idx) · 108640 `%952 = sub nsw i64 %575, %941`(비클램프). 오라클 실행 확인(24차 C o182 15케이스 · 독립 재구현 IR판 MATCH 15/15 · _verify24/C/oracle/o182_case*.log)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/logic",
+   "kind": "보강",
+   "old": "s = positioning_score_at_position(version, player, data, ps, goal_x, goal_y, RunAway)",
+   "new": "s = /*★at_position 은 (min(x/32000,29), min(y/32000,29)) 셀 중심으로 position_eval_at 을 부른다(m07.ll:34240~34263) — 좌표가 아니라 그 셀을 평가(L435/L460 도 동일)*/ positioning_score_at_position(version, player, data, ps, goal_x, goal_y, RunAway)",
+   "evidence": "m07.ll:34240 `%9 = udiv i64 %5, 32000` · 34241 `umin(…, 29)` · 34245~34248 `*32000 + 16000` · 34263 tail call position_eval_at. at_cell(m07.ll:24714)은 xi/yi 가 0..29 밖이면 risk=9999·+8..+50 memset 0 조기반환(24723~24729)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/sig/tls",
+   "kind": "보강",
+   "old": "이 함수 본문에는 thread_local/LocalKey 접점 없음(call 목록에 LocalKey::with 0건).",
+   "new": "이 함수 본문에는 thread_local/LocalKey 접점 없음(call 목록에 LocalKey::with 0건). ★간접 TLS 메모(미러 설계 근거 · 24차 C IR 재확인): positioning_score_at_cell/at_position(m11.ll:53056/53069 얇은 래퍼) → position_eval::position_score_at_cell/at_position(m07.ll:24714/34232) → position_eval_at(m07.ll:24507) 이 `POS_EVAL_CACHE`(position_eval.rs:85 · thread_local RefCell<PosEvalCache>{borrow@+0, slots Box<[PeSlot;512]>@+8, seed@+16}) 를 조회한다. PeSlot 104B = {tick@0 · key 40B@8(pid=player+0x928 @8, x@16, y@24, purpose i8@32, version@40) · Option<PositioningScore> 56B@48(None 니치 = slot+97 == 2)}. idx = ((purpose상수 | ((pid<<42) ^ (y<<21))) ^ x) * 0x9E3779B97F4A7C15 >> 55 (9비트 · purpose RunAway(3) 상수 = 512 · m07.ll:24575~24596). 조회 클로저(m00.ll:75374~75613): ①cache.seed != game.seed()(AbstractGame vtable+0x20) 면 seed 갱신 + 512 슬롯 전부 None(+97=2) 후 miss(75422~75437) ②슬롯 tag!=2 && slot.tick==game.tick() && pid·x·y·version 일치 && purpose 일치(75443~75474) 면 HIT → 56B memcpy, position_eval_at_uncached 안 불림 ③miss 면 uncached 계산 후 저장 클로저(m00.ll:75614~75676)가 seed 일치 시에만 슬롯 통째 덮어씀(직접사상 1엔트리 — 같은 idx 의 다른 키가 사이에 오면 덮인다). ⟹ 같은 (seed, tick, pid, 셀중심 x/y, RunAway, version) 2회 조회는 두 번째부터 캐시 재생: 이 함수 안에서 L154(goal)→L435(같은 self.goal)·L357 후보 셀→L363 이웃 셀(뒤 후보와 겹침)→L460 확정 셀(=후보 셀 중심 또는 L435 와 동일) 이 그 경우다. 미러는 호출 순서(L154 → 7x7 루프 dx 바깥·dy 안쪽, 셀마다 L357 후 find_path Some 이면 L363 → L435 → L460)와 셀 중심 좌표·purpose 3·version 을 같은 tick·seed 로 재현해야 슬롯 상태가 같다. INTER_CTX/EPC_CACHE/PE_CAND_MASKS/PE_PLAYER_CTX/ATTACK_DMG_CACHE/TOWER_MINION_CNT_CACHE 는 position_eval_at_uncached 안쪽(183/187 명세 몫).",
+   "evidence": "m07.ll:24507~24711 position_eval_at 본문(키 조립 24552~24567 · 해시 24575~24596 · with 24637/24698) · m00.ll:75374~75613 조회 클로저 · 75614~75676 저장 클로저. 오라클 o182 는 재구현이 먼저 같은 셀을 평가해 캐시를 채운 뒤 실함수가 HIT 하는 구성에서 15/15 MATCH(순수성 간접 확인)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/sig/abi",
+   "kind": "보강",
+   "old": "메인 rvaname/argscan 확정 — internal fastcc 아님, 인자 승격 없음",
+   "new": "메인 rvaname/argscan 확정 — internal fastcc 아님, 인자 승격 없음 · 24차 C argscan 재실행(argscan.py 0xdc3240): 스택 인자 읽기 3(+0x20/+0x28/+0x30 = %4 player/%5 data/%6 ps) + 레지스터 4(sret,self,version,rnd) = exe 관측 7 = IR 8 − 미사용 %7 _debug(readnone · 스택 +0x38 읽기 0회) — DeadArgElim 아님(define 은 8인자 유지)",
+   "evidence": "argscan.py 0xdc3240 출력: `entry_rsp+0x20 (arg5 · IR %4) x21 · +0x28 (arg6 · IR %5) x20 · +0x30 (arg7 · IR %6) x4 ⟹ 스택 인자 3개 + 레지스터 4 = exe 인자 7` · m08.ll:106076 define 8 params, %7 readnone",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[182]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PlayerState 0x930 = info.team usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PlayerState 0x9c0 = info.position@tag 4B · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict GamePlayer 0x180 = parameter AthleteParameter(744B) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict OperationData 0x0 = cache · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict OperationData 0x8 = context · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict OperationData 0x10 = blackboard &[Blackboard;2] · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 = game &dyn AbstractGame 16B(데이터 앞 절반) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[7]",
+   "from": 3,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 game 팻포인터 뒤 절반 = vtable · AbstractGame::tick(simulation.rs:73) 슬롯 +0x28 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict AbstractGameWithCache 0x130 = twin_towers [bumpalo Vec<&Entity>;2] 32B stride · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict AbstractGameWithCache 0x170 = nexus [Option<&Entity>;2] · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict AbstractGameWithCache 0x1e0 = player_champion [[Option<&Entity>;5];2] · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict GameContext 0x18 = map_setting &MapSetting · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict GameContext 0x20 = map &MapDef · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict MapSetting 0x18 = path PathMap 64B · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict MapDef 0x78 = walls[0][0] usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict MapDef 0x6d70 = fountains[0].0 u64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x660 = x u64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x668 = y u64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x670 = hp usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x628 = stat_cached.hp usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x640 = stat_cached.move_speed usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x6b9 = can_target bool · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x6a0 = block_target_tick usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PositioningScoreData 0xab8 = cx usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PositioningScoreData 0xac0 = cy usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PositioningScore 0x0 = risk i64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PositioningScore 0x28 = unseen_champ_threat i64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PositioningScore 0x30 = on_trajectory bool · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PositioningScore 0x31 = on_periodic_trajectory bool · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x8 = goal_x u64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x10 = goal_y u64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x20 = goal_risk i64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x28 = prog_best_dist_sq u64 · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x30 = prog_best_tick usize · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x38 = path_finder Option<PathFinder> 72B · PathFinder 0x45 = unconstrained_fallback bool(니치 2=None → 0x38+0x45=0x7d) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PathFinder 0x10 = path_len usize (0x38+0x10=0x48) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PathFinder 0x18 = index usize (0x38+0x18=0x50) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PathFinder 0x28 = path Box<[(u64,u64);70]> (0x38+0x28=0x60) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[38]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PathFinder 0x30 = planned_verdict Box<[u8;70]> (0x38+0x30=0x68) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[39]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x80 = with_skill bool · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[40]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x81 = with_ult bool · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[41]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x82 = dodge_trajectory bool · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[42]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x83 = goal_committed bool · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[43]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PathFinder 0x45 = unconstrained_fallback bool · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[44]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PathFinder 0x28 = path Box · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[45]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PathFinder 0x30 = planned_verdict Box · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[46]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict FreeDistMap 24B = d Vec<u16> 단일 필드 @0x0 + std ArcInner{strong@0,weak@8,data@0x10} 규약 → Vec{cap@0x10,ptr@0x18,len@0x20}(m08.ll:108552 gep 24 = ptr · 108518 gep 32 = len) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[47]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict FreeDistMap 24B = d Vec<u16> @0x0 → ArcInner+0x20 = len (108518) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[48]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: std ArcInner strong @0x0 (108983 atomicrmw sub ptr %704, 1 release) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[49]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x28 = prog_best_dist_sq · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[50]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x30 = prog_best_tick · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[51]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x83 = goal_committed · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[52]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x8 = goal_x · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[53]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x10 = goal_y · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[54]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x20 = goal_risk · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[55]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x38 = path_finder 72B · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/mem[56]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict SmallActionRunAway 0x38 = path_finder(콜리 &mut) · 오라클 o182 가 같은 오프셋으로 self/Entity/MapDef 를 읽고 써서 실함수 &mut self 결과와 15/15 MATCH(raw 오프셋 실측 일치)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[182]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 셀↔좌표 변환 32000 (goal = 셀*32000+16000 로 확정)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 13(prog_tick=tick-120 → 정체·재선정, ncand 46 = 옛 goal 셀 제외) vs case 14(tick-119 → 유지) 경계 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 셀 클램프 29 경유 goal 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 8/14: goal 96000 떨어짐(dist_sq > 143999999) → 커밋 유지 경로 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 2~5·11·12(넥서스 150000 → 본진 근처 참) / case 1·9·10(맵 중앙 → 거짓) 양쪽 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 2(hp30 → 분수 중심 32000,928000) vs case 3(hp36 → 타워 176000,848000) 경계 확정(36 은 <36 아님)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 4·11·12: hp40 에서 적 거리 120000/160000 → 분수, 160001 → 타워",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 11(160000 → 분수) vs case 12(160001 → 타워): <160001 ⇔ <=160000 경계 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[18]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 9(적 3명 200000 안 → nearby 3) · case 10(2명 → nearby 2) · case 4(1명)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 9 rw=5 · case 10 rw=3 · case 0~8 rw=1 로 goal 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 9·10 f2_enemy_anchor(적 90000) 존재 경로 실측 — 후보 32→cell_scores 29 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[24]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 b1_free Some 경로에서 free_dist 점수(0xFFFF→150 치환 포함 식)로 goal 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[26]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 choice_window(250,500)·min_idx/max_idx 식(예: len 47 → [11..=23]) 으로 pick 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[27]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 goal = 셀*32000+16000",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[28]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 7x7 창(ncand ≤ 49) 후보 수 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[31]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 free_dist 인덱스 (y*30+x)*900+home_idx 로 점수·pick 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[32]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): 동상(900 stride)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/consts[25]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 prog_best_dist_sq 리셋 u64::MAX(-1) 실측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 13/14 정체 경계 120/119",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 1 vs case 2~5 본진 근처 판정 양쪽",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 2/3 hp 30/36 경계 · case 4·11·12 hp40+적거리",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 4/9/10 nearby 1/3/2 → rw 1/5/3",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/knobs[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 6(version 1 · b1_free None) 맨해튼*10 점수로 goal 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/knobs[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 window (250,500) 천분율 인덱스로 pick 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[182]/knobs[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(24차 C o182): case 0~14 score = -(risk*rw + d*w) 부호·정렬 내림차순으로 pick 일치",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "프롬프트 ⑦ 「internal 3 의 exe↔IR 대응표(180·181·185)」는 배치 C(182 단독) 담당 밖 함수다 — 182 에 적용 가능한 것은 %6 PositioningScoreData gep 전수(2744/2752 만 · 콜리 전달)와 argscan 7=8−readnone 뿐. 배치 공통 문안이 담당 표를 안 가른다.",
+  "프롬프트 ③ 「TLS 절(signature.tls) 검증」— v3 `sig` 에는 `tls`/`closures` 키가 없다(v3 sig 키 = tcx/vis/path/mir/ev/params/ret/abi). 도시에 spec_182 md 에도 tls·closures 절이 안 실려 v2 JSON 을 직접 열어야 했다. mkspec3/mkdossier 가 v2 signature.tls·closures 를 v3 로 안 옮긴다.",
+  "프롬프트 ②·⑤ 는 `Option<InputTarget>`(None = i32 -1)·`positioning_score_at_position` 을 182 에서 재확인하라고 하나 182 IR 에는 InputTarget 관측 지점이 없다(Input 페이로드는 콜리 PathFinder::get_input 이 통째로 씀). 대상 함수별로 검증 가능 항목을 갈라 주어야 한다.",
+  "§5 규칙 「open/notes 는 문면 치환만」— v2 `signature.closures` 는 dict 라 applypatch 경로 문법으로 어떤 값도 못 고친다(`/sig/closures` 는 dict → 「필드가 문자열이 아니고 문면도 못 찾음」, `/sig/closures/키` 는 idx None 으로 int(None) 크래시 경로). closures 의 `s_0/s0_0` 항목 「blackboard[team]」 정정은 산문으로만 낼 수 있다.",
+  "mkpatch.fix 는 `/specs[i]/open` 의 locate 결과가 v3 dict 리스트라 `elif tgt is not None: ok = (tgt == old)` 분기에 먼저 걸려 문면 탐색(`/open` in path) 분기에 못 간다 — open 문면 치환은 항상 force=True 로만 낼 수 있다(applypatch 는 문면으로 정상 처리).",
+  "applypatch.already(): `old` 에 개행이 있으면 `ov in json.dumps(sub)` 가 JSON 이스케이프 탓에 실패해 「옛 값이 사라졌다」로 읽고, cleanspec [:80] 접두 폴백이 옛 문면과 겹쳐 아직 안 고친 정정을 「이미 적용」으로 삼켰다(24차 C dry-run 실측: at_position 보강 1건 SKIP). 8차 배치B 가 지운 [:80] 판정이 cleanspec 폴백 경로에 그대로 남아 있다 — old 에 개행을 쓰지 말고 new 의 앞 80자가 옛 문면과 다르게 써서 우회했다.",
+  "G15 가 [29] 만 잡았지만 consts[34]·[35] 도 같은 「— 임계 아님」 부정문 꼬리를 갖는다(kind 산출값/미상 으로 떨어져 NEG 판정을 피했을 뿐). 부정문 꼬리 자체를 경고하는 검사(neg_hit 결과 != 최종 kind)가 있어야 같은 문면이 재발하지 않는다."
+ ]
+}

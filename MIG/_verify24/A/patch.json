@@ -1,0 +1,456 @@
+{
+ "round": 24,
+ "batch": "A",
+ "errors": [
+  {
+   "path": "/specs[180]/consts[12]/meaning",
+   "kind": "오탐",
+   "old": "ratio = min(100*damage/hp, 150) 의 백분율 계수 (mul nuw %149,100 은 25505 에 호이스팅)",
+   "new": "ratio = min((inv_hp_q32*100*damage)>>32, 150) 의 백분율 계수 (m07.ll:25505 `%334 = mul nuw nsw i64 %149, 100` 은 !dbg 없는 호이스트 · 첫 소비 25744 `%433 = mul nuw nsw i128 %335, %432` 의 !dbg 루트 = 387>458 — G12 오탐)",
+   "evidence": "m07.ll:25505 `%334 = mul nuw nsw i64 %149, 100`(!dbg 없음 · LICM 호이스트) → 25506 zext → 25744 `mul nuw nsw i128 %335, %432, !dbg` 사슬 L387>458(첫 소비) · 25910 L387>475 · … 총 10곳. 리터럴 자체에 !dbg 가 없어 G12 가 458 을 못 본 것 = 도구 오탐(귀속: 첫 소비 루트 458)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/consts[51]/meaning",
+   "kind": "오탐",
+   "old": "(EntityPositioningCache,&PlayerState,&Entity,u64) 원소 stride (0x1c0) — 배열 stride, 임계 아님",
+   "new": "(EntityPositioningCache,&PlayerState,&Entity,u64) 원소 stride (0x1c0) — 배열 stride, 임계 아님. L514 근거 = m07.ll:33544 `%3883 = getelementptr inbounds nuw i8, ptr %3876, i64 448, !dbg !46979`(이터레이터 전진 · 루트 514) — 필드 오프셋 gep 가 아니라 stride 전진이라 G12 denoise 가 잘못 걸러낸 것(오탐)",
+   "evidence": "m07.ll:33544 `getelementptr inbounds nuw i8, ptr %3876, i64 448, !dbg !46979` ;L656>185>348>514 (find 클로저 루프의 원소 포인터 전진) · 33514 typed gep `{ {…424B…}, ptr, ptr, i64 }` 루트 513",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/consts[92]/src_line",
+   "kind": "실오류",
+   "old": 1001,
+   "new": 1105,
+   "evidence": "1001 줄에는 리터럴 6 이 없다: `(my_role & 6)==2` 는 m07.ll:29010 `%1786 = and i8 %1785, 6, !dbg` ;L847 에서 계산돼 %1787 로 1001(30698 `select i1 %1787, …`) 에 소비된다(consts[69] 가 847 로 이미 등록). 배치 D 범위의 실제 리터럴 6 = m07.ll:31642 `%3052 = and i8 %3048, 6, !dbg` ;L1105(아군 get_battle_role) · 32102 `mul i64 %3254, 6` ;L1166",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/consts[92]/meaning",
+   "kind": "실오류",
+   "old": "`and i8 role, 6` == 2 → BattleRole ∈ {BaseAttacker(2), SkillCaster(3)} (1001 my_role · 1105 아군 role). 1166 `tps*6` 6초 버킷",
+   "new": "`and i8 role, 6` == 2 → BattleRole ∈ {BaseAttacker(2), SkillCaster(3)} (1105 아군 get_battle_role 결과 · m07.ll:31642). 1001 의 my_role 판정은 847 에서 계산된 %1787(consts[69]) 을 소비할 뿐 이 줄에 리터럴 없음. 1166 `tps*6` 6초 버킷(32102) — 오라클 tick 400 → t_salt 1 확증",
+   "evidence": "m07.ll:31642 `and i8 %3048, 6` ;L1105 · 29010 ;L847 · 32102 `mul i64 %3254, 6` ;L1166 · 오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) case 7(tick 400·v2 → t_salt=400/360=1 모델 일치)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/consts[107]/meaning",
+   "kind": "오탐",
+   "old": "applyed_effect 원소 (Arc<dyn EffectType>16B, CastingType 4B+pad) stride — 이터레이션 산술",
+   "new": "applyed_effect 원소 (Arc<dyn EffectType>16B, CastingType 4B+pad) stride — 이터레이션 산술. L990 근거 = m07.ll:30651 `%2602 = getelementptr inbounds nuw i8, ptr %2588, i64 24, !dbg`(any 클로저 루프 원소 전진 · 루트 990) — stride 전진 gep 를 G12 denoise 가 필드 오프셋으로 걸러낸 오탐",
+   "evidence": "m07.ll:30651 `getelementptr inbounds nuw i8, ptr %2588, i64 24, !dbg` ;L656>185>331>990",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/consts[57]/meaning",
+   "kind": "보강",
+   "old": "pct_q32(position_eval.rs:386) 상한: min(well_damage*100*inv_hp_q32 >> 32, 150)",
+   "new": "pct_q32 상한(루트 690 · pct_q32 는 position_eval.rs:386 정의·387 본문이 인라인된 것, m07.ll:28067 !dbg 사슬 L1078>387>690): min(well_damage*100*inv_hp_q32 >> 32, 150)",
+   "evidence": "m07.ll:28067 `@llvm.umin.i128(… %1344, i128 150), !dbg !44112` ;L1078>387>690 · !41534 DISubprogram pct_q32 line 386 — src_line 690 은 루트, 386/387 은 인라인 콜리 줄이라 모순 아님(문면 정정)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/open[9]",
+   "kind": "보강",
+   "old": "(배치 B) L552 소스 표기(`is_none()` 로 썼는지 `is_some()` 인지 — 인라인 체인은 is_none<is_some): 동작은 nearest_enemy Some → ratio/2, None → ratio 로 확정",
+   "new": "(배치 B) L552 소스 표기(`is_none()` 로 썼는지 `is_some()` 인지 — 인라인 체인은 is_none<is_some) — 표기 불가(외연 동일): 동작은 nearest_enemy Some → ratio/2, None → ratio 로 확정",
+   "evidence": "물음의 실체가 소스 철자(is_none/is_some)라 외연이 같아 IR·오라클 어디에도 차이가 안 남는다 = 판정 어휘 「표기 불가」(사실 서술이 아니라 표기 불가로 분류 — G10 지적의 절반만 옳다)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/open[3]",
+   "kind": "보강",
+   "old": "(배치 A) pe_cand_masks 의 is_recent_visible 인자(&blackboard[enemy_team], game, player, e) 의 self 가 적 팀 블랙보드인 이유는 소스 없이는 서술 불가(관측: last_visible[5] 가 챔피언 자기 팀 보드에 위치 인덱스로 저장돼 있을 가능성) — 배치 A 판정에는 영향 없음(마스크 값만 소비)",
+   "new": "★해소 — shared.is_recent_visible 확정 사실로 답이 난다: Blackboard[T].last_visible[pos] = 「팀 (1−T) 가 팀 T 의 pos 챔피언을 마지막으로 본 틱」이므로, 적 챔피언 e(팀 enemy_team)에 대해 &blackboard[enemy_team] 을 self 로 물으면 「내 팀이 e 를 최근(120틱) 봤는가」가 된다. (A) is_visible(game, player.info.team, e.id) 면 즉시 true (B) 아니면 last_visible[e 소유자.pos]+120 >= tick. 호출 인자 실측 m00.ll:75315 = (self=%82=&blackboard[%71=enemy_team], game=(%93 data,%94 vtable), player=%54, e=%90) · 아군 마스크(278~280)는 is_recent_visible 없이 small_actions·챔프 존재만 본다",
+   "evidence": "m00.ll:75296 `%82 = gep <Blackboard>, ptr %50, i64 %71`(%50=captures+32 blackboard · %71=captures+40 enemy_team) · 75315 invoke Blackboard::is_recent_visible(%82, %93, %94, %54, %90) · shared.is_recent_visible(g07.ll:157005 · blackboard_인덱스_의미 ★확정)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/open[23]",
+   "kind": "보강",
+   "old": "(배치 C) PositioningScore+0x32..0x37 패딩 6B 는 배치 A memset 외 기록 없음(이 범위) — 최종 store 시점은 다른 배치",
+   "new": "★해소 — sret %0 기록 경로 전수 3개 모두 0x32~0x37 을 안 쓴다: ①375 `memset(%0, 0, 50)`(m07.ll:25031 · [0,0x32)) ②381 `store i64 9999, %0` + `memset(%0+8, 0, 42)`(25083~25085 · [0,0x32)) ③정상 경로 44 줄 8필드 store(31996~32010 · +0/+8/+16/+24/+32/+40/+48 i64·+48 i8·+49 i8 = [0,0x32)) + 1176 risk 재기록(32157 · [0,8)). define 에 `initializes` 속성 없음(`writeonly dead_on_unwind` 만) — 패딩 6B 는 호출자 alloca %9 의 잔류값이며 POS_EVAL_CACHE 저장(m00.ll:75692 memcpy 56)·hit 반환(75607 memcpy 6 @+50)으로 그대로 실려 다닌다(DIFF 트리아지: 패딩)",
+   "evidence": "m07.ll:25031 · 25083~25085 · 31996~32010 · 32157 (store/memset 전수 grep — 그 밖에 %0 store 0건) · m00.ll:75692/75607",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/open[24]",
+   "kind": "보강",
+   "old": "(배치 C) exe fastcc 레지스터 배정: argscan 이 7=7 만 확정했고 어느 인자가 어느 레지스터/스택 슬롯인지는 이 배치가 확인하지 않음",
+   "new": "★해소 — argscan.py 0xd851d0 재실행(09-15): entry_rsp+0x20 = %4 x(16곳 · 140d85211 `mov rdi,[rbp+0x7a0]` · `lea rax,[rbp+0x7a0]` = 주소 취득 → alloca %100 대응) · +0x28 = %5 y(16곳 · [rbp+0x7a8]) · +0x30 = %6 purpose(5곳 · `cmp byte [rbp+0x7b0], 0xa` · movzx/test byte = 1B) · 레지스터 4 = rcx %0 sret · rdx %1 version · r8 %2 player · r9 %3 data(fnprobe: argregs read-before-write rcx/rdx/r8/r9) ⟹ exe 7 = IR 7, 승격·소거 없음 — sig.abi 대응표 그대로",
+   "evidence": "argscan.py 0xd851d0 출력: `entry_rsp+0x20 (arg5 · IR %4) x16 … entry_rsp+0x28 (arg6 · IR %5) x16 … entry_rsp+0x30 (arg7 · IR %6) x5 … ⟹ 스택 인자 3개 + 레지스터 4 = exe 인자 7` · fnprobe.py 0xd851d0 `argregs read-before-write: ['r9','r8','rdx','rcx',…]`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[180]/logic",
+   "kind": "실오류",
+   "old": "458:            ratio = min((inv_hp_q32*100*damage) >> 32, 150)   // = min(100*damage/hp, 150), i128 산술",
+   "new": "458:            ratio = min((inv_hp_q32*100*damage) >> 32, 150)   // ≈ min(100*damage/hp, 150) 이지만 같지 않다 — inv_hp_q32=floor(2^32/hp) 를 먼저 내림하므로 hp 가 2^32 를 나누지 못하면 1 작다(i128 산술 · 오라클 hp=1000 → 59(소박식 60) · hp=600 → 99(소박식 100)). 재구현은 반드시 Q32 식 그대로",
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) case 4/5: (900000,30000) Recall v2 · well_damage 600 · hp=1000 → risk-tower_risk=59 · hp=600 → 99 (m07.ll:25505 `mul nuw nsw i64 %149,100` → 25744 `mul i128` → lshr 32 → umin 150)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/logic",
+   "kind": "실오류",
+   "old": "475: ratio = min(100*damage/hp, 150)",
+   "new": "475: ratio = min((inv_hp_q32*100*damage) >> 32, 150)   // pct_q32 — 458 과 동일한 Q32 식(소박식 100*damage/hp 보다 1 작을 수 있음)",
+   "evidence": "m07.ll:25910 `%517 = mul nuw nsw i128 %335, %516` ;L387>475 → lshr 32 → umin 150 · 오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) case 4/5",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[6]/meaning",
+   "kind": "실오류",
+   "old": "(Q32 역수, 이후 ratio = (inv_hp_q32*100*damage)>>32 = 100*damage/hp)",
+   "new": "(Q32 역수 — 2^32/hp 를 먼저 내림하므로 이후 ratio = (inv_hp_q32*100*damage)>>32 는 100*damage/hp 보다 최대 1 작다: 오라클 hp=1000·dmg=600 → 59, hp=600 → 99)",
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) case 4/5",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/one_line",
+   "kind": "실오류",
+   "old": "벽/적 우물=9999 즉시, 정글·에픽 몹 기대피해(HP% ×2/1/½/⅓ 가중)",
+   "new": "벽 셀=9999 즉시 반환, 적 우물 위험 셀=risk·tower_risk 9999 에서 시작해 계속 누적(우물 사각 안이면 +well_damage HP% 까지: 오라클 hp=1 → 10149), 정글·에픽 몹 기대피해(HP% ×1/½/⅓ 가중 — ×2 없음)",
+   "evidence": "381 만 조기반환(m07.ll:25083~25086 br %4102) · 397 은 %397 초기값(25967 이후 누적 계속) · 오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) case 3 (900000,30000) → (10149, 9999, …) · 정글/에픽 가중 = 462 add(×1)·467 lshr 1(½)·480 udiv 3(⅓) — `shl`/`*2` 0건(m07.ll:25789·25852·25953)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "조기반환 경로(381)는 배치 A.",
+   "new": "조기반환 경로(381)는 배치 A. 오라클 확증(o180 case 0·2·3~15): 벽 (9999,0,0,0,0,0,0,0) · 챔프 None (0,…,0) · 정상 경로 8필드(adjust 항상 0 · on_* 0/1).",
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/sig/tls[0]/runtime_note",
+   "kind": "보강",
+   "old": "런타임 미러 설계: 같은 프로세스에서 같은 (id,x,y,purpose,version,tick,seed) 를 두 번 물으면 두 번째는 이 함수가 안 불린다 — 훅 대조는 tick 을 바꾸거나 seed 를 바꿔야 매번 uncached 로 온다.",
+   "new": "런타임 미러 설계: 같은 프로세스에서 같은 (id,x,y,purpose,version,tick,seed) 를 두 번 물으면 두 번째는 이 함수가 안 불린다 — 훅 대조는 tick 을 바꾸거나 seed 를 바꿔야 매번 uncached 로 온다. ★오라클 실행 확증(o180 case 12·13): 1회차 (10149,9999) → 그 셀을 벽으로 바꾸고 같은 tick 재조회 → 여전히 (10149,9999)=hit(uncached 미호출) → set_tick(1) 재조회 → (9999,0)=miss 재계산 / seed 999 게임에서 같은 key·tick 0 조회 → miss(리셋) → 같은 게임 재조회 hit → seed 1234 게임으로 돌아와 재조회 → 다시 miss(seed 불일치 시 512 슬롯 전부 None 으로 리셋됨을 양방향으로 확인). 슬롯 인덱스 = m07.ll:24617~24626 (code(purpose) | (id<<42 ^ y<<21)) ^ x → ×K >> 55 · 저장은 cache.seed==seed 일 때만(m00.ll:75664).",
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) case 12: `(10149,…) | (10149,…) | (9999,0,…)` · case 13: `(10149) | (9999) | (9999) | (10149)` · m00.ll:75411~75546 hit 판정(borrow@0 · seed@+16 · slot.tick@0 · key id/x/y/purpose(idx+LineStyle 바이트)/version) · 75565~75572 seed 불일치 512 슬롯 +97=2 리셋",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/sig/tls[2]/value",
+   "kind": "보강",
+   "old": "EntityPositioningCache 424B(sret 복사) — miss 면",
+   "new": "EntityPositioningCache 424B(sret 복사 · hit = PHASE_CALLS+832(phase 104) · miss = +840(phase 105), m00.ll:77426/77446) — miss 면",
+   "evidence": "m00.ll:77394~77402 slots[pt][pp][et][ep][hn] 5단 gep · 77400 `+418 == 2` None · 77409 hit memcpy 424 · 77461 EntityPositioningCache::new · 77465 저장 · 76908/76921 seed@84808·tick@84816",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[180]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 1: x=5_000_000 → xi=umin(156,29)=29 → walls[3][29]=1 로 세운 벽 적중",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 1 클램프 29",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 0/3 벽 9999 · 우물 9999",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 4/5 Q32 절단 59/99",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[21]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 3 hp=1 → 150 캡",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 4/5 lshr 32",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[53]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 14 x=800000 포함/799999 제외",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[54]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 14/15 160001 경계(y=64000 포함·64001 제외, x=896000 포함·895999 제외)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[55]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 14 64001 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[56]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 15 -896000 2사각(896000,160000) 포함·160001 제외",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[57]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 3 우물 pct 150 캡",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[58]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 4/5",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[97]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 9/10/11 idx=purpose-2 · 3 Recall=idx2 면제",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[98]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 9/11 LineStyle idx 7",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[99]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 10 LaneSafe risk·tower_risk ×3/2",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[100]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 9 Defensive risk×120/100 · case 11 Aggressive gain×120/100(risk 는 General 과 동일)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[101]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 3(Recall v2 면제) · case 8(Recall v1 비면제)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[102]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 6~11 acc=10<1000 · factor/1000",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[103]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 6~11 spread=(2000-2·10)/3=660",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[104]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 6~11 K 곱 해시 3단",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/consts[105]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 6~11 h^=h>>31",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 0/3",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/knobs[26]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 3",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/knobs[45]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 9/10/11",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/knobs[46]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 6~11(acc 10)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/knobs[47]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 6~11",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/knobs[48]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 7 tick 400 → 버킷 1",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 0/1 walls[yi][xi] (tcxdict MapDef 0x78)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 2 player_champion None → 375 (IR 25011 gep 480)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[40]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 7 tps*6 버킷 (IR 32100 gep 4856)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[67]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 3/4/5 well_damage 600 (IR 28058 gep 5264)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[152]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 6~11 positioning_accuracy(&info.parameter) (IR 32011 gep 384)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[178]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 7/12 tick",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[184]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 0/3/6~11 risk store · 1176 재기록",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[200]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 10 tower_risk ×3/2",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[201]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — case 11 gain",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[202]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — 전 케이스 gain_me 0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[203]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — 전 케이스 adjust 0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[204]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — 전 케이스 0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[205]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — 전 케이스 0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[180]/mem[206]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o180.exe(_verify24/A/oracle/o180.rs · pub 호출자 game_ai::position_eval_at 경유 · 케이스당 프로세스 1개 · 16/16 MATCH · o180.log) — 전 케이스 0",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "지시문(v24_prompt_A) ②·⑤ 가 배치 공용 문안이다 — 180 에는 Option<Input>/Option<InputTarget>/&mut self PathFinder 가 없고(sret 56B 하나) 오라클 대상 183/186/182/184 는 이 배치 담당이 아니다. 180 항목만 수행(해당 없음으로 보고).",
+  "③ 이 `signature.tls` 검증을 요구하는데 도시에 md(spec_180)·v3 에는 tls 절이 아예 없다 — mkspec3/mkdossier 가 v2 `signature.tls`(6항목) 를 싣지 않는다. v2 JSON 을 직접 읽어 검증했다(패치 경로 `/sig/tls[n]/…` 로 제출).",
+  "§4 G12 4건 중 3건이 오탐(호이스트 리터럴 !dbg 부재 1 · 이터레이터 stride 전진 gep 를 denoise 가 필드 오프셋으로 걸러낸 것 2). srclinecheck 의 denoise 는 `gep i8, ptr %phi, i64 <stride>` 처럼 결과가 phi 로 되돌아가는 gep 를 stride 로 분류해야 한다.",
+  "§4 G10 은 open[9] 를 「사실 서술」로 지목했으나 실체는 소스 철자 물음 = 「표기 불가」다. G10 문구가 두 어휘를 구분하지 않는다.",
+  "§4 G3 는 도구 화이트리스트(FREE_FN) 누락이다 — 180 은 자유 함수(tcx k=Fn · 심볼 NvNt). 명세가 아니라 specgate.py 를 고쳐야 한다.",
+  "§1 표 「exe d851d0 (None) · None바이트 · None명령」 — exe.evidence='fp' 만 있고 bytes/insn 이 None 이다. fnprobe 실측 = .pdata 0xd851d0~0xd8c737 (30055 B · 6071 insn) — 기록 요망(이 배치는 exe 필드 계약을 몰라 패치하지 않았다)."
+ ]
+}
