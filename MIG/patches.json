@@ -590,5 +590,53 @@
   "line": 0,
   "from": "call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at(",
   "to": "call noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at("
+ },
+ {
+  "raw": true,
+  "note": "r15 #position_eval25position_eval_at_uncached 노출(2026-09-15): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r15",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached(",
+  "to": "define void @_RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 1곳.",
+  "file": "r15",
+  "line": 0,
+  "from": "call fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached(",
+  "to": "call void @_RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached("
+ },
+ {
+  "raw": true,
+  "note": "r15 #core34calculate_interaction_action_score 노출(2026-09-15): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r15",
+  "line": 0,
+  "from": "define internal fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12action_score34calculate_interaction_action_score(",
+  "to": "define noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12action_score34calculate_interaction_action_score("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 4곳.",
+  "file": "r15",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12action_score34calculate_interaction_action_score(",
+  "to": "call noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12action_score34calculate_interaction_action_score("
+ },
+ {
+  "raw": true,
+  "note": "r15 #14abstract_input16get_input_target 노출(2026-09-15): internal fastcc → external ccc(sweep 편입 · exe 인자 대응은 gensweep EXE_ABI).",
+  "file": "r15",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target(",
+  "to": "define void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 4곳.",
+  "file": "r15",
+  "line": 0,
+  "from": "call fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target(",
+  "to": "call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target("
  }
 ]
