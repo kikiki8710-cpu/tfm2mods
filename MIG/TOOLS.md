@@ -6,7 +6,7 @@
 
 **어떤 상황에 무엇을 집는가 = `METHOD_MAP.md` §0**(라우팅표). 이 문서는 *무엇이 있는가* 만 센다.
 
-전체 159개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
+전체 161개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
 
 ## ★exe 함수 정체 판정 — Ghidra 없이 (2026-09-13 신설)
 
@@ -278,3 +278,5 @@ IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.
 |---|---|
 | `bpcatalog.py` | bpcatalog.py — 밴픽 관련 소스 파일에 속한 IR define(함수) 전수 카탈로그(파일·줄·define 위치·크기). python bpcatalog.py [--out <json>] [--files <regex>] |
 | `bpdump.py` | bpdump.py — bpcatalog.json 의 전 함수를 irann 방식(소스줄 주석·잡음 제거)으로 일괄 덤프한다. python bpdump.py <catalog.json> <outdir> |
+| `bpname.py` | bpname.py — exe RVA 들의 패닉 Location 지문을 bpcatalog.json(밴픽 IR 카탈로그·_gcbc/_gvbc 포함)의 함수 소스 범위와 대조해 실명을 판정한다. python bpname.py <catalog.json> <rva>... |
+| `rootcut.py` | rootcut.py — 거대 함수 IR 을 **루트 소스 줄**(`!dbg`→`inlinedAt` 최상위) 기준으로 분책 경계를 잘라 준다 (2026-09-15 · r12 `upd_blocks.json` 방식 도구화) |
