@@ -73,6 +73,9 @@ RLIB_DIRS = [r"C:\tfm2mods\sdk_058\deps_ailink", r"C:\tfm2mods\sdk_058\mod-sdk\d
 #     **주소를 바꾼 6개는 전부 그 밴드 밖**이었다(#12 4,480배 · #04 12.1배 · #11 1/343 · #16 1/24.6 ·
 #     #10 1.78→0 · #15 0→0) ⟹ 옛 수치가 **다른 함수**를 재고 있었다는 독립 확인이다.
 FIRED = {
+         # ★r16 루트 16(i=188~203) · 2026-09-16 판 1(202/202 설치 · 450.5s 판 종료 · _r16_probe1\probe20_r16_run1.txt)
+         196: 5849746, 188: 2964270, 203: 2032059, 201: 1951435, 193: 1138542, 189: 569238, 198: 453135, 197: 307325,
+         191: 233887, 200: 191891, 202: 128086, 199: 104151, 194: 92836, 190: 30123, 195: 13826, 192: 3638,
          # ★r15 거대 7 + 래퍼 1(i=180~187) · 2026-09-15 판 1(슬롯 186/186 설치 · 판 종료 494.9s 관측 · _r15_probe1\probe20_r15_run1.txt)
          187: 194857643, 180: 99100031, 183: 20960537, 181: 9785357, 186: 8490788, 182: 3291756, 185: 3059936, 184: 1802717,
          4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
@@ -336,6 +339,20 @@ BISECT_NO_STRFREE = 0   # ★임시 이분 스위치(2026-09-13) — 0 으로 �
 BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — 중첩 Vec 누락) — 0 유지
 
 SELF_RESTORE = {
+    # ★r16(09-16) 루트 `&mut self`(a1 · sret a0) — Battle 48(support_target·v48_claim_hold_until·v48_dodge_claim·last_bail_gate) · DefenseNexus 24 · Epic/SerpenCheck 1(move_check) ·
+    #   Jungle/Hide 16(check_move +0x9 · enemy_spotted_me +0xa) · LineWait/LineDefense 3(쓰기 0) · Serpen/EpicHunt 1(need_recall) · LineGanker 48(chats Vec) · PassiveJungle 104(chats·last_lead_action_tick·jungle·team)
+    188: (1, 48, [], 8),
+    189: (1, 24, [], 8),
+    191: (1, 1, [], 8),
+    192: (1, 1, [], 8),
+    193: (1, 16, [], 8),
+    194: (1, 16, [], 8),
+    195: (1, 3, [], 8),
+    196: (1, 3, [], 8),
+    197: (1, 1, [], 8),
+    198: (1, 1, [], 8),
+    202: (1, 48, [], 8),
+    203: (1, 104, [], 8),
     # ★r15(09-15) RunAway/Recall get_input `&mut self` 136B(a1 · sret a0)
     182: (1, 136, [], 8),
     184: (1, 136, [], 8),
@@ -437,6 +454,19 @@ SELF_RESTORE = {
 #   (호출자가 분기) ⟹ 상태 + 반환을 둘 다 판정한다.
 LIVE_RET = {44, 83, 97}   # 83 = sret 열거형(SubPlan) 과 self 부작용을 둘 다 판정(09-14)
 SELF_DIFF = {
+    # ★r16(09-16) 루트 — chats Vec 삼중항(202/203 @0x0 24B)은 HEAP_SUBST 가 ③′ 비교하므로 skip
+    188: {"skip": []},
+    189: {"skip": []},
+    191: {"skip": []},
+    192: {"skip": []},
+    193: {"skip": []},
+    194: {"skip": []},
+    195: {"skip": []},
+    196: {"skip": []},
+    197: {"skip": []},
+    198: {"skip": []},
+    202: {"skip": [(0, 24)]},
+    203: {"skip": [(0, 24)]},
     # ★r15(09-15) RunAway/Recall — PathFinder key ptr·패딩 skip
     182: {"skip": [(56, 8), (121, 3), (126, 2)]},
     184: {"skip": [(0, 8), (65, 3), (70, 2)]},
@@ -659,6 +689,9 @@ _BIGPLAN_SPEC = {"off": 0x5e8, "tags": (2, 17), "vecs": _BIGPLAN_VECS}
 #   전제(IR 실측으로 확인) = ①그 경로에서 self 소유 힙을 건드리는 곳이 **여기 적은 필드뿐** ②요소가 힙을 안 갖거나(평면)
 #        가지면 `ELEM_LIVE.str` 로 다룬다. ③착수 전 검사 = `heapsurf.py`(grow_one/drop 대상을 %0 오프셋으로 역추적).
 HEAP_SUBST = {
+    # ★r16(09-16): next_plan 2 = self.chats(Vec<Chat> @0x0 · 원소 24B) push(LineGanker L135 BattleHelp · PassiveJungle 6사이트)
+    202: [{"off": 0, "tags": None, "vecs": [(0x0, 24, "chat")]}],
+    203: [{"off": 0, "tags": None, "vecs": [(0x0, 24, "chat")]}],
     # #120 update(09-14 · heapsurf depth 5 + tcxdict): PV 스크래치가 명세당 Vec 8개 상한이라 3 명세로 나눈다.
     111: [_BIGPLAN_SPEC,
           {"off": 0, "tags": None, "vecs": [(0xf8 + 0xc0, 24, "chat"), (0xf8 + 0xd8, 8, "i32u8"), (0xf8 + 0xf0, 112, "steal"),   # team_plan 3
@@ -789,7 +822,7 @@ ENUM_LIVE = {
 #   부작용 = 내 사본이 같은 Bump 에 한 번 더 할당한다(아레나는 틱마다 리셋 · 게임 값엔 영향 없음).
 #   값 = {spec idx: {"ptr": off, "len": off, "esz": 원소 크기, "elem_live": [(off, len, [tags])]}}
 # SmallActionPlay 184B 원소 live(variant 별 · ELEM_LIVE "sap" 와 동일 · 태그 +0xb1)
-_SAP_EL = [(0xb1, 1, []), (0x0, 0x11, [0xf, 0x10, 0x11]), (0x0, 56, [0x3, 0x5]), (0x7d, 1, [0x3, 0x5]), (0x80, 4, [0x3]), (0x80, 2, [0x5]),
+_SAP_EL = [(0xb1, 1, []), (0x0, 0x11, [0xf, 0x10, 0x11, 0x12]), (0x0, 0x10, [0xe]), (0x55, 1, [0xe]), (0x58, 0x40, [0xe]),   # r16(09-16): Ult 18 = ::new (0,17) · Trace 14 = 0..0x10 + pf None 니치 0x55 + 0x58..0x98(pf 72B@0x10 은 Box 포인터/잔재 → 제외 · 판 2 첫 표본 +16/+56 갈림) · Recall 4/AroundBush 12/Stop 19 는 태그만(범위한정) (0x0, 56, [0x3, 0x5]), (0x7d, 1, [0x3, 0x5]), (0x80, 4, [0x3]), (0x80, 2, [0x5]),
            (0x0, 0x30, [0x7, 0xd]), (0x75, 1, [0x7, 0xd]), (0x78, 1, [0xd])]
 SRET_VEC = {
     41: {"ptr": 0x0, "len": 0x18, "esz": 24, "elem_live": [(0, 8, []), (8, 8, []), (16, 1, [])]},
@@ -804,6 +837,20 @@ SRET_VEC = {
     # ★r14(09-14): bumpalo Vec<SmallActionPlay> — 원소 variant 별 live(태그 +0xb1 · `_SAP_EL`) · 158 line_minion_action_candidates · 159 battle_ally_action · 174/175 poke action_candidates_old
     158: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
     159: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    # ★r16 루트(09-16): *SubPlan::action_candidates 13 → bumpalo Vec<SmallActionPlay> 32B · 원소 184B · 태그 +0xb1(untagged AroundPosition 은 outline_type 자리 = 부분 비교 · 범위한정)
+    188: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    189: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    190: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    191: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    192: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    193: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    194: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    195: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    196: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    197: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    198: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    199: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    200: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
     174: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
     175: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
 }
@@ -829,7 +876,9 @@ SRET_ENUM = {
     #   Some 은 BigPlan 니치 태그(2..17 · 밖 = DeathMatchBattle untagged)로 enumlive 비교. ⚠BigPlan 정본명 = plan_legacy::types::BigPlan(tcxdict).
     82: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},
     96: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},
-    155: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},   # r14 LineGankerPlan::make_gank_battle(internal · sret 384) → Option<BigPlan>(None=-1 · Some=Battle 9 + BattlePlan 280B)
+    155: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},
+    202: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},   # r16 LineGankerPlan::next_plan(sret 384 · Battle 9/LineGanker 10/…)
+    203: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},   # r16 PassiveJunglePlan::next_plan   # r14 LineGankerPlan::make_gank_battle(internal · sret 384) → Option<BigPlan>(None=-1 · Some=Battle 9 + BattlePlan 280B)
 }
 PIN_ENUM_LIVE = {
     2: [(0x0, "game_ai::plan_legacy::sub_plan::SubPlan")],   # `#02` 인라인 arm 의 sret(SubPlan 72B) — pin02.rs
@@ -914,6 +963,7 @@ SRET_LIVE = {
     # ★r15(09-15): 182/184 get_input = Option<Input> · 180/187 PositioningScore 56B = 8필드 0x0~0x31(0x32~0x37 패딩 미기록 — 배치 A/D/G 실측) ·
     #   185 get_input_target = Option<InputTarget> 24B(태그 **i32** @+0: -1 None · 0 Target(+8 8B) · 1 Dir/2 Pos(+8·+16) · 3 InputTarget::None · +4..8 패딩 undef)
     182: _OPT_INPUT, 184: _OPT_INPUT,
+    201: _OPT_INPUT,   # r16 abstract_input::attack(None i64 −1 · Attack = 태그 2 + InputTarget@+8)
     180: [(0x00, 0x32, [])], 187: [(0x00, 0x32, [])],
     185: [(0x00, 4, []), (0x08, 8, [(0x00, 4, [0])]), (0x08, 16, [(0x00, 4, [1, 2])])],
     # ★r14 행동 계층 중간(09-14): get_input 계열 15 = Option<Input>(SmallActionPlay 141 · Skill 151 · Skill2 153 · Ult 154 · AroundPositionBush 157 · abstract skill 163/skill2 164 ·
@@ -1057,7 +1107,10 @@ SRET_LIVE = {
     ],
 }
 
-MUT_OK_ARG = {181: {8: "DebugFrameData"}, 183: {6: "DebugFrameData"}, 186: {10: "DebugFrameData"},   # r15(09-15)
+MUT_OK_ARG = {188: {8: "DebugFrameData"}, 189: {7: "DebugFrameData"}, 190: {7: "DebugFrameData"}, 191: {8: "DebugFrameData"}, 192: {8: "DebugFrameData"},
+              194: {7: "DebugFrameData"}, 196: {8: "DebugFrameData"}, 197: {8: "DebugFrameData"}, 198: {8: "DebugFrameData"},
+              199: {8: "DebugFrameData", 1: "ZST"}, 200: {8: "DebugFrameData", 1: "ZST"}, 202: {8: "DebugFrameData"}, 203: {9: "DebugFrameData"},   # r16(09-16)
+              181: {8: "DebugFrameData"}, 183: {6: "DebugFrameData"}, 186: {10: "DebugFrameData"},   # r15(09-15)
               35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"},
               # r9(09-13 저녁) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
               67: {6: "DebugFrameData"}, 74: {5: "DebugFrameData"}, 75: {6: "DebugFrameData"}, 69: {8: "DebugFrameData", 1: "LegacyPlanHandler"},
@@ -1076,6 +1129,7 @@ SRET_FORCE = {180: 56, 185: 24,   # r15(09-15) position_eval_at_uncached interna
               u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280, 105: 392,
               80: 280, 98: 16}   # r10: #85(i80) try_engage internal → Option<BattlePlan> 280B · #103(i98) evaluate_steal_for_target internal → 16B   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
+    "ZST": u"EpicPoke/SerpenPokeSubPlan = 0B ZST(tcxdict) — `&mut self` 지만 쓰기 표면 공집합(r16 배치 O·P · action_candidates_old 에 `ptr poison`)",
     "LegacyPlanHandler": u"#74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만)",
     "DebugFrameData": u"디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다"
                                  u"(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)",
@@ -1111,6 +1165,24 @@ def define_of(f, frm):
     return None
 
 
+def _split_args(txt):
+    u"""괄호 깊이를 세는 인자 분리 — 09-16(r16 #188): `initializes((43, 44), (45, 46))` 의 안쪽 쉼표를 ARGSPLIT 이 인자 경계로
+    잘라 `(45` 가짜 인자 + `a9` 가 생겼다(「미지원」으로 제외될 뻔). 중첩 괄호는 정규식으로 못 센다."""
+    out, depth, cur = [], 0, []
+    for ch in txt:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        if ch == "," and depth == 0:
+            out.append("".join(cur)); cur = []
+        else:
+            cur.append(ch)
+    if cur:
+        out.append("".join(cur))
+    return out
+
+
 def parse_define(dl):
     u"""`define <attrs> <ret> @sym(<args>)` → dict(ret, args=[(ty, deref, mutable)], sret, internal, fastcc)"""
     i = dl.find("@")
@@ -1138,7 +1210,7 @@ def parse_define(dl):
                 break
         k += 1
     args, sret = [], False
-    for a in ARGSPLIT.split(dl[j + 1:k]):
+    for a in _split_args(dl[j + 1:k]):
         a = a.strip()
         if not a:
             continue
