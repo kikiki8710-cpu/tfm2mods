@@ -131,6 +131,12 @@ class Patch(object):
             ok = str(old) in tgt
         elif isinstance(tgt, dict):
             ok = any(isinstance(v, str) and str(old) in v for v in tgt.values())
+        elif isinstance(tgt, list):
+            # ★09-16(24차 C·D·F 적발): v3 `open`/`notes` 는 dict 리스트라 `==` 비교가 항상 거짓 → force 로만 통과했다.
+            #   리스트면 그 안 문자열 잎을 전부 훑어 old 포함 여부로 판정한다.
+            blob = []
+            _strings(tgt, blob)
+            ok = any(str(old) in x for x in blob)
         elif tgt is not None:
             ok = (tgt == old)            # 값 필드는 동등 비교
         elif u"/open" in path or u"/notes" in path:

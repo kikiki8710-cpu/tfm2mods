@@ -568,6 +568,10 @@ def conv(i, sp):
         # ★09-15(22차·23차 B·E·F 적발): v2 `signature.abi`(exe 인자 대응표 · EXE_ABI 판정 근거)가 v3 에 없어
         #   mkpatch.locate 가 `sig/abi` 의 old 를 검증 못 하고 force 로만 통과했다 → 그대로 노출.
         "abi": (sp.get("signature", {}) or {}).get("abi"),
+        # ★09-16(24차 6배치 전부 적발): v2 `signature.tls`(TLS 메모 절 · r15 신설)·`exe_args`·`closures`·`calls_contract`·`mutability` 가
+        #   v3·도시에에 없어 배치가 v2 를 직접 열어야 했다 → 있는 것만 그대로 노출(None 이면 키 생략).
+        **{k: (sp.get("signature", {}) or {}).get(k) for k in ("tls", "exe_args", "closures", "calls_contract", "mutability")
+           if (sp.get("signature", {}) or {}).get(k) is not None},
     }
 
     o["logic"] = sp.get("logic")

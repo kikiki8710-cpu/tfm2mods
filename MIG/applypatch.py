@@ -238,7 +238,18 @@ def already(spec, e):
     if sub is _MISS:
         return False              # ★칸이 아예 없다 = 미적용이 확실하다(9차 배치C)
     if isinstance(ov, str) and ov:
-        if ov in json.dumps(sub, ensure_ascii=False):
+        # ★09-16(24차 C 적발): `json.dumps` 는 개행·따옴표를 이스케이프하므로 old 에 `\n` 이 있으면 「옛 값 없음」으로
+        #   읽혀 **안 고친 정정이 「이미 적용」으로 삼켜졌다**. 문자열 잎을 모아 원문으로 비교한다.
+        leaves = []
+        def _lv(o):
+            if isinstance(o, dict):
+                [_lv(v) for v in o.values()]
+            elif isinstance(o, list):
+                [_lv(v) for v in o]
+            elif isinstance(o, str):
+                leaves.append(o)
+        _lv(sub)
+        if any(ov in x for x in leaves) or ov in json.dumps(sub, ensure_ascii=False):
             return False          # 옛 값이 아직 있다 = 안 고쳐졌다
     new = nv
 
@@ -504,6 +515,21 @@ def apply_error(D, e, log, skipped=None):
         if old not in cur:
             log.append((u"`old` 가 정본에 없다", e["path"], old[:60])); return False
         spec[field] = cur.replace(old, new); return True
+
+    # ②′ dict 필드의 하위 키(`/specs[i]/sig/tls/layout` · `/sig/exe_args/note` · `/sig/closures/<키>`) — 09-16(24차 D·E·F 적발:
+    #   `int(None)` 크래시 → TLS 정정 3건이 산문으로만 남았다). idx 없음 + key 있음 + 그 필드가 dict 면 그 키의 문자열을 치환.
+    if idx is None and key is not None and isinstance(spec.get(field), dict):
+        dd = spec[field]
+        if key not in dd:
+            if e.get("old") in (None, u"") and isinstance(new, str):
+                dd[key] = new; return True          # 없던 키를 새로 채운다(old 빈 값)
+            log.append((u"dict 하위 키 없음", e["path"], key)); return False
+        cur = dd[key]
+        if not isinstance(cur, str):
+            log.append((u"dict 하위 키가 문자열이 아니다", e["path"], key)); return False
+        if old not in cur:
+            log.append((u"`old` 가 정본에 없다(dict 하위 키)", e["path"], str(old)[:60])); return False
+        dd[key] = cur.replace(old, new); return True
 
     # ② open/notes — 인덱스 무시하고 문면으로
     if field in ("open", "notes"):

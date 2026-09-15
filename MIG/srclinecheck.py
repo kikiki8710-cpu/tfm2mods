@@ -52,7 +52,9 @@ _ATTR = r"(?:(?:noundef|zeroext|signext|immarg|nonnull|inreg|returned|range\([^)
 def litpat(val):
     u"""7차 화이트리스트(타입 접두 · 쉼표 뒤) + **인자 속성 끼임 허용**. phi 인입은 `PHIIN` 이 본다."""
     # ★09-13(17차 D·18차 A): 소스 `level-1`·`x-5` 는 IR 에서 `add … -1`/`-5` 로 접힌다 — 양수 값 검사 때 `-` 접두를 허용한다.
-    return re.compile(r"(?:\b" + _TY + r"\s+" + _ATTR + r"|,\s*)-?"
+    # ★09-16(24차 F 적발 · 187 consts[25] −1 이 `1` 리터럴에 붙음): 값이 음수면 `-` 는 **필수**, 양수면 선택.
+    neg = str(val).strip().startswith("-")
+    return re.compile(r"(?:\b" + _TY + r"\s+" + _ATTR + r"|,\s*)" + (r"-" if neg else r"-?")
                       + re.escape(str(val).lstrip("-")) + r"(?![\w.])")
 
 
@@ -68,6 +70,23 @@ DBGVAL = re.compile(r"#dbg_value\(\s*" + _TY + r"\s+(-?\d+)\s*,\s*!(\d+)\s*,")
 
 def _ownlines(meta, did, own):
     return [li for (fn, li) in chain(meta, did) if fn == own]
+
+
+def _leaf_line(meta, did):
+    u"""DILocation 사슬의 잎 줄(인라인 전 자기 위치). 0 = 병합 위치(CSE 공유) · 1 = 함수 정의줄 미만 아티팩트."""
+    ch = chain(meta, did)
+    return ch[0][1] if ch else None
+
+
+def _phi_bases(src, a, b):
+    u"""[a,b] 안에서 `phi` 로 정의된 레지스터 집합 — gep 의 베이스가 phi 면 그 오프셋은 필드가 아니라 **이터레이터 stride** 다."""
+    out = set()
+    for k in range(a - 1, min(b, len(src))):
+        s0 = src[k].strip()
+        m = DEF.match(s0)
+        if m and ISPHI.match(s0):
+            out.add(m.group(1))
+    return out
 
 
 def _shl_k(val):
@@ -102,6 +121,9 @@ def _users(src, a, b, reg):
     return out
 
 
+_phi_cache = {}
+
+
 def collect(sp):
     u"""한 spec 의 `consts` 별 (강후보집합, 약후보집합, 매치수) 를 모은다."""
     ir = sp.get("ir") or {}
@@ -130,6 +152,7 @@ def collect(sp):
         strong, weak, nmatch = {}, set(), 0
 
         for (src, meta, a, b) in segs:
+          phib = _phi_cache.setdefault((id(src), a, b), _phi_bases(src, a, b))
           for k in range(a - 1, min(b, len(src))):
             ln = src[k]
             s = ln.strip()
@@ -186,9 +209,12 @@ def collect(sp):
             if not isphi and "range(" in ln and not pat.search(re.sub(r"range\([^)]*\)", "", ln)):
                 continue
 
-            # ── ② gep 오프셋은 상수가 아니다 ─────────────────────────────────
+            # ── ② gep 오프셋은 상수가 아니다 — 단 **베이스가 phi**(이터레이터 전진 `gep i8, ptr %phi, i64 448`)면 stride 상수다
+            #    (09-16 · 24차 A 적발 · 180 consts[51]/[107] 오탐 2건)
             if GEP.match(s):
-                continue
+                gm = re.search(r"getelementptr\b[^,]*,\s*ptr\s+(%[\w.$]+)\s*,", s)
+                if not (gm and gm.group(1) in phib):
+                    continue
             nmatch += 1
 
             st, wk = [], []
@@ -200,7 +226,10 @@ def collect(sp):
                 d = DBG.search(src[k + 1])
             if d:
                 # ── ⑥ phi 의 `!dbg` 는 병합 위치 → 약한 후보로 강등 ──────────
-                (wk if isphi else st).append(d.group(1))
+                # ── ⑨ 09-16(24차 F·A 적발 · 187 consts[10]/[15] · 186 consts[17]): 잎 줄이 0(CSE 병합)·1(정의줄 미만 아티팩트)인
+                #    select/명령의 inlinedAt 프레임은 **자기 위치가 아니다** → 약한 후보로.
+                ll = _leaf_line(meta, d.group(1))
+                (wk if (isphi or (ll is not None and ll <= 1)) else st).append(d.group(1))
             # ── ① phi 인입: 그 인입 블록의 종결자(7차 `_term_dbg`) ───────────
             if isphi:
                 for (v, lab) in PHIIN.findall(ln):
@@ -229,12 +258,24 @@ def collect(sp):
             if not [x for x in got if x]:
                 dm = DEF.match(s)
                 if dm:
-                    for u in _users(src, a, b, dm.group(1)):
-                        du = DBG.search(src[u])
-                        if du:
-                            for x in _ownlines(meta, du.group(1), own):
-                                if x:
-                                    weak.add(x)
+                    # ★09-16(24차 A 적발 · 180 consts[12] `mul …,100` → `zext`(둘 다 !dbg 없음) → 소비자): 호이스트가
+                    #   **여러 단**이면 첫 소비자도 !dbg 가 없다 → dbg 없는 정의를 따라 3단까지 전이 추적.
+                    todo, seen_r = [(dm.group(1), 0)], set()
+                    while todo:
+                        reg, dep = todo.pop()
+                        if reg in seen_r or dep > 3:
+                            continue
+                        seen_r.add(reg)
+                        for u in _users(src, a, b, reg):
+                            du = DBG.search(src[u])
+                            if du:
+                                for x in _ownlines(meta, du.group(1), own):
+                                    if x:
+                                        weak.add(x)
+                            else:
+                                d2 = DEF.match(src[u].strip())
+                                if d2:
+                                    todo.append((d2.group(1), dep + 1))
         res[j] = (strong, weak, nmatch)
     return res
 

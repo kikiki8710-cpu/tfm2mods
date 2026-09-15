@@ -36,7 +36,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 MIG = r"C:\tfm2mods\MIG"
 
 
-_LOCAL = re.compile(u"지역|스택|local\\b|sret|임시|후보 튜플|반환\\(", re.I)
+_LOCAL = re.compile(u"지역|스택|local\b|sret|임시|후보 튜플|반환\(|^stack$", re.I)   # 09-16: `base:"stack"` 행(24차 E · 185 mem[43])
 
 
 def norm_base(b):

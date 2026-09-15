@@ -281,6 +281,21 @@ def render_fn(sp):
     a(u"```rust")
     a(sig.get("tcx") or u"(없음)")
     a(u"```")
+    # ★09-16: TLS 메모 절(r15 신설) — 미러 설계 근거라 도시에에 전문 수록(dict 키별 · 경로 `/specs[i]/sig/tls/<키>`)
+    for extra_k, extra_t in (("tls", u"TLS 메모 절"), ("exe_args", u"exe 인자 대응"), ("closures", u"클로저"), ("calls_contract", u"콜리 계약"), ("mutability", u"가변성")):
+        ex = sig.get(extra_k)
+        if ex:
+            a(u"")
+            a(u"**%s(`sig.%s` · 정정 경로 `/specs[%d]/sig/%s/<키>`)**" % (extra_t, extra_k, sp["i"], extra_k))
+            a(u"")
+            if isinstance(ex, dict):
+                for kk, vv in ex.items():
+                    a(u"- `%s`: %s" % (kk, vv if isinstance(vv, str) else json.dumps(vv, ensure_ascii=False)))
+            elif isinstance(ex, list):
+                for vv in ex:
+                    a(u"- %s" % (vv if isinstance(vv, str) else json.dumps(vv, ensure_ascii=False)))
+            else:
+                a(u"%s" % ex)
     if sig.get("params"):
         a(u"")
         a(u"<details><summary>인자 %d개</summary>\n" % len(sig["params"]))

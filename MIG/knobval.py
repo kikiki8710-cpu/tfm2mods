@@ -38,7 +38,7 @@ import io, json, os, re, sys
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 HERE = os.path.dirname(os.path.abspath(__file__))
-MIG = os.path.dirname(os.path.dirname(HERE))          # …/MIG
+MIG = HERE                                             # 09-16: 단독 실행 시 `dirname(dirname)` 이 `C:\_spec` 을 가리켜 FileNotFoundError(24차 F)
 IRDIRS = (r"C:\tfm2mods\_gaibc", r"C:\tfm2mods\_gcbc", r"C:\tfm2mods\_gvbc")
 
 W = 4                 # 앵커 한 줄당 창 반경
@@ -48,6 +48,19 @@ USE_BODY = False      # ⛔함수 본문 전체를 창으로 쓰는 폴백 — �
 
 FILETOK = re.compile(r"\b([mgv]\d{2})\.ll")
 NUM = re.compile(r"-?\d+")
+RANGE = re.compile(r"(?<![\w.])(\d+)\s*[~\-–]\s*(\d+)(?![\w.])")   # 09-16: `424~428`·`424-428` 범위 인용(24차 F · G19 knobs[6]/[7] 오탐)
+
+
+def _nums(text):
+    u"""`a~b`/`a-b` 범위는 [a..b] 로 전개하고 나머지는 NUM. 범위 표기 안의 `-b` 가 음수로 읽히던 결함 정정."""
+    out = []
+    for m in RANGE.finditer(text):
+        lo, hi = int(m.group(1)), int(m.group(2))
+        if 0 <= hi - lo <= RANGE_CAP:
+            out += list(range(lo, hi + 1))
+    rest = RANGE.sub(u" ", text)
+    out += [int(x) for x in NUM.findall(rest)]
+    return out
 # 백틱 인용 — `whereline.py` 와 같은 문법
 QUOTE = re.compile(r"`([^`]{4,400})`")
 IROP = re.compile(r"^(icmp|fcmp|call|invoke|getelementptr|load|store|add|sub|mul|shl|lshr|ashr|"
@@ -108,7 +121,7 @@ def anchors(where):
         f = m.group(1)
         tail = w[m.end(): ms[i + 1].start() if i + 1 < len(ms) else len(w)]
         tail = tail[:80]
-        nums = [int(x) for x in NUM.findall(tail) if 100 <= int(x) <= 5000000]
+        nums = [x for x in _nums(tail) if 100 <= x <= 5000000]
         # 범위 `a~b` 는 양끝 + (짧으면) 사이 전부
         for j, n in enumerate(nums):
             out.append((f, n))
@@ -230,7 +243,7 @@ def denoise(ln):
 
 
 def lits_of_line(ln):
-    return set(int(x) for x in NUM.findall(denoise(ln)))
+    return set(_nums(denoise(ln)))
 
 
 def window_lits(anch, rad):
