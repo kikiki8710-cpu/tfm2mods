@@ -638,5 +638,101 @@
   "line": 0,
   "from": "call fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target(",
   "to": "call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target("
+ },
+ {
+  "raw": true,
+  "note": "r17 #211 fight_check::check_kill_die_tick_uncached 노출(2026-09-16): internal fastcc → external ccc(sweep 편입 · IR 인자 실측 == exe argscan).",
+  "file": "r17",
+  "line": 0,
+  "from": "define internal fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check28check_kill_die_tick_uncached(",
+  "to": "define noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check28check_kill_die_tick_uncached("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트.",
+  "file": "r17",
+  "line": 0,
+  "from": "invoke fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check28check_kill_die_tick_uncached(",
+  "to": "invoke noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check28check_kill_die_tick_uncached("
+ },
+ {
+  "raw": true,
+  "note": "r17 #212 AgentVerHamster::update_small_action 노출(2026-09-16): internal fastcc → external ccc(sweep 편입 · IR 인자 실측 == exe argscan).",
+  "file": "r17",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster19update_small_action(",
+  "to": "define void @_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster19update_small_action("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트.",
+  "file": "r17",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster19update_small_action(",
+  "to": "invoke void @_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster19update_small_action("
+ },
+ {
+  "raw": true,
+  "note": "r17 #213 passive_line::PassiveLinePlan::v46_stage1 노출(2026-09-16): internal fastcc → external ccc(sweep 편입 · IR 인자 실측 == exe argscan).",
+  "file": "r17",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan10v46_stage1(",
+  "to": "define void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan10v46_stage1("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트.",
+  "file": "r17",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan10v46_stage1(",
+  "to": "invoke void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan10v46_stage1("
+ },
+ {
+  "raw": true,
+  "note": "r17 #220 passive_line::PassiveLinePlan::v46_stage2 노출(2026-09-16): internal fastcc → external ccc(sweep 편입 · IR 인자 실측 == exe argscan).",
+  "file": "r17",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan10v46_stage2(",
+  "to": "define noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan10v46_stage2("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트.",
+  "file": "r17",
+  "line": 0,
+  "from": "invoke fastcc noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan10v46_stage2(",
+  "to": "invoke noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan10v46_stage2("
+ },
+ {
+  "raw": true,
+  "note": "r17 #224 battle_common::v21_defensive_cc_score 노출(2026-09-16): internal fastcc → external ccc(sweep 편입 · IR 인자 실측 == exe argscan).",
+  "file": "r17",
+  "line": 0,
+  "from": "define internal fastcc noundef range(i64 -9223372036854775782, 161) i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common22v21_defensive_cc_score(",
+  "to": "define noundef range(i64 -9223372036854775782, 161) i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common22v21_defensive_cc_score("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트.",
+  "file": "r17",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common22v21_defensive_cc_score(",
+  "to": "call noundef i64 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common22v21_defensive_cc_score("
+ },
+ {
+  "raw": true,
+  "note": "r17 #226 build_game_finish_check_state 노출(2026-09-16): internal fastcc → external ccc(sweep 편입 · IR 인자 실측 == exe argscan).",
+  "file": "r17",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvCshdEBA0ozCnw_7game_ai29build_game_finish_check_state(",
+  "to": "define void @_RNvCshdEBA0ozCnw_7game_ai29build_game_finish_check_state("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트.",
+  "file": "r17",
+  "line": 0,
+  "from": "call fastcc void @_RNvCshdEBA0ozCnw_7game_ai29build_game_finish_check_state(",
+  "to": "call void @_RNvCshdEBA0ozCnw_7game_ai29build_game_finish_check_state("
  }
 ]

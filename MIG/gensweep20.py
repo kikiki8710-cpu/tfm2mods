@@ -73,6 +73,8 @@ RLIB_DIRS = [r"C:\tfm2mods\sdk_058\deps_ailink", r"C:\tfm2mods\sdk_058\mod-sdk\d
 #     **주소를 바꾼 6개는 전부 그 밴드 밖**이었다(#12 4,480배 · #04 12.1배 · #11 1/343 · #16 1/24.6 ·
 #     #10 1.78→0 · #15 0→0) ⟹ 옛 수치가 **다른 함수**를 재고 있었다는 독립 확인이다.
 FIRED = {
+         # ★r17 진입점 45(i=204~248) · 2026-09-16 판 1(프로브 247/247 · 984.6s 판 종료 · _r17_probe1\probe20_r17_run1.txt) — 45/45 발화
+         208: 179688181, 222: 46790295, 233: 46790265, 221: 46601020, 211: 37739257, 218: 25761888, 229: 25614153, 245: 25566685, 247: 25526625, 248: 25509342, 226: 22158872, 246: 22124160, 204: 14673860, 205: 14673860, 209: 14673857, 212: 14673854, 206: 12264955, 207: 7972071, 240: 6725677, 232: 5921048, 214: 5788828, 213: 5381454, 243: 3703451, 224: 3453463, 219: 3272848, 234: 2968617, 217: 2680236, 216: 2580751, 223: 2181226, 236: 1672430, 238: 1636114, 244: 1583607, 237: 1225135, 227: 1169264, 241: 1098405, 215: 299481, 230: 278350, 225: 259507, 220: 204706, 239: 121782, 235: 95963, 231: 64749, 228: 34202, 242: 16146, 210: 15087,
          # ★r16 루트 16(i=188~203) · 2026-09-16 판 1(202/202 설치 · 450.5s 판 종료 · _r16_probe1\probe20_r16_run1.txt)
          196: 5849746, 188: 2964270, 203: 2032059, 201: 1951435, 193: 1138542, 189: 569238, 198: 453135, 197: 307325,
          191: 233887, 200: 191891, 202: 128086, 199: 104151, 194: 92836, 190: 30123, 195: 13826, 192: 3638,
@@ -339,6 +341,12 @@ BISECT_NO_STRFREE = 0   # ★임시 이분 스위치(2026-09-13) — 0 으로 �
 BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — 중첩 Vec 누락) — 0 유지
 
 SELF_RESTORE = {
+    # ★r17(09-16): 219/240 `&mut ScoreParameter`(a5/a4 · 5,384B · 쓰기 = player.attack/util_value +0x9c0/+0x9c8 + 힙 원소 +0xa8/+0xb0) · 221 `&mut ChampionScoreParameter`(a2 · 216B · +0xb8~+0xd0) ·
+    #   239 AroundBush self(a0 · 120B · +0x8/+0x18/+0x20 · pf Box 포인터 skip)
+    219: (5, 5384, [], 8),
+    240: (4, 5384, [], 8),
+    221: (2, 216, [], 8),
+    239: (0, 120, [], 8),
     # ★r16(09-16) 루트 `&mut self`(a1 · sret a0) — Battle 48(support_target·v48_claim_hold_until·v48_dodge_claim·last_bail_gate) · DefenseNexus 24 · Epic/SerpenCheck 1(move_check) ·
     #   Jungle/Hide 16(check_move +0x9 · enemy_spotted_me +0xa) · LineWait/LineDefense 3(쓰기 0) · Serpen/EpicHunt 1(need_recall) · LineGanker 48(chats Vec) · PassiveJungle 104(chats·last_lead_action_tick·jungle·team)
     188: (1, 48, [], 8),
@@ -454,6 +462,11 @@ SELF_RESTORE = {
 #   (호출자가 분기) ⟹ 상태 + 반환을 둘 다 판정한다.
 LIVE_RET = {44, 83, 97}   # 83 = sret 열거형(SubPlan) 과 self 부작용을 둘 다 판정(09-14)
 SELF_DIFF = {
+    # ★r17(09-16): ScoreParameter 포인터 워드(Vec ptr·bump ×4) skip · 힙 원소(+0xa8/+0xb0) 는 비교 안 함(범위한정) · CSP Vec ptr·bump ×2 skip · AroundBush pf Box 2(+0x50/+0x58)
+    219: {"skip": [(0x930, 16), (0x950, 16), (0x14b8, 16), (0x14d8, 16)]},
+    240: {"skip": [(0x930, 16), (0x950, 16), (0x14b8, 16), (0x14d8, 16)]},
+    221: {"skip": [(0x18, 16), (0x38, 16)]},
+    239: {"skip": [(0x50, 16)]},
     # ★r16(09-16) 루트 — chats Vec 삼중항(202/203 @0x0 24B)은 HEAP_SUBST 가 ③′ 비교하므로 skip
     188: {"skip": []},
     189: {"skip": []},
@@ -822,7 +835,8 @@ ENUM_LIVE = {
 #   부작용 = 내 사본이 같은 Bump 에 한 번 더 할당한다(아레나는 틱마다 리셋 · 게임 값엔 영향 없음).
 #   값 = {spec idx: {"ptr": off, "len": off, "esz": 원소 크기, "elem_live": [(off, len, [tags])]}}
 # SmallActionPlay 184B 원소 live(variant 별 · ELEM_LIVE "sap" 와 동일 · 태그 +0xb1)
-_SAP_EL = [(0xb1, 1, []), (0x0, 0x11, [0xf, 0x10, 0x11, 0x12]), (0x0, 0x10, [0xe]), (0x55, 1, [0xe]), (0x58, 0x40, [0xe]),   # r16(09-16): Ult 18 = ::new (0,17) · Trace 14 = 0..0x10 + pf None 니치 0x55 + 0x58..0x98(pf 72B@0x10 은 Box 포인터/잔재 → 제외 · 판 2 첫 표본 +16/+56 갈림) · Recall 4/AroundBush 12/Stop 19 는 태그만(범위한정) (0x0, 56, [0x3, 0x5]), (0x7d, 1, [0x3, 0x5]), (0x80, 4, [0x3]), (0x80, 2, [0x5]),
+_SAP_EL = [(0xb1, 1, []), (0x0, 0x11, [0xf, 0x10, 0x11, 0x12]), (0x0, 0x10, [0xe]), (0x55, 1, [0xe]), (0x58, 0x40, [0xe]),
+           (0x0, 0x28, [0xc]), (0x6d, 1, [0xc]), (0x70, 1, [0xc]), (0x45, 1, [0x4]), (0x48, 0x39, [0x4]),   # r17(09-16): AroundBush 12 = new_with_target store 전수(26차 E) · Recall 4 = initializes (69,70)(72,129)(26차 L)   # r16(09-16): Ult 18 = ::new (0,17) · Trace 14 = 0..0x10 + pf None 니치 0x55 + 0x58..0x98(pf 72B@0x10 은 Box 포인터/잔재 → 제외 · 판 2 첫 표본 +16/+56 갈림) · Recall 4/AroundBush 12/Stop 19 는 태그만(범위한정) (0x0, 56, [0x3, 0x5]), (0x7d, 1, [0x3, 0x5]), (0x80, 4, [0x3]), (0x80, 2, [0x5]),
            (0x0, 0x30, [0x7, 0xd]), (0x75, 1, [0x7, 0xd]), (0x78, 1, [0xd])]
 SRET_VEC = {
     41: {"ptr": 0x0, "len": 0x18, "esz": 24, "elem_live": [(0, 8, []), (8, 8, []), (16, 1, [])]},
@@ -851,6 +865,10 @@ SRET_VEC = {
     198: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
     199: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
     200: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    # ★r17(09-16): Steal/Recall action_candidates(26차 E/L 원소 live · _SAP_EL 확장 AroundBush 12 · Recall 4) · v46_stage1 sret Vec<(e.id, my_die, kill_dps)> 24B 전부 live(패딩 없음 · 26차 F)
+    210: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    241: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
+    213: {"ptr": 0x0, "len": 0x18, "esz": 24, "elem_live": [(0, 24, [])]},
     174: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
     175: {"ptr": 0x0, "len": 0x18, "esz": 184, "tag_off": 0xb1, "elem_live": _SAP_EL},
 }
@@ -953,6 +971,8 @@ RET_LIVE = {
     # r10 #104(i99) should_steal_now → StealAction 2B(P8: a=태그 0 None/1 Lurk/2 Commit · b=페이로드 StealTarget 1B).
     #   None 의 b 는 IR undef(m07.ll:55118 `phi i8 [ undef, …]`) — 판 3 실측 60% 갈림 전부 `g={0,0} m={0,255}`. Lurk/Commit 만 b 비교.
     99: [1, 2],
+    # r17(09-16): #247 AgentVerHamster::buy_item → Option<usize> {i64 tag, i64 idx}(P64) — None 9경로 payload undef(26차 L · m14.ll:38275 phi) → Some 만 slot1.
+    247: [1],
 }
 
 # ★r14(09-14): `Option<game_core::Input>` 32B — tag i64@0(-1 None · 0 Move · 1 Return · 2 Attack · 3 Skill · 4 Skill2 · 5 Ult) · Move = +8 x +16 y ·
@@ -1091,6 +1111,81 @@ SRET_LIVE = {
         (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
         (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
     ],
+    # ★r17(09-16) #207 = 명세 편입된 resolve_fight_uncached(이름 키 항목과 동일 레이아웃 · 26차 D: +0x28 · +0x3a~ 미기록 실측)
+    207: [
+        (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
+        (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
+        (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
+        (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
+    ],
+    # ★r17 #204 calculate_score_parameter → ScoreParameter 5,384B: 26차 A sret_live.log 기록 구간(2,747B) − Vec 포인터 워드 8(risk/gain_possible ptr·bump @0x930~0x95f ·
+    #   near_allies/enemies ptr·bump @0x14b8~0x14e7) = 2683B. 미기록 = wave_snapshot None 페이로드 [0x8,0x918) · action 페이로드 [0x920,0x930) · PositioningScore 패딩 6B×49 · 꼬리 7B.
+    #   ⚠원소 내용(near_allies/enemies 216B × len · risk_possible 24B × len)은 비교 안 함(범위한정 · HEAP sret 기구 없음 · len 워드만).
+    204: [
+        (0x0, 8, []),
+        (0x918, 8, []),
+        (0x940, 16, []),
+        (0x960, 194, []),
+        (0xa28, 50, []),
+        (0xa60, 50, []),
+        (0xa98, 50, []),
+        (0xad0, 50, []),
+        (0xb08, 50, []),
+        (0xb40, 50, []),
+        (0xb78, 50, []),
+        (0xbb0, 50, []),
+        (0xbe8, 50, []),
+        (0xc20, 50, []),
+        (0xc58, 50, []),
+        (0xc90, 50, []),
+        (0xcc8, 50, []),
+        (0xd00, 50, []),
+        (0xd38, 50, []),
+        (0xd70, 50, []),
+        (0xda8, 50, []),
+        (0xde0, 50, []),
+        (0xe18, 50, []),
+        (0xe50, 50, []),
+        (0xe88, 50, []),
+        (0xec0, 50, []),
+        (0xef8, 50, []),
+        (0xf30, 50, []),
+        (0xf68, 50, []),
+        (0xfa0, 50, []),
+        (0xfd8, 50, []),
+        (0x1010, 50, []),
+        (0x1048, 50, []),
+        (0x1080, 50, []),
+        (0x10b8, 50, []),
+        (0x10f0, 50, []),
+        (0x1128, 50, []),
+        (0x1160, 50, []),
+        (0x1198, 50, []),
+        (0x11d0, 50, []),
+        (0x1208, 50, []),
+        (0x1240, 50, []),
+        (0x1278, 50, []),
+        (0x12b0, 50, []),
+        (0x12e8, 50, []),
+        (0x1320, 50, []),
+        (0x1358, 50, []),
+        (0x1390, 50, []),
+        (0x13c8, 50, []),
+        (0x1400, 50, []),
+        (0x1438, 50, []),
+        (0x1470, 50, []),
+        (0x14a8, 16, []),
+        (0x14c8, 16, []),
+        (0x14e8, 25, [])
+    ],
+    # r17 #218 AgentVerHamster::update_state → Vec<TurnEvent> 32B 항상 빈 Vec(26차 G) — ptr@0(=8) · cap@0x10 · len@0x18 비교 · bump@0x8 은 프로세스 의존 skip. (SELF_RESTORE 미등록 = 보류 → 이 항목은 등록만)
+    218: [(0x0, 8, []), (0x10, 16, [])],
+    # r17 #226 build_game_finish_check_state → Option<GameFinishCheckState> 72B: None = +0x44 i8 2(니치) · Some = +0..+0x44 69B 전부 기록(26차 I) · +0x45..0x47 패딩
+    226: [(0x44, 1, []), (0x0, 0x44, [(0x44, 1, [0, 1])])],
+    # r17 #209 build_minion_wave_snapshot → MinionWaveSnapshot 2,320B 전량 live(Default 초기화 후 채움 · 26차 E 34케이스 비트동일)
+    209: [(0x0, 2320, [])],
+    # r17 #245 AgentVerHamster::upgrade_item → Option<(usize,usize)> 24B: tag@0(0 None/1 Some · i64) · +8 inventory_index · +16 item(Some 만 · 26차 L)
+    245: [(0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]), (0x10, 8, [(0x00, 8, [1])])],
     u"resolve_fight_uncached": [
         (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
         (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
@@ -1107,14 +1202,15 @@ SRET_LIVE = {
     ],
 }
 
-MUT_OK_ARG = {188: {8: "DebugFrameData"}, 189: {7: "DebugFrameData"}, 190: {7: "DebugFrameData"}, 191: {8: "DebugFrameData"}, 192: {8: "DebugFrameData"},
+MUT_OK_ARG = {239: {4: "DebugFrameData"}, 210: {1: "RO"},   # r17(09-16): AroundBush update_state debug a4 · Steal self a1 = define readonly(쓰기 0 · 26차 E 32케이스 불변)
+              188: {8: "DebugFrameData"}, 189: {7: "DebugFrameData"}, 190: {7: "DebugFrameData"}, 191: {8: "DebugFrameData"}, 192: {8: "DebugFrameData"},
               194: {7: "DebugFrameData"}, 196: {8: "DebugFrameData"}, 197: {8: "DebugFrameData"}, 198: {8: "DebugFrameData"},
               199: {8: "DebugFrameData", 1: "ZST"}, 200: {8: "DebugFrameData", 1: "ZST"}, 202: {8: "DebugFrameData"}, 203: {9: "DebugFrameData"},   # r16(09-16)
               181: {8: "DebugFrameData"}, 183: {6: "DebugFrameData"}, 186: {10: "DebugFrameData"},   # r15(09-15)
               35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"},
               # r9(09-13 저녁) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
               67: {6: "DebugFrameData"}, 74: {5: "DebugFrameData"}, 75: {6: "DebugFrameData"}, 69: {8: "DebugFrameData", 1: "LegacyPlanHandler"},
-              u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"},
+              u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}, 207: {3: "GameContext", 12: "DebugFrameData"},   # r17 #207 = 같은 함수(명세 편입)
               # r10(09-13 밤) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
               77: {7: "DebugFrameData"}, 83: {8: "DebugFrameData"}, 97: {8: "DebugFrameData"}, 91: {6: "DebugFrameData"},
               82: {8: "DebugFrameData"}, 96: {8: "DebugFrameData"}, 86: {6: "DebugFrameData"}, 87: {6: "DebugFrameData"},
@@ -1126,9 +1222,10 @@ MUT_OK_ARG = {188: {8: "DebugFrameData"}, 189: {7: "DebugFrameData"}, 190: {7: "
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
 SRET_FORCE = {180: 56, 185: 24,   # r15(09-15) position_eval_at_uncached internal sret 56 · get_input_target internal sret 24
               167: 32, 156: 184, 161: 184, 140: 120, 146: 120, 145: 24, 155: 384,   # r14(09-14)
-              u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280, 105: 392,
+              u"resolve_fight_uncached": 64, 207: 64, 213: 32, 226: 72, u"resolve_fight_full": 64, 40: 24, 69: 280, 105: 392,   # r17 #207 · #213 v46_stage1 sret Vec 32 · #226 finish 72(09-16)
               80: 280, 98: 16}   # r10: #85(i80) try_engage internal → Option<BattlePlan> 280B · #103(i98) evaluate_steal_for_target internal → 16B   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
+    "RO": u"define 줄에 `readonly` — &mut 시그니처지만 쓰기 표면 0(26차 실측)",
     "ZST": u"EpicPoke/SerpenPokeSubPlan = 0B ZST(tcxdict) — `&mut self` 지만 쓰기 표면 공집합(r16 배치 O·P · action_candidates_old 에 `ptr poison`)",
     "LegacyPlanHandler": u"#74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만)",
     "DebugFrameData": u"디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다"
@@ -1314,7 +1411,11 @@ def main():
     #   구분할 방법이 없었다. 그 중간 함수를 **직접 대조**하면 한 번에 갈린다.
     #   ⟹ 명세와 같은 모양의 합성 항목을 만들어 기존 경로를 그대로 태운다(특수 분기 X).
     #   ⚠`idx` 는 20 이상(명세와 겹치지 않게) · 1단계 발화수가 없으므로 `무효` 로 찍힌다.
+    _spec_addrs = set(str((sp.get("exe") or {}).get("addr") or "").lower() for sp in D)
     for ex in EXTRA_SWEEP:
+        # ★r17(09-16): 명세가 같은 함수를 편입하면(#207 resolve_fight_uncached) 이름 키 슬롯을 만들지 않는다 — 같은 진입부 이중 detour 방지.
+        if ex["addr"].lower() in _spec_addrs:
+            continue
         D = D + [{
             "name": ex["name"], "sym": ex["sym"], "src": ex.get("src", "?"),
             "ir": {"file": ex["ir_file"], "frm": ex["ir_frm"], "to": ex["ir_frm"] + 400},
@@ -1681,7 +1782,7 @@ def main():
     if any(r.get("live") for r in rows):
         w(u"/// 살아있는 구간 하나. `c` 의 조건이 **전부** 성립할 때만 비교 대상이다.")
         w(u"#[derive(Clone, Copy)] pub struct Cond { pub off: u16, pub len: u8, pub mask: u64 }")
-        w(u"#[derive(Clone, Copy)] pub struct Span { pub off: u16, pub len: u8, pub c: [Cond; 2] }")
+        w(u"#[derive(Clone, Copy)] pub struct Span { pub off: u16, pub len: u16, pub c: [Cond; 2] }")   # ★r17(09-16): len u8→u16 — #209 sret 2,320B 전량 구간(리터럴 u8 초과 빌드 실패)
         w(u"const NOC: Cond = Cond { off: 0, len: 0, mask: 0 };")
         w(u"/// 리틀엔디언 태그 읽기(1~8B).")
         w(u"#[inline] unsafe fn rdtag(p: *const u8, off: u16, len: u8) -> u64 {")
