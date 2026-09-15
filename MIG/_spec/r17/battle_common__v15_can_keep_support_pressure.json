@@ -1,0 +1,89 @@
+{
+ "name": "v15_can_keep_support_pressure",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common29v15_can_keep_support_pressure",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle_common.rs",
+ "src_line": 7,
+ "ir_file": "m05.ll",
+ "ir_from": 57757,
+ "ir_to": 57979,
+ "aux": [
+  {"ir_file": "m05.ll", "ir_from": 9441, "ir_to": 9595, "what": "L36 클로저 — `iter_champions(1-team).any(|enemy| …)` 의 try_fold 본체(closure#0 = battle_common.rs:36). 술어 3항(L37 시야·L38 적↔target 120000·L39 적↔champ 180000)이 전부 여기 있다"}
+ ],
+
+ "one_line": "서포트 대상(support_target)에 대한 압박을 유지해도 되는가 — 내 HP·피해·CC 상태 게이트 후, 대상이 아군이면 근처 가시 적 존재로, 적이면 가시성+180000 거리로 판정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_version", "type": "usize", "note": "IR %0 · 본문에서 안 읽음(밑줄 이름 그대로 · DI `_version`)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "IR %1 · readonly · info.team(+0x930)·info.position 태그(+0x9c0) 읽음 · is_recent_visible/v21_support_pressure_too_risky 에 전달"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "IR %2 · readonly · cache(+0)·blackboard(+0x10) 읽음"},
+   {"i": 4, "name": "parameter", "type": "&ScoreParameter(5384B)", "note": "IR %3 · readonly · player.applyed_cc(+0x990)·player.applyed_damage(+0x988) 읽음"},
+   {"i": 5, "name": "support_target", "type": "Option<usize>", "note": "IR 스칼라 2개: %4 = 태그(range(0,2) · 1=Some) · %5 = 페이로드 target_id. None 이면 즉시 false(L8)"}
+  ],
+  "returns": "bool(i1 zeroext) — true = 압박 유지 가능. false 경로 8곳: support_target None(L8) / 내 챔피언 없음(L12) / HP%<45 또는 applyed_cc≠0(L16) / 받은피해 ≥ 현재HP 20%(L18) / target 엔티티 없음(L22) / too_risky(L26) / (적 대상) 비가시(L31). 아군 대상이면 L36 any 결과, 적 대상이면 L32 거리 판정이 그대로 반환",
+  "tls": {
+   "name": "(직접 접점 없음)",
+   "role": "없음",
+   "key": "본체·aux 클로저 모두 `LocalKey`/`call_once` 상수 참조 0건(grep) — TLS 메모를 직접 읽거나 쓰지 않는다",
+   "layout": "-",
+   "invalidation": "-",
+   "call_conditions": "콜리 `v21_support_pressure_too_risky`(1,022줄 · 내부 미독해)·`is_recent_visible`(TLS 참조 0 확인) 경유 여부는 그 콜리 명세 소관"
+  }
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L12 player_champion 1차 인덱스(<2 bounds check 있음) · L35/L37/L31 `1 - team` 으로 적팀 인덱스"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "L12 i32 태그를 zext 해 player_champion[team][position] 2차 인덱스로 사용(bounds check 없음 — 태그 0..4 전제)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] · 744B stride · 인덱스 = 1 - player.info.team"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn AbstractGame data ptr)", "note": "L22 get_entity_by_id 의 self · is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (vtable ptr)", "note": "+0x1f0 슬롯 = get_entity_by_id (divtable)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5] (Option<&Entity> = 널 니치)", "note": "L12 [team][position] · L35 [1-team] 슬라이스 5개(끝 = +40)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "champ · L16 HP% 분자 · L18 20% 기준"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "champ · L16 max(…,1) 분모"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "L30 target.team == champ.team (TeamType derived PartialEq)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "L30 태그가 Player(0)일 때만 페이로드 비교"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L32/L38/L39 거리²"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "L32/L38/L39 거리²"},
+  {"base": "ScoreParameter", "offset": "0x990", "name": "player.applyed_cc", "note": "L16 ≠0 이면 false"},
+  {"base": "ScoreParameter", "offset": "0x988", "name": "player.applyed_damage", "note": "L18 *100 < max(champ.hp,1)*20 이어야 계속"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 12, "meaning": "player_champion 1차 배열 길이(team<2 bounds check · panic_bounds_check 인자) — 판정값 아님"},
+  {"value": 100, "src_line": 16, "meaning": "HP% 환산 배수(L16 champ.hp*100 / max(stat_cached.hp,1)) · L18 applyed_damage*100"},
+  {"value": 45, "src_line": 16, "meaning": "내 HP% 하한 — 45% 미만이면 false"},
+  {"value": 20, "src_line": 18, "meaning": "받은 피해 허용 상한 = 현재 HP 의 20% (applyed_damage*100 < max(hp,1)*20)"},
+  {"value": 1, "src_line": 16, "meaning": "max(…,1) 0-나눗셈 가드(llvm.umax) · L18 도 동일"},
+  {"value": 32400000001, "src_line": 32, "meaning": "180000²+1 — (적 대상) target↔champ 거리² 상한 / (aux L39) enemy↔champ 거리² 상한"},
+  {"value": 14400000001, "src_line": 38, "meaning": "120000²+1 — (aux L38) enemy↔target 거리² 상한"}
+ ],
+
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::plan_legacy::sub_plan::battle_common::v21_support_pressure_too_risky",
+  "core::panicking::panic_bounds_check",
+  "core::slice::iter::Iter::try_fold"
+ ],
+ "calls_indirect": [
+  "AbstractGame vtable +0x1f0 get_entity_by_id(game, target_id) -> Option<&Entity> (L22 · 널 니치)"
+ ],
+
+ "logic": "L8   let Some(target_id) = support_target else { return false };\nL12  let Some(champ) = data.cache.player_champion[player.info.team][player.info.position as usize] else { return false };   // team 은 <2 bounds check(panic) · position 은 i32 태그 그대로\nL16  if champ.hp*100 / max(champ.stat_cached.hp,1) < 45 || parameter.player.applyed_cc != 0 { return false }   // IR 은 select(hp<45, true, cc≠0) — 두 항 모두 순수 load 라 소스 순서 판별 불가·외연 동일\nL18  if !(parameter.player.applyed_damage*100 < max(champ.hp,1)*20) { return false }   // 받은 피해가 현재 HP 의 20% 미만일 때만 계속\nL22  let Some(target) = data.cache.game.get_entity_by_id(target_id) else { return false };   // vtable +0x1f0\nL26  if v21_support_pressure_too_risky(player, data, parameter, champ, target) { return false }\nL30  if target.team == champ.team {                       // TeamType: 태그 같고 (Neutral 이거나 Player 페이로드 같음)\nL35     let team = 1 - player.info.team;                 // 적팀\nL36     return data.cache.iter_champions(team).any(|enemy|   // aux m05.ll 9441~9595 · Option 널 건너뜀\nL37         data.blackboard[1 - player.info.team].is_recent_visible(game, player, enemy)\nL38         && dist2(enemy, target) < 120000²+1\nL39         && dist2(enemy, champ)  < 180000²+1);\n     } else {\nL31     return data.blackboard[1 - player.info.team].is_recent_visible(game, player, target)\nL32         && dist2(target, champ) < 180000²+1;\n     }\nL41  (phi: false ×7 / %81(any) / %108)\n\n해석: 대상이 아군(같은 팀)이면 '그 아군 근처(120000)에 내 사거리권(180000) 안의 가시 적이 있을 때' 압박 유지, 대상이 적이면 '가시 상태이고 180000 이내'일 때 유지.\ndist2 = |dx|²+|dy|² (u64, entity.rs:2158 인라인 · nuw sub 로 절댓값).",
+
+ "knobs": [
+  {"what": "내 HP% 하한", "where": "battle_common.rs:16", "value": 45, "effect": "올리면 더 건강할 때만 압박 유지 → 서포터가 더 빨리 빠진다"},
+  {"what": "받은 피해 상한(현재 HP 대비 %)", "where": "battle_common.rs:18", "value": 20, "effect": "올리면 피해를 더 받고도 압박 유지"},
+  {"what": "적↔아군대상 근접 거리(아군 대상일 때)", "where": "battle_common.rs:38", "value": 14400000001, "effect": "120000² — 올리면 더 먼 적도 '아군을 위협' 으로 봐 압박 유지가 잦아짐"},
+  {"what": "적↔나 / 적대상↔나 거리 상한", "where": "battle_common.rs:32 / :39", "value": 32400000001, "effect": "180000² — 올리면 더 먼 대상에도 압박 유지 true"}
+ ],
+
+ "unknown": [
+  "L16 `||` 두 항의 소스 순서(hp<45 vs applyed_cc≠0) — column 정보 부재 + 둘 다 순수 load 라 IR 에 흔적 없음(표기 불가·외연 동일)",
+  "blackboard 인덱스가 `1 - player.info.team`(적팀 번호)인 의미 — Blackboard 배열이 '팀별 관측 보드'인지 '상대팀에 대한 보드'인지는 game_core 소관(is_recent_visible 내부 미독해)",
+  "`_version`(i64 %0) 은 본문에서 미사용 — 버전 분기 없음",
+  "`v21_support_pressure_too_risky` 내부(m05.ll 58219~59241 · 1,022줄)는 이 배치 범위 밖 — 계약만: fn(&PlayerState,&OperationData,&ScoreParameter,&Entity champ,&Entity target)->bool, true=위험"
+ ]
+}

@@ -1,0 +1,122 @@
+{
+ "name": "v17_runaway_counterattack_bonus",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common31v17_runaway_counterattack_bonus",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle_common.rs",
+ "src_line": 270,
+ "ir_file": "m05.ll",
+ "ir_from": 59244,
+ "ir_to": 60293,
+
+ "one_line": "RunAway 골 중 가시 적 챔피언 target 에 대한 '역공(counterattack)' 가산점(0~95) — 즉사/콤보즉사/무거운 교환 중 하나일 때만, 사거리·유입피해·대상HP·아군/적 수로 가감",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_version", "type": "usize", "note": "IR %0 · 본문에서 안 읽음(DI `_version`)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "IR %1 · readonly · info.team(+0x930) · is_recent_visible/v17_escape_is_costly 인자"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "IR %2 · readonly · cache(+0)·context(+8)·blackboard(+0x10) · max_range_cached/possible_risk 인자"},
+   {"i": 4, "name": "parameter", "type": "&ScoreParameter(5384B)", "note": "IR %3 · readonly · player(+0x918) 블록의 applyed_damage/risk_damage/risk_possible_tower · possible_risk 의 self"},
+   {"i": 5, "name": "goal", "type": "&BattleSubPlanGoal(16B)", "note": "IR %4 · readonly captures(none) · L280 태그(+0)==4(RunAway) 만 통과"},
+   {"i": 6, "name": "champ", "type": "&Entity(1728B)", "note": "IR %5 · readonly · 나. team·id(+0x5c0)·x·y·hp(+0x670)·stat_cached.move_speed(+0x640) · expected_damage_target 에 &dyn AbstractEntity(vtable @anon.17)"},
+   {"i": 7, "name": "target", "type": "&Entity(1728B)", "note": "IR %6 · readonly · 적. team·ty@tag(+0x68)·stat_buff_cached.undying(+0x488)·x·y·hp·stat_cached.hp(+0x628)"},
+   {"i": 8, "name": "effect", "type": "&Effect(56B)", "note": "IR %7 · readonly · expected_damage_target 의 self(현재 액션 이펙트)"}
+  ],
+  "returns": "i64 range(0, 96) — 0 = 해당 없음(조기 종료 7곳: RunAway 아님 / 같은 팀·비챔피언 / undying / 비가시 / 즉사·콤보즉사·heavy_trade 모두 거짓), 아니면 clamp(bonus, 0, 95) = smax(…,0) 후 umin(…,95)",
+  "tls": {
+   "name": "(직접 접점 없음 · 콜리 경유)",
+   "role": "소비자(간접)",
+   "key": "본체에 `LocalKey`/`call_once` 참조 0건. 콜리 `battle::max_range_cached`(m10.ll 50689) 가 TLS `old::battle::MAX_RANGE_CACHE`(RefCell<MaxRangeCache>) 를 읽고 씀 — L314 에서 정확히 1회(champ,target)",
+   "layout": "콜리 명세 소관",
+   "invalidation": "콜리 명세 소관",
+   "call_conditions": "L314 는 L297 게이트 통과 후 무조건 1회. 직접 콜리 v17_ready_counterattack_damage/v17_escape_is_costly 본체는 TLS 참조 0(그 안의 2차 콜리는 미확인) · max_range(비캐시)·is_recent_visible·expected_damage_target·possible_risk·Entity::distance 는 TLS 참조 0 확인"
+  }
+ },
+
+ "reads": [
+  {"base": "BattleSubPlanGoal", "offset": "0x0", "name": "tag", "note": "L280 == 4 (RunAway) 아니면 0"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "L281 target.team == champ.team → 0"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "L281 페이로드 비교"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "L282 target.ty == 13(Champion) 필요"},
+  {"base": "Entity", "offset": "0x488", "name": "stat_buff_cached.undying", "note": "L283 target 이 undying 이면 0"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "L290 target_hp=max(target.hp,1) · L325 my_hp=max(champ.hp,1) · L332 target.hp*100"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "L332 target 최대HP(max(…,1))"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "champ · L294 reach 의 speed*12 · L317 range+speed*12"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L294 target↔champ 거리² · L337/L341 champ 기준 거리²"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "champ.id — L337 아군 자기 제외"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L284 1-team(<2 bounds check) · L336 team(<2 bounds check) · L339 1-team"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L284 game · L336/L339 player_champion · L289 v17_ready_counterattack_damage 승격 인자"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L288 expected_damage_target 의 &GameContext · L289 승격 인자"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "L284/L340 [1-team] · 744B stride"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data ptr", "note": "is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable ptr", "note": "is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5]", "note": "L336 [team] · L339 [1-team] 각 5칸 완전 언롤"},
+  {"base": "ScoreParameter", "offset": "0x918", "name": "player (ChampionScoreParameter 216B 시작)", "note": "L323 possible_risk 의 self"},
+  {"base": "ScoreParameter", "offset": "0x988", "name": "player.applyed_damage", "note": "L321 incoming 항"},
+  {"base": "ScoreParameter", "offset": "0x998", "name": "player.risk_damage", "note": "L322 incoming 항"},
+  {"base": "ScoreParameter", "offset": "0x9b0", "name": "player.risk_possible_tower", "note": "L324 incoming 항 /2 (sdiv)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 4, "src_line": 280, "meaning": "BattleSubPlanGoal 메모리태그 4 = RunAway / L317 range+speed*12 이내 가산 +4"},
+  {"value": 13, "src_line": 282, "meaning": "EntityType 메모리태그 13 = Champion (target.ty)"},
+  {"value": 0, "src_line": 281, "meaning": "TeamType Player 태그 / 반환 0 / L350 clamp 하한 max(bonus,0)"},
+  {"value": 1, "src_line": 284, "meaning": "1 - team (적팀 인덱스) / max(hp,1) 가드(L290·L325·L332)"},
+  {"value": 2, "src_line": 284, "meaning": "blackboard/player_champion 배열 길이 bounds check / L346 near_enemies < near_allies+2"},
+  {"value": 20000, "src_line": 472, "meaning": "close_counterattack_target(인라인, battle_common.rs:471~473): reach = max_range(champ,target) + 20000 + champ.move_speed*12"},
+  {"value": 12, "src_line": 472, "meaning": "reach 의 move_speed*12 (12틱분 이동) · L317 재사용(%80)"},
+  {"value": 100, "src_line": 296, "meaning": "% 환산: ready_damage*100 vs target_hp*70 / incoming*100 vs my_hp*60·30 / target.hp*100 vs max_hp*35"},
+  {"value": 70, "src_line": 296, "meaning": "heavy_trade = escape_is_costly && close_counter && ready_damage*100 >= target_hp*70 (대상 HP 70% 이상을 준비된 콤보로 깎을 수 있음)"},
+  {"value": 75, "src_line": 301, "meaning": "기본 bonus: lethal_now(현재 이펙트만으로 즉사)"},
+  {"value": 48, "src_line": 301, "meaning": "기본 bonus: combo_lethal(준비된 콤보로 즉사)"},
+  {"value": 14, "src_line": 301, "meaning": "기본 bonus: heavy_trade 만 참"},
+  {"value": 10, "src_line": 309, "meaning": "escape_is_costly 면 +10 / L316 dist<=range+15000 이면 +10 / L327 incoming>=my_hp 60% 면 +10"},
+  {"value": 15000, "src_line": 315, "meaning": "dist <= max_range_cached+15000 이면 +10(L316) — 사거리 여유"},
+  {"value": 90, "src_line": 323, "meaning": "possible_risk(parameter.player, data, 90) — 90틱 창의 위험 피해"},
+  {"value": 60, "src_line": 326, "meaning": "incoming*100 >= my_hp*60 → +10(L327)"},
+  {"value": 30, "src_line": 328, "meaning": "incoming*100 >= my_hp*30 (60% 미만일 때) → +5"},
+  {"value": 5, "src_line": 328, "meaning": "L328 +5 / L345 near_enemies<=near_allies → +5"},
+  {"value": 35, "src_line": 332, "meaning": "target.hp*100 <= max(target.stat_cached.hp,1)*35 → +8 (대상 HP 35% 이하)"},
+  {"value": 8, "src_line": 332, "meaning": "대상 저체력 가산"},
+  {"value": 14400000001, "src_line": 337, "meaning": "120000²+1 — 아군↔champ(L337)·가시 적↔champ(L341) 거리² 상한"},
+  {"value": -15, "src_line": 346, "meaning": "near_enemies > near_allies 이고 !lethal_now && !combo_lethal && near_enemies >= near_allies+2 이면 -15"},
+  {"value": 95, "src_line": 350, "meaning": "최종 상한 clamp(0,95)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_ai::plan_legacy::sub_plan::battle_common::v17_ready_counterattack_damage",
+  "game_ai::plan_legacy::sub_plan::battle_common::v17_escape_is_costly",
+  "game_ai::plan_legacy::old::battle::max_range",
+  "game_core::simulation::entity::Entity::distance",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "game_ai::score_parameter::ChampionScoreParameter::possible_risk",
+  "core::panicking::panic_bounds_check"
+ ],
+ "calls_indirect": [],
+
+ "logic": "L280  if !matches!(goal, BattleSubPlanGoal::RunAway) { return 0 }          // 태그 4 (old/battle.rs:264 인라인 비교)\nL281  if target.team == champ.team { return 0 }\nL282  if target.ty 태그 != 13(Champion) { return 0 }                         // L281·L282 한 select 로 접힘\nL283  if target.stat_buff_cached.undying { return 0 }\nL284  let enemy_team = 1 - player.info.team;   if !data.blackboard[enemy_team].is_recent_visible(game, player, target) { return 0 }\nL288  let current_damage = effect.expected_damage_target(data.context, champ as &dyn AbstractEntity, target);\nL289  let ready_damage   = v17_ready_counterattack_damage(data, champ, target);     // IR 은 (cache, context, champ, target) 로 승격\nL290  let target_hp = max(target.hp, 1);\nL291  let lethal_now   = current_damage >= target_hp;      // signed\nL292  let combo_lethal = ready_damage   >= target_hp;      // signed\nL293  let escape_is_costly = v17_escape_is_costly(player, data, parameter, champ);\nL294  let close_counter = v17_close_counterattack_target(champ, target);   // 인라인 L471~473: reach = max_range(champ,target) + 20000 + champ.stat_cached.move_speed*12; dist2(target,champ) <= reach²\nL296  let heavy_trade = escape_is_costly && close_counter && ready_damage*100 >= target_hp*70;   // dbg: %94=(ready*100 < hp*70) 에 DW_OP_not · 분기 방향도 일치\nL297  if !lethal_now && !combo_lethal && !heavy_trade { return 0 }\nL301  let mut bonus = if lethal_now { 75 } else if combo_lethal { 48 } else { 14 };\nL309  if escape_is_costly { bonus += 10 }\nL313  let dist  = target.distance(champ);                  // Entity::distance(self=target, champ)\nL314  let range = max_range_cached(data, champ, target);   // TLS MAX_RANGE_CACHE 경유\nL315  if dist <= range + 15000 { bonus += 10 }             // L316\nL317  else if dist <= range + champ.move_speed*12 { bonus += 4 }\nL321  let incoming = parameter.player.applyed_damage + parameter.player.risk_damage        // L321~L322\nL323               + parameter.player.possible_risk(data, 90)\nL324               + parameter.player.risk_possible_tower / 2;                                // sdiv\nL325  let my_hp = max(champ.hp, 1);\nL326  if incoming*100 >= my_hp*60 { bonus += 10 }          // L327 (IR: slt 면 L328 분기)\nL328  else if incoming*100 >= my_hp*30 { bonus += 5 }\nL332  if target.hp*100 <= max(target.stat_cached.hp,1)*35 { bonus += 8 }\nL336  let near_allies  = data.cache.iter_champions(player.info.team).filter(|a| a.id != champ.id && dist2(a, champ) < 120000²+1).count();   // L336~338 · 5칸 언롤\nL339  let near_enemies = data.cache.iter_champions(enemy_team).filter(|e| data.blackboard[enemy_team].is_recent_visible(game, player, e) && dist2(e, champ) < 120000²+1).count();   // L339~342 · id 제외 없음\nL344  if near_enemies > near_allies {\nL346      if !(lethal_now || combo_lethal || near_enemies < near_allies + 2) { bonus -= 15 }\n      } else {\nL345      bonus += 5;\n      }\nL350  return bonus.clamp(0, 95);      // smax 0 → umin 95 · L351 ret\n\n※ dbg 이름: current_damage·ready_damage·target_hp·lethal_now·combo_lethal·escape_is_costly·reach·close_counter·heavy_trade·dist·range·incoming·my_hp·near_allies·near_enemies.",
+
+ "knobs": [
+  {"what": "heavy_trade 대상HP 비율", "where": "battle_common.rs:296", "value": 70, "effect": "내리면 즉사가 아니어도 역공(14점 기본)이 더 자주 열림"},
+  {"what": "기본 bonus 3단", "where": "battle_common.rs:301", "value": "75 / 48 / 14", "effect": "lethal_now / combo_lethal / heavy_trade 의 기본 점수 — 도주 중 역공 전환의 문턱"},
+  {"what": "escape_is_costly 가산", "where": "battle_common.rs:309", "value": 10, "effect": "도주 비용이 클수록 역공 선호"},
+  {"what": "사거리 여유 가산(+10 / +4)", "where": "battle_common.rs:315~317", "value": "15000 / move_speed*12", "effect": "15000 을 올리면 더 먼 대상에도 +10"},
+  {"what": "유입피해 비율 가산(+10 / +5)", "where": "battle_common.rs:326~328", "value": "60% / 30%", "effect": "내리면 적은 피해 예상에도 역공 가산"},
+  {"what": "대상 저체력 가산", "where": "battle_common.rs:332", "value": "35% → +8", "effect": "올리면 더 건강한 대상도 저체력 취급"},
+  {"what": "수적 열세 감점", "where": "battle_common.rs:346", "value": "-15 (near_enemies >= near_allies+2 · 즉사류 아님)", "effect": "절댓값을 올리면 수적 열세에서 역공 억제"},
+  {"what": "수적 동등/우세 가산", "where": "battle_common.rs:345", "value": 5, "effect": "올리면 아군 곁에서 역공 선호"},
+  {"what": "근접 반경", "where": "battle_common.rs:337 / :341", "value": 14400000001, "effect": "120000² — 아군/적 수 세는 반경"},
+  {"what": "최종 상한", "where": "battle_common.rs:350", "value": 95, "effect": "역공 가산 최대치"}
+ ],
+
+ "unknown": [
+  "L346 `lethal_now || combo_lethal || near_enemies < near_allies+2` 의 소스 순서 — 세 항 모두 값이라 IR 에 순서 흔적 없음(표기 불가·외연 동일)",
+  "L281/L282 결합 순서 — 한 select 로 접힘(표기 불가)",
+  "`v17_ready_counterattack_damage`(m05.ll 57982~58185, internal fastcc · IR 인자 승격 (cache,context,champ,target))·`v17_escape_is_costly`(53479~53991)·`max_range`(m10.ll 52940)·`max_range_cached`(m10.ll 50689) 내부는 범위 밖 — 계약만: ready(&OperationData,&Entity,&Entity)->i64 / escape(&PlayerState,&OperationData,&ScoreParameter,&Entity)->bool / max_range(&Entity,&Entity)->u64 / max_range_cached(&OperationData,&Entity,&Entity)->u64",
+  "`_version`(i64 %0) 미사용 — 버전 분기 없음",
+  "blackboard 인덱스 `1-team` 의 의미(팀별 보드 vs 상대팀 보드) — game_core 소관"
+ ]
+}

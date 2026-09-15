@@ -1,0 +1,59 @@
+{
+ "name": "move_actions::SmallActionRecall::is_end",
+ "sym": "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB5_17SmallActionRecall6is_end",
+ "src": "game-ai\\src\\small_action\\move_actions.rs",
+ "src_line": 1032,
+ "ir_file": "m08.ll",
+ "ir_from": 99606,
+ "ir_to": 99740,
+ "aux": [],
+ "one_line": "귀환 소액션 종료 판정: 수명 만료(start+end_delay) 또는 goal 10000 이내 도달이면 true, 아니면 (version>1 && 내 팀 우물 사각형 안) 여부",
+ "signature": {
+  "abi_note": "define hidden · 5 인자(소스 5 · 팻포인터 없음) · i1 반환. exe 0xdbd130(291B) 와 IR 135줄 규모 일치. reach(version=2) 는 %32(version>1) 을 1 로 접음.",
+  "params": [
+   {"i": 1, "name": "self", "type": "&SmallActionRecall(136B) (%0)", "role": "readonly · noalias · captures(none). +0x48 start_tick · +0x50 goal_x · +0x58 goal_y · +0x60 end_delay 읽음", "note": "DI self = %0"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng(320B) (%1)", "role": "readnone · captures(none) — 미사용", "note": ""},
+   {"i": 3, "name": "version", "type": "usize (%2)", "role": "noundef. L1040 `version > 1` 게이트(우물 사각형 판정 활성) — 현행 2 이면 항상 참", "note": "DI version = %2"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B) (%3)", "role": "readonly · captures(none). +0x930 info.team · +0x9c0 info.position", "note": ""},
+   {"i": 5, "name": "data", "type": "&OperationData(24B) (%4)", "role": "readonly · captures(none). +0x0 cache(챔프·tick) · +0x8 context(→ +0x20 map 의 fountains) 읽음", "note": ""}
+  ],
+  "returns": "bool(i1) — true = 귀환 액션 종료. phi(m08.ll:99733): tick >= start_tick+end_delay → true / dist_sq(champ, goal) < 100000001 → true / 그 외 in_fountain = (version>1 && lx<=champ.x<=rx && ly<=champ.y<=ry)"
+ },
+ "reads": [
+  {"base": "SmallActionRecall", "offset": "0x48", "name": "start_tick", "note": "L1041 (gep 72)"},
+  {"base": "SmallActionRecall", "offset": "0x60", "name": "end_delay", "note": "L1041 (gep 96) — start_tick+end_delay 수명"},
+  {"base": "SmallActionRecall", "offset": "0x50", "name": "goal_x", "note": "L1042 (gep 80) x2"},
+  {"base": "SmallActionRecall", "offset": "0x58", "name": "goal_y", "note": "L1042 (gep 88) y2"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L1033 (gep 2352) · ult 2 bounds · fountains 인덱스로도 재사용(L1039)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "L1033 (gep 2496) → as_index"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L1033/L1041"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L1039 → GameContext"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "L1039 (gep 32) &MapDef"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountains[team]", "note": "L1039 (gep 28016) → map_def.rs:235 fountain(team) 인라인 · [(lx,ly,rx,ry);2] stride 32B ({i64,i64,i64,i64}) · +0 lx · +8 ly · +16 rx · +24 ry"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "L1041 tick 호출"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "+0x28 tick"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "L1033 (gep 480) · null → unwrap_failed"},
+  {"base": "Entity", "offset": "0x660", "name": "x (champ)", "note": "L1040 사각형 검사 · L1042 distance_sq (gep 1632)"},
+  {"base": "Entity", "offset": "0x668", "name": "y (champ)", "note": "L1040 · L1042 (gep 1640)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 1, "src_line": 1040, "meaning": "version > 1 (ugt 1) — 우물 사각형 판정 게이트(v2+). 현행 2 → 참"},
+  {"value": 100000001, "src_line": 1042, "meaning": "10000² + 1 — dist_sq ult ⟹ goal 까지 ≤ 10000 이면 도달"},
+  {"value": 2, "src_line": 1033, "meaning": "player_champion 팀 축 bounds(ult 2)"}
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+ "logic": "fn is_end(&self, _rnd, version, player, data) -> bool   // move_actions.rs:1032~1044\n  // L1033\n  champ = data.cache.player_champion[player.info.team][player.info.position.as_index()].unwrap()\n  // L1039\n  (lx, ly, rx, ry) = data.context.map.fountain(player.info.team)     // MapDef+0x6d70 + 32*team (map_def.rs:235 인라인)\n  // L1040\n  in_fountain = version > 1 && champ.x >= lx && champ.x <= rx && champ.y >= ly && champ.y <= ry   // 단락: version 거짓 → false(x/y 로드 안 함) · x 범위 밖 → false(y 로드 안 함)\n  // L1041\n  if game.tick() < self.start_tick + self.end_delay {               // tick = vtable+0x28 · add(end_delay,start_tick)\n      // L1042\n      if champ.distance_sq((self.goal_x, self.goal_y)) < 100000001 { in_fountain = true }   // DI: in_fountain = 1 (%85)\n  } else { in_fountain = true }                                     // 수명 만료\n  // L1044\n  in_fountain\n\n★의미: 귀환 액션은 ①시간 만료 ②goal(우물 목표점) 10000 이내 도달 ③(v2+) 내 팀 우물 사각형 안 진입 — 셋 중 하나면 끝. 사각형 판정은 version 게이트 뒤에만 있어 version<=1 이면 ①②만.\n★rnd 미사용 · 쓰기 0. 소스가 `let mut in_fountain … ; if … { in_fountain = true }` 형태인지 `return true` 형태인지는 외연 동일(DI 가 %85 에서 `in_fountain = 1` 을 찍어 전자에 가까움).",
+ "knobs": [
+  {"what": "goal 도달 반경(제곱)", "where": "move_actions.rs:1042 · m08.ll:99729", "value": 100000001, "effect": "올리면 우물 목표점에서 더 멀어도 귀환 액션이 끝남(우물 진입 전 종료 가능) · 내리면 더 정확히 붙어야 끝남"},
+  {"what": "우물 사각형 판정 게이트", "where": "move_actions.rs:1040 · m08.ll:99658", "value": "version > 1", "effect": "version 을 1 이하로 주면 사각형 진입으로는 안 끝나고 도달/만료만 남음"}
+ ],
+ "unknown": [
+  "start_tick/end_delay/goal_x/goal_y 의 세팅처(생성자·update_state move_actions.rs:1026) — 이 함수는 읽기만",
+  "L1040 의 `&&` 4항 순서(x 범위 → y 범위)는 분기 방향(%33→%42)으로 확정 · lx/ly/rx/ry 의 튜플 위치는 DI 이름(lx@+0 · ly@+8 · rx@+16 · ry@+24)과 tcxdict fountains[0].0~.3 대응",
+  "L1041~L1044 의 소스 문형(mut 변수 갱신 vs 조기 return) — 외연 동일 · 표기 불가"
+ ]
+}

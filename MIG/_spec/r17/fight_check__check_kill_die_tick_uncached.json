@@ -1,0 +1,445 @@
+{
+ "name": "fight_check::check_kill_die_tick_uncached",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check28check_kill_die_tick_uncached",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 970,
+ "ir_file": "m15.ll",
+ "ir_from": 31120,
+ "ir_to": 33053,
+ "aux": [],
+ "one_line": "focus 챔피언이 지금 교전을 시작하면 몇 틱 뒤에 죽는가(die tick) — 적 챔피언·타워·기타 유닛의 nuke(선제 버스트)와 dps 를 판단력 노이즈 곱으로 합산해 (hp+부활보너스−nuke)*60/dps",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize (i64 %0)",
+    "role": "IR 속성 없음(값 인자)",
+    "note": "본문 분기 없음. enemy_minion_wave_risk_dps_at 의 1번 인자로 그대로 전달만(m15.ll 32863)"
+   },
+   {
+    "i": 2,
+    "name": "_rnd",
+    "type": "&mut StdRng",
+    "role": "★IR 시그니처에서 제거됨(미사용 인자, DI !42125 만 남음)",
+    "note": "gen_range 호출 사이트 0 — 노이즈는 StdRng 가 아니라 결정론 NoiseRng(splitmix64) 로 뽑는다(아래 logic)"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData (24B, ptr %1)",
+    "role": "IR 속성 `readonly captures(address, read_provenance)`",
+    "note": "cache(+0)·context(+8) 읽음. blackboard(+0x10) 은 직접 안 읽음"
+   },
+   {
+    "i": 4,
+    "name": "judger",
+    "type": "&PlayerState (2528B, ptr %2)",
+    "role": "IR 속성 `readonly captures(address, read_provenance)`",
+    "note": "판정 주체 — info.id(+0x928) 는 노이즈 시드, info.parameter(+0x180) 는 judge_accuracy, info.team(+0x930) 은 is_visible 의 팀"
+   },
+   {
+    "i": 5,
+    "name": "focus",
+    "type": "&Entity (1728B, ptr %3)",
+    "role": "IR 속성 `readonly captures(address, read_provenance)`",
+    "note": "죽음 판정 대상 챔피언. undying(+0x488)·id(+0x5c0)·x/y(+0x660/+0x668)·hp(+0x670)·stat_cached.hp(+0x628)·effect_buffs(+0x2f0) 읽음"
+   },
+   {
+    "i": 6,
+    "name": "enemy",
+    "type": "bumpalo Vec<&Entity> (32B by-value, ptr %4 dead_on_return)",
+    "role": "IR 속성 `dead_on_return noalias captures(address)` — 소유권 이전, 함수 끝에서 drop",
+    "note": "레이아웃 ptr +0 / len +0x18. 적 챔피언 목록(각 원소마다 player_by_champion_id 로 PlayerState 를 찾고 없으면 unwrap 패닉)"
+   },
+   {
+    "i": 7,
+    "name": "towers",
+    "type": "bumpalo Vec<&Entity> (32B by-value, ptr %5 dead_on_return)",
+    "role": "IR 속성 `dead_on_return noalias captures(address)` — 소유권 이전, 함수 끝에서 drop",
+    "note": "적 타워 목록. 각 tower.attack_effect(+0x490) 가 None 이면 unwrap 패닉"
+   },
+   {
+    "i": 8,
+    "name": "_debug",
+    "type": "&mut DebugFrameData",
+    "role": "★IR 시그니처에서 제거됨(미사용 인자, DI !42131 만 남음)",
+    "note": "exe 6인자(argscan 스택2+레지스터4)와 IR 6인자 일치"
+   }
+  ],
+  "returns": "i64(usize) die_tick — focus 가 undying 이면 9223372036854775807(i64::MAX = usize::MAX/2, 검열값). 아니면 ((revive_hp + focus.hp).saturating_sub(enemy_nuke) * 60) / max(enemy_dps, 1). 단위 = 틱(60 리터럴 — tps 가 아니라 상수 60 을 곱한다, fight_check.rs:1107). sret 아님·라이브 바이트 = 8B 전부",
+  "tls": "없음 — 본문(31120~33053) 에 LocalKey/call_once 상수 참조 0건. TLS 메모는 이 함수 밖의 래퍼(check_kill_die_tick, fight_check.rs:917 · 이 배치 범위 밖)에 있을 것으로 보이나 미열람"
+ },
+ "reads": [
+  {
+   "base": "Entity(focus)",
+   "offset": "0x488",
+   "name": "stat_buff_cached.undying",
+   "note": "1160. true 면 즉시 i64::MAX 반환(L976)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "1472. focus.id → player_by_champion_id / 노이즈 시드(id<<24) · pchamp.id · e.id(is_visible)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "104. 인라인된 Entity::attack_cooldown()/skill_cooldown()/skill2_cooldown()/ult_cooldown() 의 switch (13=Champion)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xb0",
+   "name": "ty@Champion.0.attack_cooldown",
+   "note": "176(Champion·SmallJiangshi). 인라인 Entity::attack_cooldown()(entity.rs:1748~1760) 의 variant 별 오프셋 184 Minion · 272 Tower · 232 Jungle/Ghoul · 496 Epic/Serpen · 200 Bear · 240 Eagle · 216 Revenant · 208 Illusion — 전부 tcxdict Entity <off> 로 대조 일치(None/Nexus 는 0 으로 접혀 switch 에서 바로 통과). 값 > tick_per_second 이면 공격 nuke 제외"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xb8",
+   "name": "ty@Champion.0.skill_cooldown",
+   "note": "184 (entity.rs:1776, Champion 아니면 0)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xc0",
+   "name": "ty@Champion.0.skill2_cooldown",
+   "note": "192 (entity.rs:1791)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xc8",
+   "name": "ty@Champion.0.ult_cooldown",
+   "note": "200 (entity.rs:1806)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag (i32, -1=None)",
+   "note": "1272 = skill_effect(0x4c8)+0x30. Some 이면 +0x4c8 Arc<dyn EffectType> 의 can_move(vtable+0x120) 호출"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "1480. 인라인 Entity::skill2_effect(): level > 2 이면 &skill2_effect(0x500) 아니면 정적 None(@anon.58, entity.rs:1693)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect (Option<Effect>, 태그 +0x30 i32 -1=None)",
+   "note": "1280 (level>2 일 때만)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect (Option<Effect>, 태그 +0x4c0 i32 -1=None)",
+   "note": "1168/1216. tower: None 이면 unwrap 패닉 / others: None 이면 건너뜀"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "1632. others 거리² · minion_wave_risk 인자"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "1640"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "1648. focus 현재 HP"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "1576. hp*100 > max(maxhp,1)*75 판정"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x2f8",
+   "name": "effect_buffs.ptr / +0x300 len",
+   "note": "760/768 (Vec<Box<dyn EffectBuff>>, 원소 16B 팻포인터). pchamp(aura dps) · ally(aura heal) · focus(revive_bonus_hp)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": ""
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext)",
+   "note": ""
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": ""
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial (TutorialType 태그)",
+   "note": "56. {0 None,5 MidBottom,7 Line,8 Total} 이면 line_phase 계산, 그 외 line_phase=true"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "4856"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick",
+   "note": "2216. line_phase = tick < first_spawn_tick.saturating_sub(tps*30)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (dyn AbstractGame data/vtable +0x8)",
+   "note": "vtable +0x28 tick · +0xf8 is_visible · +0x40 get_game_mode"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x280",
+   "name": "player_champion_cache[team][pos] (ChampionCache 800B)",
+   "note": "640. 필드 attack(+0)·skill(+0x28)·skill2(+0x50)·ult(+0x78)·attack_per_sec(+0x190)·skill_per_sec(+0x1b8)·skill2_per_sec(+0x1e0), 각 [focus_pos]"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xf0",
+   "name": "others[1-focus_team] (Vec<&Entity>, ptr+0/len+0x18)",
+   "note": "240"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[focus_team][0..5]",
+   "note": "480. iter_champions 로 Some 만"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x928",
+   "name": "info.id (judger)",
+   "note": "2344. 노이즈 시드"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter (AthleteParameter, judger)",
+   "note": "384. judge_accuracy() 인자"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "2352. focus player(others/iter_champions 인덱스, 1-t)·p(cache 인덱스)·judger(is_visible)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag (i32)",
+   "note": "2496. focus player 의 pos = ChampionCache 배열 인덱스 / p 의 pos = cache[team][pos]"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x240",
+   "name": "epic_minion_buff_time[1-focus_team]",
+   "note": "576. get_game_mode() 가 Moba 일 때만 (== 0 판정)"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 9223372036854775807,
+   "src_line": 976,
+   "meaning": "i64::MAX — focus 가 undying 이면 반환하는 검열 die_tick(usize::MAX/2)"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 987,
+   "meaning": "bucket = tick / (tps*2) — `shl i64 %41, 1` 로 접힘(2초 단위 버킷). 별도로 1 은 umax(tps,1)·umax(cooltime,1)·umax(dps,1) 바닥값·`or 1` 에도 쓰임"
+  },
+  {
+   "value": 24,
+   "src_line": 990,
+   "meaning": "focus.id << 24 (`shl i64 %15, 24`) — 노이즈 시드에 id 를 섞는 시프트량"
+  },
+  {
+   "value": -7046029254386353131,
+   "src_line": 989,
+   "meaning": "0x9E3779B97F4A7C15 (황금비) — ①시드 = judger.id * 이 값 ②NoiseRng::next_u64 의 상태 증가분(splitmix64, ai_interface.rs:182)"
+  },
+  {
+   "value": 4354685564936845354,
+   "src_line": 1054,
+   "meaning": "2 × 0x9E3779B97F4A7C15 (mod 2^64) — 타워 루프에서 dps 추첨(L1052) 뒤 nuke 추첨(L1054) 상태 = 시작+2×증가분 으로 접힘"
+  },
+  {
+   "value": -4658895280553007687,
+   "src_line": 989,
+   "meaning": "0xBF58476D1CE4E5B9 — splitmix64 1차 믹스 곱(ai_interface.rs:184)"
+  },
+  {
+   "value": -7723592293110705685,
+   "src_line": 989,
+   "meaning": "0x94D049BB133111EB — splitmix64 2차 믹스 곱(ai_interface.rs:185)"
+  },
+  {
+   "value": 30,
+   "src_line": 989,
+   "meaning": "①splitmix64 lshr 30 (ai_interface.rs:184) ②tps*30 = 에픽 첫 스폰 30초 전(L1097, `mul i64 %33, 30`)"
+  },
+  {
+   "value": 27,
+   "src_line": 989,
+   "meaning": "splitmix64 lshr 27 (ai_interface.rs:185)"
+  },
+  {
+   "value": 31,
+   "src_line": 989,
+   "meaning": "splitmix64 lshr 31 (ai_interface.rs:186)"
+  },
+  {
+   "value": 1000,
+   "src_line": 995,
+   "meaning": "①range_max = (1000 - judge_accuracy)/2 · range_min = 1000 - range_max (퍼밀) ②각 기여 = 값 * noise / 1000"
+  },
+  {
+   "value": 13,
+   "src_line": 1010,
+   "meaning": "EntityType::Champion 태그(tcxdict --enum EntityType 13) — skill/skill2/ult 쿨다운은 Champion 일 때만 읽음"
+  },
+  {
+   "value": 2,
+   "src_line": 1006,
+   "meaning": "team bounds(<2) · Entity::skill2_effect() 의 level > 2 게이트(entity.rs:1693)"
+  },
+  {
+   "value": -1,
+   "src_line": 1031,
+   "meaning": "Option<Effect> None 태그(i32) — attack/skill/skill2_effect 존재 검사"
+  },
+  {
+   "value": 22500000000,
+   "src_line": 1059,
+   "meaning": "150000² — others 유닛↔focus 거리² > 이 값(거리 > 150,000 = 4.69셀) 이면 제외"
+  },
+  {
+   "value": 100,
+   "src_line": 1096,
+   "meaning": "focus.hp*100 > max(maxhp,1)*75 ⇔ HP > 75%"
+  },
+  {
+   "value": 75,
+   "src_line": 1096,
+   "meaning": "HP 75% 임계(DI 이름 low_enough_to_care_minions — 극성은 분기 방향으로 logic 참조)"
+  },
+  {
+   "value": 7,
+   "src_line": 1097,
+   "meaning": "TutorialType 태그 {0 None, 5 MidBottom, 7 Line, 8 Total} 이면 line_phase 를 실제 계산(runner.rs:263 인라인 헬퍼)"
+  },
+  {
+   "value": 8,
+   "src_line": 1097,
+   "meaning": "위와 동일(Total)"
+  },
+  {
+   "value": 5,
+   "src_line": 1097,
+   "meaning": "위와 동일(MidBottom). 5 는 [5 x ptr] 슬라이스 길이(iter_champions)에도 등장 — 접힘 아님, shl 무관"
+  },
+  {
+   "value": 60,
+   "src_line": 1107,
+   "meaning": "die_tick = 남는HP*60/dps — 초→틱 환산이 tps 가 아니라 리터럴 60"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_core::simulation::state::player::AthleteParameter::judge_accuracy",
+  "game_core::simulation::entity::Entity::can_attack",
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::entity::Entity::can_skill2",
+  "game_core::simulation::entity::Entity::can_ult",
+  "game_core::simulation::entity::Entity::is_block_attack",
+  "game_core::simulation::entity::Entity::is_block_skill",
+  "game_core::simulation::entity::Entity::is_block_move_skill",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_ai::minion_wave_risk::enemy_minion_wave_risk_dps_at",
+  "game_core::simulation::AbstractGameWithCache::iter_champions::{closure#0}::call_mut",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::ptr::drop_glue",
+  "bumpalo::collections::vec::Vec::drop"
+ ],
+ "calls_note": "vtable 간접호출(calls 에 못 실음): AbstractGame::tick(+0x28, m15.ll 31251·32823) · AbstractGame::is_visible(+0xf8, 32531; (judger.team, e.id)→bool) · AbstractGame::get_game_mode(+0x40, 32768; →GameMode{tag,ptr}) · EffectType::can_move(+0x120, 32019·32159; divtable 일치율 94%) · EffectBuff::expected_aura_dps_at(+0x80, 32662; (ctx, caster, target)→usize) · EffectBuff::expected_aura_heal_at(+0x88, 33027) · EffectBuff::revive_bonus_hp(+0x90, 32928; (ctx, self)→usize). NoiseRng::next_u64/range_u64/range_usize(ai_interface.rs:182/197/202) 는 전부 인라인. 콜리 계약: player_by_champion_id(&cache, entity_id)→Option<&PlayerState>(player_champion[2][5] 를 id 로 선형 탐색) · judge_accuracy(&AthleteParameter)→i64 range 100..=1000 · expected_damage_target(&Effect, &GameContext, caster: &dyn AbstractEntity(=Entity vtable @anon.56), target: &Entity)→usize · attack_cooltime(&Entity)→i64 range ≥3 · enemy_minion_wave_risk_dps_at(version, &OperationData, &Entity focus, x, y)→usize",
+ "logic": "fn check_kill_die_tick_uncached(version, _rnd, data, judger, focus, enemy: Vec<&Entity>, towers: Vec<&Entity>, _debug) -> usize   // fight_check.rs:970\n if focus.stat_buff_cached.undying { return i64::MAX }                                   L976\n player = cache.player_by_champion_id(focus.id).unwrap()   // focus 의 PlayerState        L979\n tps_raw = setting.tick_per_second ; tps = max(tps_raw, 1)                                L986\n bucket = game.tick() / (tps*2)   // 2초 버킷 (tps*2==0 이면 div_by_zero 패닉 경로)        L987\n rng = NoiseRng( (judger.info.id * 0x9E3779B97F4A7C15) ^ (focus.id << 24) ^ bucket )      L989~990\n ja = judge_accuracy(&judger.info.parameter)   // 100..=1000                               L994\n d = (1000 - ja) >> 1 ; noise() := rng.range_usize(1000 - d, 1000 + d)   // [lo,hi] 양끝 포함 · splitmix64 → hi64(z * (hi-lo+1)) + lo   L995\n enemy_dps = 0 ; enemy_nuke = 0                                                            L998\n cc(p) := cache.player_champion_cache[p.team][p.pos] ; fpos := player.pos\n for pchamp in enemy {                                                                     L1000\n   p = cache.player_by_champion_id(pchamp.id).unwrap()                                     L1002\n   nuke = 0\n   if pchamp.can_attack() || pchamp.attack_cooldown() <= tps_raw { nuke = cc(p).attack[fpos] * noise() / 1000 }               L1005~1007  ←rng#1\n   if pchamp.can_skill()  || pchamp.skill_cooldown()  <= tps_raw { nuke = max(nuke, cc(p).skill[fpos]  * noise() / 1000) }   L1010~1012  ←rng#2\n   if pchamp.can_skill2() || pchamp.skill2_cooldown() <= tps_raw { nuke = max(nuke, cc(p).skill2[fpos] * noise() / 1000) }   L1015~1017  ←rng#3\n   if pchamp.can_ult()    || pchamp.ult_cooldown()    <= tps_raw { nuke = max(nuke, cc(p).ult[fpos]    * noise() / 1000) }   L1021~1023  ←rng#4\n     // *_cooldown() 은 Champion(ty 13) 이면 필드, 아니면 0 → 항상 통과\n   if !pchamp.is_block_attack() { enemy_dps += cc(p).attack_per_sec[fpos] * noise() / 1000 }                                   L1026~1028  ←rng#5\n   if !pchamp.is_block_skill() && !(pchamp.is_block_move_skill() && pchamp.skill_effect.map_or(false, |e| e.can_move()))\n        { enemy_dps += cc(p).skill_per_sec[fpos] * noise() / 1000 }                                                               L1031~1033  ←rng#6\n   if !pchamp.is_block_skill() && !(pchamp.is_block_move_skill() && pchamp.skill2_effect().map_or(false, |e| e.can_move()))\n        { enemy_dps += cc(p).skill2_per_sec[fpos] * noise() / 1000 }      // skill2_effect() = level>2 ? Some(..) : None    L1036~1038  ←rng#7\n   enemy_nuke += nuke                                                                      L1040\n }   // ult_per_sec 는 합산하지 않음\n for tower in towers {                                                                     L1049\n   damage = tower.attack_effect.unwrap().expected_damage_target(ctx, tower, focus)          L1050\n   enemy_dps  += (noise() * tps_raw * damage / 1000) / tower.attack_cooltime()   // cooltime 0 이면 div_by_zero 패닉   L1051~1053 ←rng#8\n   enemy_nuke += damage * noise() / 1000                                                    L1054  ←rng#9\n }\n for e in cache.others[1 - player.team] {                                                  L1058\n   if dist²(e, focus) > 22500000000 { continue }          // > 150,000                     L1059\n   if !game.is_visible(judger.team, e.id) { continue }                                     L1063\n   if let Some(atk) = e.attack_effect {                                                    L1066\n     damage = atk.expected_damage_target(ctx, e, focus)                                    L1067\n     enemy_dps  += damage * tps_raw / max(e.attack_cooltime(), 1)                          L1068\n     enemy_nuke += damage                                   // 노이즈 없음                 L1069\n   }\n }\n for pchamp in enemy { for b in pchamp.effect_buffs { enemy_dps += b.expected_aura_dps_at(ctx, pchamp, focus) } }          L1075~1077\n ally_heal = 0 ; for ally in cache.iter_champions(player.team) { for b in ally.effect_buffs { ally_heal += b.expected_aura_heal_at(ctx, ally, focus) } }   L1084~1087\n enemy_dps = enemy_dps.saturating_sub(ally_heal)                                           L1090\n no_enemy_epic := !(game.get_game_mode() is Moba(m)) || m.epic_minion_buff_time[1 - player.team] == 0   // DI 이름 enemy_epic_buff = 이 i1 (값은 '버프 없음' 쪽이 true)   L1095\n hp_over_75 := focus.hp*100 > max(focus.stat_cached.hp,1)*75   // DI 이름 low_enough_to_care_minions   L1096\n line_phase := if tutorial ∈ {None,MidBottom,Line,Total} { game.tick() < setting.epic_jungle.first_spawn_tick.saturating_sub(tps_raw*30) } else { true }   L1097\n if !(no_enemy_epic && (hp_over_75 || line_phase)) { enemy_dps += enemy_minion_wave_risk_dps_at(version, data, focus, focus.x, focus.y) }   L1098~1099  (분기 방향 그대로: no_enemy_epic 거짓이면 무조건 가산)\n revive_hp = Σ focus.effect_buffs.revive_bonus_hp(ctx, focus)                              L1104\n return ((revive_hp + focus.hp).saturating_sub(enemy_nuke) * 60) / max(enemy_dps, 1)       L1107\n // 드롭: enemy·towers Vec (bumpalo, L1110)\n // NoiseRng 추첨 순서(상태는 한 스트림): 적 챔피언마다 최대 7회(attack·skill·skill2·ult·attack_ps·skill_ps·skill2_ps, 각 조건부) → 타워마다 2회(dps, nuke) → others/버프 0회. 총 사이트 9곳. StdRng(_rnd) gen_range 0회.",
+ "knobs": [
+  {
+   "what": "판단력 노이즈 폭",
+   "where": "fight_check.rs:995",
+   "value": "1000 ± (1000-judge_accuracy)/2",
+   "effect": "judge_accuracy 가 낮을수록 적 피해 추정이 ±폭 커짐(오판). 상수 1000/2 를 바꾸면 폭 스케일 변경"
+  },
+  {
+   "what": "쿨다운 허용 여유",
+   "where": "fight_check.rs:1005/1010/1015/1021",
+   "value": "tick_per_second (1초)",
+   "effect": "쿨다운이 1초 이내면 곧 쓸 수 있다고 보고 nuke 에 포함. 올리면 더 긴 쿨다운도 위협으로 계산"
+  },
+  {
+   "what": "others 유닛 고려 반경",
+   "where": "fight_check.rs:1059",
+   "value": 22500000000,
+   "effect": "150,000(4.69셀) 안의 비챔피언 유닛만 dps/nuke 에 포함. 올리면 더 먼 정글/에픽도 위협에 포함"
+  },
+  {
+   "what": "미니언 웨이브 위험 제외 HP 임계",
+   "where": "fight_check.rs:1096",
+   "value": 75,
+   "effect": "적 에픽버프 없음 && (HP>75% || 라인전 단계) 이면 미니언 dps 미가산. 내리면 더 낮은 HP 에서도 미니언 무시"
+  },
+  {
+   "what": "라인전 단계 종료 시점",
+   "where": "fight_check.rs:1097",
+   "value": "first_spawn_tick - tps*30",
+   "effect": "에픽 첫 스폰 30초 전까지를 라인전으로 봄. 30 을 키우면 라인전이 더 일찍 끝나 미니언 dps 가산 구간 확대"
+  },
+  {
+   "what": "die_tick 초→틱 환산",
+   "where": "fight_check.rs:1107",
+   "value": 60,
+   "effect": "리터럴 60. tps 가 60 이 아닌 설정에서는 실제 틱과 어긋남"
+  },
+  {
+   "what": "노이즈 버킷 길이",
+   "where": "fight_check.rs:987",
+   "value": "tps*2",
+   "effect": "2초마다 노이즈 시드가 바뀜. 늘리면 같은 오판이 더 오래 유지"
+  }
+ ],
+ "unknown": [
+  "DI 변수명 enemy_epic_buff(%653)·low_enough_to_care_minions(%661)·line_phase 가 값의 극성과 반대로 보인다(enemy_epic_buff 가 buff_time==0 일 때 true). 소스 표기(`!` 위치)는 column 부재로 복원 불가 — logic 은 IR 분기 방향 기준으로 적었고 이름은 참고만",
+  "판정 대상 PlayerState 를 focus 에서 찾는데(L979) 그 pos 가 ChampionCache 의 [fpos] 인덱스 = '이 적이 focus 포지션 상대로 기대하는 피해' 표 — ChampionCache 값 자체의 계산(game_core 캐시 갱신)은 이 배치에서 안 읽음",
+  "NoiseRng::range_usize 의 [lo,hi] 양끝 포함(hi-lo+1 = (1000-ja)|1 로 접힘)은 _docs game_core 주석(`[lo, hi] 양끝 포함 균등`)과 IR 곱셈 피연산자로 확인했으나 range_usize 본체(ai_interface.rs:197~202)는 인라인이라 별도 define 미확인",
+  "EffectType::can_move(vtable +0x120) 는 divtable 일치율 94% 의 CombineEffect vtable 기준 — 런타임 구현체별 의미는 미확인(Arc<dyn> 이라 정적 확정 불가)",
+  "expected_damage_target 의 4번째 인자 @anon.56 = Entity 의 AbstractEntity vtable 상수(첫 슬롯 drop_glue<Entity>, size 0x6c0) 로 읽었으나 vtable 이름 태그는 미확인",
+  "래퍼 check_kill_die_tick(fight_check.rs:917, TLS 캐시)·enemy_minion_wave_risk_dps_at 내부는 이 배치 범위 밖(시그니처만)",
+  "ai_adjust judge DIFF=0 기록은 지시대로 열람 안 함 — 이 명세는 IR 단독 독해"
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "name": "StealSubPlan::score",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan5stealNtB2_12StealSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\steal.rs",
+ "src_line": 136,
+ "ir_file": "m02.ll",
+ "ir_from": 27428,
+ "ir_to": 27589,
+ "one_line": "스틸 서브플랜 액션 점수: 대상 오브젝트(에픽/세르펜 live_list[0]) 를 때리는 공격/스킬/궁 1000 · 추적 100 · 자리잡기류 90 · 다른 대상 -99999 · 그 외 0",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&StealSubPlan (16B)", "note": "IR readonly · +0x8 target(Option<StealTarget> 니치 1B: 0=Epic 1=Serpen 2=None) 만 읽음 · last_vision_tick(+0)·commit(+0x9) 은 읽지 않음"},
+   {"i": 2, "name": "_version", "type": "usize", "note": "미사용(DI 이름 `_version`)"},
+   {"i": 3, "name": "_parameter", "type": "&ScoreParameter (5384B)", "note": "IR readonly · 미사용(DI `_parameter`)"},
+   {"i": 4, "name": "_rnd", "type": "&mut StdRng (320B)", "note": "IR `readnone` · 미사용 · gen_range 사이트 0"},
+   {"i": 5, "name": "_player", "type": "&PlayerState (2528B)", "note": "IR readonly · 미사용(DI `_player`)"},
+   {"i": 6, "name": "data", "type": "&OperationData (24B)", "note": "IR readonly · cache.game 만 사용"},
+   {"i": 7, "name": "action", "type": "&SmallActionPlay (184B)", "note": "IR readonly · 태그 +0xb1, Trace.target +0x60, Attack/Skill/Skill2/Ult.target +0x8"},
+   {"i": 8, "name": "_debug", "type": "&mut DebugFrameData (224B)", "note": "IR `readnone` · 미사용"}
+  ],
+  "returns": "i64 — define 속성 `range(i64 -99999, 1001)`(m02.ll:27428). 실제 취할 수 있는 값 = {-99999, 0, 90, 100, 1000} (phi m02.ll:27587)",
+  "tls": "없음 — 본문에 `@anon.* = constant ptr @<KEY…call_once>` 참조 0 · LocalKey::with 0"
+ },
+ "reads": [
+  {"base": "StealSubPlan", "offset": "0x8", "name": "target@tag", "note": "Option<StealTarget> 니치 1B: 0=Epic → steal.rs:27 가지 · 1=Serpen → :28 가지 · 2=None → 0 반환 (m02.ll:27437~27448)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "m02.ll:27439"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "&dyn AbstractGame 데이터 워드 (m02.ll:27453, 27468, 27514)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "vtable+0x40 = get_game_mode(divtable AbstractGame 0x40) · vtable+0x1f0 = get_entity_by_id (m02.ll:27456~27458, 27522~27524)"},
+  {"base": "GameMode(get_game_mode 반환 {i64,ptr})", "offset": "0x0", "name": "판별자", "note": "== 0 이면 MobaMode 참조(ptr 워드) · 아니면 unwrap_failed(mode.rs:231 인라인 as_moba 류 → option.rs:1013) (m02.ll:27459~27463, 27474~27478)"},
+  {"base": "MobaMode", "offset": "0x198", "name": "jungle_runner.epic", "note": "Epic 가지 · +0x8 live_list.ptr(0x1a0) · +0x10 live_list.len(0x1a8) (m02.ll:27482 phi 408 → 27486~27492, 27509~27510)"},
+  {"base": "MobaMode", "offset": "0x1c8", "name": "jungle_runner.serpen", "note": "Serpen 가지 · +0x8 live_list.ptr(0x1d0) · +0x10 live_list.len(0x1d8) (phi 456)"},
+  {"base": "live_list[0]", "offset": "0x0", "name": "엔티티 id(usize)", "note": "`first()` — len==0 이면 0 반환 (m02.ll:27497~27498), 아니면 ptr[0] (27521)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "대상 오브젝트 엔티티의 id 와 액션의 target 비교 (m02.ll:27570~27572, 27580~27582)"},
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "태그", "note": "get_action() 인라인(small_action.rs:309) — 논리 idx = tag>2 ? tag-3 : 7 (m02.ll:27531~27556)"},
+  {"base": "SmallActionTrace", "offset": "0x60", "name": "target", "note": "Trace 가지(idx 11) · small_action.rs:321 → trace.rs:404 인라인 (m02.ll:27567~27568)"},
+  {"base": "SmallActionAttack/Skill/Skill2/Ult", "offset": "0x8", "name": "target", "note": "idx 12~15 (m02.ll:27577~27578)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 0, "src_line": 137, "meaning": "target 없음(None) / 오브젝트 live_list 비어 있음 / get_entity_by_id None / 매치 안 되는 액션 → 점수 0 (phi m02.ll:27587)"},
+  {"value": 90, "src_line": 139, "meaning": "get_action() 이 SmallAction::AroundPosition 으로 접히는 variant(SmallActionPlay AroundRegion4·AroundPosition7·AroundPositionBush8·AroundBush9 · small_action.rs:314) → 90 (m02.ll:27543~27548 → %62)"},
+  {"value": 1000, "src_line": 144, "meaning": "Attack/Skill/Skill2/Ult(idx 12~15) 의 target == 대상 오브젝트 id → 1000 (m02.ll:27583)"},
+  {"value": 100, "src_line": 147, "meaning": "Trace(idx 11) 의 target == 대상 오브젝트 id → 100 (m02.ll:27573)"},
+  {"value": -99999, "src_line": 144, "meaning": "공격류·추적의 target 이 대상 오브젝트가 아니면 -99999 (사실상 배제) (m02.ll:27573, 27583)"},
+  {"value": 2, "src_line": 137, "meaning": "Option<StealTarget> 니치 None 태그값 (m02.ll:27446)"},
+  {"value": 408, "src_line": 27, "meaning": "MobaMode.jungle_runner.epic 오프셋 0x198 (Epic 가지 · phi m02.ll:27482) — 오프셋 상수라 reads 참조"},
+  {"value": 456, "src_line": 28, "meaning": "MobaMode.jungle_runner.serpen 오프셋 0x1c8 (Serpen 가지)"},
+  {"value": 64, "src_line": 27, "meaning": "AbstractGame vtable 슬롯 0x40 = get_game_mode (m02.ll:27456, 27471)"},
+  {"value": 496, "src_line": 30, "meaning": "AbstractGame vtable 슬롯 0x1f0 = get_entity_by_id (m02.ll:27522)"},
+  {"value": 10, "src_line": 139, "meaning": "SmallActionPlay 니치 태그 10 불가 assume (m02.ll:27533)"},
+  {"value": 7, "src_line": 139, "meaning": "태그 ≤2 → 논리 idx 7(AroundPosition 암묵) (m02.ll:27537)"},
+  {"value": -3, "src_line": 139, "meaning": "태그→논리 idx `tag-3` (m02.ll:27535)"}
+ ],
+ "calls": [
+  "core::option::unwrap_failed"
+ ],
+ "calls_indirect": [
+  "AbstractGame::get_game_mode — vtable+0x40 간접호출 (m02.ll:27458, 27473) · 반환 {i64 판별자, ptr}",
+  "AbstractGame::get_entity_by_id — vtable+0x1f0 간접호출 (m02.ll:27524) · 반환 Option<&Entity>(null=None)"
+ ],
+ "logic": "fn score(&self, _version, _parameter, _rnd, _player, data, action, _debug) -> i64   [steal.rs:136]\n  target: &Entity = match self.target {                                                  [L137 · self+0x8]\n    None(2)      => return 0                                                             [m02.ll:27446 → 27587 phi 0]\n    Some(Epic=0) => { moba = data.cache.game.get_game_mode().as_moba().unwrap()  [L27 인라인(steal.rs:27 — 이 함수가 아니라 steal.rs 상단 헬퍼 줄이 inlinedAt 로 찍힘)]\n                      moba.jungle_runner.epic.live_list.first() }                        [+0x198 · len==0 → return 0]\n    Some(Serpen=1)=> { … .jungle_runner.serpen.live_list.first() }                       [L28 · +0x1c8]\n  } → id → data.cache.game.get_entity_by_id(id) — None 이면 return 0                      [L30 · m02.ll:27521~27526]\n  match action.get_action() {                                                             [L139 · small_action.rs:309 인라인]\n    SmallAction::AroundPosition{..} /*SmallActionPlay AroundRegion|AroundPosition|AroundPositionBush|AroundBush*/ => 90   [m02.ll:27561~27562]\n    SmallAction::Attack(t)|Skill(t)|Skill2(t)|Ult(t) => if t == target.id { 1000 } else { -99999 }   [L144 · 27576~27583 · t = action+0x8]\n    SmallAction::Trace(t)                             => if t == target.id { 100 } else { -99999 }    [L147 · 27563~27573 · t = action+0x60]\n    _ /*RunAway·Recall·Around·AroundHide·AroundRunAway·Positioning·LaneMinionPosition·Stop*/ => 0\n  }                                                                                                    [L152 ret · 27588]\n\n분기 순서: target 해석(3 단계 조기 0 반환) → 액션 종류. gen_range 0 · self 쓰기 0 · commit/last_vision_tick 미참조(commit 은 action_candidates 가 후보군 구성에 쓴다). reach.txt: unwrap_failed 2 사이트(27501, 27505 = get_game_mode 가 Moba 가 아닐 때)는 gamemode=0 접힘으로 사장(NA).",
+ "knobs": [
+  {"what": "대상 오브젝트 직접 공격 점수", "where": "steal.rs:144", "value": 1000, "effect": "내려서 100 미만이면 추적(Trace)보다 밀려 공격 대신 접근만 하게 된다 · 자리잡기 90 보다 커야 스틸 시도가 성립"},
+  {"what": "대상 추적 점수", "where": "steal.rs:147", "value": 100, "effect": "자리잡기(90)보다 살짝 높아 시야가 있으면 추적을 고른다 · 90 아래로 내리면 접근 대신 대기 위치 선호"},
+  {"what": "자리잡기(AroundPosition류) 점수", "where": "steal.rs:139~142(줄 표기 불가 · small_action.rs:314 접힘)", "value": 90, "effect": "올려 100 을 넘기면 Trace 보다 대기 위치를 선호(Lurk 가 강해짐)"},
+  {"what": "오표적 배제값", "where": "steal.rs:144/147", "value": -99999, "effect": "대상 외 엔티티를 때리는 공격/추적을 사실상 금지 — 올리면 스틸 중 다른 적을 공격할 수 있게 된다"}
+ ],
+ "unknown": [
+  "90 을 반환하는 arm 의 정확한 소스 줄 — phi 로 접혀 `!dbg` 가 없다(L0). 139~143 사이로 추정(140~142 중 하나) · 줄 길이 산술(rmeta_srcmap) 미실시",
+  "get_game_mode() 반환 타입(`{i64, ptr}`)의 정확한 열거형 이름과 `as_moba` 헬퍼 이름(mode.rs?:231 인라인) — game_core 쪽 · 판정에는 무관(판별자 0 = Moba 확정)",
+  "match 의 `_ => 0` arm 이 명시적 arm 인지 — 표기 불가(외연 동일)",
+  "[D] ai_adjust judge steal_score DIFF=0 7판(09-06) 이라 지시대로 명세만 작성 — 재현 검증 대상 아님"
+ ]
+}

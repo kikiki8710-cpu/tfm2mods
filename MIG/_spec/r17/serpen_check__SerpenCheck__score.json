@@ -1,0 +1,62 @@
+{
+ "name": "SerpenCheckSubPlan::score",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12serpen_checkNtB2_18SerpenCheckSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\serpen_check.rs",
+ "src_line": 123,
+ "ir_file": "m14.ll",
+ "ir_from": 31556,
+ "ir_to": 31675,
+ "aux": [],
+ "one_line": "SerpenCheck(정글러 스틸 Lurk) 서브플랜의 후보 액션 점수: interaction_score + (Around 계열 대상이 살아있는 첫 세르펜이고 내 팀 시야에 안 보이면 +10), 그 외 0",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&SerpenCheckSubPlan(1B) — {move_check: bool@0x0}", "role": "IR 속성 readonly captures(none) dereferenceable(1). ★본문 load 0 — move_check 미사용"},
+   {"i": 2, "name": "version", "type": "usize", "role": "분기 없음 — interaction_score 에만 전달"},
+   {"i": 3, "name": "parameter", "type": "&ScoreParameter(5384B)", "role": "IR 속성 readonly. 직접 읽기 0 — interaction_score 전달만"},
+   {"i": 4, "name": "rnd", "type": "&mut StdRng(320B, align16)", "role": "IR 속성 없음(readonly 아님) · 본문 gen_range 0 — interaction_score 에 1회 전달"},
+   {"i": 5, "name": "player", "type": "&PlayerState(2528B)", "role": "IR 속성 readonly. +0x930 info.team (is_visible 인자) 만 직접 읽음"},
+   {"i": 6, "name": "data", "type": "&OperationData(24B)", "role": "IR 속성 readonly. +0x0 cache → cache.game 팻포인터(+0x0/+0x8)"},
+   {"i": 7, "name": "action", "type": "&SmallActionPlay(184B)", "role": "IR 속성 readonly. +0xb1 태그 · +0x8 target(Around 계열만)"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData(224B)", "role": "IR 속성 없음(readonly 아님) · 직접 쓰기 0 — interaction_score 전달만"}
+  ],
+  "returns": "i64 (noundef) — interaction_score + {10 | 0} (L124 합산 · L141 반환)",
+  "tls": "없음 — LocalKey::with / @anon…call_once fn-포인터 참조 0 (31556~31675 전수)"
+ },
+ "reads": [
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "tag(u8)", "note": "L125(small_action.rs:309 get_action 인라인) · idx 2(Around)/3(AroundHide)/10(LaneMinionPosition) → Around arm, 나머지 전부 0 (Attack/Skill/Skill2 arm 없음!)"},
+  {"base": "SmallActionPlay", "offset": "0x8", "name": "payload.target", "note": "L125(DI line 0) · SmallActionAround/AroundHide/LaneMinionPosition 의 target 필드 → target_id"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L127"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "L127 · get_game_mode / get_entity_by_id / is_visible 의 self"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "L127/L128 · 슬롯 +0x40 get_game_mode · +0x1f0 get_entity_by_id · +0xf8 is_visible (divtable ExpectedGame 기준)"},
+  {"base": "AbstractGame vtable", "offset": "0x40", "name": "get_game_mode(&self) -> GameMode(16B: {i64 tag, ptr})", "note": "L127 · 반환값 태그 0=Moba(payload=&MobaMode) · 1=SingleLane · 2=DeathMatch"},
+  {"base": "GameMode(반환값)", "offset": "0x0", "name": "tag", "note": "L127(game.rs:231 as_moba 인라인) · ≠0 이면 unwrap_failed — reach(gamemode=0) 에서 접힘 @17 %28→1, 사장 호출부 1(NA)"},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "L127(vec as_slice/get(0) 인라인) · 0 이면 serpen None → 가산 0"},
+  {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.buf.ptr (Vec<usize>)", "note": "L127 · [0] 원소 = 첫 살아있는 세르펜 entity id"},
+  {"base": "AbstractGame vtable", "offset": "0x1f0", "name": "get_entity_by_id(&self, id:usize)->Option<&Entity>", "note": "L127(option.rs:1543 and_then 클로저 closure_env$0 인라인 · f 캡처 = game 팻포인터) · null → 가산 0"},
+  {"base": "Entity(serpen)", "offset": "0x5c0", "name": "id (usize)", "note": "L128 · serpen.id == target_id"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L128 · is_visible 의 team 인자"},
+  {"base": "AbstractGame vtable", "offset": "0xf8", "name": "is_visible(&self, team:usize, id:usize)->bool", "note": "L128 · (player.info.team, target_id) · true→0, false→10"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 10, "src_line": 125, "meaning": "SmallActionPlay 니치 구멍 assume(tag≠10). 판정 아님. ★같은 값 10 이 L128 가산으로도 쓰임(별 항목)"},
+  {"value": 3, "src_line": 125, "meaning": "태그→idx 환산(tag-3). 판정 아님"},
+  {"value": 7, "src_line": 125, "meaning": "tag≤2 → idx 7(AroundPosition). 판정 아님"},
+  {"value": 0, "src_line": 127, "meaning": "GameMode::Moba 태그(0) — as_moba().unwrap() 검사. 그리고 live_list.len == 0 검사(get(0) None)"},
+  {"value": 10, "src_line": 128, "meaning": "Around 대상 == 첫 살아있는 세르펜 && !is_visible(내 팀, 그 id) 일 때 가산 10 (시야 없는 세르펜 쪽으로 가서 확인하도록)"}
+ ],
+ "calls": [
+  "game_ai::action_score::interaction_score",
+  "core::option::unwrap_failed"
+ ],
+ "logic": "fn score(&self, version, parameter, rnd, player, data, action, debug) -> i64   // serpen_check.rs:123 · self(move_check) 미사용\nlet base = interaction_score(version, rnd, player, data, parameter, action, debug);   // L124\nlet add = match action.get_action() {   // L125 · SmallActionPlay 태그 switch\n    Around{target_id} /*Play idx 2 Around / 3 AroundHide / 10 LaneMinionPosition · payload+0x8*/ => {\n        // L127: 살아있는 첫 세르펜 엔티티\n        let game = data.cache.game;   // &dyn AbstractGame (+0x0 data, +0x8 vtable)\n        let serpen: Option<&Entity> = game.get_game_mode() /*vtable+0x40 → GameMode{tag,ptr}*/\n            .as_moba() /*game.rs:231 · tag≠0(Moba) 이면 unwrap_failed — reach: 접힌 분기(gamemode=0), 사장 호출부 NA*/ .unwrap()\n            .jungle_runner.serpen.live_list /*MobaMode+0x1d0 ptr / +0x1d8 len · Vec<usize>*/\n            .get(0) /*len==0 → None*/\n            .and_then(|id| game.get_entity_by_id(*id) /*vtable+0x1f0*/);\n        // L128\n        if let Some(serpen) = serpen {\n            if serpen.id /*+0x5c0*/ == target_id && !game.is_visible(player.info.team /*+0x930*/, target_id) /*vtable+0xf8*/ { 10 } else { 0 }\n        } else { 0 }\n    }\n    _ => 0,   // Attack/Skill/Skill2 포함 전부 0 — 형제 플랜과 달리 공격 액션 가산이 전혀 없음\n};\nreturn base + add;   // L124 합산 · L141\n\n★형제 대조(복붙 의심): 형제 4개(LineSafe/LineWait/Jungle/AttackNexus)는 champ 조회+Attack/Skill/Skill2 arm+calculate_(jungle_)action_score 골격인데 SerpenCheck 는 그 골격이 통째로 없고 Around arm 만 있다(_docs: 「commit=false(Lurk): 시야 확인 주기 기반 대기 … stale 이면 잠깐 캠프로 접근해 시야 갱신」과 부합 — 공격은 SerpenHunt 몫). is_visible 인자 순서 (team, id) 는 _gcbc g08.ll:200059 DI(self, team, id) 로 확인. `serpen.id == target_id` 뒤 `is_visible(team, target_id)` 는 `&&` 단락 — IR 상 id 비교가 먼저(블록 43→47).\nrnd gen_range 사이트: 0(interaction_score 1회 전달).\nversion 분기 0 · debug 직접 쓰기 0 · self 읽기 0.\n★JT tail-jump 디스패처(exe 0xe388c0) 주의: 이 IR 은 SDK 판이고 exe 측 진입부는 별도 확인 필요 — 명세 범위 밖.",
+ "knobs": [
+  {"what": "미시야 세르펜 접근 가산", "where": "serpen_check.rs:128", "value": 10, "effect": "올리면 Lurk 중 세르펜 시야가 없을 때 세르펜 주변 대기(Around) 후보가 다른 대기 후보를 더 강하게 이김 → 더 적극적으로 시야 확인. 0 이면 시야 확인 유인이 사라져 안전 대기만 남음"}
+ ],
+ "unknown": [
+  "L127 의 소스 표기 — `get(0)`/`first()`/`iter().next()` 중 무엇인지(전부 len==0 검사+ptr[0] 로 접힘). 동작 확정.",
+  "as_moba().unwrap() 이 소스에서 unwrap 인지 expect 인지 — unwrap_failed(@anon.143) 만 보임. Moba 외 모드에서 이 플랜이 오는지는 이 함수 밖(reach 는 gamemode=0 봉인).",
+  "vtable 슬롯 이름(0x40 get_game_mode · 0xf8 is_visible · 0x1f0 get_entity_by_id)은 ExpectedGame 정적 vtable(divtable) 기준 — 런타임 구현체 미확정.",
+  "self.move_check 를 안 읽는 이유 — 소스 부재(action_candidates 쪽에서 쓰는 것으로 추정 · r16 범위)."
+ ]
+}

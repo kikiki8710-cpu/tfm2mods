@@ -1,0 +1,69 @@
+{
+ "name": "nexus_final_stand_uncached",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus26nexus_final_stand_uncached",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 239,
+ "ir_file": "m04.ll",
+ "ir_from": 61661,
+ "ir_to": 61940,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 48054, "ir_to": 48090},
+  {"ir_file": "m06.ll", "ir_from": 48831, "ir_to": 48872},
+  {"ir_file": "m06.ll", "ir_from": 8709, "ir_to": 8782}
+ ],
+ "one_line": "최후 단계 판정: 우리 넥서스 존재 AND 쌍둥이 타워 전멸(twin_towers 빈 벡터) AND (적 미니언의 nearest_enemy 가 넥서스 id OR 적 챔프 평타가 넥서스 사거리 안)",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState (2528B)", "note": "IR `readonly captures(none)` · info.team(0x930)만 읽음(position 미참조)"},
+   {"i": 2, "name": "data", "type": "&OperationData (24B)", "note": "IR `readonly captures(none)` · cache(0x0)만 읽음"}
+  ],
+  "returns": "i1(bool zeroext) — true = 최후 단계. phi(m04.ll:61938): nexus None→false · twins 남음→false · 미니언 any→true(61708) · 적 챔프 5슬롯 중 하나 사거리→true · 전부 아님→false",
+  "tls": {
+   "name": "LAST_STAND_MEMO (game_ai::plan_legacy::old::defense_nexus::LAST_STAND_MEMO · m04.ll:262 `@anon.168add0ea037d45d276f5936ae758fe5.248`)",
+   "role": "값 생산자(간접). 본 함수 자체는 TLS 미접촉(@anon 참조 1개 = panic Location .262 · LocalKey::with 0). 작성자 = last_stand_flags::{closure#0}(m00.ll:90215~90610) 이 본 함수를 호출해 튜플 .1(byte1) 에 저장(m00.ll:90537 호출 · 90558 `select %108, 256, 0`). 소비자 = nexus_final_stand(old/defense_nexus.rs:190 · m04.ll:57045)",
+   "key": "player.info.id (PlayerState+0x928) — nexus_last_stand_uncached 명세 tls 절과 동일",
+   "layout": "RefCell<(usize seed, usize tick, HashMap<usize,(bool,bool,bool)>)> · 값 byte1 = 본 함수 결과 (상세 = defense_nexus__nexus_last_stand_uncached.json tls.layout)",
+   "invalidation": "seed 또는 tick 변경 시 HashMap.clear() (m00.ll:90257~90273, 90491~90499)",
+   "call_conditions": "메모 miss 시 ①nexus_last_stand_uncached ②본 함수(m00.ll:90537) ③base_attacking_minion_uncached 순으로 호출 · hit 이면 호출 안 됨 · 본 함수는 last_stand 결과와 무관하게 무조건 호출됨(단락 없음 · 90533→90537 직렬)"
+  }
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "m04.ll:61670~61673 · `<2` 바운드체크(panic_bounds_check 61686) · nexus[team]·twin_towers[team] 인덱스 · `1-team`(61701)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "m04.ll:61677"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team]", "note": "Option<&Entity> null → return false (m04.ll:61679~61683, L241)"},
+  {"base": "AbstractGameWithCache", "offset": "0x148", "name": "twin_towers[team].len", "note": "본문 표기 = `gep (cache + team*32), 328`(m04.ll:61691~61695 · bumpalo Vec::is_empty 인라인 vec.rs:1636→len 1617) · len != 0 → return false (61696~61697, L244)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[1-team][0..5]", "note": "iter_champions 인라인 · 5슬롯 완전 언롤(m04.ll:61711~61712 base · +8 61767 · +16 61809 · +24 61851 · +32 61893) · null 슬롯 skip (L252)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (casting 니치 i32)", "note": "적 챔프 · -1 = None 이면 skip (m04.ll:61745~61748, 61787~61790, 61829~61832, 61871~61874, 61913~61916 · option.rs:742 as_ref · L253)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0 (&Effect)", "note": "Effect::is_in_range 의 self (m04.ll:61751/61758 등 5 사이트 · L253 is_some_and option.rs:661)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag (EntityType)", "note": "aux m06.ll:48066~48068 · `== 1`(Minion) 이 아니면 closure#0 false (L248)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id (nexus)", "note": "aux m06.ll:48075~48076 · 클로저 캡처 &nexus → nexus.id (L248)"},
+  {"base": "Entity", "offset": "0x88", "name": "ty@Minion.info.nearest_enemy@tag (Option<usize> · Minion+0x18)", "note": "aux m06.ll:48078~48081 · trunc→i1 Some 여부 (option.rs:2439 PartialEq 인라인 · L248)"},
+  {"base": "Entity", "offset": "0x90", "name": "ty@Minion.info.nearest_enemy@Some.0", "note": "aux m06.ll:48080~48084 · `== nexus.id` · Some 일 때만 유효(select) (L248)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 241, "meaning": "nexus 배열 길이 바운드체크 team<2 (m04.ll:61673)"},
+  {"value": 0, "src_line": 244, "meaning": "`twin_towers[team].is_empty()` = len == 0 — 쌍둥이 타워가 하나라도 남아 있으면 false (m04.ll:61696)"},
+  {"value": 1, "src_line": 247, "meaning": "`1 - team` = 적 팀 인덱스 (m04.ll:61701 sub nuw nsw)"},
+  {"value": 1, "src_line": 248, "meaning": "EntityType 태그 1 = Minion — closure#0 의 `matches!(m.ty, Minion(..))` (aux m06.ll:48068, 48831~ 동형)"},
+  {"value": -1, "src_line": 253, "meaning": "Option<Effect> None 판별값(casting 태그 i32 = -1) — attack_effect 없는 적 챔프 skip (m04.ll:61747, 61789, 61831, 61873, 61915)"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "core::iter::adapters::chain::Chain::try_fold",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn nexus_final_stand_uncached(player, data) -> bool   [old/defense_nexus.rs:239]\n  team = player.info.team                                                          [L240 · m04.ll:61670~61671]\n  let Some(nexus) = data.cache.nexus[team] else { return false }                   [L241 · 61673~61683 · bounds<2]\n  if !data.cache.twin_towers[team].is_empty() { return false }                     [L244 · 61691~61697 · len(+0x148) != 0 → false]\n  enemy = 1 - team                                                                 [L247 · 61701]\n  // ① 적 미니언이 넥서스를 노리는가 (closure#0 L247:44 · 본체 aux m06.ll:48054~48090)\n  if data.cache.iter_minions(enemy)                                                [L247 · 61703 sret 56B Chain<Copied<Iter<&Entity>>,Copied<Iter<&Entity>>>]\n       .any(|m| matches!(&m.ty, EntityType::Minion(mi) if mi.nearest_enemy == Some(nexus.id)))   [L248 · 61706 Chain::try_fold(aux m06.ll:8709~8782) → call_mut 심 48054~48090: ty tag(+0x68)==1 && nearest_enemy(+0x88 tag, +0x90 val) == Some(nexus.id(+0x5c0))]\n     { return true }                                                               [61708 → %79 true]\n  // ② 적 챔프 평타가 넥서스 사거리 안인가 (closure#1 L252:43 · closure#1::closure#0 L253:44)\n  return data.cache.iter_champions(enemy)                                          [L252 · 5슬롯 언롤 61711~61935]\n       .any(|c| c.attack_effect.as_ref().is_some_and(|atk| atk.is_in_range(c, nexus)))   [L253 · 61758/61800/61842/61884/61926 → true · 전부 아님 → 61935 false]\n                                                                                   [L255 ret 61939]\n\n주의: ①의 nearest_enemy 는 game_core 미니언 AI 가 매 틱 고른 타깃(Minion+0x18)이라 '넥서스를 실제 때리는 중' 의 근사. ②는 nexus_last_stand_uncached ① 과 같은 판정에서 쌍둥이 검사만 뺀 형태. 두 any 의 순서 = 미니언 → 챔프(단락). closure#0 의 소스 표기(`matches!` vs `if let`)는 표기 불가. gen_range 0 · TLS 직접 접촉 0.",
+ "knobs": [
+  {"what": "쌍둥이 전멸 조건", "where": "old/defense_nexus.rs:244", "value": 0, "effect": "`is_empty()` 대신 `len() <= 1` 로 완화하면 쌍둥이 하나 남았을 때도 최후 단계로 봐 방어 집중이 앞당겨진다"},
+  {"what": "미니언 조건의 기준 필드", "where": "old/defense_nexus.rs:248 (closure#0)", "value": 1, "effect": "nearest_enemy == nexus.id 를 빼면 적 챔프 사거리만으로 최후 단계 — 미니언 웨이브만으로는 발동 안 함"}
+ ],
+ "unknown": [
+  "AbstractGameWithCache::iter_minions(&self, team: usize) -> impl Iterator<Item=&Entity>(game_core simulation.rs:1847 · sret 56B Chain<Copied<Iter<&Entity>>,Copied<Iter<&Entity>>>) — 어느 두 슬라이스를 체인하는지(팀별 미니언 목록 2개 추정) 미독 · 시그니처만",
+  "Effect::is_in_range(&self,&Entity,&Entity)->bool 내부 — 계약만(effect.rs:63)",
+  "Copied<Iter<&Entity>>::try_fold 조각(m11.ll:31457~31536, 36239~36283, 36768~36812)과 두 번째 call_mut 심(m06.ll:48831~48872, `&&`·`&` 수신 변종)은 std 플럼빙/동형 — 본체 술어는 m06.ll:48054~48090 과 동일하게 확인(ty==1 · +136/+144 · nexus.id)",
+  "closure#0 의 소스 표기 — `matches!(m.ty, EntityType::Minion(ref i) if i.nearest_enemy == Some(nexus.id))` 와 `if let … { … } else { false }` 외연 동일 · 표기 불가",
+  "[D] ai_adjust judge dn_reach DONE(09-06) — 열람 금지 조건에 따라 판정 기록은 대조하지 않음 · 본 명세는 IR 독립 재현"
+ ]
+}

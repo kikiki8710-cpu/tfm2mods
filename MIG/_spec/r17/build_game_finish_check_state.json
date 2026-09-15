@@ -1,0 +1,455 @@
+{
+ "name": "build_game_finish_check_state",
+ "sym": "_RNvCshdEBA0ozCnw_7game_ai29build_game_finish_check_state",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 1390,
+ "ir_file": "m14.ll",
+ "ir_from": 7703,
+ "ir_to": 8214,
+ "aux": [
+  {
+   "ir_file": "m00.ll",
+   "ir_from": 72405,
+   "ir_to": 73350,
+   "what": "LocalKey<RefCell<FinishAggCache>>::with<build_game_finish_check_state::{closure#0}, FinishAggregates> — 클로저(lib.rs:1398~1438) 본체가 통째로 인라인된 TLS 메모 조각. 팀 단위 집계 7 usize + bool 2 를 (seed,tick) 키·[team][position] 슬롯으로 캐시"
+  }
+ ],
+ "one_line": "게임 종료(넥서스 마무리) 판정용 상태 빌더 — 아군/적군 생존·체력·근접 집계 + 라인 타워·미니언 푸시 상태를 Option<GameFinishCheckState>(72B) 로 조립",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "*mut Option<GameFinishCheckState> (72B)",
+    "role": "IR 속성 `dead_on_unwind noalias writable writeonly captures(none) dereferenceable(72)` · initializes 속성 없음",
+    "note": "None 이면 +0x44 에 i8 2 만 기록(니치 태그 = has_epic_buff 바이트). Some 이면 +0x00~+0x44 69B 전부 기록, +0x45~+0x47 3B 패딩 미기록"
+   },
+   {
+    "i": 1,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "role": "IR 속성 `readonly captures(address, read_provenance)`",
+    "note": "읽는 필드 = info.team(+0x930) · info.position 태그(+0x9c0, i32)"
+   },
+   {
+    "i": 2,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "role": "IR 속성 `readonly captures(none)`",
+    "note": "cache(+0) · context(+8) · blackboard(+0x10) 세 포인터 전부 읽음"
+   },
+   {
+    "i": 3,
+    "name": "line",
+    "type": "LineType (i8, range 0..3)",
+    "role": "IR 속성 없음(값 인자)",
+    "note": "0=Top 1=Mid 2=Bottom (tcxdict --enum LineType · Direct). 미니언 상태 슬롯·타워 슬롯 선택과 is_near_line 인자로 씀"
+   }
+  ],
+  "returns": "sret Option<GameFinishCheckState>(72B). 살아있는 바이트: Some → +0x00 live_ally_count · +0x08 live_enemy_count · +0x10 healthy_ally_50_count · +0x18 healthy_ally_55_count · +0x20 near_player_ally_count · +0x28 near_enemy_nexus_healthy_ally_50_count · +0x30 near_enemy_nexus_healthy_ally_55_count · +0x38 near_finish_line_healthy_ally_50_count · +0x40 has_enemy_twin_tower · +0x41 line_tower_alive · +0x42 stable_pushed_line · +0x43 aggressive_pushed_line · +0x44 has_epic_buff(=Option 니치 태그, 0/1=Some) / None → +0x44=2 만 기록(나머지 68B 미기록·쓰레기). +0x45~+0x47 패딩은 어느 경로에서도 미기록. 근거: m14.ll 7763·7830(None store i8 2 @68), 8173~8197(Some 13 store)",
+  "tls": {
+   "name": "FINISH_AGG_CACHE",
+   "role": "작성자+소비자(읽고 없으면 계산해 쓰는 메모). 이 함수 밖의 다른 소비자는 이 배치 범위에서 미확인",
+   "key": "thread_local! RefCell<FinishAggCache>(672B = borrow flag i64 @+0 + FinishAggCache 656B @+8). 접점 = `@anon.b0108feec1ab8ff62b7a37c1a95c251f.71 = constant ptr @<FINISH_AGG_CACHE…call_once>` (m14.ll:77) 를 인자로 `LocalKey::with` 호출(m14.ll:7814, lib.rs:1398). 캐시 키 = (seed, tick) 전역 + 슬롯 인덱스 [team][position]",
+   "layout": "FinishAggCache(656B, lib.rs:1376): +0x000 slots [[Option<FinishAggregates>;5];2] (원소 64B · Some 페이로드 FinishAggregates 0x00~0x39 · 니치 태그 = +0x39 has_epic_buff 바이트, 2=None) · +0x280 seed u64 · +0x288 tick usize. RefCell 안에서는 전부 +8 (슬롯[t][p] 태그 = 8+(t*5+p)*64+57, seed=+648, tick=+656)",
+   "invalidation": "with 진입 시 (cache.seed != game.seed() || cache.tick != game.tick()) 이면 seed·tick 갱신 + 10 슬롯 전부 태그 2(None) 로 리셋(m00.ll 72490~72513, lib.rs:1400~1402). 같은 (seed,tick) 안에서는 슬롯이 채워지면 그 값을 재생 — 같은 틱 안에서 입력(hp 등)이 바뀌어도 재계산 안 함",
+   "call_conditions": "champ=player_champion[t][p] 와 enemy_nexus=nexus[1-t] 둘 다 Some 일 때만 with 호출(그 전에 None 반환). 슬롯 [t][p] 가 None(태그 2)일 때만 클로저 본체(집계 계산)가 돌고 Some 이면 64B 복사만. RefCell 이 이미 대여 중이면 panic_already_borrowed(m00.ll 72473)"
+  }
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "t. 2 미만 bounds check(m14.ll 7730)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "p (i32 → zext). 슬롯 인덱스 [t][p]"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] — [t] (stride 744B, 구조체 gep m14.ll 7866)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (dyn AbstractGame data ptr)",
+   "note": "vtable 호출 self"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game (vtable ptr)",
+   "note": "슬롯 +0x20 seed · +0x28 tick · +0x1f0 get_entity_by_id (divtable AbstractGame)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[t][p]@Some.0",
+   "note": "480 + t*40 + p*8. null(None) → 전체 None 반환"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[1-t]@Some.0",
+   "note": "368 + (1-t)*8. null → 전체 None 반환"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "{top,mid,bottom}_tower[1-t]",
+   "note": "384 + line*32 + (1-t)*8 — line 별 1차 타워(적)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "{top,mid,bottom}_tower2[1-t]",
+   "note": "400 + line*32 + (1-t)*8 — line 별 2차 타워(적)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "champions() 의 alloc 인자"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": ""
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x13f8",
+   "name": "tower_attack_disable_tick",
+   "note": "5112. tick 이 이보다 크면 line_tower_alive=false(본체)·has_enemy_twin_tower=false(클로저)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "top_minion_state / mid(+0x28) / bottom(+0x50)",
+   "note": "line switch: 0→+0, 1→+40, 2→+80 (BrainMinionParameter 40B)"
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x0",
+   "name": "front_minion@tag",
+   "note": "i64 trunc→i1: Some 이면 +8 의 entity id 로 get_entity_by_id"
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x8",
+   "name": "front_minion@Some.0 (entity id)",
+   "note": ""
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x10",
+   "name": "from_mid (i64)",
+   "note": "> 2999 / > 999 비교 (단위 미확인 — unknown 참조)"
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x20",
+   "name": "minion_count (i32)",
+   "note": "> 3 / > 1 비교"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "hp*100/max — 0 이면 div_by_zero 패닉"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "거리² 계산"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial (TutorialType 태그)",
+   "note": "aux 클로저: 1..=6(First~JungleOnly) 이면 has_epic_buff=false"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x148",
+   "name": "twin_towers[1-t].len",
+   "note": "aux 클로저: 328 + (1-t)*32 (Vec 32B, len +0x18) != 0"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x240",
+   "name": "epic_minion_buff_time[t]",
+   "note": "aux 클로저: 576 + t*8. get_game_mode() 가 Moba(태그 0) 일 때만"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "aux 클로저: 4856 → *10"
+  },
+  {
+   "base": "RefCell<FinishAggCache>",
+   "offset": "0x0",
+   "name": "borrow flag",
+   "note": "aux 클로저: 0 이어야 함(-1 로 borrow_mut)"
+  },
+  {
+   "base": "RefCell<FinishAggCache>",
+   "offset": "0x288",
+   "name": "FinishAggCache.seed (+8 보정 = 648)",
+   "note": "aux 클로저"
+  },
+  {
+   "base": "RefCell<FinishAggCache>",
+   "offset": "0x290",
+   "name": "FinishAggCache.tick (+8 보정 = 656)",
+   "note": "aux 클로저"
+  },
+  {
+   "base": "RefCell<FinishAggCache>",
+   "offset": "0x8",
+   "name": "FinishAggCache.slots[t][p] (64B, 태그 +57)",
+   "note": "aux 클로저: 8+(t*5+p)*64 · 태그 2=None"
+  }
+ ],
+ "writes": [
+  {
+   "base": "sret Option<GameFinishCheckState>",
+   "offset": "0x44",
+   "name": "has_epic_buff / Option 니치 태그",
+   "value": "None 경로: i8 2 (m14.ll 7763, 7830) · Some 경로: agg.has_epic_buff (8197)",
+   "note": "None 경로에서 유일하게 기록되는 바이트"
+  },
+  {
+   "base": "sret Option<GameFinishCheckState>",
+   "offset": "0x0",
+   "name": "live_ally_count..near_finish_line_healthy_ally_50_count (8 usize) + 4 bool",
+   "value": "+0x00~+0x30 = agg 0x00~0x30 복사 · +0x38 = 본체 계산 near_finish_line · +0x40 = agg.has_enemy_twin_tower · +0x41 line_tower_alive · +0x42 stable_pushed_line · +0x43 aggressive_pushed_line",
+   "note": "m14.ll 8173~8195 (lib.rs:1459)"
+  },
+  {
+   "base": "TLS RefCell<FinishAggCache>",
+   "offset": "0x0",
+   "name": "borrow flag",
+   "value": "-1 (borrow_mut) → 종료 시 +1 복원",
+   "note": "aux m00.ll 72458 / 73329"
+  },
+  {
+   "base": "TLS RefCell<FinishAggCache>",
+   "offset": "0x288",
+   "name": "seed(+648) · tick(+656)",
+   "value": "game.seed() / game.tick() — 키 불일치 시만",
+   "note": "aux m00.ll 72490~72493 (lib.rs:1401~1402)"
+  },
+  {
+   "base": "TLS RefCell<FinishAggCache>",
+   "offset": "0x8",
+   "name": "slots[*][*] 태그 10개 (+65,+129,…,+641)",
+   "value": "i8 2 (None) — 키 불일치 시 전부 리셋",
+   "note": "aux m00.ll 72494~72513"
+  },
+  {
+   "base": "TLS RefCell<FinishAggCache>",
+   "offset": "0x8",
+   "name": "slots[t][p] (8+(t*5+p)*64, 0x00~0x39)",
+   "value": "계산된 FinishAggregates 9 필드(태그 = has_epic_buff 0/1 = Some)",
+   "note": "aux m00.ll 73233~73248 (lib.rs:1436) — 슬롯이 None 이었을 때만"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 1391,
+   "meaning": "①team bounds(<2) ②Option 니치 None 태그(store i8 2 @+68) ③aux: 슬롯 None 태그 비교/리셋"
+  },
+  {
+   "value": 202500000001,
+   "src_line": 1446,
+   "meaning": "450000²+1 — front_minion↔enemy_nexus 거리² < 이 값 ⇔ 거리 ≤ 450,000(=14.06셀) → front_near_nexus"
+  },
+  {
+   "value": 3,
+   "src_line": 1447,
+   "meaning": "minion_count > 3 (stable/aggressive 1차 조건) (`shl nuw nsw i8 %3, 5` 의 %3 은 인자 레지스터명 — 이 상수와 무관, 접힘 아님)"
+  },
+  {
+   "value": 2999,
+   "src_line": 1447,
+   "meaning": "from_mid > 2999 (stable_pushed_line 의 OR 항)"
+  },
+  {
+   "value": 1,
+   "src_line": 1448,
+   "meaning": "minion_count > 1 (aggressive 2차 조건) · aux: 1-t 팀 반전 · 루프 증가"
+  },
+  {
+   "value": 999,
+   "src_line": 1448,
+   "meaning": "from_mid > 999 (aggressive_pushed_line 의 OR 항)"
+  },
+  {
+   "value": 100,
+   "src_line": 1454,
+   "meaning": "hp*100/max_hp = HP 백분율 (aux 4곳도 동일)"
+  },
+  {
+   "value": 49,
+   "src_line": 1454,
+   "meaning": "HP% > 49 ⇔ ≥50% 건강 (aux: healthy_ally_50 · near_enemy_nexus_50 도 동일)"
+  },
+  {
+   "value": 490000000001,
+   "src_line": 1455,
+   "meaning": "700000²+1 — 아군↔enemy_nexus 거리² < 이 값 ⇔ 거리 ≤ 700,000(=21.9셀) → near_finish_line 대체 조건"
+  },
+  {
+   "value": 54,
+   "src_line": 1417,
+   "meaning": "aux: HP% > 54 ⇔ ≥55% (healthy_ally_55 · near_enemy_nexus_55)"
+  },
+  {
+   "value": 1440000000001,
+   "src_line": 1420,
+   "meaning": "aux: 1200000²+1 — 아군↔내 챔피언 거리² < 이 값 ⇔ ≤1,200,000(=37.5셀) → near_player_ally_count"
+  },
+  {
+   "value": 422500000001,
+   "src_line": 1423,
+   "meaning": "aux: 650000²+1 — HP≥50% 아군↔enemy_nexus 거리 ≤ 650,000(=20.3셀) → near_enemy_nexus_healthy_ally_50_count"
+  },
+  {
+   "value": 360000000001,
+   "src_line": 1426,
+   "meaning": "aux: 600000²+1 — HP≥55% 아군↔enemy_nexus 거리 ≤ 600,000(=18.75셀) → near_enemy_nexus_healthy_ally_55_count"
+  },
+  {
+   "value": 10,
+   "src_line": 1434,
+   "meaning": "aux: epic_minion_buff_time[t] >= tick_per_second*10 (10초 이상 남음) → has_epic_buff"
+  },
+  {
+   "value": 6,
+   "src_line": 1433,
+   "meaning": "aux: (tutorial-1) <u 6 ⇔ tutorial ∈ {1..6}=First,TopSolo,Bottom,MidSolo,MidBottom,JungleOnly → has_epic_buff=false"
+  },
+  {
+   "value": -1,
+   "src_line": 1433,
+   "meaning": "aux: ①RefCell borrow_mut 플래그 값 ②tutorial-1 (add nsw i8 %291, -1) 범위검사"
+  },
+  {
+   "value": 5,
+   "src_line": 1405,
+   "meaning": "aux: position bounds(<5) (`shl i8 %3, 5` 는 line*32 stride 시프트량 — 이 bounds 상수와 별개, 접힘 아님)"
+  }
+ ],
+ "calls": [
+  "std::thread::local::LocalKey::with",
+  "game_core::simulation::AbstractGameWithCache::champions",
+  "game_core::simulation::map_regions::is_near_line",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::ptr::drop_glue",
+  "bumpalo::collections::vec::Vec::drop",
+  "core::cell::panic_already_borrowed",
+  "std::thread::local::panic_access_error"
+ ],
+ "logic": "fn build_game_finish_check_state(player, data, line) -> Option<GameFinishCheckState>   // lib.rs:1390\n t = player.info.team (bounds <2) ; p = player.info.position as usize\n champ = data.cache.player_champion[t][p]?        // None → return None (sret+0x44 = 2)   L1391\n enemy_nexus = data.cache.nexus[1-t]?             // None → return None                    L1392\n seed = game.seed(); tick = game.tick()           // vtable +0x20 / +0x28                   L1395~1396\n agg: FinishAggregates = FINISH_AGG_CACHE.with(|c| {                                       L1398 (aux m00.ll 72405~73350)\n   c = c.borrow_mut()   // flag 0→-1, 아니면 panic_already_borrowed\n   if c.seed != seed || c.tick != tick { c.seed=seed; c.tick=tick; 10 슬롯 전부 None }     L1400~1402\n   if let Some(a) = c.slots[t][p] { return a }   // 태그 != 2 → 64B 복사 반환             L1405\n   live_allies  = cache.champions(t, pool)     // player_champion[t] 중 Some 만 모은 Vec   L1408\n   live_enemies = cache.champions(1-t, pool)                                                L1409\n   live_ally_count = live_allies.len ; live_enemy_count = live_enemies.len                  L1411~1412\n   healthy_ally_50_count = count(a in allies: a.hp*100/a.stat_cached.hp > 49)              L1414\n   healthy_ally_55_count = count(… > 54)                                                    L1417\n   near_player_ally_count = count(a: dist²(a, champ) < 1440000000001)   // ≤1,200,000     L1420\n   near_enemy_nexus_healthy_ally_50_count = count(a: hp%>49 && dist²(a, enemy_nexus) < 422500000001)  // ≤650,000  L1423\n   near_enemy_nexus_healthy_ally_55_count = count(a: hp%>54 && dist²(a, enemy_nexus) < 360000000001)  // ≤600,000  L1426\n   has_enemy_twin_tower = if game.tick() > setting.tower_attack_disable_tick { false } else { cache.twin_towers[1-t].len != 0 }   L1428~1429\n   has_epic_buff = if tutorial ∈ 1..=6 { false } else { m = game.get_game_mode(); v = if m is Moba(mm) { mm.epic_minion_buff_time[t] } else { 0 }; v >= setting.tick_per_second*10 }   L1433~1434\n   c.slots[t][p] = Some(agg); return agg                                                    L1436\n })\n line_tower_alive = if tick > setting.tower_attack_disable_tick { false }                  L1441\n                    else { cache.<line>_tower[1-t].is_some() || cache.<line>_tower2[1-t].is_some() }   L1442 (0x180+line*32 / 0x190+line*32)\n ms = data.blackboard[t].{top|mid|bottom}_minion_state (line 별)                           L1444\n front_near_nexus = match ms.front_minion { Some(id) => match game.get_entity_by_id(id) { Some(fm) => dist²(fm, enemy_nexus) < 202500000001 /*≤450,000*/, None => false }, None => false }   L1445~1446\n stable_pushed_line     = ms.minion_count > 3 && (ms.from_mid > 2999 || front_near_nexus)  L1447\n aggressive_pushed_line = ms.minion_count > 3 || (ms.minion_count > 1 && (ms.from_mid > 999 || front_near_nexus))   L1448 (phi 복원: cnt>3 이면 무조건 true)\n live_allies = cache.champions(t, pool)                                                    L1451\n near_finish_line_healthy_ally_50_count = count(a in live_allies: hp%>49 && (is_near_line(ctx, a.x, a.y, line) || dist²(a, enemy_nexus) < 490000000001 /*≤700,000*/))   L1454~1457\n return Some(GameFinishCheckState{ agg 7 usize, near_finish_line_…, agg.has_enemy_twin_tower, line_tower_alive, stable_pushed_line, aggressive_pushed_line, agg.has_epic_buff })   L1459~1472\n // dist² = |dx|²+|dy|² (u64, entity +0x660/+0x668) · hp% 는 정수 나눗셈(max_hp 0 이면 div_by_zero 패닉)\n // 극성: 모든 count 는 조건 true 시 +1 · `A || B` 의 B 는 A 거짓일 때만 평가(IR 분기 그대로)",
+ "knobs": [
+  {
+   "what": "front_minion 근접 넥서스 반경",
+   "where": "lib.rs:1446",
+   "value": 202500000001,
+   "effect": "올리면 선두 미니언이 더 멀리 있어도 front_near_nexus=true → stable/aggressive_pushed_line 이 더 쉽게 켜짐"
+  },
+  {
+   "what": "stable_pushed_line 미니언 수 임계",
+   "where": "lib.rs:1447",
+   "value": 3,
+   "effect": "낮추면 적은 미니언으로도 안정 푸시로 판정(aggressive 도 같은 3 공유)"
+  },
+  {
+   "what": "stable_pushed_line from_mid 임계",
+   "where": "lib.rs:1447",
+   "value": 2999,
+   "effect": "낮추면 from_mid 가 작아도 안정 푸시"
+  },
+  {
+   "what": "aggressive_pushed_line 미니언 수·from_mid 임계",
+   "where": "lib.rs:1448",
+   "value": "1 / 999",
+   "effect": "낮추면 공격적 푸시 판정이 늘어남"
+  },
+  {
+   "what": "마무리 라인 근접 반경(넥서스 기준)",
+   "where": "lib.rs:1455",
+   "value": 490000000001,
+   "effect": "올리면 near_finish_line_healthy_ally_50_count 증가"
+  },
+  {
+   "what": "건강 HP% 임계 50/55",
+   "where": "lib.rs:1414/1417/1423/1426/1454",
+   "value": "49 / 54",
+   "effect": "낮추면 healthy·near_nexus 카운트 증가(마무리 판단이 공격적으로)"
+  },
+  {
+   "what": "아군 근접 반경(내 챔피언 기준)",
+   "where": "lib.rs:1420",
+   "value": 1440000000001,
+   "effect": "올리면 near_player_ally_count 증가"
+  },
+  {
+   "what": "적 넥서스 근접 반경 50/55",
+   "where": "lib.rs:1423/1426",
+   "value": "422500000001 / 360000000001",
+   "effect": "올리면 near_enemy_nexus_healthy_* 증가"
+  },
+  {
+   "what": "에픽 버프 잔여 시간 임계",
+   "where": "lib.rs:1434",
+   "value": 10,
+   "effect": "tps*10 = 10초. 내리면 버프 잔여가 짧아도 has_epic_buff=true"
+  }
+ ],
+ "unknown": [
+  "BrainMinionParameter.from_mid(+0x10, i64) 의 단위·의미 — tcxdict 이름만 확보. 2999/999 임계가 좌표 단위인지 별도 스케일인지 이 배치 재료(IR·_docs)로는 미확정 (_docs grep 0건)",
+  "AbstractGameWithCache::player_champion[t][p] 가 None 이 되는 정확한 조건(사망/미스폰) — champions() 는 Some 만 모으므로 '생존 챔피언' 으로 읽었으나 game_core 캐시 갱신 코드는 이 배치에서 안 읽음(DI 변수명 live_allies/live_enemies 가 근거)",
+  "is_near_line(ctx, x, y, line) 내부 기하(192000/704000/96000 상수 관측) — game_core 경계라 시그니처·bool 반환만 기록",
+  "TutorialType 1..=6 제외의 소스 표기(matches! 인지 헬퍼 함수인지) — L263<46<1433 inlinedAt 사슬은 runner.rs:263 헬퍼로 보이나 이름 미확인. 동작(태그 1~6 이면 false)은 확정",
+  "FINISH_AGG_CACHE 의 다른 소비자 유무 — @anon…71 상수 참조는 m14.ll 에서 이 함수 1곳만 확인, 다른 모듈은 미탐색",
+  "exe argscan 대응(internal fastcc · sret+3인자) 은 지시대로 열람 금지 — IR 정본 기준으로만 기록"
+ ],
+ "calls_note": "LocalKey::with = FINISH_AGG_CACHE 접점(인자 @anon…71 · 클로저 aux m00.ll). panic_already_borrowed·panic_access_error 는 aux(클로저) 안. vtable 간접호출(call @sym 이 아니라 calls 에 못 실음): AbstractGame::seed(+0x20)·tick(+0x28)·get_entity_by_id(+0x1f0) 본체 / get_game_mode(+0x40) aux — divtable AbstractGame 으로 확정"
+}

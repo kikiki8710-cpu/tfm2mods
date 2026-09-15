@@ -1,0 +1,103 @@
+{
+ "name": "v47_tower_focus_position_dangerous",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline34v47_tower_focus_position_dangerous",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 620,
+ "ir_file": "m07.ll",
+ "ir_from": 51323,
+ "ir_to": 51760,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 7743, "ir_to": 7829, "note": "Chain<Copied<slice::Iter<&Entity>>,…>::fold — iter_minions(team).filter(closure$0).count() 의 외피(세 Copied fold 로 위임)"},
+  {"ir_file": "m11.ll", "ir_from": 25389, "ir_to": 25468, "note": "Copied<slice::Iter<&Entity>>::fold — closure$0 = attack.is_in_range(tower, minion) 인라인(L662). m11 26174~26242 · 26884~26952 은 같은 술어의 동형 인스턴스"}
+ ],
+ "one_line": "(x,y)가 적 타워에 피격될 위험 위치인가 — 사거리(+반지름·15000 여유) 안이면서 시즈 스탠스(소커/커버)로 면책되지 않는 타워가 하나라도 있으면 true",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "role": "IR 속성 noundef 만 · 본문 분기 없음 · v47_siege_stance 에 그대로 전달", "note": "%0"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "role": "readonly(IR 속성 있음)", "note": "%1. +0 cache · +8 context 읽음. v47_siege_stance 에 전달"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "role": "readonly(IR 속성 있음)", "note": "%2. info.team(+0x930) · info.position(+0x9c0). v47_siege_stance 에 전달"},
+   {"i": 4, "name": "x", "type": "u64", "role": "값", "note": "%3. 판정 위치 x (distance_sq 의 abs_diff 피연산자)"},
+   {"i": 5, "name": "y", "type": "u64", "role": "값", "note": "%4. 판정 위치 y"}
+  ],
+  "returns": "bool(i1 zeroext) — true = 위험 위치. false = 타워 공격 비활성 시각 이후 / 내 챔피언 없음 / 어떤 적 타워도 위험 조건을 만족하지 않음",
+  "writes_surface": "없음 — 참조 인자 전부 readonly. 스택 alloca 만(%6·%8 56B 이터레이터 · %7 24B size_hint · %9 72B · %10/%11 136B iter_towers 이터레이터). 단 TLS SIEGE_STANCE_CACHE 는 콜리 v47_siege_stance 가 갱신할 수 있다(tls 절)",
+  "tls": {
+   "name": "SIEGE_STANCE_CACHE",
+   "role": "소비자(간접) — 본 함수 본문에는 LocalKey/@anon fn-포인터 상수 참조가 0건. 콜리 v47_siege_stance(m07.ll:48393) 가 @anon.81aa2713ddfa9e15f7e3c0757f8f3b51.173 = `SIEGE_STANCE_CACHE…call_once` 경유로 읽고(closure$0, tower_discipline.rs:516~527) 미스 시 계산 후 쓴다(closure s_0, 532~537). 따라서 본 함수 호출 1회 = 후보 타워마다 TLS 접근 1~2회",
+   "key": "(player.info.team: usize, tower.id: usize) — v47_siege_stance L515 (m07.ll:48449~48455)",
+   "layout": "thread_local RefCell<SiegeStanceCache>: +0x0 RefCell borrow flag(i64) · +0x8 map: HashMap<(usize,usize), Option<usize>, ahash::RandomState>(64B) · +0x48 seed: u64 · +0x50 tick: usize (tcxdict SiegeStanceCache 80B: map@0x0 seed@0x40 tick@0x48, RefCell 헤더 8B 가산). 값 = Option<usize> 소커 챔피언 entity id",
+   "invalidation": "reader closure$0(L518~521): c.seed != game.seed() || c.tick != game.tick() 이면 c.seed/c.tick 갱신 + map.clear() 후 미스. 즉 **틱 단위 캐시** — 같은 (seed, tick) 안에서만 유효. writer closure(L534~535): seed·tick 이 일치할 때만 insert(key, v)",
+   "call_conditions": "v47_siege_stance 는 tower.ty==Tower(+0x68==2) && tower.can_target() 일 때만 TLS 접근(L509 · 아니면 None 즉시). 본 함수는 iter_towers(1-team) 의 각 타워 중 ty==Tower && attack_effect.is_some() 인 것마다 in_range 계산 직후(L637) 호출 — in_range 여부와 무관하게 호출된다",
+   "order": "본 함수 안에서 TLS 접점은 v47_siege_stance 1곳뿐(L637). 같은 틱에 다른 팀원/다른 호출자가 먼저 채워두면 여기서는 읽기만 발생"
+  }
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext → +0x8 setting"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": ""},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick", "note": "L620: tick 이 이 값 이상이면 false"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "슬롯 +0x28 tick(L620) · +0x1f0 get_entity_by_id(L607 인라인 v47_tower_covered_for_me)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[[Option<&Entity>;5];2] · stride 40B · null=None"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "bounds <2"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index (entity.rs:581)"},
+  {"base": "Entity(champ)", "offset": "0x5c0", "name": "id", "note": "L638 소커 비교 · L642/L658 타워 조준 대상 비교"},
+  {"base": "Entity(champ)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "L634 champ.radius() (entity.rs:1511~1515)"},
+  {"base": "Entity(champ)", "offset": "0x680", "name": "radius", "note": "L634 champ.radius()"},
+  {"base": "Entity(tower)", "offset": "0x68", "name": "ty@tag", "note": "L628 == 2 Tower (아니면 continue) · L598 재확인"},
+  {"base": "Entity(tower)", "offset": "0x4c0", "name": "attack_effect@tag(niche i32)", "note": "L631 -1 = None → continue"},
+  {"base": "Entity(tower)", "offset": "0x490", "name": "attack_effect@Some.0", "note": "&Effect attack → Effect::range 인라인 · expected_damage_target · is_in_range(aux)"},
+  {"base": "Entity(tower)", "offset": "0x4a0", "name": "attack_effect@Some.0.range", "note": "effect.rs:26 Effect::range 인라인"},
+  {"base": "Entity(tower)", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range", "note": "× (level-1)"},
+  {"base": "Entity(tower)", "offset": "0x5c8", "name": "level", "note": "growth_range 계수"},
+  {"base": "Entity(tower)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "사거리 버프 가산"},
+  {"base": "Entity(tower)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "tower.radius()"},
+  {"base": "Entity(tower)", "offset": "0x680", "name": "radius", "note": "tower.radius()"},
+  {"base": "Entity(tower)", "offset": "0x660", "name": "x", "note": "L635 distance_sq"},
+  {"base": "Entity(tower)", "offset": "0x668", "name": "y", "note": "L635 distance_sq"},
+  {"base": "Entity(tower)", "offset": "0x88", "name": "ty@Tower.info.nearest_enemy@tag", "note": "L641/L657 조준 대상 유무"},
+  {"base": "Entity(tower)", "offset": "0x98", "name": "ty@Tower.info.nearest_enemy@Some.0", "note": "조준 대상 entity id (L642·L658 == champ.id / L607 get_entity_by_id)"},
+  {"base": "Entity(tower_target)", "offset": "0x670", "name": "hp", "note": "L613: hp > expected_damage_target → 커버가 한 방에 안 끊김"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 623, "meaning": "team 경계검사 상한(2팀). 또한 EntityType 태그 2=Tower(L628·L598), L664 `cnt < 2`(커버 미니언 2마리 미만)"},
+  {"value": 1, "src_line": 627, "meaning": "1 - team = 적 팀 (iter_towers 인자). 또한 L634 growth_range × (level - 1) 의 -1(add -1)"},
+  {"value": -1, "src_line": 631, "meaning": "Option<Effect> 니치 태그 -1 = None (attack_effect 없음 → continue). 이터레이터 Chain 상태 -1/-2 는 내부값(판정 아님)"},
+  {"value": 15000, "src_line": 634, "meaning": "사거리 여유 가산(셀 32000 의 약 0.47). add 명령의 DILocation 이 L26<634(effect.rs:26 Effect::range 인라인) — 같은 Effect::range 인라인이 line_defense.rs:59(unsafe_v19_non_champion_walkup)에선 15000 대신 caster_radius 를 같은 자리에 더하므로 `Effect::range(&self, caster, extra)` 의 extra 인자로 L634 에서 15000 을 넘긴 것으로 추정(add 는 nsw 없는 재결합 가능 연산)"},
+  {"value": 100, "src_line": 634, "meaning": "entity.rs:1515 radius(): radius × (radius_mult + 100) / 100 — 퍼센트 배율"},
+  {"value": 0, "src_line": 634, "meaning": "entity.rs:1512 radius_mult == 0 이면 radius 그대로(곱셈 생략)"},
+  {"value": 6, "src_line": 627, "meaning": "iter_towers 전반부 배열 [Option<&Entity>;6] 길이(assume) — 판정 아님"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_towers",
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "core::panicking::panic_bounds_check",
+  "game_ai::tower_discipline::v47_siege_stance",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::effect::Effect::is_in_range"
+ ],
+ "callee_contracts": [
+  {"callee": "dyn AbstractGame::tick (vtable +0x28)", "args": "(game_data_ptr)", "returns": "usize"},
+  {"callee": "dyn AbstractGame::get_entity_by_id (vtable +0x1f0)", "args": "(game_data_ptr, id)", "returns": "Option<&Entity>(null=None) — L607(v47_tower_covered_for_me 인라인)"},
+  {"callee": "AbstractGameWithCache::iter_towers", "args": "(sret 136B, &cache, team = 1 - player.team)", "returns": "sret 136B 이터레이터 Chain<Flatten<array::IntoIter<Option<&Entity>,6>>, …>(후반부 next 는 외부 define `Iterator::next` 호출) — game_core 경계 · 본문 미독"},
+  {"callee": "AbstractGameWithCache::iter_minions", "args": "(sret 56B, &cache, team = player.team(내 팀))", "returns": "sret 56B 이터레이터 Chain<Copied<slice::Iter<&Entity>>,…> — game_core 경계"},
+  {"callee": "v47_siege_stance", "args": "(version, &OperationData, &PlayerState, &Entity tower)", "returns": "{i64,i64} = Option<usize>(tag 1비트, 소커 챔피언 id). 팀 단위 시즈 스탠스(_docs L70~80) · TLS SIEGE_STANCE_CACHE 소유자(tls 절) · 본문 m07.ll:48393~48965 은 담당 밖(계약만)"},
+  {"callee": "Effect::expected_damage_target", "args": "(&Effect attack, &GameContext, caster: &dyn(tower, vtable @anon.11), &Entity target)", "returns": "usize 기대 피해 — L613 target.hp 와 비교"},
+  {"callee": "Effect::is_in_range", "args": "(&Effect attack, &Entity caster=tower, &Entity target=minion)", "returns": "bool — aux 카운트 술어(L662)"}
+ ],
+ "logic": "fn v47_tower_focus_position_dangerous(version, data, player, x, y) -> bool\nL620: if !(cache.game.tick() < context.setting.tower_attack_disable_tick) → return false\nL623: champ = cache.player_champion[player.team][player.position.as_index()] ; None → return false\nL627: for t in cache.iter_towers(1 - team) {            // 적 타워(넥서스 포함 여부는 game_core 미독)\nL628:   let EntityType::Tower(info) = &t.ty else { continue }        // +0x68 == 2\nL631:   let Some(attack) = t.attack_effect.as_ref() else { continue }  // +0x4c0 == -1 → continue\nL634:   range = attack.range(t, 15000) + t.radius() + champ.radius()      // 인자 형태는 추정(unknown 참조)\n          // Effect::range(effect.rs:26) 인라인 = attack.range + 15000 + t.stat_buff_cached.range + attack.growth_range*(t.level-1)\n          // radius() = radius_mult==0 ? radius : radius*(radius_mult+100)/100\nL635:   in_range = dx² + dy² <= range²   (dx=|x - t.x|, dy=|y - t.y| · utils.rs:7~9 distance_sq)\nL637:   match v47_siege_stance(version, data, player, t) {\n        Some(soaker) => {\nL638:     if soaker == champ.id { continue }                          // 내가 소커 → 이 타워는 위험 아님\nL641:     if let Some((id, _)) = info.nearest_enemy {\nL642:       if id == champ.id { return true }                       // 타워가 나를 조준 중 → in_range 무관 true\nL645:       covered = v47_tower_covered_for_me(data, t, champ.id)   // 인라인 L598~614: t.ty==Tower && get_entity_by_id(id) 존재 && attack 존재 && target.hp > expected_damage_target(attack, ctx, t, target)\n            if covered || !in_range { continue } else { return true }\n          } else {\nL650:       if in_range { return true } else { continue }\n          }\n        }\n        None => {\nL657:     if let Some((id, _)) = info.nearest_enemy {\nL658:       if id == champ.id { return true }                       // in_range 무관 true\nL661:       cnt = cache.iter_minions(team).filter(|m| attack.is_in_range(t, m)).count()   // 내 팀 미니언 중 타워 사거리 안 수(aux)\nL664:       if cnt < 2 && in_range { return true } else { continue }\n          } else {\nL667:       if in_range { return true } else { continue }\n          }\n        }\n      }\n    }\nL673: return false\n\n※ `dangerous = in_range`(dbg 이름) 이 기본이고, 스탠스/커버/미니언 수는 그것을 면책하는 쪽으로만 작용한다. 예외 2곳(L642·L658: 타워가 이미 나를 조준)은 위치와 무관하게 true.",
+ "knobs": [
+  {"what": "타워 사거리 여유", "where": "game-core effect.rs:26 Effect::range (인라인 · 본 함수 L634)", "value": 15000, "effect": "올리면 더 먼 위치까지 위험으로 본다(타워 접근 보수화). game_core 상수라 game_ai 재현 시 그대로 복제 필요"},
+  {"what": "무스탠스 시 커버 미니언 최소 수", "where": "tower_discipline.rs:664", "value": 2, "effect": "올리면(예: 3) 미니언 2마리가 사거리 안에 있어도 위험으로 판정 → 더 보수적. 내리면(1) 미니언 1마리만 있어도 안전으로 본다"},
+  {"what": "커버 생존 판정", "where": "tower_discipline.rs:613 (v47_tower_covered_for_me 인라인)", "value": "target.hp > expected_damage_target (1샷)", "effect": "'2샷' 등으로 바꾸면 커버 인정이 엄격해져 위험 판정이 늘어난다"},
+  {"what": "타워 공격 비활성 시각", "where": "GameSetting +0x13f8 · L620", "value": "설정값", "effect": "tick 이 이 값 이상이면 무조건 false"}
+ ],
+ "unknown": [
+  "L620 극성(tick < tower_attack_disable_tick 일 때만 판정 진행)이 필드명과 직관이 반대로 보이나 IR 정본 — 필드 의미는 game_core 미독(v22 명세와 동일 항목)",
+  "iter_towers 가 넥서스를 포함하는지(iter_towers_without_nexus 와 대비) — game_core 본문 미독. 본 함수는 ty==Tower 로 다시 거르므로 넥서스(ty 3)는 어차피 continue",
+  "Effect::range(effect.rs:26) 의 시그니처 — 15000 add 가 L26 귀속이고, line_defense.rs:59 의 같은 인라인은 그 자리에 caster_radius 를 더하므로 `range(&self, caster, extra: u64)` 로 추정. 인자 순서·이름은 game_core 소스 부재로 미확정(add 재결합 가능)",
+  "iter_towers 후반부 `Iterator::next` 외부 콜리(gc::…Entity…Iterator4next)의 구체 이터레이터 타입 — 계약(Option<&Entity>) 만 확인",
+  "v47_siege_stance 본문(소커 선정 규칙·resolve_fight 연동)은 담당 밖 — 반환 계약만"
+ ]
+}

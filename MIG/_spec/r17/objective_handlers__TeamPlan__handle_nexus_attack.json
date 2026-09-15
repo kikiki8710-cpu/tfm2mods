@@ -1,0 +1,76 @@
+{
+ "name": "TeamPlan::handle_nexus_attack",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan18objective_handlersNtB4_8TeamPlan19handle_nexus_attack",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_handlers.rs",
+ "src_line": 1237,
+ "ir_file": "m09.ll",
+ "ir_from": 8158,
+ "ir_to": 8578,
+ "aux": [
+  {"ir_file": "m14.ll", "ir_from": 60683, "ir_to": 60693},
+  {"ir_file": "m12.ll", "ir_from": 34360, "ir_to": 34618}
+ ],
+ "one_line": "넥서스 공격 라인 선택: 존재하는 라인(Top→Mid→Bottom) 중 end_check 통과 라인만 모아, 우리 전방 미니언이 적 넥서스에 가장 가까운 라인을 반환(전방 미니언 없으면 u64::MAX · 후보 0이면 None)",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&mut TeamPlan", "note": "IR `readnone captures(none)` (dereferenceable 없음) — 본문에서 읽기·쓰기 모두 0. 시그니처는 &mut 이지만 힙/필드 쓰기 표면 없음(initializes 속성 없음)"},
+   {"i": 2, "name": "version", "type": "usize", "note": "본 함수 분기 없음 · end_check 1번 인자로 통과(m09.ll:8281)"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "note": "IR 속성 없음(=&mut) · 본 함수 gen_range 사이트 0 · end_check 2번 인자로 통과만"},
+   {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "IR `readonly` · info.team(0x930) 읽음(min_by_key 키 클로저) · end_check 3번 인자"},
+   {"i": 5, "name": "data", "type": "&OperationData (24B)", "note": "IR `readonly` · cache(0x0)·context(0x8)·blackboard(0x10) 모두 읽음 · end_check 4번 인자"},
+   {"i": 6, "name": "debug", "type": "&mut DebugFrameData (224B)", "note": "IR 속성 없음(=&mut) · 본 함수 직접 store 0 · end_check 6번 인자로 통과만"}
+  ],
+  "returns": "i8 range(-1,3) = Option<LineType> — -1 = None(후보 라인 0개 · m09.ll:8516 phi from %122) · 0 Top / 1 Mid / 2 Bottom = min_by_key 결과(8502~8504). 니치 없이 Option<LineType> 이 i8 스칼라로 반환(LineType 1B Direct 태그 0..2 · None = -1)",
+  "tls": "없음 — 본문 @anon 참조 2개(.23 panic_bounds_check · .1 unwrap_failed Location) · `<KEY…call_once>` fn-포인터 상수 참조 0 · LocalKey::with 0 (end_check·line_exists 내부는 콜리 계약 밖)"
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "m09.ll:8179~8180 · pool 취득 + closure#0 캡처(8190 · line_exists 1번 인자)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool (&Bump)", "note": "m09.ll:8181 · bumpalo Vec<LineType>::new_in 의 할당자(8185)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "m09.ll:8298 · 키 클로저 캡처"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard (&[Blackboard;2])", "note": "m09.ll:8299~8300 · 키 클로저 캡처 · 인덱스 = player.info.team(우리 팀)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "m09.ll:8354~8356 · `<2` 바운드체크(8370) · blackboard[team] · nexus[1-team](8435) — L1253~1254"},
+  {"base": "Blackboard", "offset": "0x0", "name": "top_minion_state.front_minion@tag / +0x8 Some.0", "note": "minion_state(line) 인라인 blackboard.rs:379~382 switch(8363~8388) · Top=+0x0 · Mid=+0x28(8380) · Bottom=+0x50(8384) · tag trunc→i1(8394) · id 로드(8403~8404)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (&dyn AbstractGame data ptr)", "note": "m09.ll:8401"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable ptr", "note": "vtable+0x1f0(496) = get_entity_by_id (m09.ll:8408~8410 · aux m12.ll:34494~34496)"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[1-team] (적 넥서스)", "note": "Option<&Entity> null → unwrap_failed(8444) (m09.ll:8435~8441, L1254)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "전방 미니언(8425~8426)·적 넥서스(8456~8457) — dist_sq"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "8427~8428 · 8460~8461"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 3, "src_line": 1246, "meaning": "`[Top, Mid, Bottom]` 배열 IntoIter 길이 3 (m09.ll:8193, 8205, 8219) — 순회 순서 0→1→2"},
+  {"value": 0, "src_line": 1246, "meaning": "LineType::Top 태그 (m09.ll:8195)"},
+  {"value": 1, "src_line": 1246, "meaning": "LineType::Mid 태그 (m09.ll:8197)"},
+  {"value": 2, "src_line": 1246, "meaning": "LineType::Bottom 태그 (m09.ll:8199)"},
+  {"value": 0, "src_line": 1252, "meaning": "lines.len() == 0 → into_iter 빈 → min_by_key None → return None(-1) (m09.ll:8332~8333)"},
+  {"value": 2, "src_line": 1253, "meaning": "blackboard 배열 길이 바운드체크 team<2 (m09.ll:8356 · aux m12.ll:34440)"},
+  {"value": 1, "src_line": 1254, "meaning": "`1 - team` = 적 팀 → 적 넥서스 (m09.ll:8435 · aux m12.ll:34523 이하 동형)"},
+  {"value": -1, "src_line": 1254, "meaning": "키 클로저의 unwrap_or 기본값 = u64::MAX(i64 -1 표기 · 키 타입 u64 `y`) — 전방 미니언 없음/엔티티 없음이면 최대 거리로 취급해 후순위 (m09.ll:8487 phi · aux m12.ll:34580)"},
+  {"value": -1, "src_line": 1256, "meaning": "Option<LineType>::None 반환값(i8 -1) (m09.ll:8516)"},
+  {"value": 496, "src_line": 1253, "meaning": "dyn AbstractGame vtable 슬롯 0x1f0 = get_entity_by_id (m09.ll:8408)"},
+  {"value": 1, "src_line": 1248, "meaning": "push 시 reserve_internal_or_panic(vec, len, additional=1, exact=true) (m09.ll:8549 · vec.rs:1428~1434 인라인)"}
+ ],
+ "calls": [
+  "game_ai::end_check",
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "core::iter::adapters::map::Map::fold",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::ptr::drop_glue",
+  "bumpalo::collections::vec::IntoIter::drop"
+ ],
+ "calls_indirect": ["AbstractGame::get_entity_by_id(usize) -> Option<&Entity> — cache.game vtable+0x1f0 (m09.ll:8410 · aux m12.ll:34496)"],
+ "logic": "fn handle_nexus_attack(&mut self, version, rnd, player, data, debug) -> Option<LineType>   [objective_handlers.rs:1237 · self 미사용(readnone)]\n  let mut lines: bumpalo::Vec<LineType> = Vec::new_in(data.context.pool)          [L1244 · m09.ll:8179~8188 · {ptr=dangling(1), bump, cap=0, len=0}]\n  for line in [Top, Mid, Bottom].into_iter().filter(|l| rule_scope::line_exists(data.context, *l)) {   [L1246 · 8190~8276 · closure#0 = aux m14.ll:60683~60693]\n    if end_check(version, rnd, player, data, line, debug) {                         [L1247 · 8281]\n      lines.push(line)                                                              [L1248 · 8537~8569 · len==cap 이면 reserve(…,1,true) 8549]\n    }\n  }\n  // 키 클로저 closure#1 (L1252:42) · 내부 closure#1::{closure#0}(1253:101 and_then) · {closure#1}(1254:23 map)\n  lines.into_iter().min_by_key(|l|                                                  [L1252 · 8291~8333 · len==0 → None(-1) 8498~8516]\n      data.blackboard[player.info.team].minion_state(*l).front_minion               [L1253 · 8354~8395 · 우리 팀 블랙보드 · Top/Mid/Bottom → +0x0/+0x28/+0x50]\n        .and_then(|id| data.cache.game.get_entity_by_id(id))                        [L1253 · 8398~8419 · null → u64::MAX]\n        .map(|m| dist_sq(m.pos, data.cache.nexus[1 - team].unwrap().pos))           [L1254 · 8425~8476 · |dx|²+|dy|² · 적 넥서스 None → unwrap_failed 8444]\n        .unwrap_or(u64::MAX))                                                       [L1254 · 8487 phi -1]\n  // 첫 원소 키는 본체 인라인(8339~8479) · 나머지는 aux m12.ll:34360~34618 fold(동점이면 앞 원소 유지 34599~34601 → Top>Mid>Bottom 우선)\n                                                                                    [L1256 ret 8519]\n\n주의: ①line_exists 로 맵에 없는 라인을 먼저 거른 뒤 end_check 를 호출하므로 end_check 는 존재 라인에만 발화(호출 수 ≤3 · 순서 Top→Mid→Bottom). ②키 = '우리 전방 미니언 ↔ 적 넥서스' 거리² — 전방 미니언 정보는 우리 팀 블랙보드(blackboard[team]) 기준. ③전방 미니언이 없거나 엔티티 해석 실패 시 u64::MAX 라 후보가 1개뿐이면 그 라인이 그대로 반환된다. ④적 넥서스 None 이면 패닉(unwrap) — 키 평가는 lines 가 비어 있지 않을 때만. ⑤&mut self 쓰기 0 · gen_range 0 · debug 직접 store 0.",
+ "knobs": [
+  {"what": "라인 순회 순서(동점 우선순위)", "where": "objective_handlers.rs:1246", "value": 0, "effect": "`[Top, Mid, Bottom]` 순서가 min_by_key 동점(예: 양쪽 다 u64::MAX) 시 우선순위가 된다 — 순서를 바꾸면 전방 미니언 없는 상황에서 고르는 라인이 바뀐다"},
+  {"what": "전방 미니언 부재 키", "where": "objective_handlers.rs:1254", "value": -1, "effect": "u64::MAX 대신 0 으로 바꾸면 미니언 없는 라인을 오히려 최우선으로 고르게 된다(반대 극성)"}
+ ],
+ "unknown": [
+  "end_check(version,&mut StdRng,&PlayerState,&OperationData,LineType,&mut DebugFrameData)->bool (lib.rs:1211 · m14.ll:8724~ 1,302줄 · line_exists 재호출 + PlayerState::strategy + build_game_finish_check_state 로 판정) — 내부 미독 · 계약만. true = 그 라인으로 마무리(넥서스 공격) 가능 판정으로 추정(이름·콜리 기준)",
+  "rule_scope::line_exists(&GameContext, LineType)->bool (rule_scope.rs:24 · pub) — 계약만(맵에 그 라인이 있는지 · 오라클 진리표 대상)",
+  "closure#1 의 소스 표기 — `.and_then(...).map(...).unwrap_or(u64::MAX)` 인지 `.map_or(u64::MAX, ...)` 인지 표기 불가(option.rs:1161/1162 map · 1043 unwrap_or 인라인 줄로 보아 전자가 유력하나 확정 아님)",
+  "dist_sq 의 인자 순서(m→nexus vs nexus→m) — 대칭이라 표기 불가",
+  "Filter/array IntoIter 플럼빙(m09.ll:8204~8276)의 llvm.assume(idx<=len) 은 판정 아님"
+ ]
+}

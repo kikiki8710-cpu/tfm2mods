@@ -1,0 +1,89 @@
+{
+ "name": "v22_current_line_non_champion_action_tower_risk",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline47v22_current_line_non_champion_action_tower_risk",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 225,
+ "ir_file": "m07.ll",
+ "ir_from": 53032,
+ "ir_to": 53218,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 34126, "ir_to": 34356, "note": "Chain<Flatten<array::IntoIter<Option<&Entity>,6>>, Copied<slice::Iter<&Entity>>>::try_fold — filter closure$2 + any closure$3 이 인라인된 전반부(배열 6칸)"},
+  {"ir_file": "m11.ll", "ir_from": 29929, "ir_to": 30092, "note": "Copied<slice::Iter<&Entity>>::try_fold — 같은 두 클로저가 인라인된 후반부(슬라이스). 판정식은 m06 조각과 문자 단위 동일"}
+ ],
+ "one_line": "라인전 구간에서 비챔피언(미니언/타워 등) 대상 행동 중 적 타워에 물릴 위험이 있는가 — 사거리 안 적 타워가 나를 조준 중이거나, 최근 적 타워에 맞았고 커버가 즉시 끊기면 true",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "role": "IR 속성 noundef 만 · 본문에서 참조 0회(미사용)", "note": "%0. 분기 없음"},
+   {"i": 2, "name": "context", "type": "&GameContext(64B)", "role": "readonly(IR 속성 있음)", "note": "%1. +0x38 tutorial · +0x8 setting 만 읽음"},
+   {"i": 3, "name": "cache", "type": "&AbstractGameWithCache(8840B)", "role": "readonly(IR 속성 있음)", "note": "%2. game dyn 팻포인터(+0 data · +8 vtable) · player_champion(+0x1e0) · iter_towers_without_nexus 호출 self"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "role": "readonly(IR 속성 있음)", "note": "%3. info.team(+0x930) · info.position(+0x9c0) 만 읽음. v22_enemy_tower_cover_breaks_immediately 에 그대로 전달"},
+   {"i": 5, "name": "target", "type": "&Entity(1728B)", "role": "readonly(IR 속성 있음)", "note": "%4. 현재 행동 대상(비챔피언). ty 태그(+0x68)==Tower 만 판정에 쓰임"}
+  ],
+  "returns": "bool(i1 zeroext) — true = 적 타워 피격 위험 있음(행동 억제 사유). false = 라인전 구간 아님 / 타워 공격 비활성 시각 이후 / 내 챔피언 없음 / 사거리 안 적 타워 중 조건을 만족하는 것이 없음",
+  "writes_surface": "없음 — 모든 참조 인자가 readonly. 쓰기는 스택 alloca 3개(%6 클로저 env 56B · %7 iterator 120B · %8 recently_hit_by_enemy_tower 1B)뿐"
+ },
+ "reads": [
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "runner.rs:263 spawn_epic 인라인 — switch {0 None,5 MidBottom,7 Line,8 Total} 이면 에픽 스폰 모드 → is_line_phase 시간 판정 수행. 그 외(1~4,6) 는 is_line_phase 무조건 true"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x8a8", "name": "epic_jungle.first_spawn_tick", "note": "setting.rs:703 is_line_phase"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "setting.rs:704 — ×30"},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick", "note": "tower_discipline.rs:226 — tick 이 이 값 이상이면 false"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "&dyn AbstractGame 데이터"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "슬롯 +0x28 tick · +0x1f0 get_entity_by_id (divtable AbstractGame)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[[Option<&Entity>;5];2] · gep [5 x ptr] stride 40B · null=None"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize · bounds check <2 (panic_bounds_check)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 → entity.rs:581 as_index → zext 그대로 인덱스"},
+  {"base": "Entity(champ)", "offset": "0x28", "name": "last_attacked_from@tag", "note": "Option<usize> — 하위 1비트 trunc 로 Some 판정"},
+  {"base": "Entity(champ)", "offset": "0x30", "name": "last_attacked_from@Some.0", "note": "엔티티 id → get_entity_by_id"},
+  {"base": "Entity(champ)", "offset": "0x5c0", "name": "id", "note": "aux(m06/m11): tower.nearest_enemy.0 과 비교"},
+  {"base": "Entity(last_attacker)", "offset": "0x0", "name": "team@tag", "note": "TeamType 판별자 0=Player (entity.rs:1127 PartialEq)"},
+  {"base": "Entity(last_attacker)", "offset": "0x8", "name": "team@Player.0", "note": "== 1 - player.info.team (적 팀)"},
+  {"base": "Entity(last_attacker)", "offset": "0x68", "name": "ty@tag", "note": "== 2 Tower (entity.rs:1386 is_tower)"},
+  {"base": "Entity(target)", "offset": "0x68", "name": "ty@tag", "note": "aux: == 2 Tower (tower_discipline.rs:254) — 분기만 가르고 결과식은 양쪽 동일"},
+  {"base": "Entity(tower)", "offset": "0x6b9", "name": "can_target", "note": "aux: entity.rs:1478 can_target() 1항"},
+  {"base": "Entity(tower)", "offset": "0x6a0", "name": "block_target_tick", "note": "aux: entity.rs:1478 can_target() 2항 (==0)"},
+  {"base": "Entity(tower)", "offset": "0x4c0", "name": "attack_effect@tag(niche i32)", "note": "aux: -1 = None → 이 타워 skip"},
+  {"base": "Entity(tower)", "offset": "0x490", "name": "attack_effect@Some.0", "note": "aux: &Effect → Effect::is_in_range(effect, tower, champ)"},
+  {"base": "Entity(tower)", "offset": "0x68", "name": "ty@tag", "note": "aux: == 2 Tower (tower_discipline.rs:248)"},
+  {"base": "Entity(tower)", "offset": "0x88", "name": "ty@Tower.info.nearest_enemy@tag", "note": "aux: Option<(usize,usize)> Some 판정(하위 1비트)"},
+  {"base": "Entity(tower)", "offset": "0x98", "name": "ty@Tower.info.nearest_enemy@Some.0", "note": "aux: 조준 대상 엔티티 id == champ.id 이면 즉시 true"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 0, "src_line": 225, "meaning": "TutorialType::None(태그 0) — switch case. runner.rs:263 spawn_epic"},
+  {"value": 5, "src_line": 225, "meaning": "TutorialType::MidBottom(태그 5) — switch case"},
+  {"value": 7, "src_line": 225, "meaning": "TutorialType::Line(태그 7) — switch case"},
+  {"value": 8, "src_line": 225, "meaning": "TutorialType::Total(태그 8) — switch case"},
+  {"value": 30, "src_line": 225, "meaning": "setting.rs:704 — tick_per_second×30 = 30초. 에픽 첫 스폰 30초 전까지가 라인전 구간(saturating_sub)"},
+  {"value": 2, "src_line": 230, "meaning": "player.info.team 경계검사 상한(팀 2). 또한 entity.rs:1386 is_tower 의 EntityType 태그 2=Tower(235·248·254), TeamType 판별자 비교"},
+  {"value": 1, "src_line": 235, "meaning": "1 - team = 적 팀 인덱스 (235 · 237 iter_towers_without_nexus 인자)"},
+  {"value": 0, "src_line": 235, "meaning": "TeamType 태그 0 = Player (entity.rs:1127 PartialEq)"},
+  {"value": -1, "src_line": 240, "meaning": "aux: Option<Effect> 니치 태그 -1 = None (attack_effect 없음 → skip)"},
+  {"value": 0, "src_line": 238, "meaning": "aux: entity.rs:1478 can_target(): block_target_tick == 0"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "game_ai::tower_discipline::v22_enemy_tower_cover_breaks_immediately"
+ ],
+ "callee_contracts": [
+  {"callee": "dyn AbstractGame::tick (vtable +0x28)", "args": "(game_data_ptr)", "returns": "usize tick", "note": "225 와 226 에서 2회 호출"},
+  {"callee": "dyn AbstractGame::get_entity_by_id (vtable +0x1f0)", "args": "(game_data_ptr, id: usize)", "returns": "Option<&Entity> (null=None)"},
+  {"callee": "AbstractGameWithCache::iter_towers_without_nexus", "args": "(sret 120B, &self cache, team: usize = 1 - player.team)", "returns": "sret 120B 이터레이터 = Chain<Flatten<array::IntoIter<Option<&Entity>,6>>, Copied<slice::Iter<&Entity>>> (게임코어 경계 · 본문 미독 · 반환형은 aux 조각 망글 심볼에서)"},
+  {"callee": "Effect::is_in_range", "args": "(&Effect attack, &Entity caster=tower, &Entity target=champ)", "returns": "bool — 타워 평타 사거리 안인가 (game_core 경계 · 시그니처만)"},
+  {"callee": "v22_enemy_tower_cover_breaks_immediately", "args": "(&GameContext, &AbstractGameWithCache, &PlayerState player, &Entity tower)", "returns": "bool — m07.ll:52389 define hidden. 이름상 「이 적 타워가 물고 있는 커버(나 아닌 대상)가 즉시 끊기는가」(★추정 — 본문 미독 · 자식 명세 없음)"}
+ ],
+ "logic": "fn v22_current_line_non_champion_action_tower_risk(version, context, cache, player, target) -> bool\n// version(%0) 은 본문에서 한 번도 읽지 않는다.\nL225: tick = cache.game.tick()\n      // context.is_line_phase(tick) 인라인(runner.rs:399 → spawn_epic runner.rs:263 → setting.rs:703)\n      spawn_epic = context.tutorial ∈ {None(0), MidBottom(5), Line(7), Total(8)}\n      if spawn_epic && !(tick < setting.epic_jungle.first_spawn_tick.saturating_sub(setting.tick_per_second*30)) → return false\n      // (tutorial 이 그 외 값이면 시간 판정 없이 통과)\nL226: if !(cache.game.tick() < setting.tower_attack_disable_tick) → return false   // tick 재호출\nL230: team = player.info.team (bounds <2 · panic_bounds_check)\n      champ = cache.player_champion[team][player.info.position.as_index()]  ; None(null) → return false\nL233~235: recently_hit_by_enemy_tower =\n      champ.last_attacked_from                       // Option<usize> (+0x28 tag / +0x30 id)\n        .and_then(|id| cache.game.get_entity_by_id(id))   // L234 closure$0\n        .is_some_and(|e| e.team == TeamType::Player(1 - team) && e.is_tower())   // L235 closure$1 : +0x0==0 && +0x8==1-team && +0x68==2\nL237: iter = cache.iter_towers_without_nexus(1 - team)\nL238: .filter(|t| t.can_target())        // closure$2 = entity.rs:1478 : t.can_target(+0x6b9) && t.block_target_tick(+0x6a0)==0\nL239: .any(|tower| {                     // closure$3 (aux m06/m11)\n  L240:   let Some(attack) = tower.attack_effect.as_ref() else { return false }   // +0x4c0 == -1 → false\n  L244:   if !attack.is_in_range(tower, champ) { return false }\n  L248:   if tower.ty == Tower(2) && tower.info.nearest_enemy.is_some()(+0x88)\n  L249:       && nearest_enemy.0(+0x98) == champ.id(+0x5c0) { return true }   // 타워가 나를 조준 중\n  L254:   if target.is_tower() {                                  // target +0x68 == 2\n  L255:       recently_hit_by_enemy_tower && v22_enemy_tower_cover_breaks_immediately(context, cache, player, tower)\n          } else {\n  L258:       v22_enemy_tower_cover_breaks_immediately(context, cache, player, tower)\n  L262~263:   && recently_hit_by_enemy_tower\n          }   // ★두 가지의 외연이 동일(피연산자 순서만 다름 · 부작용 없음) — target.is_tower() 분기는 결과에 영향 없음\n      })\nL264: return any 결과\n\n반환 phi(%82): L225 false / L226 false / L230 None false / any 결과",
+ "knobs": [
+  {"what": "라인전 구간 종료 여유(에픽 첫 스폰 전 초)", "where": "game-core setting.rs:704 (is_line_phase, 인라인)", "value": 30, "effect": "올리면 라인전 구간이 더 일찍 끝나 이 위험 판정이 더 빨리 항상 false(비활성)가 된다. game_core 상수라 game_ai 재현에서는 GameSetting 값으로 재현"},
+  {"what": "타워 공격 비활성 시각", "where": "GameSetting.tower_attack_disable_tick (+0x13f8) · tower_discipline.rs:226", "value": "설정값", "effect": "tick 이 이 값 이상이면 무조건 false. 값을 올리면 판정 활성 구간이 길어진다"}
+ ],
+ "unknown": [
+  "L226 의 `tick < tower_attack_disable_tick` 이어야 통과하는 극성이 필드명(타워 공격 '비활성' 시각)과 직관이 반대로 보이나 IR 이 정본 — 필드 의미(비활성 시작 시각인지 종료 시각인지)는 game_core setting.rs 미독으로 미확정(미탐색 = `_gcbc` 에서 tower_attack_disable_tick 소비처 grep)",
+  "L254~263: target.is_tower() 분기의 두 결과식이 외연 동일(recently_hit && cover_breaks). 소스에 259~261 줄이 존재(주석/빈 줄 추정)하나 IR 에 명령이 없어 내용 미확정 — 동작에는 영향 없음",
+  "v22_enemy_tower_cover_breaks_immediately 본문(m07.ll:52389~) 은 담당 범위 밖 — 반환 의미는 이름 기반 추정",
+  "iter_towers_without_nexus 의 배열 6칸(Flatten<array::IntoIter<Option<&Entity>,6>>) + 슬라이스 부분이 각각 무엇(외곽/내곽 타워?)인지는 game_core 본문 미독",
+  "Tower.nearest_enemy: Option<(usize,usize)> 의 두 번째 usize 의미 미확정(본문에서 첫 원소만 사용)"
+ ]
+}

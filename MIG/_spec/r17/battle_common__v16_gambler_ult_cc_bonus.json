@@ -1,0 +1,133 @@
+{
+ "name": "v16_gambler_ult_cc_bonus",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common24v16_gambler_ult_cc_bonus",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle_common.rs",
+ "src_line": 109,
+ "ir_file": "m05.ll",
+ "ir_from": 54567,
+ "ir_to": 55828,
+
+ "one_line": "겜블러 궁(GamblerUltAction, 매혹 CC)을 적 챔피언 target 에 쓸 때의 가산점(0~70) — CC 시간·궁 피해·대상 HP가치·유입피해·근접 아군/가시 적 수·포커스/서포트 일치로 합산",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "IR %0 · readonly · info.team(+0x930) · is_recent_visible 인자"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "IR %1 · readonly · cache(+0)·context(+8)·blackboard(+0x10)"},
+   {"i": 3, "name": "parameter", "type": "&ScoreParameter(5384B)", "note": "IR %2 · readonly · near_enemies Vec(+0x14d8 ptr/+0x14f0 len) 에서 target.id 검색 · champion_hp_value/possible_risk 인자"},
+   {"i": 4, "name": "goal", "type": "&BattleSubPlanGoal(16B)", "note": "IR %3 · readonly captures(none) · L165 goal.focus(): 태그(+0)∈{0,1,2,3,5,6} 이면 Some(+8 focus) · RunAway(4)/End(7) 은 None"},
+   {"i": 5, "name": "support_target", "type": "Option<usize>", "note": "IR 스칼라 2개: %4 태그(range(0,2)) · %5 페이로드. L170 `== Some(target.id)` 비교에만 사용"},
+   {"i": 6, "name": "action", "type": "&Box<dyn Action>(16B)", "note": "IR %6 · readonly captures(none) · L120 as_any(vtable+0x68)→type_id(Any vtable+0x18) 로 GamblerUltAction 다운캐스트"},
+   {"i": 7, "name": "effect", "type": "&Effect(56B)", "note": "IR %7 · readonly · ty(Arc<dyn EffectType> +0/+8) 의 expected_cc_time(vtable+0x80) · expected_damage_target 의 self"},
+   {"i": 8, "name": "champ", "type": "&Entity(1728B)", "note": "IR %8 · readonly · 시전자. team(+0/+8)·id(+0x5c0) · expected_damage_target 에 &dyn AbstractEntity(vtable @anon.17)로 전달"},
+   {"i": 9, "name": "target", "type": "&Entity(1728B)", "note": "IR %9 · readonly · team·ty@tag(+0x68)·cc_immune(+0x468)·cc Vec(+0x2c8/+0x2d0)·id·x·y·hp"}
+  ],
+  "returns": "i64 range(-2^63, 71) — 0 = 해당 없음(조기 종료 8곳: 겜블러 궁 아님 / 같은 팀·비챔피언 / cc_immune / 이미 하드 CC / cc_time==0), 아니면 min(bonus, 70). bonus 는 clamp(12..30)+가산들이라 실제로는 양수(하한 -2^63 은 smin 의 형식적 범위)",
+  "tls": {
+   "name": "(직접 접점 없음 · 콜리 경유 1건)",
+   "role": "소비자(간접)",
+   "key": "본체에 `LocalKey`/`call_once` 참조 0건. 콜리 `utils::champion_hp_value`(m04.ll 49583) 가 TLS `utils::HP_VALUE_MEMO`(RefCell<(usize,usize,HashMap<usize,i64>)>) 를 읽고 씀 — L139 에서 1회(target_parameter 를 찾았을 때만)",
+   "layout": "콜리 명세 소관",
+   "invalidation": "콜리 명세 소관",
+   "call_conditions": "L138 parameter.near_enemies 에 target.id 가 있을 때만 champion_hp_value 1회 호출(그 외 콜리 expected_damage_target·possible_risk·is_recent_visible 은 TLS 참조 0 확인)"
+  }
+ },
+
+ "reads": [
+  {"base": "Box<dyn Action>", "offset": "0x0", "name": "data ptr", "note": "L120 as_any self"},
+  {"base": "Box<dyn Action>", "offset": "0x8", "name": "vtable ptr", "note": "L120 +0x68 슬롯 = Action::as_any(divtable) → {ptr,ptr}(&dyn Any)"},
+  {"base": "dyn Any vtable", "offset": "0x18", "name": "type_id (sret 16B TypeId)", "note": "L120 i128 == 129962296932191015333459514643667840978 (GamblerUltAction 의 TypeId · m02/m05/m15 downcast 사이트 6곳 동일)"},
+  {"base": "GamblerUltAction", "offset": "0x10", "name": "charm_duration", "note": "L131 cc_time 하한(max)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "L124 target.team == champ.team / L167 focus.team == champ.team"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "L124/L167 태그 Player(0)일 때 페이로드 비교"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "L125 target.ty 태그 == 13(Champion)"},
+  {"base": "Entity", "offset": "0x468", "name": "stat_buff_cached.cc_immune", "note": "L126 true 면 0"},
+  {"base": "Entity", "offset": "0x2c8", "name": "cc.buf.ptr", "note": "L127 target.cc 슬라이스(CCState 40B stride · 태그 i32 +0)"},
+  {"base": "Entity", "offset": "0x2d0", "name": "cc.len", "note": "L127"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "target.id(L138 검색키·L157 적 제외·L166 focus 비교·L170 support 비교) · champ.id(L154 아군 자기제외)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "target 기준 거리²(L154/L159/L167)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "L144/L147 target.hp — max(…,1) 분모"},
+  {"base": "CCState", "offset": "0x0", "name": "tag(i32)", "note": "L127 is_cc(): {0 Airborne,1 Stun,2 Bind,6 ForceMove,8 Fear,9 Charm} 이면 true"},
+  {"base": "Effect", "offset": "0x0", "name": "ty (Arc<dyn EffectType> data ptr)", "note": "L131 ArcInner 페이로드 = ptr + ((align-1)&~15) + 16"},
+  {"base": "Effect", "offset": "0x8", "name": "ty vtable ptr", "note": "+0x10 align · +0x80 슬롯 = EffectType::expected_cc_time -> Option<usize>(divtable)"},
+  {"base": "ScoreParameter", "offset": "0x14d8", "name": "near_enemies.buf.ptr", "note": "L138 ChampionScoreParameter 216B stride"},
+  {"base": "ScoreParameter", "offset": "0x14f0", "name": "near_enemies.len", "note": "L138"},
+  {"base": "ChampionScoreParameter", "offset": "0x58", "name": "id", "note": "L138 == target.id 로 find"},
+  {"base": "ChampionScoreParameter", "offset": "0x70", "name": "applyed_damage", "note": "L141 incoming 항"},
+  {"base": "ChampionScoreParameter", "offset": "0x80", "name": "risk_damage", "note": "L142 incoming 항"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L153/L157 player_champion · game"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L140 expected_damage_target 의 &GameContext"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "L158 [1-team] · 744B stride"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L153 아군 인덱스(<2 bounds check) · L156 1-team"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data ptr", "note": "L158 is_recent_visible · L166 get_entity_by_id"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable ptr", "note": "+0x1f0 get_entity_by_id"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5]", "note": "L153 [team] · L156 [1-team] 각 5칸 완전 언롤"},
+  {"base": "BattleSubPlanGoal", "offset": "0x0", "name": "tag", "note": "L165 switch: 0,1,2,3,5,6 → focus 있음 / 4(RunAway),7(End) → None"},
+  {"base": "BattleSubPlanGoal", "offset": "0x8", "name": "focus", "note": "L165 focus_id"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 129962296932191015333459514643667840978, "src_line": 120, "meaning": "TypeId(GamblerUltAction) i128 — downcast_ref 판별"},
+  {"value": 13, "src_line": 125, "meaning": "EntityType 메모리태그 13 = Champion (target.ty)"},
+  {"value": 0, "src_line": 127, "meaning": "CCState 태그 Airborne (is_cc 참) / L124 TeamType Player 태그 / L132 cc_time==0 / L146 incoming>0 / 반환 0"},
+  {"value": 1, "src_line": 127, "meaning": "CCState 태그 Stun (is_cc 참) / L144·L147 max(hp,1) 가드"},
+  {"value": 2, "src_line": 127, "meaning": "CCState 태그 Bind (is_cc 참) / L153 team<2 bounds / L163 min(enemy_near,2) (L163 의 `shl …, 2` 는 아래 folded_from 항목)"},
+  {"value": 2, "src_line": 163, "folded_from": 4, "meaning": "min(enemy_near,2)*4 — `shl nuw nsw i64 %472, 2` 로 접힘(리터럴 4 는 본문에 없고 dbg_value 의 루프 인덱스뿐)"},
+  {"value": 6, "src_line": 127, "meaning": "CCState 태그 ForceMove (is_cc 참) / L145 hp_value/6 / L150 target_parameter 없을 때 +6"},
+  {"value": 8, "src_line": 127, "meaning": "CCState 태그 Fear (is_cc 참)"},
+  {"value": 9, "src_line": 127, "meaning": "CCState 태그 Charm (is_cc 참)"},
+  {"value": 3, "src_line": 136, "meaning": "cc_time/3 (sdiv) · L162 min(ally_near,3)"},
+  {"value": 36, "src_line": 136, "meaning": "clamp 하한 접힘: cc_time<36 ⟺ cc_time/3<12 → 12 (icmp slt %cc_time, 36)"},
+  {"value": 12, "src_line": 136, "meaning": "clamp(12,30) 하한 / L171 focus_relevant||support 일치 가산 +12"},
+  {"value": 30, "src_line": 136, "meaning": "clamp(12,30) 상한 / L143 possible_risk(…, cc_time+30) 의 +30 틱"},
+  {"value": 100, "src_line": 139, "meaning": "hp_value = min(champion_hp_value, 100)"},
+  {"value": 35, "src_line": 144, "meaning": "min(ult_damage*hp_value/max(target.hp,1), 35)"},
+  {"value": 22, "src_line": 147, "meaning": "min(incoming*hp_value/max(target.hp,1), 22)"},
+  {"value": 14400000001, "src_line": 154, "meaning": "120000²+1 — 아군↔target 거리² 상한(ally_near)"},
+  {"value": 8100000001, "src_line": 159, "meaning": "90000²+1 — 가시 적↔target 거리² 상한(enemy_near) / L167 focus↔target"},
+  {"value": 5, "src_line": 162, "meaning": "min(ally_near,3)*5"},
+  {"value": 70, "src_line": 174, "meaning": "최종 bonus 상한 min(bonus,70)"},
+  {"value": -9223372036854775808, "src_line": 144, "meaning": "i64::MIN — sdiv 오버플로 패닉 가드(product==MIN && divisor==-1) · 판정값 아님"},
+  {"value": -1, "src_line": 131, "meaning": "ArcInner align-1 (Arc<dyn> 페이로드 오프셋 계산) / L144·L147 divisor==-1 오버플로 가드 · 판정값 아님"},
+  {"value": -16, "src_line": 131, "meaning": "(align-1)&~15 — Arc 헤더(16B) 정렬 · 판정값 아님"}
+ ],
+
+ "calls": [
+  "game_ai::utils::champion_hp_value",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_ai::score_parameter::ChampionScoreParameter::possible_risk",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "core::panicking::panic_bounds_check"
+ ],
+ "calls_indirect": [
+  "Action vtable +0x68 as_any(self) -> &dyn Any (L120)",
+  "Any vtable +0x18 type_id(self) -> TypeId(sret 16B) (L120)",
+  "EffectType vtable +0x80 expected_cc_time(self) -> Option<usize> {i64 tag, i64} (L131)",
+  "AbstractGame vtable +0x1f0 get_entity_by_id(game, focus_id) -> Option<&Entity> (L166)"
+ ],
+
+ "logic": "L120  let Some(gambler_ult) = action.as_any().downcast_ref::<GamblerUltAction>() else { return 0 };   // TypeId i128 비교\nL124  if target.team == champ.team { return 0 }                    // TeamType derived PartialEq\nL125  if target.ty 태그 != 13(Champion) { return 0 }                // L124·L125 는 IR 에서 한 select 로 접힘\nL126  if target.stat_buff_cached.cc_immune { return 0 }\nL127  if target.cc.iter().any(|c| c.is_cc()) { return 0 }           // entity.rs:534 is_cc = 태그∈{Airborne,Stun,Bind,ForceMove,Fear,Charm}\nL131  let cc_time = effect.ty.expected_cc_time().map_or(gambler_ult.charm_duration, |t| max(t, gambler_ult.charm_duration));   // (외연 동일: max(charm, cc.unwrap_or(0)))\nL132  if cc_time == 0 { return 0 }\nL136  let mut bonus = ((cc_time as i64) / 3).clamp(12, 30);         // IR: cc_time<36 → 12, else min(cc_time/3, 30)\nL138  if let Some(tp) = parameter.near_enemies.iter().find(|p| p.id == target.id) {\nL139      let hp_value = min(champion_hp_value(data, parameter, tp), 100);\nL140      let ult_damage = effect.expected_damage_target(data.context, champ as &dyn AbstractEntity, target);\nL141      let incoming = tp.applyed_damage + tp.risk_damage                                     // L141~L143\nL143                   + tp.possible_risk(data, cc_time + 30);\nL144      bonus += min(ult_damage * hp_value / max(target.hp,1), 35);       // sdiv(i64)\nL145      bonus += hp_value / 6;\nL146      if incoming > 0 {                                                    // signed\nL147          bonus += min(incoming * hp_value / max(target.hp,1), 22);\n      }\n      } else {\nL150      bonus += 6;\n      }\nL153  let team = player.info.team;                                            // <2 bounds check\nL154  let ally_near  = data.cache.iter_champions(team).filter(|a| a.id != champ.id && dist2(a, target) < 120000²+1).count();     // L153~155, 5칸 언롤\nL156  let enemy_team = 1 - team;\nL157  let enemy_near = data.cache.iter_champions(enemy_team).filter(|e| e.id != target.id\nL158                        && data.blackboard[enemy_team].is_recent_visible(game, player, e)\nL159                        && dist2(e, target) < 90000²+1).count();                                                        // L157~160, 5칸 언롤\nL162  bonus += min(ally_near, 3) * 5;\nL163  bonus += min(enemy_near, 2) * 4;                                          // shl 2\nL165  let focus_relevant = goal.focus().is_some_and(|focus_id|                 // old/battle.rs:30 focus(): 태그 4·7 → None\nL166        focus_id == target.id\nL166        || game.get_entity_by_id(focus_id).is_some_and(|focus|\nL167              focus.team == champ.team && dist2(focus, target) < 90000²+1));\nL170  if focus_relevant || support_target == Some(target.id) { bonus += 12 }   // L171\nL174  return min(bonus, 70);                                                    // L175\n\n※ 언롤된 fold 의 dbg 이름: ally_near(%304)·enemy_near(%468)·focus_relevant(%513)·bonus 단계별. 거리² 는 |dx|²+|dy|²(u64).",
+
+ "knobs": [
+  {"what": "CC 시간 기본 가산 clamp 범위", "where": "battle_common.rs:136", "value": "12..30 (cc_time/3)", "effect": "하한 12 를 올리면 짧은 매혹도 더 높게, 상한 30 을 올리면 긴 CC 가 더 크게 반영"},
+  {"what": "궁 피해 기여 상한", "where": "battle_common.rs:144", "value": 35, "effect": "올리면 고피해 궁일수록 가산이 커짐(ult_damage·hp_value/target.hp 비례)"},
+  {"what": "유입 피해 기여 상한", "where": "battle_common.rs:147", "value": 22, "effect": "올리면 팀 화력 집중 대상에 더 높은 점수"},
+  {"what": "아군 근접 반경(↔target)", "where": "battle_common.rs:154", "value": 14400000001, "effect": "120000² — 올리면 더 먼 아군도 세어 최대 +15(3×5)에 빨리 도달"},
+  {"what": "가시 적 근접 반경(↔target)", "where": "battle_common.rs:159", "value": 8100000001, "effect": "90000² — 올리면 주변 적이 더 많이 세여 최대 +8(2×4)"},
+  {"what": "포커스/서포트 일치 가산", "where": "battle_common.rs:171", "value": 12, "effect": "올리면 팀 포커스 대상에 궁을 더 우선"},
+  {"what": "최종 상한", "where": "battle_common.rs:174", "value": 70, "effect": "이 함수가 액션 점수에 더할 수 있는 최대치"},
+  {"what": "target_parameter 부재 시 고정 가산", "where": "battle_common.rs:150", "value": 6, "effect": "near_enemies 에 없는(정보 없는) 대상의 기본 가치"}
+ ],
+
+ "unknown": [
+  "L131 소스 표기: `map_or(charm, |t| max(t,charm))` 인지 `max(charm, expected_cc_time().unwrap_or(0))` 인지 — 외연 동일(표기 불가). 같은 파일의 `effective_ult_cc_time`(L99) 은 여기서 호출되지 않았다(콜리 요약·dloc 사슬에 L99~107 없음)",
+  "L124/L125 의 `||`/`&&` 소스 순서 — 한 select 로 접혀 판별 불가(외연 동일)",
+  "L166 클로저 안 `focus_id == target.id || get_entity_by_id(...)` 의 소스 순서 — IR 은 id 비교 후 vtable 호출(short-circuit 관측) · 소스 순서로 확정",
+  "expected_cc_time 의 런타임 구현체(CombineEffect 등) 별 값 — Arc<dyn EffectType> 이라 정적 확정 불가(divtable 은 슬롯 이름만)",
+  "champion_hp_value 의 TLS HP_VALUE_MEMO 레이아웃·무효화 규칙 — 콜리(utils) 명세 소관",
+  "hp_value·ult_damage 가 음수가 되는 경우가 있는지(반환 range 하한 -2^63 의 근거) — champion_hp_value/expected_damage_target 내부 미독해"
+ ]
+}

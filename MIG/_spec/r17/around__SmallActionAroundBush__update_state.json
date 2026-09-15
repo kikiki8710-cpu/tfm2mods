@@ -1,0 +1,78 @@
+{
+ "name": "around::SmallActionAroundBush::update_state",
+ "sym": "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush12update_state",
+ "src": "game-ai\\src\\small_action\\around.rs",
+ "src_line": 1221,
+ "ir_file": "m08.ll",
+ "ir_from": 104740,
+ "ir_to": 104914,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 35813, "ir_to": 36016, "note": "Filter<array::IntoIter<(usize,usize),71>, update_state::{closure#0}>::choose::<StdRng> — 후보 셀 중 무작위 1개(reservoir · L1226)"},
+  {"ir_file": "m08.ll", "ir_from": 113329, "ir_to": 113371, "note": "update_state::{closure#0} call_mut 심(around.rs:1225) — `map.bushes[y][x] == self.bush` 술어"}
+ ],
+ "one_line": "부쉬 주변대기 상태 갱신: 목표점 16000 이내 도달 && change_tick 경과면 같은 부쉬(id) 셀 71 후보 중 무작위 셀로 목표를 옮기고 change_tick = tick + rand(60..=120); debug 면 선 그리기",
+ "signature": {
+  "abi_note": "define hidden void · 5 인자(소스 5 · 팻포인터 없음). %0 self 는 readonly/initializes 속성 없음 → 쓰기 표면은 본문 store 로 전수(아래 writes). exe 0xdc2330(531B) 와 IR 175줄 규모 일치. reach 사장 0.",
+  "params": [
+   {"i": 1, "name": "self", "type": "&mut SmallActionAroundBush(120B) (%0)", "role": "IR 속성 없음(noalias · align 8 · dereferenceable(120)). 읽기 +0x8 change_tick · +0x10 bush(술어 캡처 &) · +0x18 target_x · +0x20 target_y / 쓰기 +0x8 · +0x18 · +0x20 (재선정 분기만)", "note": "DI self = %0"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B) (%1)", "role": "IR 속성 없음. gen_range 사이트 순서: ①aux choose 안 — 매칭 후보 원소마다 gen_range(0..consumed)(u32 경로 m06.ll:35957 · consumed≥2^32 usize 경로 35952 는 71 상한이라 도달 불가) → 0 이면 그 원소 채택 ②본체 gen_range(60..=120)(m08.ll:104886). 재선정 분기(L1225~1232)에서만 소비", "note": "DI rnd = %1"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B) (%2)", "role": "readonly · captures(none). +0x930 info.team · +0x9c0 info.position", "note": ""},
+   {"i": 4, "name": "data", "type": "&OperationData(24B) (%3)", "role": "readonly · captures(none). +0x0 cache(챔프·tick) · +0x8 context(+0x20 map bushes · +0x3b debug)", "note": ""},
+   {"i": 5, "name": "debug", "type": "&mut DebugFrameData(224B) (%4)", "role": "IR 속성 없음(noalias · align 8 · dereferenceable(224)). 본문 직접 store 0 — context.debug 일 때 add_line(game_core 경계)에 &mut 로 전달만", "note": "DI debug = %4"}
+  ],
+  "returns": "void — 효과는 self 3필드 갱신(조건부) + debug.add_line(조건부)"
+ },
+ "reads": [
+  {"base": "SmallActionAroundBush", "offset": "0x8", "name": "change_tick", "note": "L1224 (gep 8) · tick < change_tick 이면 재선정 건너뜀"},
+  {"base": "SmallActionAroundBush", "offset": "0x10", "name": "bush", "note": "L1225 (gep 16) · 술어 클로저가 &self.bush 를 캡처(aux call_mut 에서 load 후 bushes[y][x] 와 eq)"},
+  {"base": "SmallActionAroundBush", "offset": "0x18", "name": "target_x", "note": "L1224 (gep 24) x2 · L1236 add_line"},
+  {"base": "SmallActionAroundBush", "offset": "0x20", "name": "target_y", "note": "L1224 (gep 32) y2 · L1236"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L1222 (gep 2352) ult 2 bounds"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "L1222 (gep 2496) → as_index"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L1222/L1224/L1232"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L1225 map · L1235 debug"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "L1225 (gep 32) &MapDef → 술어 캡처"},
+  {"base": "GameContext", "offset": "0x3b", "name": "debug", "note": "L1235 (gep 59) bool — true 면 add_line"},
+  {"base": "MapDef", "offset": "0x1c98", "name": "bushes[y][x]", "note": "aux call_mut (gep 7320) [[usize;30];30] · y,x 각각 ult 30 bounds 패닉 · == self.bush"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "tick 호출"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "+0x28 tick (L1224 · L1232 두 번 호출)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "L1222 (gep 480) · null → unwrap_failed"},
+  {"base": "Entity", "offset": "0x660", "name": "x (champ)", "note": "L1224 distance_sq (gep 1632) · L1236 add_line 시점"},
+  {"base": "Entity", "offset": "0x668", "name": "y (champ)", "note": "L1224 (gep 1640) · L1236"}
+ ],
+ "writes": [
+  {"base": "SmallActionAroundBush", "offset": "0x18", "name": "target_x", "value": "cx*32000+16000 (cx = 선택 셀 .0)", "note": "L1230 · m08.ll:104877 · 재선정 분기만"},
+  {"base": "SmallActionAroundBush", "offset": "0x20", "name": "target_y", "value": "cy*32000+16000 (cy = 선택 셀 .1)", "note": "L1231 · m08.ll:104878 · 재선정 분기만"},
+  {"base": "SmallActionAroundBush", "offset": "0x8", "name": "change_tick", "value": "game.tick() + rnd.gen_range(60..=120)", "note": "L1232 · m08.ll:104889 · 재선정 분기만 · tick 은 L1224 와 별도로 재호출(%83)"},
+  {"base": "DebugFrameData", "offset": "(콜리)", "name": "add_line(champ.x, champ.y, self.target_x, self.target_y, color(1,1,0,1))", "value": "노란 선", "note": "L1236 · context.debug 일 때만 · game_core 경계(frame.rs) — 본문 직접 store 0"}
+ ],
+ "constants": [
+  {"value": 256000001, "src_line": 1224, "meaning": "16000² + 1 — dist_sq ult ⟹ 챔프↔target 거리 ≤ 16000(반 셀) 이면 '도달' → 재선정 후보"},
+  {"value": 71, "src_line": 1225, "meaning": "후보 셀 상수 배열 [(usize,usize);71] 길이(@anon…94 · 1136B = 71×16). 내용 = 부쉬 셀 좌표 목록(아래 logic)"},
+  {"value": 32000, "src_line": 1227, "meaning": "셀 → 월드 좌표 변환(셀 폭)"},
+  {"value": 16000, "src_line": 1227, "meaning": "셀 중심 오프셋(반 셀)"},
+  {"value": 60, "src_line": 1232, "meaning": "gen_range(60..=120) 하한 — 다음 목표 변경까지 최소 60틱(1초@60tps)"},
+  {"value": 120, "src_line": 1232, "meaning": "gen_range(60..=120) 상한 — 최대 120틱(2초)"},
+  {"value": 30, "src_line": 1225, "meaning": "(aux) bushes 격자 30×30 bounds — 후보는 전부 0..29 라 패닉 도달 불가"},
+  {"value": 2, "src_line": 1222, "meaning": "player_champion 팀 축 bounds"}
+ ],
+ "calls": [
+  "rand::seq::IteratorRandom::choose",
+  "rand::Rng::gen_range",
+  "game_core::simulation::game::frame::DebugFrameData::add_line",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::ops::function::impls::call_mut"
+ ],
+ "logic": "fn update_state(&mut self, rnd, player, data, debug)   // around.rs:1221~1238\n  // L1222\n  champ = data.cache.player_champion[player.info.team][player.info.position.as_index()].unwrap()\n  // L1224 — 도달 && 교체 시각 경과 (단락: 거리 먼저, tick() 가상호출은 거리 조건 참일 때만)\n  if champ.distance_sq((self.target_x, self.target_y)) < 256000001 && game.tick() >= self.change_tick {\n      // L1225 — 71 개 고정 셀 후보(@anon…94) 중 self.bush 와 같은 부쉬 id 인 셀만\n      const CANDIDATES: [(usize,usize);71] = [(0,0),(1,0),(2,0),(19,0),(20,0),(21,0),(0,1),(0,2),(7,4),(8,4),(9,4),(20,4),(20,5),(12,6),(4,7),(4,8),(29,8),(4,9),(14,9),(29,9),(29,10),(26,11),(6,12),(12,12),(13,12),(26,12),(12,13),(26,13),(9,14),(26,14),(20,15),(21,15),(17,16),(21,16),(16,17),(17,17),(25,18),(0,19),(25,19),(0,20),(4,20),(5,20),(15,20),(25,20),(0,21),(15,21),(16,21),(25,21),(25,22),(29,24),(18,25),(19,25),(20,25),(21,25),(22,25),(29,25),(11,26),(12,26),(13,26),(14,26),(29,26),(28,28),(29,28),(8,29),(9,29),(10,29),(24,29),(25,29),(26,29),(28,29),(29,29)]\n      candidates = CANDIDATES.into_iter().filter(|(x, y)| data.context.map.bushes[*y][*x] == self.bush)   // aux call_mut: bushes = MapDef+0x1c98 [[usize;30];30] · 튜플 .0=x(+0) .1=y(+8)\n      // L1226\n      (cx, cy) = candidates.choose(rnd).unwrap()          // aux choose: reservoir — 매칭 원소 k 번째마다 gen_range(0..k)==0 이면 교체 · 매칭 0개 → None → unwrap_failed 패닉\n      // L1227~1228\n      target_x = cx*32000 + 16000; target_y = cy*32000 + 16000\n      // L1230~1231\n      self.target_x = target_x; self.target_y = target_y\n      // L1232\n      self.change_tick = game.tick() + rnd.gen_range(60..=120)   // RangeInclusive{60,120,exhausted=false} · tick 재호출\n  }\n  // L1235\n  if data.context.debug {\n      // L1236\n      debug.add_line(champ.x, champ.y, self.target_x, self.target_y, &[1.0,1.0,0.0,1.0])   // 갱신 후 값(재선정됐으면 새 목표)\n  }\n  // L1238\n\n★rnd 순서(재선정 분기): [choose: 매칭 후보 수 N 만큼 gen_range(0..1), gen_range(0..2), …, gen_range(0..N) (u32 경로)] → gen_range(60..=120). N 은 self.bush 에 속한 후보 셀 수(맵 데이터 소관).\n★self.bush 가 후보 71 셀 어느 것과도 안 맞으면 choose=None → unwrap 패닉(생성자가 bush 를 후보 안 셀에서 잡는다는 전제).",
+ "knobs": [
+  {"what": "목표 도달 반경(제곱)", "where": "around.rs:1224 · m08.ll:104810", "value": 256000001, "effect": "올리면 목표점에 덜 붙어도 다음 셀 재선정 → 부쉬 안 배회가 잦아짐 · 내리면 정확히 붙어야 재선정"},
+  {"what": "재선정 대기 틱 범위", "where": "around.rs:1232 · m08.ll:104881/104883", "value": "60..=120", "effect": "넓히면 한 지점에 더 오래 서 있음(잠복 시간↑) · 좁히면 자주 움직임"},
+  {"what": "후보 셀 목록", "where": "around.rs:1225 · m08.ll:103 (@anon…94)", "value": "[(usize,usize);71]", "effect": "부쉬 셀 좌표 하드코딩 — 맵 bushes 격자와 어긋나면 그 부쉬는 후보 0 → unwrap 패닉 위험. 셀을 추가/삭제하면 잠복 지점 분포가 바뀜"}
+ ],
+ "unknown": [
+  "71 후보 셀이 맵 bushes 격자의 부쉬 셀 전체와 일치하는지(하드코딩 목록 vs 맵 데이터) — MapDef 인스턴스 값은 IR 밖(런타임/에셋)",
+  "rand::Rng::gen_range(60..=120) 및 choose 내부 gen_range(0..k) 의 실제 RNG 워드 소비 수(rejection 루프) — rand 크레이트 본체(gen_range 정의 m*.ll 별도) · 사이트 수와 순서만 확정",
+  "L1224 `&&` 좌우 순서는 분기 구조(거리 → tick 가상호출)로 확정 · 문면 확인은 column 부재"
+ ]
+}

@@ -1,0 +1,109 @@
+{
+ "name": "v30_line_champion_action_tower_aggro_risk",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline41v30_line_champion_action_tower_aggro_risk",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 160,
+ "ir_file": "m07.ll",
+ "ir_from": 52737,
+ "ir_to": 53029,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 33935, "ir_to": 34123, "note": "Chain<Flatten<array::IntoIter<Option<&Entity>,6>>, Copied<slice::Iter<&Entity>>>::try_fold — filter closure$0(can_target) + any closure$1(is_in_range_ex … 15000) 인라인 전반부"},
+  {"ir_file": "m11.ll", "ir_from": 29813, "ir_to": 29926, "note": "Copied<slice::Iter<&Entity>>::try_fold — 같은 두 클로저 인라인 후반부(판정식 m06 과 동일)"}
+ ],
+ "one_line": "라인전 구간에서 적 챔피언 대상 공격/스킬 행동이 (즉사시키지 못하면서) 시전 위치를 적 타워 사거리(+15000) 안에 두어 타워 어그로를 끌 위험이 있는가",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "role": "IR 속성 noundef 만 · 본문 참조 0회(미사용)", "note": "%0"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "role": "readonly(IR 속성 있음)", "note": "%1. +0 cache · +8 context"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "role": "readonly(IR 속성 있음)", "note": "%2. info.team(+0x930) · info.position(+0x9c0)"},
+   {"i": 4, "name": "action", "type": "&SmallActionPlay(184B)", "role": "readonly(IR 속성 있음)", "note": "%3. 니치 태그 +0xb1 → Attack/Skill/Skill2/Ult 만 통과 · 페이로드 +0x8 target(entity id)"}
+  ],
+  "returns": "bool(i1 zeroext) — true = 타워 어그로 위험(행동 억제 사유). false = 라인전 아님 / 타워 공격 비활성 시각 이후 / 내 챔피언 없음 / 행동이 4종 시전 아님 / 대상 없음·아군·비챔피언 / 이펙트 없음 / 대상 불가 / 한 방에 죽임 / 시전 위치가 어느 적 타워 사거리 안도 아님",
+  "writes_surface": "없음 — 참조 인자 전부 readonly. 스택 alloca 만(%5 32B 클로저 env · %6 120B 이터레이터 · %7/%8 stance_y/stance_x 8B — 클로저에 참조로 캡처)"
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": ""},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "runner.rs:263 spawn_epic 인라인 switch {0,5,7,8}"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": ""},
+  {"base": "GameSetting", "offset": "0x8a8", "name": "epic_jungle.first_spawn_tick", "note": "setting.rs:703 is_line_phase"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "×30"},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick", "note": "L161"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "슬롯 +0x28 tick(L160·L161 2회) · +0x1f0 get_entity_by_id(L173)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "stride 40B · null=None"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "bounds <2"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index"},
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "@tag(niche)", "note": "small_action.rs:309 get_action: 태그 15/16/17/18 → SmallAction Attack(6)/Skill(7)/Skill2(8)/Ult(9), 그 외 → return false"},
+  {"base": "SmallActionPlay", "offset": "0x8", "name": "@Attack|Skill|Skill2|Ult.0.target", "note": "SmallActionAttack/Skill 공통 +0x8 target: usize → blackboard.rs:104~106 get_action_target"},
+  {"base": "Entity(target)", "offset": "0x0", "name": "team@tag", "note": "L176 entity.rs:1127 TeamType PartialEq"},
+  {"base": "Entity(target)", "offset": "0x8", "name": "team@Player.0", "note": "== champ 의 것이면 return false"},
+  {"base": "Entity(target)", "offset": "0x68", "name": "ty@tag", "note": "L176 entity.rs:1404 is_champion == 13"},
+  {"base": "Entity(target)", "offset": "0x670", "name": "hp", "note": "L187: expected_damage < hp 여야 진행"},
+  {"base": "Entity(champ)", "offset": "0x0", "name": "team@tag", "note": "L176 비교 상대"},
+  {"base": "Entity(champ)", "offset": "0x8", "name": "team@Player.0", "note": ""},
+  {"base": "Entity(champ)", "offset": "0x4c0", "name": "attack_effect@tag(niche i32)", "note": "L124 Attack: -1 → return false"},
+  {"base": "Entity(champ)", "offset": "0x490", "name": "attack_effect@Some.0", "note": "effect (Attack)"},
+  {"base": "Entity(champ)", "offset": "0x4f8", "name": "skill_effect@tag(niche i32)", "note": "L125 Skill"},
+  {"base": "Entity(champ)", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "effect (Skill)"},
+  {"base": "Entity(champ)", "offset": "0x5c8", "name": "level", "note": "entity.rs:1693 skill2_effect(): level>2 / entity.rs:1701 ult_effect(): level>4 아니면 정적 NONE(@anon.31, 태그 -1)"},
+  {"base": "Entity(champ)", "offset": "0x500", "name": "skill2_effect", "note": "L126 · 태그 +0x530(=+48)"},
+  {"base": "Entity(champ)", "offset": "0x538", "name": "ult_effect", "note": "L127 · 태그 +0x568(=+48)"},
+  {"base": "Effect", "offset": "0x28", "name": "target(CastingTarget)", "note": "L183 CastingTarget::check(&effect.target, champ, target)"},
+  {"base": "Entity(tower)", "offset": "0x6b9", "name": "can_target", "note": "aux L193 filter entity.rs:1478"},
+  {"base": "Entity(tower)", "offset": "0x6a0", "name": "block_target_tick", "note": "aux == 0"},
+  {"base": "Entity(tower)", "offset": "0x4c0", "name": "attack_effect@tag(niche i32)", "note": "aux L194 -1 → skip"},
+  {"base": "Entity(tower)", "offset": "0x490", "name": "attack_effect@Some.0", "note": "aux tower_attack"},
+  {"base": "Entity(tower)", "offset": "0x660", "name": "x", "note": "aux L195 is_in_range_ex caster_x"},
+  {"base": "Entity(tower)", "offset": "0x668", "name": "y", "note": "aux L195 caster_y"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 0, "src_line": 160, "meaning": "TutorialType::None 태그 0 (switch case, runner.rs:263 spawn_epic)"},
+  {"value": 5, "src_line": 160, "meaning": "TutorialType::MidBottom 태그 5"},
+  {"value": 7, "src_line": 160, "meaning": "TutorialType::Line 태그 7. 또한 SmallActionPlay 니치 복원 select 기본값 7(=untagged AroundPosition 논리 idx) · SmallAction::Skill 태그 7"},
+  {"value": 8, "src_line": 160, "meaning": "TutorialType::Total 태그 8. 또한 SmallAction::Skill2 태그 8"},
+  {"value": 30, "src_line": 160, "meaning": "setting.rs:704 tick_per_second×30 = 에픽 첫 스폰 30초 전까지 라인전"},
+  {"value": 2, "src_line": 165, "meaning": "team 경계검사 상한. 또한 entity.rs:1693 skill2_effect 의 level > 2 임계"},
+  {"value": 10, "src_line": 169, "meaning": "SmallActionPlay 니치 태그 10 은 불가값(llvm.assume ne 10 — 컴파일러 힌트, 판정 아님)"},
+  {"value": -3, "src_line": 169, "meaning": "니치 태그→논리 idx 복원: tag - 3 (niche_start=3) — small_action.rs:309 get_action 인라인"},
+  {"value": 12, "src_line": 169, "meaning": "SmallActionPlay 논리 idx 12 = Attack → SmallAction::Attack(6)"},
+  {"value": 13, "src_line": 169, "meaning": "논리 idx 13 = Skill → SmallAction::Skill(7). 또한 L176 EntityType 태그 13 = Champion(is_champion)"},
+  {"value": 14, "src_line": 169, "meaning": "논리 idx 14 = Skill2 → SmallAction::Skill2(8)"},
+  {"value": 15, "src_line": 169, "meaning": "논리 idx 15 = Ult → SmallAction::Ult(9)"},
+  {"value": 6, "src_line": 170, "meaning": "SmallAction::Attack 태그 6 (blackboard.rs:104 get_action_target 경유 phi)"},
+  {"value": 9, "src_line": 170, "meaning": "SmallAction::Ult 태그 9"},
+  {"value": 1, "src_line": 192, "meaning": "1 - team = 적 팀 (iter_towers_without_nexus 인자)"},
+  {"value": -1, "src_line": 180, "meaning": "Option<Effect> 니치 None (4종 이펙트 as_ref)"},
+  {"value": 4, "src_line": 180, "meaning": "entity.rs:1701 ult_effect(): level > 4 아니면 NONE"},
+  {"value": 15000, "src_line": 195, "meaning": "aux: Effect::is_in_range_ex 의 마지막 인자(사거리 여유 가산 15000 — 추정: v47 의 Effect::range 여유와 같은 값)"}
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_ai::tower_discipline::v30_line_action_stance",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus"
+ ],
+ "callee_contracts": [
+  {"callee": "dyn AbstractGame::tick (vtable +0x28)", "args": "(game_data_ptr)", "returns": "usize — L160·L161 2회"},
+  {"callee": "dyn AbstractGame::get_entity_by_id (vtable +0x1f0)", "args": "(game_data_ptr, target_id)", "returns": "Option<&Entity>(null=None)"},
+  {"callee": "CastingTarget::check", "args": "(&CastingTarget(4B) = &effect.target, &Entity caster=champ, &Entity target)", "returns": "bool — 이 이펙트가 그 대상을 겨눌 수 있는가 (game_core g06.ll:86744 · 시그니처만)"},
+  {"callee": "Effect::expected_damage_target", "args": "(&Effect, &GameContext, caster: &dyn(champ, vtable @anon.11), &Entity target)", "returns": "usize 기대 피해"},
+  {"callee": "v30_line_action_stance", "args": "(Option<&GameContext>(여기선 Some(context)), &Entity champ, &Entity target, &Effect)", "returns": "{i64,i64} = (stance_x, stance_y) — 그 행동을 시전할 위치(m07.ll:50193 internal fastcc · 본문 미독 · 사거리 안이면 현 위치, 아니면 접근점으로 추정)"},
+  {"callee": "AbstractGameWithCache::iter_towers_without_nexus", "args": "(sret 120B, &cache, team = 1 - player.team)", "returns": "sret 120B Chain<Flatten<array::IntoIter<Option<&Entity>,6>>, Copied<slice::Iter<&Entity>>>"},
+  {"callee": "Effect::is_in_range_ex", "args": "(&Effect tower_attack, &Entity caster=tower, &Entity target=champ, caster_x=tower.x, caster_y=tower.y, target_x=stance_x, target_y=stance_y, margin=15000)", "returns": "bool — 명시 좌표 기준 사거리 판정 (game_core g06.ll:51807 · 시그니처만 · aux 에서 호출)"}
+ ],
+ "logic": "fn v30_line_champion_action_tower_aggro_risk(version, data, player, action) -> bool\n// version(%0) 미사용\nL160: tick = cache.game.tick(); if !context.is_line_phase(tick) → return false\n      // is_line_phase = !(tutorial ∈ {None,MidBottom,Line,Total}) || tick < first_spawn_tick.saturating_sub(tps*30)\nL161: if !(cache.game.tick() < setting.tower_attack_disable_tick) → return false\nL165: champ = cache.player_champion[team][pos]? ; None → return false\nL169: small_action = action.get_action()   // SmallActionPlay 니치 태그 복원 → Attack/Skill/Skill2/Ult 만, 그 외 → return false\nL170: target_id = small_action.get_action_target()  // 4종 모두 payload +0x8 target (blackboard.rs:104~106)\nL173: target = cache.game.get_entity_by_id(target_id)? ; None → return false\nL176: if target.team == champ.team || !target.is_champion() → return false\nL180: effect = v30_line_action_effect(champ, small_action) 인라인(L123~127):\n        Attack → champ.attack_effect.as_ref()  / Skill → skill_effect.as_ref()\n        Skill2 → champ.skill2_effect() (level>2 아니면 None) / Ult → champ.ult_effect() (level>4 아니면 None)\n      None → return false\nL183: if !CastingTarget::check(&effect.target, champ, target) → return false\nL187: if !(expected_damage_target(effect, context, champ, target) < target.hp) → return false   // 한 방에 죽이면 위험 아님\nL191: (stance_x, stance_y) = v30_line_action_stance(Some(context), champ, target, effect)\nL192: cache.iter_towers_without_nexus(1 - team)\nL193:   .filter(|t| t.can_target())            // +0x6b9 && +0x6a0==0\nL194:   .any(|tower| tower.attack_effect.as_ref()\nL195:        .is_some_and(|ta| ta.is_in_range_ex(tower, champ, tower.x, tower.y, stance_x, stance_y, 15000)))\nL196: return any 결과\n\n반환 phi: 모든 조기 탈출 = false, any 결과만 true 가능",
+ "knobs": [
+  {"what": "시전 위치의 타워 사거리 여유", "where": "tower_discipline.rs:195 (is_in_range_ex 마지막 인자)", "value": 15000, "effect": "올리면 타워에서 더 먼 시전 위치도 어그로 위험으로 본다(라인전 트레이드 보수화). 0 이면 순수 사거리"},
+  {"what": "라인전 구간 종료 여유", "where": "game-core setting.rs:704", "value": 30, "effect": "올리면 판정 활성 구간이 짧아진다(game_core 상수)"},
+  {"what": "킬 면책", "where": "tower_discipline.rs:187", "value": "expected_damage < target.hp", "effect": "없애면 처형각도 타워 위험으로 막힌다"}
+ ],
+ "unknown": [
+  "v30_line_action_stance 본문(m07.ll:50193~50440)은 계약만 읽음 — (x,y) 산출 규칙(사거리 안이면 현 위치 / 아니면 접근점 · usub.sat 15000) 은 스킴 수준 추정",
+  "L161 tower_attack_disable_tick 극성/의미 — v22 명세와 동일 미확정",
+  "is_in_range_ex 의 15000 이 소스에서 리터럴인지 상수명인지(_docs 0건) — 값만 확정",
+  "SmallActionPlay 니치 태그 10 이 어느 variant 에 해당하는지(assume ne 10 — tcxdict 표엔 태그 10 이 없음: AroundPosition 은 암묵) — 판정에 영향 없음"
+ ]
+}

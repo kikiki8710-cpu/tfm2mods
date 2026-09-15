@@ -1,0 +1,446 @@
+{
+ "name": "build_minion_wave_snapshot",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai5utils26build_minion_wave_snapshot",
+ "src": "game-ai\\src\\utils.rs",
+ "src_line": 611,
+ "ir_file": "m04.ll",
+ "ir_from": 49922,
+ "ir_to": 52222,
+ "aux": [],
+ "one_line": "내 챔피언 반경 80000 안 적 미니언(≤12)마다 아군 소스(미니언·타워·정글몹)의 DPS 와 투사체 일회 피해로 5틱 간격 HP 궤적·예상 사망틱을 계산한 MinionWaveSnapshot(sret 2320B) 생성",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "&mut MinionWaveSnapshot (2320B, ptr %0)",
+    "role": "sret writable writeonly noalias — 반환값. 로컬 %18(2320B) 에서 조립 후 L650(조기) 또는 L764 에서 2320B memcpy 로 통째 복사"
+   },
+   {
+    "i": 1,
+    "name": "player",
+    "type": "&PlayerState (2528B, ptr %1)",
+    "role": "readonly captures(none). 읽기 = +0x930 info.team · +0x9c0 info.position(4B enum Position, 0..4) 뿐"
+   },
+   {
+    "i": 2,
+    "name": "data",
+    "type": "&OperationData (24B, ptr %2)",
+    "role": "readonly captures(none). +0x0 cache(&AbstractGameWithCache: game vtable tick/iter_entity/iter_projectile/get_entity_by_id · player_champion) · +0x8 context(&GameContext: +0x0 pool Bump = targets Vec 의 아레나 · expected_damage_target 인자). +0x10 blackboard 미사용"
+   },
+   {
+    "i": 3,
+    "name": "prediction_depth",
+    "type": "usize (i64 %3)",
+    "role": "IR 속성 없음(값). num_checkpoints = min(prediction_depth/5, 18) (L728) · 투사체 arrival_tick ≤ prediction_depth 필터(L697)"
+   },
+   {
+    "i": 4,
+    "name": "source_quality",
+    "type": "usize (i64 %4)",
+    "role": "IR 속성 없음(값). 0 = 타워 DPS 제외(L668) · ≥2 = 투사체 스캔(L688) · ≥3(≠2) = 비-Target 투사체도 궤도 판정으로 포함(L703)"
+   }
+  ],
+  "returns": "sret MinionWaveSnapshot 2320B — **전 바이트 살아있음(undef·패딩 0)**: Default 로 전량 초기화(L618: 슬롯 12개 각 192B = checkpoint_hp[18] 0 · entity_id/current_hp/total_hp/dps_per_tick/checkpoint_count 0 · expected_death_tick = usize::MAX(-1) · count 0 · current_tick 0) 후 채운다. 레이아웃(tcxdict --deep MinionWaveSnapshot): minions[12] MinionHpTrajectory(192B: +0x0 checkpoint_hp[18] i64 · +0x90 entity_id · +0x98 current_hp · +0xa0 total_hp · +0xa8 dps_per_tick · +0xb0 checkpoint_count · +0xb8 expected_death_tick) · +0x900 count · +0x908 current_tick. 슬롯 [count..12) 는 Default 그대로. 슬롯 [0..count) 는 entity_id/current_hp/total_hp(L641~643) · dps_per_tick(L726) · checkpoint_hp[0..num_checkpoints)+checkpoint_count(L746~747) · expected_death_tick(L761, 안 죽으면 MAX) 가 채워지고 checkpoint_hp[num_checkpoints..18) 는 0 유지. count==0 이면 L650 조기 반환(current_tick 만 채워짐)",
+  "tls": "없음 — 본문 49922~52222 의 @anon 참조는 panic Location(.223~.232, .36)과 Entity 의 AbstractEntity vtable(.6)뿐, LocalKey::with / call_once fn-포인터 상수 0건"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "IR gep 2352 — L617 player_champion[team] 인덱스(bounds <2)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag (i32)",
+   "note": "IR gep 2496, zext → [pos] 인덱스(Position 5variant 라 bounds check 없음, entity.rs:581 인라인)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext — L627 bump · L679/L696/L710 expected_damage_target 인자"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "targets: bumpalo Vec<&Entity>::new_in(bump) (L627, IR 초기 {ptr=8(dangling), bump, cap 0, len 0})"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "&dyn AbstractGame"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "vtable+0x28 tick()(L619) · +0x200 iter_entity()(L629·L665, sret 64B EntityIter) · +0x210 iter_projectile()(L689, sret 40B ProjectileIter) · +0x1f0 get_entity_by_id(id)(L693·L705) — divtable AbstractGame"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "IR gep 480 — L617 .unwrap() (None 이면 unwrap_failed 패닉)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag (TeamType: 0=Player(usize) 1=Neutral)",
+   "note": "L633 e.team != champ.team · L667~672 src.team == champ.team · L706 caster.team == champ.team — derive PartialEq 인라인(tag 비교 후 tag==0 이면 +0x8 payload 비교)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0 (usize)",
+   "note": "위 팀 비교의 페이로드"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "IR gep 104 — L633 ==1(Minion) · L666 switch 1 Minion/2 Tower/7 Ghoul/8 SmallJiangshi/9 Bear/10 Eagle"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x88",
+   "name": "ty@Minion.info.nearest_enemy@tag (Minion+0x18) — Ghoul/Bear 도 동일 오프셋(Ghoul+0x18/Bear+0x18)",
+   "note": "IR gep 136 — L667/669/670 Option<usize> tag"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x90",
+   "name": "ty@Minion.info.nearest_enemy@Some.0 (Minion+0x20) — Ghoul/Bear 동일",
+   "note": "IR gep 144 — target_id"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x88",
+   "name": "ty@Tower.info.nearest_enemy@tag (Tower+0x18)",
+   "note": "IR gep 136 — L668 Option<(usize,usize)> tag"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x98",
+   "name": "ty@Tower.info.nearest_enemy@Some.0.1 (Tower+0x28)",
+   "note": "IR gep 152 — L668 은 튜플 .1 을 target_id 로 씀(.0 = Tower+0x20 은 안 읽음)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Eagle.info.nearest_enemy@tag (Eagle+0x0)",
+   "note": "IR gep 112 — L671"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x78",
+   "name": "ty@Eagle.info.nearest_enemy@Some.0 (Eagle+0x8)",
+   "note": "IR gep 120 — L671"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x100",
+   "name": "ty@SmallJiangshi.info.target_enemy (SmallJiangshi+0x90, usize)",
+   "note": "IR gep 256 — L672 Option 아님(항상 Some(target_enemy))"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect (Option<Effect> 56B)",
+   "note": "IR gep 1168 — L678; None 니치 = +0x4c0 casting@tag(i32, IR 1216) == -1"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "IR gep 1136 — L709 Entity::radius() 인라인(entity.rs:1511~1515): mult==0 ? radius : radius*(mult+100)/100"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius (usize)",
+   "note": "IR gep 1664 — L709 is_in_orbit 3번째 인자"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "IR gep 1472 — L641 traj.entity_id · L644 target_ids[count]"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "IR gep 1648 — L642 traj.current_hp"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "IR gep 1576 — L643 traj.total_hp"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "IR gep 1632 — L636 거리² · L694 distance · L709 is_in_orbit"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "IR gep 1640"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x6b9",
+   "name": "can_target (bool)",
+   "note": "IR gep 1721 — L633 세 번째 조건"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x40",
+   "name": "move_type@tag (ProjectileMoveType 니치 태그)",
+   "note": "IR gep 64 — L690 ==6 Target (assume !=9: BouncingTarget 은 무태그라 9는 불가값)"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x48",
+   "name": "move_type@Target.speed",
+   "note": "IR gep 72 — L695 arrival = dist / max(speed,1) + 5"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x50",
+   "name": "move_type@Target.target_id",
+   "note": "IR gep 80 — L691 find_slot(target_id)"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0xf8",
+   "name": "caster_id",
+   "note": "IR gep 248 — L693/L705 get_entity_by_id"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x100",
+   "name": "x",
+   "note": "IR gep 256 — L694 distance(p.x,p.y,e.x,e.y)"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x108",
+   "name": "y",
+   "note": "IR gep 264"
+  },
+  {
+   "base": "Projectile",
+   "offset": "0x12c",
+   "name": "applyed_target (CastingTarget 4B)",
+   "note": "IR gep 300 — L709 CastingTarget::check_projectile(&self, p, e)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "MinionWaveSnapshot(sret)",
+   "offset": "0x908",
+   "name": "current_tick",
+   "value": "game.tick() (L619)",
+   "note": "IR gep 2312 (로컬 %18 기준)"
+  },
+  {
+   "base": "MinionWaveSnapshot(sret)",
+   "offset": "0x900",
+   "name": "count",
+   "value": "수집된 적 미니언 수 0..=12 (L646 +1)",
+   "note": "IR gep 2304"
+  },
+  {
+   "base": "MinionWaveSnapshot(sret)",
+   "offset": "0x0 -> minions[slot] (192B stride)",
+   "name": "MinionHpTrajectory",
+   "value": "+0x90 entity_id=e.id(L641) · +0x98 current_hp=e.hp(L642) · +0xa0 total_hp=e.stat_cached.hp(L643) · +0xa8 dps_per_tick=Σ dmg/cooltime(L726) · +0x0 checkpoint_hp[i]=hp(L746) · +0xb0 checkpoint_count=i+1(L747) · +0xb8 expected_death_tick(L761)",
+   "note": "IR gep 144/152/160/168/176/184 (slot 기준). 나머지 슬롯·바이트는 Default(L618: memset 0 + expected_death_tick=-1)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 6400000000,
+   "src_line": 622,
+   "meaning": "range_sq = 80000² (= 2.5셀). L636 (dx²+dy²) > range_sq 이면 제외(경계 포함 = 이하 채택)"
+  },
+  {
+   "value": 2,
+   "src_line": 617,
+   "meaning": "team bounds check(<2) · L666 switch EntityType 태그 2 = Tower"
+  },
+  {
+   "value": 1,
+   "src_line": 633,
+   "meaning": "EntityType 태그 1 = Minion(e.ty.is_any_type_minion() 인라인 entity.rs:1261 — IR 은 ==1 만 비교) · L680 max(cooltime,1) · L695 max(speed,1) · L712 비-Target 투사체 arrival_tick = 1 · L747 checkpoint_count=i+1 · L699/713 count += 1"
+  },
+  {
+   "value": 11,
+   "src_line": 629,
+   "folded_from": 12,
+   "meaning": "첫 루프 종료 조건 count > 11 (= count >= 12 = MinionWaveSnapshot::minions 슬롯 상한). 소스 표기(>=12 / >11)는 표기 불가"
+  },
+  {
+   "value": 12,
+   "src_line": 654,
+   "meaning": "target_ids[12]·dps_per_tick[12]·one_shot_damages[12]·one_shot_count[12] 배열 크기 = 슬롯 상한 · L725 minions[slot] bounds · [..target_count] 슬라이스 검사(target_count < 13)"
+  },
+  {
+   "value": 13,
+   "src_line": 655,
+   "meaning": "target_count < 13 = target_ids[..target_count] 슬라이스 범위 검사(slice_index_fail 가드, 실제 도달 불가)"
+  },
+  {
+   "value": 5,
+   "src_line": 728,
+   "meaning": "체크포인트 간격(틱) — num_checkpoints = prediction_depth/5 (udiv) · L733 tick_offset=(i+1)*5 · L738 prev_tick=i*5 · L735 hp -= dps_per_tick*5 (IR: mul -5 후 add) · L753 frac = prev_hp*5/(prev_hp-hp) · L695 arrival += 5(투사체 도달 여유)"
+  },
+  {
+   "value": -5,
+   "src_line": 735,
+   "folded_from": 5,
+   "meaning": "hp -= dps_per_tick*5 가 `mul %dps, -5` + add 로 접힘(부호 흡수)"
+  },
+  {
+   "value": 18,
+   "src_line": 728,
+   "meaning": "num_checkpoints 상한 = checkpoint_hp[18] 배열 크기 (llvm.umin)"
+  },
+  {
+   "value": 16,
+   "src_line": 697,
+   "meaning": "one_shot_damages[slot] 원소 상한 — one_shot_count[slot] < 16 일 때만 push(L697·L711); 내부 루프 16-way 전개"
+  },
+  {
+   "value": 6,
+   "src_line": 690,
+   "meaning": "ProjectileMoveType 메모리 태그 6 = Target{speed,target_id} (tcxdict --enum: idx4, 니치 start 2)"
+  },
+  {
+   "value": 9,
+   "src_line": 690,
+   "meaning": "llvm.assume(tag != 9) — ProjectileMoveType 에서 9 는 무태그 variant(BouncingTarget) 자리라 절대 안 나옴(컴파일러 힌트, 판정 아님)"
+  },
+  {
+   "value": 7,
+   "src_line": 666,
+   "meaning": "EntityType 태그 7 = Ghoul (소스 후보)"
+  },
+  {
+   "value": 8,
+   "src_line": 666,
+   "meaning": "EntityType 태그 8 = SmallJiangshi"
+  },
+  {
+   "value": 10,
+   "src_line": 666,
+   "meaning": "EntityType 태그 10 = Eagle (9 = Bear 도 switch 케이스)"
+  },
+  {
+   "value": 100,
+   "src_line": 709,
+   "meaning": "Entity::radius() 인라인: radius*(radius_mult+100)/100 (entity.rs:1515)"
+  },
+  {
+   "value": -1,
+   "src_line": 618,
+   "meaning": "expected_death_tick 초기값 usize::MAX(Default) · L628 target_ids memset 0xFF · L730 death_tick=MAX 센티널(L749 `death_tick == MAX` 로 첫 사망만 기록) · L678 Option<Effect> None 니치(i32 -1) · sdiv 오버플로 검사"
+  },
+  {
+   "value": 0,
+   "src_line": 649,
+   "meaning": "count == 0 이면 조기 반환 · L668 source_quality == 0 이면 타워 제외 · L752 prev_hp > 0 · L1512 radius_mult == 0"
+  },
+  {
+   "value": -9223372036854775808,
+   "src_line": 753,
+   "meaning": "i64::MIN — sdiv 오버플로 패닉 검사(컴파일러 삽입, L681/L753)"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::EntityIter::next",
+  "game_core::simulation::ProjectileIter::next",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::projectile::Projectile::expected_damage_target",
+  "game_core::simulation::projectile::Projectile::is_in_orbit",
+  "game_core::simulation::effect::type::CastingTarget::check_projectile",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_core::utils::distance",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "bumpalo::collections::vec::Vec::drop",
+  "core::ptr::drop_glue",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::slice::index::slice_index_fail",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "llvm.umin.i64",
+  "llvm.umax.i64",
+  "llvm.assume"
+ ],
+ "logic": "fn build_minion_wave_snapshot(player: &PlayerState, data: &OperationData, prediction_depth: usize, source_quality: usize) -> MinionWaveSnapshot   // utils.rs:611~615\n  let champ: &Entity = data.cache.player_champion[player.info.team][player.info.position as usize].unwrap();   // L617 (team bounds <2; None → unwrap_failed 패닉)\n  let mut snapshot = MinionWaveSnapshot::default();   // L618 (전량 0, expected_death_tick 12개 = MAX)\n  snapshot.current_tick = data.cache.game.tick();      // L619 vtable+0x28\n  let range_sq = 6400000000;                           // L622 (80000²)\n  let mut targets: bumpalo Vec<&Entity> = Vec::new_in(data.context.pool);   // L627\n  let mut target_ids = [usize::MAX; 12];               // L628\n  // ── 1) 적 미니언 수집 (L629~647)\n  for e in data.cache.game.iter_entity() {             // L629 vtable+0x200; next() 호출 뒤 `snapshot.count > 11` 이면 break(=12개 채우면 중단)\n    if e.ty.tag == 1 (Minion) && e.team != champ.team && e.can_target {   // L633 (IR 평가 순서 ty → team → can_target; TeamType derive PartialEq: tag 비교 → tag==0(Player) 이면 payload 비교)\n      let dx = |champ.x - e.x|, dy = |champ.y - e.y|;   // L636 (unsigned 절대차, 인라인 헬퍼 L7~9)\n      if dx*dx + dy*dy > range_sq { continue }          // L636  ⇒ 거리² ≤ 80000² 채택\n      let traj = &mut snapshot.minions[snapshot.count]; // L640\n      traj.entity_id = e.id; traj.current_hp = e.hp; traj.total_hp = e.stat_cached.hp;   // L641~643 (+0x5c0/+0x670/+0x628)\n      target_ids[snapshot.count] = e.id;               // L644\n      targets.push(e);                                  // L645 (bumpalo reserve_internal_or_panic)\n      snapshot.count += 1;                              // L646\n    }\n  }\n  if snapshot.count == 0 { return snapshot; }           // L649~650 (targets drop 후 memcpy 2320B)\n  let target_count = snapshot.count;                    // L653\n  let find_slot = |id| target_ids[..target_count].iter().position(|&t| t == id);   // L654~657 (target_ids 96B + target_count 를 값 캡처; target_count<13 슬라이스 가드)\n  let mut dps_per_tick   = [0i64; 12];                  // L659\n  let mut one_shot_damages = [[(0usize,0usize);16]; 12];   // L661 ((arrival_tick, dmg))\n  let mut one_shot_count = [0usize; 12];                // L662\n  // ── 2) 아군 소스의 지속 DPS (L665~687)\n  for src in data.cache.game.iter_entity() {            // L665\n    let target_id: Option<usize> = match src.ty.tag {   // L666 switch(+0x68)\n      1 (Minion)        if src.team == champ.team => src.ty.info.nearest_enemy      (Minion+0x18 tag / +0x20)   // L667\n      2 (Tower)         if source_quality != 0 && src.team == champ.team => src.ty.info.nearest_enemy.map(|t| t.1)  (Tower+0x18 tag / +0x28 = 튜플 .1)   // L668 (IR: sq==0 먼저 검사 → 팀 비교)\n      7 (Ghoul)         if src.team == champ.team => nearest_enemy (Ghoul+0x18/+0x20)   // L669\n      9 (Bear)          if src.team == champ.team => nearest_enemy (Bear+0x18/+0x20)    // L670\n      10 (Eagle)        if src.team == champ.team => nearest_enemy (Eagle+0x0/+0x8)     // L671\n      8 (SmallJiangshi) if src.team == champ.team => Some(src.ty.info.target_enemy) (SmallJiangshi+0x90, 항상 Some)   // L672\n      _ => continue,                                    // (팀 불일치도 continue)\n    };\n    let Some(target_id) = target_id else { continue };  // L676\n    let Some(slot) = find_slot(target_id) else { continue };   // L677\n    let Some(atk_eff) = &src.attack_effect else { continue };  // L678 (+0x490, 니치 +0x4c0 i32 != -1)\n    let dmg = atk_eff.expected_damage_target(data.context, src as &dyn AbstractEntity, targets[slot]);   // L679 (targets[slot] bounds check)\n    let cooltime = max(src.attack_cooltime(), 1);        // L680 (attack_cooltime 반환 range ≥3 이라 max 는 사실상 무효)\n    dps_per_tick[slot] += dmg / cooltime;                // L681 sdiv(i64; 오버플로 검사)\n  }\n  // ── 3) 투사체 일회 피해 (L688~721) — source_quality ≥ 2 일 때만\n  if source_quality > 1 {                               // L688\n    for p in data.cache.game.iter_projectile() {        // L689 vtable+0x210\n      if let ProjectileMoveType::Target { speed, target_id } = &p.move_type {   // L690 (tag +0x40 == 6)\n        let Some(slot) = find_slot(*target_id) else { continue };   // L691\n        let e = targets[slot];                          // L692\n        let Some(caster) = data.cache.game.get_entity_by_id(p.caster_id) else { continue };   // L693 vtable+0x1f0 (null=None)\n        let dist = game_core::utils::distance(p.x, p.y, e.x, e.y);   // L694\n        let arrival_tick = dist / max(*speed, 1) + 5;   // L695 (udiv 내림)\n        let dmg = p.expected_damage_target(data.context, caster, e);   // L696\n        if arrival_tick <= prediction_depth && one_shot_count[slot] < 16 {   // L697 (IR 순서: count<16 계산 후 and)\n          one_shot_damages[slot][one_shot_count[slot]] = (arrival_tick, dmg);   // L698\n          one_shot_count[slot] += 1;                    // L699\n        }\n      } else if source_quality != 2 {                   // L703 (sq>1 이므로 ≥3; 소스 표기 >=3 / >2 는 표기 불가)\n        let Some(caster) = data.cache.game.get_entity_by_id(p.caster_id) else { continue };   // L705\n        if caster.team != champ.team { continue }        // L706 (TeamType PartialEq)\n        for slot in 0..target_count {                   // L707\n          let e = targets[slot];                        // L708 (bounds check vs targets.len)\n          if p.applyed_target.check_projectile(p, e)    // L709 (+0x12c CastingTarget)\n             && p.is_in_orbit(e.x, e.y, e.radius())     // L709 (Entity::radius 인라인: radius_mult(+0x470)==0 ? radius(+0x680) : radius*(mult+100)/100)\n          {\n            let dmg = p.expected_damage_target(data.context, caster, e);   // L710\n            if one_shot_count[slot] < 16 {              // L711 (slot<12 bounds check 선행)\n              one_shot_damages[slot][one_shot_count[slot]] = (1, dmg);   // L712 arrival_tick = 1\n              one_shot_count[slot] += 1;                // L713\n            }\n          }\n        }\n      }\n    }\n  }\n  // ── 4) 슬롯별 HP 궤적 (L724~761)\n  for slot in 0..target_count {                         // L724 (minions[slot] bounds <12)\n    let traj = &mut snapshot.minions[slot];             // L725\n    traj.dps_per_tick = dps_per_tick[slot];             // L726\n    let num_checkpoints = min(prediction_depth / 5, 18);   // L728\n    let mut hp: i64 = traj.current_hp;                  // L729\n    let mut death_tick = usize::MAX;                    // L730\n    for i in 0..num_checkpoints {                       // L732\n      let tick_offset = (i + 1) * 5;                    // L733\n      hp -= traj.dps_per_tick * 5;                      // L735\n      let prev_tick = i * 5;                            // L738\n      for j in 0..one_shot_count[slot] {                // L739 (16-way 전개; count>16 이면 bounds 패닉 — 도달 불가)\n        let (arrival, dmg) = one_shot_damages[slot][j];   // L740\n        if arrival > prev_tick && arrival <= tick_offset { hp -= dmg }   // L741~742 (반열린 (prev_tick, tick_offset])\n      }\n      traj.checkpoint_hp[i] = hp;                       // L746\n      traj.checkpoint_count = i + 1;                    // L747\n      if hp < 1 && death_tick == usize::MAX {           // L749 (IR slt 1 = `<= 0`; 첫 사망만)\n        let prev_hp = if i == 0 { traj.current_hp } else { traj.checkpoint_hp[i-1] };   // L751\n        if prev_hp > 0 {                                // L752\n          let frac = prev_hp * 5 / (prev_hp - hp);      // L753 sdiv(오버플로 검사) — 선형 보간 틱\n          death_tick = prev_tick + frac;                // L754\n        } else {\n          death_tick = tick_offset;                     // L755(추정 줄) — IR phi 에 tick_offset 상수/값 분기\n        }\n      }\n    }\n    traj.expected_death_tick = death_tick;              // L761\n  }\n  snapshot                                              // L764 (targets drop → 2320B memcpy → L765)\n\n특기: prediction_depth < 5 면 num_checkpoints = 0 → 각 슬롯은 dps_per_tick 만 쓰고 expected_death_tick = MAX(IR 전용 분기 %190/194·520~580 unrolled). prediction_depth 5~9 면 체크포인트 1개(%193). 투사체 Target 분기의 arrival_tick 은 프로젝트 좌표→타깃 거리 기반이라 e 가 움직여도 재계산 안 함. TLS 접점 없음(anon 상수 전부 panic Location + Entity vtable @anon.6).",
+ "knobs": [
+  {
+   "what": "적 미니언 수집 반경",
+   "where": "utils.rs:622 (사용 :636)",
+   "value": 6400000000,
+   "effect": "80000²(2.5셀). 올리면 더 먼 웨이브 미니언까지 스냅샷에 들어가 (소비처의) 웨이브 위험/정리 판단 대상이 넓어진다"
+  },
+  {
+   "what": "체크포인트 간격",
+   "where": "utils.rs:728·733·735·738·753",
+   "value": 5,
+   "effect": "5틱 단위 HP 예측. 줄이면 해상도↑(단 18칸 상한이라 예측 범위 = 5×18 = 90틱 → 비례 축소)"
+  },
+  {
+   "what": "체크포인트 상한 / 슬롯 상한 / 일회피해 상한",
+   "where": "utils.rs:14·67·661 (배열 크기) → :728·:629·:697",
+   "value": "18 / 12 / 16",
+   "effect": "구조체 레이아웃과 결합돼 있어 단독 변경 불가(MinionHpTrajectory 192B·MinionWaveSnapshot 2320B 가 바뀜)"
+  },
+  {
+   "what": "투사체 도달 여유",
+   "where": "utils.rs:695",
+   "value": 5,
+   "effect": "arrival_tick = dist/speed + 5. 올리면 Target 투사체 피해가 더 늦은 체크포인트에 반영되고 prediction_depth 밖으로 밀려 탈락하기 쉬움"
+  },
+  {
+   "what": "source_quality 게이트",
+   "where": "utils.rs:668·688·703",
+   "value": "0: 타워 제외 / ≥2: 투사체 / ≥3: 비-Target 투사체",
+   "effect": "호출자가 주는 품질 단계. 낮출수록 DPS 과소평가(미니언이 더 오래 사는 것으로 예측)"
+  },
+  {
+   "what": "비-Target 투사체 도달틱",
+   "where": "utils.rs:712",
+   "value": 1,
+   "effect": "첫 체크포인트(틱 5)에 즉시 반영. 올리면 후속 체크포인트로 이동"
+  }
+ ],
+ "unknown": [
+  "Tower.nearest_enemy 가 Option<(usize,usize)> 인데 .1 을 target_id 로 쓴다 — .0(Tower+0x20) 의 의미(거리? 우선순위?) 미확인(game_core Tower 정의 미독). IR 은 +152 만 읽는다",
+  "L633 세 조건의 소스 표기 순서: IR 평가 순서(ty → team → can_target)와 같다고 보나 column 정보 없어 표기 불가(동작은 확정)",
+  "L749 `hp < 1`(IR slt 1) 이 소스에서 `<= 0` 인지 `< 1` 인지 — 외연 동일, 표기 불가",
+  "L703 `source_quality != 2` 가 소스에서 `>= 3` / `> 2` 중 무엇인지 — sq>1 문맥에서 외연 동일, 표기 불가. L668 `!= 0` 도 `> 0`/`>= 1` 과 동일",
+  "L755 (else death_tick = tick_offset) 의 정확한 소스 줄 — IR phi 에 !dbg 가 L0 이라 줄번호 미확정(751~756 사이)",
+  "L636 거리² 헬퍼의 소스 파일(인라인 체인 L3147<7/8/9<636 — utils 류 `dist_sq` 로 추정, game_core 파일명 미확인). 동작(절대차 제곱합, u64)은 확정",
+  "EntityIter/ProjectileIter 의 순회 순서(SlotMap 순?) — 수집 12개 초과 시 어느 미니언이 잘리는지는 이 순서에 의존. game_core 경계라 미독",
+  "Effect::expected_damage_target / Projectile::expected_damage_target / CastingTarget::check_projectile / Projectile::is_in_orbit / utils::distance 내부 — game_core 경계(시그니처·반환 의미만: 앞 둘 -> i64 피해량, check_projectile -> bool 적용대상 여부, is_in_orbit(x,y,radius) -> bool, distance -> i64 ≥0)",
+  "Entity::attack_cooltime 반환이 range(i64 3, 0)(≥3) 인데 max(…,1) 이 있는 이유 — 소스 안전장치로 보임, 판정 무관",
+  "vtable 슬롯 이름은 divtable(ExpectedGame 판 vtable) 기준 — 런타임 구현체(Game/ExpectedGame)가 어느 쪽인지는 호출자 소관"
+ ]
+}

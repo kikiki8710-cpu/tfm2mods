@@ -1,0 +1,368 @@
+{
+ "name": "LineWaitSubPlan::score",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9line_waitNtB2_15LineWaitSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\line_wait.rs",
+ "src_line": 159,
+ "ir_file": "m15.ll",
+ "ir_from": 22517,
+ "ir_to": 22838,
+ "aux": [],
+ "one_line": "LineWait 서브플랜의 후보 액션 점수: evaluate_action(Lane 우선순위·Lane 앵커) Some 이면 그 값, None 이면 interaction_score+경제보정+액션별 가산(Attack/Skill/Skill2=calculate_action_score, Around 아군구조물 원거리=50/100, 대상 소실=-99999)",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&LineWaitSubPlan(1B) — {line: LineType@+0x0}",
+    "role": "IR 속성 readonly captures(none) dereferenceable(1). +0x0 line 1회 읽음(L160, ActionContext.anchor 구성용)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "role": "분기 없음 — evaluate_action / interaction_score / line_action_economy_adjustment / calculate_action_score 에 그대로 전달만"
+   },
+   {
+    "i": 3,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B)",
+    "role": "IR 속성 readonly. 본문 직접 읽기 0 — 콜리에 전달만"
+   },
+   {
+    "i": 4,
+    "name": "rnd",
+    "type": "&mut StdRng(320B, align16)",
+    "role": "IR 속성 없음(readonly 아님) · 본문 gen_range 호출 사이트 0 — evaluate_action(콜리 쪽 readnone)·interaction_score·calculate_action_score 에 전달만"
+   },
+   {
+    "i": 5,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "role": "IR 속성 readonly. +0x930 info.team · +0x9c0 info.position 태그 읽음"
+   },
+   {
+    "i": 6,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "role": "IR 속성 readonly. +0x0 cache(&AbstractGameWithCache) 만 읽음(context/blackboard 미사용)"
+   },
+   {
+    "i": 7,
+    "name": "action",
+    "type": "&SmallActionPlay(184B)",
+    "role": "IR 속성 readonly. +0xb1 태그 · +0x8 target 읽음(get_action 인라인)"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "role": "IR 속성 없음(readonly 아님) · 본문 직접 쓰기 0 — evaluate_action(콜리 쪽 readnone)·interaction_score·calculate_action_score 에 전달만"
+   }
+  ],
+  "returns": "i64 (noundef) — 후보 액션 점수. evaluate_action 이 Some(v) 면 v 그대로(L160~L222), None 이면 base + economy_adjustment + arm 값(L169)",
+  "tls": "없음 — 본문에 LocalKey::with / @anon…call_once fn-포인터 상수 참조 0 (48427~48748 전수)"
+ },
+ "reads": [
+  {
+   "base": "LineWaitSubPlan",
+   "offset": "0x0",
+   "name": "line",
+   "note": "L160 · ActionContext.anchor = Anchor::Lane{line} 의 페이로드(+0x11)로 복사"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L163 · player_champion[team] 1차 인덱스 · <2 bounds check(panic_bounds_check)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag(i32)",
+   "note": "L163(player.rs:581 인라인) · zext 후 player_champion[team][pos] 2차 인덱스"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "L163 · &AbstractGameWithCache"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "L173/126/134/142 · dyn AbstractGame 팻포인터 데이터"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "L173/126/134/142 · vtable+0x1f0(=496) = AbstractGame::get_entity_by_id 슬롯(divtable 확인)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5]",
+   "note": "L163 · Option<&Entity> — null 이면 unwrap_failed(entity.rs:1011/option.rs:1013)"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "tag(u8, niche)",
+   "note": "L169(small_action.rs:309 get_action 인라인) · idx = tag>2 ? tag-3 : 7(AroundPosition 암묵) · llvm.assume(tag≠10)"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "payload.target / target_id",
+   "note": "Around(idx2)/AroundHide(3)/LaneMinionPosition(10)=SmallActionAround*.target · Attack(12)=cast.rs:94 · Skill(13)=cast.rs:160 · Skill2(14)=cast.rs:222 — 전부 +0x8"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag(i32, -1=None)",
+   "note": "L174(option.rs:742 as_ref) · None 이면 unwrap_failed"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (&Effect)",
+   "note": "L175 · calculate_action_score 의 effect 인자"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x570",
+   "name": "attack (Box<dyn Action>)",
+   "note": "L175(entity.rs:1494 인라인) · calculate_action_score 의 action 인자"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag",
+   "note": "L182"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0",
+   "note": "L183"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x580",
+   "name": "skill (Box<dyn Action>)",
+   "note": "L183(entity.rs:1665 인라인)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "L190(entity.rs:1693 인라인) · level>2 아니면 skill2_effect 가 None 취급 → unwrap_failed"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x530",
+   "name": "skill2_effect@tag",
+   "note": "L190"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0",
+   "note": "L190(entity.rs:1694)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x590",
+   "name": "skill2 (Box<dyn Action>)",
+   "note": "L191(entity.rs:1670 인라인)"
+  },
+  {
+   "base": "Entity(champ, t)",
+   "offset": "0x0",
+   "name": "team@tag (TeamType: 0=Player,1=Neutral)",
+   "note": "L198(entity.rs:1127 derived PartialEq) · t.team == champ.team"
+  },
+  {
+   "base": "Entity(champ, t)",
+   "offset": "0x8",
+   "name": "team@Player.0 (usize)",
+   "note": "L198 · 태그가 둘 다 0(Player) 일 때만 비교"
+  },
+  {
+   "base": "Entity(champ, t)",
+   "offset": "0x660",
+   "name": "x (u64)",
+   "note": "L199(entity.rs:2158 거리제곱 인라인)"
+  },
+  {
+   "base": "Entity(champ, t)",
+   "offset": "0x668",
+   "name": "y (u64)",
+   "note": "L199"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "L203(entity.rs:1261 is_any_type_minion 인라인 · dloc 확인) · switch: 1=Minion,2=Tower→50 · 3=Nexus→100 · 그외→0. 1261 스코프는 switch 명령 하나에 붙어 있어 Tower 판정이 is_any_type_minion 안인지 별도 is_tower(entity.rs:1386) 인지 IR 로 구분 불가"
+  },
+  {
+   "base": "AbstractGame vtable",
+   "offset": "0x1f0",
+   "name": "get_entity_by_id(&self, id:usize)->Option<&Entity>",
+   "note": "간접 호출 4곳(L173/126/134/142) — 심볼 호출이 아니라 calls 에 없음"
+  }
+ ],
+ "writes": [
+  {
+   "base": "ActionContext(스택 alloca %9, 40B)",
+   "offset": "0x0",
+   "name": "priority@tag",
+   "value": "2 (= PriorityProfile::Lane 메모리태그 · tcxdict --enum: niche_start=2, Battle 암묵)",
+   "note": "L160 · evaluate_action 의 ctx 인자. &mut 인자(rnd/debug)에는 본문 직접 쓰기 0 · initializes 속성 없음"
+  },
+  {
+   "base": "ActionContext(스택 alloca %9, 40B)",
+   "offset": "0x10",
+   "name": "anchor@tag",
+   "value": "1 (= Anchor::Lane, Direct 인코딩)",
+   "note": "L160"
+  },
+  {
+   "base": "ActionContext(스택 alloca %9, 40B)",
+   "offset": "0x11",
+   "name": "anchor@Lane.line",
+   "value": "self.line (LineType u8)",
+   "note": "L160 · +0x8(priority 페이로드)·+0x18~ 은 미기록(undef) — 콜리가 Lane 태그에서는 안 읽는 슬롯"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 160,
+   "meaning": "PriorityProfile::Lane 의 메모리태그(store i64 2 → ActionContext+0x0). 별도로 L163 의 `icmp ult team, 2` 는 [2] 배열 bounds check(임계 아님)"
+  },
+  {
+   "value": 1,
+   "src_line": 160,
+   "meaning": "Anchor::Lane 의 태그(store i8 1 → ActionContext+0x10)"
+  },
+  {
+   "value": 10,
+   "src_line": 169,
+   "meaning": "SmallActionPlay 니치 구멍(AroundPosition 암묵 variant 자리) — llvm.assume(tag≠10). 판정 아님"
+  },
+  {
+   "value": 3,
+   "src_line": 169,
+   "meaning": "SmallActionPlay 태그→논리 idx 환산(tag-3, niche_start=3). 판정 아님"
+  },
+  {
+   "value": 7,
+   "src_line": 169,
+   "meaning": "tag≤2 이면 idx 7 = AroundPosition(untagged). 판정 아님"
+  },
+  {
+   "value": -1,
+   "src_line": 174,
+   "meaning": "Option<Effect> None 니치(casting@tag i32 = -1) — attack/skill/skill2_effect 의 as_ref().unwrap() 검사"
+  },
+  {
+   "value": 0,
+   "src_line": 168,
+   "meaning": "MinionActionType::Pull(=0) — line_action_economy_adjustment 6번째 인자(i8 0) 와 calculate_action_score 10번째 인자(ty) 둘 다 Pull. DI 지역상수 action_type=i8 0"
+  },
+  {
+   "value": -99999,
+   "src_line": 173,
+   "meaning": "Attack/Skill/Skill2 의 target_id 가 get_entity_by_id 로 안 풀리면(대상 소실) 가산값 = -99999 (L173·L181·L189 세 arm 공통)"
+  },
+  {
+   "value": 39999999999,
+   "src_line": 202,
+   "meaning": "거리제곱 임계: dist² > 39999999999 ⟺ dist ≥ 200000 (= 6.25셀). Around 계열 액션의 대상이 같은 팀이고 이만큼 멀 때만 구조물 가산"
+  },
+  {
+   "value": 1,
+   "src_line": 203,
+   "meaning": "EntityType::Minion 태그 → 가산 50"
+  },
+  {
+   "value": 2,
+   "src_line": 203,
+   "meaning": "EntityType::Tower 태그 → 가산 50"
+  },
+  {
+   "value": 3,
+   "src_line": 203,
+   "meaning": "EntityType::Nexus 태그 → 가산 100"
+  },
+  {
+   "value": 50,
+   "src_line": 203,
+   "meaning": "Around 대상이 아군 Minion/Tower 이고 dist≥200000 일 때 가산"
+  },
+  {
+   "value": 100,
+   "src_line": 205,
+   "meaning": "Around 대상이 아군 Nexus 이고 dist≥200000 일 때 가산 (그 외 EntityType → 0)"
+  },
+  {
+   "value": 2,
+   "src_line": 190,
+   "meaning": "champ.level > 2 여야 skill2_effect 를 Some 으로 봄(entity.rs:1693 인라인) — 아니면 unwrap_failed(패닉). Skill2 후보가 level≤2 에서 생성되면 크래시 경로"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::action_eval::evaluate_action",
+  "game_ai::action_score::interaction_score",
+  "game_ai::lane_economy::line_action_economy_adjustment",
+  "game_ai::action_score::calculate_action_score",
+  "game_core::simulation::entity::Entity::attack_speed_mult",
+  "game_core::simulation::entity::Entity::cooldown_reduce",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn score(&self, version, parameter, rnd, player, data, action, debug) -> i64   // line_wait.rs:159\n// L160: 신경로(액션 평가기) 우선\nlet ctx = ActionContext { priority: PriorityProfile::Lane /*tag 2*/, anchor: Anchor::Lane { line: self.line } /*+0x10=1, +0x11=line*/ };\nif let Some(v) = evaluate_action(version, &ctx, parameter, rnd, player, data, action, debug) {   // 반환 {i64 tag, i64 v}, tag bit0=1 이면 Some\n    return v;   // L222\n}\n// L163: 구경로\nlet champ = data.cache.player_champion[player.info.team /*+0x930, <2*/][player.info.position as usize /*+0x9c0*/].unwrap();   // None → option::unwrap_failed\nlet base = interaction_score(version, rnd, player, data, parameter, action, debug);   // L164\nlet economy_adjustment = line_action_economy_adjustment(version, player, data, parameter, action, MinionActionType::Pull /*i8 0*/);   // L168\n// L169: 액션별 가산 — action.get_action() 인라인 → SmallActionPlay 태그(+0xb1) switch\nlet add = match action.get_action() {\n    // idx 12 Attack{target_id=+0x8}  (L173)\n    Attack{target_id} => if let Some(t) = data.cache.game.get_entity_by_id(target_id) /*vtable+0x1f0*/ {\n            let effect = champ.attack_effect.as_ref().unwrap();   // L174 · +0x4c0 tag≠-1, payload +0x490\n            calculate_action_score(version, rnd, player, data, parameter, &champ.attack /*+0x570*/, effect, champ.attack_speed_mult(), t, Pull /*i8 0*/, debug)   // L175\n        } else { -99999 },\n    // idx 13 Skill{target_id}  (L181)\n    Skill{target_id} => if let Some(t) = get_entity_by_id(target_id) {\n            let effect = champ.skill_effect.as_ref().unwrap();   // L182 · +0x4f8 / +0x4c8\n            calculate_action_score(version, rnd, player, data, parameter, &champ.skill /*+0x580*/, effect, champ.cooldown_reduce(false), t, Pull, debug)   // L183\n        } else { -99999 },\n    // idx 14 Skill2{target_id}  (L189)\n    Skill2{target_id} => if let Some(t) = get_entity_by_id(target_id) {\n            let effect = (if champ.level /*+0x5c8*/ > 2 { champ.skill2_effect.as_ref() } else { None }).unwrap();   // L190 entity.rs:1693 · +0x530 / +0x500 · level≤2 또는 None 이면 unwrap_failed\n            calculate_action_score(version, rnd, player, data, parameter, &champ.skill2 /*+0x590*/, effect, champ.cooldown_reduce(false), t, Pull, debug)   // L191\n        } else { -99999 },\n    // SmallAction::Around{target_id} ← SmallActionPlay idx 2 Around / 3 AroundHide / 10 LaneMinionPosition (모두 payload+0x8 = target)  (L197)\n    Around{target_id} => if let Some(t) = get_entity_by_id(target_id) {\n            if t.team == champ.team /*L198 · TeamType derived eq: 태그(+0x0) 같고, 둘 다 Player(0) 면 +0x8 도 같아야*/ {\n                let dist = (|t.x-champ.x|)^2 + (|t.y-champ.y|)^2;   // L199 · +0x660/+0x668 · u64 abs-diff 후 제곱합\n                if dist > 39999999999 /*L202 · ≥200000² = 6.25셀*/ {\n                    match t.ty /*+0x68*/ { Minion(1) | Tower(2) => 50, Nexus(3) => 100, _ => 0 }   // L203~L205\n                } else { 0 }\n            } else { 0 }\n        } else { 0 },   // Around 대상 소실은 0 (Attack 계열의 -99999 와 다름)\n    _ => 0,   // RunAway(0) Recall(1) AroundRegion(4) AroundRunAway(5) Positioning(6) AroundPosition(7) AroundPositionBush(8) AroundBush(9) Trace(11) Ult(15) Stop(16)\n};\nreturn base + economy_adjustment + add;   // L169 add 순서: (economy+base)+add · L222\n\n★복붙 대조: LineSafeSubPlan::score(line_safe.rs:104, m02.ll 48427~48748) 의 **완전 복제본** — 정규화 diff(레지스터명·!dbg·@anon·attr 번호 제거) 0줄 · rmeta_srcmap 줄길이 line_wait.rs:159~223 ↔ line_safe.rs:104~168 전 줄 일치(유일한 차이 = 주석줄 170(204B/한글40) vs 115(170B/한글37) — IR 에 안 나옴). PriorityProfile::Lane(tag 2)·Anchor::Lane(self.line)·200000²·50/100·Pull(0)·-99999 전부 동일 — LineWait 고유값 0. ★복붙 의심: 「대기(Wait)」플랜인데 priority 가 LineSafe 와 같은 Lane 이고 원거리 아군 구조물 가산도 같다 — 플랜 구분은 이 함수가 아니라 action_candidates/next_plan 쪽에서만 생긴다.\nrnd gen_range 사이트: 0 (콜리 전달만 · 순서 = evaluate_action → interaction_score → calculate_action_score 1회).\nversion 분기: 0. debug 직접 쓰기: 0.",
+ "knobs": [
+  {
+   "what": "Around 구조물 가산의 거리 임계",
+   "where": "line_wait.rs:202",
+   "value": 39999999999,
+   "effect": "내리면 더 가까운 아군 구조물 주변 대기도 50/100 가산을 받아 구조물 근처 배회 선호가 강해짐. 올리면 멀리 떨어진 구조물로 갈 때만 가산"
+  },
+  {
+   "what": "아군 Minion/Tower 주변 대기 가산",
+   "where": "line_wait.rs:203",
+   "value": 50,
+   "effect": "올리면 LineSafe 중 원거리 아군 미니언/타워 쪽 Around 후보가 더 자주 선택됨 (헬퍼: is_any_type_minion — Tower 도 같은 50)"
+  },
+  {
+   "what": "아군 Nexus 주변 대기 가산",
+   "where": "line_wait.rs:205",
+   "value": 100,
+   "effect": "올리면 넥서스로 후퇴 대기 선호↑ (Minion/Tower 50 의 2배)"
+  },
+  {
+   "what": "대상 소실 페널티",
+   "where": "line_wait.rs:173/181/189",
+   "value": -99999,
+   "effect": "Attack/Skill/Skill2 의 target 이 사라진 후보를 사실상 배제. 값을 완화하면 죽은 대상 공격 후보가 살아남을 수 있음"
+  },
+  {
+   "what": "경제 보정 미니언 액션 타입",
+   "where": "line_wait.rs:168",
+   "value": 0,
+   "effect": "MinionActionType::Pull 고정. Normal(1)/Push(2)로 바꾸면 line_action_economy_adjustment 의 라인 경제 판정 기준이 바뀜(AttackNexus 는 Push=2 사용)"
+  }
+ ],
+ "unknown": [
+  "L160 `if let Some(v)` 의 소스 표기(if let / map_or / ? 등) — IR 은 {i64,i64} 의 bit0 검사 뒤 즉시 반환. 동작 확정, 표기 불가(column 부재).",
+  "L169 match arm 의 소스 순서(Attack→Skill→Skill2→Around 인지) — switch 로 접혀 순서 근거는 arm 루트 줄번호(173<181<189<197)뿐. 동작엔 무관.",
+  "L198 `t.team == champ.team` 이 소스에서 `==` 인지 헬퍼(예: is_same_team) 인지 — entity.rs:1127 PartialEq 인라인만 보임. 동작 확정.",
+  "L203 헬퍼 = entity.rs:1261 is_any_type_minion(dloc 확인, define 없음=전부 인라인) — 태그 1(Minion)·2(Tower) 가 같은 50 으로 접혀 있어 `is_any_type_minion()` 이 Tower 까지 포함하는지, `|| t.is_tower()` 가 붙은 것인지 표기 불가(줄길이 64B 는 16칸 들여쓰기 + `if t.is_any_type_minion() || t.is_tower() { 50 }`(48자) 와 일치 — 추정). 100 은 Nexus(3) · 0 은 그 외 — 동작 확정.",
+  "AbstractGame vtable+0x1f0 get_entity_by_id 는 divtable(ExpectedGame 정적 vtable) 기준 — 런타임 구현체는 도구로 확정 불가(계약: (&self, usize)->Option<&Entity>).",
+  "이 함수가 LineSafe::score 와 동일 코드인 것이 의도(공용 헬퍼 대신 복붙)인지 — 소스 부재로 판정 불가. IR·줄길이 증거상 문자 단위 복제."
+ ]
+}

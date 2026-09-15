@@ -1,0 +1,67 @@
+{
+ "name": "AgentVerHamster::item_v26",
+ "sym": "_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster8item_v26",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 1149,
+ "ir_file": "m14.ll",
+ "ir_from": 38283,
+ "ir_to": 38797,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 44819, "ir_to": 45133, "note": "Vec<usize>::from_iter(Map<Filter<Enumerate<slice::Iter<Box<dyn ItemInfo>>>>>) — active_inventory_item_indices(lib.rs:542) 의 collect 아웃오브라인 본체(L1161 에서 호출)"},
+  {"ir_file": "m14.ll", "ir_from": 58085, "ir_to": 58205, "note": "active_inventory_item_indices::{closure#0} call_mut 심(lib.rs:545) — 인벤 아이템이 '활성 아이템 목록에 같은 key 로 존재하는가' 술어"}
+ ],
+ "one_line": "v26 빌드 경로: 활성 아이템빌드의 build_slot 번째 목표 아이템을 잡고, 인벤 현재템→목표로 가는 다음 아이템(또는 빌드경로 첫 아이템)을 골 조건까지 검사해 반환",
+ "signature": {
+  "abi_note": "internal fastcc · 소스 시그니처(tcx sig · lib.rs:1149) = fn item_v26(&mut self, rnd:&mut StdRng, player:&PlayerState, context:&GameContext, build_slot:usize, inventory_index:Option<usize>) -> Option<usize>. IR 에선 ①self 가 미사용이라 인자 자체가 제거됐고(따라서 &mut self 쓰기 표면 = 없음) ②context 가 +0x30 item_list(&Vec<Box<dyn ItemInfo>>) 포인터 하나로 승격돼 6 인자(%0 rnd · %1 player · %2 item_list · %3 build_slot · %4 tag · %5 payload). ★exe 는 한 단계 더 승격돼 **7 인자**: argscan(0xe8fd70 · caller 0xe8fc80) 실측 rcx=rnd · rdx=player · r8=item_list.ptr([r15+8]) · r9=item_list.len([r15+0x10]) · [rsp+0x20]=build_slot · [rsp+0x28]=tag(진입부 `cmp [rsp+0xe8],1`) · [rsp+0x30]=payload. 즉 IR %2(&Vec) 가 exe 에선 (ptr,len) 슬라이스 두 인자로 쪼개진다 — sweep 편입 시 EXE_ABI 는 7 인자로 잡을 것. 반환 {i64,i64} 는 RAX:RDX(sret 아님 — caller 가 rcx 를 rnd 로 채움).",
+  "params": [
+   {"i": 1, "name": "self", "type": "(제거됨)", "role": "&mut AgentVerHamster — 본문 미사용 → IR 인자에서 탈락. 쓰기 없음", "note": "tcx sig 에만 존재"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B) (%0)", "role": "IR 속성 없음(dereferenceable(320) · noalias · align 16). 본문 직접 gen_range 0회 — random_item_build_path(L1157) 또는 random_item_next_toward_target(L1155) 중 **정확히 하나**에 그대로 전달(둘은 상호배타 분기)", "note": "DI rnd = %0"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B) (%1)", "role": "readonly · noalias. +0x4e8/+0x4f0 info.item_builds(ptr,len) · +0x4a0/+0x4a8 info.items(ptr,len) · +0x998 info.gold 읽음", "note": "DI player = %1"},
+   {"i": 4, "name": "context.item_list", "type": "&Vec<Box<dyn ItemInfo>> (%2)", "role": "readonly · captures(address_is_null) — 소스 arg4 context:&GameContext 의 +0x30 item_list 필드만 승격. Vec 의 +0x8 ptr · +0x10 len 을 읽어 슬라이스로 씀. null 검사는 llvm.assume(nonnull) 뿐", "note": "DI item_list = %2. exe 에선 (ptr,len) 두 인자"},
+   {"i": 5, "name": "build_slot", "type": "usize (%3)", "role": "IR 속성 noundef. 활성 빌드 목록 안에서 몇 번째 목표를 잡을지(nth). 호출자: buy_item/upgrade_item 이 item_v26_slot 의 .0 을 넘김", "note": "DI build_slot/slot/n = %3"},
+   {"i": 6, "name": "inventory_index.tag", "type": "i64 range(0,2) (%4)", "role": "Option<usize> 태그(0=None · 1=Some). buy_item 은 상수 0, upgrade_item 은 상수 1 을 넘김", "note": "DI inventory_index[0..+8]"},
+   {"i": 6, "name": "inventory_index.payload", "type": "i64 (%5)", "role": "Some 일 때 player.info.items 의 인덱스(현재 들고 있는 아이템). None 이면 undef", "note": "DI inventory_index[8..+8]"}
+  ],
+  "returns": "Option<usize> = {i64 tag, i64 payload} (RAX:RDX). tag 0/1 만 살아있고 payload 는 Some 일 때만(item_list 인덱스 = next_item) · None 경로는 전부 undef(m14.ll:38792 phi). Some 이 되는 유일한 경로 = %153(L1165 · gold >= price). 의미: '지금 사거나 올릴 item_list 인덱스'. 소비처 buy_item(tier==0 만 채택) · upgrade_item(tier!=0 만 채택)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x4e8", "name": "info.item_builds.buf.ptr", "note": "Vec<usize> 데이터 포인터(L1151 · gep 1256). 원소 = item_list 인덱스"},
+  {"base": "PlayerState", "offset": "0x4f0", "name": "info.item_builds.len", "note": "L1151 (gep 1264) — 순회 종료(end = ptr + 8*len)"},
+  {"base": "PlayerState", "offset": "0x4a0", "name": "info.items.buf.ptr", "note": "Vec<Box<dyn ItemInfo>> 인벤토리 데이터(L1154 gep 1184 · L1161 재로드 38708)"},
+  {"base": "PlayerState", "offset": "0x4a8", "name": "info.items.len", "note": "L1154 (gep 1192) inventory_index bounds · L1161 재로드"},
+  {"base": "PlayerState", "offset": "0x998", "name": "info.gold", "note": "L1165 (gep 2456) — price 와 uge 비교"},
+  {"base": "Vec<Box<dyn ItemInfo>>", "offset": "0x8", "name": "item_list.ptr", "note": "context.item_list 의 데이터 포인터(gep %2,8) · 원소 16B 팻포인터 {data,vtable}"},
+  {"base": "Vec<Box<dyn ItemInfo>>", "offset": "0x10", "name": "item_list.len", "note": "gep %2,16 — L1151 술어 bounds(get) · L1161/L1165 색인 bounds(panic)"},
+  {"base": "ItemInfo vtable", "offset": "0x50", "name": "is_active", "note": "fn(&self)->bool (divtable ItemInfo 0x50). L1151 빌드 술어 + aux 인벤 술어"},
+  {"base": "ItemInfo vtable", "offset": "0x58", "name": "key", "note": "fn(&self)->&String (+0x8 ptr · +0x10 len 을 &str 로 씀). L1155 current/target · aux 술어 key 비교"},
+  {"base": "ItemInfo vtable", "offset": "0x68", "name": "price", "note": "fn(&self)->usize. L1165"},
+  {"base": "ItemInfo vtable", "offset": "0x70", "name": "tier", "note": "fn(&self)->usize. L1161 (==0 검사)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 0, "src_line": 1151, "meaning": "nth 카운터 종료(accum==0) · Option 태그 None · L1158 path.len()==0 · L1161 tier()==0 판정"},
+  {"value": 2, "src_line": 1161, "meaning": "active_inventory_item_indices(player,item_list).len() > 2 (samesign ugt 2) ⟹ 활성 인벤 아이템이 3개 이상이면 tier 0 아이템은 거부"},
+  {"value": -1, "src_line": 1157, "meaning": "Option<Vec<usize>> None 니치 — sret+0(cap)==usize::MAX 면 random_item_build_path 가 None"}
+ ],
+ "calls": [
+  "game_core::setting::item::random_item_build_path",
+  "game_core::setting::item::random_item_next_toward_target",
+  "alloc::vec::spec_from_iter_nested::from_iter",
+  "core::ops::drop::Drop::drop",
+  "core::panicking::panic_bounds_check",
+  "core::ops::function::impls::call_mut",
+  "memcmp"
+ ],
+ "logic": "fn item_v26(&mut self, rnd, player, context, build_slot, inventory_index) -> Option<usize>   // lib.rs:1149~1170 (self 미사용)\n  item_list = &context.item_list                                   // +0x30 (IR 는 승격된 %2)\n  // L1151 — 목표 아이템: 활성 빌드 항목 중 build_slot 번째\n  target: usize = *player.info.item_builds.iter()\n        .filter(|&&i| i < item_list.len() && item_list[i].is_active())   // i>=len 이면 패닉 없이 술어 거짓(get 의미) · is_active = vtable+0x50\n        .nth(build_slot)?                                            // 블록 %22~%40 = advance_by(build_slot: 술어 참일 때만 accum-=1), %43~%59 = next(). 소진 → None\n  target_item = &item_list[target]\n  // L1153\n  next_item: usize = if let Some(inv) = inventory_index {\n      // L1154\n      current = player.info.items.get(inv)?                          // inv >= items.len → None(패닉 아님 · %64→%167)\n      // L1155\n      random_item_next_toward_target(item_list, current.key(), target_item.key(), rnd)?   // key = vtable+0x58 → &String → &str. game_core 경계(item.rs:353)\n  } else {\n      // L1157\n      path: Vec<usize> = random_item_build_path(item_list, target, rnd)?   // game_core 경계(item.rs:320) · None 니치 cap==-1\n      // L1158\n      first = *path.first()?                                         // len==0 → drop(path), None\n      // L1159\n      drop(path); first\n  }\n  // L1161\n  inv_active: Vec<usize> = active_inventory_item_indices(player, item_list)   // lib.rs:542 인라인 + from_iter(aux m06) · 술어(aux m14 call_mut): items[i] 가 item_list 의 어떤 li 와 key 동일(len 동일 && memcmp==0) && li.is_active()\n  if inv_active.len() > 2 && item_list[next_item].tier() == 0 { return None }   // tier = vtable+0x70 · 색인은 panic_bounds_check(item_list.len)\n  drop(inv_active)\n  // L1165\n  if player.info.gold >= item_list[next_item].price() { Some(next_item) } else { None }   // price = vtable+0x68 · uge\n\n★rnd 소비: 본문 직접 gen_range 0회. 호출당 정확히 하나 — inventory_index Some → random_item_next_toward_target 1회 / None → random_item_build_path 1회 (내부 gen_range 수는 game_core 경계 · 미명세).\n★None 이 되는 경로 9개(38792 phi): 빌드 소진(%22/%43/%59) · inv bounds(%64) · next_toward None(%71) · build_path None(%116) · path 빈(%120) · 3개+ && tier0(%143) · gold 부족(%153 false).",
+ "knobs": [
+  {"what": "tier-0 거부 발동 인벤 개수 임계", "where": "lib.rs:1161 · m14.ll:38647", "value": 2, "effect": "`len > 2`. 올리면(예 3) 활성 아이템 4개째부터 기본템(tier 0)을 거부 → 기본템을 더 많이 삼. 내리면(1) 기본템 2개째부터 거부. 값 자체가 '기본템 슬롯 상한 = 3' 을 결정"},
+  {"what": "구매/승급 골드 조건", "where": "lib.rs:1165 · m14.ll:38782", "value": "gold >= price (uge)", "effect": "비교를 완화(예 gold + 여유)하면 돈이 모자라도 후보를 돌려주지만 실제 구매는 game_core 가 다시 검증할 가능성 — 여기선 후보 산출 여부만 바뀜"}
+ ],
+ "unknown": [
+  "random_item_build_path(item.rs:320 · m08.ll:87652) / random_item_next_toward_target(item.rs:353 · m08.ll:88180) 내부(경로 산출·gen_range 수) — game_core 경계라 시그니처만: (&[Box<dyn ItemInfo>], usize target, &mut StdRng)->Option<Vec<usize>> / (&[Box<dyn ItemInfo>], current_key:&str, target_key:&str, &mut StdRng)->Option<usize>",
+  "L1151 술어가 소스에서 `item_list.get(i).is_some_and(is_active)` 인지 `i < len && item_list[i].is_active()` 인지 — 외연 동일(bounds 실패 시 패닉 없이 거짓) · 표기 불가",
+  "L1161 조건 `len > 2` 가 소스에서 `>= 3` 인지 — 외연 동일 · 표기 불가",
+  "exe 7 인자 중 build_slot/tag/payload 의 스택 순서는 caller(0xe8fc80) 스토어로 확정했으나 레지스터 4개의 의미(rnd/player/ptr/len)는 caller 측 mov 패턴(rcx=rbx, rdx=r14, r8=[r15+8], r9=[r15+0x10]) 으로 추정 — rbx/r14/r15 의 기원은 디스어셈 22줄 밖. 검증 = ghidra-re 진입부 대조",
+  "item_v26_slot(lib.rs:1125 · m14.ll:35237) 은 이 함수의 콜리가 아니라 형제(호출자 buy/upgrade 가 부름) — 계약은 buy_item/upgrade_item 명세 참조"
+ ]
+}

@@ -1,0 +1,359 @@
+{
+ "name": "precompute_champion_powers",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai5utils26precompute_champion_powers",
+ "src": "game-ai\\src\\utils.rs",
+ "src_line": 792,
+ "ir_file": "m04.ll",
+ "ir_from": 53234,
+ "ir_to": 53976,
+ "aux": [
+  {
+   "ir_file": "m00.ll",
+   "ir_from": 77956,
+   "ir_to": 78120,
+   "what": "CHAMP_POWERS_MEMO.with(closure#0) — TLS 메모 조회(utils.rs:795~803). 소유=precompute_champion_powers::{closure#0}"
+  },
+  {
+   "ir_file": "m00.ll",
+   "ir_from": 78123,
+   "ir_to": 78242,
+   "what": "CHAMP_POWERS_MEMO.with(closure#4) — TLS 메모 저장(utils.rs:858~863). 소유=precompute_champion_powers::{closure#4}"
+  }
+ ],
+ "one_line": "챔피언 1명의 (attack_power, util_power_base, cc_time×inv_cd, buff_inv_cd_count) 4값을 ChampionCache 평균과 스킬 3종으로 계산해 &mut ChampionScoreParameter 에 쓰고 (seed,tick,team,pos,version) TLS 메모로 재사용",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize (i64 %0)",
+    "role": "IR 속성 없음(값 인자). 메모 슬롯의 .0 키(같은 seed·tick 이라도 version 이 다르면 miss)이자 effect_cc_time / effect_buff_target 에 그대로 전달. 이 함수 본문엔 version 분기 없음"
+   },
+   {
+    "i": 2,
+    "name": "data",
+    "type": "&OperationData (24B, ptr %1)",
+    "role": "readonly captures(none). +0x0 cache:&AbstractGameWithCache(seed/tick vtable · player_champion_cache · player_champion) · +0x8 context:&GameContext(effect_buff_target 인자). +0x10 blackboard 미사용"
+   },
+   {
+    "i": 3,
+    "name": "p",
+    "type": "&mut ChampionScoreParameter (216B, ptr %2)",
+    "role": "IR 속성 = noalias align 8 dereferenceable(216) 만(readonly 없음 · initializes 없음). 읽기 = +0x60 team · +0x68 pos. 쓰기 = +0xb8 attack_power · +0xc0 util_power_base · +0xc8 cc_time_x_inv_cd · +0xd0 buff_inv_cd_count (writes 절 전수)"
+   }
+  ],
+  "returns": "void — 출력은 p 의 4필드(32B) + TLS 메모 슬롯. 캐시 히트/미스 양 경로 모두 4필드를 전부 store 한다(부분 쓰기 없음)",
+  "tls": {
+   "name": "game_ai::utils::CHAMP_POWERS_MEMO (thread_local! RefCell<ChampPowersMemo> · ChampPowersMemo 496B utils.rs:778 · IR 접점 = @anon.168add0ea037d45d276f5936ae758fe5.235 = constant ptr @…CHAMP_POWERS_MEMO…call_once (m04.ll:248) 를 LocalKey::with 에 넘김)",
+   "role": "작성자+소비자(이 함수가 유일한 접점 — closure#0 조회(L795) → miss 면 계산 → closure#4 저장(L858))",
+   "key": "전역 키 = (seed: usize, tick: usize) 한 쌍(ChampPowersMemo+0x1e0 seed · +0x1e8 tick — RefCell 값이 borrow 플래그 8B 뒤에 있어 IR 오프셋은 +488/+496). 슬롯 키 = slot[team][pos] (team<2, pos<5 bounds check) + 슬롯 .0 == version",
+   "layout": "ChampPowersMemo = { slot: [[Option<(usize,i64,i64,i64,i64)>;5];2] (48B×10 = 0x0~0x1e0 · Option tag 8B Direct: 0=None 1=Some · .0=version +0x8 · .1=attack_power +0x10 · .2=util_power_base +0x18 · .3=cc_time_x_inv_cd +0x20 · .4=buff_inv_cd_count +0x28), seed u64 +0x1e0, tick usize +0x1e8 } (tcxdict --deep ChampPowersMemo)",
+   "invalidation": "closure#0 진입 시 memo.seed != seed || memo.tick != tick 이면 seed·tick 갱신 + 10슬롯 tag 전부 0(None) (m00.ll:78026~78046). 즉 tick 이 바뀌면 전 슬롯 무효. version 불일치는 무효화가 아니라 그 슬롯만 miss(다른 version 값이 그 자리에 덮어써진다)",
+   "call_conditions": "closure#0 = 무조건 1회(L795). closure#4 = 캐시 miss 경로에서만 1회(L858) — 저장 closure 는 memo.seed==seed && memo.tick==tick 일 때만 slot[team][pos] = Some((version, a, u, cc, b)) 를 쓰고 아니면 아무것도 안 한다(m00.ll:78141~78156). RefCell 이중 borrow 시 panic_already_borrowed · TLS 파괴 후 접근 시 panic_access_error"
+  }
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache — L793·L814·L835"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext — effect_buff_target 3번째 인자(L847)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "&dyn AbstractGame 데이터 포인터(L793)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "vtable+0x20=seed() (L793) · vtable+0x28=tick() (L794) — divtable AbstractGame"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "[[Option<&Entity>;5];2] 니치(null=None) — L835 `if let Some(champ)`"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x280",
+   "name": "player_champion_cache[team][pos]",
+   "note": "[[ChampionCache(800B);5];2] — cache = &player_champion_cache[team][pos] (L814, team<2 · pos<5 bounds check)"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x190",
+   "name": "attack_per_sec[0..5]",
+   "note": "IR gep 400~432 (cache 기준) — L818 합산"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1b8",
+   "name": "skill_per_sec[0..5]",
+   "note": "IR gep 440~472 — L818"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1e0",
+   "name": "skill2_per_sec[0..5]",
+   "note": "IR gep 480~512 — L819"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x208",
+   "name": "ult_per_sec[0..5]",
+   "note": "IR gep 520~552 — L819"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x230",
+   "name": "skill_heal_sec[0..5]",
+   "note": "IR gep 560~592 — L825 heal"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x258",
+   "name": "skill2_heal_sec[0..5]",
+   "note": "IR gep 600~632 — L825"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x2d0",
+   "name": "ult_heal_sec[0..5]",
+   "note": "IR gep 720~752 — L825"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x280",
+   "name": "skill_shield_sec[0..5]",
+   "note": "IR gep 640~672 — L828 shield"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x2a8",
+   "name": "skill2_shield_sec[0..5]",
+   "note": "IR gep 680~712 — L828"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x2f8",
+   "name": "ult_shield_sec[0..5]",
+   "note": "IR gep 760~792 — L828"
+  },
+  {
+   "base": "ChampionScoreParameter",
+   "offset": "0x60",
+   "name": "team",
+   "note": "IR gep 96 — 메모 키·cache 인덱스"
+  },
+  {
+   "base": "ChampionScoreParameter",
+   "offset": "0x68",
+   "name": "pos",
+   "note": "IR gep 104"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect (Option<Effect> 56B)",
+   "note": "IR gep 1224 — Entity::skill_effect() 인라인(entity.rs:1689<837). None 판정 = +0x30 casting@tag(i32, IR 1272) == -1"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect",
+   "note": "IR gep 1280 — Entity::skill2_effect() 인라인(entity.rs:1693<838): level>2 면 &self.skill2_effect 아니면 &None 상수(@anon.16)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect",
+   "note": "IR gep 1336 — Entity::ult_effect() 인라인(entity.rs:1701<839): level>4 면 &self.ult_effect 아니면 &None"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "IR gep 1480 — skill2/ult 해금 판정(ugt 2 / ugt 4)"
+  },
+  {
+   "base": "Option<BuffState>(effect_buff_target sret 288B)",
+   "offset": "0x48",
+   "name": "duration@tag(BuffType i32)",
+   "note": "IR gep 72 — == -1 이면 None(L847 `is_some` 판정)"
+  },
+  {
+   "base": "static gc::simulation::prof::ENABLED",
+   "offset": "0x0",
+   "name": "ENABLED(atomic i8)",
+   "note": "L805·L813 프로파일 게이트 — 판정 무관"
+  },
+  {
+   "base": "static gc::simulation::prof::PHASE_CALLS",
+   "offset": "0x370",
+   "name": "PHASE_CALLS[110]",
+   "note": "IR gep 880 — 캐시 히트 카운터 atomicrmw add 1 (ENABLED 일 때만)"
+  },
+  {
+   "base": "static gc::simulation::prof::PHASE_CALLS",
+   "offset": "0x378",
+   "name": "PHASE_CALLS[111]",
+   "note": "IR gep 888 — 캐시 미스 카운터"
+  }
+ ],
+ "writes": [
+  {
+   "base": "ChampionScoreParameter",
+   "offset": "0xb8",
+   "name": "attack_power",
+   "value": "히트: cached.1 (L806) / 미스: atk_total/5 (L821, udiv)",
+   "note": "IR gep 184. 미스 경로에선 L856 에서 다시 load 해 메모에 저장"
+  },
+  {
+   "base": "ChampionScoreParameter",
+   "offset": "0xc0",
+   "name": "util_power_base",
+   "value": "히트: cached.2 (L807) / 미스: heal/5 + shield/5 (L830, udiv 각각 후 add)",
+   "note": "IR gep 192. 미스 경로 champ Some 이면 L856 에서 재load(%330), None 이면 계산값 그대로"
+  },
+  {
+   "base": "ChampionScoreParameter",
+   "offset": "0xc8",
+   "name": "cc_time_x_inv_cd",
+   "value": "히트: cached.3 (L808) / 미스: cc_acc (L853)",
+   "note": "IR gep 200"
+  },
+  {
+   "base": "ChampionScoreParameter",
+   "offset": "0xd0",
+   "name": "buff_inv_cd_count",
+   "value": "히트: cached.4 (L809) / 미스: buff_acc (L854)",
+   "note": "IR gep 208"
+  },
+  {
+   "base": "TLS ChampPowersMemo",
+   "offset": "0x0 -> slot[team][pos] (48B stride, memo+0x0..0x1e0)",
+   "value": "Some((version, attack_power, util_power_base, cc_acc, buff_acc)) — tag=1 store + 40B memcpy (m00.ll:78218~78222)",
+   "note": "미스 경로 closure#4. 저장 조건 memo.seed==seed && memo.tick==tick"
+  },
+  {
+   "base": "TLS ChampPowersMemo",
+   "offset": "0x1e0",
+   "name": "seed / tick (+0x1e8)",
+   "value": "조회 closure#0 에서 (seed,tick) 불일치 시 갱신 + slot 10개 tag=0 (m00.ll:78026~78046, RefCell 값 기준 IR 오프셋 488/496 · 슬롯 tag 8,56,104,…,440)",
+   "note": "RefCell borrow 플래그(+0) 도 -1→0 으로 왕복"
+  },
+  {
+   "base": "static gc::simulation::prof::PHASE_CALLS",
+   "offset": "0x370",
+   "name": "[110]/[111] (+0x378)",
+   "value": "atomicrmw add 1",
+   "note": "prof::ENABLED 일 때만 — 계측, 판정 무관"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 814,
+   "meaning": "team 상한(bounds check <2) · L838 level > 2 이면 skill2_effect 유효(Entity::skill2_effect 인라인)"
+  },
+  {
+   "value": 5,
+   "src_line": 814,
+   "meaning": "pos 상한(bounds check <5) · L818~830 ChampionCache 배열 원소 5개 합산(0..5 fold 가 5회 전개) · L821/L830 `/5` 평균(udiv)"
+  },
+  {
+   "value": 4,
+   "src_line": 839,
+   "meaning": "level > 4 이면 ult_effect 유효, 아니면 &None (Entity::ult_effect 인라인 entity.rs:1701)"
+  },
+  {
+   "value": -1,
+   "src_line": 842,
+   "meaning": "Option<Effect> None 니치 = casting@tag(i32, Effect+0x30) == -1 → 그 슬롯 skip. L847 Option<BuffState> None 니치(+0x48 i32) == -1 도 동일. L845 sdiv 오버플로 검사(cd == -1)에도 등장"
+  },
+  {
+   "value": 1,
+   "src_line": 843,
+   "meaning": "cd_i = max(cooltime, 1) (llvm.umax) — 0 나눗셈 방지. L804 cached Option tag==1(Some) · L858 저장 tag=1 도 이 값"
+  },
+  {
+   "value": 1000,
+   "src_line": 845,
+   "meaning": "cc_acc += cc_time*1000 / cd_i (L845, sdiv) · buff_acc += 1000 / cd_i (L848). 쿨다운 역수를 1000 배 정수화"
+  },
+  {
+   "value": 110,
+   "src_line": 805,
+   "meaning": "prof phase id(캐시 히트) — dbg_value 로만 남고 실제 코드는 PHASE_CALLS+880(=110*8) 로 접힘"
+  },
+  {
+   "value": 111,
+   "src_line": 813,
+   "meaning": "prof phase id(캐시 미스) — PHASE_CALLS+888 로 접힘"
+  },
+  {
+   "value": -9223372036854775808,
+   "src_line": 845,
+   "meaning": "i64::MIN — sdiv 오버플로 패닉 검사(cc_time*1000 == MIN && cd == -1) 컴파일러 삽입"
+  }
+ ],
+ "calls": [
+  "std::thread::local::LocalKey::with",
+  "game_core::simulation::entity::Entity::skill_cooltime",
+  "game_core::simulation::entity::Entity::skill2_cooltime",
+  "game_core::simulation::entity::Entity::ult_cooltime",
+  "game_ai::fight_check::effect_cc_time",
+  "game_ai::fight_check::effect_buff_target",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "llvm.umax.i64",
+  "core::cell::panic_already_borrowed",
+  "std::thread::local::panic_access_error"
+ ],
+ "logic": "fn precompute_champion_powers(version: usize, data: &OperationData, p: &mut ChampionScoreParameter)  // utils.rs:792\n  let seed = data.cache.game.seed();   // L793 vtable+0x20\n  let tick = data.cache.game.tick();   // L794 vtable+0x28\n  // L795~803 closure#0 (m00.ll 77956~78120): CHAMP_POWERS_MEMO.with(|m| {\n  //   let m = m.borrow_mut();                      // RefCell 플래그 0→-1 (이미 빌려져 있으면 panic_already_borrowed)\n  //   if m.seed != seed || m.tick != tick { m.seed=seed; m.tick=tick; for s in m.slot.iter_mut() { *s = None } }  // 10슬롯 tag=0\n  //   let s = m.slot[p.team][p.pos];               // bounds check 2·5\n  //   if let Some((ver, a, u, cc, b)) = s && ver == version { Some((ver,a,u,cc,b)) } else { None } })\n  let cached: Option<(usize,i64,i64,i64,i64)> = …;\n  if let Some((_, a, u, cc, b)) = cached {          // L804 (tag == 1)\n    prof::PHASE_CALLS[110] += 1 (if prof::ENABLED)  // L805\n    p.attack_power = a; p.util_power_base = u; p.cc_time_x_inv_cd = cc; p.buff_inv_cd_count = b;  // L806~809\n    return;                                        // L864\n  }\n  prof::PHASE_CALLS[111] += 1 (if prof::ENABLED)    // L813\n  let cache = &data.cache.player_champion_cache[p.team][p.pos];   // L814 (0x280 + team*4000 + pos*800; bounds 2·5)\n  // L818~821: atk_total = Σ_{i=0..5} (cache.attack_per_sec[i] + cache.skill_per_sec[i] + cache.skill2_per_sec[i] + cache.ult_per_sec[i])\n  //           (fold 5회 전개; 각 항 wrapping add, 0x190/0x1b8/0x1e0/0x208)\n  p.attack_power = atk_total / 5;                   // L821 udiv (usize)\n  // L825~826: heal   = Σ_{i} (skill_heal_sec[i] + skill2_heal_sec[i] + ult_heal_sec[i])       (0x230/0x258/0x2d0)\n  // L828~829: shield = Σ_{i} (skill_shield_sec[i] + skill2_shield_sec[i] + ult_shield_sec[i]) (0x280/0x2a8/0x2f8)\n  p.util_power_base = heal/5 + shield/5;            // L830 udiv 둘 → add nuw nsw\n  let mut cc_acc: i64 = 0; let mut buff_acc: i64 = 0;   // L833~834\n  if let Some(champ) = data.cache.player_champion[p.team][p.pos] {   // L835 (0x1e0 + team*40 + pos*8, null=None)\n    let slots = [ (champ.skill_effect(), champ.skill_cooltime()),      // L837: &champ.skill_effect(+0x4c8) 무조건\n                  (champ.skill2_effect(), champ.skill2_cooltime()),    // L838: level(+0x5c8) > 2 ? &skill2_effect(+0x500) : &None\n                  (champ.ult_effect(),   champ.ult_cooltime()) ];      // L839: level > 4 ? &ult_effect(+0x538) : &None\n    //   ⚠3개 cooltime 은 slots 조립 시점에 전부 먼저 호출된다(효과 None 이어도 호출됨) — 순서 skill→skill2→ult\n    for (eff_opt, cd) in slots {                     // L842 순서 skill, skill2, ult\n      let Some(eff) = eff_opt else { continue };     // Option<Effect> 니치: eff+0x30(i32) == -1 → skip\n      let cd_i = max(cd, 1) as i64;                  // L843 llvm.umax\n      if let Some(cc_time) = fight_check::effect_cc_time(version, eff) {   // L844 (Option<usize>: {tag,val})\n        cc_acc += (cc_time as i64 * 1000) / cd_i;    // L845 sdiv (오버플로 검사 → panic_const_div_overflow)\n      }\n      if fight_check::effect_buff_target(version, eff, data.context, champ as &dyn AbstractEntity, champ as &dyn AbstractEntity).is_some() {  // L847 sret 288B, +0x48 i32 != -1\n        buff_acc += 1000 / cd_i;                     // L848 sdiv\n      }\n    }\n  }\n  p.cc_time_x_inv_cd = cc_acc;                      // L853\n  p.buff_inv_cd_count = buff_acc;                   // L854\n  let store = (version, p.attack_power, p.util_power_base, cc_acc, buff_acc);   // L856 (p 에서 재load)\n  let (pt, pp) = (p.team, p.pos);                   // L857\n  // L858~863 closure#4 (m00.ll 78123~78242): CHAMP_POWERS_MEMO.with(|m| { let m = m.borrow_mut(); if m.seed == seed && m.tick == tick { m.slot[pt][pp] = Some(store) } })\n  // L864 return\n\n주의: effect_cc_time / effect_buff_target 는 r13 잎(계약만): effect_cc_time(version: usize, effect: &Effect(56B)) -> Option<usize> ({i64 tag, i64 val}) · effect_buff_target(version, effect: &Effect, context: &GameContext(64B), caster: &dyn AbstractEntity(팻), target: &dyn AbstractEntity(팻)) -> Option<BuffState>(sret 288B, None 니치 = +0x48 i32 == -1). 이 함수는 caster=target=champ 로 부른다(vtable = Entity 의 AbstractEntity vtable @anon.6).",
+ "knobs": [
+  {
+   "what": "쿨다운 역수 스케일",
+   "where": "utils.rs:845 / :848",
+   "value": 1000,
+   "effect": "cc_time_x_inv_cd 와 buff_inv_cd_count 의 정수 스케일. 올리면 두 값이 비례해 커져 이를 소비하는 score_parameter 쪽 가중이 커진다(소비처는 이 명세 범위 밖)"
+  },
+  {
+   "what": "스킬2/궁 해금 레벨 임계",
+   "where": "entity.rs:1693 / :1701 (Entity::skill2_effect / ult_effect 인라인, utils.rs:838~839)",
+   "value": "2 / 4",
+   "effect": "level ≤2 면 skill2, ≤4 면 ult 가 cc/buff 누적에서 빠진다"
+  },
+  {
+   "what": "평균 분모",
+   "where": "utils.rs:821 / :830",
+   "value": 5,
+   "effect": "ChampionCache 5원소 배열의 평균. 원소 의미(레벨/구간?)는 미확인 — 바꾸면 attack_power·util_power_base 스케일이 바뀐다"
+  },
+  {
+   "what": "TLS 메모 키",
+   "where": "utils.rs:795~803 (closure#0)",
+   "value": "(seed, tick) 전역 + slot[team][pos].0 == version",
+   "effect": "같은 tick 안에서 같은 (team,pos) 는 첫 계산값을 재생한다. 시뮬 중 p.team/p.pos 가 같고 version 이 같으면 champ 상태가 바뀌어도(레벨업·효과 변경) 그 tick 안에선 갱신 안 됨"
+  }
+ ],
+ "unknown": [
+  "ChampionCache 의 [usize;5] 배열 인덱스가 무엇을 뜻하는지(레벨 구간? 시간창?) — 이 함수는 5개를 단순 합·/5 하므로 판정엔 영향 없으나 의미는 game_core 쪽(simulation.rs:1252) 미독",
+  "closure 이름: fnparts 는 <precompute0>/<precomputes2_0> 로 찍고 tcx 는 {closure#0}(L795)/{closure#4}(L858) — 중간 closure#1~3 은 TLS 초기화(call_once)·fold 클로저로 추정(인라인, define 없음). 명세는 tcx 번호를 따름",
+  "effect_cc_time / effect_buff_target 내부 — r13 잎 명세 소관(계약만 기록)",
+  "AbstractGame::seed/tick 의 런타임 구현체(vtable 슬롯 이름만 divtable 로 확정 — ExpectedGame 판 기준)",
+  "L856 에서 util_power_base 를 p 에서 재load 하는 경로(%330)와 계산값(%220)이 phi 로 합쳐지는데 값은 동일 — 의미 차이 없음(컴파일러 아티팩트)",
+  "version 별 분기 없음: 이 함수 안에서 version 은 메모 키와 콜리 인자로만 쓰인다(본문 icmp 에 version 없음 — 확인 완료, 미지 아님 · 기록용)",
+  "calls 의 LocalKey::with 는 2회(closure#0 조회 · closure#4 저장)이나 qcspec leaf 매칭 규격상 한 항목으로 적음 — 인스턴스 2개는 aux 절 참조"
+ ]
+}

@@ -1,0 +1,151 @@
+{
+ "name": "v21_defensive_cc_score",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common22v21_defensive_cc_score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle_common.rs",
+ "src_line": 540,
+ "ir_file": "m05.ll",
+ "ir_from": 54048,
+ "ir_to": 54564,
+ "aux": [
+  {"ir_file": "m05.ll", "ir_from": 62586, "ir_to": 62731, "what": "L581~583 closure#0 count 본체(`<v21_defenss0_0>`): 아군 중 id≠champ.id && dist2(a,champ)<120000²+1 를 센다. 캡처 = {slice begin, slice end, champ}"},
+  {"ir_file": "m05.ll", "ir_from": 62734, "ir_to": 62928, "what": "L584~593 closure#1 count 본체(`<v21_defenss1_0>`): 적 중 blackboard[1-team] 가시 && (dist2(e,champ)<120000²+1 || dist2 <= (max_range_cached(data,e,champ)+40000)²) 를 센다. 캡처 = {slice begin, slice end, data, player, champ}"}
+ ],
+
+ "one_line": "방어용 CC 스킬(cc_time 있음)을 가시·타겟가능 적 챔피언에 쓸 가치(0~160) — 이동/돌진형 이펙트 제외, 시전 사거리+여유 이내에서 CC시간·사거리 안팎·직접위협·유입피해·수적 열세·내 HP%·즉시위협권으로 합산",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "IR %0 · L560 path_finder::is_enemy_well_danger 에 그대로 전달(본문 자체의 버전 분기 없음)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "IR %1 · readonly · info.team(+0x930) · is_recent_visible/can_target/is_enemy_well_danger 인자 · 클로저 캡처"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "IR %2 · readonly · cache(+0)·blackboard(+0x10) · can_target 의 self · max_range_cached/possible_risk 인자"},
+   {"i": 4, "name": "parameter", "type": "&ScoreParameter(5384B)", "note": "IR %3 · readonly · player 블록(+0x918) applyed_damage/risk_damage/risk_possible_tower · possible_risk self"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B)", "note": "IR %4 · readonly · 시전자(DI 별칭 caster). team·level(+0x5c8)·stat_buff_cached.range(+0x438)·radius_mult(+0x470)·radius(+0x680)·move_speed(+0x640)·x·y·hp·stat_cached.hp"},
+   {"i": 6, "name": "target", "type": "&Entity(1728B)", "note": "IR %5 · readonly · 적. team·ty@tag·cc_immune(+0x468)·cc Vec·radius_mult·radius·move_speed·x·y"},
+   {"i": 7, "name": "effect", "type": "&Effect(56B)", "note": "IR %6 · readonly · ty(Arc<dyn EffectType>) 의 expected_rush_effect/expected_move_on_hit/expected_move_distance · range(+0x10)·growth_range(+0x18)·target(+0x28 CastingTarget) · range_adjust self"},
+   {"i": 8, "name": "cc_time", "type": "Option<usize>", "note": "IR 스칼라 2개: %7 태그(range(0,2)) · %8 페이로드. None 또는 Some(0) 이면 0 (L550)"}
+  ],
+  "returns": "i64 range(-2^63+26, 161) — 0 = 해당 없음(조기 종료 14곳), 아니면 min(bonus,160). bonus = clamp(cc_time/3,10,45)+16|35 (+22) (+24|+10) (+min((ne-na)*8,24)) (+14|+6) (+12) 이라 실제 하한은 26 (range 하한은 smin 형식값)",
+  "tls": {
+   "name": "(직접 접점 없음 · 콜리 경유)",
+   "role": "소비자(간접)",
+   "key": "본체·aux 클로저 2개 모두 `LocalKey`/`call_once` 참조 0건. 콜리 `battle::max_range_cached`(m10.ll 50689) 가 TLS `old::battle::MAX_RANGE_CACHE`(RefCell<MaxRangeCache>) 를 읽고 씀",
+   "layout": "콜리 명세 소관",
+   "invalidation": "콜리 명세 소관",
+   "call_conditions": "max_range_cached 호출 순서: ①aux closure#1 안에서 가시 적마다 (data, enemy, champ) 최대 5회(L590 · 거리 판정 전에 무조건 호출) ②L595 (data, target, champ) 1회 ③L628 (data, target, champ) 1회(L597 게이트 통과 후). 나머지 콜리(is_recent_visible·can_target·is_enemy_well_danger·CastingTarget::check·range_adjust·Entity::distance·possible_risk) 는 TLS 참조 0 확인"
+  }
+ },
+
+ "reads": [
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "L554 target.team == champ.team → 0"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "L554 페이로드 비교"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "L555 target.ty == 13(Champion)"},
+  {"base": "Entity", "offset": "0x468", "name": "stat_buff_cached.cc_immune", "note": "L556 target"},
+  {"base": "Entity", "offset": "0x2c8", "name": "cc.buf.ptr", "note": "L557 target.cc 슬라이스(CCState 40B)"},
+  {"base": "Entity", "offset": "0x2d0", "name": "cc.len", "note": "L557"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "target(L560 is_enemy_well_danger 인자 · L596/L629 거리²) · champ · aux 아군/적"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "L568 champ.level — effect.range(): (level-1)*growth_range"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "L568 champ — effect.range() 가산항(effect.rs:26)"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "L568 champ·target — entity.rs:1511 radius(): mult≠0 이면 radius*(mult+100)/100"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "L568 champ·target"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "L570 champ*8 · L595 target*18"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "L578 champ hp=max(…,1) · L579 hp_ratio 분자"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "L579 champ 최대HP"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "aux closure#0: 아군 id ≠ champ.id"},
+  {"base": "CCState", "offset": "0x0", "name": "tag(i32)", "note": "L557 is_cc(): {0,1,2,6,8,9}"},
+  {"base": "Effect", "offset": "0x0", "name": "ty (Arc data ptr)", "note": "L561~563 ArcInner 페이로드 = ptr + ((align-1)&~15) + 16"},
+  {"base": "Effect", "offset": "0x8", "name": "ty vtable ptr", "note": "+0x10 align · +0x60 expected_rush_effect · +0x68 expected_move_on_hit · +0x58 expected_move_distance (divtable)"},
+  {"base": "Effect", "offset": "0x10", "name": "range", "note": "L568 effect.range()"},
+  {"base": "Effect", "offset": "0x18", "name": "growth_range", "note": "L568 (level-1)*growth_range"},
+  {"base": "Effect", "offset": "0x28", "name": "target (CastingTarget 4B)", "note": "L564 CastingTarget::check(self, champ, target)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L558 1-team(<2 bounds) · L581 team(<2 bounds) · L584 1-team · aux closure#1 1-team"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "game · player_champion"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "L558 · aux closure#1 [1-team] · 744B stride"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data ptr", "note": "is_recent_visible/can_target 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable ptr", "note": "동상"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5]", "note": "L581 [team] 슬라이스 · L584 [1-team] 슬라이스 → 클로저에 begin/end 전달"},
+  {"base": "ScoreParameter", "offset": "0x918", "name": "player (ChampionScoreParameter 시작)", "note": "L576 possible_risk self"},
+  {"base": "ScoreParameter", "offset": "0x988", "name": "player.applyed_damage", "note": "L574"},
+  {"base": "ScoreParameter", "offset": "0x998", "name": "player.risk_damage", "note": "L575"},
+  {"base": "ScoreParameter", "offset": "0x9b0", "name": "player.risk_possible_tower", "note": "L577 /2"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 0, "src_line": 550, "meaning": "Some(0) 배제(cc_time≠0) / L563 Option<(usize,u64)> 태그 0 = None 이어야 계속 / TeamType Player 태그 / 반환 0"},
+  {"value": 13, "src_line": 555, "meaning": "EntityType 메모리태그 13 = Champion"},
+  {"value": 1, "src_line": 557, "meaning": "CCState Stun 태그 / 1-team / max(hp,1) 가드 / L581 near_allies = count+1(자기 포함)"},
+  {"value": 2, "src_line": 557, "meaning": "CCState Bind 태그 / 배열 길이 bounds / L577 risk_possible_tower/2 (sdiv)"},
+  {"value": 6, "src_line": 557, "meaning": "CCState ForceMove 태그 / L622 hp_ratio<65 가산 +6"},
+  {"value": 8, "src_line": 557, "meaning": "CCState Fear 태그(리터럴) — L570·L619 의 ×8 은 `shl 3` 접힘(아래 value 3 항목)"},
+  {"value": 9, "src_line": 557, "meaning": "CCState Charm 태그"},
+  {"value": 100, "src_line": 568, "meaning": "radius*(mult+100)/100 (entity.rs:1511~1515) / L579 hp*100 / L597·L612 incoming*100"},
+  {"value": 3, "src_line": 570, "folded_from": 8, "meaning": "`shl i64 %150, 3` = champ.move_speed*8 (L570 catch 여유) · `shl i64 %269, 3` = (near_enemies-near_allies)*8 (L619) — 리터럴 8 은 CC 태그뿐"},
+  {"value": 3, "src_line": 601, "meaning": "bonus 기본 = (cc_time/3).clamp(10,45) (sdiv 3 · 리터럴) — 같은 값의 `shl 3` 접힘은 위 folded_from 항목"},
+  {"value": 10000, "src_line": 570, "meaning": "dist > cast_range + 10000 + champ.move_speed*8 이면 0"},
+  {"value": 90, "src_line": 576, "meaning": "possible_risk(parameter.player, data, 90) — 90틱 창"},
+  {"value": 14400000001, "src_line": 582, "meaning": "120000²+1 — aux closure#0 아군↔champ / closure#1 적↔champ 거리² 상한"},
+  {"value": 40000, "src_line": 590, "meaning": "aux closure#1: 적의 max_range_cached(data,enemy,champ)+40000 이내면 '근접 적' 으로 셈(120000 초과여도)"},
+  {"value": 25000, "src_line": 595, "meaning": "catch_range = max_range_cached(data,target,champ) + 25000 + target.move_speed*18"},
+  {"value": 18, "src_line": 595, "meaning": "catch_range 의 target.move_speed*18"},
+  {"value": 20, "src_line": 597, "meaning": "!direct_threat 이고 incoming*100 < hp*20 이고 near_enemies<=near_allies 이면 0"},
+  {"value": 10, "src_line": 601, "meaning": "clamp 하한 10 / L614 incoming>=hp 15% 가산 +10"},
+  {"value": 45, "src_line": 601, "meaning": "clamp 상한 45 / L622 hp_ratio<45 → +14"},
+  {"value": 16, "src_line": 602, "meaning": "dist > cast_range 이면 +16 (사거리 밖·접근 필요)"},
+  {"value": 35, "src_line": 602, "meaning": "dist <= cast_range 이면 +35 / L612 incoming*100 >= hp*35 → +24"},
+  {"value": 22, "src_line": 609, "meaning": "direct_threat(dist2 <= catch_range²) 이면 +22"},
+  {"value": 24, "src_line": 613, "meaning": "incoming >= hp 35% → +24 / L619 min((ne-na)*8, 24)"},
+  {"value": 15, "src_line": 614, "meaning": "incoming*100 >= hp*15 (35% 미만일 때) → +10"},
+  {"value": 14, "src_line": 622, "meaning": "hp_ratio < 45 → +14"},
+  {"value": 65, "src_line": 622, "meaning": "hp_ratio < 65 (45 이상일 때) → +6"},
+  {"value": 30000, "src_line": 628, "meaning": "immediate_threat_range = max_range_cached(data,target,champ) + 30000; dist2 <= 그 제곱이면 +12 (L629)"},
+  {"value": 12, "src_line": 629, "meaning": "즉시위협권 가산"},
+  {"value": 160, "src_line": 633, "meaning": "최종 상한 min(bonus,160)"},
+  {"value": -1, "src_line": 568, "meaning": "(level-1) / Arc align-1 · 판정값 아님"},
+  {"value": -16, "src_line": 561, "meaning": "(align-1)&~15 Arc 헤더 정렬 · 판정값 아님"}
+ ],
+
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::state::player::OperationData::can_target",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::entity::Entity::distance",
+  "game_ai::score_parameter::ChampionScoreParameter::possible_risk",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "core::panicking::panic_bounds_check"
+ ],
+ "calls_indirect": [
+  "EffectType vtable +0x60 expected_rush_effect(self) -> bool (L561 · true 면 0)",
+  "EffectType vtable +0x68 expected_move_on_hit(self) -> bool (L562 · true 면 0)",
+  "EffectType vtable +0x58 expected_move_distance(self) -> Option<(usize,u64)> sret 24B (L563 · Some 이면 0)"
+ ],
+
+ "logic": "L550  let cc_time = match cc_time { Some(t) if t != 0 => t, _ => return 0 };   // IR: 태그==1 && 페이로드≠0 (option.rs:1580 인라인 · filter/is_some_and 표기 불명)\nL554  if target.team == champ.team { return 0 }\nL555  if target.ty 태그 != 13(Champion) { return 0 }                      // L554·555 한 select 로 접힘\nL556  if target.stat_buff_cached.cc_immune { return 0 }\nL557  if target.cc.iter().any(|c| c.is_cc()) { return 0 }                // 이미 하드 CC 중\nL558  let enemy_team = 1 - player.info.team;  if !data.blackboard[enemy_team].is_recent_visible(game, player, target) { return 0 }\nL559  if !data.can_target(game, player, target) { return 0 }\nL560  if path_finder::is_enemy_well_danger(version, player, target.x, target.y) { return 0 }   // 적 우물 위험 좌표\nL561  if effect.ty.expected_rush_effect()  { return 0 }                 // 돌진형 제외\nL562  if effect.ty.expected_move_on_hit()  { return 0 }                 // 피격 이동형 제외\nL563  if effect.ty.expected_move_distance().is_some() { return 0 }      // 이동거리 있는 이펙트 제외\nL564  if !effect.target.check(champ, target) { return 0 }               // CastingTarget 적합성\nL568  let cast_range = effect.range(champ)                               // effect.rs:26 = range + (champ.level-1)*growth_range + champ.stat_buff_cached.range\n                     + effect.range_adjust(champ, target)\n                     + champ.radius() + target.radius();                // entity.rs:1511: radius_mult≠0 ? radius*(mult+100)/100 : radius\nL569  let dist = target.distance(champ);\nL570  if dist > cast_range + 10000 + champ.stat_cached.move_speed*8 { return 0 }     // shl 3\nL574  let incoming = parameter.player.applyed_damage + parameter.player.risk_damage      // L574~575\nL576               + parameter.player.possible_risk(data, 90)\nL577               + parameter.player.risk_possible_tower / 2;\nL578  let hp = max(champ.hp, 1);\nL579  let hp_ratio = champ.hp*100 / max(champ.stat_cached.hp, 1);\nL581  let near_allies  = data.cache.player_champion[team].iter().flatten().filter(|a| a.id != champ.id && dist2(a,champ) < 120000²+1).count() + 1;   // aux closure#0 (L582~583)\nL584  let near_enemies = data.cache.player_champion[enemy_team].iter().flatten().filter(|e|                                                          // aux closure#1 (L585~593)\nL586        data.blackboard[1 - player.info.team].is_recent_visible(game, player, e)\nL590        && { let threat = max_range_cached(data, e, champ) + 40000;                                          // 거리 판정 전에 호출\nL591              dist2(e,champ) < 120000²+1 || dist2(e,champ) <= threat² }).count();\nL595  let catch_range = max_range_cached(data, target, champ) + 25000 + target.stat_cached.move_speed*18;\nL596  let direct_threat = dist2(target, champ) <= catch_range²;        // dbg DW_OP_not 확인 · 분기 방향 일치\nL597  if !direct_threat && incoming*100 < hp*20 && near_enemies <= near_allies { return 0 }\nL601  let mut bonus = ((cc_time as i64)/3).clamp(10, 45);\nL602  bonus += if dist > cast_range { 16 } else { 35 };\nL609  if direct_threat { bonus += 22 }\nL612  if incoming*100 >= hp*35 { bonus += 24 }                          // L613\nL614  else if incoming*100 >= hp*15 { bonus += 10 }\nL618  if near_enemies > near_allies {\nL619      bonus += min((near_enemies - near_allies)*8, 24); }           // shl 3\nL622  bonus += if hp_ratio < 45 { 14 } else if hp_ratio < 65 { 6 } else { 0 };\nL628  let immediate_threat_range = max_range_cached(data, target, champ) + 30000;\nL629  if dist2(target, champ) <= immediate_threat_range² { bonus += 12 }\nL633  return min(bonus, 160);                                           // L634\n\n※ dbg 이름: cc_time·cast_range·dist·incoming·hp·hp_ratio·near_allies·near_enemies·catch_range·direct_threat·immediate_threat_range·bonus.\n※ L597 의 세 항 결합 순서·L622 의 else-if 는 IR select 체인(hp_ratio<45 우선, 다음 <65)으로 복원.",
+
+ "knobs": [
+  {"what": "CC 시간 기본 clamp", "where": "battle_common.rs:601", "value": "10..45 (cc_time/3)", "effect": "긴 CC 일수록 방어 CC 가치↑ — 상한 45 를 올리면 장시간 CC 가 더 반영"},
+  {"what": "사거리 안/밖 가산", "where": "battle_common.rs:602", "value": "35 / 16", "effect": "밖(16)을 올리면 접근이 필요한 대상도 선호"},
+  {"what": "시전 허용 여유", "where": "battle_common.rs:570", "value": "10000 + move_speed*8", "effect": "올리면 더 먼 적에게도 방어 CC 후보 성립"},
+  {"what": "직접 위협 판정 여유", "where": "battle_common.rs:595", "value": "25000 + target.move_speed*18", "effect": "올리면 direct_threat 가 자주 참 → +22 및 L597 게이트 우회"},
+  {"what": "약한 상황 컷", "where": "battle_common.rs:597", "value": "incoming<20% && 수적 열세 아님", "effect": "20 을 올리면 더 많은 상황이 0 으로 컷"},
+  {"what": "유입피해 가산", "where": "battle_common.rs:612~614", "value": "35%→+24 / 15%→+10", "effect": "내리면 적은 피해 예상에도 방어 CC 선호"},
+  {"what": "수적 열세 가산", "where": "battle_common.rs:619", "value": "min(차이*8, 24)", "effect": "열세일수록 CC 로 버티기 — 24 상한"},
+  {"what": "내 HP% 가산", "where": "battle_common.rs:622", "value": "<45→+14 / <65→+6", "effect": "저체력일수록 방어 CC 선호"},
+  {"what": "즉시위협권", "where": "battle_common.rs:628", "value": "max_range_cached+30000 → +12", "effect": "올리면 더 먼 적도 즉시 위협"},
+  {"what": "적 근접 판정 확장", "where": "battle_common.rs:590", "value": 40000, "effect": "적 사거리+40000 — 올리면 원거리 적도 near_enemies 에 포함"},
+  {"what": "최종 상한", "where": "battle_common.rs:633", "value": 160, "effect": "방어 CC 점수 최대"}
+ ],
+
+ "unknown": [
+  "L550 소스 표기(`filter(|t| *t>0)` vs `match … Some(t) if t!=0`) — option.rs:1580 인라인만 남아 표기 불가(외연: Some 이고 ≠0)",
+  "L597 세 항의 소스 순서 — 값 결합(and)이라 IR 에 순서 흔적 없음(표기 불가)",
+  "L554/L555 결합 순서 — 한 select 로 접힘(표기 불가)",
+  "aux closure#1 의 `dist<120000 || dist<=threat` 순서: IR 은 120000 비교를 먼저 하고 실패 시 threat 비교(관측) · max_range_cached 는 둘 다보다 앞서 무조건 호출됨(TLS 캐시 부작용 순서에 영향)",
+  "expected_rush_effect/expected_move_on_hit/expected_move_distance 의 런타임 구현체별 값 — Arc<dyn EffectType> 이라 정적 확정 불가",
+  "콜리 내부(범위 밖): can_target(&OperationData, game:&dyn AbstractGame, &PlayerState, &Entity)->bool · is_enemy_well_danger(usize version, &PlayerState, x:u64, y:u64)->bool (path_finder — r18) · CastingTarget::check(&self,&Entity caster,&Entity target)->bool · range_adjust(&Effect,&Entity,&Entity)->u64 · max_range_cached(&OperationData,&Entity attacker,&Entity target)->u64",
+  "반환 range 하한 -2^63+26 이 실제로 도달 가능한지(bonus 항이 전부 비음수라 실제 하한은 26 이라고 봄) — smin 형식 범위"
+ ]
+}

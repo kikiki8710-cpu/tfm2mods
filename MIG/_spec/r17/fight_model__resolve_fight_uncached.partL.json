@@ -1,0 +1,292 @@
+{
+ "name": "resolve_fight_uncached",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 378,
+ "ir_file": "m10.ll",
+ "ir_from": 43974,
+ "ir_to": 47451,
+ "aux": [
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 17437,
+   "ir_to": 17580,
+   "note": "466 their_focus fold — closure#14(filter their_alive[i]) + #15(key their_hp[i]) min_by_key · 심볼 …sc_0/sd_0"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 17583,
+   "ir_to": 17747,
+   "note": "468 our_focus fold — closure#16(filter our_alive[i] && arrived(i)) + #17(key our_hp[i]) min_by_key · …se_0/sf_0"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 17750,
+   "ir_to": 17882,
+   "note": "471 next 도착 틱 fold — closure#18(filter our_alive[i] && our_arrive[i] > t) + #19(map our_arrive[i]) min · …sg_0/sh_0"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 17885,
+   "ir_to": 18044,
+   "note": "496 소커 재선정 fold — closure#21(filter our_alive[i]) + #22(key near_allies[i].stat_cached.hp @+0x628) max_by_key · …sj_0/sk_0"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 18047,
+   "ir_to": 18206,
+   "note": "501 소커 재선정 fold(소커 사망 시) — closure#23/#24, 496 과 동일 술어·키 · …sl_0/sm_0"
+  }
+ ],
+ "one_line": "(배치 L) 교전 틱 시뮬 루프 본체(465~501) + 종료 정산(508~521): 포커스 선정·dt 산출·HP 차감·사망 처리·소커 교체 → net/our_unit/committed_dir 로 FightLine 판정해 FightPrediction sret 기록",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "&mut FightPrediction(64B)",
+    "role": "sret — IR 속성 `dead_on_unwind noalias noundef nonnull writable writeonly align 8 captures(none) dereferenceable(64)`(m10.ll:43974)",
+    "note": "(배치 L) 내 범위의 유일한 외부 쓰기 표면 — 520 줄에서 8필드 기록(writes 참조)"
+   },
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "role": "IR 속성 `noundef` 만",
+    "note": "(배치 L) 465~521 에서 미사용"
+   },
+   {
+    "i": 2,
+    "name": "data",
+    "type": "&OperationData (ArgumentPromotion — DI 는 `poison`, %2 는 `ptr readonly captures(address_is_null)`, %3 은 `context` 로 명명)",
+    "role": "readonly(IR 속성 있음, %2)",
+    "note": "(배치 L) 465~521 에서 %2·%3 미사용"
+   },
+   {
+    "i": 3,
+    "name": "champ",
+    "type": "&Entity(1728B)",
+    "role": "IR 속성 `readonly`",
+    "note": "(배치 L) 미사용"
+   },
+   {
+    "i": 4,
+    "name": "near_allies",
+    "type": "&[&Entity]",
+    "role": "data_ptr %5 `readonly` / len %6 `range(0, 2^60)`",
+    "note": "(배치 L) 496·501 소커 재선정 키 `near_allies[i].stat_cached.hp`(+0x628) 로만 읽음. 인덱스 i<our_n 이 len 과 bounds-check 됨(m10.ll:46753·47027)"
+   },
+   {
+    "i": 5,
+    "name": "near_enemies",
+    "type": "&[&Entity]",
+    "role": "data_ptr %7 `readonly` / len %8",
+    "note": "(배치 L) 미사용(their_* 로컬 배열만 씀)"
+   },
+   {
+    "i": 6,
+    "name": "committed_dir",
+    "type": "i8",
+    "role": "IR 속성 `noundef`",
+    "note": "(배치 L) 515 switch: 1 / -1 / 그 외(0) 세 갈래 히스테리시스"
+   },
+   {
+    "i": 7,
+    "name": "tower",
+    "type": "Option<&Entity>",
+    "role": "`readonly dereferenceable_or_null(1728)`",
+    "note": "(배치 L) 미사용 — 타워 효과는 K 가 만든 tower_dps(%332)·soaker(%333/%334/%335) 로만 들어옴"
+   },
+   {
+    "i": 8,
+    "name": "judge_accuracy",
+    "type": "usize",
+    "role": "`noundef`",
+    "note": "(배치 L) 미사용"
+   },
+   {
+    "i": 9,
+    "name": "arrivals",
+    "type": "&[i64]",
+    "role": "data_ptr %12 `readonly captures(none)` / len %13",
+    "note": "(배치 L) 미사용(our_arrive 로컬 배열로 이미 복사됨)"
+   },
+   {
+    "i": 10,
+    "name": "baseline",
+    "type": "i64",
+    "role": "`noundef`",
+    "note": "(배치 L) 508 `net = their_dead_v - (our_dead_v + baseline)`"
+   }
+  ],
+  "returns": "sret FightPrediction(64B) — 520 경로 live 바이트: 0x0 focus_target@tag(i64 0/1) · 0x8 focus_target@Some.0(their_id[te]; tag 0 이면 **undef**(%770 초기 undef / %600 경로 undef) · 0x10 soaker@tag(=K 의 %333) · 0x18 soaker@Some.0(=K 의 %335, tag 0 이면 undef) · 0x20 rescue_ally@tag = 0(None 고정) · **0x28 미기록(쓰레기)** · 0x30 net_value(i64) · 0x38 line(FightLine 1B) · 0x39 line_absolute(= line 과 같은 값) · 0x3a~0x3f 패딩 미기록. 381 조기반환(K 소관)은 0x0/0x10/0x20/0x30 = 0 · 0x38/0x39 = 3(Hold) 만 쓰고 0x8/0x18/0x28 미기록.",
+  "tls": "없음 — 465~521 범위와 aux 5개에 `LocalKey`/`call_once` fn-포인터 상수 참조·gen_range 호출 0건(grep 실측)"
+ },
+ "reads": [
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "near_allies[i] 경유 · 496/501 소커 재선정 max_by_key 키(m10.ll:46765·47039 첫 원소, aux fold 안 `i64 1576`)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "FightPrediction",
+   "offset": "0x0",
+   "name": "focus_target@tag",
+   "value": "%826 = first_focus tag(0 None / 1 Some)",
+   "note": "m10.ll:47095 · 정상 종료 경로 520"
+  },
+  {
+   "base": "FightPrediction",
+   "offset": "0x8",
+   "name": "focus_target@Some.0",
+   "value": "%825 = their_id[te](첫 루프 반복의 their_focus 엔티티 id) · tag 0 이면 undef",
+   "note": "m10.ll:47097"
+  },
+  {
+   "base": "FightPrediction",
+   "offset": "0x10",
+   "name": "soaker@tag",
+   "value": "%333(K · 455 줄 초기 소커 tag) — 루프 안에서 교체된 소커가 아니라 **초기값**",
+   "note": "m10.ll:47099"
+  },
+  {
+   "base": "FightPrediction",
+   "offset": "0x18",
+   "name": "soaker@Some.0",
+   "value": "%335(K · near_allies[idx].id) · tag 0 이면 undef",
+   "note": "m10.ll:47101"
+  },
+  {
+   "base": "FightPrediction",
+   "offset": "0x20",
+   "name": "rescue_ally@tag",
+   "value": "0 (None 고정 · 0x28 페이로드 미기록)",
+   "note": "m10.ll:47103"
+  },
+  {
+   "base": "FightPrediction",
+   "offset": "0x30",
+   "name": "net_value",
+   "value": "%824 = net (508)",
+   "note": "m10.ll:47094"
+  },
+  {
+   "base": "FightPrediction",
+   "offset": "0x38",
+   "name": "line",
+   "value": "%839 (0 Commit / 2 Disengage / 3 Hold — 516~518)",
+   "note": "m10.ll:47092"
+  },
+  {
+   "base": "FightPrediction",
+   "offset": "0x39",
+   "name": "line_absolute",
+   "value": "%839 — line 과 동일값",
+   "note": "m10.ll:47105"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2305843009213693951,
+   "src_line": 484,
+   "meaning": "= 2^61-1 (= i64::MAX>>2 = i64::MAX/4 · 표기 불가). t_te/t_ta/t_soak 의 '해당 없음' 감시값 — 나눗셈 분모(our_total / ta_incoming / tower_dps)가 0 이거나 소커 조건 불충족이면 이 값(484·485·486 phi)"
+  },
+  {
+   "value": 1,
+   "src_line": 487,
+   "meaning": "dt 하한 `smax(…,1)`(m10.ll:46461) — 최소 1틱은 진행. 같은 리터럴이 471 `next < horizon`·493/494/499 `hp < 1`(=hp<=0 사망 판정)·517 `net < 1`·515 `committed_dir == 1` 에도 쓰임 · ⚠qcspec 경고 사유: `shl i64 %74, 1`(m10.ll:44163, 배치 K 의 392~403 줄 해시 계산)의 시프트량이지 내 범위(465~521, shl 0건)와 무관 — 여기 1 은 리터럴 그대로"
+  },
+  {
+   "value": -1,
+   "src_line": 515,
+   "meaning": "committed_dir == -1 (이탈 커밋) 케이스 · 516 `net > -1`(=net>=0) 도 이 리터럴 · 484/485 ceil 나눗셈의 `+ (d-1)` 도 add -1(m10.ll:46405·46428)"
+  },
+  {
+   "value": 0,
+   "src_line": 520,
+   "meaning": "FightLine::Commit 태그 0(tcxdict --enum FightLine) · rescue_ally None 태그 · first_focus None 태그 · 484/485 `> 0` 분모 양수 게이트"
+  },
+  {
+   "value": 2,
+   "src_line": 516,
+   "meaning": "FightLine::Disengage 태그 2(m10.ll:47089 phi · 47120 · 47126)"
+  },
+  {
+   "value": 3,
+   "src_line": 516,
+   "meaning": "FightLine::Hold 태그 3(m10.ll:47085 · 47120 · 47126) · ⚠qcspec 경고 사유: 배치 K 범위의 shl 피연산자 3 과 우연 일치 — 내 범위엔 shl 0건, 여기 3 은 FightLine::Hold 태그 리터럴"
+  },
+  {
+   "value": 5,
+   "src_line": 465,
+   "meaning": "our_*/their_* 로컬 배열 길이 [5] — bounds-check 상수(`icmp ult %idx, 5` · panic_bounds_check(…,5)). 임계 아님 · stride 아님 · 인덱스 상한이라 등록"
+  }
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::iter::adapters::map::fold",
+  "llvm.smin.i64",
+  "llvm.smax.i64",
+  "llvm.assume"
+ ],
+ "logic": "// fight_model.rs:465~521 (배치 L)\n// ── 전제(배치 K 산출 · 이름은 DI 변수명) ──\n// 로컬 배열(스택, 길이 5): our_alive[%35: 5×bool] our_arrive[%34: 5×i64] our_dps[%36] our_hp[%37] / their_alive[%30] their_dps[%31] their_hp[%32] their_id[%29: 엔티티 id]\n// our_n=%154 · their_n=%167 · horizon=%85(horizon_ticks) · t=*%28(현재 시뮬 틱) · tower_dps=%332 · 루프 소커 soaker=(tag %771, idx %772) · 초기 소커 출력용 soaker_id=(%333,%335)\n// arrived(i) := !(our_arrive[i] > t)  — 463 줄 클로저(캡처 %27 = {&our_arrive, &t}), 468·480 에서 인라인\n// %331 = K 플래그: `(0..our_n)` 폴드를 통째로 건너뛰는 경로(our_n == 0 로 추정 — unknown 참조). 루프 머리 phi(m10.ll:46791~46798): our_dead_v=%766 their_dead_v=%767 first_focus=(%769 tag,%770) soaker=(%771,%772) · 첫 진입 시 0/0/None/K값\n// our_total(%440, 464 줄 K) = Σ our_dps[i] (i<our_n, our_alive[i] && arrived(i))\n\n// 465: their_total = (0..their_n).filter(|i| their_alive[i]).map(|i| their_dps[i]).sum()\n//   (m10.ll:45397~45451: %355 = their_n ∉ 1..=5 이면 panic_bounds_check(5,5) — 컴파일러가 their_n≥1 을 알고 do-while 로 편 것 · 실전 도달 불가)\n//   %454 = their_total\n\n// 466: te = (0..their_n).filter(|i| their_alive[i]).min_by_key(|i| their_hp[i])   ← closure#14/#15, aux m12.ll:17437 (동률이면 앞 인덱스)\n//   첫 생존 원소를 본문에서 언롤(m10.ll:45500~45624: their_alive[0..4] 순차 검사, %480=첫 idx, %482=their_hp[첫])\n//   → 생존 적 없음(their_n 개 전부 false) → @534 (508 줄로 break: 전멸 = 승리 정산)\n//   → 있음 → %483 = fold(env %21={&their_alive, their_n, &their_hp, cur}, first_key, first_idx) · te = %483.1 (m10.ll:45663 / 46011)\n\n// 468: ta = (0..our_n).filter(|i| our_alive[i] && arrived(i)).min_by_key(|i| our_hp[i])   ← closure#16/#17, aux m12.ll:17583\n//   %331 이면 폴드 생략 → @600: net = 0 - baseline, our_unit = 0 으로 곧장 515 로(m10.ll:46264·47063)\n//   언롤(m10.ll:45723~45908): i=0..4 에 대해 our_alive[i] 확인 → our_arrive[i] > t 이면 미도착으로 skip(%493 등 `icmp sgt arrive, t`)\n//   → 도착한 생존 아군 없음 → 471 로\n//   → 있음 → %557 = fold(env %20={&our_alive, &arrived캡처, our_n, &our_hp}, …) · ta = %557.1 (m10.ll:46027~46028, DI 이름 `ta`)\n\n// 471 (ta 없음 분기): next = (0..our_n).filter(|i| our_alive[i] && our_arrive[i] > t).map(|i| our_arrive[i]).min()   ← closure#18/#19, aux m12.ll:17750\n//   언롤(m10.ll:46086~46211: our_alive[i] && our_arrive[i] > t 인 첫 i 의 arrive 가 first, 이후 fold(env %26) 가 min)\n//   → 후보 없음 → @597: 508 줄로 break(net 정산)\n//   → Some(next): if next < horizon (m10.ll:46296~46297)\n//        472: t = next; continue  (m10.ll:46300 store %28 · 46302 br %397 — dead/first_focus/soaker 는 그대로 유지)\n//      else → 508 로 break\n\n// 476: if t >= horizon || (our_total | their_total) == 0   (m10.ll:46031~46036 · `or i64` = our_total==0 && their_total==0 접힘 · IR 은 t>=horizon 을 먼저 평가)\n//        → break → 508\n\n// 477: if first_focus.is_none() { first_focus = Some(their_id[te]) }   (m10.ll:46305 %768 · 46378~46379 their_id[te] · bounds te<5)\n\n// 480: soak: Option<usize> = soaker.filter(|&s| our_alive[s] && arrived(s))   (m10.ll:46318~46359: %613=soaker.is_some · our_alive[s] · our_arrive[s] > t 면 None) → (%630 is_some, %631 s)\n\n// 481: ta_incoming = their_total + (if soak == Some(ta) { tower_dps } else { 0 })   (m10.ll:46365~46368 · %633 = soak.is_some && s==ta)\n\n// 484: t_te = if our_total > 0 { (their_hp[te] + our_total - 1) / our_total } else { INF }   (INF = 2305843009213693951 · m10.ll:46370·46403~46407 · ceil 나눗셈, sdiv)\n// 485: t_ta = if ta_incoming > 0 { (our_hp[ta] + ta_incoming - 1) / ta_incoming } else { INF }   (m10.ll:46395·46426~46430)\n// 486: t_soak = if let Some(s) = soak && s != ta && tower_dps > 0 { (our_hp[s] + tower_dps - 1) / tower_dps } else { INF }   (m10.ll:46420~46442 · %368 = tower_dps>0, %369 = tower_dps-1 은 루프 밖에서 선계산 · `s != ta` 와 `tower_dps > 0` 의 소스 순서는 표기 불가)\n// 487: dt = max(1, min(horizon - t, min(t_soak, min(t_ta, t_te))))   (m10.ll:46451~46461 · smin 사슬 순서 = IR 기준, 소스 괄호 순서는 표기 불가)\n\n// 489: their_hp[te] -= dt * our_total          (m10.ll:46467~46471)\n// 490: our_hp[ta]   -= dt * ta_incoming        (m10.ll:46480~46484)\n// 491: if let Some(s) = soak && s != ta { our_hp[s] -= dt * tower_dps }   (m10.ll:46485~46488 %695 = !(is_some && s!=ta) → skip · 46501~46505 · ★tower_dps>0 검사 없음 — 0 이면 0 차감)\n// 492: t += dt                                  (m10.ll:46495~46496 store %28)\n\n// 493: if their_hp[te] < 1 { their_alive[te] = false; their_dead_v += their_dps[te] }   (m10.ll:46497~46514 · `<1` == `<=0` 표기 불가 · dead_v 는 죽은 유닛의 **dps** 합)\n// 494: if our_hp[ta] < 1 {                                                          (m10.ll:46520~46522)\n// 495:   our_alive[ta] = false; our_dead_v += our_dps[ta]                             (m10.ll:46535~46539)\n// 496:   if soaker == Some(ta) { soaker = (0..our_n).filter(|i| our_alive[i]).max_by_key(|i| near_allies[i].stat_cached.hp) }   ← closure#21/#22 aux m12.ll:17885 (m10.ll:46543~46545 루프 소커(%613/%772) 와 비교 · 언롤 46595~46718 · 첫 원소 key = near_allies[i]+0x628 · 후보 없으면 soaker = None(%760=0) · 동률이면 **뒤** 인덱스)\n//      }\n// 498: if let Some(s) = soak && s != ta {                                              (m10.ll:46532 %695 재사용)\n// 499:   if our_hp[s] < 1 {                                                            (m10.ll:46802~46805)\n// 500:     our_alive[s] = false; our_dead_v += our_dps[s]                             (m10.ll:46808~46812)\n// 501:     if soaker == Some(s) { soaker = 위 496 과 동일 재선정 }   ← closure#23/#24 aux m12.ll:18047 (m10.ll:46816~46819 · 496 에서 갱신된 soaker(%716/%717) 기준 · 언롤 46821~47045)\n//      } }\n// → 루프 머리(@761→@765, m10.ll:46781~46799)로 back-edge · 464 로 (배치 K 줄)\n\n// ── 루프 탈출 후 ──\n// 508: net = their_dead_v - (our_dead_v + baseline)   (m10.ll:45912~45913 / 45938~45939 / 46218~46219 · %331 경로는 0 - baseline 으로 접힘 46264)\n// 510: our_unit = if our_n > 0 { (Σ_{i<our_n} our_dps[i]) / our_n } else { 0 }   ← closure#25 (m10.ll:45964 our_n>5 → panic · 45972~46001 합(생존/도착 무관 전원) · 47056 sdiv · %331 경로 0 = 47063 phi · 0 처리의 소스 형태(명시 if / checked_div / max(1)) 는 표기 불가)\n// 515: match committed_dir {                       (m10.ll:47065 switch i8 %9)\n// 516:   1  => line = if net < -our_unit { Disengage } else if net > -1 /*net>=0*/ { Commit } else { Hold }   (47075~47085)\n// 517:   -1 => line = if net > our_unit { Commit } else if net < 1 /*net<=0*/ { Disengage } else { Hold }        (47080~47081 · 47119~47120)\n// 518:   _  => line = if net > our_unit { Commit } else if net < -our_unit { Disengage } else { Hold }             (47071~47072 · 47124~47126)\n//      }\n// 520: *sret = FightPrediction { focus_target: first_focus, soaker: soaker_id(K 초기값 %333/%335 — 루프 중 교체분 아님), rescue_ally: None, net_value: net, line, line_absolute: line }   (m10.ll:47091~47105)\n// 521: ret   (m10.ll:44135 @59 · 381 조기반환도 같은 ret 블록으로 합류)",
+ "knobs": [
+  {
+   "what": "판정 히스테리시스 밴드 = our_unit(우리 평균 dps, 510)",
+   "where": "fight_model.rs:516~518",
+   "value": "our_unit ×1 (배수 리터럴 없음)",
+   "effect": "밴드를 키우면(예: our_unit 에 배수) Hold 구간이 넓어져 Commit/Disengage 전환이 둔해진다. dir=0 은 ±our_unit 대칭, dir=1 은 net<-our_unit 에서만 이탈, dir=-1 은 net>our_unit 에서만 재교전"
+  },
+  {
+   "what": "committed_dir 별 비대칭 임계",
+   "where": "fight_model.rs:516·517",
+   "value": "516: Commit if net>=0 / 517: Disengage if net<=0",
+   "effect": "이미 교전 중(1)이면 net 이 0 이상이기만 하면 Commit 유지, 이미 이탈 중(-1)이면 0 이하이기만 하면 Disengage 유지 — 0 근처 플립 억제"
+  },
+  {
+   "what": "사망 가치 = 유닛 dps",
+   "where": "fight_model.rs:493·495·500",
+   "value": "their_dps[te] / our_dps[i]",
+   "effect": "net 은 '죽인 dps 합 - 잃은 dps 합 - baseline'. hp 나 머릿수로 바꾸면 저울 단위가 달라진다"
+  },
+  {
+   "what": "포커스 규칙",
+   "where": "fight_model.rs:466·468",
+   "value": "min_by_key(hp) (동률 앞 인덱스)",
+   "effect": "양측 모두 '가장 낮은 hp 생존자(아군은 도착자 한정)'를 집중. 키를 바꾸면 킬 순서·dt 가 바뀐다"
+  },
+  {
+   "what": "소커 재선정 규칙",
+   "where": "fight_model.rs:496·501",
+   "value": "max_by_key(near_allies[i].stat_cached.hp) 생존자 (동률 뒤 인덱스)",
+   "effect": "소커 사망 시 남은 생존 아군 중 **원본 엔티티 hp(시뮬 차감 전)** 최대가 다음 소커. 시뮬 our_hp 가 아니라는 점 주의"
+  },
+  {
+   "what": "dt 하한",
+   "where": "fight_model.rs:487",
+   "value": 1,
+   "effect": "0 이면 무한루프 위험 — 내리지 말 것. 올리면 시뮬 해상도가 거칠어진다"
+  },
+  {
+   "what": "루프 종료 조건",
+   "where": "fight_model.rs:476",
+   "value": "t >= horizon || (our_total==0 && their_total==0)",
+   "effect": "horizon 은 K 의 horizon_ticks. 양측 dps 가 모두 0 이면(도착자 없음·전멸) 즉시 정산"
+  }
+ ],
+ "unknown": [
+  "%331 의 정확한 의미 — 배치 K 의 %301(m10.ll:44995: %256/%257 에서 true, %257 은 `our_n == 0`)에서 오는 플래그. 내 범위에선 '(0..our_n) 폴드 생략 + our_dead_v/their_dead_v = 0 접힘 + our_unit = 0' 으로만 관측 ⟹ our_n == 0 로 **추정**(K 명세와 대조 필요). 380 줄 조기반환이 near_allies 빈 슬라이스를 걸러도 our_n(생존/거리 필터 후 카운트)은 0 일 수 있음",
+  "476 `t >= horizon || (…)==0` 한 줄 안의 소스 순서 — column 0 이라 표기 불가. IR 은 select(%560, true, %562) 로 t>=horizon 을 먼저 평가",
+  "471 의 `next < horizon` 이 `.filter(|n| n < horizon)` 인지 `match … Some(n) if n < horizon` 인지 — 표기 불가(동작 동일: 미만이면 t=next; continue, 아니면 break)",
+  "484/485/486 ceil 나눗셈의 소스 형태(`(a + d - 1) / d` vs `div_ceil`) — 표기 불가(IR 은 add d,-1 → add → sdiv)",
+  "510 `our_n == 0 → our_unit 0` 의 소스 형태(명시 if / checked_div().unwrap_or(0) / our_n.max(1)) — 표기 불가(%331 경로 phi 0 만 관측)",
+  "486 `s != ta` 와 `tower_dps > 0` 의 소스 순서 — `and i1 %368, %659` 비단락 접힘이라 표기 불가",
+  "sret 0x28(rescue_ally 페이로드)·0x3a~0x3f 는 어느 경로에서도 안 쓰인다 — 호출자(resolve_fight_full 캐시)가 이 바이트를 복사/해시하면 쓰레기가 섞인다(sweep 대조 시 마스킹 필요). 0x8/0x18 도 tag 0 이면 undef",
+  "520 의 soaker 출력이 **루프 초기값(%333/%335)** 인 것은 확정이나 %335 가 near_allies[idx].id(+0x5c0, m10.ll:45154~45157 K 범위) 인지의 최종 확인은 K 몫",
+  "aux fold 5개 안의 `compare…call_once` 헬퍼(min_by_key/max_by_key 비교기)는 별도 define 이지만 aux 에 넣지 않음 — 반환 i8 부호로 old/new 선택하는 것만 확인(min: cmp<1 → old 유지, max: cmp>0 → old 유지)",
+  "the 5 fold 호출은 이름이 전부 `…fold…` 로 끝나 calls 에 `core::iter::adapters::map::fold` 하나로 등록 — 5 인스턴스는 aux note 에 심볼 접미(sc_0/sd_0 …)로 구분"
+ ]
+}

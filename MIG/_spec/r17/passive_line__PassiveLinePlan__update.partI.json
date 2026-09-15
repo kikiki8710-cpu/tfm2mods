@@ -1,0 +1,933 @@
+{
+ "name": "PassiveLinePlan::update",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan6update",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_line.rs",
+ "src_line": 219,
+ "ir_file": "m04.ll",
+ "ir_from": 19038,
+ "ir_to": 24726,
+ "aux": [
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 23689,
+   "ir_to": 24038,
+   "note": "near_enemies 수집 = bumpalo Vec<&Entity>::from_iter_in(enumerate.filter(DI closure$3 · 망글 s1_0).filter_map(DI closure$4 · s2_0)) 인스턴스 — 필터 술어 본문(passive_line.rs:519~524)이 여기 인라인"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 12086,
+   "ir_to": 12247,
+   "note": "update_v46_lane_recall:570 `exposed` = committers.iter().any(closure s3_0) 본문(passive_line.rs:571~574)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 584,
+   "ir_to": 679,
+   "note": "update_v46_lane_recall:584 `my_tower_protects` = Option<&Effect>::map_or(closure s4_0) 본문(passive_line.rs:585~586)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 486,
+   "ir_to": 581,
+   "note": "update_v46_lane_recall:603~606 `wave_crashing_enemy_tower` 안쪽 map_or(closure s5_0::0) 본문(passive_line.rs:605~606)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 15328,
+   "ir_to": 15498,
+   "note": "update_v46_flee:448 `wave_crashing` = front_minion.is_some_and(closure s7_0) 본문(passive_line.rs:449~455)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 388,
+   "ir_to": 483,
+   "note": "update_v46_flee:420~423 `v46_flee_cover` 안쪽 map_or(closure s5_0::0) 본문(passive_line.rs:422~423)"
+  }
+ ],
+ "part": "I",
+ "part_src_lines": "232~248",
+ "part_ir_lines": "m04.ll 21197~22569(@904~@1400) · 22576~24138(@1407~@2048) · 24139~24141(@2049) — 원문 줄 · 루트 소스줄 232~248 인 블록 219개 · IR 명령 1,294줄(주석본 ;L 기준 · blocks.json per 합 1,399) · 인라인 문 3개 = L243 update_v46_lane_recall(passive_line.rs:488~653) · L248 update_v46_flee(:343~474) · L241 v46_flee_end(:323~332)",
+ "one_line": "[배치 I · passive_line.rs:232~248] 갱/다이브 라인 홀드 판정(gank_hold) → v46 라인 CS 사망예측 귀환 커밋(update_v46_lane_recall) → in_recall 승격 → v46 도주 에피소드 진입/유지/종료(update_v46_flee)",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut PassiveLinePlan (280B)",
+    "role": "define 속성 = `noalias noundef align 8 dereferenceable(280)` · readonly 없음 = &mut · 배치 I 쓰기 표면 = writes 절 전수(0x0/0x8/0x10 v46_flee_entry · 0x30~0x40 v46_committers · 0x48~0x58 v46_flee_threats · 0x60~0x70 trigger_ticks push · 0x78~0x88 flee_episodes push · 0x90~0xf8 계측 카운터 14종 · 0x100/0x108 hp_entry/hp_min · 0x110~0x115 bool 6종)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize (i64 %1)",
+    "role": "IR 속성 없음(i64 값) · 배치 I 에서는 분기 없음 — v46_stage1(×3)·v46_flee_gate_check 에 그대로 전달만"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng (320B)",
+    "role": "define 속성 = `noalias noundef align 16 dereferenceable(320)` · 배치 I 범위에서 사용 0건(gen_range 호출 사이트 0개 · %2 참조 0건)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "role": "define 속성 = `noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528)` · 배치 I 에서 직접 읽는 필드 없음 — 배치 H(L222)가 읽어둔 %64=info.team(0x930)·%68/%69=info.position(0x9c0) 재사용 · add_log·is_recent_visible·v46_flee_gate_check 에 통째 전달 · aux 필터 술어(m01.ll:23845)에서 +0x930 team 재로드"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "role": "define 속성 = `noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24)` · +0 cache(%70, 배치 H 로드) · +8 context(%79, 배치 H 로드) · +16 blackboard 배열(21516·23381·23633 에서 로드)"
+   },
+   {
+    "i": 6,
+    "name": "team_plan",
+    "type": "&TeamPlan (1064B)",
+    "role": "define 속성 = `noundef nonnull readonly align 8 captures(none)` (dereferenceable 없음 · noalias 없음) · 배치 I 진입 게이트 L232 = objective@tag(0x41f) · L233 Gank/Dive.line(0x420)"
+   },
+   {
+    "i": 7,
+    "name": "_positioning_score",
+    "type": "&PositioningScoreData (2760B)",
+    "role": "define 속성 = `noalias noundef readonly align 8 captures(none) dereferenceable(2760)` · 배치 I 사용 0건"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData (224B)",
+    "role": "define 속성 = `noalias noundef align 8 dereferenceable(224)` · readonly 없음 = &mut · 배치 I 에서는 DebugFrameData::add_log(debug, data, player, String) 호출 4곳(22331·22446·23608·24087)으로만 쓰인다(ctx.debug(+0x3b) 참일 때만) — 직접 필드 store 없음"
+   }
+  ],
+  "returns": "void — 배치 I 는 `next_plan` 값을 만들지 않는다(반환 sret 없음 · L254 이후(배치 J)로 흐름만 넘김). 부작용 = &mut self 쓰기(writes 절) + debug.add_log",
+  "tls": "없음 — 배치 I 범위(및 aux 6조각)에 `LocalKey::with`/`call_once`/`llvm.threadlocal.address`/@anon fn-포인터 상수 경유 호출 0건(grep 0). @anon 참조는 포맷 문자열 .67/.68/.73/.74 와 패닉 Location .75~.78 뿐"
+ },
+ "reads": [
+  {
+   "base": "TeamPlan",
+   "offset": "0x41f",
+   "name": "objective@tag (Option<MainObjective> 니치 태그 1B)",
+   "note": "21202~21205 `%907 = gep %5, 1055` · `and i8 -2` 후 `icmp eq 8` → 태그 8(Gank)|9(Dive) · tcxdict --enum MainObjective: Gank=8 Dive=9 (메모리태그=선언discr)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x420",
+   "name": "objective@Some.0@Gank.line / @Dive.line (LineType 1B)",
+   "note": "21209~21210 `%912 = gep %5, 1056` · DI 이름 gank_line · Gank·Dive 둘 다 line 이 enum+0x1"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x116",
+   "name": "line (LineType)",
+   "note": "21213(L236 gank_line 비교) · 21362(:503 cache.tower) · 21519(:513 minion_state) · 21775(:588) · 22092(:638 push) · 22130(:639) · 22643(v46_flee_end :325 push 원소) · 23228(update_v46_flee :374) 등"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x111",
+   "name": "v46_commit (bool)",
+   "note": "21620~21622(:528 커밋중 분기) · 22414(v46_clear:477 completed=false 판) · 22469~22471(L244) · 22602(update_v46_flee:345)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x38",
+   "name": "v46_committers.buf.ptr",
+   "note": "22367(:534 only=Some(&self.v46_committers[..]) 슬라이스 ptr)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x40",
+   "name": "v46_committers.len",
+   "note": "22369(:534 only 슬라이스 len)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x30",
+   "name": "v46_committers (Vec<usize> 24B 통째)",
+   "note": "22079(:637 대입 전 drop_in_place<Vec<usize>>) · 22295(:647 로그 `{:?}`)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x0",
+   "name": "v46_flee_entry@tag (Option<(usize,u8)> 판별자 8B · 0=None 1=Some)",
+   "note": "22488(L241 take) · 22625(:346) · 22927(:350) · 23130(:357) · 23976(:393) — v46_flee_end 인라인 5곳 전부 `take()` = load 후 store 0"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x8",
+   "name": "v46_flee_entry@Some.0.0 entry_tick (usize)",
+   "note": "22490 등 take 5곳"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x10",
+   "name": "v46_flee_entry@Some.0.1 wave_flags (u8)",
+   "note": "22492 등 take 5곳"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x114",
+   "name": "v46_flee_approached (bool)",
+   "note": "22501(v46_flee_end:324 flags |= approached as u8) · 24060(:390 로그 `approached={}`)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x100",
+   "name": "v46_flee_hp_entry (usize)",
+   "note": "22548(v46_flee_end:326 hp_min < hp_entry 비교) 외 4곳"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x108",
+   "name": "v46_flee_hp_min (usize)",
+   "note": "22546(v46_flee_end:326) · 23221(update_v46_flee:366 min 갱신)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x112",
+   "name": "v46_flee (bool)",
+   "note": "23115·23122(update_v46_flee:365 도주 진행중 분기)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x50",
+   "name": "v46_flee_threats.buf.ptr",
+   "note": "23687·23810(update_v46_flee:385·:400 threats.iter())"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x58",
+   "name": "v46_flee_threats.len",
+   "note": "23689·23811(:385·:400) · 24052 등 clear 시 store"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x48",
+   "name": "v46_flee_threats (Vec<usize> 24B 통째)",
+   "note": "23513(:459 대입 전 drop_in_place<Vec<usize>>) · 23592(:468 로그 `threats={:?}`)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x60",
+   "name": "v46_pending.trigger_ticks.cap",
+   "note": "22106(push 용량 비교 · :638)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x68",
+   "name": "v46_pending.trigger_ticks.ptr",
+   "note": "22115~22116(:638 push 쓰기 위치)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x70",
+   "name": "v46_pending.trigger_ticks.len",
+   "note": "22101~22102(:638)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x78",
+   "name": "v46_pending.flee_episodes.cap",
+   "note": "22523 등(v46_flee_end:325 push ×5 사이트)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x80",
+   "name": "v46_pending.flee_episodes.ptr",
+   "note": "22532~22533 등"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x88",
+   "name": "v46_pending.flee_episodes.len",
+   "note": "22518~22519 등"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team (usize)",
+   "note": "배치 H 로드(%64) 재사용 · aux m01.ll:23845~23846 에서 재로드(blackboard[1-team] 인덱스)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag (i32)",
+   "note": "배치 H 로드(%68/%69) 재사용 — v46_stage1 의 pos 인자·로그 `{:?}`"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter (AthleteParameter 744B)",
+   "note": "22022 `gep %1219, 384` — player_by_champion_id(best_id) 로 얻은 상대 PlayerState 의 parameter → aggressive_ratio()"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": "%70(배치 H 로드) 전역 재사용"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext)",
+   "note": "%79(배치 H 로드) 재사용 · 21336·22607 에서 +8 setting 로드"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2])",
+   "note": "21515~21517(:513) · 23380~23382(update_v46_flee:446) · 23632~23634(:382) · 인덱스 = team(%64)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "21617(:526 from_iter_in 의 bump)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "21336~21337(:498 is_line_phase) · 21418(:505 get_start_position 인자) · 22607~22608(update_v46_flee:345)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug (bool)",
+   "note": "22157~22160(:645) · 22408~22411(:537) · 23550~23553(update_v46_flee:467) · 23793~23796(:389) — 로그 게이트"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick (usize)",
+   "note": "21339~21340 · 22610~22611 (is_line_phase setting.rs:703)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second (usize)",
+   "note": "21342~21344 · 22613~22615 (is_line_phase setting.rs:704 · ×30)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (&dyn AbstractGame 팻포인터: data_ptr +0 · vtable_ptr +8)",
+   "note": "21281~21283(:489) · 22592~22593(update_v46_flee:344) · vtable+0x28 = tick() (21286~21288 · 22598~22600) · vtable+0x1f0 = get_entity_by_id (21569~21571 · 23423~23425 · 23666~23668 · 23723~23724·23738 · aux m04.ll:12106~12107·12128) — divtable AbstractGame 0x28→tick · 0x1f0→get_entity_by_id"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x130",
+   "name": "twin_towers[team] (bumpalo Vec<&Entity> 32B: ptr +0 · len +24)",
+   "note": "21381~21389(:504) · 23246~23253(update_v46_flee:375) · `getelementptr {{ptr,ptr,i64},i64}, %70+304, team`"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[team] (Option<&Entity>)",
+   "note": "21535~21537(:510 최후 폴백) · 22908~22910(update_v46_flee:355)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[team] / +0x190 top_tower2 (line*32 stride: mid 0x1a0/0x1b0 · bottom 0x1c0/0x1d0)",
+   "note": "21367~21377(:503 cache.tower(line,team) 인라인 = <line>_tower[team].or(<line>_tower2[team])) · 23233~23243(update_v46_flee:374) · aux m04.ll:15380~15389(적 타워 = [1-team]) · 아웃오브라인 `AbstractGameWithCache::tower` 호출 21806·21854 도 같은 필드"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos] / [1-team][0..5] (Option<&Entity>)",
+   "note": "%73(배치 H) 재로드 21226·21291·22710 = 내 챔피언 · 21579~21580(:518 `[5 x ptr]` 인덱스 1-team = 적 5칸 순회)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "top_minion_state / +0x28 mid / +0x50 bottom (BrainMinionParameter 40B · minion_state(line) switch)",
+   "note": "21521~21556(:513) · 21777~21802(:588) · 22132~22147(:639) · 23387~23409(update_v46_flee:446) · 23638~23653(:382) · switch line 0→+0 1→+40 2→+80"
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x0",
+   "name": "front_minion@tag (Option<usize> 8B) / +0x8 front_minion id",
+   "note": "21557~21565 · 23411~23419 · 23654~23662 → get_entity_by_id(id)"
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x10",
+   "name": "from_mid (i64)",
+   "note": "22148~22151(:639~640 >0 → 상대반쪽) · 23461~23464(update_v46_flee:456 >0 → wave_flags|4)"
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x18",
+   "name": "minion_power (i64)",
+   "note": "21803~21805(:588) · 21818·21830·21841(:594·:602 부호 비교) · 23431~23433·23443~23445(update_v46_flee:448 >0)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp (usize)",
+   "note": "21236(L237 gank_hold 분자) · 21660(:555 my_hp) · 22362(:535) · 23222(update_v46_flee:366) · 23530(:461) · 23565(:471) — 위치 산술 없이 직접"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "21234(L237 분모) · 21823(:593) · 21876(:618 full_hp) · 23566(update_v46_flee:471)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x (u64)",
+   "note": "21303(:497 in_heal) · 21466·21725 등 distance_sq 인라인 다수"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y (u64)",
+   "note": "21326(:497) · 21470 등"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (Option<Effect> 니치 i32 · -1=None)",
+   "note": "21766~21770(:584) · 21866~21870(:603) · 23018~23021(update_v46_flee:360) · 23874~23877(:402) · aux 12151~12154 · 15399~15401"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (Effect · range +0x4a0 · growth_range +0x4a8)",
+   "note": "Effect::range(caster) 인라인 = caster.stat_buff_cached.range(0x438) + effect.range(0x4a0) + (caster.level(0x5c8)-1)*effect.growth_range(0x4a8) — 23033~23036·23046~23049·23101~23104(update_v46_flee:361) · 23885~23896(:402) · aux 594~597·607~610·662~665 등"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range (usize)",
+   "note": "Effect::range 항 (effect.rs:26)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level (usize)",
+   "note": "Effect::range 항 (level-1)*growth_range"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "Entity::radius() 인라인(entity.rs:1511~1515): mult==0 → radius(0x680) / else radius*(mult+100)/100 — 23052~23070 · 23903~23921 · 23927~23942 · aux 613~631 등"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius (usize)",
+   "note": "Entity::radius() 본체"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed (usize)",
+   "note": "23951~23953(update_v46_flee:404 speed*reaction) · aux 12228~12230(:574 speed*cs_lock)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType 8B · 13=Champion)",
+   "note": "aux m01.ll:23867~23869 (Entity::is_in_return entity.rs:1648 인라인)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state@tag (ChampionActionState 8B · 1=Return)",
+   "note": "aux m01.ll:23870~23873 (is_in_return = Champion && action_state==Return)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x110",
+   "name": "in_recall",
+   "value": "1 (true)",
+   "note": "24140 (L245 · `if self.v46_commit { self.in_recall = true }`) — 배치 H 가 L222 에서 check_recall 결과를 저장한 것(21201)을 커밋 시 덮어쓴다"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x111",
+   "name": "v46_commit",
+   "value": "0 / 1",
+   "note": "0: 21313(:491 champ None) · 21352(:499 in_heal || !line_phase) · 22450(:541 커밋 유지 실패 still_vec 비었음) · 22478(L240 gank_hold) — 전부 v46_clear 인라인(:480) · 1: 22052(:636 커밋 확정)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x40",
+   "name": "v46_committers.len",
+   "value": "0",
+   "note": "21319·21358·22455·22484 — v46_clear:481 `Vec::clear` 인라인(len=0 · usize 라 drop 루프 없음)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x30",
+   "name": "v46_committers (Vec<usize> 24B 통째)",
+   "value": "committers.iter().map(|c| c.0).collect()",
+   "note": "22079(구 Vec drop_in_place) → 22088 memcpy 24B(:637) · 원소 = 커밋 위협 엔티티 id(c.0 · aux m12.ll:32998~33080 fold 가 elem+0 을 복사)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x68",
+   "name": "v46_pending.trigger_ticks 원소 (ptr[len] · 16B {tick i64 @0, line u8 @8})",
+   "value": "(tick, self.line)",
+   "note": "22123~22125(:638 push) · 용량 부족 시 RawVec::grow_one(22111) 이 cap/ptr(0x60/0x68) 갱신"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x70",
+   "name": "v46_pending.trigger_ticks.len",
+   "value": "len+1",
+   "note": "22126~22127(:638)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x80",
+   "name": "v46_pending.flee_episodes 원소 (ptr[len] · 16B {entry_tick i64 @0, line u8 @8, flags u8 @9})",
+   "value": "(entry_tick, line, approached|wave_flags)",
+   "note": "v46_flee_end:325 push — 22538~22542(L241) · 22677~22681(:346) · 22979~22983(:350) · 23182~23186(:357) · 24027~24031(:393) · grow_one 22528 등"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x88",
+   "name": "v46_pending.flee_episodes.len",
+   "value": "len+1",
+   "note": "22543~22544 등 5곳"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x90",
+   "name": "v46_pending.danger_ticks",
+   "value": "+1",
+   "note": "21784~21787(:578 exposed 일 때)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x98",
+   "name": "v46_pending.veto_wave",
+   "value": "+1",
+   "note": "21834~21837(:595)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xa0",
+   "name": "v46_pending.veto_crash",
+   "value": "+1",
+   "note": "21887~21890(:610)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xa8",
+   "name": "v46_pending.veto_heal",
+   "value": "+1",
+   "note": "22042~22045(:631)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xb0",
+   "name": "v46_pending.stage2_saves",
+   "value": "+1",
+   "note": "21719~21722(:563 stage2 생존)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xb8",
+   "name": "v46_pending.commit_clears",
+   "value": "+1",
+   "note": "22459~22462 — v46_clear(completed=false):477~478 `if self.v46_commit { commit_clears += 1 }` (:541 커밋 유지 실패 경로만 · completed=true 인스턴스 4곳은 이 증가가 접혀 없음)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xc0",
+   "name": "v46_pending.trigger_wave_enemy_half",
+   "value": "+1",
+   "note": "22152~22156(:640 from_mid>0 → gep %0, 192)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xc8",
+   "name": "v46_pending.trigger_wave_my_half",
+   "value": "+1",
+   "note": "22152~22156(:640 from_mid<=0 → gep %0, 200) — select 192/200 으로 한 store"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xd0",
+   "name": "v46_pending.flee_triggers",
+   "value": "+1",
+   "note": "23538~23541(update_v46_flee:464 도주 진입)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xd8",
+   "name": "v46_pending.flee_hold_ticks",
+   "value": "+1",
+   "note": "23542~23545(:465 진입 틱) · 23800~23803(:395 유지 틱)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xe0",
+   "name": "v46_pending.flee_hold_acute_ticks",
+   "value": "+1",
+   "note": "23546~23549(:466 진입) · 24098~24101(:409 acute 유지)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xe8",
+   "name": "v46_pending.flee_hold_refuge_ticks",
+   "value": "+1",
+   "note": "24105~24108(:412 under_refuge 유지)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xf0",
+   "name": "v46_pending.flee_hold_cover_ticks",
+   "value": "+1",
+   "note": "24127~24130(:427 cover 유지)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0xf8",
+   "name": "v46_pending.flee_nohit_episodes",
+   "value": "+1",
+   "note": "v46_flee_end:327 (hp_min >= hp_entry 일 때) — 22553~22556 · 22692~22695 · 22994~22997 · 23197~23200 · 24041~24044"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x100",
+   "name": "v46_flee_hp_entry",
+   "value": "champ.hp",
+   "note": "23532~23533(update_v46_flee:461)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x108",
+   "name": "v46_flee_hp_min",
+   "value": "champ.hp / min(champ.hp, hp_min)",
+   "note": "23534~23535(:462 진입) · 23226~23227(:366 유지 갱신 umin)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x0",
+   "name": "v46_flee_entry@tag",
+   "value": "0(take) / 1(Some)",
+   "note": "0: 22493·22630·22932·23135·23981 (v46_flee_end:323 take) · 1: 23525(update_v46_flee:460)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x8",
+   "name": "v46_flee_entry@Some.0.0 entry_tick",
+   "value": "tick",
+   "note": "23526~23527(:460)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x10",
+   "name": "v46_flee_entry@Some.0.1 wave_flags",
+   "value": "(wave_crashing?2:0)|(from_mid>0?4:0)",
+   "note": "23528~23529(:460)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x112",
+   "name": "v46_flee",
+   "value": "1 / 0",
+   "note": "1: 23467(:457 진입) · 0: v46_flee_end:331 `store i32 0, %0+274` 가 0x112~0x115 4바이트를 한 번에 0 (22567·22706·23008·23211·24053)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x113",
+   "name": "v46_flee_acute",
+   "value": "1 / acute / 0",
+   "note": "23469(:458 진입=1) · 23968~23969(:400 acute=false) · 24094~24095(:400 acute=true) · v46_flee_end i32 store 로 0"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x114",
+   "name": "v46_flee_approached",
+   "value": "1 / 0",
+   "note": "23536~23537(:463 진입=1) · 24096~24097(:408 acute 유지 시 1) · v46_flee_end i32 store 로 0"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x115",
+   "name": "v46_flee_cover",
+   "value": "cover(bool) / 0",
+   "note": "24116~24118(:420 under_refuge 일 때 zext) · 24122~24123(:420 아니면 0) · v46_flee_end i32 store 로 0"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x48",
+   "name": "v46_flee_threats (Vec<usize> 24B 통째)",
+   "value": "committers(게이트 반환).iter().copied().collect()",
+   "note": "23513(구 Vec drop_in_place) → 23522 memcpy 24B(update_v46_flee:459)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x58",
+   "name": "v46_flee_threats.len",
+   "value": "0",
+   "note": "v46_flee_end:332 `Vec::clear` 인라인 — 22566·22705·23007·23210·24052"
+  }
+ ],
+ "constants": [
+  {
+   "value": -2,
+   "src_line": 232,
+   "meaning": "`and i8 tag, -2` = 최하위 비트 마스크 — Gank(8)|Dive(9) 를 한 비교로 접음 (21204)"
+  },
+  {
+   "value": 8,
+   "src_line": 232,
+   "meaning": "MainObjective 메모리태그 8 = Gank (마스크 후 ==8 이면 Gank 또는 Dive=9) — tcxdict --enum MainObjective (21205)"
+  },
+  {
+   "value": 100,
+   "src_line": 237,
+   "meaning": "HP 백분율 분자 `hp*100` (21242) · 같은 값이 :650(22265)·update_v46_flee:471(23565) hp% 로그, Entity::radius() 의 `(mult+100)/100`(23068·23070 등) 에도 쓰임"
+  },
+  {
+   "value": 24,
+   "src_line": 237,
+   "meaning": "gank_hold HP% 임계 — `hp*100/max(max_hp,1) > 24` (21244) · 참이면 v46 귀환/도주 상태를 접고(L240~241) L243/248 을 건너뛴다"
+  },
+  {
+   "value": 64000,
+   "src_line": 496,
+   "meaning": "Game::heal_area(team) (game.rs:319) 인라인: team0 → rx=64000, team1 → ry=64000 (21298·21323 select)"
+  },
+  {
+   "value": 960000,
+   "src_line": 496,
+   "meaning": "heal_area: team0 → ry=960000, team1 → rx=960000 (21298·21323) — 맵 대각 끝(30셀×32000)"
+  },
+  {
+   "value": 891999,
+   "src_line": 497,
+   "meaning": "in_heal x 하한(team1): `x > 891999` = x >= 892000 = 960000-68000 (21305) — team0 쪽 하한(64000-68000<0)은 saturating 으로 접혀 `team==0 ||` 로 남음"
+  },
+  {
+   "value": 896000,
+   "src_line": 497,
+   "meaning": "in_heal y 하한(team0): `y < 896000` 이면 밖 = y >= 896000 = 960000-64000 (21328) — team1 쪽 하한(64000-64000=0)은 접힘"
+  },
+  {
+   "value": 30,
+   "src_line": 498,
+   "meaning": "GameSetting::is_line_phase(tick) (setting.rs:703~704) = tick < first_spawn_tick(0x8a8).saturating_sub(tps*30) — 에픽 첫 스폰 30초 전까지가 라인 국면 (21344 · update_v46_flee:345 22615)"
+  },
+  {
+   "value": 62500000001,
+   "src_line": 386,
+   "meaning": "250000²+1 — `distance_sq < 62500000001` = 거리 <= 250000(7.8셀) · update_v46_flee:386 위협 still 판정(23779) · aux :523 front_minion 근접(m01.ll:23923) · aux :524 nearest_tower 근접(23953)"
+  },
+  {
+   "value": 60,
+   "src_line": 624,
+   "meaning": "heal_die_gain = (full_hp-my_hp).saturating_sub *60 / max(best_dps,1) (22009) — dps 가 초당이면 60 = 틱/초 환산(추정 · tps 상수 하드코딩 여부는 소스 부재)"
+  },
+  {
+   "value": 1000,
+   "src_line": 628,
+   "meaning": "aggressive_ratio 의 천분율 스케일 — best_diff_bound = (1000-aggr)*80/1000 + 80 (22032·22034)"
+  },
+  {
+   "value": 80,
+   "src_line": 628,
+   "meaning": "best_diff_bound 기울기와 바닥 — 공격성 0 → 160, 1000 → 80 (22033·22035)"
+  },
+  {
+   "value": 13,
+   "src_line": 521,
+   "meaning": "EntityType 메모리태그 13 = Champion (aux m01.ll:23869 · Entity::is_in_return 인라인)"
+  },
+  {
+   "value": 1,
+   "src_line": 521,
+   "meaning": "ChampionActionState 메모리태그 1 = Return (aux m01.ll:23872 `icmp eq %62, 1`) — is_in_return = Champion && action_state==Return · 리터럴 그대로(shl 시프트량 아님 · 접힘 없음)(접힘 아님)"
+  },
+  {
+   "value": 2,
+   "src_line": 456,
+   "meaning": "wave_flags bit1 = wave_crashing(front 미니언이 적 타워 사거리 안) (23508 select 2/0) · 리터럴 그대로(shl 시프트량 아님 · 접힘 없음)"
+  },
+  {
+   "value": 4,
+   "src_line": 456,
+   "meaning": "wave_flags bit2 = from_mid>0(웨이브 상대반쪽) (23464 select 4/0) · 리터럴 그대로(shl 시프트량 아님 · 접힘 없음) · bit0 = approached 는 v46_flee_end:324 에서 OR"
+  },
+  {
+   "value": 6,
+   "src_line": 399,
+   "meaning": "reaction = champ.attack_duration() + 6 틱 (23805) — acute 판정의 `speed*reaction` 여유 · 리터럴 그대로(shl 시프트량 아님 · 접힘 없음)"
+  },
+  {
+   "value": -1,
+   "src_line": 584,
+   "meaning": "Option<Effect> 니치 태그 None = i32 -1 (attack_effect@tag 0x4c0 · 21768 등) · Effect::range 의 `level-1`(23101 등)도 -1 리터럴"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::passive_line::PassiveLinePlan::v46_stage1",
+  "game_ai::plan_legacy::old::passive_line::PassiveLinePlan::v46_stage2",
+  "game_ai::plan_legacy::old::passive_line::v46_flee_gate_check",
+  "game_core::simulation::AbstractGameWithCache::tower",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::state::player::LineType::get_start_position",
+  "game_core::simulation::state::player::AthleteParameter::aggressive_ratio",
+  "game_core::simulation::entity::Entity::attack_duration",
+  "game_core::simulation::entity::Entity::distance",
+  "game_core::simulation::game::frame::DebugFrameData::add_log",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::game::blackboard::Blackboard::in_big_line",
+  "bumpalo::collections::vec::Vec::from_iter_in",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic",
+  "alloc::raw_vec::RawVec::grow_one",
+  "alloc::fmt::format::format_inner",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "callee_contracts": [
+  {
+   "name": "PassiveLinePlan::v46_stage1",
+   "sig": "fastcc fn(sret committers: &mut bumpalo Vec<(usize,usize,usize)>(32B, writeonly), version: usize, team: usize, pos: i32, cache: &AbstractGameWithCache, ctx: &GameContext, champ: &Entity(1728B), front: &Entity(1728B), my_tower: &Entity(1728B), my_hp: usize, range_gate: bool, only: Option<&[usize]>(ptr null=None, len undef), near_enemies: &[&Entity](ptr,len))",
+   "note": "m04.ll:16364 define internal · passive_line.rs:663 · &self/player/data 는 ArgumentPromotion 으로 team(0x930)·pos(0x9c0)·cache·ctx 로 분해됨(DI: self/player/data = poison) · 배치 T 명세 — 호출 3회: :554~555(21664 · my_hp=champ.hp · range_gate=true · only=None · 결과 committers %37) · :619(21883 · my_hp=full_hp=stat_cached.hp · true · None · full_committers %32) · :534(22374 · my_hp=champ.hp · range_gate=false · only=Some(self.v46_committers[..]) · still_vec %40) · 원소 (usize,usize,usize) = (엔티티 id [.0 → get_entity_by_id/player_by_champion_id 인자], 사망예측값 [.1 → min_by_key 키 · 로그 라벨 my_die], dps [.2 → best_dps]) — .1/.2 의 정확한 의미는 배치 T"
+  },
+  {
+   "name": "PassiveLinePlan::v46_stage2",
+   "sig": "fastcc fn(team: usize, cache: &AbstractGameWithCache, ctx: &GameContext, champ: &Entity, front: &Entity, committers: &[(usize,usize,usize)](ptr,len)) -> bool(zeroext i1)",
+   "note": "m04.ll:18037 define internal · 배치 T 명세 · 호출 2회: :561(21682 · survive) · :622(21903 · heal_flips 의 두 번째 항) · true = 생존(:562 survive → stage2_saves)"
+  },
+  {
+   "name": "passive_line::v46_flee_gate_check",
+   "sig": "fn(version: usize, player: &PlayerState, data: &OperationData, champ: &Entity) -> sret 40B { verdict: u8 @0, committers: bumpalo Vec<usize>(32B) @8 }",
+   "note": "m04.ll:55362 define hidden · passive_line.rs:38 자유 함수 · 호출 1회 update_v46_flee:441(23364) · verdict==0 만 도주 진입(:442 · 23371) · verdict≠0 의 값 표는 본문 미독해(unknown) · committers 는 :459 에서 self.v46_flee_threats 로 복사"
+  },
+  {
+   "name": "AbstractGameWithCache::tower",
+   "sig": "fastcc fn(&self, line: LineType(i8), team: usize) -> Option<&Entity>(ptr null=None)",
+   "note": "_gaibc 인라인판(21367~21377·23233~23243·aux 15380~15389)과 아웃오브라인 호출(21806 `tower(line, team)` :592 · 21854 `tower(line, 1-team)` :603) 둘 다 = <line>_tower[team].or(<line>_tower2[team]) (0x180+line*32(+0x10)+team*8)"
+  },
+  {
+   "name": "AbstractGameWithCache::player_by_champion_id",
+   "sig": "fastcc fn(&self, id: usize) -> Option<&PlayerState>(ptr)",
+   "note": "22015(:626) · None 이면 unwrap_failed(anon.77 · Location passive_line.rs:626:58)"
+  },
+  {
+   "name": "AbstractGameWithCache::iter_towers_without_nexus",
+   "sig": "fn(&self, team: usize) -> sret 120B Chain<Flatten<array::IntoIter<Option<&Entity>,6>>, Copied<slice::Iter<&Entity>>>",
+   "note": "22717(update_v46_flee:354) · 6칸 = top/top2/mid/mid2/bottom/bottom2 [team] + twin_towers[team] 슬라이스(런타임 추정 · 타입 인자로만 확인) · min_by_key(|t| t.distance_sq(champ)) 의 첫 원소 키는 인라인(22864~22892), 나머지는 fold 콜리 m06.ll:21667~21860"
+  },
+  {
+   "name": "LineType::get_start_position",
+   "sig": "fn(&self: &LineType, setting: &GameSetting, team: usize) -> (u64, u64)",
+   "note": "21456(:506) · 23321(update_v46_flee:377) — 쌍둥이 타워 min_by_key 키 = distance_sq(tower, line 시작점)"
+  },
+  {
+   "name": "AthleteParameter::aggressive_ratio",
+   "sig": "fn(&self: &AthleteParameter) -> usize (천분율 0..=1000 추정 — `1000 - aggr` 산술)",
+   "note": "22023(:627) self = 위협 챔피언 소유 PlayerState.info.parameter(+0x180)"
+  },
+  {
+   "name": "Entity::attack_duration",
+   "sig": "fn(&self) -> usize(틱)",
+   "note": "21715(:569 cs_lock) · 23804(update_v46_flee:399 reaction-6)"
+  },
+  {
+   "name": "Entity::distance",
+   "sig": "fn(&self, other: &Entity) -> u64",
+   "note": "23950(:404) · aux 12227(:574) — 사거리+반경+speed*틱 비교(제곱 아님)"
+  },
+  {
+   "name": "Blackboard::is_recent_visible",
+   "sig": "fn(&self: &Blackboard(744B), game: &dyn AbstractGame(팻포인터 2인자), player: &PlayerState, target: &Entity) -> bool",
+   "note": "_gcbc g07.ll:157005 define · aux m01.ll:23853(:520) · self = &data.blackboard[1 - player.team] (bounds check anon.cadd…5) · 본문 미독해(계약만)"
+  },
+  {
+   "name": "Blackboard::in_big_line",
+   "sig": "fn(&self: &Blackboard(744B), index: usize, line: LineType(i8 0..3)) -> bool",
+   "note": "_gcbc g07.ll:156563 define · aux m01.ll:23878(:522) · self = 같은 blackboard[1-team] · index = enumerate 인덱스(적 포지션 0..5) · 본문 미독해"
+  },
+  {
+   "name": "DebugFrameData::add_log",
+   "sig": "fn(&mut self: &mut DebugFrameData(224B), data: &OperationData, player: &PlayerState, s: String(24B by-value))",
+   "note": "22331·22446·23608·24087 — ctx.debug 게이트 아래 · 관측 전용"
+  },
+  {
+   "name": "bumpalo Vec<&Entity>::from_iter_in",
+   "sig": "fn(sret Vec<&Entity>(32B: ptr @0 · cap @8? · len @24), iter: &mut FilterMap<Filter<Enumerate<slice::Iter<Option<&Entity>>>>>(80B 클로저 env 포함), bump: &Bump)",
+   "note": "21618(:517~526) · 결과 near_enemies %42 · len 은 +24 (21631~21632 · 21882) · 아웃오브라인 본문 = aux m01.ll:23689~24038"
+  },
+  {
+   "name": "min_by_key/any/from_iter 이터레이터 콜리(제네릭 fold·shim)",
+   "sig": "core::iter::adapters::map::Map::fold / Iterator::any / spec_from_iter — { i64 key, ptr elem } 반환",
+   "note": "m12.ll:27385~27536(:505 쌍둥이 타워 fold) · m12.ll:27231~27382(update_v46_flee:376) · m06.ll:21667~21860(:354 타워 fold) · m11.ll:15766~15912(:354 Copied 부분 fold) · m12.ll:32790~32891(:623 min_by_key key=.1) · m12.ll:32894~32995(:646 key=.1) · m12.ll:32998~33080(:637 map |c| c.0 fold — elem+0 복사 확인) · m06.ll:50459~50574(:637 from_iter 래퍼) · m12.ll:38589~38666·6901~6914(:354 shim) — 키/술어는 본문에서 인라인으로 확인된 것을 logic 에 적었고 fold 자체는 제네릭이라 계약만"
+  }
+ ],
+ "logic": "// passive_line.rs:232~248 (배치 I)\n// 진입 = 블록 @904(21197) — 배치 H 의 L222 `self.in_recall = check_recall(..)`(21200~21201) 직후.\n// 공통: %64=team %68/%69=position %70=cache %73=&cache.player_champion[team][pos] %79=ctx (배치 H 로드)\n\n// ── L232~241 (update 본문) ──\nL232: tag = team_plan.objective@tag(+0x41f);  if (tag & ~1) == 8 {           // Some(Gank{line}) | Some(Dive{line})   (21202~21206)\nL233:   gank_line = team_plan+0x420\nL236:   if gank_line == self.line(+0x116) {                                   // LineType 1B 비교 (21213~21223)\nL237:     champ = *%73;  gank_hold = champ.is_some_and(|x| x.hp(0x670)*100 / max(x.stat_cached.hp(0x628), 1) > 24)   // closure$0 (21226~21245)\nL239:     if gank_hold { → @1365 }                                             // 아니면 아래 L243 로\n        }\n      }\n// gank_hold == false (또는 Gank/Dive 아님 / 라인 불일치 / champ None) → @929 = L243\n\n// ── L243  self.update_v46_lane_recall(version, player, data, debug)  (passive_line.rs:488~653 인라인 · @929~@1361) ──\n:489 tick = cache.game.tick()                                                  // vtable+0x28 → %44\n:490 champ = *%73;  if None → :491 v46_clear(completed=true) → :492 return    // v46_clear = { v46_commit(0x111)=0; v46_committers.len(0x40)=0 } (completed=true 라 commit_clears 증가 없음)\n:496 (rx, ry) = heal_area(team) = team==0 ? (64000, 960000) : (960000, 64000)\n:497 in_heal = x∈[rx-68000, rx] && y∈[ry-64000, ry]   (saturating · 접힌 형태: team0: x<=64000 && 896000<=y<=960000 / team1: 891999<x<=960000 && y<=64000)\n     if in_heal → :499 v46_clear(true); return\n:498 if !setting.is_line_phase(tick)  [= tick < sat_sub(first_spawn_tick(0x8a8), tps(0x12f8)*30)] → :499 v46_clear(true); return\n:503 tower = cache.tower(line, team)                         // <line>_tower[team].or(<line>_tower2[team]) 인라인\n:504~509 twin = cache.twin_towers[team].iter().min_by_key(|t| t.distance_sq(line.get_start_position(setting, team))).map(|t| *t)   // closure$0 :506~507 · closure$1 :509\n:510~511 nearest_tower = tower.or(twin).or(cache.nexus[team]).unwrap()        // unwrap_failed anon.75 (Location :511:8)\n:513~514 front_minion = blackboard[team].minion_state(line).front_minion.and_then(|id| cache.game.get_entity_by_id(id))   // vtable+0x1f0 → %43\n:517~526 near_enemies = Vec::from_iter_in(cache.player_champion[1-team].iter().enumerate()\n           .filter(|(idx, c)| c.is_some_and(|c|                                // ★aux m01.ll:23689~24038 (closure s1_0 · DI closure$3)\n:520            blackboard[1 - team].is_recent_visible(game, player, c)         //   ⚠인덱스 = 1 - player.team (IR 그대로)\n:521            && !c.is_in_return()                                             //   entity.rs:1648 인라인 = !(ty==Champion(13) && action_state==Return(1))\n:522            && ( blackboard[1 - team].in_big_line(idx, line)\n:523              || front_minion.is_some_and(|f| c.distance_sq(f) < 62500000001)   //   <= 250000\n:524              || c.distance_sq(nearest_tower) < 62500000001 ) ))\n           .filter_map(|(_, c)| *c), ctx.pool)                                  // closure s2_0 = 단순 역참조(m04.ll:64249~64255)\n:528 if self.v46_commit(0x111) {                                               // ── 커밋 유지 경로 ──\n:533   if front_minion.is_none() → return (@1080: drop near_enemies)\n:534   still_vec = v46_stage1(version, team, pos, cache, ctx, champ, front, nearest_tower, my_hp=champ.hp, range_gate=false, only=Some(&self.v46_committers[..]), near_enemies)\n:535   still = still_vec.is_empty()   (still_vec drop)\n:536   if still {                                                               // 커밋했던 위협이 전부 사라짐\n:537     if ctx.debug(0x3b) { :538 debug.add_log(format!(\"\\x08V46CLR T{team} {position:?} tick={tick} 상황해소(커밋 적 이탈/사망/억제역전)\")) }   // anon.73\n:541     v46_clear(completed=false)   // = { if v46_commit { commit_clears(0xb8) += 1 }; v46_commit=0; committers.len=0 }\n       }\n       return (@1080)\n     }\n:548 if front_minion.is_none() || near_enemies.is_empty() → return (@1080)\n:554~555 committers = v46_stage1(version, team, pos, cache, ctx, champ, front, nearest_tower, my_hp=champ.hp, range_gate=true, only=None, near_enemies)   // Vec<(id, die_key, dps)>\n:556 if committers.is_empty() → return (drop · @1097→@1322→@1080)\n:561 survive = v46_stage2(team, cache, ctx, champ, front, &committers)\n:562 if survive { :563 stage2_saves(0xb0) += 1; return }\n:569 cs_lock = champ.attack_duration()\n:570 exposed = committers.iter().any(|c| game.get_entity_by_id(c.0).is_some_and(|e|         // ★aux m04.ll:12086~12247\n:572~574     e.distance(champ) <= e.attack_effect.map_or(0, |a| a.range(e)) + e.radius() + champ.radius() + e.move_speed(0x640)*cs_lock ))\n:577 if exposed { :578 danger_ticks(0x90) += 1 }\n:584 my_tower_protects = nearest_tower.attack_effect.map_or(false, |t| front.distance_sq(nearest_tower) <= (t.range(nearest_tower) + front.radius())²)   // ★aux m04.ll:584~679\n:588 minion_power = blackboard[team].minion_state(line).minion_power(+0x18)\n:592 lane_tower_gone = cache.tower(line, team).is_none()                       // 아웃오브라인 호출 21806\n:593 base_heal_dominates = lane_tower_gone && champ.hp < champ.stat_cached.hp   // 타워 없고 피가 깎여 있으면 귀환 회복이 우선\n:594 if (my_tower_protects || minion_power < 0) && !base_heal_dominates { :595 veto_wave(0x98) += 1; return }\n:602 if minion_power > 0 {\n:603~606 wave_crashing_enemy_tower = cache.tower(line, 1-team).is_some_and(|et| et.attack_effect.map_or(false, |t| front.distance_sq(et) <= (t.range(et) + front.radius())²))   // ★aux m04.ll:486~581 · 아웃오브라인 tower 21854\n:609   if wave_crashing_enemy_tower { :610 veto_crash(0xa0) += 1; return }\n     }\n:618 full_hp = champ.stat_cached.hp\n:619 full_committers = v46_stage1(.., my_hp=full_hp, range_gate=true, only=None, near_enemies)\n:621~622 heal_flips = full_committers.is_empty() || v46_stage2(team, cache, ctx, champ, front, &full_committers)   // 풀피였다면 살아남는가\n:623 best = committers.iter().min_by_key(|c| c.1).unwrap();  best_id = best.0;  best_dps = best.2     // unwrap_failed anon.76 (:623:81)\n:624 heal_die_gain = full_hp.saturating_sub(my_hp) * 60 / max(best_dps, 1)\n:626 ep = cache.player_by_champion_id(best_id).unwrap()                          // anon.77 (:626:58)\n:627 aggr = ep.info.parameter(+0x180).aggressive_ratio()\n:628 best_diff_bound = (1000 - aggr) * 80 / 1000 + 80                            // 80..160\n:630 if !heal_flips || heal_die_gain < best_diff_bound { :631 veto_heal(0xa8) += 1; return }\n:636 self.v46_commit = true\n:637 self.v46_committers = committers.iter().map(|c| c.0).collect::<Vec<usize>>()   // 구 Vec drop 후 memcpy\n:638 self.v46_pending.trigger_ticks.push((tick, line))\n:639 from_mid = minion_state(line).from_mid(+0x10)\n:640 if from_mid > 0 { trigger_wave_enemy_half(0xc0) += 1 } else { trigger_wave_my_half(0xc8) += 1 }\n:645 if ctx.debug {\n:646   my_die = committers.iter().min_by_key(|c| c.1).copied().unwrap().1          // anon.78 (:646:83)\n:650   hp_pct = my_hp*100 / max(full_hp, 1)\n:647   debug.add_log(format!(\"\\tV46TRIG T{team} {position:?} tick={tick} hp={hp_pct}% committers={self.v46_committers:?} my_die={my_die} best={best_id} heal_gain={heal_die_gain} from_mid={from_mid} minion_power={minion_power}\"))   // anon.74\n     }\n:653 drop(full_committers, committers, near_enemies) → @1361\n\n// ── L244~245 (@1361 · 22469~22472 · @2049) ──\nL244: if self.v46_commit(0x111) { L245: self.in_recall(0x110) = true }   // 커밋 중이면 귀환 강제\n→ @1407 = L248\n\n// ── L240~241 (@1365 · gank_hold == true) ──\nL240: v46_clear(completed=true)              // v46_commit=0 · committers.len=0 (22477~22484)\nL241: v46_flee_end(gank_line)  [passive_line.rs:323~332 인라인 · line 값은 self.line 과 동일(L236 에서 같음이 확정돼 %913 사용)]\n   :323 if let Some((entry_tick, wave_flags)) = self.v46_flee_entry.take() {\n   :324   flags = (self.v46_flee_approached(0x114) as u8) | wave_flags\n   :325   self.v46_pending.flee_episodes.push((entry_tick, line, flags))         // 16B {tick, line@8, flags@9}\n   :326   if !(self.v46_flee_hp_min(0x108) < self.v46_flee_hp_entry(0x100)) { :327 flee_nohit_episodes(0xf8) += 1 }   // 도주 중 피해 0\n        }\n   :330~331 v46_flee = v46_flee_acute = v46_flee_approached = v46_flee_cover = false   (i32 store 0 @0x112)\n   :332 self.v46_flee_threats.clear()\n→ @1403 = L254 (배치 J)  ※ L243/L248 은 건너뛴다\n\n// ── L248  self.update_v46_flee(version, player, data, debug)  (passive_line.rs:343~474 인라인 · @1407~@2048) ──\n:344 tick = cache.game.tick()   (→ %22)\n:345 if self.v46_commit || !setting.is_line_phase(tick) { :346 v46_flee_end(self.line); return }   // 귀환 커밋 중엔 도주 에피소드 종료\n:349 champ = *%73;  if None { :350 v46_flee_end(self.line); return }\n:354 refuge = cache.iter_towers_without_nexus(team).min_by_key(|t| t.distance_sq(champ))    // closure$0 :354 · fold 콜리 m06.ll:21667~\n:355 refuge = refuge.or(cache.nexus[team])\n:356 if refuge.is_none() { :357 v46_flee_end(self.line); return }\n:360~362 under_refuge = refuge.attack_effect.map_or(false, |t| champ.distance_sq(refuge) <= (t.range(refuge) + champ.radius())²)   // 내가 피난 타워 사거리 안\n:365 if !self.v46_flee(0x112) {                                                  // ── 도주 진입 판정 ──\n:434   if under_refuge → return                                                  // (@1671 → @2048)\n:441   (verdict, committers) = v46_flee_gate_check(version, player, data, champ)  // sret 40B\n:442   if verdict != 0 → drop committers; return\n:446   ms = blackboard[team].minion_state(line)\n:447   front_minion = ms.front_minion.and_then(get_entity_by_id)                 // closure$8\n:448   wave_crashing = ms.minion_power > 0 && front_minion.is_some_and(|f|      // ★aux m04.ll:15328~15498 (closure s7_0)\n:449~452     cache.tower(line, 1 - player.team).is_some_and(|t| t.attack_effect.map_or(false, |a| f.distance_sq(t) <= (a.range(t) + f.radius())²)))\n:456   wave_flags = (wave_crashing ? 2 : 0) | (ms.from_mid > 0 ? 4 : 0)\n:457   self.v46_flee = true;  :458 self.v46_flee_acute = true\n:459   self.v46_flee_threats = committers.iter().copied().collect::<Vec<usize>>()   (구 Vec drop 후 memcpy)\n:460   self.v46_flee_entry = Some((tick, wave_flags))\n:461   self.v46_flee_hp_entry = champ.hp;  :462 self.v46_flee_hp_min = champ.hp\n:463   self.v46_flee_approached = true\n:464   flee_triggers(0xd0) += 1;  :465 flee_hold_ticks(0xd8) += 1;  :466 flee_hold_acute_ticks(0xe0) += 1\n:467   if ctx.debug { :471 hp_pct = champ.hp*100/max(champ.stat_cached.hp,1); :468 debug.add_log(format!(\"\\tV46FLEE T{team} {position:?} tick={tick} hp={hp_pct}% threats={self.v46_flee_threats:?}\")) }   // anon.68\n:474   drop committers; return\n     } else {                                                                     // ── 도주 유지 ──\n:366   self.v46_flee_hp_min = min(champ.hp, self.v46_flee_hp_min)\n:374   tower = cache.tower(line, team)  (인라인)\n:375~380 twin = twin_towers[team].iter().min_by_key(|t| t.distance_sq(line.get_start_position(setting, team))).map(|t| *t)   // closure$2/$3\n:381   nearest_tower = tower.or(twin).or(cache.nexus[team])                     // Option (unwrap 없음)\n:382~383 front_minion = blackboard[team].minion_state(line).front_minion.and_then(get_entity_by_id)   // closure$4\n:384   anchor = front_minion.or(nearest_tower).unwrap_or(refuge)\n:385~386 still = self.v46_flee_threats.iter().any(|id| game.get_entity_by_id(id).is_some_and(|e| e.distance_sq(anchor) < 62500000001))   // 위협이 앵커 250000 안에 남아있나 · threats 비면 false\n:389   if !still {\n:390     if ctx.debug { debug.add_log(format!(\"\\x0cV46FLEECLR T{team} {position:?} tick={tick} 위협해소(front앵커) approached={self.v46_flee_approached}\")) }   // anon.67\n:393     v46_flee_end(self.line); return\n       }\n:395   flee_hold_ticks(0xd8) += 1\n:399   reaction = champ.attack_duration() + 6\n:400~404 acute = threats.iter().any(|id| get_entity_by_id(id).is_some_and(|e| e.distance(champ) <= e.attack_effect.map_or(0, |a| a.range(e)) + e.radius() + champ.radius() + e.move_speed*reaction))\n:400   self.v46_flee_acute(0x113) = acute\n:407~409 if acute { self.v46_flee_approached(0x114) = true; flee_hold_acute_ticks(0xe0) += 1 }\n:411   if under_refuge {\n:412     flee_hold_refuge_ticks(0xe8) += 1\n:420~423 self.v46_flee_cover(0x115) = front_minion.is_some_and(|f| refuge.attack_effect.map_or(false, |t| f.distance_sq(refuge) <= (t.range(refuge) + f.radius())²))   // ★aux m04.ll:388~483\n:426     if cover { :427 flee_hold_cover_ticks(0xf0) += 1 }\n       } else { self.v46_flee_cover = false }\n       return\n     }\n→ @2048 → @1403 = L254 (배치 J)\n\n// 인라인 헬퍼(공통): Effect::range(caster) [effect.rs:26] = caster.stat_buff_cached.range(0x438) + effect.range(0x4a0) + (caster.level(0x5c8)-1)*effect.growth_range(0x4a8)\n//                 Entity::radius() [entity.rs:1511~1515] = radius_mult(0x470)==0 ? radius(0x680) : radius*(mult+100)/100\n//                 Entity::distance_sq [entity.rs:2158 → utils.rs:7~9] = dx²+dy² (abs_diff)\n// rnd(StdRng): 배치 I 범위 gen_range 호출 사이트 0개.",
+ "knobs": [
+  {
+   "what": "갱/다이브 라인 홀드 HP% 임계(gank_hold)",
+   "where": "passive_line.rs:237 (m04.ll:21244 `icmp ugt %927, 24`)",
+   "value": 24,
+   "effect": "올리면(예: 40) HP 가 더 높아야 v46 귀환/도주 상태를 접고 갱 라인에 남는다(=L243/248 을 더 자주 실행 → 귀환·도주 판단이 더 자주 개입) · 내리면 저체력에도 갱을 위해 v46 판단을 건너뛴다"
+  },
+  {
+   "what": "라인 국면 종료 여유(초)",
+   "where": "setting.rs:703~704 인라인 (m04.ll:21344 · 22615 `mul %964, 30`)",
+   "value": 30,
+   "effect": "is_line_phase = tick < first_spawn_tick - tps*30 · 올리면 에픽 스폰 더 전에 v46 귀환 커밋/도주 판단이 꺼진다(둘 다 v46_clear/v46_flee_end 로 종료)"
+  },
+  {
+   "what": "본진 회복 지역 박스(in_heal)",
+   "where": "passive_line.rs:497 (m04.ll:21305 891999 · 21328 896000 · heal_area game.rs:319 64000/960000)",
+   "value": "x∈[rx-68000,rx] · y∈[ry-64000,ry]",
+   "effect": "박스를 키우면 본진 근처에서 귀환 커밋 판단이 더 넓게 꺼진다(v46_clear) · 값은 게임 상수 접힘이라 소스 수준에서는 heal_area+마진"
+  },
+  {
+   "what": "근접 반경(near_enemies 후보 · 도주 위협 유지 still)",
+   "where": "passive_line.rs:523·524·386 (m01.ll:23923·23953 · m04.ll:23779 `< 62500000001`)",
+   "value": 62500000001,
+   "effect": "= 250000² + 1 · 올리면 더 먼 적도 near_enemies 에 들어가 stage1 위협 후보가 늘고, 도주 중 위협이 더 멀리서도 '남아있음'으로 잡혀 도주가 길어진다"
+  },
+  {
+   "what": "회복 이득 환산 계수",
+   "where": "passive_line.rs:624 (m04.ll:22009 `mul %1215, 60`)",
+   "value": 60,
+   "effect": "heal_die_gain = (full_hp-my_hp)*60/best_dps · 올리면 같은 HP 결손에서 heal_die_gain 이 커져 `< best_diff_bound` 거부(veto_heal)가 줄고 귀환 커밋이 늘어난다"
+  },
+  {
+   "what": "회복 이득 임계 바닥/기울기(best_diff_bound)",
+   "where": "passive_line.rs:628 (m04.ll:22033 `*80` · 22035 `+80`)",
+   "value": 80,
+   "effect": "best_diff_bound = 80 + 80*(1000-aggr)/1000 (80..160) · 바닥 80 을 올리면 모든 선수가 귀환 커밋에 더 큰 회복 이득을 요구(veto_heal 증가) · 기울기 80 을 올리면 소극적 선수일수록 더 까다로워진다"
+  },
+  {
+   "what": "도주 acute 반응 여유 틱",
+   "where": "passive_line.rs:399 (m04.ll:23805 `add %1910, 6`)",
+   "value": 6,
+   "effect": "reaction = attack_duration + 6 · 올리면 위협의 `speed*reaction` 도달 여유가 커져 acute(급박) 판정이 더 자주 참 → approached 표시·flee_hold_acute_ticks 증가(행동 효과는 v46_flee_acute 소비처 = 다른 배치/함수)"
+  },
+  {
+   "what": "v46 귀환 커밋 트리거 조건(순서)",
+   "where": "passive_line.rs:548~630",
+   "value": "front Some && near_enemies≠∅ → stage1≠∅ → !stage2 → !(tower_protects||mp<0 && !base_heal) → !(mp>0 && wave_crashing) → heal_flips && heal_gain>=bound",
+   "effect": "각 veto 카운터(0x98/0xa0/0xa8/0xb0)가 어느 게이트에서 거부됐는지 계측 · 게이트 하나를 빼면 그만큼 in_recall 승격(L245)이 늘어난다"
+  }
+ ],
+ "unknown": [
+  "committers 원소 (usize,usize,usize) 의 .1/.2 정확한 의미 — 본 범위에서는 .0 = 엔티티 id(get_entity_by_id·player_by_champion_id 인자로 확정) · .1 = min_by_key 키(로그 라벨 my_die → 사망예측값 추정) · .2 = best_dps(로컬 DI 이름) 까지만 확정. 정의는 v46_stage1(배치 T)",
+  "v46_flee_gate_check 의 verdict(u8) 값 표 — 본 범위에서는 0=통과(도주 진입)만 확정(23371 `icmp eq 0`). 비0 값들의 의미(docs 의 '도주가능 시점 게이트 차단사유')는 m04.ll:55362 본문 미독해(미탐색 · 이 배치 범위 밖)",
+  "heal_area(team)(game.rs:318~319) 의 원 표현 — IR 엔 team==0 select 64000/960000 만 남아 있고 in_heal 의 마진 68000(x)/64000(y) 이 saturating 접힘으로 비대칭 상수(891999·896000)로만 관측된다. 소스가 `abs_diff <= 마진` 인지 `rx-마진..=rx` 인지는 표기 불가(동작은 확정 · logic 에 접힌 식 기재)",
+  "iter_towers_without_nexus 의 6칸 배열이 정확히 어떤 타워 슬롯 6개인지 — 반환 타입(IntoIter<Option<&Entity>,6> + Copied<Iter<&Entity>>)으로 top/top2/mid/mid2/bottom/bottom2 + twin_towers 로 추정 · _gcbc 본문 미독해(계약만 · 경로 계층 아님이나 r18 범위 밖이라 열지 않음)",
+  "blackboard[1 - player.team] 인덱스의 의미(적 팀 인덱스인데 '내가 본 최근 시야'로 쓰임) — is_recent_visible/in_big_line 본문(_gcbc g07.ll:157005·156563) 미독해. IR 인덱스 산술은 확정(m01.ll:23845~23852)",
+  "L237 `>24` vs `>=25` · :594 `<0` vs `<=-1` 등 외연 동일 비교의 소스 표기 — 표기 불가(동작 확정)",
+  "constants 의 상수 60(:624) 이 tps 하드코딩인지 다른 단위 환산인지 — setting.tick_per_second(0x12f8) 로드가 이 식에 없으므로 리터럴 60 확정, 의미는 추정",
+  "v46_flee_end 의 line 인자 — L241 호출은 gank_line(%913 · TeamPlan+0x420)을 넘기지만 L236 에서 self.line 과 같음이 확정된 값이라 컴파일러가 통합했다(22540 store %913). 소스가 `self.v46_flee_end(gank_line)` 인지 `(self.line)` 인지는 표기 불가",
+  "has_lead / v46_carry_over / has_line_lead · v46_stage1 내부 · SubPlan/next_plan 생성 — 전부 배치 I 범위 밖(H/J/T)"
+ ]
+}

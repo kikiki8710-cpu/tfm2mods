@@ -1,0 +1,20 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000
+towers	16	tick=0
+champ	id=18	hp=1	max_hp=1	level=1	x=15000	y=913000
+size_of_LegacyPlanHandler	6168	size_of_ret	5576
+plan	PassiveLine(PassiveLinePlan { line: Top, chats: [], in_recall: false, v46_commit: false, v46_committers: [], v46_flee: false, v46_flee_acute: false, v46_flee_th
+sub_plan	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive })
+RESULT	score=0	action=Around { target_id: 2 }	is_ult_escape=false
+rnd_changed	true
+self_diff_ranges	0x560..0x561 0x568..0x569 0xc2a..0xc2e 0xc62..0xc66 0xc9a..0xc9e 0xcd2..0xcd6 0xd0a..0xd0e 0xdb2..0xdb5 0xdea..0xded 0xe22..0xe26 0x10c4..0x10c6 0x11a2..0x11a6 0x1282..0x1285 0x1362..0x1366 0x13d2..0x13d5 0x1450..0x1451 0x17a0..0x17a2 0x17a8..0x17a9 0x17b0..0x17b1 0x17b8..0x17ba 0x17c0..0x17c2 0x17c8..0x17ca 0x17d0..0x17d2 0x17d8..0x17da 0x17e0..0x17e1 0x17e8..0x17ea 0x17f0..0x17f2
+f/0x530 pending_global_ult tag	0 -> 0
+f/0x560 judge_noise_plan tag	0 -> 1	0x568 val 0 -> 1
+f/0x17a0 judge_noise_ratio	[1066, 944, 989, 1062, 1086, 1075, 1047, 1072, 933, 1070, 1080]
+f/0x1804 v3_last_stand 0->0	0x1805 v3_final_stand 0->0	0x1809 turnback_prev 0->0	0x1812 cand_src 0->0	0x1813 bail_goal 7->7
+f/0x1540 step_picks 0->0	0x1548 flee_picks 0->0
+f/0x868 pending_trace_events.len 0->0
+f/0x990 positioning_score == param.positioning_score(+0x9f0)	true
+param/v3_turnback_hold(+0x1500)	0	wave_snapshot tag(+0)	1
+debug.infos	1	debug.logs	1
+infos[18]	n=13	["epic_stance: None", "serpen_stance: None", "epic_enemy_tick: 0", "epic_enemy_killed_tick: 0", "epic_ally_tick: 0", "epic_ally_killed_tick: 0", "near_epic_ally: 5, near_epic_enemy: 0", "speed : 1", "Main Objective: None", "Plan: \"PassiveLine\"", "SubPlan: LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive })", "has_enemy_minion_in_range: false", "Around { target_id: 2 }: 0"]
+ret_play_tag(+0xb1)	5

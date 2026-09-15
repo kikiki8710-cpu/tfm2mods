@@ -1,0 +1,53 @@
+{
+ "name": "AgentVerHamster::buy_item",
+ "sym": "_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster8buy_item",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 1173,
+ "ir_file": "m14.ll",
+ "ir_from": 38174,
+ "ir_to": 38280,
+ "aux": [],
+ "one_line": "아이템 구매 판단 진입점: 아이템빌드가 있으면 v26 경로(슬롯→item_v26→tier 0 만 채택), 없으면 레거시 game_ai::buy_item 에 위임",
+ "signature": {
+  "abi_note": "pub(AiAgent 트레이트 구현 lib.rs:437 이 이 inherent fn 으로 위임 · 여기가 실체 lib.rs:1173). define 은 hidden 없음(`define { i64, i64 } @…`) · 6 인자 = 소스 5 인자 + &dyn AbstractGame 팻포인터 분할. 반환 {i64,i64}=Option<usize> RAX:RDX.",
+  "params": [
+   {"i": 1, "name": "self", "type": "&mut AgentVerHamster(10704B) (%0)", "role": "IR 속성 없음(noalias · align 16 · dereferenceable(10704)) · 동작상 읽기만 — +0x2910 version 을 load 하나 그 값은 레거시 호출에 poison 으로 대체돼 실사용 0(죽은 load). **쓰기 0건**", "note": "DI self = %0"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B) (%1)", "role": "IR 속성 없음. 본문 직접 gen_range 0회 — item_v26(L1180) 또는 레거시 buy_item(L1188) 에 그대로 전달", "note": "DI rnd = %1"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B) (%2)", "role": "readonly · noalias. +0x4f0 info.item_builds.len 만 직접 읽고 나머지는 콜리에 전달", "note": "DI player = %2"},
+   {"i": 4, "name": "game.data_ptr", "type": "*const dyn AbstractGame (%3)", "role": "readnone · nonnull · captures(none) — 본문에서 전혀 안 씀(레거시 호출에도 poison). 팻포인터 앞절반", "note": "tcx sig arg4 = &dyn AbstractGame"},
+   {"i": 4, "name": "game.vtable_ptr", "type": "AbstractGame vtable ptr (%4)", "role": "readonly · noalias · captures(none) — 본문 미사용(레거시 호출에 poison). 팻포인터 뒷절반", "note": ""},
+   {"i": 5, "name": "context", "type": "&GameContext(64B) (%5)", "role": "readonly · noalias · dereferenceable(64). +0x30 item_list 를 읽어 슬라이스로 item_v26_slot 에, &Vec 포인터로 item_v26 에 전달 · 레거시 호출엔 통째 전달", "note": "DI context = %5"}
+  ],
+  "returns": "Option<usize> = {i64 tag, i64 payload}. 살아있는 바이트: tag(0/1) · payload 는 Some 일 때만 = item_list 인덱스(살 아이템). None 경로 payload undef(38275 phi). Some 경로 2개: ①레거시 buy_item 반환 그대로(item_builds 비었을 때) ②v26: item_v26 결과 idx 에 대해 item_list[idx].tier()==0 일 때 Some(idx)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x4f0", "name": "info.item_builds.len", "note": "L1174 (gep 1264) — ==0 이면 레거시 경로. llvm.assume(len < 2^60)=Vec<usize> 상한"},
+  {"base": "AgentVerHamster", "offset": "0x2910", "name": "version", "note": "L1188 (gep 10512) load 되지만 호출 인자는 poison — 죽은 읽기(레거시 buy_item 이 첫 인자를 안 씀)"},
+  {"base": "GameContext", "offset": "0x30", "name": "item_list", "note": "L1175 (gep 48) &Vec<Box<dyn ItemInfo>>"},
+  {"base": "Vec<Box<dyn ItemInfo>>", "offset": "0x8", "name": "item_list.ptr", "note": "L1175 슬라이스 data"},
+  {"base": "Vec<Box<dyn ItemInfo>>", "offset": "0x10", "name": "item_list.len", "note": "L1175 슬라이스 len · L1182 색인 bounds(panic_bounds_check)"},
+  {"base": "ItemInfo vtable", "offset": "0x70", "name": "tier", "note": "L1182 fn(&self)->usize · ==0 이면 구매 후보 채택"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 0, "src_line": 1174, "meaning": "item_builds.len()==0 → 레거시 / L1180 item_v26 에 inventory_index=None(tag 0) 전달 / L1182 tier()==0 채택"},
+  {"value": -1, "src_line": 1175, "meaning": "item_v26_slot 반환 Option<(usize,Option<usize>)> 의 외부 None 니치 = sret+8(내부 Option 태그 자리)==usize::MAX"},
+  {"value": 1, "src_line": 1176, "meaning": "내부 Option<usize> 태그 Some — inventory_index 가 Some 이면(이미 들고 있는 슬롯 = 승급 대상) 구매 아님 → None"}
+ ],
+ "calls": [
+  "game_ai::buy_item",
+  "game_ai::AgentVerHamster::item_v26_slot",
+  "game_ai::AgentVerHamster::item_v26",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn buy_item(&mut self, rnd, player, game:&dyn AbstractGame, context) -> Option<usize>   // lib.rs:1173~1190\n  // L1174\n  if player.info.item_builds.is_empty() {                         // +0x4f0 == 0\n      // L1188 — 레거시(v26 이전) 위임\n      return game_ai::buy_item(self.version, rnd, player, game, context)   // lib.rs:1477 · IR 은 version/game 을 poison(콜리 미사용) · 반환 그대로\n  }\n  // L1175\n  item_list = &context.item_list                                   // +0x30\n  (build_slot, inventory_index) = Self::item_v26_slot(player, item_list.as_slice())?   // sret 24B: +0 build_slot · +8 내부 Option 태그(usize::MAX=외부 None) · +16 payload\n  // L1176\n  if inventory_index.is_some() { return None }                   // 태그==1 — 슬롯의 아이템을 이미 보유 → 구매가 아니라 승급 소관\n  // L1180\n  item = self.item_v26(rnd, player, context, build_slot, None)?  // tag 상수 0 · payload 는 sret+16 값 그대로(무의미)\n  // L1182\n  if item_list[item].tier() == 0 { Some(item) } else { None }    // vtable+0x70 · 색인 bounds 패닉\n  // L1190 ret\n\n★역할 분담: buy_item 은 **tier 0(기본템) 만** 구매 후보로 돌려주고, tier≥1 은 upgrade_item(같은 item_v26 결과를 tier!=0 조건으로 채택)이 담당한다. 두 함수의 차이는 (inventory_index 유무, tier 조건) 뿐.\n★item_build 훅 접점: 이 함수가 player.info.item_builds(Vec<usize> · item_list 인덱스) 를 읽어 비었으면 레거시로, 있으면 v26 로 가르므로 item_builds 를 채우는 쪽(바닐라 빌드 훅/개인전술)이 곧 이 분기의 스위치다.",
+ "knobs": [
+  {"what": "레거시/v26 경로 스위치", "where": "lib.rs:1174 · m14.ll:38189", "value": "item_builds.len()==0", "effect": "item_builds 가 비어 있으면 레거시 buy_item(lib.rs:1477) 만 돌고 v26 경로(빌드 추종)는 전혀 안 탄다. 데이터(빌드 목록) 로 제어되는 스위치"},
+  {"what": "구매 채택 tier 조건", "where": "lib.rs:1182 · m14.ll:38265", "value": "tier()==0", "effect": "조건을 넓히면(예 tier<=1) 상위 티어 아이템도 '구매' 로 돌려줌 — upgrade_item 과 중복 채택 위험"}
+ ],
+ "unknown": [
+  "item_v26_slot(lib.rs:1125 · m14.ll:35237 · internal) 내부 — 어느 빌드 슬롯을 고르고 inventory_index 를 어떻게 매기는지: 계약만 = fn(player:&PlayerState, item_list:&[Box<dyn ItemInfo>]) -> Option<(build_slot:usize, inventory_index:Option<usize>)> (sret 24B · +0 build_slot · +8 내부 태그 0/1 · usize::MAX=외부 None · +16 payload)",
+  "game_ai::buy_item(lib.rs:1477 · m14.ll:8267 · 레거시) 내부 — 계약만 = fn(version:usize, rnd, player, game:&dyn AbstractGame, context) -> Option<usize>. IR 이 version·game 을 poison 으로 넘기므로 콜리는 그 둘을 안 읽는다(콜리 정의 쪽 dead-arg)",
+  "item_v26 에 넘기는 payload(sret+16) 가 None 일 때 어떤 값인지 — item_v26_slot 이 None 자리에 무엇을 쓰는지 안 봄(콜리는 tag 0 이면 안 읽음)"
+ ]
+}

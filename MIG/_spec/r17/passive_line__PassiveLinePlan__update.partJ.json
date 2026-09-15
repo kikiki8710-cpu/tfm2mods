@@ -1,0 +1,442 @@
+{
+ "name": "PassiveLinePlan::update",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan6update",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_line.rs",
+ "src_line": 219,
+ "ir_file": "m04.ll",
+ "ir_from": 19038,
+ "ir_to": 24726,
+ "aux": [],
+ "part": "J",
+ "part_src_lines": "254~304",
+ "part_ir_lines": "m04.ll 22570~22575(@1403) · 24143~24726(@2050~@2254) — 원문 줄 · 루트 소스줄 254~304 인 블록 48개 · IR 명령 224줄",
+ "one_line": "[배치 J · passive_line.rs:254~304] 팀 목표가 Gank/Dive 일 때 갱 라인 관련 귀환(in_recall) 취소·저체력 Cancel 채팅·인접라인 HideLineToo 채팅 판정 (update 의 꼬리 절)",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut PassiveLinePlan (280B)",
+    "role": "define 속성 = `noalias noundef align 8 dereferenceable(280)` · readonly 없음 = &mut · 배치 J 쓰기 표면 = writes 절 전수 (0x110 in_recall · 0x111 v46_commit · 0x40 v46_committers.len · chats(0x18~0x28 + 원소))"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize (i64 %1)",
+    "role": "IR 속성 없음(i64 값) · 배치 J 범위(254~304)에서는 사용 0건"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng (320B)",
+    "role": "define 속성 = `noalias noundef align 16 dereferenceable(320)` · 배치 J 범위에서 gen_range 호출 사이트 0개(사용 0건)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "role": "define 속성 = `noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528)` · 배치 J 에서 직접 읽는 필드 없음 — 배치 H(L222)가 읽어둔 %64=info.team(0x930)·%69=info.position(0x9c0) 을 사용 · is_recent_visible 의 player 인자로 통째 전달"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "role": "define 속성 = `noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24)` · +0 cache(%70, 배치 H 로드) · +8 context(%79, 배치 H 로드) · +16 blackboard(%2088, 24221 에서 로드)"
+   },
+   {
+    "i": 6,
+    "name": "team_plan",
+    "type": "&TeamPlan (1064B)",
+    "role": "define 속성 = `noundef nonnull readonly align 8 captures(none)` (dereferenceable 없음 · noalias 없음) · 배치 J 의 진입 게이트 = objective@tag(0x41f)·Gank/Dive.line(0x420)"
+   },
+   {
+    "i": 7,
+    "name": "_positioning_score",
+    "type": "&PositioningScoreData (2760B)",
+    "role": "define 속성 = `noalias noundef readonly align 8 captures(none) dereferenceable(2760)` · 배치 J 사용 0건(이름의 `_` 접두와 부합)"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData (224B)",
+    "role": "define 속성 = `noalias noundef align 8 dereferenceable(224)` · 배치 J 범위에서 읽기·쓰기 0건(add_log 호출은 다른 배치)"
+   }
+  ],
+  "returns": "() — `define void` · sret 인자 없음 · tcx sig 에 반환 타입 없음(`_tcx\\game_ai.json` i=1630 sig 끝이 `mut game_core::DebugFrameData)`) · 유일한 `ret void` = m04.ll:24725(@2254, 루트 L304) · 부작용은 self 쓰기뿐(writes 절)",
+  "tls": {
+   "name": "없음",
+   "role": "-",
+   "key": "-",
+   "layout": "-",
+   "invalidation": "-",
+   "call_conditions": "배치 J 범위(m04.ll 22570~22575 · 24143~24726) 안의 `@anon.*` 상수는 4개(.80~.83) 전부 core::panic::Location(unwrap_failed·div_by_zero 인자)이며 LocalKey/call_once fn-포인터 상수 참조 0건 · 콜리 is_near_line(_gcbc g09.ll:157890~158197) 본문에도 LocalKey/call_once/threadlocal 0건 · is_recent_visible(g07.ll:157005~) 본문은 vtable 호출 3개(is_visible·get_player_by_champion_id·tick)+last_visible 배열 읽기뿐"
+  }
+ },
+ "reads": [
+  {
+   "base": "TeamPlan",
+   "offset": "0x41f",
+   "name": "objective@tag (Option<MainObjective> 니치 태그)",
+   "note": "m04.ll:24143~24145 `%2051 = gep %5, 1055` → 배치 H 의 %907 재사용(22571) · `and i8 -2` 후 `== 8` = 태그 8(Gank) 또는 9(Dive) · tcxdict --enum MainObjective: Gank=8 Dive=9 (메모리태그=선언discr)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x420",
+   "name": "objective@Some.0@Gank.line / @Dive.line (LineType)",
+   "note": "24144~24145 `%2052` · DI 이름 gank_line · Gank·Dive 둘 다 line 이 enum+0x1 이라 태그 무관 같은 바이트"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x116",
+   "name": "line (LineType 태그)",
+   "note": "24155~24156 %2054 · 24320/24363/24406/24449 재로드(closure$1 안) · 24470 %2155(L283 타워 조회)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x110",
+   "name": "in_recall (bool)",
+   "note": "24177 · 24183 (L271 게이트: 인접라인 && in_recall)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x28",
+   "name": "chats.len",
+   "note": "24612~24613 %2212(L299) · 24683~24684 %2241(L269) — Vec::push 인라인"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x18",
+   "name": "chats.buf.inner.cap",
+   "note": "24617 %2213 · 24688 %2242 — len==cap 이면 grow_one"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x20",
+   "name": "chats.buf.inner.ptr",
+   "note": "24626~24627 %2218 · 24697~24698 %2247 — 원소 쓰기 목적지"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team (%64)",
+   "note": "정의는 배치 H 19164~19165(L222) — 배치 J 에서 `1 - team`(24212)·TeamType::Player(team) 비교(24568)·player_champion[team] 인덱스에 사용"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position (%69, i32 태그)",
+   "note": "정의는 배치 H 19172~19174 — %73 = &cache.player_champion[team][position] 의 인덱스"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache) (%70)",
+   "note": "정의는 배치 H 19175 — 배치 J 에서 player_champion·tower·game 팻포인터 읽기의 베이스"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext 64B) (%79)",
+   "note": "정의는 배치 H 19195 — is_near_line 의 1번 인자(24278 등 5회)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2]) (%2088)",
+   "note": "24220~24221 · `%2089 = gep <Blackboard>, %2088, i64 %2082` = &blackboard[1 - team](적 팀 인덱스) → is_recent_visible 의 &self"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr (&dyn AbstractGame 앞 8B) (%2084)",
+   "note": "24217 · is_recent_visible 2번 인자 · get_entity_by_id 의 self"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr (%2086)",
+   "note": "24218~24219 · is_recent_visible 3번 인자 · 24536~24538 vtable+0x1f0(=496) 슬롯 로드 → divtable AbstractGame 0x1f0 = get_entity_by_id"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][position] (Option<&Entity>, 니치 null=None)",
+   "note": "%73(배치 H 19176~19178 = 0x1e0 + team*40 + position*8) 를 24189(L273)·24642(L262)에서 load → null 이면 unwrap_failed 패닉 · 적 팀 슬롯 5개 = `%2083 = gep [5 x ptr], %71, %2082`(24214) 를 +0/8/16/24/32 로 언롤 순회(24254·24296·24339·24382·24425)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower/mid_tower/bottom_tower[team] (Option<&Entity>) — 0x180 + line*0x20 + team*8",
+   "note": "24474~24481 `shl line,5` + 384 + team*8 · L283 `cache.tower(line, team)` 인라인(dloc: scope `tower` simulation.rs line 0 → option.rs:1622 `or`)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2/mid_tower2/bottom_tower2[team] — 0x190 + line*0x20 + team*8",
+   "note": "24482~24485 (400 = 0x190) · `tower.or(tower2)`: 첫 타워 null 이면 둘째 타워(24486~24487 select)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "24196~24197(L274) · 24649~24650(L263) · 0 이면 panic_const_div_by_zero(24497·24668)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp (현재 HP)",
+   "note": "24206~24207(L274) · 24659~24660(L263) · hp_ratio = hp*100/stat_cached.hp"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x (적 챔피언 좌표)",
+   "note": "24274~24275 등 5회(closure$1 L278) → is_near_line 2번 인자"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "24276~24277 등 5회 → is_near_line 3번 인자"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "24506~24508 타워 엔티티 `== 2`(Tower) L284 · 24546~24548 nearest_enemy 엔티티 `== 1`(Minion) L287 — tcxdict --enum EntityType: Tower=2 Minion=1"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x88",
+   "name": "ty@Tower.info.nearest_enemy@tag (Option<(usize,usize)>)",
+   "note": "24513~24514 %2178 · trunc i1 → Some 판정 (L285) · = 0x70(Tower 페이로드 시작) + 0x18"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x98",
+   "name": "ty@Tower.info.nearest_enemy@Some.0.1 (entity id)",
+   "note": "24530~24531 %2182 (DI id) → get_entity_by_id(id)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag (TeamType)",
+   "note": "24554~24556 `== 0`(Player) L287 (entity.rs:1127 derive PartialEq 인라인)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0 (usize)",
+   "note": "24567~24568 `== %64`(내 팀) L287"
+  }
+ ],
+ "writes": [
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x110",
+   "name": "in_recall",
+   "value": "0 (false)",
+   "note": "24711 (L265 · 갱 라인==내 라인 && hp_ratio>24) · 24587 (L297 · 인접라인 && in_recall && hp_ratio>69 && (pushed_to_tower || !my_line_enemy_visible))"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x111",
+   "name": "v46_commit",
+   "value": "0 (false)",
+   "note": "24715 (L266) · 24591 (L298) — `self.v46_clear(true)` 인라인(passive_line.rs:476~481 · 477 주소계산 · 480 store)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x40",
+   "name": "v46_committers.len",
+   "value": "0",
+   "note": "24721 (L266) · 24597 (L298) — v46_clear 481 줄 `Vec::clear`(alloc vec/mod.rs:3035) 인라인 · cap/ptr 은 불변"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x28",
+   "name": "chats.len",
+   "value": "len+1",
+   "note": "24637~24638 (L299) · 24706~24707 (L269) — Vec<Chat>::push 인라인"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x18 -> chats.cap / 0x20 -> chats.ptr",
+   "name": "chats.buf (grow_one 재할당 시)",
+   "value": "콜리가 갱신",
+   "note": "24622 · 24693 `RawVec<Chat>::grow_one(&mut self.chats)` — len==cap 일 때만 호출 · 재할당 뒤 24627/24698 에서 ptr 재로드"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x20 -> chats.ptr[len]+0 (Chat 24B 원소)",
+   "name": "Chat::HideLineToo(gank_line, 0)",
+   "value": "+0 = i8 12 · +1 = gank_line(i8) · +8 = i64 0",
+   "note": "24632~24636 (L299) · tcxdict --enum Chat 12 = HideLineToo{enum+0x1 LineType, enum+0x8 usize} · 원소 나머지 바이트(+2..+7, +16..+23)는 미기록(패딩·live 아님)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x20 -> chats.ptr[len]+0 (Chat 24B 원소)",
+   "name": "Chat::Cancel(CancelReason::LowHpSelf)",
+   "value": "+0 = i8 17 · +1 = i8 0",
+   "note": "24703~24705 (L269) · tcxdict --enum Chat 17 = Cancel{enum+0x1 CancelReason} · CancelReason 0 = LowHpSelf · +2..+23 미기록"
+  }
+ ],
+ "constants": [
+  {
+   "value": -2,
+   "src_line": 254,
+   "meaning": "`and i8 tag, -2` = 최하위 비트 마스크 — Gank(8)|Dive(9) 를 한 비교로 접음 (22572)"
+  },
+  {
+   "value": 8,
+   "src_line": 254,
+   "meaning": "MainObjective 메모리태그 8 = Gank (마스크 후 == 8 이면 Gank 또는 Dive=9) — tcxdict --enum MainObjective (22573)"
+  },
+  {
+   "value": 1,
+   "src_line": 271,
+   "meaning": "LineType 태그 1 = Mid — is_adj_line(player.rs:1006) 인라인: self.line == Mid 분기 (24167) · phi 상수 1 = `gank_line == Mid` 비교값 (24175) · (qcspec 경고 사유: 이 함수의 다른 배치 범위에 `shl …, 1` 이 있으나 배치 J 의 1 은 열거형 태그값이지 시프트량이 아님)"
+  },
+  {
+   "value": 0,
+   "src_line": 271,
+   "meaning": "LineType 태그 0 = Top — is_adj_line(player.rs:1008): self.line==Mid 일 때 gank_line == Top (24171)"
+  },
+  {
+   "value": 2,
+   "src_line": 271,
+   "meaning": "LineType 태그 2 = Bottom — phi 상수(24175): self.line==Mid && gank_line!=Top 일 때 gank_line == Bottom"
+  },
+  {
+   "value": 100,
+   "src_line": 274,
+   "meaning": "hp_ratio = hp*100/max_hp (백분율) — 24208 · L263 24661 도 동일"
+  },
+  {
+   "value": 69,
+   "src_line": 296,
+   "meaning": "`icmp ugt hp_ratio, 69` = HP 70% 이상이어야 인접 갱라인 귀환 취소(HideLineToo) — 소스가 `>69` 인지 `>=70` 인지는 표기 불가(외연 동일) (24574)"
+  },
+  {
+   "value": 70,
+   "src_line": 296,
+   "meaning": "타워 None 경로(@2204)의 같은 임계를 `icmp ult hp_ratio, 70` 로 접은 것 (24582) — 69 와 동일 임계"
+  },
+  {
+   "value": 24,
+   "src_line": 264,
+   "meaning": "`icmp ugt hp_ratio, 24` = 갱 라인==내 라인일 때 HP 25% 이상이면 귀환 취소, 이하면 Cancel(LowHpSelf) 채팅 (24664) — `>24`/`>=25` 표기 불가"
+  },
+  {
+   "value": 5,
+   "folded_from": 32,
+   "src_line": 283,
+   "meaning": "`shl nuw nsw i8 line, 5` = line*32 — AbstractGameWithCache 의 tower/tower2 라인별 stride 0x20 (top 0x180 · mid 0x1a0 · bottom 0x1c0) 로 접힘 (24474·24476)"
+  },
+  {
+   "value": 12,
+   "src_line": 299,
+   "meaning": "Chat 메모리태그 12 = HideLineToo (24632) — tcxdict --enum Chat"
+  },
+  {
+   "value": 17,
+   "src_line": 269,
+   "meaning": "Chat 메모리태그 17 = Cancel (24703)"
+  },
+  {
+   "value": 0,
+   "src_line": 269,
+   "meaning": "CancelReason 태그 0 = LowHpSelf (24705 `store i8 0` at +1) · L299 HideLineToo 두 번째 필드 usize 0 (24636)"
+  },
+  {
+   "value": 2,
+   "src_line": 284,
+   "meaning": "EntityType 메모리태그 2 = Tower — closure$2 `if let EntityType::Tower(info) = tower.ty` (24508)"
+  },
+  {
+   "value": 1,
+   "src_line": 287,
+   "meaning": "EntityType 메모리태그 1 = Minion — nearest_enemy 엔티티가 미니언인가 (24548) · (qcspec 경고 사유: 이 함수의 다른 배치 범위에 `shl …, 1` 이 있으나 배치 J 의 1 은 열거형 태그값이지 시프트량이 아님)"
+  },
+  {
+   "value": 0,
+   "src_line": 287,
+   "meaning": "TeamType 메모리태그 0 = Player — `e.team == TeamType::Player(my_team)` derive PartialEq (24556)"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::map_regions::is_near_line",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "alloc::raw_vec::RawVec::grow_one",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "callee_contracts": [
+  {
+   "name": "game_core::simulation::map_regions::is_near_line",
+   "sig": "fn(context: &GameContext(64B), x: i64, y: i64, line: LineType(i8 range 0..3)) -> bool",
+   "note": "_gcbc g09.ll:157890 define · 인자 DI 이름 context/x/y/line · 반환 = 좌표가 그 라인 근방인가(경로/맵 계층 — r18 명세 대상 · 본문 미독해) · 호출 5회(24278·24321·24364·24407·24450) 전부 (data.context, c.x, c.y, self.line)"
+  },
+  {
+   "name": "game_core::Blackboard::is_recent_visible",
+   "sig": "fn(&self: &Blackboard(744B), game: &dyn AbstractGame(팻포인터 data_ptr+vtable_ptr 두 인자), player: &PlayerState(2528B), target: &Entity(1728B)) -> bool",
+   "note": "_gcbc g07.ll:157005 define · 호출 5회(24282·24325·24368·24411·24454) self = &data.blackboard[1 - my_team] · 본문 요지(계약 확인용): game.is_visible(player.team, target.id) || game.get_player_by_champion_id(target.id).is_some_and(|p| self.last_visible[p.position] + 120 >= game.tick()) — 120 틱은 콜리 상수(배치 J constants 에 미등록)"
+  },
+  {
+   "name": "AbstractGame::get_entity_by_id (vtable +0x1f0, 간접 호출)",
+   "sig": "fn(&self(dyn data_ptr), id: usize) -> Option<&Entity> (null=None)",
+   "note": "24536~24538 `%2184 = load vtable+496; %2185 = call ptr %2184(%2084, %2182)` · divtable AbstractGame 0x1f0 = ExpectedGame::AbstractGame::get_entity_by_id · `@` 심볼 호출이 아니라 calls 에는 미등재"
+  },
+  {
+   "name": "alloc::raw_vec::RawVec<Chat>::grow_one",
+   "sig": "fn(&mut RawVec<Chat>) (self.chats 의 cap/ptr 갱신)",
+   "note": "24622·24693 · Vec::push 인라인의 len==cap 경로"
+  },
+  {
+   "name": "PassiveLinePlan::v46_clear (인라인 · define 없음)",
+   "sig": "fn(&mut self, completed: bool) — passive_line.rs:476 · vis in:passive_line",
+   "note": "L266·L298 에서 completed=true 상수로 인라인(DI `completed = i1 true`) · 관측된 쓰기 = v46_commit(0x111)=0(477/480줄) · v46_committers.clear()(481줄) — 478~479 줄은 IR 에 흔적 없음(unknown 참조)"
+  },
+  {
+   "name": "LineType::is_adj_line (인라인 · define 없음)",
+   "sig": "fn(&self: LineType, other: LineType) -> bool — player.rs:1005 · pub · mir=1 xinl=1",
+   "note": "L271 인라인(dloc: 1006·1008 줄) · IR 동작 = (self.line==Mid && gank_line∈{Top,Bottom}) || (self.line!=Mid && gank_line==Mid) — 대칭 관계라 수신자 순서(DI: __self_discr=gank_line · __arg1_discr=self.line ⟹ `gank_line.is_adj_line(self.line)`)는 결과에 무관"
+  },
+  {
+   "name": "AbstractGameWithCache::tower (인라인)",
+   "sig": "fn(&self, line: LineType, team: usize) -> Option<&Entity>",
+   "note": "L283 인라인(dloc scope `tower` simulation.rs line 0 → option.rs:1622 `Option::or`) = [top|mid|bottom]_tower[team].or([top|mid|bottom]_tower2[team]) · 다른 배치에선 아웃오브라인 call(reach.txt L2476·L2521)"
+  },
+  {
+   "name": "AbstractGameWithCache::iter_champions (인라인)",
+   "sig": "fn(&self, team) -> impl Iterator<Item=&Entity> (player_champion[team].iter().filter_map(|o| *o))",
+   "note": "L277 인라인 · dloc: `game_core::simulation::impl$5::iter_champions::closure_env$0` · 5슬롯 완전 언롤(null 슬롯 skip)"
+  }
+ ],
+ "logic": "// passive_line.rs:254~304 (배치 J)\n// 진입: @1403(22570) ← 배치 I 의 @1400(L241 · 22568 `br %1403`) 및 @2048(L248 · 24137 `br %1403`) 두 갈래. 이 절 전체의 종착은 @2254 `ret void`(L304) 하나뿐.\n// 선행 값(배치 H, L222): team=%64=player.info.team(0x930) · %69=player.info.position(0x9c0) · %70=data.cache · %73=&cache.player_champion[team][position] · %79=data.context\n\n// L254  @1403\nif (team_plan.objective@tag(0x41f) & !1) == 8 {           // = Some(MainObjective::Gank{..} | MainObjective::Dive{..})  (Gank=8 · Dive=9 · tcxdict)\n  // @2050  L0/L260\n  gank_line = team_plan+0x420 (i8 LineType)                  // Gank.line == Dive.line 오프셋 동일\n  // L260\n  if gank_line == self.line(0x116) {                          // player.rs:988 derive PartialEq\n    // L262  @2223\n    champ = *%73 (cache.player_champion[team][position])  ; null → core::option::unwrap_failed(@anon…82) 패닉(option.rs:1011/1013)\n    // L263  @2226/@2231\n    max = champ.stat_cached.hp(0x628) ; if max == 0 → panic_const_div_by_zero(@anon…83)\n    hp_ratio = champ.hp(0x670) * 100 / max                    // udiv\n    // L264\n    if hp_ratio > 24 {                                        // HP 25% 이상 (표기: >24 ≡ >=25)\n      // L265  @2251\n      self.in_recall(0x110) = false\n      // L266  v46_clear(true) 인라인\n      self.v46_commit(0x111) = false ; self.v46_committers.len(0x40) = 0\n      → L304\n    } else {\n      // L269  @2238/@2244/@2245\n      self.chats.push(Chat::Cancel(CancelReason::LowHpSelf))  // len==cap → grow_one ; ptr[len] = {+0: 17, +1: 0} ; len += 1\n      → L304\n    }\n  }\n  // L271  @2056/@2058/@2060/@2066   (else-if)\n  else if is_adj_line(gank_line, self.line) && self.in_recall(0x110) {\n    //   is_adj_line 인라인(player.rs:1006/1008): self.line==Mid(1) ? gank_line∈{Top(0),Bottom(2)} : gank_line==Mid(1)\n    //   ⚠ in_recall 은 인접판정과 무관하게 항상 load 됨(select 접힘) — 순수 읽기라 의미 차이 없음\n    // L273  @2069\n    champ = *%73 ; null → unwrap_failed(@anon…80)\n    // L274  @2072/@2077\n    max = champ.stat_cached.hp ; max == 0 → panic_const_div_by_zero(@anon…81)(@2171)\n    hp_ratio = champ.hp * 100 / max\n    // L277  @2077~@2152  (적 챔피언 5슬롯 완전 언롤 · any 단락)\n    team' = 1 - team                                          // 적 팀 (DI `team` 재바인딩)\n    my_line_enemy_visible = cache.iter_champions(team').any(|c| {   // player_champion[team'][0..5], null 슬롯 skip\n      // L278 closure$1\n      is_near_line(data.context, c.x(0x660), c.y(0x668), self.line)\n      // L279\n      && data.blackboard[team'].is_recent_visible(cache.game /*data_ptr, vtable*/, player, c)\n    })                                                         // @2153 phi: 어느 슬롯이든 true → true, 5슬롯 소진 → false\n    // L283  @2153~@2198\n    tower = cache.tower(self.line, team')                     // [top|mid|bottom]_tower[team'].or(…_tower2[team'])  (0x180+line*0x20+team'*8 · 없으면 0x190+…)\n    pushed_to_tower = tower.is_some_and(|tower| {             // option.rs:659/661 · closure$2\n      // L284\n      if tower.ty@tag(0x68) == 2 (Tower) {\n        // L285\n        info.nearest_enemy(0x88 tag).is_some_and(|(_, id /*0x98*/)| {\n          // L286\n          cache.game.get_entity_by_id(id) /*vtable+0x1f0*/ .is_some_and(|e| {\n            // L287\n            e.ty@tag(0x68) == 1 (Minion) && e.team(0x0 tag)==0 (Player) && e.team.0(0x8) == team /*내 팀*/\n          })\n        })\n      } else { false }\n    })\n    // L296  @2198 (타워 Some) / @2204 (타워 None ⇒ pushed_to_tower=false 로 접힘)\n    if hp_ratio > 69 && (pushed_to_tower || !my_line_enemy_visible) {   // HP 70% 이상 && (내 미니언이 적 타워를 치고 있거나 · 내 라인에 최근 보인 적 챔피언이 없음)\n      // L297  @2207\n      self.in_recall(0x110) = false\n      // L298  v46_clear(true) 인라인\n      self.v46_commit(0x111) = false ; self.v46_committers.len(0x40) = 0\n      // L299  @2207/@2215/@2216\n      self.chats.push(Chat::HideLineToo(gank_line, 0))        // len==cap → grow_one ; ptr[len] = {+0: 12, +1: gank_line, +8: 0} ; len += 1\n    }\n    → L304\n  }\n  // (인접 아님 또는 !in_recall) → L304\n}\n// L304  @2254\nret void\n\n// 배치 J 안 rnd(StdRng) gen_range 호출 사이트: 0개.\n// 배치 J 안 debug(DebugFrameData) 접근: 0건.\n// 사장 코드: reach.py(version=2 · gamemode=0) 결과 이 함수 사장 호출부 0 · 접힌 분기 1(@103, 배치 H 범위) — 배치 J 에 NA 봉인 대상 없음.",
+ "knobs": [
+  {
+   "what": "갱/다이브 라인==내 라인일 때 귀환 취소 HP 임계",
+   "where": "passive_line.rs:264 (m04.ll:24664 `icmp ugt %hp_ratio, 24`)",
+   "value": 24,
+   "effect": "올리면(예: 40) HP 가 더 높아야 귀환을 접고 갱 라인에 남는다(=더 자주 Cancel(LowHpSelf) 채팅으로 갱 거부) · 내리면 저체력에도 귀환을 취소하고 갱에 합류한다"
+  },
+  {
+   "what": "인접 갱라인 귀환 취소(HideLineToo) HP 임계",
+   "where": "passive_line.rs:296 (m04.ll:24574 `ugt 69` · 24582 `ult 70`)",
+   "value": 69,
+   "effect": "올리면 인접 라인 갱 때 귀환을 유지하는 경우가 늘고(HideLineToo 감소) · 내리면 낮은 HP 로도 귀환을 접고 라인에 숨는다 — 두 사이트(69/70) 를 같이 바꿔야 타워 유무 경로가 일치한다"
+  }
+ ],
+ "unknown": [
+  "v46_clear(passive_line.rs:476~481) 의 478~479 줄 내용 — completed=true 상수로 인라인돼 IR 에 흔적이 없다(관측: 477 주소계산·480 store v46_commit=0·481 Vec::clear 만). `!completed` 게이트 아래 계측 증가(v46_pending.commit_clears 0xb8 등)일 가능성은 추정 — IR 로는 표기 불가, 미탐색 = 다른 호출처(completed=false)에서 v46_clear 인라인을 읽는 것",
+  "L264 `>24` vs `>=25`, L296 `>69` vs `>=70` — 외연 동일(표기 불가 · 동작은 확정)",
+  "L271 `is_adj_line(..) && self.in_recall` 의 소스 순서(A && B 의 A/B) — column 0 이라 표기 불가 · IR 은 인접판정 뒤 in_recall(select 접힘) · 둘 다 순수 load 라 동작 차이 없음. 수신자 순서(gank_line.is_adj_line(self.line) 추정 — DI __self_discr=gank_line 근거)도 대칭 관계라 동작 무관",
+  "L296 `pushed_to_tower || !my_line_enemy_visible` 의 소스 순서 — 둘 다 이미 계산된 bool 이라 표기 불가·동작 무관",
+  "data.blackboard[1 - team](적 팀 인덱스)를 is_recent_visible 의 &self 로 쓰는 것이 소스 의도인지(콜리 본문은 self.last_visible[target.position] 을 읽으므로 '그 팀 챔피언의 최근 가시 틱' 테이블로 보임) — 계약만 기록, 의미 해석은 추정",
+  "is_near_line 본문(_gcbc g09.ll:157890~158197, 경로/맵 계층) — 시그니처·반환 의미만(r18 범위) · 내부 상수 미등록",
+  "is_recent_visible 의 120 틱 상수는 콜리 소유라 constants 미등록(callee_contracts 에만)",
+  "get_entity_by_id 는 vtable 간접 호출(`call ptr %2184`)이라 qcspec C2 대상이 아니어서 calls 에 넣지 않음 — callee_contracts 에 등재",
+  "지도 `per` 는 루트 277=82 · 283=45 (합 235)인데 주석본 슬라이스는 277=72 · 283=44 (합 224) — 주석본에서 `;L` 사슬이 비어(빈 chain) 루트를 못 단 줄 11개(dbg_value 류로 추정) · 본문 명령엔 영향 없음(원문 24143~24726 을 직접 대조함)"
+ ]
+}

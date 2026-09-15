@@ -1,0 +1,218 @@
+{
+ "d8eff0.partA": [
+  "A",
+  "score_parameter__calculate_score_parameter.partA"
+ ],
+ "d8eff0.partB": [
+  "B",
+  "score_parameter__calculate_score_parameter.partB"
+ ],
+ "d8eff0.partC": [
+  "C",
+  "score_parameter__calculate_score_parameter.partC"
+ ],
+ "d8eff0.partD": [
+  "D",
+  "score_parameter__calculate_score_parameter.partD"
+ ],
+ "e65b10.partE": [
+  "E",
+  "auction__LegacyPlanHandler__get_small_action.partE"
+ ],
+ "e65b10.partF": [
+  "F",
+  "auction__LegacyPlanHandler__get_small_action.partF"
+ ],
+ "e65b10.partG": [
+  "G",
+  "auction__LegacyPlanHandler__get_small_action.partG"
+ ],
+ "d28800.partH": [
+  "H",
+  "passive_line__PassiveLinePlan__update.partH"
+ ],
+ "d28800.partI": [
+  "I",
+  "passive_line__PassiveLinePlan__update.partI"
+ ],
+ "d28800.partJ": [
+  "J",
+  "passive_line__PassiveLinePlan__update.partJ"
+ ],
+ "e083c0.partK": [
+  "K",
+  "fight_model__resolve_fight_uncached.partK"
+ ],
+ "e083c0.partL": [
+  "L",
+  "fight_model__resolve_fight_uncached.partL"
+ ],
+ "e900b0.partM": [
+  "M",
+  "AgentVerHamster__get_input.partM"
+ ],
+ "e900b0.partN": [
+  "N",
+  "AgentVerHamster__get_input.partN"
+ ],
+ "d377a0": [
+  "O",
+  "utils__build_minion_wave_snapshot"
+ ],
+ "d39ba0": [
+  "O",
+  "utils__precompute_champion_powers"
+ ],
+ "cba660": [
+  "P",
+  "steal__Steal__action_candidates"
+ ],
+ "cbbca0": [
+  "P",
+  "steal__Steal__score"
+ ],
+ "cc5ca0": [
+  "P",
+  "recall__Recall__action_candidates"
+ ],
+ "cc5fc0": [
+  "P",
+  "recall__Recall__score"
+ ],
+ "eba9b0": [
+  "Q",
+  "fight_check__check_kill_die_tick_uncached"
+ ],
+ "e7b0b0": [
+  "Q",
+  "build_game_finish_check_state"
+ ],
+ "e8e560": [
+  "R",
+  "AgentVerHamster__update_small_action"
+ ],
+ "e8d6f0": [
+  "R",
+  "AgentVerHamster__update_state"
+ ],
+ "e8f850": [
+  "R",
+  "AgentVerHamster__count_nearby_enemies"
+ ],
+ "e8fd70": [
+  "S",
+  "AgentVerHamster__item_v26"
+ ],
+ "e8e160": [
+  "S",
+  "AgentVerHamster__upgrade_item"
+ ],
+ "e8fc80": [
+  "S",
+  "AgentVerHamster__buy_item"
+ ],
+ "e23750": [
+  "S",
+  "cast__SmallActionUlt__is_end"
+ ],
+ "cce0c0": [
+  "S",
+  "trace__SmallActionTrace__is_end"
+ ],
+ "dbd130": [
+  "S",
+  "move_actions__SmallActionRecall__is_end"
+ ],
+ "dc2330": [
+  "S",
+  "around__SmallActionAroundBush__update_state"
+ ],
+ "d26900": [
+  "T",
+  "passive_line__PassiveLinePlan__v46_stage1"
+ ],
+ "d27d50": [
+  "T",
+  "passive_line__PassiveLinePlan__v46_stage2"
+ ],
+ "cc3080": [
+  "U",
+  "battle__Battle__score"
+ ],
+ "cc20a0": [
+  "U",
+  "battle__Battle__calculate_score_parameter_value"
+ ],
+ "e8aeb0": [
+  "U",
+  "line_defense__LineDefense__calculate_score_parameter_value"
+ ],
+ "d676c0": [
+  "V",
+  "battle_common__v16_gambler_ult_cc_bonus"
+ ],
+ "d69f80": [
+  "V",
+  "battle_common__v17_runaway_counterattack_bonus"
+ ],
+ "d67060": [
+  "V",
+  "battle_common__v21_defensive_cc_score"
+ ],
+ "d69120": [
+  "V",
+  "battle_common__v15_can_keep_support_pressure"
+ ],
+ "e8a100": [
+  "W",
+  "line_defense__LineDefense__unsafe_v19_non_champion_walkup"
+ ],
+ "d98ac0": [
+  "W",
+  "tower_discipline__v47_tower_focus_position_dangerous"
+ ],
+ "d99f60": [
+  "W",
+  "tower_discipline__v30_line_champion_action_tower_aggro_risk"
+ ],
+ "d9a220": [
+  "W",
+  "tower_discipline__v22_current_line_non_champion_action_tower_risk"
+ ],
+ "e95ae0": [
+  "X",
+  "defense_nexus__DefenseNexus__score"
+ ],
+ "d3e660": [
+  "X",
+  "defense_nexus__nexus_last_stand_uncached"
+ ],
+ "d3fe50": [
+  "X",
+  "defense_nexus__nexus_final_stand_uncached"
+ ],
+ "e35a40": [
+  "X",
+  "objective_handlers__TeamPlan__handle_nexus_attack"
+ ],
+ "ccbb10": [
+  "Y",
+  "line_safe__LineSafe__score"
+ ],
+ "eb5840": [
+  "Y",
+  "line_wait__LineWait__score"
+ ],
+ "cc5a10": [
+  "Y",
+  "jungle__Jungle__score"
+ ],
+ "e83080": [
+  "Y",
+  "attack_nexus__AttackNexus__score"
+ ],
+ "e388c0": [
+  "Y",
+  "serpen_check__SerpenCheck__score"
+ ]
+}

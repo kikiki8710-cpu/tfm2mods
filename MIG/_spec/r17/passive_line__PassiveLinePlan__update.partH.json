@@ -1,0 +1,648 @@
+{
+ "name": "PassiveLinePlan::update",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan6update",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_line.rs",
+ "src_line": 219,
+ "ir_file": "m04.ll",
+ "ir_from": 19038,
+ "ir_to": 24726,
+ "layer": "plan_update(vtable 진입점 · 라인 패시브 플랜)",
+ "aux": [
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 23056,
+   "ir_to": 23313,
+   "what": "check_recall L1122~1126 near_allies = bumpalo Vec<&Entity>::from_iter_in(cache.player_champion[team].iter().enumerate().filter(closure$5).filter_map(closure$6)) — 필터 술어 본체(다른 .ll)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 23316,
+   "ir_to": 23686,
+   "what": "check_recall L1136~1147 near_enemies = from_iter_in(cache.player_champion[1-team] … filter(closure$9).filter_map(closure$a)) — 필터 술어 본체(is_recent_visible · in_big_line · 거리)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 27076,
+   "ir_to": 27228,
+   "what": "check_recall L1103~1105 twin_towers[team].iter().min_by_key(closure$3 = dist_sq(LineType::get_start_position(self.line, setting, team), t.pos)) 의 fold 본체(첫 원소 키는 주범위 19398~19428 에 인라인)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 13030,
+   "ir_to": 13349,
+   "what": "check_recall L1201~1231 can_we_kill_any = near_enemies.iter().filter(closure$e: dist(e,front_minion)<150000²+1).any(closure$f: 내 콤보뎀+near_allies 콤보뎀 합 >= e.hp) 의 try_fold 본체"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 64231,
+   "ir_to": 64237,
+   "what": "closure$6 call_mut 심 = |(_, e)| *e (near_allies 의 filter_map 사상 — 원소 그대로 꺼냄)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 64240,
+   "ir_to": 64246,
+   "what": "closure$a call_mut 심 = |(_, e)| *e (near_enemies 의 filter_map 사상)"
+  }
+ ],
+ "one_line": "라인 패시브 플랜 매 틱 갱신 — L222 check_recall 로 self.in_recall(귀환 여부) 결정(배치 H) → 팀 목표 Gank 라인 보정·v46 라인귀환 stage1/2·도주 게이트(update_v46_lane_recall/update_v46_flee 인라인, L232~248 · 배치 I) → 라인 위치·채팅 push(L254~304 · 배치 J). 반환 없음(unit) — 출력은 &mut self 필드뿐.",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut PassiveLinePlan (280B, align 8)",
+    "role": "플랜 상태. IR 속성 noalias·dereferenceable(280) · initializes 속성 없음(=전체가 기존 값 위 갱신). 배치 H 범위의 쓰기 = +0x110 in_recall 1건(store 21201 · 루트 L222) · 읽기 = +0x116 line(19287·19444). 나머지 필드 쓰기(v46_* 계측·chats)는 배치 I/J 범위.",
+    "note": "쓰기 표면 전수는 각 배치 writes 합본으로 — H 는 in_recall 만"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "role": "AI 버전 게이트. H 범위 분기 1곳: L1079 `version > 1`(19237 · reach.py 가 version=2 로 참 접음 ⟹ 분수 안+만피 경로는 항상 in_recall=false). 그 외 buy_item·upgrade_item·enemy_minion_line_action_danger_damage_at·has_line_lead·effect_buff_target 에 그대로 전달.",
+    "note": "IR 속성: noundef 만"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng (320B, align 16)",
+    "role": "H 범위에서 직접 gen_range 호출 0회. buy_item(19270)·upgrade_item(19275)·has_line_lead(20847·20852 — 이 함수 define 은 readnone) 에 &mut 로 전달. 소비 순서 = buy_item → upgrade_item (둘 다 L1085·L1086, 분수 밖·안 공통 경로).",
+    "note": "IR 속성 noalias·dereferenceable(320)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "role": "IR 속성 readonly. 읽기: +0x930 info.team(19165) · +0x9c0 info.position 태그(19173 · as_index / ==1 Jungle 20688) · +0x4a8 info.items.len(20991).",
+    "note": ""
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "role": "IR 속성 readonly. +0 cache(&AbstractGameWithCache) · +8 context(&GameContext) · +0x10 blackboard(&[Blackboard;2]). 게임 접근은 전부 이 경유.",
+    "note": ""
+   },
+   {
+    "i": 6,
+    "name": "team_plan",
+    "type": "&TeamPlan (1064B)",
+    "role": "IR 속성 nonnull readonly captures(none) — ⚠define 줄에 dereferenceable 없음. H 범위 사용 0. 본문 사용은 +0x41f objective 태그·+0x420 objective 페이로드 라인(21202·21209·24144 — 배치 I·J).",
+    "note": "TeamPlan 크기는 tcxdict 값(1064B); IR 속성엔 없음"
+   },
+   {
+    "i": 7,
+    "name": "_positioning_score",
+    "type": "&PositioningScoreData (2760B)",
+    "role": "IR 속성 readonly captures(none) dereferenceable(2760). 본문 전체(19038~24726)에서 dbg_value(19118) 외 사용 0 — 이름의 밑줄대로 미사용.",
+    "note": ""
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData (224B)",
+    "role": "IR 속성 noalias dereferenceable(224). H 범위 쓰기 = 간접 1건: L1162 `debug.add_log(data, player, format!(\"V46BASEHEAL T{team} {position:?} tick={tick} hp={hp_ratio}%\"))`(21176~21182 · ctx.debug 가 참일 때만). has_line_lead 에도 전달(그 define 은 readnone).",
+    "note": "직접 store 0"
+   }
+  ],
+  "returns": "unit(void) — sret 없음. 판정 출력 = self.in_recall(+0x110, i8 0/1). 살아있는 바이트 = 그 1바이트.",
+  "tls": {
+   "name": "없음",
+   "role": "-",
+   "key": "-",
+   "layout": "-",
+   "invalidation": "-",
+   "call_conditions": "함수 본체 19038~24726 전체에서 TLS fn-포인터 상수 참조 0건 확인(m04.ll 의 `@anon.* = constant ptr @…call_once` 3개 = HP_VALUE_MEMO(.221)·CHAMP_POWERS_MEMO(.235)·LAST_STAND_MEMO(.248) 를 본문에서 grep → 0). H 범위·전 범위 모두 직접 TLS 접점 없음. 콜리(buy_item·upgrade_item·has_line_lead·v46_stage1/2 등) 내부 TLS 는 각 명세 소관."
+  }
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "19164~19165. team<2 bounds check(19167, 실패=panic_bounds_check 19186)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag(i32)",
+   "note": "19172~19174 as_index 로 player_champion 슬롯 인덱스 · 20688 `==1`(Position::Jungle 태그 1 · tcxdict --enum Position) = line_strategy 분기"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x4a8",
+   "name": "info.items.len",
+   "note": "20990~20994 L1405 items.is_empty() → item_score 5"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "19175 &AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "19194~19195 &GameContext"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "19439~19440 · 19574~19575 &[Blackboard;2] (팀 인덱스 stride 744)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr / +0x8 game.vtable_ptr",
+   "note": "19263~19265 (&dyn AbstractGame 팻포인터) → buy_item/upgrade_item 인자, vtable 슬롯 호출 +0x28 tick(19883~19885·21144~21146) · +0x40 get_game_mode(21051~21053) · +0x1f0 get_entity_by_id(19474~19477·19618~19620) [divtable AbstractGame]"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "19176~19179 (+480 + team*40 + pos*8) champ unwrap(실패 19218). 19834 [1-team] 5슬롯 = near_enemies 원천, 19706 [team] = near_allies 원천"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower/mid_tower/bottom_tower[team] (line*0x20 + 0x180 + team*8)",
+   "note": "19301~19306 `tower(line,team)` 1차 · 19897 · 20372~20374 (적 팀)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2/mid_tower2/bottom_tower2[team] (line*0x20 + 0x190 + team*8)",
+   "note": "19307~19311 `.or(2차 타워)` · 19898 · 20375~20377"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x130",
+   "name": "twin_towers[team] (bumpalo Vec: +0 ptr, +0x18 len)",
+   "note": "19316~19323 (team) L1102 min_by_key · 19930~19932 (closure$13) · 20380~20385 (1-team) L1243 `.iter().next()`"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[team]",
+   "note": "19543~19547 · 19558~19560 (team) unwrap(실패 19553/19585) · 20424~20426 (1-team)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool(&Bump)",
+   "note": "19721 → from_iter_in 할당자(19722·19871)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting(&GameSetting)",
+   "note": "19334~19335 · 19502~19503"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map(&MapDef)",
+   "note": "19197~19198 fountain"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x30",
+   "name": "item_list(&Vec<Box<dyn ItemInfo>>: +0x8 ptr, +0x10 len)",
+   "note": "20972~20984 · 20999~21000 L1395 index(bounds 실패 21014)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug(bool)",
+   "note": "19996~19998 L1160 디버그 로그 게이트"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "19504~19506 tps*2(shl 1) · 20006~20008 tps*30 · 20630 remain>tps"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick",
+   "note": "20003~20004 is_line_phase"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x1368",
+   "name": "return_tick",
+   "note": "20449~20450 L1248 귀환 소요 틱"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x6d70",
+   "name": "fountains[team] (+0 lx, +8 ly, +0x10 rx, +0x18 ry)",
+   "note": "19200~19226 map_def.rs:235 fountain(team)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "19209 champ · 다수(거리 계산 전부)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "19228 champ · 다수"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "19241~19242 · 19252~19253 champ hp · 20282 콤보뎀 비교 · 20753 적 hp% · 20828 아군 hp%"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "19243~19244 · 19254~19256 (0 이면 panic_const_div_by_zero 19291) · 20740 · 20815"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x3f0",
+   "name": "stat_buff_cached.vamp(i32)",
+   "note": "19724~19726 champ >0 = has_self_heal · 20505~20507 아군"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect Option<Effect> (None 니치 = +0x4f8 casting i32 == -1)",
+   "note": "19731~19737 champ · 20213~20219 적(closure$15) · 20512~20518 아군(closure$19)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect Option<Effect> (레벨>2 일 때만 참조, 아니면 정적 None @anon.16 · None 니치 = +0x530 == -1)",
+   "note": "19764~19773 entity.rs:1693 skill2_effect() · 20233~20241 · 20558~20566"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect Option<Effect> (None 니치 = +0x4c0 == -1)",
+   "note": "20198~20204 (closure$15 콤보뎀) · aux 13049~13050"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect Option<Effect> (레벨>4 일 때만, 아니면 @anon.16 · None 니치 = +0x568 == -1)",
+   "note": "20260~20266 entity.rs:1701 ult_effect()"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "19764~19766 >2 · 20252~20260 >4"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType: 2=Tower · 13=Champion)",
+   "note": "20438~20440 적 타워 ==2 · 20452~20454 champ ==13"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state@tag (ChampionActionState: 1=Return)",
+   "note": "20618~20620 entity.rs:1656 return_time()"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x78",
+   "name": "ty@Champion.0.action_state@Return.time",
+   "note": "20624~20627 귀환 경과 틱"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x88",
+   "name": "ty@Tower.info.nearest_enemy@tag (Option<(usize,usize)>, 0=None)",
+   "note": "20635~20637 L1255 적 타워가 표적을 잡고 있나"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "top_minion_state / +0x28 mid / +0x50 bottom (BrainMinionParameter 40B): +0 front_minion@tag, +8 front_minion id, +0x20 minion_count(i32)",
+   "note": "19446~19462 · 19578~19598 · 20650~20667 ai_interface.rs:379~382 minion_state(line) 스위치(LineType 0/1/2, default 19375 unreachable)"
+  },
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x116",
+   "name": "line(LineType 태그 0 Top/1 Mid/2 Bottom)",
+   "note": "19286~19287 · 19443~19444 · 19383(get_start_position 인자) · aux 23506"
+  },
+  {
+   "base": "Box<dyn ItemInfo>",
+   "offset": "0x70",
+   "name": "vtable slot tier() -> i64",
+   "note": "21005~21010 · 21022 · 21030 (divtable ItemInfo 0x70 = tier). 4→100 · 3→70 · 2→60 · 그외→30"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1a8",
+   "name": "jungle_runner.epic.live_list.len",
+   "note": "21071~21078 L1437 is_epic = get_game_mode().as_moba().map_or(false, |m| len!=0)"
+  },
+  {
+   "base": "upgrade_item sret(24B)",
+   "offset": "0x0",
+   "name": "Option 태그(i64 0/1, trunc nuw) / +0x10 item index",
+   "note": "19276~19279"
+  },
+  {
+   "base": "buy_item ret {i64,i64}",
+   "offset": "0x0",
+   "name": ".0 == 1 → Some",
+   "note": "19270~19272 · 20894 L1392 is_none()"
+  },
+  {
+   "base": "effect_buff_target sret(288B = Option<BuffState>)",
+   "offset": "0x48",
+   "name": "duration@tag (i32 -1 = None) / +0x80 vamp(i32)",
+   "note": "19781~19787 · 19818~19824 · 20548~20552 · 20599~20603 → Some && vamp>0"
+  }
+ ],
+ "writes": [
+  {
+   "base": "PassiveLinePlan",
+   "offset": "0x110",
+   "name": "in_recall",
+   "value": "check_recall 결과 i8 (0/1)",
+   "note": "★루트 L222 · store 21201(블록 %904 첫 3줄 — 블록 자체는 배치 I 가 잇는다). phi 21198: 분수 안&hp<최대 → 1 · 분수 안&만피&version>1 → 0 · 그 외 %887(21136) = 웨이브 위험 → 1 / 조기 return true 경로(%901) → 1 / 점수 경로 → score>49"
+  },
+  {
+   "base": "DebugFrameData(&mut debug)",
+   "offset": "0x48",
+   "name": "logs (간접: add_log 호출)",
+   "value": "\"V46BASEHEAL T{team} {position:?} tick={tick} hp={hp_ratio}%\"",
+   "note": "21150~21182 L1161~1162 · ctx.debug(+0x3b)==true && L1156 조건 성립 시 1회. 직접 store 없음(오프셋 0x48 은 tcxdict DebugFrameData.logs — 본문엔 gep 없음)"
+  },
+  {
+   "base": "StdRng(&mut rnd)",
+   "offset": "0x0",
+   "name": "(간접) buy_item·upgrade_item 에 &mut 전달",
+   "value": "-",
+   "note": "19270·19275 · H 범위 직접 쓰기 0"
+  }
+ ],
+ "constants": [
+  {
+   "value": 100,
+   "src_line": 1084,
+   "meaning": "hp_ratio = hp*100/max_hp (19260) · 아군/적 hp% 합(20755·20830) · item_score 100(4티어, 21039)"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 1095,
+   "meaning": "tps*2 (= 2초) 가 `shl i64 %220, 1`(19506) 로 접힘 — enemy_minion_line_action_danger_damage_at 의 예측 틱 인자"
+  },
+  {
+   "value": 46,
+   "src_line": 1096,
+   "meaning": "hp_ratio < 46 이면 웨이브 피해(≠0)만으로 귀환 확정 (20513)"
+  },
+  {
+   "value": 62500000001,
+   "src_line": 1157,
+   "meaning": "250000²+1 — 쌍둥이 타워↔프론트 미니언 근접 판정(19991 `ult`) · aux 23561 L1145 적↔(front_minion or target) 근접"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 1174,
+   "meaning": "150000²+1 — 적↔front_minion 근접 카운트(20121) · aux 23227 L1125 아군↔target · aux 23601 L1146 적↔target · aux 13108 L1202 킬 후보 필터"
+  },
+  {
+   "value": 22500000000,
+   "src_line": 1180,
+   "meaning": "150000² — closure$15 `dist_sq > 22500000000` 이면 제외(20192) = 150000 이내만 콤보뎀 계산(위 +1 과 동치 외연)"
+  },
+  {
+   "value": 70,
+   "src_line": 1154,
+   "meaning": "hp_ratio > 70 이면 타워없음·라인페이즈 검사 생략(19879) · L1255 적타워 표적 검사 게이트(20645 재사용) · heal_score 70(L1342·1356·1373·1380 등)"
+  },
+  {
+   "value": 30,
+   "src_line": 704,
+   "meaning": "is_line_phase: tick < first_spawn_tick − tps*30(20008) · item_score 30(기타 티어, 21035)"
+  },
+  {
+   "value": 51,
+   "src_line": 1171,
+   "meaning": "hp_ratio < 51 && 라인 페이즈 → 프론트 미니언 근처 적 수 검사 진입(20012)"
+  },
+  {
+   "value": 2,
+   "src_line": 1247,
+   "meaning": "EntityType::Tower 태그(20440) · level > 2 → skill2_effect 유효(19766·20235·20560·aux 13153) · item tier 2 → 60(21034) · [team<2 bounds 19167 는 인덱스 가드]"
+  },
+  {
+   "value": 13,
+   "src_line": 1655,
+   "meaning": "EntityType::Champion 태그(20454) return_time() 진입"
+  },
+  {
+   "value": 4,
+   "src_line": 1701,
+   "meaning": "level > 4 → ult_effect 유효(20260·aux 13174) · item tier 4 → 100(21018)"
+  },
+  {
+   "value": 3,
+   "src_line": 1398,
+   "meaning": "item tier 3 → item_score 70(21026) (본문의 `shl …, 3` 은 포인터 8B 스트라이드 — 이 상수와 무관)"
+  },
+  {
+   "value": 60,
+   "src_line": 1400,
+   "meaning": "item tier 2 → 60(21035) · heal_score 60(L1303·1327·1342·1358·1382) · hp_ratio > 60 (L1382, 20920)"
+  },
+  {
+   "value": 80,
+   "src_line": 1368,
+   "meaning": "hp_ratio > 80 이면 0 아니면 80 (20906~20907) · heal_score 80(L1297·1317·1340·1374)"
+  },
+  {
+   "value": 31,
+   "src_line": 1256,
+   "meaning": "hp_ratio < 31 — 적타워 표적중 귀환(20670·20676) · heal_score 분기(L1301·1327·1340·1358·1374)"
+  },
+  {
+   "value": 21,
+   "src_line": 1299,
+   "meaning": "hp_ratio < 21 → heal 70 (20931·20951·20881)"
+  },
+  {
+   "value": 41,
+   "src_line": 1303,
+   "meaning": "hp_ratio < 41 → heal 60 / 70 (20939·20911)"
+  },
+  {
+   "value": 10,
+   "src_line": 1286,
+   "meaning": "enemy_hp_ratio_sum = Σ(적 hp%) + 10 (20769·20773 초기값 10)"
+  },
+  {
+   "value": 5,
+   "src_line": 1405,
+   "meaning": "아이템 0개 & 구매가능 → item_score 5(20995) (본문의 `shl …, 5` 는 line*32 타워 스트라이드 — 이 상수와 무관)"
+  },
+  {
+   "value": -10,
+   "src_line": 1422,
+   "meaning": "panelty_score: 적이 라인 리드 → −10 (21043)"
+  },
+  {
+   "value": -5,
+   "src_line": 1422,
+   "meaning": "panelty_score: 양쪽 리드 없음 → −5 (21043)"
+  },
+  {
+   "value": 49,
+   "src_line": 1447,
+   "meaning": "return score > 49 (21122)"
+  },
+  {
+   "value": 61,
+   "src_line": 1439,
+   "meaning": "hp_ratio < 61 && is_epic(에픽 생존) → 귀환 (21084)"
+  },
+  {
+   "value": 11,
+   "src_line": 1439,
+   "meaning": "hp_ratio < 11 → 무조건 귀환 (21086)"
+  },
+  {
+   "value": -1,
+   "src_line": 742,
+   "meaning": "Option<Effect>/Option<BuffState> None 니치 태그 (19733 등 다수)"
+  },
+  {
+   "value": 1,
+   "src_line": 1079,
+   "meaning": "version > 1 (19237, reach 접힘 → 항상 참) · ChampionActionState::Return 태그(20620) · buy_item .0==1 Some(20894) (shl 시프트량 1 = tps*2 접힘은 위 folded_from 항목)"
+  }
+ ],
+ "calls": [
+  "game_ai::buy_item",
+  "game_ai::upgrade_item",
+  "game_ai::minion_wave_risk::enemy_minion_line_action_danger_damage_at",
+  "game_core::LineType::get_start_position",
+  "game_core::Effect::expected_heal_target",
+  "game_core::Effect::expected_damage_target",
+  "game_ai::fight_check::effect_buff_target",
+  "game_ai::plan_legacy::sub_plan::line_defense::has_line_lead",
+  "game_core::DebugFrameData::add_log",
+  "alloc::fmt::format_inner",
+  "bumpalo::collections::vec::from_iter_in",
+  "core::iter::adapters::map::fold",
+  "core::iter::Iterator::try_fold",
+  "game_core::Blackboard::is_recent_visible",
+  "game_core::Blackboard::in_big_line",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const_div_by_zero",
+  "core::ptr::drop_glue",
+  "core::ops::Drop::drop",
+  "llvm.usub.sat.i64",
+  "llvm.assume"
+ ],
+ "logic": "// passive_line.rs:0~222 (배치 H)\n// 루트 L222 = `self.in_recall = self.check_recall(version, rnd, player, data, debug)` 가 통째로 인라인(passive_line.rs:1068~1449, 893 IR줄). 루트 0 으로 잡힌 2줄(24144~24145, team_plan+0x420 로드)은 줄번호 없는 DILocation 이고 배치 J 의 L260 블록 소속 → J 가 다룬다.\n// 함수 프롤로그 19039~19104 = 지역 alloca 54개(bumpalo Vec 헤더 32B ×2 = near_allies %58 / near_enemies %56, BuffState 288B ×4 %45~%48, 포맷 인자 등). check_recall 결과(i8)는 21201 에서 self+0x110 에 store → 블록 %904 나머지(L232~)는 배치 I.\n\n// ---- check_recall(&mut self, version, rnd, player, data, debug) -> bool  [passive_line.rs:1068~1449] ----\n// L1069  team = player.info.team (+0x930); team<2 bounds(19167). champ = data.cache.player_champion[team][player.info.position.as_index()].unwrap() (19172~19183, 실패 19218)\n// L1071  (lx,ly,rx,ry) = ctx.map.fountains[team] (map_def.rs:235, +0x6d70+team*32)\n// L1072  in_fountain = lx<=champ.x<=rx && ly<=champ.y<=ry (19212~19215, 19230~19234)\n// L1073  if in_fountain && champ.hp(+0x670) < champ.stat_cached.hp(+0x628): return true            (19240~19246 → %904 phi=1)\n// L1079  else if in_fountain && version > 1: return false                                            (19237~19238 → %904 phi=0)  ★reach: version=2 로 항상 참 ⟹ 아래 %112(in_fountain=true) 경로는 NA(version<2 전용)\n// L1084  hp_ratio = hp*100 / max_hp  (max_hp==0 → panic_const_div_by_zero 19291)                    (19252~19262, %62 에 store — 포맷 인자로도 씀)\n// L1085  can_buy_item = buy_item(version, rnd, player, cache.game.{data,vtable}, ctx) -> {i64,i64}, .0==1 이 Some   (19263~19272)\n// L1086  upgrade_item(sret 24B: +0 Option 태그 i64, +0x10 idx)(version, rnd, player, game, ctx); 이후 L1161 map 으로 (Some 여부 %127, idx %129) 만 씀  (19275~19279)\n// L1087  if !in_fountain {                        // NA(version<2 전용): in_fountain=true 이면 %130 으로 웨이브 검사 생략(19285~19288)\n// L1090    fm = blackboard[team].minion_state(self.line).front_minion.and_then(|id| game.get_entity_by_id(id))  (19439~19479; minion_state 스위치 ai_interface.rs:379~382 top+0/mid+0x28/bottom+0x50, vtable +0x1f0)\n// L1092    (mx,my) = fm.map(|e| e.pos).unwrap_or(champ.pos)                                          (19484~19499)\n// L1094    minion_wave_damage = enemy_minion_line_action_danger_damage_at(version, data, champ, mx, my, tps*2, false, false)   (19502~19507)\n// L1096    if minion_wave_damage != 0 && (hp_ratio < 46 || minion_wave_damage >= champ.hp): return true   (19509~19516 → %886 phi=1)\n//        }\n// L1101  tower = cache.<line>_tower[team].or(cache.<line>_tower2[team])   (simulation.rs:1823 tower(line,team); 19301~19311)\n// L1102~1109 nearest_tower = tower.or( twin_towers[team].iter().min_by_key(|t| dist_sq(LineType::get_start_position(&self.line, ctx.setting, team), t.pos)).map(|t| *t) ).or(cache.nexus[team]).unwrap()   (19316~19436 · aux m12 27076~ · unwrap 실패 19553)\n// L1111  nexus = cache.nexus[team].unwrap()   (19558~19567, 실패 19585)\n// L1113  front_minion = blackboard[team].minion_state(line).front_minion.and_then(get_entity_by_id)  → %60   (19574~19621)\n// L1116  target = if front_minion.is_none_or(|fm| dist_sq(fm,nexus) < dist_sq(nearest_tower,nexus)) { nearest_tower } else { fm }  → %59   (19626~19697: 미니언이 타워보다 넥서스에 가까우면 타워, 아니면 미니언)\n// L1122~1126 near_allies: Vec<&Entity> = cache.player_champion[team].iter().enumerate()\n//            .filter(|(i,e)| *i != my_pos_index(L1124) && target.is_some() && e.is_some() && dist_sq(e, target) < 150000²+1 (L1125))\n//            .filter_map(|(_,e)| *e).collect_in(ctx.pool)     (19706~19722 · aux m01 23056~23313)\n// L1128~1134 has_self_heal = champ.stat_buff_cached.vamp > 0\n//            || champ.skill_effect.as_ref().map(|e| expected_heal_target(e,ctx,champ,_,champ,_) != 0 || effect_buff_target(version,e,ctx,champ,_,champ,_).map(|b| b.vamp>0)==Some(true)).unwrap_or(false)\n//            || champ.skill2_effect()(level>2) 동일 검사     (19724~19830, phi %360)\n// L1136~1147 near_enemies: Vec<&Entity> = cache.player_champion[1-team].iter().enumerate()\n//            .filter(|(i,e)| e.is_some_and(|e| blackboard[1-team].is_recent_visible(game, player, e) (L1139)\n//                     && !(e.ty is Champion && action_state is Return) (L1140 — 귀환 중인 적 제외)\n//                     && ( blackboard[1-team].in_big_line(*i, self.line) (L1141)\n//                        || front_minion.or(target).is_some_and(|p| dist_sq(e,p) < 250000²+1) (L1145)\n//                        || target.is_some_and(|t| dist_sq(e,t) < 150000²+1) (L1146) )))\n//            .filter_map(|(_,e)| *e).collect_in(ctx.pool)     (19833~19872 · aux m01 23316~23686)\n// L1154  if hp_ratio <= 70 {                                                                       (19879: `ugt 70` 참이면 L1171 로)\n// L1155    if tower(line,team) is None(1·2차 모두 없음) {                                            (19897~19905)\n// L1156      if front_minion.is_some_and(|fm| twin_towers[team].iter().any(|t| dist_sq(fm,t) < 250000²+1)) {   (19908~19992, closure$13)\n// L1160        if ctx.debug { debug.add_log(data, player, format!(\"V46BASEHEAL T{team} {position:?} tick={game.tick()} hp={hp_ratio}%\")) }   (19996~19999 · 21140~21183)\n// L1162        return true   (→ %567 → %901 → phi %885=1)\n//    } } }\n// L1171  tick = game.tick()(vtable+0x28). if hp_ratio < 51 && is_line_phase(tick) [= tick < setting.epic_jungle.first_spawn_tick.saturating_sub(tps*30)] {   (19883~20014)\n// L1172    if let Some(fm) = front_minion {                                                          (20017~20019)\n// L1174      lane_enemy_count = near_enemies.iter().filter(|e| dist_sq(e,fm) < 150000²+1).count()   (20063~20141, closure$14)\n// L1177      if lane_enemy_count != 0 && near_allies.len()+1 <= lane_enemy_count {                    (20142~20151: `len+1 > count` 면 탈출)\n// L1179        if near_enemies.iter().any(|e| dist_sq(e,fm) <= 150000² && combo_dmg(e→champ) >= champ.hp) {   (20153~20293, closure$15: combo = attack_effect + skill_effect + skill2(level>2) + ult(level>4) 각 expected_damage_target(eff,ctx,e,_,champ), L1184~1196)\n// L1201          can_we_kill_any = near_enemies.iter().filter(|e| dist_sq(e,fm) < 150000²+1).any(|e| [champ 콤보뎀(e 대상) + Σ near_allies 콤보뎀(e 대상)] >= e.hp)   (20300~20341 · aux m04 13030~13349, L1202~1231)\n// L1234          if !can_we_kill_any { return true }                                                  (20347: 참이면 %572=L1242, 거짓이면 %567→true)\n//    } } } }\n// L1242  nearest_enemy_tower = tower(line, 1-team).or(twin_towers[1-team].iter().next().map(|t| *t)).or(cache.nexus[1-team]).unwrap()   (20372~20434, 실패 20444 → unreachable %373)\n// L1247  if nearest_enemy_tower.ty is Tower(태그 2) {                                                 (20438~20441)\n// L1248    if let Some(t) = champ.return_time() [ty Champion(13) && action_state Return(1) → Return.time] { remain_return_time = setting.return_tick.saturating_sub(t)   (20449~20627)\n// L1251      if remain_return_time <= tps { return true } }                                          (20630~20631: `remain > tps` 면 계속)\n// L1255    if tower.nearest_enemy.is_some() (Entity+0x88 태그≠0) {                                    (20635~20638)\n//            if hp_ratio > 70 || near_enemies.is_empty() { (L1261) if hp_ratio < 31 { return true } }   (20642~20646 · 20676~20677)\n//            else { (L1256) if blackboard[team].minion_state(line).minion_count > 1 || hp_ratio < 31 { return true } }   (20650~20672)\n//    } }\n// L1266  has_ally_heal = has_self_heal || near_allies.iter().any(|a| a.vamp>0 || a.skill_effect 힐/뱀프버프 || a.skill2_effect() 힐/뱀프버프)   (20460~20686, closure$19 — 자기 검사와 같은 식, 대상 champ)\n// L1276  line_strategy = f(player.info.position == Jungle)  — i8 값 자체는 DI poison, 비교 %702(20688)만 생존. 아래 트리에서 `is_jungle` 로 표기\n// L1284  is_more_enemy = near_enemies.len() > near_allies.len()+1   (20694~20695)\n// L1285  is_more_ally  = near_allies.len()+1 > near_enemies.len()   (20698 = `ule` 의 부정 — dbg_value DW_OP_not 확인 · 분기도 그 극성)\n// L1286  enemy_hp_ratio_sum = Σ_{e∈near_enemies} e.hp*100/e.max_hp + 10   (20723~20773, closure$20; max_hp 0 → panic 20746)\n// L1287  ally_hp_ratio_sum  = Σ_{a∈near_allies} a.hp*100/a.max_hp + hp_ratio   (20798~20845, closure$21)\n// L1289  ally_has_line_lead  = has_line_lead(version, rnd, data, team,   line, debug)   (20847)\n// L1290  enemy_has_line_lead = has_line_lead(version, rnd, data, 1-team, line, debug)   (20852)\n// L1293~1392 heal_score (phi 20890) =\n//   if has_ally_heal (20857):\n//     if is_jungle (20860): if is_more_enemy (20925): L1317 hp<51 ? 80 : 0   else (L1322) if !is_more_ally: L1325 hp<21 ? 70 : (L1327 hp<31 ? 60 : 0)  else 0\n//     else (L1297): if is_more_enemy: L1299 hp<21 ? 80 : (L1301 hp<31 ? 70 : (L1303 hp<41 ? 60 : 0))  else 0\n//   else (L1336):\n//     if is_jungle (20863): if is_more_enemy (L1367): L1368 hp>80 ? 0 : 80   else (L1373) if !is_more_ally: L1380 hp<41 ? 70 : (L1382 hp>60 ? 0 : 60)  else L1374 hp<31 ? 80 : 0\n//     else (L1338): if is_more_enemy: L1340 hp<31 ? 80 : (L1342 hp<51 ? 70 : (hp>70 ? 0 : 60))\n//                  else (L1349) if !is_more_ally && ally_hp_ratio_sum < enemy_hp_ratio_sum: L1356 hp<21 ? 70 : (L1358 hp<31 ? 60 : 0)  else 0\n// L1392~1405 item_score (phi 21039) = if can_buy_item.is_none() && upgrade_item.is_none(): 0\n//     else if let Some(idx)=upgrade_item: match ctx.item_list[idx].tier() { 4→100, 3→70, 2→60, _→30 }  (L1395~1400, bounds 실패 21014)\n//     else (can_buy Some, upgrade None): player.info.items.is_empty() ? 5 : 0  (L1405)\n// L1411  item_score = if ally_has_line_lead { item_score } else if enemy_has_line_lead { 0 } else { item_score/2 }   (21041~21044)\n// L1422  panelty_score = if ally_has_line_lead { 0 } else if enemy_has_line_lead { -10 } else { -5 }   (21043·21045)\n// L1434  score = heal_score + panelty_score + item_score   (21048~21049)\n// L1437  is_epic = game.get_game_mode()(vtable+0x40).as_moba().map_or(false, |m| m.jungle_runner.epic.live_list.len() != 0)   (21051~21082)\n// L1439  if hp_ratio < 11 || (hp_ratio < 61 && is_epic): return true   (21084~21088)\n// L1447  return score > 49   (21122~21124)\n// (drop: near_enemies %56 → 21092/21106, near_allies %58 → 21112/21129; 언와인드 정리 %336/%380)\n// → 결과 i8 는 %886(21136)→%904(21197) 로 합류: self.in_recall = 결과 (21200~21201) → 이후 L232 부터 배치 I(%904 나머지)",
+ "knobs": [
+  {
+   "what": "웨이브 피해 귀환 HP 임계",
+   "where": "passive_line.rs:1096 (m04.ll:20513)",
+   "value": 46,
+   "effect": "올리면 프론트 미니언 위치에서 2초 웨이브 피해가 있을 때 더 높은 체력에서도 귀환"
+  },
+  {
+   "what": "고체력 면제 임계",
+   "where": "passive_line.rs:1154 (19879)",
+   "value": 70,
+   "effect": "hp_ratio 가 이 값 초과면 타워없음·라인페이즈 위험 검사를 건너뜀. 내리면 더 낮은 체력만 검사"
+  },
+  {
+   "what": "라인 페이즈 위험 검사 HP 임계",
+   "where": "passive_line.rs:1171 (20012)",
+   "value": 51,
+   "effect": "올리면 라인 페이즈 중 적 수 우세·킬각 검사가 더 자주 발동(귀환 증가)"
+  },
+  {
+   "what": "라인 페이즈 종료 여유",
+   "where": "player.rs:704 is_line_phase (20008)",
+   "value": 30,
+   "effect": "에픽 첫 스폰 30초 전까지를 라인 페이즈로 봄. 올리면 라인 페이즈가 일찍 끝남"
+  },
+  {
+   "what": "위협 거리(프론트 미니언 기준)",
+   "where": "passive_line.rs:1174·1180·1202·1125·1146 (22500000001/22500000000)",
+   "value": 150000,
+   "effect": "제곱비교. 올리면 더 먼 적/아군까지 near 집계에 포함"
+  },
+  {
+   "what": "쌍둥이 타워 근접 거리",
+   "where": "passive_line.rs:1157·1145 (62500000001)",
+   "value": 250000,
+   "effect": "제곱비교. 라인 타워가 없을 때 프론트 미니언이 쌍둥이 타워 이 거리 안이면 즉시 귀환"
+  },
+  {
+   "what": "적 타워 표적중 귀환 HP 임계",
+   "where": "passive_line.rs:1256·1261 (20670·20676)",
+   "value": 31,
+   "effect": "올리면 적 타워 근처에서 더 높은 체력에서 귀환"
+  },
+  {
+   "what": "귀환 확정 점수",
+   "where": "passive_line.rs:1447 (21122)",
+   "value": 49,
+   "effect": "score > 49 → 귀환. 내리면 귀환이 잦아짐"
+  },
+  {
+   "what": "에픽 생존 시 귀환 HP 임계",
+   "where": "passive_line.rs:1439 (21084)",
+   "value": 61,
+   "effect": "에픽이 살아있으면 hp_ratio<61 로 귀환. 내리면 에픽 국면 귀환 감소"
+  },
+  {
+   "what": "무조건 귀환 HP 임계",
+   "where": "passive_line.rs:1439 (21086)",
+   "value": 11,
+   "effect": "hp_ratio<11 이면 점수 무관 귀환"
+  },
+  {
+   "what": "라인 리드 페널티",
+   "where": "passive_line.rs:1422 (21043)",
+   "value": "-10 / -5",
+   "effect": "적 리드 −10, 리드 없음 −5, 아군 리드 0. 절댓값 키우면 리드 열세에서 귀환 억제"
+  },
+  {
+   "what": "아이템 티어 점수",
+   "where": "passive_line.rs:1396~1400 (21018~21039)",
+   "value": "4→100, 3→70, 2→60, 그외 30, 무아이템&구매가능 5",
+   "effect": "업그레이드 가능 아이템 티어가 높을수록 귀환 점수 증가"
+  },
+  {
+   "what": "heal_score 표",
+   "where": "passive_line.rs:1293~1392 (20857~20957)",
+   "value": "0/60/70/80 (hp 임계 21/31/41/51/60/70/80)",
+   "effect": "힐 보유·정글 여부·수 우세에 따른 귀환 점수. 표 값을 올리면 그 상황에서 귀환 증가"
+  }
+ ],
+ "unknown": [
+  "line_strategy(L1276) 의 열거형 이름·값: DI 가 i8 poison 으로만 남기고 비교 %702(position==Jungle) 만 생존 — 값 표기는 재료 부재(IR 상수접힘). 동작은 확정(정글이면 한 갈래, 아니면 다른 갈래)",
+  "L1392~1405 item_score 의 소스 분기 순서(can_buy.is_none 을 먼저 보는지 upgrade 를 먼저 보는지): IR 은 %775(L1392)→%127(L1392/1394) 순이나 column 없음 → 표기 불가. 결과 표는 4조합 전부 확정",
+  "buy_item 반환 {i64,i64} 의 .1(페이로드) 의미 — H 범위에서 .0==1 (Some) 만 씀. upgrade_item sret 24B 의 +8 바이트 의미 — 미사용(+0 태그·+0x10 idx 만)",
+  "expected_heal_target/expected_damage_target 의 4번째·6번째 인자 @anon.6(정적 상수: drop_glue<Entity> fn-ptr + 헤더 = 빈 bumpalo Vec<&Entity> 로 추정) — 시그니처 의미는 game_core 경계라 미명세",
+  "get_game_mode()(vtable+0x40) 반환 {i64,ptr} 의 .0 의미: as_moba(L231) 가 `.0 != 0 || .1 == null` 이면 None 으로 봄 — 열거형 이름은 미탐색(game_core)",
+  "L1140 `!(ty==Champion && action_state==Return)` 이 소스에서 return_time().is_none() 인지 직접 매치인지 — 외연 동일, 표기 불가",
+  "NA(version<2 전용) 표기: %112=true(분수 안·만피·version≤1) 경로와 %130 블록(L1087 웨이브 검사 생략) — reach.py version=2 접힘으로 사장. 명세는 version≥2 기준",
+  "블록 %904(21197~) 는 루트 L222 3줄 + L232 5줄 혼합 — in_recall store 까지만 H, 나머지는 배치 I 가 잇는다. 블록 %2050(24143~) 의 루트 0 2줄도 배치 J 소속"
+ ]
+}

@@ -1,0 +1,53 @@
+{
+ "name": "AgentVerHamster::count_nearby_enemies",
+ "sym": "_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster20count_nearby_enemies",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 830,
+ "ir_file": "m14.ll",
+ "ir_from": 37842,
+ "ir_to": 38171,
+ "aux": [],
+ "one_line": "적 챔피언 5슬롯 중 '최근 시야에 있고 champ 로부터 200000 이내'인 슬롯을 비트마스크(u16, bit i = 적 포지션 i)로 반환",
+ "signature": {
+  "abi_note": "internal fastcc · ArgumentPromotion 적용. 소스 시그니처(tcx sig · lib.rs:830) = fn count_nearby_enemies(champ: &Entity, player: &PlayerState, data: &OperationData) -> u16 (self 없음 · 연관함수). IR 에서는 champ 가 (x,y) 두 i64 로, data 가 (cache, blackboard) 두 포인터로 쪼개져 5 인자가 됐다(data.context 는 미사용이라 탈락). exe 는 레지스터 4 + 스택 1.",
+  "params": [
+   {"i": 1, "name": "champ.x", "type": "i64 (%0)", "role": "소스 arg1 champ:&Entity 의 x(Entity+0x660) — 호출자가 미리 로드해 넘김. IR 속성 없음", "note": "DI: x2/other = %0 (entity.rs:2157 distance_sq 인라인)"},
+   {"i": 1, "name": "champ.y", "type": "i64 (%1)", "role": "소스 arg1 champ:&Entity 의 y(Entity+0x668). IR 속성 없음", "note": ""},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B) (%2)", "role": "readonly · noalias · dereferenceable(2528). +0x930 info.team 만 읽음", "note": "DI !50899 player"},
+   {"i": 3, "name": "data.cache", "type": "&AbstractGameWithCache(8840B) (%3)", "role": "readonly · captures(address_is_null) — 소스 arg3 data:&OperationData 의 +0x0 cache 필드. +0x0/+0x8 game(dyn AbstractGame 팻포인터) · +0x1e0 player_champion 읽음", "note": "null 검사는 llvm.assume(nonnull) 뿐"},
+   {"i": 3, "name": "data.blackboard", "type": "&[Blackboard;2] (%4)", "role": "IR 속성 없음 · 동작상 읽기만(is_recent_visible 의 &self 로 넘김). 소스 arg3 data 의 +0x10 blackboard 필드", "note": "원소 stride 744B(Blackboard 크기) 로 인덱싱"}
+  ],
+  "returns": "u16 (IR range(i16 0, 32)) — 비트마스크. bit i(i=0..4) = 적팀 player_champion[enemy_team][i] 가 Some 이고 blackboard[enemy_team].is_recent_visible(game, player, c) 이며 dist_sq(c, champ) < 40000000001(=200000²+1, 즉 ≤200000) 일 때 1. 변수명은 count 지만 값은 개수가 아니라 슬롯 마스크(bit0=zext, 이후 `or 2/4/8/16`). 최대 31. 소비처 = update_state(m14.ll:34843) · update_small_action(m14.ll:37822) → AgentVerHamster.last_eval_nearby_enemies(u16, +0x29c8) 비교용"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "enemy_team = 1 - team (L832 · `sub i64 1, %7` · 결과가 0..1 아니면 panic_bounds_check)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "dyn AbstractGame 팻포인터 앞절반 — is_recent_visible 인자로 전달(L834)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "팻포인터 뒷절반(AbstractGame vtable 816B) — is_recent_visible 인자로 전달"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[enemy_team][0..5]", "note": "[[Option<&Entity>;5];2] · 팀 stride 40B · 슬롯 stride 8B. null=None. 5 슬롯 완전 언롤(L833)"},
+  {"base": "Entity", "offset": "0x660", "name": "x (적 챔피언)", "note": "distance_sq 인라인(entity.rs:2158)"},
+  {"base": "Entity", "offset": "0x668", "name": "y (적 챔피언)", "note": ""},
+  {"base": "[Blackboard;2]", "offset": "0x0", "name": "blackboard[enemy_team]", "note": "stride 744B 로 enemy_team 인덱싱 후 is_recent_visible 의 &self 로 전달(값은 직접 안 읽음)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 40000000001, "src_line": 835, "meaning": "200000² + 1 — 제곱거리 `ult` 비교 ⟹ dist ≤ 200000(=6.25셀) 이면 근접. 스칼라 200000 은 본문에 없음(제곱상수만)"},
+  {"value": 1, "src_line": 832, "meaning": "enemy_team = 1 - player.info.team (2팀 반전)"},
+  {"value": 2, "src_line": 832, "meaning": "팀 인덱스 bounds(ult 2) · 동시에 슬롯1 마스크 비트값(or 2)"},
+  {"value": 4, "src_line": 835, "meaning": "슬롯2 마스크 비트(1<<2)"},
+  {"value": 8, "src_line": 835, "meaning": "슬롯3 마스크 비트(1<<3)"},
+  {"value": 16, "src_line": 835, "meaning": "슬롯4 마스크 비트(1<<4)"}
+ ],
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn count_nearby_enemies(champ, player, data) -> u16   // lib.rs:830~841\n  count: u16 = 0                                        // L831\n  enemy_team = 1 - player.info.team                     // L832 (+0x930). 0..1 아니면 panic_bounds_check(idx, len=2) — 도달 불가(팀은 항상 0/1)\n  champs = &data.cache.player_champion[enemy_team]      // +0x1e0 + 40*enemy_team, [Option<&Entity>;5]\n  for i in 0..5:                                        // L833 — 5회 완전 언롤(블록 %134/%25/%53/%81/%109)\n    c = champs[i]; if c.is_none(): continue             // null 검사\n    if !data.blackboard[enemy_team].is_recent_visible(data.cache.game, player, c): continue   // L834 (blackboard stride 744)\n    dx = |c.x - champ.x|; dy = |c.y - champ.y|         // L835 → entity.rs:2158 distance_sq 인라인(abs_diff → common vec :3147)\n    if dx*dx + dy*dy < 40000000001:                     // = dist ≤ 200000\n      count |= 1 << i                                   // 슬롯0: zext(i1) · 슬롯1: or disjoint 2 · 슬롯2~4: or 4/8/16\n  return count                                          // L841 · range 0..31\n\n★의미: 반환값은 '개수'가 아니라 '어느 적 포지션이 근접·가시인가' 5비트 마스크다(popcount 하면 개수). `|=` 와 `+=` 는 비트가 서로소라 외연 동일 → 표기 불가(IR 는 or). 호출자 두 곳(update_state · update_small_action)은 이 값을 self.last_eval_nearby_enemies 와 비교하는 데 쓴다(그쪽 명세 참조).",
+ "knobs": [
+  {"what": "근접 적 판정 반경(제곱)", "where": "lib.rs:835 · m14.ll:37935/37995/38055/38115/38168", "value": 40000000001, "effect": "올리면 더 먼 적도 '근처 적'으로 집계돼 재평가 트리거(nearby 변화)가 잦아짐 · 내리면 둔감해짐. 5 언롤 사이트 전부 같은 값을 바꿔야 함"}
+ ],
+ "unknown": [
+  "L835 의 마스크 갱신이 소스에서 `count |= 1 << i` 인지 `count += 1 << i` 인지 — 비트 서로소라 외연 동일, IR 는 or(슬롯1 만 disjoint 플래그). 표기 불가(동작은 확정)",
+  "is_recent_visible 내부(g07.ll:157005 · game_core 경계) — 시그니처만: (self:&Blackboard, game:&dyn AbstractGame, viewer:&PlayerState, target:&Entity)->bool · 본문 관찰: vtable+248 슬롯(팀,핸들)→true 이면 즉시 true / 아니면 vtable+336 슬롯(핸들)→플레이어 없으면 false / 있으면 blackboard+0x1e0[target.position(+0x9c0)] + 120 ≥ 현재 tick(vtable+40). 즉 '지금 보이거나 최근 120틱(2초) 내 보임'. 여기까지만 관찰, 명세 대상 아님",
+  "enumerate 인덱스 i 가 exe 에서 실제로 포지션 순(0=Top…)인지는 player_champion 배열 채움 규칙(game_core) 소관 — 이 함수는 배열 인덱스 그대로 비트에 쓴다"
+ ]
+}

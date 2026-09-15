@@ -1,0 +1,58 @@
+{
+ "name": "AgentVerHamster::upgrade_item",
+ "sym": "_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster12upgrade_item",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 1193,
+ "ir_file": "m14.ll",
+ "ir_from": 35109,
+ "ir_to": 35234,
+ "aux": [],
+ "one_line": "아이템 승급 판단 진입점: 아이템빌드가 있으면 v26 경로(보유 슬롯→item_v26→tier≠0 만 채택해 (인벤 인덱스, 아이템)), 없으면 레거시 game_ai::upgrade_item 위임",
+ "signature": {
+  "abi_note": "pub(AiAgent 트레이트 lib.rs:440 이 위임 · 실체 lib.rs:1193). sret([24 x i8]) %0 + 6 인자(소스 5 + &dyn AbstractGame 분할). 반환 Option<(usize,usize)> 를 sret 로.",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut Option<(usize,usize)> 24B (%0)", "role": "dead_on_unwind · writeonly · dereferenceable(24). 쓰기 표면: +0 태그(0/1) 전 경로 · +8/+16 은 Some 경로(L1203)만", "note": ""},
+   {"i": 1, "name": "self", "type": "&mut AgentVerHamster(10704B) (%1)", "role": "readonly · noalias · captures(none) — IR 속성이 readonly 라 **쓰기 0건 확정**. +0x2910 version 을 load 하나 레거시 호출엔 poison(죽은 load)", "note": "DI self = %1"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B) (%2)", "role": "IR 속성 없음. 직접 gen_range 0회 — item_v26(L1198) 또는 레거시 upgrade_item(L1205) 에 전달", "note": "DI rnd = %2"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B) (%3)", "role": "readonly. +0x4f0 info.item_builds.len 직접 읽음, 나머지는 콜리 전달", "note": "DI player = %3"},
+   {"i": 4, "name": "game.data_ptr", "type": "*const dyn AbstractGame (%4)", "role": "readnone · nonnull · captures(none) — 미사용(레거시 호출에 poison)", "note": "tcx sig arg4 = &dyn AbstractGame"},
+   {"i": 4, "name": "game.vtable_ptr", "type": "AbstractGame vtable ptr (%5)", "role": "readonly · noalias · captures(none) — 미사용(poison)", "note": ""},
+   {"i": 5, "name": "context", "type": "&GameContext(64B) (%6)", "role": "readonly · dereferenceable(64). +0x30 item_list 읽음 · 레거시엔 통째 전달", "note": "DI context = %6"}
+  ],
+  "returns": "sret 24B Option<(usize,usize)>: +0 태그 i64(0=None · 1=Some) · +8 = inventory_index(승급할 인벤 슬롯, item_v26_slot 의 Some 페이로드) · +16 = item(item_list 인덱스 = 승급 결과 아이템). 살아있는 바이트: None 경로(L1195/L1196/L1198/L1200 · 4곳)는 +0 만 store 하고 +8..+24 는 미기록(호출자 alloca 잔값) · Some 경로(L1203)만 24B 전부. 레거시 경로(L1205)는 콜리가 sret 를 그대로 채움. 튜플 순서 (inventory_index, item) 는 store 위치(+8 = %29 inventory_index · +16 = %35 item)와 DI 이름으로 확정(usize 2개라 재배치 없음)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x4f0", "name": "info.item_builds.len", "note": "L1194 (gep 1264) ==0 → 레거시. assume(<2^60)"},
+  {"base": "AgentVerHamster", "offset": "0x2910", "name": "version", "note": "L1205 (gep 10512) 죽은 load — 레거시 upgrade_item 첫 인자는 poison"},
+  {"base": "GameContext", "offset": "0x30", "name": "item_list", "note": "L1195 (gep 48)"},
+  {"base": "Vec<Box<dyn ItemInfo>>", "offset": "0x8", "name": "item_list.ptr", "note": "L1195"},
+  {"base": "Vec<Box<dyn ItemInfo>>", "offset": "0x10", "name": "item_list.len", "note": "L1195 · L1199 색인 bounds(panic_bounds_check)"},
+  {"base": "ItemInfo vtable", "offset": "0x70", "name": "tier", "note": "L1199 fn(&self)->usize · ==0 이면 승급 아님 → None"}
+ ],
+ "writes": [
+  {"base": "sret Option<(usize,usize)>", "offset": "0x0", "name": "tag", "value": "0 (L1195 외부 None · L1196 inventory None · L1198 item_v26 None · L1200 tier==0) / 1 (L1203)", "note": "None 4 사이트 = m14.ll:35176/35190/35202/35221 · Some = 35229"},
+  {"base": "sret Option<(usize,usize)>", "offset": "0x8", "name": ".0 inventory_index", "value": "%29 = item_v26_slot sret+16 (Some 페이로드)", "note": "L1203 · m14.ll:35226 · Some 경로만"},
+  {"base": "sret Option<(usize,usize)>", "offset": "0x10", "name": ".1 item", "value": "%35 = item_v26 반환 payload", "note": "L1203 · m14.ll:35228 · Some 경로만"}
+ ],
+ "constants": [
+  {"value": 0, "src_line": 1194, "meaning": "item_builds.len()==0 → 레거시 / None 태그 store / L1199 tier()==0 거부"},
+  {"value": -1, "src_line": 1195, "meaning": "item_v26_slot 외부 None 니치(sret+8==usize::MAX)"},
+  {"value": 1, "src_line": 1198, "meaning": "item_v26 호출 시 inventory_index 태그 Some(상수 1) · L1203 반환 태그 Some"}
+ ],
+ "calls": [
+  "game_ai::upgrade_item",
+  "game_ai::AgentVerHamster::item_v26_slot",
+  "game_ai::AgentVerHamster::item_v26",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn upgrade_item(&mut self, rnd, player, game:&dyn AbstractGame, context) -> Option<(usize,usize)>   // lib.rs:1193~1207\n  // L1194\n  if player.info.item_builds.is_empty() {                          // +0x4f0 == 0\n      // L1205 — 레거시 위임(sret 그대로 전달)\n      return game_ai::upgrade_item(self.version, rnd, player, game, context)   // lib.rs:1603 · version/game poison\n  }\n  // L1195\n  item_list = &context.item_list                                    // +0x30\n  (build_slot, inventory_index) = Self::item_v26_slot(player, item_list.as_slice())?   // 외부 None(+8==usize::MAX) → None\n  // L1196\n  let Some(inv) = inventory_index else { return None }             // 태그 0 → None: 슬롯 아이템을 아직 안 들고 있음 = 구매 소관(buy_item)\n  // L1198\n  item = self.item_v26(rnd, player, context, build_slot, Some(inv))?   // tag 상수 1 · payload = inv\n  // L1199\n  if item_list[item].tier() == 0 { return None }                   // L1200 — tier 0 은 승급 결과가 아님(vtable+0x70 · 색인 bounds 패닉)\n  // L1203\n  Some((inv, item))                                                 // +8 = inv · +16 = item · +0 = 1\n\n★buy_item 과의 쌍: 같은 item_v26_slot → item_v26 파이프라인을 (inventory_index Some 필수, tier≠0 채택) 으로 뒤집은 것. 결과 (인벤 슬롯, 새 아이템) 을 게임이 '그 슬롯을 그 아이템으로 교체' 로 소비한다고 읽힘(소비처 = game_core AiAgent 호출부 · 미확인).",
+ "knobs": [
+  {"what": "레거시/v26 경로 스위치", "where": "lib.rs:1194 · m14.ll:35127", "value": "item_builds.len()==0", "effect": "빌드 목록이 비면 레거시 upgrade_item(lib.rs:1603) 만 돈다 — buy_item 과 같은 데이터 스위치"},
+  {"what": "승급 채택 tier 조건", "where": "lib.rs:1199 · m14.ll:35213", "value": "tier()!=0", "effect": "tier 0 도 허용하면 '기본템으로의 승급' 이 반환돼 buy_item 과 채택이 겹침"}
+ ],
+ "unknown": [
+  "item_v26_slot(lib.rs:1125 · m14.ll:35237) 내부 — 계약만: fn(&PlayerState, &[Box<dyn ItemInfo>]) -> Option<(usize, Option<usize>)> · sret 24B(+0 build_slot · +8 내부 태그/외부 니치 usize::MAX · +16 inventory_index)",
+  "game_ai::upgrade_item(lib.rs:1603 · m14.ll:6620 · 레거시) 내부 — 계약만: fn(version, rnd, player, game, context) -> Option<(usize,usize)> sret 24B · version/game 미사용(poison 전달)",
+  "반환 튜플의 소비처(game_core 쪽 AiAgent::upgrade_item 호출부)가 .0 을 인벤 슬롯, .1 을 item_list 인덱스로 쓰는지는 game_core 경계 — 이 함수의 store 위치·DI 이름에서만 확정"
+ ]
+}

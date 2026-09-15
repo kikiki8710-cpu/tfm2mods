@@ -1,0 +1,80 @@
+{
+ "name": "AttackNexusSubPlan::score",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12attack_nexusNtB2_18AttackNexusSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\attack_nexus.rs",
+ "src_line": 158,
+ "ir_file": "m14.ll",
+ "ir_from": 20984,
+ "ir_to": 21208,
+ "aux": [],
+ "one_line": "AttackNexus 서브플랜의 후보 액션 점수: interaction_score + Attack/Skill/Skill2 는 calculate_action_score(Push) 가산(Skill/Skill2 는 대상이 타워면 +3), 대상 소실=-99999, Around 는 0(조회만), 그 외 0",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&AttackNexusSubPlan(0B, ZST)", "role": "IR 속성 nonnull readonly captures(none) (dereferenceable 없음 = 0B). 본문 접근 0"},
+   {"i": 2, "name": "version", "type": "usize", "role": "분기 없음 — interaction_score / calculate_action_score 에 전달만"},
+   {"i": 3, "name": "parameter", "type": "&ScoreParameter(5384B)", "role": "IR 속성 readonly. 직접 읽기 0"},
+   {"i": 4, "name": "rnd", "type": "&mut StdRng(320B, align16)", "role": "IR 속성 없음(readonly 아님) · 본문 gen_range 0 — interaction_score → calculate_action_score(최대 1회) 순으로 전달"},
+   {"i": 5, "name": "player", "type": "&PlayerState(2528B)", "role": "IR 속성 readonly. +0x930 / +0x9c0"},
+   {"i": 6, "name": "data", "type": "&OperationData(24B)", "role": "IR 속성 readonly. +0x0 cache 만"},
+   {"i": 7, "name": "action", "type": "&SmallActionPlay(184B)", "role": "IR 속성 readonly. +0xb1 태그 · +0x8 target"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData(224B)", "role": "IR 속성 없음(readonly 아님) · 직접 쓰기 0 — interaction_score / calculate_action_score 에 전달"}
+  ],
+  "returns": "i64 (noundef) — base(interaction_score) + arm 가산 (L164 · L213). arm: Attack=calc / Skill·Skill2=calc+tower_bonus / 대상 소실=-99999 / Around=0 / 그 외=0",
+  "tls": "없음 — LocalKey::with / @anon…call_once fn-포인터 참조 0 (20984~21208 전수)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L159 · <2 bounds check"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag(i32)", "note": "L159(player.rs:581)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L159"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "L169/177/191/201"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "vtable+0x1f0(=496) get_entity_by_id 슬롯 4곳"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5]", "note": "L159 · null → unwrap_failed"},
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "tag(u8)", "note": "L164(small_action.rs:309 get_action) · idx 2/3/10 → Around arm, 12/13/14 → Attack/Skill/Skill2, 나머지 0"},
+  {"base": "SmallActionPlay", "offset": "0x8", "name": "target / target_id", "note": "Around 계열(+0x8 target) · Attack(cast.rs:94)/Skill(:160)/Skill2(:222)"},
+  {"base": "Entity(champ)", "offset": "0x4c0", "name": "attack_effect@tag(-1=None)", "note": "L170(option.rs:742) · None → unwrap_failed"},
+  {"base": "Entity(champ)", "offset": "0x490", "name": "attack_effect@Some.0", "note": "L171"},
+  {"base": "Entity(champ)", "offset": "0x570", "name": "attack (Box<dyn Action>)", "note": "L171(entity.rs:1494)"},
+  {"base": "Entity(champ)", "offset": "0x4f8", "name": "skill_effect@tag", "note": "L184"},
+  {"base": "Entity(champ)", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "L185"},
+  {"base": "Entity(champ)", "offset": "0x580", "name": "skill (Box<dyn Action>)", "note": "L185(entity.rs:1665)"},
+  {"base": "Entity(champ)", "offset": "0x5c8", "name": "level", "note": "L194(entity.rs:1693) · level>2 아니면 unwrap_failed"},
+  {"base": "Entity(champ)", "offset": "0x530", "name": "skill2_effect@tag", "note": "L194"},
+  {"base": "Entity(champ)", "offset": "0x500", "name": "skill2_effect@Some.0", "note": "L194(entity.rs:1694)"},
+  {"base": "Entity(champ)", "offset": "0x590", "name": "skill2 (Box<dyn Action>)", "note": "L195(entity.rs:1670)"},
+  {"base": "Entity(t)", "offset": "0x68", "name": "ty@tag (EntityType)", "note": "L178/L193(entity.rs:1386 is_tower 인라인) · ==2(Tower) → tower_bonus 3. ★Attack arm 에는 이 검사가 없음"},
+  {"base": "AbstractGame vtable", "offset": "0x1f0", "name": "get_entity_by_id(&self, usize)->Option<&Entity>", "note": "간접 호출 4곳(Around arm 포함) — 심볼 호출 아님"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 10, "src_line": 164, "meaning": "SmallActionPlay 니치 구멍 assume(tag≠10). 판정 아님"},
+  {"value": 3, "src_line": 164, "meaning": "태그→idx 환산(tag-3). 판정 아님. ★같은 값 3 이 L178/L193 tower_bonus 로도 쓰임(별 항목)"},
+  {"value": 7, "src_line": 164, "meaning": "tag≤2 → idx 7(AroundPosition). 판정 아님"},
+  {"value": -1, "src_line": 170, "meaning": "Option<Effect> None 니치 — attack/skill/skill2_effect unwrap 검사"},
+  {"value": 2, "src_line": 171, "meaning": "MinionActionType::Push(=2) — calculate_action_score 10번째 인자(i8 2) 세 arm 공통. DI 지역상수 action_type=i8 2. (LineSafe/LineWait 는 Pull=0)"},
+  {"value": -99999, "src_line": 169, "meaning": "Attack/Skill/Skill2 의 target 이 안 풀리면 가산 -99999 (base 는 더해짐)"},
+  {"value": 2, "src_line": 178, "meaning": "EntityType::Tower 메모리태그 — t.is_tower()(entity.rs:1386) ⟹ tower_bonus. L193 도 동일"},
+  {"value": 3, "src_line": 178, "meaning": "tower_bonus: Skill/Skill2 대상이 타워면 +3, 아니면 0 (select). L193 동일. ★Attack arm 은 미적용"},
+  {"value": 2, "src_line": 194, "meaning": "champ.level > 2 여야 skill2_effect Some(entity.rs:1693) — 아니면 unwrap_failed"},
+  {"value": 0, "src_line": 201, "meaning": "Around arm 값 0 — get_entity_by_id 를 호출하지만 결과(t)를 읽지 않고 0 (Some/None 양쪽 0)"}
+ ],
+ "calls": [
+  "game_ai::action_score::interaction_score",
+  "game_ai::action_score::calculate_action_score",
+  "game_core::simulation::entity::Entity::attack_speed_mult",
+  "game_core::simulation::entity::Entity::cooldown_reduce",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn score(&self, version, parameter, rnd, player, data, action, debug) -> i64   // attack_nexus.rs:158 · self=ZST\nlet champ = data.cache.player_champion[player.info.team][player.info.position as usize].unwrap();   // L159\nlet base = interaction_score(version, rnd, player, data, parameter, action, debug);   // L160\nlet action_type = MinionActionType::Push;   // DI 상수 i8 2\nlet add = match action.get_action() {   // L164 · SmallActionPlay 태그 switch\n    Attack{target_id} => if let Some(t) = data.cache.game.get_entity_by_id(target_id) /*L169*/ {\n            let effect = champ.attack_effect.as_ref().unwrap();   // L170\n            calculate_action_score(version, rnd, player, data, parameter, &champ.attack, effect, champ.attack_speed_mult(), t, Push, debug)   // L171 · ★tower_bonus 없음\n        } else { -99999 },\n    Skill{target_id} => if let Some(t) = get_entity_by_id(target_id) /*L177*/ {\n            let tower_bonus = if t.is_tower() /*L178 · ty@tag==2*/ { 3 } else { 0 };\n            let effect = champ.skill_effect.as_ref().unwrap();   // L184\n            calculate_action_score(version, rnd, player, data, parameter, &champ.skill, effect, champ.cooldown_reduce(false), t, Push, debug) + tower_bonus   // L185\n        } else { -99999 },\n    Skill2{target_id} => if let Some(t) = get_entity_by_id(target_id) /*L191*/ {\n            let tower_bonus = if t.is_tower() /*L193*/ { 3 } else { 0 };\n            let effect = (if champ.level > 2 { champ.skill2_effect.as_ref() } else { None }).unwrap();   // L194 entity.rs:1693\n            calculate_action_score(version, rnd, player, data, parameter, &champ.skill2, effect, champ.cooldown_reduce(false), t, Push, debug) + tower_bonus   // L195\n        } else { -99999 },\n    Around{target_id} /*Play idx 2/3/10*/ => { let _ = get_entity_by_id(target_id) /*L201 · 호출은 남음(간접 호출이라 제거 불가), 결과 미사용*/; 0 }   // L201~L210 → 0\n    _ => 0,\n};\nreturn base + add;   // L164 합산 · L213 반환\n\n★형제 대조(복붙 의심): LineSafe/LineWait 와 골격 동일(interaction_score → get_action switch → calculate_action_score) 이나 ①evaluate_action(ActionContext) 신경로 없음 ②line_action_economy_adjustment 없음 ③MinionActionType Push(2) vs Pull(0) ④tower_bonus 3 이 Skill/Skill2 에만 있고 Attack 에는 없음(비대칭 — 의도인지 누락인지 소스 부재로 판정 불가) ⑤Around arm 이 LineSafe 의 아군구조물 50/100 가산 대신 0 (get_entity_by_id 호출 잔존 = 본문이 t 를 안 읽는 형태로 남은 복붙 흔적 의심 · L201~L210 줄길이 71/36/14/19/14/12/17/12/10/8 ↔ LineSafe L142·L157~L164 의 71/…/14/19/14/12/17/12/10/8 과 꼬리 일치).\nrnd gen_range 사이트: 0(전달만: interaction_score → calculate_action_score).\nversion 분기 0 · debug 직접 쓰기 0 · self 접근 0.",
+ "knobs": [
+  {"what": "타워 대상 스킬 가산", "where": "attack_nexus.rs:178 (Skill) · :193 (Skill2)", "value": 3, "effect": "올리면 넥서스 공략 중 타워에 스킬을 쓰는 후보가 평타/다른 대상보다 우선. Attack arm 엔 적용되지 않으므로 평타 타워 딜엔 영향 없음"},
+  {"what": "미니언 액션 타입", "where": "attack_nexus.rs:171/185/195", "value": 2, "effect": "Push 고정 → calculate_action_score 내부 미니언 관련 분기가 푸시 기준. Pull(0)/Normal(1)로 바꾸면 라인 관리 성향이 바뀜"},
+  {"what": "대상 소실 페널티", "where": "attack_nexus.rs:169/177/191", "value": -99999, "effect": "완화하면 사라진 대상 후보가 남음"}
+ ],
+ "unknown": [
+  "Around arm(L201~L210) 본문: get_entity_by_id 호출 뒤 t 를 전혀 읽지 않고 0 — 소스가 `if let Some(t) = … { 0 } else { 0 }` 인지, t 를 읽는 식이 상수 접힘으로 사라진 것인지 표기 불가(줄길이 L202=36B·한글0 만 관측). 동작 확정: 값 0.",
+  "Attack arm 에 tower_bonus 가 없는 것이 의도인지 — 소스 부재. IR 상 L169~L171 에 ty@tag 읽기 없음(동작 확정).",
+  "entity.rs:1386 is_tower 가 `ty@tag==2` 만 보는지(추가 조건 없음) — IR 상 그 비교 하나뿐(동작 확정, 이름은 dloc 로 확인).",
+  "AbstractGame vtable+0x1f0 get_entity_by_id 는 ExpectedGame 정적 vtable 기준 — 런타임 구현체 미확정."
+ ]
+}

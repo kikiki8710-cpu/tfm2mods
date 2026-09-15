@@ -1,0 +1,74 @@
+{
+ "name": "RecallSubPlan::score",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6recallNtB2_13RecallSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\recall.rs",
+ "src_line": 42,
+ "ir_file": "m02.ll",
+ "ir_from": 40317,
+ "ir_to": 40506,
+ "one_line": "귀환 서브플랜 액션 점수: interaction_score 를 기저로 도주/귀환류 +50, 그 외는 양수면 CC 스킬만 +50·나머지 /3, 음수면 ×3",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&RecallSubPlan (0B ZST)", "note": "IR `readonly nonnull` · 본문에서 읽지 않음"},
+   {"i": 2, "name": "version", "type": "usize", "note": "본 함수 분기 없음 · interaction_score 1번 인자로 통과(m02.ll:40326)"},
+   {"i": 3, "name": "parameter", "type": "&ScoreParameter (5384B)", "note": "IR readonly · 본문 직접 읽기 없음 · interaction_score 5번 인자로 통과"},
+   {"i": 4, "name": "rnd", "type": "&mut StdRng (320B)", "note": "IR 속성 없음(=&mut). 본 함수 gen_range 사이트 0 · interaction_score 2번 인자로 통과만"},
+   {"i": 5, "name": "player", "type": "&PlayerState (2528B)", "note": "IR readonly"},
+   {"i": 6, "name": "data", "type": "&OperationData (24B)", "note": "IR readonly"},
+   {"i": 7, "name": "action", "type": "&SmallActionPlay (184B)", "note": "IR readonly · 태그 +0xb1 만 직접 읽음"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData (224B)", "note": "IR 속성 없음(=&mut). 본 함수 직접 store 0 · interaction_score 7번 인자로 통과만"}
+  ],
+  "returns": "i64 — define 에 range 속성 없음(`noundef i64`). 값 = base+50 / base/3(udiv · base>0 보장) / base*3(base<=0). 큰 값이 좋은 후보(SubPlan 점수 규약 — 본 함수 안에서는 선택하지 않음)",
+  "tls": "없음 — 본문에 `@anon.* = constant ptr @<KEY…call_once>` 참조 0 · LocalKey::with 0 (interaction_score 내부는 콜리 계약 밖)"
+ },
+ "reads": [
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "태그(니치 1B)", "note": "m02.ll:40329~40335 · 논리 idx = tag>2 ? tag-3 : 7(AroundPosition 암묵) · assume(tag!=10)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "player_champion 1차 인덱스 · `<2` 바운드체크 (m02.ll:40372~40378)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 zext · 2차 인덱스 (m02.ll:40383~40385, player.rs:581 인라인)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "m02.ll:40386"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[2][5] Option<&Entity> null=None → unwrap_failed(40434) (m02.ll:40387~40393)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag(casting 니치 i32)", "note": "-1 = None → unwrap_failed(40467) (m02.ll:40439~40442) — Skill 가지"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect.ty (Arc<dyn EffectType> data ptr)", "note": "m02.ll:40445~40449 — Skill 가지"},
+  {"base": "Entity", "offset": "0x4d0", "name": "skill_effect.ty vtable ptr", "note": "vtable+0x10 align 으로 ArcInner 데이터 오프셋 계산(40452~40457) · vtable+0x80 = EffectType::expected_cc_time (g02.ll:1311 정적 vtable 슬롯 순서로 확정) (40458~40460)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "Entity::skill2_effect(entity.rs:1692) 인라인: level>2 면 &skill2_effect 아니면 정적 None(@anon.19 = 48B undef + i32 -1) (m02.ll:40422~40426) — Skill2 가지"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect.ty (Arc data ptr)", "note": "m02.ll:40478 — Skill2 가지 (level>2 일 때)"},
+  {"base": "Entity", "offset": "0x508", "name": "skill2_effect.ty vtable ptr", "note": "m02.ll:40479~40480 · +0x80 = expected_cc_time (40487~40489)"},
+  {"base": "Entity", "offset": "0x530", "name": "skill2_effect@tag(casting 니치 i32)", "note": "선택된 &Option<Effect> +0x30(48) 을 -1 과 비교 → None 이면 unwrap_failed(40496) (m02.ll:40428~40431)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 50, "src_line": 47, "meaning": "RunAway/Recall/AroundRunAway 가산 (m02.ll:40364 `add %9, 50`)"},
+  {"value": 50, "src_line": 53, "meaning": "base>0 이고 Skill/Skill2 의 스킬 효과가 expected_cc_time().is_some() 이면 가산 (m02.ll:40471 `add nuw %9, 50`)"},
+  {"value": 3, "src_line": 55, "meaning": "base>0 · 그 밖의 액션(또는 CC 없는 Skill/Skill2) → base/3 (m02.ll:40500 `udiv %9, 3` · base>0 보장이라 부호 무관)"},
+  {"value": 3, "src_line": 58, "meaning": "base<=0 → base*3 (m02.ll:40368 `mul %9, 3`) — 음수 기저를 3배로 벌린다"},
+  {"value": 0, "src_line": 48, "meaning": "`base > 0` 분기 (m02.ll:40360 icmp sgt)"},
+  {"value": 2, "src_line": 49, "meaning": "player_champion 1차 길이 바운드체크 team<2 (m02.ll:40374)"},
+  {"value": 2, "src_line": 52, "meaning": "Entity::skill2_effect 인라인 `level > 2` — 2레벨 이하면 skill2_effect 를 None 으로 본다(m02.ll:40424, entity.rs:1693)"},
+  {"value": -1, "src_line": 51, "meaning": "Option<Effect> 니치 None 판별값(casting 태그 i32 = -1) (m02.ll:40430, 40441)"},
+  {"value": 128, "src_line": 51, "meaning": "dyn EffectType vtable 슬롯 바이트 오프셋 0x80 = expected_cc_time (drop·size·align·Debug::fmt 뒤 13번째 메서드 — g02.ll:1311 정적 vtable 실측) (m02.ll:40458, 40487)"},
+  {"value": 1, "src_line": 51, "meaning": "expected_cc_time() -> Option<usize> 의 {i64,i64} 첫 워드 == 1 → Some (m02.ll:40462, 40491)"},
+  {"value": 10, "src_line": 46, "meaning": "SmallActionPlay 니치 태그 10(암묵 AroundPosition 자리) 은 절대 안 나옴 → llvm.assume (m02.ll:40331)"},
+  {"value": 7, "src_line": 46, "meaning": "태그 ≤2 이면 논리 idx 7 = AroundPosition(untagged) (m02.ll:40335 select)"},
+  {"value": -3, "src_line": 46, "meaning": "니치 태그 → 논리 idx 변환 `tag-3` (niche_start=3) (m02.ll:40333)"}
+ ],
+ "calls": [
+  "game_ai::action_score::interaction_score",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+ "calls_indirect": ["EffectType::expected_cc_time — Arc<dyn EffectType> vtable+0x80 간접호출(m02.ll:40460, 40489) · 반환 Option<usize>(tcx: type.rs:299)"],
+ "logic": "fn score(&self, version, parameter, rnd, player, data, action, debug) -> i64   [recall.rs:42]\n  base = action_score::interaction_score(version, rnd, player, data, parameter, action, debug)   [L43 · m02.ll:40326]\n  idx = 논리 variant idx(action 태그 +0xb1)                                                        [L46 · 40329~40354]\n  match action {\n    RunAway(0) | Recall(1) | AroundRunAway(5) => return base + 50                                  [L47 · 40364]\n    _ => {                                                                                          [L48]\n      if base > 0 {                                                                                 [L48 · 40360 sgt]\n        champ = data.cache.player_champion[player.info.team][player.info.position].unwrap()         [L49 · 40372~40393 · team<2 바운드체크]\n        match action {\n          Skill(13)  => if champ.skill_effect.as_ref().unwrap().ty.expected_cc_time().is_some()  { base + 50 } else { base / 3 }   [L51 · 40439~40463 → 40471 / 40500]\n          Skill2(14) => if champ.skill2_effect()/*level>2 ? &skill2_effect : &None*/.as_ref().unwrap().ty.expected_cc_time().is_some() { base + 50 } else { base / 3 }   [L52 · 40422~40431, 40478~40492]\n          _ (Around·AroundHide·AroundRegion·Positioning·AroundPosition·AroundPositionBush·AroundBush·LaneMinionPosition·Trace·Attack·Ult·Stop) => base / 3   [L55 · 40500]\n        }\n      } else { base * 3 }                                                                           [L58 · 40368]\n    }\n  }                                                                                                 [L60 ret · 40505]\n\n주의: Ult(15)·Attack(12) 은 CC 검사 없이 base/3. Skill2 가지는 champ.level<=2 이면 정적 None → unwrap 패닉 경로(40496 · 실전에선 Skill2 후보 자체가 안 생기므로 도달 조건은 콜러 쪽). gen_range 사이트 0. self/parameter 직접 읽기 0.",
+ "knobs": [
+  {"what": "도주·귀환류 가산", "where": "recall.rs:47", "value": 50, "effect": "올리면 귀환 서브플랜 중 RunAway/Recall/AroundRunAway 가 다른 후보(스킬·추적 등) 대비 더 잘 뽑힌다"},
+  {"what": "CC 스킬 가산", "where": "recall.rs:53", "value": 50, "effect": "올리면 귀환 중 CC 스킬(expected_cc_time Some) 사용 후보가 귀환 자체와 대등하게 경쟁한다(둘 다 +50) · 내리면 귀환 우선"},
+  {"what": "그 외 액션 감쇠 제수", "where": "recall.rs:55", "value": 3, "effect": "키우면 귀환 중 비-CC 액션(공격·궁·추적·자리잡기)이 더 억제된다"},
+  {"what": "음수 기저 배수", "where": "recall.rs:58", "value": 3, "effect": "키우면 interaction_score 가 음수인 후보가 더 강하게 배제된다"},
+  {"what": "skill2 해금 레벨", "where": "entity.rs:1693 (Entity::skill2_effect · game_core)", "value": 2, "effect": "game_core 쪽 규칙 — 여기서 바꿀 수 없음(참조만)"}
+ ],
+ "unknown": [
+  "interaction_score 내부(정본 r15) — 여기서는 (version,rnd,player,data,parameter,action,debug)->i64 계약만",
+  "recall.rs:51/52 의 `is_some()` 이 소스에서 `.is_some()` 인지 `matches!(…, Some(_))` 인지 — 표기 불가(외연 동일)",
+  "Skill2 가지에서 champ.level<=2 일 때 unwrap 패닉(40496)이 실전에서 도달 가능한지 — 콜러(SmallActionSkill2 후보 생성 조건) 범위 밖 · 미탐색",
+  "expected_cc_time 의 어느 구현체가 꽂히는지 — 런타임 vtable 이라 IR 로 불가(슬롯 이름만 확정)"
+ ]
+}

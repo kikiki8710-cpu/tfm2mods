@@ -1,0 +1,55 @@
+{
+ "name": "cast::SmallActionUlt::is_end",
+ "sym": "_RNvMs5_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_14SmallActionUlt6is_end",
+ "src": "game-ai\\src\\small_action\\cast.rs",
+ "src_line": 289,
+ "ir_file": "m07.ll",
+ "ir_from": 12554,
+ "ir_to": 12654,
+ "aux": [],
+ "one_line": "궁 소액션 종료 판정: 시작 후 5틱 경과 · 이미 시전(is_act) · 대상 엔티티 소멸 · 대상이 내 챔피언 팀 시야에 없음 — 넷 중 하나면 true",
+ "signature": {
+  "abi_note": "define hidden · 5 인자 = 소스 5 인자 그대로(팻포인터 없음) · i1 반환. ★exe 0xe23750 은 2,118B 로 IR 101줄과 크기가 안 맞는 JT tail-jump 디스패처(SmallActionPlay::is_end 류 vtable 디스패치 진입부) — 이 명세는 IR define 본문 기준이고 exe 진입부 대조는 별도(#150 부류 가능 · ev1 전 진입부 확인 필요).",
+  "params": [
+   {"i": 1, "name": "self", "type": "&SmallActionUlt(24B) (%0)", "role": "readonly · noalias · captures(none). +0x0 start_tick · +0x8 target · +0x10 is_act 읽음", "note": "DI self = %0"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng(320B) (%1)", "role": "readnone · captures(none) — 미사용(gen_range 0회)", "note": "DI _rnd"},
+   {"i": 3, "name": "_version", "type": "usize (%2)", "role": "noundef · 미사용(분기 없음)", "note": "DI _version"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B) (%3)", "role": "readonly · captures(none). +0x930 info.team · +0x9c0 info.position 읽음(내 챔피언 조회용)", "note": "DI player = %3"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B) (%4)", "role": "readonly · captures(none). +0x0 cache 만 읽음(context/blackboard 미사용)", "note": "DI data = %4"}
+  ],
+  "returns": "bool(i1) — true = 액션 종료. phi(m07.ll:12652): L291 조건 → true / 대상 없음(get_entity_by_id None) → true / 대상 팀이 Neutral → false / Player 팀이면 target.visible_state[champ.team] != Visible"
+ },
+ "reads": [
+  {"base": "SmallActionUlt", "offset": "0x0", "name": "start_tick", "note": "L291 · +5 후 game.tick() 과 ule 비교"},
+  {"base": "SmallActionUlt", "offset": "0x8", "name": "target", "note": "L292 · get_entity_by_id 인자(엔티티 id)"},
+  {"base": "SmallActionUlt", "offset": "0x10", "name": "is_act", "note": "L291 · bool(i8 trunc) — true 면 즉시 종료"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "dyn AbstractGame 팻포인터 앞절반"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "뒷절반 — +0x28 tick · +0x1f0 get_entity_by_id 슬롯 호출(divtable AbstractGame)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "L293 (gep 480) · [[Option<&Entity>;5];2] 팀 stride 40B · 슬롯 8B · null=None → unwrap_failed 패닉. team 은 ult 2 bounds 패닉"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L293 (gep 2352)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "L293 (gep 2496) i32 태그 → as_index(entity.rs:581) zext"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag (champ)", "note": "L294 → player_team(entity.rs:1136): TeamType 태그 0=Player · 1=Neutral(trunc nuw i1)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0 (champ)", "note": "L294 · 내 챔피언 팀 인덱스(ult 2 bounds 패닉)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag (target)", "note": "L294 → is_visible_from(entity.rs:1483) → is_visible(data.rs:122): [VisibleState;2] stride 24B({i64,[2 x i64]}) · 태그 0=Visible/1=Invisible/2=Unknown · !=0 면 안 보임"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 5, "src_line": 291, "meaning": "start_tick + 5 <= game.tick() — 궁 액션 수명 5틱(60tps 기준 약 0.083초) 지나면 종료"},
+  {"value": 2, "src_line": 293, "meaning": "player_champion 팀 축 bounds(ult 2) 및 visible_state 팀 축 bounds(entity.rs:1483)"},
+  {"value": 0, "src_line": 294, "meaning": "VisibleState 태그 0 = Visible — `!= 0` 이면 시야 밖"}
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+ "logic": "fn is_end(&self, _rnd, _version, player, data) -> bool   // cast.rs:289~296\n  game = data.cache.game                                           // OperationData+0x0 → cache+0x0/+0x8 팻포인터\n  // L291 — tick() 가상호출이 무조건 먼저 실행되므로 소스 순서 = (틱 조건) || is_act\n  if self.start_tick + 5 <= game.tick() || self.is_act { return true }   // tick = vtable+0x28 · select(%15, true, is_act)\n  // L292\n  game.get_entity_by_id(self.target)                               // vtable+0x1f0 → Option<&Entity>(null=None)\n      .is_none_or(|t| {                                            // None → true(대상 소멸 = 종료)\n          // L293\n          champ = data.cache.player_champion[player.info.team][player.info.position.as_index()].unwrap()   // +0x1e0 · team ult 2 아니면 panic_bounds_check · None 이면 unwrap_failed\n          // L294\n          !t.is_visible_from(champ)                                // entity.rs:1482: match champ.player_team() { None(Neutral) => true(보임 취급) → 클로저 false, Some(team) => t.visible_state[team].is_visible() }\n      })\n  // L296\n\n★해석: 클로저 결과 phi = [Neutral → false] [Player → visible_state[team].tag != 0]. 즉 대상이 내 팀 시야에 없으면(Invisible/Unknown) 종료. is_visible_from 이 Neutral 관측자에 대해 true 를 돌려주는 것은 IR 분기 방향에서 확정(태그 1 → 클로저 false).\n★rnd/version 미사용 · 쓰기 0.",
+ "knobs": [
+  {"what": "궁 액션 수명(틱)", "where": "cast.rs:291 · m07.ll:12561", "value": 5, "effect": "올리면 시전 못 한 채 더 오래 궁 액션을 붙들고 있음(재평가 지연) · 내리면 빨리 포기"}
+ ],
+ "unknown": [
+  "L291 의 `||` 좌우가 소스에서 `is_act || tick조건` 순서일 가능성 — IR 은 tick() 가상호출을 무조건 실행하므로 `tick조건 || is_act` 로 판정(가상호출을 조건 앞으로 호이스트할 수 없음). `column` 부재로 문면 확인은 불가",
+  "is_none_or 클로저가 소스에서 `!t.is_visible_from(champ)` 인지 `t.visible_state[..]` 직접 접근인지 — dloc 사슬(entity.rs:1482 is_visible_from → data.rs:122 is_visible)로 is_visible_from 경유 확정, 부정(!)은 phi 극성에서 확정",
+  "exe 0xe23750(2,118B) 진입부의 JT tail-jump 디스패처와 이 IR 본문의 대응(어느 케이스 분기가 이 함수인지) — IR 로만 명세, 진입부 확인은 ev1 단계"
+ ]
+}

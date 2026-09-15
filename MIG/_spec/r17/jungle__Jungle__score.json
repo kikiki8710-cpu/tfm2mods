@@ -1,0 +1,277 @@
+{
+ "name": "JungleSubPlan::score",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6jungleNtB2_13JungleSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\jungle.rs",
+ "src_line": 152,
+ "ir_file": "m02.ll",
+ "ir_from": 39903,
+ "ir_to": 40149,
+ "aux": [],
+ "one_line": "Jungle 서브플랜의 후보 액션 점수: interaction_score 기반 + Attack/Skill/Skill2 는 calculate_jungle_action_score 가산, 대상이 (팀)정글몹이면 최소 1 보장, 대상 소실=-99999, 그 외 액션은 base 그대로",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&JungleSubPlan(16B) — {team:usize@0x0, camp:JungleType@0x8, check_move:bool@0x9}",
+    "role": "IR 속성 readonly captures(none) dereferenceable(16). ★본문 load 0 — self 를 전혀 읽지 않는다(team/camp/check_move 미사용)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "role": "분기 없음 — interaction_score 에만 전달(calculate_jungle_action_score 는 version 인자 자체가 없음)"
+   },
+   {
+    "i": 3,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B)",
+    "role": "IR 속성 readonly. 본문 직접 읽기 0 — 콜리 전달만(calculate_jungle_action_score 쪽은 `_parameter`)"
+   },
+   {
+    "i": 4,
+    "name": "rnd",
+    "type": "&mut StdRng(320B, align16)",
+    "role": "IR 속성 없음(readonly 아님) · 본문 gen_range 0 — interaction_score 에 전달, calculate_jungle_action_score 에도 전달되나 그쪽은 readnone(`_rnd`)"
+   },
+   {
+    "i": 5,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "role": "IR 속성 readonly. +0x930 info.team · +0x9c0 info.position 태그"
+   },
+   {
+    "i": 6,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "role": "IR 속성 readonly. +0x0 cache 만"
+   },
+   {
+    "i": 7,
+    "name": "action",
+    "type": "&SmallActionPlay(184B)",
+    "role": "IR 속성 readonly. +0xb1 태그 · +0x8 target_id(Attack/Skill/Skill2 만)"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "role": "IR 속성 없음(readonly 아님) · 본문 직접 쓰기 0 — interaction_score 에만 전달"
+   }
+  ],
+  "returns": "i64 (noundef) — Attack/Skill/Skill2: base+jungle 점수(대상이 정글몹이면 max(·,1)) / 대상 소실: -99999 (base 미가산!) / 그 외 액션: base 그대로 (L195)",
+  "tls": "없음 — LocalKey::with / @anon…call_once fn-포인터 참조 0 (39903~40149 전수)"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L153 · player_champion[team] · <2 bounds check"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag(i32)",
+   "note": "L153(player.rs:581 인라인)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "L153"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "L158/170/182"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "vtable+0x1f0(=496) get_entity_by_id 슬롯 3곳"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5]",
+   "note": "L153 · null → unwrap_failed"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "tag(u8)",
+   "note": "L156(small_action.rs:309 get_action 인라인) · idx 12/13/14 만 분기, 나머지 → base"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "target_id",
+   "note": "Attack(cast.rs:94)/Skill(:160)/Skill2(:222)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag(-1=None)",
+   "note": "L159(option.rs:742) · None → unwrap_failed"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0",
+   "note": "L159 effect 인자"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x570",
+   "name": "attack (Box<dyn Action>)",
+   "note": "L159(entity.rs:1494) · calculate_jungle_action_score 의 `_action`(콜리 쪽 미사용 이름)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag",
+   "note": "L171"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0",
+   "note": "L171"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x580",
+   "name": "skill (Box<dyn Action>)",
+   "note": "L171(entity.rs:1665)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "L183(entity.rs:1669 Entity::skill2 인라인) · level>2 ? (&skill2, &skill2_effect) : (&empty, &None)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x530",
+   "name": "skill2_effect@tag",
+   "note": "L183 · level>2 경로. ★C3 경고 사유: 본문엔 1328 리터럴이 없고 `select(level>2, champ+1280, @anon.19)` 뒤 `+48` 로 접혀 있음(0x500+0x30=0x530). level≤2 면 @anon.19(정적 None, +48=-1) 를 읽어 항상 unwrap_failed"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0",
+   "note": "L183"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x590",
+   "name": "skill2 (Box<dyn Action>)",
+   "note": "L183 · select(level>2, 0x590, 0x5b0)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x5b0",
+   "name": "empty (Box<dyn Action>)",
+   "note": "L183 · level≤2 대체 액션 — 그 경로는 effect None 으로 먼저 패닉하므로 실질 도달 불가(가드 아님)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "L160/172/184(entity.rs:1378 is_jungle 인라인) · ==4(Jungle)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x98",
+   "name": "ty@Jungle.info.camp_type.0 (usize)",
+   "note": "L160/172/184 · is_jungle 의 두 번째 조건 `< 2` (Jungle+0x28 (usize, JungleType) 의 .0)"
+  },
+  {
+   "base": "AbstractGame vtable",
+   "offset": "0x1f0",
+   "name": "get_entity_by_id(&self, usize)->Option<&Entity>",
+   "note": "간접 호출 3곳 — 심볼 호출 아님"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 10,
+   "src_line": 156,
+   "meaning": "SmallActionPlay 니치 구멍 assume(tag≠10). 판정 아님"
+  },
+  {
+   "value": 3,
+   "src_line": 156,
+   "meaning": "태그→idx 환산(tag-3). 판정 아님"
+  },
+  {
+   "value": 7,
+   "src_line": 156,
+   "meaning": "tag≤2 → idx 7(AroundPosition). 판정 아님"
+  },
+  {
+   "value": -1,
+   "src_line": 159,
+   "meaning": "Option<Effect> None 니치(i32 -1) — attack/skill/skill2_effect unwrap 검사"
+  },
+  {
+   "value": -99999,
+   "src_line": 158,
+   "meaning": "Attack/Skill/Skill2 의 target_id 가 안 풀리면 반환값 자체가 -99999 (★base 를 더하지 않음 — LineSafe/AttackNexus 는 base+(-99999))"
+  },
+  {
+   "value": 4,
+   "src_line": 160,
+   "meaning": "EntityType::Jungle 메모리태그 — t.is_jungle() 첫 조건(entity.rs:1378)"
+  },
+  {
+   "value": 2,
+   "src_line": 160,
+   "meaning": "is_jungle 둘째 조건: t.ty.info.camp_type.0 < 2 (entity.rs:1378 인라인). 별도로 L153 `ult team,2` 는 bounds check, L183 `level > 2` 는 skill2 해금 레벨"
+  },
+  {
+   "value": 1,
+   "src_line": 161,
+   "meaning": "대상이 is_jungle 이면 base = max(score, 1) — llvm.smax(score,1): 정글몹 상대 액션은 최소 1점 보장(음수 억제)"
+  }
+ ],
+ "calls": [
+  "game_ai::action_score::interaction_score",
+  "game_ai::action_score::calculate_jungle_action_score",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "llvm.smax.i64"
+ ],
+ "logic": "fn score(&self, version, parameter, rnd, player, data, action, debug) -> i64   // jungle.rs:152 · self 미사용\nlet champ = data.cache.player_champion[player.info.team][player.info.position as usize].unwrap();   // L153\nlet mut base = interaction_score(version, rnd, player, data, parameter, action, debug);   // L154\nmatch action.get_action() {   // L156 · SmallActionPlay 태그 switch, 12/13/14 만 arm\n    Attack{target_id} => {   // idx 12\n        if let Some(t) = data.cache.game.get_entity_by_id(target_id) {   // L158\n            let score = base + calculate_jungle_action_score(rnd, player, data, parameter, &champ.attack /*+0x570*/, champ.attack_effect.as_ref().unwrap() /*+0x4c0/+0x490*/, t);   // L159\n            if t.is_jungle() /*L160 · ty@tag==4 && ty.info.camp_type.0(+0x98) < 2*/ { base = max(score, 1); /*L161*/ } else { base = score; }\n        } else { return -99999; }   // L158 else — phi 직행, base 미가산\n    }\n    Skill{target_id} => {   // idx 13 · L170~L173 동형: &champ.skill(+0x580) · skill_effect(+0x4f8/+0x4c8)\n        Some(t) → score = base + calculate_jungle_action_score(..., &champ.skill, skill_effect.unwrap(), t) /*L171*/; base = t.is_jungle() ? max(score,1) /*L173*/ : score\n        None → return -99999\n    }\n    Skill2{target_id} => {   // idx 14 · L182~L185\n        Some(t) → let (act, eff) = champ.skill2() /*entity.rs:1669: level(+0x5c8)>2 ? (&skill2 +0x590, &skill2_effect +0x500) : (&empty +0x5b0, &None)*/;\n                  score = base + calculate_jungle_action_score(..., act, eff.as_ref().unwrap() /*level≤2 면 여기서 unwrap_failed*/, t) /*L183*/; base = t.is_jungle() ? max(score,1) /*L185*/ : score\n        None → return -99999\n    }\n    _ => {}   // RunAway·Recall·Around·AroundHide·AroundRegion·AroundRunAway·Positioning·AroundPosition·AroundPositionBush·AroundBush·LaneMinionPosition·Trace·Ult·Stop → base 유지\n}\nreturn base;   // L195\n\n★형제 대조(복붙 의심): LineSafe/LineWait/AttackNexus 는 calculate_action_score(version, rnd, … speed_mult/cooldown_reduce, ty) 를 쓰는데 Jungle 은 calculate_jungle_action_score(rnd, player, data, parameter, action, effect, t) 로 콜리가 다르고 attack_speed_mult/cooldown_reduce 호출이 없다. 대상 소실 시 형제들은 base+(-99999) 인데 여기만 -99999 단독 반환(phi 에 %24 미포함 — IR 40065). Around 계열 arm 이 없다(형제는 Around 에 가산/호출이 있음). evaluate_action(ActionContext) 신경로 없음.\nrnd gen_range 사이트: 0(interaction_score 1회 전달이 유일한 소비 가능 지점 · calculate_jungle_action_score 는 readnone).\nversion 분기 0 · debug 직접 쓰기 0 · self 읽기 0.",
+ "knobs": [
+  {
+   "what": "정글몹 대상 액션 최소 점수",
+   "where": "jungle.rs:161 (Skill 173 · Skill2 185)",
+   "value": 1,
+   "effect": "올리면 정글몹 공격/스킬 후보가 음수·0 점수여도 이 값으로 바닥이 올라가 다른 0점 후보(대기 등)보다 항상 우선. 내리거나(0) 없애면 정글몹 상대 손해 액션이 밀릴 수 있음"
+  },
+  {
+   "what": "is_jungle 캠프 분류 임계",
+   "where": "entity.rs:1378 (jungle.rs:160 인라인)",
+   "value": 2,
+   "effect": "camp_type.0 < 2 인 정글몹만 최소점 보장 대상. 올리면 더 많은 캠프 종류(추정: 상위 캠프/오브젝트)가 보장 대상에 포함 — 단 이 값은 game_core 헬퍼 안이라 이 함수에서 못 바꿈"
+  },
+  {
+   "what": "대상 소실 반환값",
+   "where": "jungle.rs:158/170/182",
+   "value": -99999,
+   "effect": "완화하면 죽은/사라진 대상 후보가 살아남음. base 미가산이라 형제 플랜보다 절대값 기준이 다름"
+  }
+ ],
+ "unknown": [
+  "self(JungleSubPlan: team/camp/check_move) 를 전혀 읽지 않는 이유 — 소스 부재. 동작 확정(load 0).",
+  "entity.rs:1378 is_jungle 의 `camp_type.0 < 2` 가 무슨 분류인지(팀 진영 0/1 vs 중립 2? · 캠프 등급?) — game_core 헬퍼 인라인만 보임. 미탐색 = _gcbc 의 is_jungle define/주석 · Jungle::camp_type 생성처.",
+  "L158/170/182 `else { -99999 }` 가 소스에서 `return -99999` 인지 `base = -99999` 후 return 인지 — 외연 동일(반환 -99999). 표기 불가.",
+  "Skill2 arm 에서 level≤2 경로(empty+0x5b0 / None) 가 실제 도달하는지 — 정적으로는 unwrap_failed 확정. 후보 생성기(action_candidates)가 level≤2 에서 Skill2 를 안 만드는지는 이 함수 밖(r16 명세 범위).",
+  "AbstractGame vtable+0x1f0 = get_entity_by_id 는 ExpectedGame 정적 vtable 기준(divtable) — 런타임 구현체 미확정."
+ ]
+}

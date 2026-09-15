@@ -1,4 +1,4 @@
-# r17 vtable 진입점 잔여 편성표 (생성 2026-09-16 · rvaname 실명 · 원장 §3-C 정정 · 진입점 47 = 본체 45 + JT 2)
+# r17 vtable 진입점 잔여 편성표 (생성 2026-09-16 · rvaname 실명 · 원장 §3-C 정정 · 진입점 45 = 본체 43 + JT 2)
 
 > 출처: 지도 미명세 plan/act 195 → 클로저/인스턴스 132 제외 · NA 6 · 이미 편입/사장/기각/호스트 11 → 진입점 47. 서브트리 합집합 266 중 비경로 미명세 콜리 32 는 **전부 클로저/인스턴스**(부모 aux) · 경로 계층 172(path_finder 102 · path_field 48 · free_dist 22 = 520KB) 는 **r18** 로 분리(`_next\subtree_r17.md`).
 > 합계 IR 줄 53,745 · exe 152,556 B · 거대(≥3,000줄) 5 = rootcut 분책 대상 · [D] 4 = ai_adjust judge 계층 DIFF=0 기록 있음(명세만 · ev1 인용)
@@ -50,8 +50,6 @@
 | 43 | `0xe388c0` | `serpen_check::SerpenCheckSubPlan::score` | m14.ll | 31556~31675 | 120 | 966B |  |  | JT tail-jump 디스패처(DONE 보류) — 명세는 하고 ev1 은 진입부 확인 후(#150 부류 가능) |
 | 44 | `0xe8fc80` | `AgentVerHamster::buy_item` | m14.ll | 38174~38280 | 107 | 230B |  | plan(추정) |  |
 | 45 | `0xe23750` | `cast::SmallActionUlt::is_end` | m07.ll | 12554~12654 | 101 | 2,118B |  |  | JT tail-jump 디스패처(DONE 보류) — 명세는 하고 ev1 은 진입부 확인 후(#150 부류 가능) |
-| 46 | `0xccbeb0` | `hunt_and_battle::SerpenHuntAndBattlePlan::update` | m02.ll | 49213~49304 | 92 | 343B |  | plan(추정) | hunt_and_battle update 다후보 · 사장 계열 의심 → 편성 시 IR 확인 |
-| 47 | `0xccc260` | `hunt_and_battle::SerpenHuntAndBattlePlan::update` | m02.ll | 49213~49304 | 92 | 343B |  | plan(추정) | hunt_and_battle update 다후보 · 사장 계열 의심 → 편성 시 IR 확인 |
 
 ## 제외(진입점 후보였으나)
 
@@ -59,3 +57,4 @@
 - `0xe33700` — resolve_fight_uncached 폴드 인스턴스(391B)
 - `0xd57420` — hp_at_tick 클로저(r13 판정 · 지문 본체 없음)
 - `0xcaf9f0` — BigPlan::sub_plan JT 호스트 — #02 arm 이미 ev1 · 미편입
+- `0xccbeb0` / `0xccc260` — Serpen/EpicHuntAndBattlePlan::update: 플랜 생성 코드 없음(#07 범위 밖 · 09-13) → 사장 제외

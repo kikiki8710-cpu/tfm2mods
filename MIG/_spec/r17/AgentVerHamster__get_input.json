@@ -1,0 +1,1173 @@
+{
+ "name": "get_input",
+ "sym": "_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster9get_input",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 843,
+ "ir_file": "m14.ll",
+ "ir_from": 38800,
+ "ir_to": 41939,
+ "aux": [
+  {
+   "ir_file": "m14.ll",
+   "ir_from": 6243,
+   "ir_to": 6569,
+   "what": "get_input::{closure#0} (lib.rs:931 · `|s: String| s.chars().take_while(|c| c != ' ' && c != '(').collect()` — 디버그 문자열의 variant 이름만 남기는 절단기 · 배치 M 의 L938·L939 두 호출)"
+  },
+  {
+   "ir_file": "m14.ll",
+   "ir_from": 61194,
+   "ir_to": 61382,
+   "what": "get_input::{closure#1}+iter_champions 의 Iterator::count 모노모픽 (lib.rs:934~935 · 적 챔피언 중 「최근 가시 && 250k 이내」 수 = threat · 배치 M 의 L935 호출)"
+  }
+ ],
+ "one_line": "AI 에이전트 루트(vtable Agent::get_input). 입력 지연 롤→update_state→small_action.get_input(최대 4회, 사이에 update_small_action/폴백/도주 강제)→진단 카운터·StayEvent(디버그)·freeze 감시 갱신 후 (Option<Input>, Vec<TurnEvent>) 반환",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "*mut (Option<Input>, bumpalo::Vec<'a, TurnEvent>) — 64B",
+    "role": "반환 슬롯. IR 속성: dead_on_unwind noalias writable writeonly sret([64 x i8]) dereferenceable(64)",
+    "mutability": "쓰기 전용",
+    "note": "(배치 N) 내 범위 쓰기 = L1082(m14.ll:41923~41925): +0..+32 ← %47(input · Option<Input>) memcpy 32B · +32..+64 ← %51(turn_event · bumpalo Vec<TurnEvent>) memcpy 32B. None 조기반환 경로(L848 · 배치 M)는 +0 = -1 · +32 = ptr 8(dangling) · +40 = bump · +48..+64 = 0"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut AgentVerHamster (10704B · lib.rs:122)",
+    "role": "에이전트 상태 전체. IR 속성: noalias align 16 dereferenceable(10704) — readonly 없음(가변). `initializes` 속성 없음 ⟹ 쓰기 표면은 writes 절의 전수(직접 store)+콜리 계약(update_state/update_small_action/v3_fall_back_to_passive/SmallActionPlay::get_input 의 &mut)",
+    "mutability": "&mut",
+    "note": "(배치 N) 내 범위 직접 쓰기 = stay_events 원소 값(push 자체는 L1004=배치 M) · freeze_* 계측 11필드 · trace_escape_* 3필드 · small_action@Trace.abandoned. 전수는 writes"
+   },
+   {
+    "i": 2,
+    "name": "rnd",
+    "type": "&mut StdRng (320B)",
+    "role": "IR 속성: noalias align 16 dereferenceable(320)(readonly 없음). 배치 M 범위의 직접 gen_range 사이트 = 1개(L851 RangeInclusive<usize>). 그 외는 콜리로 전달(update_state · SmallActionPlay::get_input ×4 · update_small_action ×2 · v3_fall_back_to_passive) 또는 **clone 전달**(buy_item ×2 · upgrade_item ×2 · v3_repair_done 앞 1회 — 원본 스트림 비소비)",
+    "mutability": "&mut",
+    "note": "(배치 N) 내 범위 gen_range 호출 사이트 0 · 어느 콜리에도 전달 안 함"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "role": "IR 속성: noalias readonly captures(address, read_provenance) dereferenceable(2528). 읽는 필드 = info.parameter(0x180) · info.team(0x930) · info.position(0x9c0)",
+    "mutability": "&",
+    "note": "(배치 N) 내 범위에서는 배치 M 이 로드한 %221(=+0x930 info.team · L914) · %225(=+0x9c0 info.position · L914) 값을 재사용. is_recent_visible 인자로 %3 그대로 전달(L1019)"
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData (24B) {cache@0x0: &AbstractGameWithCache, context@0x8: &GameContext, blackboard@0x10: &[Blackboard;2]}",
+    "role": "IR 속성: noalias readonly captures(address, read_provenance) dereferenceable(24)",
+    "mutability": "&",
+    "note": "(배치 N) +0 cache(%53) · +8 context(%446/%482/%1134) · +16 blackboard(%864 · L1018) 전부 읽음"
+   }
+  ],
+  "returns": "(Option<Input>, bumpalo::Vec<'a, TurnEvent>) 64B sret. **+0x0..0x20 = Option<Input>(32B)**: tag i64 @+0 — **None = -1**(IR 정본: L848 `store i64 -1` · L865/876/888/970 `icmp eq -1`; tcxdict 는 Option<Input> 레이아웃을 안 준다), 0 Move{x:u64@+8, y:u64@+16} · 1 Return · 2 Attack · 3 Skill · 4 Skill2 · 5 Ult(각 InputTarget 24B @+8: tag i32@+8 {0 Target{target_id@+16} 1 Dir{dir_x@+16,dir_y@+24} 2 Pos{x@+16,y@+24} 3 None}). None 경로 live = +0..8 만(+8..32 미기록). **+0x20..0x40 = bumpalo Vec<TurnEvent>**: ptr@+32 · a(&Bump)@+40 · cap@+48 · len@+56 (tcxdict jungles 필드로 교차확인 · TurnEvent 원소 32B · 태그 enum+0x18 i32 니치 5..11, untagged Chat). 조기반환(L848) = (None, Vec::new_in(data.context.pool)) = {-1, ptr=8(dangling), pool, 0, 0}. 정상반환(L1082 · 배치 N) = memcpy(sret+0, input 32B) + memcpy(sret+32, turn_event 32B · update_state 의 반환).",
+  "self_size": 10704,
+  "initializes": "IR define 줄에 initializes 속성 없음 — 쓰기 표면은 writes 절(직접 store) + 콜리 &mut 계약으로 기술",
+  "tls": {
+   "name": "없음(배치 M 범위)",
+   "role": "-",
+   "key": "-",
+   "layout": "-",
+   "invalidation": "-",
+   "call_conditions": "배치 M 범위(38800~40182·41354~41535 중 루트 ≤1004 블록)에 `LocalKey::with`/`call_once` fn-포인터 상수 참조·`llvm.threadlocal.address` 0건. 프로세스 전역 atomic 만 접촉: game_core::simulation::prof::ENABLED(load monotonic) · PHASE_NANOS[26]/PHASE_CALLS[26](atomicrmw add · ENABLED≠0 일 때만) · game_core::simulation::entity::CNT_DM_IDLE_INPUT[input_tag+1](atomicrmw add · 데스매치 idle_spec_tick 일치 시)"
+  }
+ },
+ "reads": [
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2940",
+   "name": "next_input_tick",
+   "note": "L844 tick < next_input_tick 이면 조기반환"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2910",
+   "name": "version",
+   "note": "매 사용마다 재로드(%90). L856/870/880/900 get_input 인자 · L865/876/896 `>1` 게이트 · L926/927/932/1002/1003 콜리 인자(buy/upgrade 는 poison 으로 소거됨)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x29ca",
+   "name": "last_lapse",
+   "note": "bool. L876 폴백 조건 · L936 키 문자열 · L968 lapse_chances 게이트 · L971 버킷 비트1 · L972"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2909",
+   "name": "small_action@tag (=0x2858+0xb1)",
+   "note": "SmallActionPlay 니치 태그 1B(untagged AroundPosition · niche_start 3). L909 전투 액션 판정(15..18) · L921/993 Stop(19) · L973 분류"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2858",
+   "name": "small_action (184B)",
+   "note": "&mut 로 SmallActionPlay::get_input ×4 · get_action(L939) · is_premise_lost(L969) · L899 drop 후 RunAway 로 통째 교체"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x0",
+   "name": "debug (DebugFrameData 224B)",
+   "note": "SmallActionPlay::get_input 의 마지막 인자(&mut DebugFrameData) 로 %1 그대로 전달(=self+0)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x1d90",
+   "name": "positioning_score",
+   "note": "SmallActionPlay::get_input 의 &PositioningScoreData 인자"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x530",
+   "name": "plan_system (LegacyPlanHandler 6168B)",
+   "note": "&mut 로 v3_fall_back_to_passive(L878) · & 로 v3_repair_done(L932 — ArgumentPromotion 으로 실제 인자는 (version, team, position, cache))"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0xb18",
+   "name": "plan_system.plan@tag (BigPlan 니치 8B)",
+   "note": "L930 freeze_plan_cls(&plan) · L937 debug_label(&plan) · L949 tag<2(=untagged DeathMatchBattle 의 내부 bool 0/1) 판정, assume ≠6"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0xc58",
+   "name": "plan_system.plan@DeathMatchBattle.0.idle_spec_tick",
+   "note": "L950 == tick 이면 CNT_DM_IDLE_INPUT 기록"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0xc98",
+   "name": "plan_system.sub_plan",
+   "note": "L938 format!(\"{:?}\") 로 Debug 출력(SubPlan::fmt) → closure#0 절단 → 키 문자열"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2a0",
+   "name": "stay_home_full_nobuy_stack (HashMap<String,usize>)",
+   "note": "L940 entry(key).or_insert(0) — hashbrown rustc_entry/insert_no_grow"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x1d78",
+   "name": "stay_events (Vec<StayEvent>) cap@0x1d78 ptr@0x1d80 len@0x1d88",
+   "note": "L1004 push 경로: len==cap → grow_one"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": "%53"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext)",
+   "note": ""
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2])",
+   "note": "L934 count 클로저 캡처 → blackboard[1-team].is_recent_visible"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "%54 · dyn AbstractGame 데이터"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "%56"
+  },
+  {
+   "base": "vtable(AbstractGame)",
+   "offset": "0x28",
+   "name": "tick (divtable 0x28)",
+   "note": "L844 · L852 · L911 · L950 · L1005 — 5회 호출(같은 vtable 슬롯 %58)"
+  },
+  {
+   "base": "vtable(AbstractGame)",
+   "offset": "0x40",
+   "name": "get_game_mode (divtable 0x40) → GameMode{tag i64, ptr}",
+   "note": "L948 tag==2 DeathMatch"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][position] (Option<&Entity> · [5]×2 · 니치 null)",
+   "note": "L889 · L914 · L974/984 재로드"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[team] (Option<&Entity>)",
+   "note": "L977 · L998 자기 팀 넥서스 거리 밴드 | (배치 N) L1066 gep 368 + team*8 (m14.ll:41825~41827) · null=None"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "L848 빈 Vec 의 할당자"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "L918/989 Game::adjust_position 인자 | (배치 N) L1057 · L1090"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map (&MapDef)",
+   "note": "L890/924/975/995 fountains · L918/989 adjust_position | (배치 N) L1063 (m14.ll:41799)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug (bool)",
+   "note": "L983 StayEvent 기록 게이트"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x6d70",
+   "name": "fountains[team] ((u64,u64,u64,u64) stride 32: flx@+0 fly@+8 frx@+16 fry@+24)",
+   "note": "gepS 인덱스 team · 4회 재로드"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter (AthleteParameter)",
+   "note": "L851 input_delay_min/max(&self)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L889/914 · 클로저 안에서도 재로드"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag (i32)",
+   "note": "L889/914 GamePlayer::position()(player.rs:581 인라인) → player_champion 2차 인덱스 · v3_repair_done 인자 · StayEvent.position"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "champ · nexus · 적 챔피언(aux) | (배치 N) champ.x(%588/%589 · 배치 M L996 로드 · StayEvent.pos.0) · L1019/L1021 상대 x(gep 1632) · L1050 champ.x(41646) · L1064 우물 사각 · L1067 넥서스 x"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "L1014 champ.y(%853 · StayEvent.pos.1) · L1019/L1021 상대 y(gep 1640) · L1050 · L1064 · L1067"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "L896/923 hp < stat_cached.hp (풀피 아님) | (배치 N) L1016 hp_pct 분자 (hp*100)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": ""
+  },
+  {
+   "base": "global",
+   "offset": "0x0",
+   "name": "game_core::simulation::prof::ENABLED (atomic i8)",
+   "note": "L855 ProfTimer::new(phase 26) 게이트"
+  },
+  {
+   "base": "Option<ProfTimer> (_t_sai 로컬 %50 24B)",
+   "offset": "0x10",
+   "name": "phase i32 니치: -1 = None",
+   "note": "layout {phase_idx? i64 26 @+0, Instant.secs @+8, Instant.nanos i32 @+16} — +16 이 -1 이면 비활성"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0xb18",
+   "name": "plan_system.plan (BigPlan 태그·본체)",
+   "note": "L1009 debug_label(&plan) · L1010 get_name(&plan) 인자(m14.ll:40185) · L1061 freeze_plan_cls 인라인: 태그 로드 후 니치 환산(m14.ll:41755~41762 · assume tag≠6 · idx = tag>1 ? tag-2 : 4(DeathMatchBattle 암묵))"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0xc98",
+   "name": "plan_system.sub_plan (SubPlan)",
+   "note": "L1011 format!(\"{:?}\", sub_plan) 의 Debug::fmt 인자(m14.ll:40202~40215)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28b1",
+   "name": "small_action@tag (1B 니치)",
+   "note": "%210(배치 M L909 gep) 재로드 4회: L1012 get_action(m14.ll:40567) · L1013 target_position(40765) · L1026 get_action 재평가(41357) · L1059 small_action_cls(41702) · L1091 ==14(Trace) (41568). 전부 assume tag≠10 · idx = tag>2 ? tag-3 : 7(AroundPosition 암묵)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2860",
+   "name": "small_action.<variant>+0x8 (Around/AroundHide/LaneMinionPosition/Attack/Skill/Skill2/Ult.target · RunAway/Positioning/AroundPositionBush.goal_x·target_x)",
+   "note": "L1012 get_action 페이로드(m14.ll:40599~40729 · gep 10336) · L1013 target_position(x) · L1027 대상 id(41400 phi 10336)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2868",
+   "name": "small_action.<variant>+0x10 (Around·AroundHide·LaneMinionPosition.goal_x / AroundRegion.goal_x / RunAway·Positioning.goal_y / AroundPositionBush.target_y)",
+   "note": "L1012(gep 10344) · L1013(+16)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2870",
+   "name": "small_action.<variant>+0x18 (Around류.goal_y / AroundRegion.goal_y / AroundBush.target_x)",
+   "note": "L1012(gep 10352) · L1013(+24)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2878",
+   "name": "small_action@AroundBush.target_y (+0x20)",
+   "note": "L1012(gep 10360) · L1013(+32)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2888",
+   "name": "small_action@AroundPosition.around_input.target_x (+0x30)",
+   "note": "L1012 get_action AroundPosition 팔(gep 10376 · m14.ll:40643)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2890",
+   "name": "small_action@AroundPosition.around_input.target_y (+0x38)",
+   "note": "L1012(gep 10384)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28a8",
+   "name": "small_action@Recall.goal_x (+0x50)",
+   "note": "L1013 target_position Recall 팔(+80 · m14.ll:40797)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28b0",
+   "name": "small_action@Recall.goal_y (+0x58)",
+   "note": "L1013(+88)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28b8",
+   "name": "small_action@Trace.target (+0x60)",
+   "note": "L1012 get_action Trace 팔(gep 10424 · m14.ll:40691) · L1027 대상 id(41400 phi 10424) · L1092 tid(41579)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28c0",
+   "name": "small_action@Trace.goal_x (+0x68)",
+   "note": "L1013 Trace 팔(+104)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28c8",
+   "name": "small_action@Trace.goal_y (+0x70)",
+   "note": "L1013 Trace 팔(+112)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28ea",
+   "name": "small_action@Trace.abandoned (bool)",
+   "note": "L1101 `|| abandoned` (m14.ll:41633~41636) — 이미 true 면 재설정 생략"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28ed",
+   "name": "small_action@Trace.last_escape (Option<bool> 니치 1B)",
+   "note": "L1093 `& 1` (m14.ll:41583~41585 · 원본 줄 2439<424): 하위 비트 0 = Some(false) 또는 None(니치값 2 는 &1==0) → 도주 미적용 경로 / 1 = Some(true) → 도주 적용 경로"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x29a0",
+   "name": "last_combat_tick",
+   "note": "L1024 == -1(usize::MAX) 검사(m14.ll:41345~41347) · L1025 tick.saturating_sub 피감수(41388)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x29ca",
+   "name": "last_lapse (bool)",
+   "note": "%425(배치 M L968 gep) 재로드: L1023 StayEvent.in_lapse(m14.ll:41344) · L1074 freeze_eps_lapse 게이트(41901)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x430",
+   "name": "freeze_anchor.0 (x)",
+   "note": "L1050 distance 인자(m14.ll:41650)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x438",
+   "name": "freeze_anchor.1 (y)",
+   "note": "L1050 distance 인자(m14.ll:41652)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2960",
+   "name": "freeze_since",
+   "note": "L1051 ==0 (m14.ll:41664) · L1057 tick.saturating_sub(freeze_since)(41685)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x29cb",
+   "name": "freeze_fired (bool)",
+   "note": "L1055 분기(m14.ll:41678~41681)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2978",
+   "name": "freeze_ticks",
+   "note": "L1056 +=1 의 로드"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x440",
+   "name": "freeze_eps[cls] ([usize;6])",
+   "note": "L1060 +=1 의 로드(gep 1088 + cls*8)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x470",
+   "name": "freeze_plan[plan_cls] ([usize;6])",
+   "note": "L1061 +=1 의 로드(gep 1136)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2980",
+   "name": "freeze_pos[pos_cls] ([usize;3])",
+   "note": "L1072 +=1 의 로드(gep 10624 / 10640=[2])"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x4a0",
+   "name": "freeze_field_action[cls] ([usize;6])",
+   "note": "L1073 +=1 의 로드(gep 1184)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2968",
+   "name": "freeze_eps_lapse",
+   "note": "L1074 +=1 의 로드(gep 10600)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2970",
+   "name": "freeze_eps_dead_target",
+   "note": "L1075 +=1 의 로드(gep 10608)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2928",
+   "name": "trace_escape_target",
+   "note": "L1080(update_trace_escape_abandon 인라인 · lib.rs:1094/1104) == tid (m14.ll:41587~41589)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2930",
+   "name": "trace_escape_ticks",
+   "note": "lib.rs:1095 누적 피가수(m14.ll:41624) · 1107 saturating_sub 피감수(41611)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2938",
+   "name": "trace_escape_last_tick",
+   "note": "lib.rs:1094 tick>=last(m14.ll:41597) · 1095 tick-last · 1106 saturating_sub(41605)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x1d78",
+   "name": "stay_events (Vec<StayEvent>) — buf.ptr@+0x1d80 · len@+0x1d88",
+   "note": "push 인라인(루트 L1004 = 배치 M · m14.ll:41464~41532): cap(+0x1d78)==len → grow_one · ptr[len] ← 208B · len+=1. 원소 값은 내 범위(logic 참조)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache · %53)",
+   "note": "cache+0 game data ptr(%54) · cache+8 vtable(%56) · 배치 M 로드 재사용"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext · %446/%1134)",
+   "note": "L1057·L1090 setting · L1063 map"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2] · %864)",
+   "note": "L1018 로드(m14.ll:40834) → L1019 is_recent_visible self = &blackboard[1 - team]"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[t][p] ([[Option<&Entity>;5];2])",
+   "note": "%227(배치 M L914 gep 480): L1017 적팀 행 %862 = [5 x ptr][1-team] · L1021 아군 행 %228=[team] · champ %541=[team][position](배치 M L984 로드) · L1048 재로드 %1131"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "L1057 정지 게이트(1초 · m14.ll:41688~41690) · L1090 abandon_threshold = tps<<1 (41564~41566)"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x6d70",
+   "name": "fountains[team] ((u64,u64,u64,u64) · stride 32)",
+   "note": "L1063 gep 28016 + team*32 → (flx, fly, frx, fry) (m14.ll:41802~41814)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "L1021 champ.id(%904 · m14.ll:41009) vs 아군 각 id(gep 1472) ≠ 비교"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 hp)",
+   "note": "L1016 hp_pct 분모 umax(·,1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType 8B 직접)",
+   "note": "L1034 switch(m14.ll:41491~41500): 13 Champion · 5 Epic · 6 Serpen · 4 Jungle · 2 Tower · 3 Nexus · 그 외 default"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x98",
+   "name": "ty@Jungle.info.camp_type.0 (usize)",
+   "note": "L1037 `< 2` 가드(m14.ll:41509~41511)"
+  },
+  {
+   "base": "AbstractGame(vtable)",
+   "offset": "0x28",
+   "name": "tick (slot · divtable)",
+   "note": "%58 로 L1005(%634) · L1025(%1058) · L1049(%1132) · L1089(%1139) 4회 호출"
+  },
+  {
+   "base": "AbstractGame(vtable)",
+   "offset": "0x1f0",
+   "name": "get_entity_by_id (slot · divtable)",
+   "note": "L1032 (m14.ll:41404~41407) → Option<&Entity>(null=None)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2940",
+   "name": "next_input_tick",
+   "value": "tick + delay (delay = rnd.gen_range(input_delay_min..=input_delay_max)/100)",
+   "note": "L852 · m14.ll:38936 · 조기반환이 아닌 모든 경로에서 1회"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x1b60",
+   "name": "plan_system.v3_lapse_noinput_rescues",
+   "value": "+1",
+   "note": "L877 · 38940~39074 · version>1 && input None(2차) && last_lapse"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x1b68",
+   "name": "plan_system.v3_lapse_move_forces",
+   "value": "+1",
+   "note": "L898 · 39167 · 도주 강제 경로"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2858",
+   "name": "small_action (184B 통째)",
+   "value": "drop_in_place(old); memcpy 177B(SmallActionRunAway::new(data, player, 5) 136B 페이로드 + 미초기화 41B); tag@0x2909 = 3 (RunAway)",
+   "note": "L899 · 39185~39188 · 도주 강제 경로. 또 &mut 로 SmallActionPlay::get_input ×4 · update_small_action ×2 (콜리 계약)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2909",
+   "name": "small_action@tag",
+   "value": "3 (RunAway)",
+   "note": "L899 · 39188"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x29a0",
+   "name": "last_combat_tick",
+   "value": "tick()",
+   "note": "L911 · 39210 · small_action tag ∈ 15..18(Attack/Skill/Skill2/Ult)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x29a8",
+   "name": "stay_home_full_nobuy",
+   "value": "+1",
+   "note": "L929 · 39425 · 정지(stays)&&풀피&&분수 안&&구매 불가"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x4d0",
+   "name": "stay_home_full_nobuy_plan[freeze_plan_cls(&plan)]",
+   "value": "+1",
+   "note": "L930 · 39433 · [usize;6]"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2a0",
+   "name": "stay_home_full_nobuy_stack[key]",
+   "value": "*entry(key).or_insert(0) += 1 (key = format!(\"rd={} lapse={} 적{} | {} | {} | {}\", rd, last_lapse, threat, plan.debug_label(), cut(format!(\"{:?}\",sub_plan)), cut(format!(\"{:?}\",small_action.get_action()))))",
+   "note": "L936~940 · 39627~39707 · HashMap 삽입(힙 할당 가능 · insert_no_grow · 값 슬롯은 (String,usize) 원소 +24 = entry 포인터 -8)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2958",
+   "name": "input_chances",
+   "value": "+1",
+   "note": "L967 · 39736 · 조기반환 아니면 무조건"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2998",
+   "name": "lapse_chances",
+   "value": "+1",
+   "note": "L968 · 39764 · last_lapse 일 때"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x410",
+   "name": "noinput_bucket[(last_lapse as u8)<<1 | target_dead as u8]",
+   "value": "+1",
+   "note": "L971 · 39794 · input None 일 때 · [usize;4]"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x500",
+   "name": "noinput_lapse_action[cls(small_action)]",
+   "value": "+1",
+   "note": "L973 · 39850 · input None && last_lapse · cls: Trace→0 · RunAway/Recall/AroundRunAway→1 · Around/AroundHide/AroundRegion/Positioning/AroundPosition/AroundPositionBush/AroundBush→2 · Attack/Skill/Skill2/Ult→3 · LaneMinionPosition→4 · Stop→5"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x29b0",
+   "name": "noinput_lapse_pos[band]",
+   "value": "+1",
+   "note": "L976 · 39951 · input None && last_lapse && champ Some · band 0=분수 안 · 1=넥서스 ≤260000 · 2=그 밖/넥서스 없음"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x1d78 -> stay_events.ptr[len] (208B) · len@0x1d88 +1 · grow_one 시 cap/ptr",
+   "name": "stay_events.push(StayEvent{..})",
+   "value": "StayEvent{goal@0(24B) plan_label@0x18 plan_detail@0x30 sub_plan@0x48 action@0x60 target_kind@0x78(ptr,len) tick@0x88=tick() team@0x90 pos@0x98=(champ.x, champ.y) hp_pct@0xa8 near_enemy@0xb0 near_ally@0xb8 since_combat@0xc0 position@0xc8 can_buy@0xcc in_lapse@0xcd kind@0xce pos_band@0xcf}",
+   "note": "L1004 · 41412~41532 · context.debug && champ Some && (stays || small_action==Stop). tick/team/position/pos.x/kind/pos_band/can_buy 는 배치 M 값, goal·문자열 4개·hp_pct·near_*·since_combat·in_lapse·target_kind 는 배치 N(1009~1043) 값"
+  },
+  {
+   "base": "global",
+   "offset": "0x0",
+   "name": "prof::PHASE_NANOS[phase]/PHASE_CALLS[phase] (phase=26, bound 132)",
+   "value": "atomicrmw add elapsed_ns / +1",
+   "note": "L906 ProfTimer drop · 39024~39041 · ENABLED≠0 일 때만"
+  },
+  {
+   "base": "global",
+   "offset": "0x0",
+   "name": "entity::CNT_DM_IDLE_INPUT[input_tag+1] ([7 x atomic usize])",
+   "value": "atomicrmw add 1",
+   "note": "L961 · 39749~39753 · 데스매치 && plan==DeathMatchBattle && idle_spec_tick==tick · 인덱스: None(-1)→0 Move→1 Return→2 Attack→3 Skill→4 Skill2→5 Ult→6"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x1d78 -> stay_events.ptr[len]+0..+208",
+   "name": "stay_events.push(StayEvent{..}) 원소 값",
+   "value": "goal(+0 tag/+8 x/+16 y)=small_action.target_position() · plan_label(+24)=plan.debug_label() · plan_detail(+48)=plan.get_name() · sub_plan(+72)=short(format!(\"{:?}\",sub_plan)) · action(+96)=format!(\"{:?}\",small_action.get_action()) · target_kind(+120 ptr/+128 len)=&str · tick(+136)=game.tick() · team(+144)=%221 · pos(+152,+160)=(champ.x,champ.y) · hp_pct(+168) · near_enemy(+176) · near_ally(+184) · since_combat(+192) · position(+200)=%225 · can_buy(+204)=%631 · in_lapse(+205)=last_lapse · kind(+206)=%580 · pos_band(+207)=%632",
+   "note": "★루트 L1004(배치 M · m14.ll:41412~41454 store · 41474 grow_one · 41530 memcpy 208B · 41532 len+1) — 값 계산이 내 범위(1005~1043). kind/can_buy/pos_band/position/team 값은 배치 M 계산. 조건: L983 champ.is_some() && context.debug(+0x3b) (배치 M)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2960",
+   "name": "freeze_since",
+   "value": "tick(%1132 · L1049)",
+   "note": "L1052 (m14.ll:41670) — 앵커 리셋 경로(moved || input.is_some() || freeze_since==0)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x430",
+   "name": "freeze_anchor.0",
+   "value": "champ.x(%1188)",
+   "note": "L1053 (m14.ll:41671)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x438",
+   "name": "freeze_anchor.1",
+   "value": "champ.y(%1190)",
+   "note": "L1053 (m14.ll:41672)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x29cb",
+   "name": "freeze_fired",
+   "value": "false(L1054 · m14.ll:41674) / true(L1058 · 41701)",
+   "note": "리셋 경로에서 false · 1초 게이트 통과 시 true(에피소드 1회 발화 래치)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2978",
+   "name": "freeze_ticks",
+   "value": "+1",
+   "note": "L1056 (m14.ll:41694~41697) — freeze_fired 이미 true 인 틱마다(정지 누적 틱)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x440",
+   "name": "freeze_eps[cls]",
+   "value": "+1",
+   "note": "L1060 (m14.ll:41750~41754) · cls = small_action_cls(&small_action) 0~5"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x470",
+   "name": "freeze_plan[plan_cls]",
+   "value": "+1",
+   "note": "L1061 (m14.ll:41793~41797) · plan_cls = plan.freeze_plan_cls() 0~5"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2980",
+   "name": "freeze_pos[pos_cls]",
+   "value": "+1",
+   "note": "L1072 (m14.ll:41869~41873 / 41878~41881 [2] / 41894~41897 [0]) · pos_cls 0 우물 사각 안 · 1 넥서스 260k 이내 · 2 필드(넥서스 None 포함)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x4a0",
+   "name": "freeze_field_action[cls]",
+   "value": "+1",
+   "note": "L1073 (m14.ll:41885~41889) — pos_cls==2 일 때만"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2968",
+   "name": "freeze_eps_lapse",
+   "value": "+1",
+   "note": "L1074 (m14.ll:41909~41912) — last_lapse 일 때"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2970",
+   "name": "freeze_eps_dead_target",
+   "value": "+1",
+   "note": "L1075 (m14.ll:41916~41919) — %436(배치 M L~964 small_action.is_premise_lost(data) 결과) 일 때"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2928",
+   "name": "trace_escape_target",
+   "value": "tid(small_action@Trace.target)",
+   "note": "L1080 → lib.rs:1097 (m14.ll:41619) — last_escape=Some(true) 이고 (target≠tid || tick<last_tick) 일 때"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2930",
+   "name": "trace_escape_ticks",
+   "value": "(tick - last_tick) + ticks (lib.rs:1095 · m14.ll:41623~41630) / 0 (1097 · 41629 phi) / ticks.saturating_sub(tick.saturating_sub(last_tick)) (1107 · 41613~41614)",
+   "note": "Trace 이면서 last_escape 여부에 따라 누적/감쇠"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x2938",
+   "name": "trace_escape_last_tick",
+   "value": "tick(%1139)",
+   "note": "lib.rs:1100 (m14.ll:41631) · 1108 (41615)"
+  },
+  {
+   "base": "AgentVerHamster",
+   "offset": "0x28ea",
+   "name": "small_action@Trace.abandoned",
+   "value": "true(i8 1)",
+   "note": "lib.rs:1102 (m14.ll:41640) — trace_escape_ticks >= tps*2 이고 아직 false 일 때"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x0",
+   "name": "ret.0 Option<Input>",
+   "value": "%47(input) 32B memcpy",
+   "note": "L1082 (m14.ll:41925)"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x20",
+   "name": "ret.1 bumpalo Vec<TurnEvent>",
+   "value": "%51(turn_event) 32B memcpy",
+   "note": "L1082 (m14.ll:41923~41924)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 100,
+   "src_line": 851,
+   "meaning": "delay = gen_range(min..=max) / 100 (udiv). input_delay_* 는 1/100 틱 단위로 추정 — AthleteParameter 미열람"
+  },
+  {
+   "value": 26,
+   "src_line": 855,
+   "meaning": "ProfTimer phase 인덱스(_t_sai · 'sai' 페이즈) · PHASE_NANOS/PHASE_CALLS[26]"
+  },
+  {
+   "value": 132,
+   "src_line": 855,
+   "meaning": "PHASE_NANOS/PHASE_CALLS 배열 길이(bounds check) — 판정 아님"
+  },
+  {
+   "value": 1000000000,
+   "src_line": 906,
+   "meaning": "Duration → ns 환산(secs*1e9 + nanos)"
+  },
+  {
+   "value": -1,
+   "src_line": 865,
+   "meaning": "Option<Input>::None 의 니치 태그(i64) · L848 store · L865/876/888/915/970/985 비교. ProfTimer 의 -1 은 별개(nanos i32 니치)"
+  },
+  {
+   "value": 1,
+   "src_line": 865,
+   "meaning": "`version > 1` (= version ≥ 2 · L865/876/896 세 게이트). 본문의 `shl … 1`(L971) 은 이 상수가 아니라 last_lapse<<1 비트 합성(그 항목은 value 1/folded_from 2 로 별도 등록)"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 971,
+   "meaning": "noinput_bucket 인덱스 = last_lapse*2 + target_dead — `shl nuw nsw i8 %452, 1` 로 접힘"
+  },
+  {
+   "value": 5,
+   "src_line": 899,
+   "meaning": "SmallActionRunAway::new(data, player, 5) 의 3번째 usize 인자 — 의미는 move_actions.rs:25 명세(r14) 참조 · 여기선 리터럴"
+  },
+  {
+   "value": 3,
+   "src_line": 899,
+   "meaning": "SmallActionPlay 메모리 태그 3 = RunAway(idx0 · niche_start 3)"
+  },
+  {
+   "value": 10,
+   "src_line": 909,
+   "meaning": "SmallActionPlay 태그 10 은 untagged AroundPosition 자리 — 컴파일러 assume ≠10(L909/921/973/993 반복)"
+  },
+  {
+   "value": 15,
+   "src_line": 909,
+   "meaning": "tag-15 < 4 ⟹ tag ∈ {15 Attack,16 Skill,17 Skill2,18 Ult} 이면 전투 액션 → last_combat_tick 갱신"
+  },
+  {
+   "value": 4,
+   "src_line": 909,
+   "meaning": "위 범위 폭(4개 variant)"
+  },
+  {
+   "value": 19,
+   "src_line": 921,
+   "meaning": "SmallActionPlay 태그 19 = Stop(idx16) — 비-Move 입력일 때 stays=true 조건(L921) · L993 kind 판정"
+  },
+  {
+   "value": 0,
+   "src_line": 915,
+   "meaning": "Input 태그 0 = Move → adjust_position 후 거리 판정 분기(L915/985 switch)"
+  },
+  {
+   "value": 4000001,
+   "src_line": 919,
+   "meaning": "2000^2+1 — 이동 목표(adjust_position 보정 후)와 챔피언 현위치 거리² < 이면 stays(제자리 이동) · L919 · L990"
+  },
+  {
+   "value": 2,
+   "src_line": 948,
+   "meaning": "GameMode 태그 2 = DeathMatch(get_game_mode) · L949 BigPlan tag<2 = untagged DeathMatchBattle · (L889/914/933 의 2 는 팀 배열 bound)"
+  },
+  {
+   "value": 6,
+   "src_line": 949,
+   "meaning": "BigPlan 니치에서 untagged DeathMatchBattle 자리(assume ≠6) — 판정 아님 (aux closure#0 의 `shl … 6` 은 UTF-8 디코딩 비트 시프트 — 이 상수와 무관)"
+  },
+  {
+   "value": 67600000001,
+   "src_line": 977,
+   "meaning": "260000^2+1 — 챔피언↔자기 넥서스 거리² < 이면 pos_band 1(근처) · L977 · L999"
+  },
+  {
+   "value": 7,
+   "src_line": 973,
+   "meaning": "SmallActionPlay tag≤2 → 논리 idx 7(AroundPosition untagged) 매핑용 select 상수(L973/1026 반복)"
+  },
+  {
+   "value": 62500000001,
+   "src_line": 935,
+   "meaning": "(aux count 클로저) 250000^2+1 — 적 챔피언↔자기 챔피언 거리² < 이면 threat 로 셈"
+  },
+  {
+   "value": 2097143,
+   "src_line": 931,
+   "meaning": "(aux closure#0) char & 0x1FFFF7 == 32 ⟹ c==' '(32) || c=='('(40) — take_while 술어 `c != ' ' && c != '('` 가 마스크 비교로 접힘"
+  },
+  {
+   "value": 32,
+   "src_line": 931,
+   "meaning": "(aux closure#0) 위 비교의 우변 ' '"
+  },
+  {
+   "value": 1114112,
+   "src_line": 931,
+   "meaning": "(aux closure#0) char 상한 assume(0x110000) — 판정 아님"
+  },
+  {
+   "value": 100,
+   "src_line": 1016,
+   "meaning": "hp_pct = hp*100 / max(stat_cached.hp, 1) — 백분율 (m14.ll:40818)"
+  },
+  {
+   "value": 1,
+   "src_line": 1016,
+   "meaning": "umax(max_hp, 1) 0-나눗셈 가드 (m14.ll:40823 llvm.umax) · ★같은 값 1 이 L1090 `shl i64 %tps, 1`(tps*2 · m14.ll:41566)·L1017 `1 - team`(41826)에도 쓰임 — shl 은 아래 folded_from 항목 참조"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 1090,
+   "meaning": "abandon_threshold = tick_per_second * 2 (= 2초) — `shl i64 %1144, 1` 로 접힘 (m14.ll:41566)"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 1019,
+   "meaning": "150000² + 1 — dist² < 이 값 ⟺ dist ≤ 150000(150k). L1019 적 근접 카운트(m14.ll:40954) · L1021 아군 근접 카운트(41064·41124·41192·41260·41328) 공용"
+  },
+  {
+   "value": 2097143,
+   "src_line": 1000,
+   "meaning": "0x1FFFF7 — `(c & 0x1FFFF7) == 32` 는 c==' '(0x20) || c=='('(0x28) 를 컴파일러가 한 비교로 접은 것(m14.ll:40447~40448). closure#5(lib.rs:1000) sub_plan Debug 문자열을 첫 공백/여는괄호 앞에서 자르는 술어"
+  },
+  {
+   "value": 32,
+   "src_line": 1000,
+   "meaning": "위 마스크 비교의 우변 ' '(0x20) (m14.ll:40448)"
+  },
+  {
+   "value": 1114112,
+   "src_line": 1000,
+   "meaning": "0x110000 — char 유효범위 assume(UTF-8 디코더 인라인 아티팩트 · m14.ll:40413) · 판정값 아님"
+  },
+  {
+   "value": 1835008,
+   "src_line": 1000,
+   "meaning": "0x1C0000 — 4바이트 UTF-8 선두 마스크(디코더 인라인 · m14.ll:40395) · 판정값 아님"
+  },
+  {
+   "value": 10,
+   "src_line": 1012,
+   "meaning": "small_action 태그 10 은 존재하지 않음(AroundPosition 암묵 태그 자리) — `assume tag != 10` (m14.ll:40568 · 40766 · 41358 · 41704 · 41569). 판정값 아님"
+  },
+  {
+   "value": 3,
+   "src_line": 1012,
+   "meaning": "SmallActionPlay 니치 시작(niche_start=3): idx = tag>2 ? tag-3 : 7 (m14.ll:40570~40572). 판정값 아님(태그 환산)"
+  },
+  {
+   "value": 14,
+   "src_line": 1091,
+   "meaning": "small_action 메모리 태그 14 = Trace(idx 11) — update_trace_escape_abandon 은 Trace 일 때만 동작 (m14.ll:41571)"
+  },
+  {
+   "value": 6,
+   "src_line": 1061,
+   "meaning": "BigPlan 태그 6 은 존재하지 않음(DeathMatchBattle 암묵 자리) — `assume tag != 6` (m14.ll:41758). 판정값 아님 · 본문의 `shl … 6` 은 UTF-8 디코더(L1000 인라인)의 6비트 시프트로 이 상수와 무관"
+  },
+  {
+   "value": 2,
+   "src_line": 1061,
+   "meaning": "BigPlan 니치 시작(niche_start=2): idx = tag>1 ? tag-2 : 4 (m14.ll:41760~41762). ★같은 값 2 가 L1037 `camp_type.0 < 2`(정글몹 가드 · 41511)·L1067 pos_cls 2(필드 · 41867)에도 쓰임"
+  },
+  {
+   "value": 13,
+   "src_line": 1034,
+   "meaning": "EntityType 태그 13 = Champion → target_kind \"챔피언\" (m14.ll:41494)"
+  },
+  {
+   "value": 5,
+   "src_line": 1035,
+   "meaning": "EntityType 태그 5 = Epic → \"에픽\" (m14.ll:41495) · ★같은 값 5 가 small_action_cls Stop→5(기타 · 41748)·freeze_plan_cls 기타 5(41792)에도"
+  },
+  {
+   "value": 4,
+   "src_line": 1037,
+   "meaning": "EntityType 태그 4 = Jungle → camp_type.0 < 2 이면 \"정글몹\" 아니면 wildcard \"미니언\" (m14.ll:41497)"
+  },
+  {
+   "value": -1,
+   "src_line": 1024,
+   "meaning": "usize::MAX 센티넬: last_combat_tick == MAX 이면 since_combat = MAX(미전투) (m14.ll:41347·41355). L1051 `input tag != -1`(Option<Input>::is_some · 41661)에도 같은 값"
+  },
+  {
+   "value": 8000,
+   "src_line": 1050,
+   "meaning": "moved = distance(champ, freeze_anchor) > 8000 (8k · 셀 1/4) — 이 이상 움직였으면 정지 앵커 리셋 (m14.ll:41658)"
+  },
+  {
+   "value": 67600000000,
+   "src_line": 1067,
+   "meaning": "260000² — dist²(champ, nexus[team]) > 이 값 ⟺ dist > 260k → pos_cls 2(필드), 아니면 1(본진 근처) (m14.ll:41866)"
+  },
+  {
+   "value": 0,
+   "src_line": 1051,
+   "meaning": "freeze_since == 0 (아직 앵커 없음) 이면 리셋 (m14.ll:41665)"
+  }
+ ],
+ "calls": [
+  "game_core::AthleteParameter::input_delay_min",
+  "game_core::AthleteParameter::input_delay_max",
+  "rand::Rng::gen_range",
+  "game_ai::AgentVerHamster::update_state",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed",
+  "game_ai::small_action::SmallActionPlay::get_input",
+  "game_ai::AgentVerHamster::update_small_action",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v3_fall_back_to_passive",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new",
+  "core::ptr::drop_glue",
+  "core::panicking::panic_bounds_check",
+  "game_core::Game::adjust_position",
+  "core::clone::Clone::clone",
+  "game_ai::buy_item",
+  "game_ai::upgrade_item",
+  "game_ai::plan_legacy::types::BigPlan::freeze_plan_cls",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v3_repair_done",
+  "core::iter::adapters::filter::Filter::count",
+  "game_ai::plan_legacy::types::BigPlan::debug_label",
+  "alloc::fmt::format::format_inner",
+  "game_ai::AgentVerHamster::get_input0",
+  "game_ai::small_action::SmallActionPlay::get_action",
+  "hashbrown::map::HashMap::rustc_entry",
+  "hashbrown::raw::RawTable::insert_no_grow",
+  "game_ai::small_action::SmallActionPlay::is_premise_lost",
+  "alloc::raw_vec::RawVec::grow_one",
+  "game_core::Blackboard::is_recent_visible",
+  "alloc::raw_vec::RawVecInner::try_allocate_in",
+  "alloc::raw_vec::handle_error",
+  "core::ops::drop::Drop::drop",
+  "game_ai::plan_legacy::types::BigPlan::get_name",
+  "game_ai::plan_legacy::sub_plan::SubPlan::fmt",
+  "game_core::simulation::game::blackboard::SmallAction::fmt",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::utils::distance",
+  "llvm.usub.sat.i64",
+  "llvm.umax.i64"
+ ],
+ "logic": "// lib.rs:0~1004 (배치 M)\n// 정본 = m14.ll 38800~41939 · 주석본 _next\\reach\\e900b0.ll · reach.py: 블록 255 전부 살아있음(사장 0) — NA 봉인 없음\n// 시그니처: fn get_input(&mut self, rnd:&mut StdRng, player:&PlayerState, data:&OperationData) -> (Option<Input>, bumpalo::Vec<TurnEvent>)\n\n// ── L844 입력 지연 게이트\nlet game = data.cache.game;                      // %54 data, %56 vtable\nlet tick = game.tick();                          // vtable+0x28 (호출 1/5)\nif tick < self.next_input_tick {                 // self+0x2940 · icmp ult\n  // L848  조기반환: (None, Vec::new_in(data.context.pool))\n  sret+0 = -1(i64) ; sret+32 = 8(dangling ptr) ; sret+40 = context.pool ; sret+48..64 = 0 (cap,len)\n  return;                                        // → %1330 ret(L1083)\n}\n// L851  입력 지연 롤 — 배치 M 유일의 rnd 직접 소비 사이트(1/1)\nlet p = &player.info.parameter;                  // player+0x180\nlet delay = rnd.gen_range(p.input_delay_min() ..= p.input_delay_max()) / 100;   // RangeInclusive<usize> · udiv 100\n// L852\nself.next_input_tick = game.tick() + delay;      // tick 재호출(2/5) · store self+0x2940\n// L854\nlet mut turn_event: bumpalo::Vec<TurnEvent> = self.update_state(rnd, player, data);   // sret 32B %51 · &mut self 전체(계약: 배치 R/update_state 명세)\n// L855\nlet _t_sai = ProfTimer::new(26);                 // prof::ENABLED(atomic i8)==0 → None(%50+16 = -1) / 아니면 Instant::now, %50 = {26, secs, nanos}\n// L856  1차 소액션 입력\nlet mut input: Option<Input> = self.small_action.get_input(self.version, rnd, player, data, &self.positioning_score, &mut self.debug);\n//        인자: (&mut self+0x2858, self+0x2910 load, rnd, player, data, &self+0x1d90, &mut self+0x0) · sret %47 32B\n\n// ── L865  version≥2 이고 입력이 없으면 소액션 갱신 후 재시도\nif self.version > 1 && input.is_none() {         // is_none = tag == -1\n  // L869\n  self.update_small_action(rnd, player, data);   // fastcc · &mut self(계약: 배치 R)\n  // L870\n  input = self.small_action.get_input(self.version, rnd, player, data, &self.positioning_score, &mut self.debug);   // 2차\n  // L876  ★lapse(인지 공백) 중 무입력 → 플랜 폴백\n  if self.version > 1 && input.is_none() && self.last_lapse {   // self+0x29ca bool · 세 조건 and(select 체인: version>1 → is_none → last_lapse)\n    // L877\n    self.plan_system.v3_lapse_noinput_rescues += 1;   // self+0x1b60\n    // L878\n    self.plan_system.v3_fall_back_to_passive(self.version, rnd, player, data, &mut self.debug /*%1 = self+0x0*/);   // &mut plan_system(self+0x530) · 마지막 인자 = &mut DebugFrameData(tcx 시그니처 · dereferenceable(224)) = self.debug\n    // L879\n    self.update_small_action(rnd, player, data);\n    // L880\n    input = self.small_action.get_input(self.version, rnd, player, data, &self.positioning_score, &mut self.debug);   // 3차\n    // L888  그래도 없으면 도주 강제 검토\n    if input.is_none() {\n      // L889\n      let team = player.info.team;               // player+0x930 · bounds 2(panic 157)\n      if let Some(champ) = data.cache.player_champion[team][player.info.position() as usize] {   // cache+0x1e0 [2][5] · position = player+0x9c0 i32\n        // L890\n        let (flx, fly, frx, fry) = data.context.map.fountains[team];   // MapDef+0x6d70 + team*32\n        // L895~897  분수 안이고 (v1 이거나 아직 풀피 아님) 이면 강제 안 함\n        let in_rect = flx <= champ.x && champ.x <= frx && fly <= champ.y && champ.y <= fry;   // Entity+0x660/+0x668\n        let force = if in_rect {\n          if self.version > 1 { let in_fountain = champ.hp < champ.stat_cached.hp;  /* +0x670 < +0x628 (DI 이름 in_fountain) */  !in_fountain } else { false }\n        } else { true };\n        if force {\n          // L898\n          self.plan_system.v3_lapse_move_forces += 1;   // self+0x1b68\n          // L899\n          self.small_action = SmallActionPlay::RunAway(SmallActionRunAway::new(data, player, 5));   // sret 136B → drop_in_place(old small_action) → memcpy 177B → tag@0x2909 = 3\n          // L900\n          input = self.small_action.get_input(self.version, rnd, player, data, &self.positioning_score, &mut self.debug);   // 4차\n        }\n      }\n    }\n  }\n}\n// L906\ndrop(_t_sai);   // Option<ProfTimer>: phase(+16) != -1 이면 PHASE_NANOS[phase] += elapsed_ns(secs*1e9+nanos) · PHASE_CALLS[phase] += 1 (bounds 132 · atomicrmw monotonic)\n\n// ── L909  전투 액션이면 마지막 전투 틱 갱신\nlet sa_tag = self.small_action.tag();            // self+0x2909 i8 · assume ≠10\nif (15..=18).contains(&sa_tag) {                 // Attack/Skill/Skill2/Ult\n  // L911\n  self.last_combat_tick = game.tick();           // tick 호출(3/5) · self+0x29a0\n}\n\n// ── L914  「집(분수)에서 풀피로 서서 안 사는」 진단 (stay_home_full_nobuy)\nlet team = player.info.team;                     // bounds 2(panic 232)\nlet champ_opt = data.cache.player_champion[team][player.info.position() as usize];   // %230 · null = None\nif let Some(champ) = champ_opt {\n  // L915  입력이 제자리인가\n  let stays = match input {\n    Some(Input::Move{x, y}) => {                 // tag 0 · x@+8 y@+16\n      // L917~919\n      let (ax, ay) = Game::adjust_position(data.context.map, data.context.setting, x, y);   // {i64,i64} · context+0x20, +0x8\n      dist2(champ.pos, (ax, ay)) < 4000001       // dx=|x1-ax| dy=|y1-ay| · dx²+dy² · 2000² +1\n    }\n    None => true,                                // tag -1 → 바로 L923\n    _ => sa_tag == 19,                           // L921  Return/Attack/Skill*/Ult 는 small_action==Stop 일 때만\n  };\n  // L923\n  if stays && !(champ.hp < champ.stat_cached.hp) {   // 풀피\n    // L924~925\n    let (flx, fly, frx, fry) = data.context.map.fountains[team];\n    if flx <= champ.x && champ.x <= frx && fly <= champ.y && champ.y <= fry {\n      // L926~927  구매 가능성 — rnd 는 clone 으로 전달(원본 스트림 비소비)\n      let can_buy = buy_item(self.version, &mut rnd.clone(), player, game, data.context).is_some()   // Option<usize> {tag,val} · tag==1 → Some · version/game 인자는 IR 에서 poison(콜리 미사용)\n                 || upgrade_item(self.version, &mut rnd.clone(), player, game, data.context).is_some();   // Option<(usize,usize)> sret 24B · tag@0 ==0 None (DI 이름 can_buy 는 이 is_none 값에 붙어 있음 — 극성은 분기로: None→계속)\n      // L928\n      if !can_buy {\n        // L929\n        self.stay_home_full_nobuy += 1;          // self+0x29a8\n        // L930\n        self.stay_home_full_nobuy_plan[BigPlan::freeze_plan_cls(&self.plan_system.plan)] += 1;   // self+0x4d0 [usize;6] · plan = self+0xb18\n        // L932  (앞에 rnd.clone() 1회 실행되나 결과 미사용 — 콜리 인자 소거)\n        let rd: bool = self.plan_system.v3_repair_done(self.version, /*rnd.clone()*/, player, data);   // 실제 IR 인자 (version, team, position i32, cache)\n        // L933~935  적 위협 수 (aux closure#1 · count)\n        let threat: usize = data.cache.player_champion[1 - team].iter_champions()   // Option<&Entity> 5칸 슬라이스 · None 건너뜀\n            .filter(|e| data.blackboard[1 - player.info.team].is_recent_visible(game, player, e)   // 관측 블랙보드 = blackboard[1-team](docs game_core:21) · bounds 2\n                     && dist2(e.pos, champ.pos) < 62500000001)   // 250000²+1\n            .count();\n        // L936~939  키 문자열\n        let cut = |s: String| s.chars().take_while(|c| *c != ' ' && *c != '(').collect::<String>();   // closure#0 (aux) · 마스크 (c & 0x1FFFF7)==32\n        let key = format!(\"rd={} lapse={} 적{} | {} | {} | {}\", rd, self.last_lapse, threat,\n                          self.plan_system.plan.debug_label(),                      // L937 String\n                          cut(format!(\"{:?}\", self.plan_system.sub_plan)),         // L938 self+0xc98 · SubPlan::fmt\n                          cut(format!(\"{:?}\", self.small_action.get_action())));   // L939 SmallAction::fmt\n        // L940\n        *self.stay_home_full_nobuy_stack.entry(key).or_insert(0) += 1;   // self+0x2a0 · rustc_entry: Occupied(tag≠-1)→값 포인터 / Vacant→insert_no_grow((key,0)) → 값 = 원소ptr-8 · +1\n      }\n    }\n  }\n}\n\n// ── L948  데스매치 idle 입력 통계 (관측 전용 전역)\nif game.get_game_mode().tag == 2 /*DeathMatch*/ {   // vtable+0x40 · {i64,ptr}\n  // L949\n  if let BigPlan::DeathMatchBattle(b) = &self.plan_system.plan {   // tag(self+0xb18) < 2 (untagged 자리 · assume ≠6)\n    // L950\n    if b.idle_spec_tick == game.tick() {         // self+0xc58 · tick 호출(4/5)\n      // L952/961\n      CNT_DM_IDLE_INPUT[input.tag + 1].fetch_add(1);   // [7] · None→0 Move→1 … Ult→6\n    }\n  }\n}\n\n// ── L967  입력 기회 카운터\nself.input_chances += 1;                         // self+0x2958\n// L968\nif self.last_lapse { self.lapse_chances += 1; }  // self+0x2998\n// L969\nlet target_dead = self.small_action.is_premise_lost(data);   // bool\n// L970\nif input.is_none() {\n  // L971\n  self.noinput_bucket[((self.last_lapse as usize) << 1) | target_dead as usize] += 1;   // self+0x410 [4] · shl 1 = *2\n  // L972\n  if self.last_lapse {\n    // L973\n    self.noinput_lapse_action[cls(sa_tag)] += 1;   // self+0x500 [6] · cls = {Trace:0, RunAway|Recall|AroundRunAway:1, Around|AroundHide|AroundRegion|Positioning|AroundPosition|AroundPositionBush|AroundBush:2, Attack|Skill|Skill2|Ult:3, LaneMinionPosition:4, Stop:5}\n    // L974\n    if let Some(champ) = champ_opt /*재로드 %229*/ {\n      // L975~977\n      let (flx, fly, frx, fry) = data.context.map.fountains[team];\n      let band = if in_rect(champ) { 0 }\n                 else { match data.cache.nexus[team] {   // cache+0x170 [2] · closure#2(977:68)\n                          Some(n) => if dist2(champ.pos, n.pos) < 67600000001 { 1 } else { 2 },   // 260000²+1\n                          None => 2 } };\n      self.noinput_lapse_pos[band] += 1;         // self+0x29b0 [3]\n    }\n  }\n}\n\n// ── L983  StayEvent 기록 (디버그 컨텍스트 전용)\nif champ_opt.is_some() && data.context.debug {  // context+0x3b bool · and(%231, debug)\n  let champ = champ_opt.unwrap();                // L984 재로드\n  // L985~993\n  let (stays2, kind): (bool, u8) = match input {\n    Some(Input::Move{x,y}) => { let (ax,ay) = Game::adjust_position(map, setting, x, y);   // L988~989\n                                let s = dist2(champ.pos,(ax,ay)) < 4000001; (s, if s {1} else {2}) }   // L990 · freeze 후 비교\n    None => (true, 0),                           // %540 → %579 직행 · kind 0\n    _ => (false, 2),\n  };\n  // L993~994\n  if stays2 || sa_tag == 19 /*Stop*/ {           // kind 는 위 값 유지\n    // L995~996\n    let (flx, fly, frx, fry) = data.context.map.fountains[team];\n    let (can_buy, pos_band): (u8, u8) = if in_rect(champ) {\n      // L1002~1003  분수 안: 구매 가능성(둘 다 rnd.clone())\n      let cb = if buy_item(version, &mut rnd.clone(), player, game, ctx).is_some() { 1 } else { upgrade_item(version, &mut rnd.clone(), player, game, ctx).tag as u8 /*0 None/1 Some*/ };\n      (cb, 0)\n    } else {\n      // L998~999\n      (0, match data.cache.nexus[team] { Some(n) => if dist2(champ.pos,n.pos) < 67600000001 {1} else {2}, None => 2 })\n    };\n    // L1004  push (필드값 대부분은 배치 N 이 1005~1043 에서 계산: tick=game.tick()(5/5 · L1005) · goal · plan_label/plan_detail/sub_plan/action 문자열 · target_kind(&str: 소멸/챔피언/에픽/세르펜/정글몹/미니언/넥서스/타워 중 하나 · phi %1079/%1080) · hp_pct · near_enemy · near_ally · since_combat · in_lapse)\n    self.stay_events.push(StayEvent{ tick, team, pos:(champ.x, champ.y /*배치 N %853*/), position: player.info.position(), kind, pos_band, can_buy: can_buy!=0, /* + 배치 N 값들 */ });\n    //   → %1078: %24(208B) 조립 후 len==cap 이면 grow_one(self+0x1d78) → memcpy(ptr+len*208) → len+1 (self+0x1d88)\n    // → 배치 N(줄 1048) %1129\n  } else {\n    // → 배치 N(줄 1048) %1130\n  }\n} else {\n  // → 배치 N(줄 1048) %1129 (champ None 이면 %480 → 배치 N(줄 1080) %1133 로 직행: L1048~1075 freeze 감시를 건너뜀)\n}\n// 이후(배치 N): L1048~1075 freeze 감시(freeze_since/anchor/eps/plan/pos/field_action · freeze_fired) · L1080 trace_escape_* · L1082 sret = (input, turn_event) · L1083 ret\n\n// ── 언와인딩(%97 cleanuppad): 예외 시 Option<ProfTimer> drop(phi %98=true 인 경로만) → Vec<TurnEvent> drop(%70) → caller\n// ── rnd 사이트 요약(배치 M): 직접 gen_range 1회(L851, 조기반환 아니면 항상) → 이후 순서: update_state → get_input#1 → [update_small_action → get_input#2 → [v3_fall_back_to_passive → update_small_action → get_input#3 → [get_input#4]]] · clone 5회(L926, L927, L932(미사용), L1002, L1003)는 스트림 비소비\n\n// lib.rs:1005~1083 (배치 N)\n// 진입: 배치 M 의 L983 `if champ.is_some() && data.context.debug(+0x3b)` 가 참이고 L985~1004 (kind/pos_band/can_buy 계산 · %580/%631/%632) 를 지나 `self.stay_events.push(StayEvent { ... })`(L1004 · 배치 M) 의 필드식이 내 범위 1005~1043 이다. 배치 M 의 %444(L983 거짓) → L1048 로 직행 · %480(L974 champ None) → L1080 로 직행 · %573(L985 input Some(Move 이외) 경로) → L1049 로 직행.\n\n// ─── [A] StayEvent 필드 (루트 1005~1043 · 값만 내 범위, push 는 배치 M L1004)\ntick     = game.tick()                                   // L1005 · vtable+0x28 · %634\nplan_label  = self.plan_system.plan.debug_label()        // L1009 · String %23 · 계약: (&BigPlan) -> String(sret 24B)\nplan_detail = self.plan_system.plan.get_name()           // L1010 · String %22 · 계약: (&BigPlan) -> String\nsub_plan = short(format!(\"{:?}\", self.plan_system.sub_plan))   // L1011 · closure#5(lib.rs:1000) 인라인:\n   // short(s) = s[..idx].to_string() where idx = s.chars() 순회 중 첫 c==' ' || c=='(' 의 바이트 오프셋(없으면 s.len())  — m14.ll:40242~40551 (UTF-8 디코더 인라인 · `(c & 0x1FFFF7)==32` · 새 String 할당 try_allocate_in(len,1,1) → memcpy → 원본 drop). 즉 SubPlan variant 이름만 남긴다\naction   = format!(\"{:?}\", self.small_action.get_action())       // L1012 · get_action(small_action.rs:308 인라인) 태그별: RunAway(3)/Recall(4)/AroundRunAway(8) → SmallAction::RunAway(0) · Around(5)/AroundHide(6)/LaneMinionPosition(13) → Around(2){target=+0x8} · AroundRegion(7) → AroundPosition(3){+0x10,+0x18} · Positioning(9) → Positioning(1){+0x8,+0x10} · AroundPosition(암묵) → AroundPosition(3){+0x30,+0x38 around_input.target} · AroundPositionBush(11) → AroundPosition(3){+0x8,+0x10} · AroundBush(12) → AroundPosition(3){+0x18,+0x20} · Trace(14) → Trace(4){+0x60} · Attack(15)→Attack(6){+0x8} · Skill(16)→Skill(7) · Skill2(17)→Skill2(8) · Ult(18)→Ult(9) · Stop(19)→Stop(10)\ngoal     = self.small_action.target_position()          // L1013 · small_action.rs:229 인라인 → Option<(u64,u64)>: RunAway/Positioning/AroundPosition/AroundPositionBush → (+0x8,+0x10) · Recall → (+0x50,+0x58) · Around/AroundHide/LaneMinionPosition → (+0x10,+0x18) · AroundBush → (+0x18,+0x20) · Trace → (+0x68,+0x70) · AroundRegion/AroundRunAway/Attack/Skill/Skill2/Ult/Stop → None\npos      = (champ.x /*L996 배치 M %589*/, champ.y /*L1014 %853*/)\nhp_pct   = champ.hp * 100 / max(champ.stat_cached.hp, 1)          // L1016 · Entity+0x670 · +0x628\nenemy_row = data.cache.player_champion[1 - team]                    // L1017 · %862 · [Option<&Entity>;5]\nbb       = &data.blackboard[1 - team]                              // L1018 · %864/%865 · ★인덱스 = 적팀\nnear_enemy = enemy_row.iter().filter(|e| e.is_some() && bb.is_recent_visible(game, player, e) && dist²(e, champ) < 150000²+1).count()   // L1019 · 5회 루프(m14.ll:40891~40973) · dist² = |dx|²+|dy|² (utils 2158 인라인)\nnear_ally  = ally_row(=player_champion[team] %228).iter().filter(|e| e.is_some() && e.id != champ.id && dist²(e, champ) < 150000²+1).count()   // L1021 · 5회 완전 언롤(41009~41341) · ★가시성 검사 없음 · 자기 자신 제외\nin_lapse = self.last_lapse                                          // L1023 · +0x29ca\nsince_combat = if self.last_combat_tick == usize::MAX { usize::MAX } else { game.tick().saturating_sub(self.last_combat_tick) }   // L1024~1025 · tick 재호출(%1058)\ntarget_kind: &str = match self.small_action.get_action() /*L1026 재평가*/ {           // L1026~1040\n   Around(id)|Trace(id)|Attack(id)|Skill(id)|Skill2(id)|Ult(id) => {              // L1027 · Trace → +0x60, 나머지 → +0x8\n      match game.get_entity_by_id(id) /*L1032 · vtable+0x1f0*/ {\n         None => \"소멸\",                                                       // L1032 null → anon.158\n         Some(e) => match e.ty /*+0x68*/ {                                         // L1034\n            Champion(13) => \"챔피언\"(anon.159) · Epic(5) => \"에픽\"(.160 · L1035) · Serpen(6) => \"세르펜\"(.161 · L1036)\n            Jungle(4) if e.ty.info.camp_type.0 /*+0x98*/ < 2 => \"정글몹\"(.162 · L1037)\n            Tower(2) => \"타워\"(.165 · L1038) · Nexus(3) => \"넥서스\"(.164 · L1039)\n            _ (Minion/Ghoul/…/Jungle camp_type.0>=2) => \"미니언\"(.163 · L1040)\n         } } }\n   _ => \"\"   // ptr 1 · len 0 (대상 없는 액션)\n}\n// → StayEvent 208B 조립·push (배치 M L1004 · m14.ll:41412~41532) → L994 로 복귀 후 L1048\n\n// ─── [B] 정지(freeze) 에피소드 계측 (루트 1048~1075)\nif let Some(champ) = data.cache.player_champion[team][position] /*L1048 · %231 배치 M L914*/ {\n   tick  = game.tick()                                                          // L1049 · %1132\n   moved = utils::distance(champ.x, champ.y, self.freeze_anchor.0, self.freeze_anchor.1) > 8000   // L1050\n   if moved || input.is_some() /*%442 != -1 · L633 인라인*/ || self.freeze_since == 0 {   // L1051\n      self.freeze_since = tick; self.freeze_anchor = (champ.x, champ.y); self.freeze_fired = false   // L1052~1054\n   } else if self.freeze_fired {                                                 // L1055\n      self.freeze_ticks += 1                                                     // L1056 · 정지 누적 틱\n   } else if tick.saturating_sub(self.freeze_since) >= data.context.setting.tick_per_second /*L1057 · 1초 게이트 · IR 은 `< tps` 이면 skip*/ {\n      self.freeze_fired = true                                                   // L1058\n      cls = small_action_cls(&self.small_action)                                 // L1059 · lib.rs:481 인라인: Trace→0 · RunAway/Recall/AroundRunAway→1 · Around/AroundHide/AroundRegion/Positioning/AroundPosition/AroundPositionBush/AroundBush→2 · Attack/Skill/Skill2/Ult→3 · LaneMinionPosition→4 · Stop→5\n      self.freeze_eps[cls] += 1                                                  // L1060\n      plan_cls = self.plan_system.plan.freeze_plan_cls()                         // L1061 · types.rs:121 인라인: SinglePlanBattle(idx3)/DeathMatchBattle(4)/Battle(7)→0 · PassiveLine(1)/SinglePlanLine(2)→1 · PassiveJungle(5)→2 · ForcePassive(0)/ActiveRecall(6)→3 · LineGanker(8)/LineGankCover(9)→4 · 그 외(Epic/Serpen 계열 idx10~15)→5\n      self.freeze_plan[plan_cls] += 1                                            // L1061\n      (flx, fly, frx, fry) = data.context.map.fountains[team]                    // L1063 · MapDef+0x6d70 + team*32\n      pos_cls = if flx <= champ.x && champ.x <= frx && fly <= champ.y && champ.y <= fry { 0 /*우물 안*/ }   // L1064\n                else { match data.cache.nexus[team] /*L1066*/ { None => 2, Some(n) => if dist²(champ, n) > 260000² { 2 /*필드*/ } else { 1 /*본진 근처*/ } } }   // L1066~1067\n      self.freeze_pos[pos_cls] += 1                                              // L1072\n      if pos_cls == 2 { self.freeze_field_action[cls] += 1 }                     // L1073 (넥서스 None 경로도 포함 · m14.ll:41882→41884)\n      if self.last_lapse { self.freeze_eps_lapse += 1 }                          // L1074\n      if premise_lost /*%436 · 배치 M is_premise_lost*/ { self.freeze_eps_dead_target += 1 }   // L1075\n   }\n   // else (1초 미만) 아무 것도 안 함\n}\n\n// ─── [C] self.update_trace_escape_abandon(data) (L1080 · lib.rs:1088~1108 인라인 · 진입 %1133)\ntick = data.cache.game.tick()                                                    // L1089 · %1139 (%53 재로드)\nabandon_threshold = data.context.setting.tick_per_second * 2                     // L1090 · shl 1\nif let Trace(t) = &mut self.small_action /*tag==14 · L1091*/ {\n   tid = t.target /*+0x60 · L1092*/\n   if t.last_escape == Some(true) /*+0x8d & 1 · L1093*/ {\n      if self.trace_escape_target == tid && tick >= self.trace_escape_last_tick {            // L1094\n         self.trace_escape_ticks = (tick - self.trace_escape_last_tick) + self.trace_escape_ticks   // L1095\n      } else { self.trace_escape_target = tid; self.trace_escape_ticks = 0 }                  // L1097\n      self.trace_escape_last_tick = tick                                                     // L1100\n      if !(self.trace_escape_ticks < abandon_threshold) && !t.abandoned { t.abandoned = true }   // L1101~1102 · +0x92 ← 1\n   } else if self.trace_escape_target == tid {                                               // L1104\n      dec = tick.saturating_sub(self.trace_escape_last_tick)                                 // L1106\n      self.trace_escape_ticks = self.trace_escape_ticks.saturating_sub(dec)                  // L1107\n      self.trace_escape_last_tick = tick                                                     // L1108\n   }\n}\n// ─── [D] 반환 (L1082~1083 · %1328)\nret.1(+32..+64) = turn_event(%51) ; ret.0(+0..+32) = input(%47) ; ret void   // 32B memcpy ×2 · %1330\n// 언와인드: %97 → %1332 drop Option<ProfTimer>(%50) → %70 drop bumpalo Vec<TurnEvent>(%51) · 문자열 %23/%22/%21/%17 은 각 cleanuppad 에서 drop(L1043 루트)",
+ "knobs": [
+  {
+   "what": "입력 지연 분모",
+   "where": "lib.rs:851",
+   "value": 100,
+   "effect": "내리면(예 50) 같은 input_delay_* 값에서 다음 판단까지의 틱이 2배 — 반응 느려짐. 올리면 빨라짐(0 이면 매 틱)"
+  },
+  {
+   "what": "제자리 판정 반경",
+   "where": "lib.rs:919 / :990",
+   "value": 4000001,
+   "effect": "2000 단위(=1/16 셀). 올리면 짧은 이동도 '정지'로 분류 → stay_home_full_nobuy·StayEvent 진단이 더 많이 찍힘(게임 상태·RNG 무영향, 관측 전용)"
+  },
+  {
+   "what": "위협 감지 반경(적 챔피언)",
+   "where": "lib.rs:935",
+   "value": 62500000001,
+   "effect": "250000(≈7.8 셀). 키 문자열의 '적N' 값만 바뀜 — 진단 전용"
+  },
+  {
+   "what": "넥서스 근접 밴드",
+   "where": "lib.rs:977 / :999",
+   "value": 67600000001,
+   "effect": "260000(≈8.1 셀). noinput_lapse_pos / StayEvent.pos_band 분류만 — 진단 전용"
+  },
+  {
+   "what": "도주 강제 시 RunAway 파라미터",
+   "where": "lib.rs:899",
+   "value": 5,
+   "effect": "SmallActionRunAway::new 의 3번째 인자 — 의미는 r14 명세(move_actions.rs:25) 소관. ★이 경로(L898~900)는 실제 입력을 바꾼다(v2+ · lapse 중 3회 무입력 · 분수 밖 또는 풀피)"
+  },
+  {
+   "what": "버전 게이트",
+   "where": "lib.rs:865 / :876 / :896",
+   "value": 1,
+   "effect": "version ≤ 1 이면 update_small_action 재시도·폴백·도주 강제 전부 비활성(1차 get_input 결과 그대로) — 유일한 판단 개입 스위치"
+  },
+  {
+   "what": "StayEvent 근접 반경(적·아군 공통)",
+   "where": "lib.rs:1019 · 1021 · m14.ll:40954 · 41064",
+   "value": 22500000001,
+   "effect": "올리면 near_enemy/near_ally 가 더 먼 상대까지 세어 계측 버킷이 바뀐다 · 관측 전용(context.debug 일 때만 push) — AI 판단엔 영향 0"
+  },
+  {
+   "what": "정지 앵커 리셋 이동 임계",
+   "where": "lib.rs:1050 · m14.ll:41658",
+   "value": 8000,
+   "effect": "올리면 더 큰 이동도 '제자리'로 간주해 freeze 에피소드가 더 자주 잡힌다 · 내리면 미세 이동에도 앵커 리셋 → 에피소드↓. 계측 카운터(freeze_*)만 바뀜 — 입력 결과 무관"
+  },
+  {
+   "what": "정지 에피소드 확정 시간(1초 = tick_per_second)",
+   "where": "lib.rs:1057 · m14.ll:41688 · GameSetting+0x12f8",
+   "value": "tick_per_second",
+   "effect": "게임 설정값 자체가 게이트. 계측 전용"
+  },
+  {
+   "what": "본진 근처 판정 반경(넥서스 260k)",
+   "where": "lib.rs:1067 · m14.ll:41866",
+   "value": 67600000000,
+   "effect": "올리면 pos_cls 1(본진 근처) 범위↑ · 필드(2) 에피소드↓. 계측 전용"
+  },
+  {
+   "what": "Trace 도주 포기 임계(tps*2 = 2초)",
+   "where": "lib.rs:1090 · m14.ll:41566 (shl 1)",
+   "value": 2,
+   "effect": "★AI 동작에 실제 영향: Trace 액션이 last_escape=Some(true) 인 채 누적 trace_escape_ticks 가 이 값 이상이면 small_action@Trace.abandoned=true 로 래치 → 추격 포기(소비처 = Trace 액션 측 · 이 함수 밖). 올리면 더 오래 타워 회피 후퇴를 반복한 뒤 포기 · 내리면 빨리 포기"
+  }
+ ],
+ "unknown": [
+  "(배치 M) AthleteParameter::input_delay_min/max 의 단위(÷100 후 틱) — game_core 본문 미열람(경계 콜리 · 시그니처만)",
+  "(배치 M) SmallActionRunAway::new(data, player, 5) 의 5 의 의미 — r14 소관(계약만)",
+  "(배치 M) L932 v3_repair_done 앞의 rnd.clone()(%11)이 결과 미사용인데 호출은 남아 있음 — 소스는 `&mut rnd.clone()` 전달로 추정(ArgumentPromotion 으로 콜리 인자에서 소거). 극성·동작엔 무관",
+  "(배치 M) buy_item/upgrade_item 의 IR 인자 1·4·5 가 poison — 콜리가 version·game 을 안 읽는다는 뜻(DeadArgElim). 소스 호출식은 (version, rnd.clone(), player, game, ctx) 로 추정(tcx 시그니처 순서)",
+  "(배치 M) L896 DI 이름 `in_fountain` 이 `hp < stat_cached.hp` 에 붙어 있음 — 소스 변수명이 이 뜻인지(분수 회복 중) 확인 불가(column 0). 동작은 IR 문면대로 기록",
+  "(배치 M) L923 `stays` 의 None 경로가 L921 의 Stop 비교를 거치지 않고 참(true)인 점 — switch 에서 -1 이 %239 로 직행. 소스가 `input.map_or(true, ..)` 인지 match 인지는 표기 불가(동작 확정)",
+  "(배치 M) StayEvent 의 goal·문자열·hp_pct·near_enemy/near_ally·since_combat·in_lapse·target_kind 값 — 배치 N(줄 1009~1043) 계산. 여기선 슬롯 오프셋과 phi 이름(%851/%849/%850/%23/%22/%21/%17/%860/%899/%1052/%1060/%1053/%1079/%1080)만 적음",
+  "(배치 M) L1005 `tick()` 5번째 호출은 블록 %630(배치 M 소속)에 있으나 소스 줄 1005 — StayEvent.tick 값. 배치 N 과 중복 기술될 수 있음(mergespec 에서 하나로)",
+  "(배치 M) 루트 줄 0(`;L0`) 을 가진 phi 9줄(블록 1059/1071 등)은 cuts 상 배치 M 이나 실제 소속 블록은 배치 N(줄 1026/1032) — 이 명세에서 제외",
+  "(배치 M) SmallActionPlay::get_input · v3_fall_back_to_passive 의 마지막 인자에 %1(self 포인터)이 그대로 들어감 — 두 tcx 시그니처 모두 &mut DebugFrameData(224B) 이고 self.debug 가 오프셋 0 이라 self.debug 로 확정(&mut self 와 &mut self.debug 의 동시 대여는 필드 분할 대여로 성립)",
+  "(배치 N) L1018~1019 `data.blackboard[1 - team]`(적팀 인덱스) 로 is_recent_visible 을 부르는 의미론 — IR 사실(m14.ll:40826~40828 · getelementptr [Blackboard] %864, %861=1-team)만 기록. Blackboard[t] 가 '팀 t 소속 엔티티에 대한 관측 기록'인지 '팀 t 가 본 기록'인지는 이 범위에서 확정 불가 — 미탐색 = _gcbc g07.ll:157005 is_recent_visible 본문(last_visible[position] 인덱싱 방향)",
+  "(배치 N) L1037 `camp_type.0 < 2` 의 의미(정글몹 vs 미니언 라벨 분기): Jungle.camp_type = (usize, JungleType) 의 .0 이 무엇을 세는지(캠프 인덱스? 등급?) — _docs 에 camp_type 주석 0건. 표기 불가 아님 · 미탐색 = game_core jungle.rs:13 Jungle 정의·생성처",
+  "(배치 N) L1011 short() 술어가 `c==' ' || c=='('` 인지 `c=='(' || c==' '` 인지 — 컴파일러가 마스크 비교(2097143/32) 한 개로 접어 순서는 표기 불가(외연 동일)",
+  "(배치 N) L1013 target_position 이 AroundRegion(idx4)·AroundRunAway(idx5) 에 None 을 주는 소스 의도 — IR 사실만(둘 다 goal_x/y 필드가 있는데 안 읽음)",
+  "(배치 N) L1064 우물 사각(fountains[team])이 (좌x, 좌y, 우x, 우y) 순인지 — IR 은 4 u64 를 (flx,fly,frx,fry) DI 이름으로 로드하고 x∈[flx,frx]·y∈[fly,fry] 로 비교(41815~41821) · MapDef 필드명 fountains [(u64,u64,u64,u64);2] 까지 확인 · 각 성분 의미는 DI 이름 근거",
+  "(배치 N) %1053(in_lapse)·%425(last_lapse) 가 update_state(L854 · 배치 M)에서 이번 호출에 갱신된 값인지 — 배치 M 소관(0x29ca 는 update_state writes 에 있음)",
+  "(배치 N) premise_lost(%436) 의 계산 조건·호출 줄 — 배치 M(L~964 is_premise_lost invoke) 소관 · 여기선 값만 소비(L1075)",
+  "(배치 N) StayEvent.kind(%580)·can_buy(%631)·pos_band(%632)·position(%225)·team(%221) 값의 계산 — 배치 M(L914 · 985~1003) 소관",
+  "(배치 N) `Option<Input>` 의 Return(1)·None(-1) 경로에서 +8..+32 에 남는 값 — 이 함수는 %47 32B 를 통째 memcpy 하므로 배치 M 이 %47 에 무엇을 썼는지에 달림(패딩 undef 가능) · sweep 대조 시 태그별 live 만 비교할 것",
+  "(배치 N) calls 의 `core::ops::drop::Drop::drop`(m14.ll:40529·40535·40543) 실체 — String(%20 · short() 원본) 의 Vec<u8> Drop · 심볼이 제네릭 인스턴스 이름이라 타입은 DI(`;L825<825<1000`) 로만 추정",
+  "(배치 N) C3 경고 5건(0x28b1·0x28a8·0x28b0·0x28c0·0x28c8)은 정상: 태그는 %210(배치 M 의 gep 10505) 재로드, 페이로드는 %89(+10328) 기준 상대 gep(8/16/24/32/80/88/104/112 · m14.ll:40797~40798 phi) 로 접근돼 절대 오프셋 리터럴이 본문에 없다"
+ ],
+ "calls_note": "drop_glue 는 SmallActionPlay(L899)·String ×11(L936~939 키 조립)·StayEvent(grow_one 실패 언와인드)·Option<ProfTimer>/Vec<TurnEvent>(언와인드 %97/%70) 인스턴스를 한 이름으로 묶음. clone 은 rand_chacha::Array64::clone(StdRng 의 256B 코어) — 나머지 48B+8B 는 인라인 memcpy 로 StdRng::clone 완성",
+ "new_knobs": [],
+ "resolved": [],
+ "still_unknown": [],
+ "_merged_from": [
+  "M",
+  "N"
+ ]
+}

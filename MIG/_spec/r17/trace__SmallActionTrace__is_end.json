@@ -1,0 +1,60 @@
+{
+ "name": "trace::SmallActionTrace::is_end",
+ "sym": "_RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action5traceNtB4_16SmallActionTrace6is_end",
+ "src": "game-ai\\src\\small_action\\trace.rs",
+ "src_line": 406,
+ "ir_file": "m02.ll",
+ "ir_from": 63183,
+ "ir_to": 63322,
+ "aux": [],
+ "one_line": "추격 소액션 종료 판정: 포기(abandoned) · 수명 만료(start+end_delay) · 대상 소멸 → true; 그 외엔 '대상이 보이는 상태에서 목표점 10000 이내 도달' 일 때만 true",
+ "signature": {
+  "abi_note": "define hidden · 4 인자(소스 4 · version 인자 없음 · 팻포인터 없음) · i1 반환. exe 0xcce0c0(333B) 와 IR 140줄 규모 일치.",
+  "params": [
+   {"i": 1, "name": "self", "type": "&SmallActionTrace(152B) (%0)", "role": "readonly · noalias · captures(none). +0x58 start_tick · +0x60 target · +0x68 goal_x · +0x70 goal_y · +0x80 end_delay · +0x92 abandoned 읽음", "note": "DI self = %0"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng(320B) (%1)", "role": "readnone · captures(none) — 미사용(gen_range 0회)", "note": ""},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B) (%2)", "role": "readonly · captures(none). +0x930 info.team · +0x9c0 info.position", "note": "DI player = %2"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B) (%3)", "role": "readonly · captures(none). +0x0 cache 만(context/blackboard 미사용)", "note": "DI data = %3"}
+  ],
+  "returns": "bool(i1) — true = 추격 종료. phi(m02.ll:63320): abandoned → true / start_tick+end_delay <= tick → true / 대상 없음 → true / 대상이 내 팀 시야 밖(Player 팀 챔프 기준 visible_state != Visible) → false / 그 외 = dist_sq(champ, goal) < 100000001"
+ },
+ "reads": [
+  {"base": "SmallActionTrace", "offset": "0x92", "name": "abandoned", "note": "L408 (gep 146) bool — true 면 즉시 종료(v38 추격 포기 플래그 · _docs game_ai.txt:18)"},
+  {"base": "SmallActionTrace", "offset": "0x58", "name": "start_tick", "note": "L409 (gep 88)"},
+  {"base": "SmallActionTrace", "offset": "0x80", "name": "end_delay", "note": "L409 (gep 128) — start_tick+end_delay 가 수명"},
+  {"base": "SmallActionTrace", "offset": "0x60", "name": "target", "note": "L409/L410 (gep 96) get_entity_by_id 인자 · 두 번 호출"},
+  {"base": "SmallActionTrace", "offset": "0x68", "name": "goal_x", "note": "L410 (gep 104) x2"},
+  {"base": "SmallActionTrace", "offset": "0x70", "name": "goal_y", "note": "L410 (gep 112) y2"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L407 (gep 2352) · ult 2 bounds"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "L407 (gep 2496) i32 → as_index"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "팻포인터 앞절반"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "+0x28 tick · +0x1f0 get_entity_by_id"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "L407 (gep 480) · null → unwrap_failed"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag (champ)", "note": "L410 → is_visible_from(entity.rs:1482) → player_team(1136): 1=Neutral 이면 '보임' 취급"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0 (champ)", "note": "L410 · ult 2 bounds"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag (target)", "note": "L410 → is_visible(data.rs:122) stride 24B · ==0(Visible) 만 통과"},
+  {"base": "Entity", "offset": "0x660", "name": "x (champ)", "note": "L410 (gep 1632) x1 — distance_sq 인라인(common vec :3147)"},
+  {"base": "Entity", "offset": "0x668", "name": "y (champ)", "note": "L410 (gep 1640) y1"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 100000001, "src_line": 410, "meaning": "10000² + 1 — dist_sq `ult` ⟹ 챔프↔goal 거리 ≤ 10000(셀 32000 의 0.31) 이면 도달"},
+  {"value": 2, "src_line": 407, "meaning": "player_champion 팀 축 bounds(ult 2) · visible_state 팀 축 bounds(entity.rs:1483)"},
+  {"value": 0, "src_line": 410, "meaning": "VisibleState 태그 0 = Visible"}
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+ "logic": "fn is_end(&self, _rnd, player, data) -> bool   // trace.rs:406~411\n  // L407\n  champ = data.cache.player_champion[player.info.team][player.info.position.as_index()].unwrap()   // +0x1e0 · 팀 bounds 패닉 · None → unwrap_failed\n  // L408\n  if self.abandoned { return true }                                  // +0x92\n  // L409\n  game = data.cache.game\n  if !(self.end_delay + self.start_tick > game.tick()) { return true }   // 수명 만료(tick >= start+end_delay) · IR: add(end_delay,start_tick) ugt tick 이면 계속\n  if game.get_entity_by_id(self.target).is_none() { return true }    // 대상 소멸(option.rs:682 is_none 인라인)\n  // L410\n  game.get_entity_by_id(self.target).is_none_or(|t| t.is_visible_from(champ))   // 재호출. Neutral 관측자→true · Player→ t.visible_state[team]==Visible\n      && champ.distance_sq((self.goal_x, self.goal_y)) < 100000001     // dx=|x1-x2|, dy=|y1-y2| (abs_diff select) · dx²+dy²\n  // L411\n\n★극성: 대상이 시야 밖이면 클로저 false → `&&` 단락으로 **false**(종료 아님 — 마지막 goal 로 계속 이동). 시야 안이면 goal 도달(≤10000) 여부가 종료. 즉 '보이는 대상 옆까지 갔다' 만 정상 종료이고, 나머지 종료는 포기·만료·소멸.\n★L409 의 두 조건이 한 if(`||`) 인지 별개 if 인지는 column 부재로 불명(외연 동일).\n★rnd 미사용 · 쓰기 0.",
+ "knobs": [
+  {"what": "goal 도달 반경(제곱)", "where": "trace.rs:410 · m02.ll:63316", "value": 100000001, "effect": "올리면 goal 에서 더 멀어도 '도달' 로 종료 → 추격이 일찍 끝나 재평가 빈도↑ · 내리면 더 붙어야 끝남"},
+  {"what": "수명 = start_tick + end_delay", "where": "trace.rs:409 · m02.ll:63230 (필드 +0x58/+0x80 · 값은 생성자 소관)", "value": "self.end_delay", "effect": "end_delay 를 늘리면 대상이 안 보여도 추격 액션이 오래 유지"}
+ ],
+ "unknown": [
+  "end_delay(+0x80)·goal_x/goal_y(+0x68/+0x70) 의 값이 어디서 세팅되는지 — 생성자/update_state(trace.rs:400) 소관 · 이 함수는 읽기만",
+  "L409 가 소스에서 `if A || B { return true }` 하나인지 두 개의 if 인지 — column 부재 · 외연 동일 · 표기 불가",
+  "get_entity_by_id 를 L409 와 L410 에서 두 번 호출하는 이유(소스가 `is_none()` 검사 후 다시 `is_none_or` 를 부르는 형태) — 동작상 두 번째 None 분기(%44→%60)는 첫 검사로 사실상 도달 불가이나 IR 에 남아 있음(사장 아님 · reach 는 live 처리)"
+ ]
+}

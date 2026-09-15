@@ -1,0 +1,450 @@
+{
+ "name": "DefenseNexusSubPlan::score",
+ "sym": "_RNvMs_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13defense_nexusNtB4_19DefenseNexusSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\defense_nexus.rs",
+ "src_line": 311,
+ "ir_file": "m14.ll",
+ "ir_from": 48981,
+ "ir_to": 49570,
+ "aux": [
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 30107,
+   "ir_to": 30247
+  },
+  {
+   "ir_file": "m09.ll",
+   "ir_from": 2932,
+   "ir_to": 2971
+  },
+  {
+   "ir_file": "m14.ll",
+   "ir_from": 60870,
+   "ir_to": 60874
+  }
+ ],
+ "one_line": "넥서스 방어 서브플랜 액션 점수: interaction_score 기저 + (v≥2·공격류 대상이 본진구조물 때리는 미니언이면 +100) + 액션별 가산(Attack/Skill/Skill2=calculate_action_score(Push) · 대상 없으면 -99999 / Around·AroundHide·LaneMinionPosition=대상이 적 미니언이고 넥서스 최근접 전방미니언이면 +5)",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&DefenseNexusSubPlan (24B)",
+    "note": "IR `readonly captures(none)` · 본문에서 읽지 않음(last_gate·focus 미참조)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "L318 `version > 1` 게이트 1회(m14.ll:49031 icmp ugt %1,1) · interaction_score/calculate_action_score 1번 인자로 통과. reach(version=2)에서 접힘 @26 → 항상 true"
+   },
+   {
+    "i": 3,
+    "name": "parameter",
+    "type": "&ScoreParameter (5384B)",
+    "note": "IR `readonly` · 본문 직접 읽기 없음 · interaction_score 5번·calculate_action_score 5번 인자로 통과"
+   },
+   {
+    "i": 4,
+    "name": "rnd",
+    "type": "&mut StdRng (320B)",
+    "note": "IR 속성 없음(=&mut) · 본 함수 gen_range 사이트 0 · interaction_score 2번·calculate_action_score 2번 인자로 통과만"
+   },
+   {
+    "i": 5,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "note": "IR `readonly` · info.team(0x930)·info.position(0x9c0) 읽음 · is_base_attacking_minion 1번 인자"
+   },
+   {
+    "i": 6,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "note": "IR `readonly` · cache(0x0)·context(0x8)·blackboard(0x10) 모두 읽음"
+   },
+   {
+    "i": 7,
+    "name": "action",
+    "type": "&SmallActionPlay (184B)",
+    "note": "IR `readonly` · 태그 +0xb1 과 페이로드 +0x8(target) 만 읽음"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData (224B)",
+    "note": "IR 속성 없음(=&mut) · 본 함수 직접 store 0 · interaction_score 7번·calculate_action_score 11번 인자로 통과만"
+   }
+  ],
+  "returns": "i64 — define 에 range 속성 없음(`noundef i64`). 값 = base(+100 가능) + phi(-99999 | 0 | 5 | calculate_action_score 결과) (m14.ll:49171~49173). 큰 값이 좋은 후보(SubPlan 점수 규약 · 선택은 콜러)",
+  "tls": "없음 — 본문 `@anon.*` 참조 6개(.196~.201)는 전부 panic Location · `<KEY…call_once>` fn-포인터 상수 참조 0 · LocalKey::with 0 (interaction_score/calculate_action_score/is_base_attacking_minion 내부는 콜리 계약 밖)"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "m14.ll:49000~49002 · player_champion 1차 인덱스 · `<2` 바운드체크(panic_bounds_check 49006) · nexus[team] 인덱스(49287) · blackboard[1-team] 인덱스(49214)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "i32 zext · player_champion 2차 인덱스 (m14.ll:49011~49013, player.rs:581 인라인)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "m14.ll:49014"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "m14.ll:49349~49350 · context+0x0 pool(&Bump) 을 bumpalo Vec 할당자로 (49351)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2])",
+   "note": "m14.ll:49215~49217 · 원소 744B stride · 인덱스 `1 - team`(적 팀 블랙보드 = 적 미니언 상태)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool",
+   "note": "m14.ll:49351 · from_iter_in 의 &Bump"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (&dyn AbstractGame data ptr)",
+   "note": "m14.ll:49084 / 49116 / 49131 / 49146 / 49161"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game vtable ptr",
+   "note": "vtable+0x1f0(496) = AbstractGame::get_entity_by_id(divtable 실측) 간접호출 6사이트 (49090~49093 · 49119~49121 · 49134~49136 · 49149~49151 · 49164~49166 · 49233/49256/49279)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "[2][5] Option<&Entity>(니치 null=None) → unwrap_failed(49037) (m14.ll:49015~49020)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[team]",
+   "note": "Option<&Entity> null=None → unwrap_failed(49455) (m14.ll:49286~49291, L367)"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "태그(니치 1B)",
+   "note": "m14.ll:49032~49033 · L319 `tag-15 <u 4`(=Attack15/Skill16/Skill2 17/Ult18) · L329 논리 idx = tag>2 ? tag-3 : 7(AroundPosition) · assume(tag!=10)"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "페이로드.target (usize · Attack/Skill/Skill2/Ult/Around/AroundHide/LaneMinionPosition 공통 +0x8)",
+   "note": "m14.ll:49081~49082(L320) · 49113~49114(L358) · 49128~49129(L334) · 49143~49144(L342) · 49158~49159(L350)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "top_minion_state.front_minion@tag",
+   "note": "m14.ll:49219~49224 · Option<usize> tag(i64) trunc→i1 · L362 (minion_state(Top) 인라인 blackboard.rs:381)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x8",
+   "name": "top_minion_state.front_minion@Some.0",
+   "note": "m14.ll:49228~49233 · get_entity_by_id(id)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x28",
+   "name": "mid_minion_state.front_minion@tag",
+   "note": "m14.ll:49241~49247 · L364"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x30",
+   "name": "mid_minion_state.front_minion@Some.0",
+   "note": "m14.ll:49251~49256"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x50",
+   "name": "bottom_minion_state.front_minion@tag",
+   "note": "m14.ll:49264~49270 · L366 (blackboard.rs:382)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x58",
+   "name": "bottom_minion_state.front_minion@Some.0",
+   "note": "m14.ll:49274~49279"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag (TeamType: 0 Player/1 Neutral)",
+   "note": "t 와 champ 양쪽 (m14.ll:49181~49187, L359 `t.team != champ.team` derive PartialEq entity.rs:1127)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0 (팀 번호)",
+   "note": "태그가 둘 다 0(Player)일 때만 비교 (m14.ll:49208~49210)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "`== 1`(Minion) = Entity::is_any_type_minion 인라인 entity.rs:1261 (m14.ll:49196~49198, L360)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (Effect)",
+   "note": "champ · calculate_action_score 7번 인자 (m14.ll:49508, L335) — Attack 가지"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (casting 니치 i32)",
+   "note": "-1 = None → unwrap_failed(49518) (m14.ll:49502~49505)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0 (Effect)",
+   "note": "m14.ll:49530 (L343) — Skill 가지"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag (casting 니치 i32)",
+   "note": "-1 → unwrap_failed(49540) (m14.ll:49524~49527)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0 (Effect)",
+   "note": "m14.ll:49562 (L351, entity.rs:1694) — Skill2 가지(level>2)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x530",
+   "name": "skill2_effect@tag (casting 니치 i32)",
+   "note": "-1 → unwrap_failed(49558) (m14.ll:49552~49555)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x570",
+   "name": "attack (Box<dyn Action>)",
+   "note": "calculate_action_score 6번 인자 &Box (m14.ll:49511, L336)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x580",
+   "name": "skill (Box<dyn Action>)",
+   "note": "m14.ll:49533 (L344)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x590",
+   "name": "skill2 (Box<dyn Action>)",
+   "note": "m14.ll:49566 (L352)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "nearest_front_minion.id == t.id (m14.ll:49473~49477, L374)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "Entity::skill2_effect 인라인 `level > 2` (m14.ll:49545~49548, entity.rs:1693, L351)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "전방미니언·넥서스 거리² (m14.ll:49420~49421, 49428~49429 · aux m12.ll:30183~30184, 30191~30192)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "m14.ll:49424~49425, 49432~49433 · aux m12.ll:30187~30188, 30195~30196"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 312,
+   "meaning": "player_champion 1차 길이 바운드체크 team<2 (m14.ll:49002)"
+  },
+  {
+   "value": 1,
+   "src_line": 318,
+   "meaning": "`version > 1` — v2 이상에서만 본진구조물-타격 미니언 +100 가산 (m14.ll:49031 icmp ugt) · reach(version=2) 접힘 true"
+  },
+  {
+   "value": 10,
+   "src_line": 319,
+   "meaning": "SmallActionPlay 니치 태그 10(암묵 AroundPosition 자리)은 안 나옴 → llvm.assume (m14.ll:49042, 49052)"
+  },
+  {
+   "value": -15,
+   "src_line": 319,
+   "meaning": "`tag - 15` (m14.ll:49044) — 태그 15..18 = Attack/Skill/Skill2/Ult 를 한 번에 판별"
+  },
+  {
+   "value": 4,
+   "src_line": 319,
+   "meaning": "`(tag-15) <u 4` (m14.ll:49045) → 공격류 4종이면 target 을 꺼냄"
+  },
+  {
+   "value": 100,
+   "src_line": 322,
+   "meaning": "target 이 is_base_attacking_minion 이면 base += 100 (m14.ll:49108~49109 add/select)"
+  },
+  {
+   "value": -3,
+   "src_line": 329,
+   "meaning": "니치 태그 → 논리 idx 변환 `tag-3` (niche_start=3) (m14.ll:49054)"
+  },
+  {
+   "value": 2,
+   "src_line": 329,
+   "meaning": "`tag >u 2` 이면 tag-3 아니면 7 (m14.ll:49055)"
+  },
+  {
+   "value": 7,
+   "src_line": 329,
+   "meaning": "태그 ≤2 → 논리 idx 7 = AroundPosition(untagged) (m14.ll:49056 select)"
+  },
+  {
+   "value": -99999,
+   "src_line": 334,
+   "meaning": "Attack(L334)/Skill(L342)/Skill2(L350) 에서 get_entity_by_id(target) 가 None 이면 가산값 -99999 (m14.ll:49171 phi from %67/%77/%87) — 사실상 후보 배제"
+  },
+  {
+   "value": -1,
+   "src_line": 335,
+   "meaning": "Option<Effect> 니치 None 판별값(casting 태그 i32 = -1) → unwrap 패닉 (m14.ll:49504 / 49526 / 49554)"
+  },
+  {
+   "value": 2,
+   "src_line": 336,
+   "meaning": "MinionActionType::Push(태그 2, utils.rs:768) 을 calculate_action_score 10번 인자로 (m14.ll:49513, 49535, 49568 `i8 2`)"
+  },
+  {
+   "value": 2,
+   "src_line": 351,
+   "meaning": "Entity::skill2_effect 인라인 `level > 2` — 2레벨 이하면 skill2_effect 를 정적 None 으로 봐 unwrap 패닉 (m14.ll:49547, entity.rs:1693)"
+  },
+  {
+   "value": 0,
+   "src_line": 359,
+   "meaning": "TeamType 태그 0 = Player — 양쪽 Player 일 때만 payload(팀 번호) 비교 (m14.ll:49191)"
+  },
+  {
+   "value": 1,
+   "src_line": 360,
+   "meaning": "EntityType 태그 1 = Minion — `t.is_any_type_minion()` (m14.ll:49198)"
+  },
+  {
+   "value": 1,
+   "src_line": 361,
+   "meaning": "`1 - team` = 적 팀 인덱스로 blackboard 선택 (m14.ll:49214)"
+  },
+  {
+   "value": 5,
+   "src_line": 374,
+   "meaning": "Around/AroundHide/LaneMinionPosition 의 target 이 넥서스 최근접 전방 적 미니언이면 +5 (m14.ll:49478 select)"
+  },
+  {
+   "value": 496,
+   "src_line": 320,
+   "meaning": "dyn AbstractGame vtable 슬롯 0x1f0 = get_entity_by_id (divtable 실측) (m14.ll:49090, 49119, 49134, 49149, 49164)"
+  },
+  {
+   "value": 24,
+   "src_line": 370,
+   "meaning": "`vec![top,mid,bottom]` Box<[Option<&Entity>;3]> 힙 할당 24B (m14.ll:49313) — 판정 상수 아님"
+  },
+  {
+   "value": 3,
+   "src_line": 370,
+   "meaning": "vec! 원소 수 3 (len/cap, m14.ll:49346) — 판정 상수 아님. ⚠본문의 `shl %167, 3`(49368) 은 slice len×8(ptr 크기) 바이트 환산이지 이 3과 무관"
+  }
+ ],
+ "calls": [
+  "game_ai::action_score::interaction_score",
+  "game_ai::action_score::calculate_action_score",
+  "game_ai::plan_legacy::old::defense_nexus::is_base_attacking_minion",
+  "game_core::simulation::entity::Entity::attack_speed_mult",
+  "game_core::simulation::entity::Entity::cooldown_reduce",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "alloc::alloc::handle_alloc_error",
+  "__rust_alloc",
+  "__rust_no_alloc_shim_is_unstable_v2",
+  "core::iter::adapters::filter_map::FilterMap::from_iter_in",
+  "core::iter::adapters::map::Map::fold",
+  "bumpalo::collections::vec::Vec::drop",
+  "core::ptr::drop_glue"
+ ],
+ "calls_indirect": [
+  "AbstractGame::get_entity_by_id(usize) -> Option<&Entity> — cache.game vtable+0x1f0 간접호출 × 6 사이트(m14.ll:49093, 49121, 49136, 49151, 49166, 49233/49256/49279 는 같은 fn ptr %64 재사용)"
+ ],
+ "logic": "fn score(&self, version, parameter, rnd, player, data, action, debug) -> i64   [defense_nexus.rs:311]\n  team = player.info.team (bounds <2)                                                         [L312 · m14.ll:49000~49006]\n  champ = data.cache.player_champion[team][player.info.position].unwrap()                     [L312 · 49011~49020 · None→unwrap_failed 49037]\n  base = action_score::interaction_score(version, rnd, player, data, parameter, action, debug)   [L313 · 49029]\n  if version > 1 {                                                                            [L318 · 49031 ugt · reach: 항상 true]\n    // L319: 공격류 4종만 target 꺼냄 (tag 15..18 = Attack/Skill/Skill2/Ult)\n    target_is_base_attacker = match action { Attack(a)|Skill(a)|Skill2(a)|Ult(a) => Some(a.target), _ => None }   [49042~49046, 49081~49082]\n        .and_then(|id| data.cache.game.get_entity_by_id(id))        // closure#0 L320 · vtable+0x1f0 · 49084~49097\n        .is_some_and(|e| old::is_base_attacking_minion(player, data, e))   // closure#1 L321 · 49106\n    if target_is_base_attacker { base += 100 }                                                [L322 · 49108~49109 select]\n  }\n  idx = 논리 variant idx(action 태그 +0xb1; tag>2 ? tag-3 : 7)                              [L329 · 49052~49075 switch]\n  extra = match action {\n    Attack(12)  => match game.get_entity_by_id(a.target) {                                    [L334 · 49128~49138]\n                     None => -99999,\n                     Some(t) => calculate_action_score(version, rnd, player, data, parameter, &champ.attack(0x570), champ.attack_effect.as_ref().unwrap()(0x490·tag 0x4c0!=-1), champ.attack_speed_mult(), t, MinionActionType::Push(2), debug) }   [L335~336 · 49502~49513]\n    Skill(13)   => None => -99999 | Some(t) => calculate_action_score(…, &champ.skill(0x580), champ.skill_effect.unwrap()(0x4c8·tag 0x4f8), champ.cooldown_reduce(false), t, Push, debug)   [L342~344 · 49143~49153, 49524~49535]\n    Skill2(14)  => None => -99999 | Some(t) => { eff = if champ.level>2 { &champ.skill2_effect } else { &None }  // Entity::skill2_effect 인라인 entity.rs:1693\n                     calculate_action_score(…, &champ.skill2(0x590), eff.as_ref().unwrap()(0x500·tag 0x530), champ.cooldown_reduce(false), t, Push, debug) }   [L350~352 · 49158~49168, 49545~49568]\n    Around(2) | AroundHide(3) | LaneMinionPosition(10) =>                                     [L358 · 49113~49123]\n      match game.get_entity_by_id(a.target) { None => 0, Some(t) =>\n        if t.team != champ.team && t.is_any_type_minion() {                                   [L359~360 · 49181~49211(TeamType PartialEq) · 49196~49199(ty tag==1)]\n          bb = &data.blackboard[1 - team]                    // 적 팀 블랙보드                 [L361 · 49214~49217]\n          top    = bb.minion_state(Top).front_minion.and_then(|id| game.get_entity_by_id(id))     // closure#2 L362 · 49219~49238\n          mid    = bb.minion_state(Mid).front_minion.and_then(…)                                  // closure#3 L364 · 49241~49261\n          bottom = bb.minion_state(Bottom).front_minion.and_then(…)                               // closure#4 L366 · 49264~49284\n          nexus  = data.cache.nexus[team].unwrap()                                                [L367 · 49286~49291 · None→unwrap_failed 49455]\n          front_minions: bumpalo::Vec<&Entity> = Vec::from_iter_in(vec![top,mid,bottom].into_iter().filter_map(|m| m), data.context.pool)   // closure#5 L370 · 49312~49352 (aux m09 try_fold · m14 call_mut 항등)\n          nearest = front_minions.iter().min_by_key(|m| dist_sq(m.pos, nexus.pos))   // closure#6 L372 · dist_sq = |dx|²+|dy|² (49417~49451 첫 원소 · aux m12.ll:30107~30247 나머지 fold · 동점이면 앞 원소 유지 30227~30229)\n          match nearest { None => 0, Some(n) => if n.id == t.id { 5 } else { 0 } }              [L373~374 · 49467~49478]\n        } else { 0 }                                                                            [L359 거짓 → 49171 phi 0]\n      }\n    _ (RunAway·Recall·AroundRegion·AroundRunAway·Positioning·AroundPosition·AroundPositionBush·AroundBush·Trace·Ult·Stop) => 0   [L329 switch → %97 phi 0]\n  }\n  return base + extra                                                                          [L329/394 · 49172~49173]\n\n주의: ①Ult(15) 는 L319 의 +100 가산 대상이지만 L329 매치에서는 0 가산(calculate_action_score 호출 없음). ②공격류 3종은 target 부재 시 -99999(사실상 배제)지만 Around 계열은 0. ③Skill2 가지는 champ.level<=2 이면 unwrap 패닉(49558) — 도달 조건은 콜러(후보 생성)에 있음. ④gen_range 사이트 0 · self 읽기 0 · debug 직접 store 0. ⑤front_minions 는 적 팀 블랙보드(blackboard[1-team])의 라인별 front_minion id 3개를 엔티티로 해석한 것 — '넥서스에 가장 가까운 적 전방 미니언' 을 정리 대상으로 선호.",
+ "knobs": [
+  {
+   "what": "본진구조물-타격 미니언 공격 가산",
+   "where": "sub_plan/defense_nexus.rs:322",
+   "value": 100,
+   "effect": "올리면 v≥2 에서 넥서스·쌍둥이를 때리는 적 미니언을 향한 Attack/Skill/Skill2/Ult 후보가 다른 후보를 압도한다 · 내리면 interaction_score 기저 순위에 가까워진다"
+  },
+  {
+   "what": "공격류 대상 부재 패널티",
+   "where": "sub_plan/defense_nexus.rs:334/342/350",
+   "value": -99999,
+   "effect": "Attack/Skill/Skill2 의 target 엔티티가 사라졌을 때 후보를 사실상 배제 — 값을 키우면(덜 음수) 죽은 대상 후보가 살아남을 수 있다"
+  },
+  {
+   "what": "넥서스 최근접 전방미니언 접근 가산",
+   "where": "sub_plan/defense_nexus.rs:374",
+   "value": 5,
+   "effect": "올리면 Around/AroundHide/LaneMinionPosition 이 넥서스에 가장 가까운 적 전방 미니언을 대상으로 잡을 때 더 선호된다(현재는 기저 대비 미세 가산)"
+  },
+  {
+   "what": "버전 게이트",
+   "where": "sub_plan/defense_nexus.rs:318",
+   "value": 1,
+   "effect": "`version > 1` — v1 이하에서는 +100 가산 자체가 없다(reach version=2 에서 접힘)"
+  },
+  {
+   "what": "미니언 액션 타입",
+   "where": "sub_plan/defense_nexus.rs:336/344/352",
+   "value": 2,
+   "effect": "calculate_action_score 에 Push(2) 고정 전달 — Pull(0)/Normal(1) 로 바꾸면 calculate_action_score 내부 미니언 처리 분기가 바뀐다(내부는 콜리 계약 밖)"
+  }
+ ],
+ "unknown": [
+  "interaction_score(version,rnd,player,data,parameter,action,debug)->i64 · calculate_action_score(version,rnd,player,data,parameter,&Box<dyn Action>,&Effect,usize,&Entity,MinionActionType,debug)->i64 · is_base_attacking_minion(player,data,&Entity)->bool 내부 — 여기서는 계약만(정본 r13~r15 / is_base_attacking_minion 은 O(1) 판정이라는 개발자 주석만 확인)",
+  "Entity::attack_speed_mult(&self)->usize · Entity::cooldown_reduce(&self,bool)->usize 의 내부(game_core) — 8번 인자 의미(공격속도 배율 / 쿨감 배율)는 이름·시그니처만",
+  "L319 소스 표기가 `matches!`+`target()` 헬퍼인지 `match … => Some(a.target)` 인지 — 표기 불가(외연 동일 · tag-15<4 로 접힘)",
+  "L372 min_by_key 의 키가 `dist_sq(m,nexus)` 인지 `nexus.dist_sq(m)` 인지 — 표기 불가(|dx|²+|dy|² 대칭)",
+  "closure#5(L370) 가 `filter_map(|m| m)` 인지 `flatten()` 인지 — IR 은 FilterMap<IntoIter<Option<&Entity>>, closure#5> 로 확정(항등 call_mut m14.ll:60870~60874) → `filter_map(|m| m)` 이 정확 · `.flatten()` 은 아님",
+  "bumpalo Vec::from_iter_in 본체(m01.ll:27320~27427) 는 std 플럼빙이라 aux 에서 제외 — 판정 상수 없음"
+ ]
+}
