@@ -146,6 +146,14 @@ extern "system" {
     /// 유효한 블록이면 크기, 아니면 usize::MAX
     fn HeapSize(heap: *mut c_void, flags: u32, mem: *const c_void) -> usize;
     fn HeapValidate(heap: *mut c_void, flags: u32, mem: *const c_void) -> i32;
+    fn GetCurrentProcess() -> *mut c_void;
+    fn ReadProcessMemory(
+        process: *mut c_void,
+        base: *const c_void,
+        buf: *mut c_void,
+        size: usize,
+        read: *mut usize,
+    ) -> i32;
 }
 
 /// ★할당자 호환성 측정 — 게임의 Vec 버퍼가 프로세스 힙에서 왔는지.
@@ -760,8 +768,10 @@ fn scan_for_net(heap_hint: usize) -> Option<usize> {
 }
 
 /// 프로세스 힙을 훑어 시그니처 후보를 모은다. ★백그라운드 스레드 전용(수 초 소요).
+const SCAN_CHUNK: usize = 1 << 20; // 1MB 복사 버퍼
 fn scan_heap_for_hits(reason: &str) -> Vec<usize> {
     let t0 = std::time::Instant::now();
+    let mut buf: Vec<u8> = vec![0u8; SCAN_CHUNK];
     let mut addr: usize = 0x10000;
     let mut scanned_regions = 0usize;
     let mut scanned_bytes = 0usize;
@@ -783,15 +793,41 @@ fn scan_heap_for_hits(reason: &str) -> Vec<usize> {
         if usable && size >= 0x20 {
             scanned_regions += 1;
             scanned_bytes += size;
-            let end = base + size - 0x20;
-            let mut a = base;
-            while a <= end {
-                // 첫 qword 만 싸게 걸러낸다
-                if unsafe { std::ptr::read_unaligned(a as *const usize) } == 16384 && net_sig_at(a) {
-                    hits.push(a);
-                    if hits.len() >= 8 { break; }
+            // ★직접 역참조 금지(2026-09-16 크래시 2건 = 이 루프의 `cmp qword[r12],0x4000` 에서 읽기 AV).
+            //   VirtualQuery 가 "커밋됨"이라 해도 읽기 전에 게임이 리전을 해제할 수 있다 — 세이브 로드 직후
+            //   백그라운드로 도니 확률이 컸다. ReadProcessMemory 로 청크 복사하면 해제된 페이지는 AV 대신
+            //   실패 반환으로 끝난다. 시그니처 판정도 **복사본**에서 하고(원본 재역참조 없음), 가중치 ptr 은
+            //   VirtualQuery 로만 확인한다. 최종 검증은 사용 시점 net_sig_at 이 한 번 더 한다.
+            let mut off = 0usize;
+            while off < size {
+                let want = (size - off).min(SCAN_CHUNK);
+                let mut got = 0usize;
+                let ok = unsafe {
+                    ReadProcessMemory(
+                        GetCurrentProcess(),
+                        (base + off) as *const c_void,
+                        buf.as_mut_ptr() as *mut c_void,
+                        want,
+                        &mut got,
+                    )
+                };
+                if ok != 0 && got >= 0x20 {
+                    let mut i = 0usize;
+                    while i + 0x20 <= got {
+                        let q = |k: usize| u64::from_le_bytes(buf[i + k * 8..i + k * 8 + 8].try_into().unwrap()) as usize;
+                        if q(0) == 16384 && q(2) == 16384 && q(3) == 1 {
+                            let w = q(1);
+                            if w >= 0x10000 && readable(w, 16384 * 4) {
+                                hits.push(base + off + i);
+                                if hits.len() >= 8 { break; }
+                            }
+                        }
+                        i += 8;
+                    }
                 }
-                a += 8;
+                if hits.len() >= 8 { break; }
+                // 청크 경계에 걸친 시그니처(0x20B)를 놓치지 않게 0x18 겹쳐서 전진
+                if want == SCAN_CHUNK { off += SCAN_CHUNK - 0x18; } else { off += want; }
             }
         }
         if hits.len() >= 8 { break; }
