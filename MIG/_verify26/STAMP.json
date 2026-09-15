@@ -1,0 +1,212 @@
+{
+ "A": {
+  "dossier": "2ccb468dd2f9da78",
+  "specs": [
+   "spec_204_calculate_score_parameter.md"
+  ],
+  "spec_hashes": {
+   "spec_204_calculate_score_parameter.md": "3d19ef67710487b1"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "B": {
+  "dossier": "372c26ac41dad1cb",
+  "specs": [
+   "spec_205_LegacyPlanHandler__get_small_action.md"
+  ],
+  "spec_hashes": {
+   "spec_205_LegacyPlanHandler__get_small_action.md": "89af876bc81a4fac"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "C": {
+  "dossier": "327adf0c5436fbec",
+  "specs": [
+   "spec_206_PassiveLinePlan__update.md"
+  ],
+  "spec_hashes": {
+   "spec_206_PassiveLinePlan__update.md": "19c6651d1b94dfbf"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "D": {
+  "dossier": "d1dcec9d8567cb7c",
+  "specs": [
+   "spec_207_resolve_fight_uncached.md",
+   "spec_208_get_input.md"
+  ],
+  "spec_hashes": {
+   "spec_207_resolve_fight_uncached.md": "1bfba774973954e3",
+   "spec_208_get_input.md": "fd7bd2187e74a0b0"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "E": {
+  "dossier": "7557b8fa185f0533",
+  "specs": [
+   "spec_209_build_minion_wave_snapshot.md",
+   "spec_210_StealSubPlan__action_candidates.md",
+   "spec_211_fight_check__check_kill_die_tick_uncached.md"
+  ],
+  "spec_hashes": {
+   "spec_209_build_minion_wave_snapshot.md": "0953498f6748a02c",
+   "spec_210_StealSubPlan__action_candidates.md": "b2ec4181a4839138",
+   "spec_211_fight_check__check_kill_die_tick_uncached.md": "159af1c27f3988a2"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "F": {
+  "dossier": "a31455c6db968785",
+  "specs": [
+   "spec_212_AgentVerHamster__update_small_action.md",
+   "spec_213_PassiveLinePlan__v46_stage1.md",
+   "spec_214_BattleSubPlan__score.md"
+  ],
+  "spec_hashes": {
+   "spec_212_AgentVerHamster__update_small_action.md": "93489c6804216024",
+   "spec_213_PassiveLinePlan__v46_stage1.md": "4cfa3bd0a1f28272",
+   "spec_214_BattleSubPlan__score.md": "bd5a248780cd9924"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "G": {
+  "dossier": "5e65f3da1f925649",
+  "specs": [
+   "spec_215_v16_gambler_ult_cc_bonus.md",
+   "spec_216_unsafe_v19_non_champion_walkup.md",
+   "spec_217_v17_runaway_counterattack_bonus.md",
+   "spec_218_AgentVerHamster__update_state.md"
+  ],
+  "spec_hashes": {
+   "spec_215_v16_gambler_ult_cc_bonus.md": "6f0bee68d9c04981",
+   "spec_216_unsafe_v19_non_champion_walkup.md": "49bfbc8179df17f5",
+   "spec_217_v17_runaway_counterattack_bonus.md": "c1bb8949aa0a32b4",
+   "spec_218_AgentVerHamster__update_state.md": "950d0a61f7cc5187"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "H": {
+  "dossier": "cc079852db1a84f4",
+  "specs": [
+   "spec_219_BattleSubPlan__calculate_score_parameter_value.md",
+   "spec_220_PassiveLinePlan__v46_stage2.md",
+   "spec_221_precompute_champion_powers.md",
+   "spec_222_nexus_last_stand_uncached.md"
+  ],
+  "spec_hashes": {
+   "spec_219_BattleSubPlan__calculate_score_parameter_value.md": "bb584b7a74db70d2",
+   "spec_220_PassiveLinePlan__v46_stage2.md": "82e3a846485b5beb",
+   "spec_221_precompute_champion_powers.md": "9d765039be154520",
+   "spec_222_nexus_last_stand_uncached.md": "e6c3d23748f05f3c"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "I": {
+  "dossier": "ba9be621bb09254a",
+  "specs": [
+   "spec_223_DefenseNexusSubPlan__score.md",
+   "spec_224_v21_defensive_cc_score.md",
+   "spec_225_AgentVerHamster__item_v26.md",
+   "spec_226_build_game_finish_check_state.md",
+   "spec_227_v47_tower_focus_position_dangerous.md"
+  ],
+  "spec_hashes": {
+   "spec_223_DefenseNexusSubPlan__score.md": "fcde849fcfbce37d",
+   "spec_224_v21_defensive_cc_score.md": "7077f674c193b355",
+   "spec_225_AgentVerHamster__item_v26.md": "b58d828c2a83dfa8",
+   "spec_226_build_game_finish_check_state.md": "905ea30aee03f0a7",
+   "spec_227_v47_tower_focus_position_dangerous.md": "8cb5cf592857ba54"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "J": {
+  "dossier": "7dacba1ce65dba0c",
+  "specs": [
+   "spec_228_TeamPlan__handle_nexus_attack.md",
+   "spec_229_AgentVerHamster__count_nearby_enemies.md",
+   "spec_230_LineSafeSubPlan__score.md",
+   "spec_231_LineWaitSubPlan__score.md",
+   "spec_232_v30_line_champion_action_tower_aggro_risk.md",
+   "spec_233_nexus_final_stand_uncached.md"
+  ],
+  "spec_hashes": {
+   "spec_228_TeamPlan__handle_nexus_attack.md": "b6cf722df8ca038b",
+   "spec_229_AgentVerHamster__count_nearby_enemies.md": "e240df9600f6a115",
+   "spec_230_LineSafeSubPlan__score.md": "83e6192c5a4b88a0",
+   "spec_231_LineWaitSubPlan__score.md": "90513880e4f4fd13",
+   "spec_232_v30_line_champion_action_tower_aggro_risk.md": "7a2a8d260739b624",
+   "spec_233_nexus_final_stand_uncached.md": "d153c8670f6d76be"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:35"
+ },
+ "K": {
+  "dossier": "7945756d163ed7bc",
+  "specs": [
+   "spec_234_JungleSubPlan__score.md",
+   "spec_235_AttackNexusSubPlan__score.md",
+   "spec_236_v15_can_keep_support_pressure.md",
+   "spec_237_RecallSubPlan__score.md",
+   "spec_238_v22_current_line_non_champion_action_tower_risk.md",
+   "spec_239_around__SmallActionAroundBush__update_state.md",
+   "spec_240_LineDefenseSubPlan__calculate_score_parameter_value.md"
+  ],
+  "spec_hashes": {
+   "spec_234_JungleSubPlan__score.md": "746248d5aac30e44",
+   "spec_235_AttackNexusSubPlan__score.md": "eb8d4d66989eb84a",
+   "spec_236_v15_can_keep_support_pressure.md": "9e8591000ee72d7f",
+   "spec_237_RecallSubPlan__score.md": "b2b2b8d4b3be5499",
+   "spec_238_v22_current_line_non_champion_action_tower_risk.md": "e67f67e37597e082",
+   "spec_239_around__SmallActionAroundBush__update_state.md": "3a6f8d864c35a58f",
+   "spec_240_LineDefenseSubPlan__calculate_score_parameter_value.md": "c7fc7a52c721b5ee"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:36"
+ },
+ "L": {
+  "dossier": "1dc2c0788ddc7388",
+  "specs": [
+   "spec_241_RecallSubPlan__action_candidates.md",
+   "spec_242_StealSubPlan__score.md",
+   "spec_243_trace__SmallActionTrace__is_end.md",
+   "spec_244_move_actions__SmallActionRecall__is_end.md",
+   "spec_245_AgentVerHamster__upgrade_item.md",
+   "spec_246_SerpenCheckSubPlan__score.md",
+   "spec_247_AgentVerHamster__buy_item.md",
+   "spec_248_cast__SmallActionUlt__is_end.md"
+  ],
+  "spec_hashes": {
+   "spec_241_RecallSubPlan__action_candidates.md": "b472b4f7f6d2b57f",
+   "spec_242_StealSubPlan__score.md": "157e25f651dcdf45",
+   "spec_243_trace__SmallActionTrace__is_end.md": "ea2a65492810ff34",
+   "spec_244_move_actions__SmallActionRecall__is_end.md": "0931a68e52ab2adc",
+   "spec_245_AgentVerHamster__upgrade_item.md": "2e930d75547f750a",
+   "spec_246_SerpenCheckSubPlan__score.md": "c4aa24bcc43d4633",
+   "spec_247_AgentVerHamster__buy_item.md": "78b35187198f1506",
+   "spec_248_cast__SmallActionUlt__is_end.md": "609e235dd702ef18"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "9451345d9b9ff946",
+  "built": "2026-09-16 05:53:36"
+ }
+}
