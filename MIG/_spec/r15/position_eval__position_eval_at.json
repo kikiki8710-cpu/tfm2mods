@@ -1,0 +1,123 @@
+{
+ "name": "position_eval_at",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at",
+ "src": "game-ai\\src\\position_eval.rs",
+ "src_line": 291,
+ "ir_file": "m07.ll",
+ "ir_from": 24507,
+ "ir_to": 24711,
+ "aux": [
+  {"ir_file": "m00.ll", "ir_from": 75374, "ir_to": 75611, "what": "POS_EVAL_CACHE.with 조회 클로저(position_eval.rs:298~307 · LocalKey::with<closure#0, Option<PositioningScore>> 인스턴스에 클로저 본문이 인라인)"},
+  {"ir_file": "m00.ll", "ir_from": 75614, "ir_to": 75727, "what": "POS_EVAL_CACHE.with 삽입 클로저(position_eval.rs:316~321 · LocalKey::with<closure#1, ()> 인스턴스)"}
+ ],
+
+ "one_line": "위치 평가(PositioningScore 56B)의 TLS 캐시 래퍼 — (id,x,y,purpose,version) 키를 512슬롯 해시로 조회, miss 면 position_eval_at_uncached 계산 후 삽입",
+
+ "signature": {
+  "abi": "define void(외부 가시 · internal fastcc 아님) · exe 0xd84db0 인자 7 = IR 7(sret + 6) — argscan 결과대로 승격 없음(purpose 는 +0x30 스택 슬롯 i8)",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut PositioningScore(56B)", "note": "반환 슬롯. hit 면 캐시 슬롯에서 memcpy 56B(24645), miss 면 uncached 의 sret %9 에서 memcpy 56B(24700)"},
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. 이 함수에선 분기 없음 — 캐시 키의 5번째 성분(key+0x20)으로만 쓰임(24554). uncached 에 그대로 전달"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B, readonly)", "note": "+0x928 info.id 만 읽음(24544) — 캐시 키 0번 성분. uncached 에 그대로 전달"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B, readonly)", "note": "+0x0 cache → AbstractGameWithCache+0x0 game(&dyn AbstractGame 팻포인터: +0 data_ptr, +8 vtable_ptr) → vtable+0x20 seed() / +0x28 tick() 호출(24530~24541)"},
+   {"i": 4, "name": "x", "type": "u64", "note": "평가 좌표 x(원단위). 캐시 키 1번 성분 + 해시 xor 항"},
+   {"i": 5, "name": "y", "type": "u64", "note": "평가 좌표 y. 캐시 키 2번 성분 + 해시 (y<<21) 항"},
+   {"i": 6, "name": "purpose", "type": "PositionEvalPurpose(1B, i8 로 전달)", "note": "니치 인코딩 enum(General=2 … AttackStance=12, LineStyle 은 암묵 0/1=LineStyle(Aggressive/Defensive), 9 는 무효). 캐시 키 3번 성분 + pe_purpose_ord 로 해시 항"}
+  ],
+  "returns": "sret PositioningScore(56B). 살아있는 바이트 = +0x00 risk i64 · +0x08 tower_risk · +0x10 gain · +0x18 gain_me · +0x20 adjust · +0x28 unseen_champ_threat · +0x30 on_trajectory bool · +0x31 on_periodic_trajectory bool(=Option<PositioningScore> 니치 태그 자리, 2=None 은 이 함수 밖으로 절대 안 나감: hit 조건이 tag!=2 이고 miss 는 uncached 의 실값). +0x32..+0x38 패딩 6B 는 hit 면 캐시 슬롯 +0x62..+0x68(삽입 때 uncached 의 패딩이 memcpy 56 으로 같이 저장된 것)에서, miss 면 uncached sret 에서 그대로 복사됨 — 정의되지 않은 값(대조 시 마스크 필요)",
+  "tls": {
+   "name": "game_ai::position_eval::POS_EVAL_CACHE (thread_local! RefCell<PosEvalCache>) · IR 전역 @anon.81aa2713ddfa9e15f7e3c0757f8f3b51.97 (LocalKey) — ⚠지시문의 'EPC_CACHE' 는 이 함수가 쓰는 캐시가 아니다: EPC_CACHE(EpcCache) 는 entity_positioning_cache_cached 소관이고 position_eval_at 은 POS_EVAL_CACHE 만 만진다(24637·24698 의 심볼 …PosEvalCacheEE4with…)",
+   "role": "작성자 겸 소비자 — 조회(298~307) 후 miss 면 삽입(316~321). 같은 함수가 유일한 진입점(다른 작성자는 이 IR 범위에서 안 보임 · 미탐색: 다른 함수의 POS_EVAL_CACHE.with 호출 여부는 grep 안 함)",
+   "layout": "RefCell<PosEvalCache>: +0x0 borrow 플래그 i64(0=free, -1=borrow_mut 중) · +0x8 PosEvalCache.slots = Box<[Option<PeSlot>;512]> 의 ptr · +0x10 PosEvalCache.seed u64. PeSlot(104B, tcxdict): +0x0 tick usize · +0x8 key.0 id usize · +0x10 key.1 x u64 · +0x18 key.2 y u64 · +0x20 key.3 purpose PositionEvalPurpose(1B) · +0x28 key.4 version usize · +0x30 val PositioningScore(56B) → Option<PeSlot> 의 None 태그 = val.on_periodic_trajectory 자리(+0x61=97)에 2",
+   "key": "5-튜플 (player.info.id, x, y, purpose, version) — 슬롯 인덱스 = pe_slot_index(id,x,y,purpose)(L100~102 인라인): h = x ^ (y<<21) ^ (id<<42) ^ pe_purpose_ord(purpose); idx = (h.wrapping_mul(0x9E3779B97F4A7C15)) >> 55 → 0..511. ⚠version 은 해시에 안 들어가고 슬롯 안 key.4 로만 대조됨 (같은 슬롯에 다른 version 이 오면 덮어씀)",
+   "purpose_ord": "pe_purpose_ord(L82~95, 인라인·switch): General 0 · RunAway 512 · Recall 1024 · Around 1536 · Positioning 2048 · Trace 2560 · Lane 3072 · LineStyle(Aggressive) 4096 · LineStyle(Defensive) 4608 · LaneSafe 5120 · Objective 5632 · AttackStance 6144 (= 논리 idx*512, LineStyle 이 8·9 를 차지 · `<<9` 접힘 여부는 미확정)",
+   "invalidation": "①seed 불일치: 조회 클로저에서 c.seed != game.seed() 면 c.seed 갱신 + 512 슬롯 전부 tag=2(None) 로 초기화 후 None 반환(L300~303) ②tick: 슬롯이 Some 이어도 slot.tick != game.tick() 이면 miss(L305) — 슬롯은 안 지우고 삽입 때 덮어씀 ③삽입 클로저는 c.seed == game.seed() 일 때만 slots[idx] = Some(PeSlot{tick,key,val}) 저장(L318~319) — seed 가 다르면 조용히 버림. 용량 512 고정, 충돌 = 덮어쓰기(체이닝 없음)",
+   "hit_path": "조회 클로저 L305: slots[idx] 가 Some && slot.tick == tick && slot.key == key(5성분 전부 == · purpose 는 discr 비교 후 LineStyle 이면 내부 LineStyle 값까지) → Some(slot.val) = 슬롯 +0x30..+0x61 을 sret 로 49B+태그+6B 복사(75588~75607) → 본 함수 24645 에서 sret %0 로 memcpy 56 · prof PHASE_CALLS[90] +1",
+   "miss_path": "조회 None(tag 2 @ +49, 24641) → prof PHASE_CALLS[91] +1 → position_eval_at_uncached(sret %9, version, player, data, x, y, purpose)(24687) → 삽입 클로저(24698) → sret %0 = %9 memcpy 56(24700)",
+   "mirror_hint": "런타임 미러가 게임과 같은 순서로 채우려면: 스레드마다 [Option<PeSlot>;512] + seed 를 두고, 호출마다 (seed 검사→전체 초기화) → (idx 계산) → (tick·key 5성분 비교) → miss 면 uncached 값을 tick 과 함께 slots[idx] 에 덮어쓰기. RefCell borrow 플래그는 의미 없음(재진입 없음 · 패닉 경로만)"
+  }
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x928", "name": "info.id", "note": "캐시 키 성분 0 + 해시 (id<<42) 항 (24544~24546)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (24530)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "&dyn AbstractGame 데이터 포인터 (24531)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "vtable+0x20 = AbstractGame::seed, +0x28 = AbstractGame::tick (divtable · 24534~24541)"},
+  {"base": "RefCell<PosEvalCache>", "offset": "0x0", "name": "borrow", "note": "aux: 0 이면 -1 로 잠금, 아니면 panic_already_borrowed (75411~75416)"},
+  {"base": "RefCell<PosEvalCache>", "offset": "0x8", "name": "slots(ptr)", "note": "aux: Box<[Option<PeSlot>;512]> (75419·75445)"},
+  {"base": "RefCell<PosEvalCache>", "offset": "0x10", "name": "seed", "note": "aux: game.seed() 와 비교 (75422~75426 · 75660~75664)"},
+  {"base": "PeSlot", "offset": "0x0", "name": "tick", "note": "aux: == game.tick() (75447·75481)"},
+  {"base": "PeSlot", "offset": "0x8", "name": "key.0(id)", "note": "aux 75494~75503"},
+  {"base": "PeSlot", "offset": "0x10", "name": "key.1(x)", "note": "aux 75490~75506"},
+  {"base": "PeSlot", "offset": "0x18", "name": "key.2(y)", "note": "aux 75486~75510"},
+  {"base": "PeSlot", "offset": "0x20", "name": "key.3(purpose)", "note": "aux 75452~75453 · discr 정규화 후 비교(75519~75546)"},
+  {"base": "PeSlot", "offset": "0x28", "name": "key.4(version)", "note": "aux 75455~75456 · 75540~75544"},
+  {"base": "PeSlot", "offset": "0x30", "name": "val", "note": "aux: hit 시 49B 복사(75588)"},
+  {"base": "PeSlot", "offset": "0x61", "name": "val.on_periodic_trajectory = Option<PeSlot> 니치 태그", "note": "aux: 2=None (75458~75460·75471)"}
+ ],
+
+ "writes": [
+  {"base": "(sret)", "offset": "0x0", "name": "PositioningScore 56B", "value": "hit: 캐시 슬롯 val / miss: uncached 결과", "note": "24645 / 24700"},
+  {"base": "TLS RefCell<PosEvalCache>", "offset": "0x0", "name": "borrow", "value": "-1 → 0", "note": "aux 두 클로저 모두 진입 시 -1, 탈출 시 0 (75416·75584·75593 / 75654·75725)"},
+  {"base": "TLS PosEvalCache", "offset": "0x10", "name": "seed", "value": "game.seed()", "note": "aux 조회 클로저 · seed 불일치 시만 (75440)"},
+  {"base": "TLS PosEvalCache.slots[0..512]", "offset": "0x61", "name": "Option<PeSlot> 태그", "value": "2 (None)", "note": "aux 조회 클로저 · seed 불일치 시 512 슬롯 전부 (75565~75572)"},
+  {"base": "TLS PosEvalCache.slots[idx]", "offset": "0x0", "name": "PeSlot 통째(tick 8B + key 40B + val 56B)", "value": "Some(PeSlot{tick: game.tick(), key, val: uncached 결과})", "note": "aux 삽입 클로저 · c.seed == game.seed() 일 때만 (75688~75692)"},
+  {"base": "static game_core::prof::PHASE_CALLS", "offset": "0x2d0", "name": "[90] (hit 카운터)", "value": "+1 atomic", "note": "prof::ENABLED != 0 일 때만 — 텔레메트리 (24662)"},
+  {"base": "static game_core::prof::PHASE_CALLS", "offset": "0x2d8", "name": "[91] (miss 카운터)", "value": "+1 atomic", "note": "prof::ENABLED != 0 일 때만 — 텔레메트리 (24682)"}
+ ],
+
+ "constants": [
+  {"value": 9, "src_line": 83, "meaning": "PositionEvalPurpose 니치 무효값(assume ne 9) — 판정 아님, 인코딩 정합 (24562)"},
+  {"value": -2, "src_line": 83, "meaning": "태그→논리 discr 변환 `purpose-2`(태그 2..=12 → 0..=10) (24564)"},
+  {"value": 1, "src_line": 83, "meaning": "`purpose >u 1` 이면 니치 variant, 아니면 암묵 LineStyle(discr 7) (24565)"},
+  {"value": 7, "src_line": 83, "meaning": "untagged variant LineStyle 의 논리 discr (24566)"},
+  {"value": 512, "src_line": 85, "meaning": "pe_purpose_ord: RunAway (= 1*512) — 슬롯 수 512 와 같은 수지만 여기선 ord 값 (24617)"},
+  {"value": 1024, "src_line": 86, "meaning": "pe_purpose_ord: Recall"},
+  {"value": 1536, "src_line": 87, "meaning": "pe_purpose_ord: Around"},
+  {"value": 2048, "src_line": 88, "meaning": "pe_purpose_ord: Positioning"},
+  {"value": 2560, "src_line": 89, "meaning": "pe_purpose_ord: Trace"},
+  {"value": 3072, "src_line": 90, "meaning": "pe_purpose_ord: Lane"},
+  {"value": 4096, "src_line": 91, "meaning": "pe_purpose_ord: LineStyle(Aggressive=태그0) (24604 select)"},
+  {"value": 4608, "src_line": 91, "meaning": "pe_purpose_ord: LineStyle(Defensive=태그1) — 소스 91~92 줄 어느 쪽인지는 L0 로 소실"},
+  {"value": 5120, "src_line": 93, "meaning": "pe_purpose_ord: LaneSafe"},
+  {"value": 5632, "src_line": 94, "meaning": "pe_purpose_ord: Objective"},
+  {"value": 6144, "src_line": 95, "meaning": "pe_purpose_ord: AttackStance"},
+  {"value": 0, "src_line": 84, "meaning": "pe_purpose_ord: General (phi 기본 · 24617)"},
+  {"value": 21, "src_line": 101, "meaning": "해시 y<<21 (24618)"},
+  {"value": 42, "src_line": 101, "meaning": "해시 id<<42 (24619)"},
+  {"value": -7046029254386353131, "src_line": 102, "meaning": "0x9E3779B97F4A7C15 피보나치 해시 승수 (wrapping_mul · 24625)"},
+  {"value": 55, "src_line": 102, "meaning": "lshr 55 → 상위 9비트 = 슬롯 인덱스 0..511 (24626)"},
+  {"value": 2, "src_line": 308, "meaning": "Option<PositioningScore> None 태그(sret+49 = on_periodic_trajectory 자리) (24641)"},
+  {"value": 720, "src_line": 309, "meaning": "prof PHASE_CALLS[90] 바이트 오프셋(90*8) — hit 텔레메트리 (24662)"},
+  {"value": 728, "src_line": 312, "meaning": "prof PHASE_CALLS[91] 바이트 오프셋 — miss 텔레메트리 (24682)"},
+  {"value": 512, "src_line": 305, "meaning": "aux: 슬롯 배열 길이(bounds check ult 512 · 초기화 루프 상한) (75436·75571·75682)"},
+  {"value": -1, "src_line": 299, "meaning": "aux: RefCell borrow_mut 잠금값 (75416·75654)"},
+  {"value": -1, "src_line": 426, "meaning": "aux: try_with 의 Option<Option<..>> 외곽 니치(태그 255) 검사 — 컴파일러 아티팩트, 유효 데이터에선 불발 (75594)"}
+ ],
+
+ "calls": [
+  "game_ai::position_eval::position_eval_at_uncached",
+  "core::cell::RefCell<PosEvalCache>::with::<position_eval_at::{closure#0}, Option<PositioningScore>>",
+  "core::cell::RefCell<PosEvalCache>::with::<position_eval_at::{closure#1}, ()>",
+  "core::cell::panic_already_borrowed",
+  "core::panicking::panic_bounds_check",
+  "std::thread::local::panic_access_error"
+ ],
+
+ "logic": "fn position_eval_at(version, player, data, x, y, purpose) -> PositioningScore {\n  // L293~294: 게임 seed/tick (dyn AbstractGame vtable+0x20 / +0x28)\n  let seed = data.cache.game.seed();\n  let tick = data.cache.game.tick();\n  // L295: 키 5-튜플\n  let key = (player.info.id /*+0x928*/, x, y, purpose, version);\n  // L296 = pe_slot_index(id, x, y, purpose) 인라인(L100~102)\n  //   pe_purpose_ord(purpose) (L82~95): General 0 | RunAway 512 | Recall 1024 | Around 1536 | Positioning 2048 | Trace 2560 | Lane 3072 | LineStyle(Aggr) 4096 | LineStyle(Def) 4608 | LaneSafe 5120 | Objective 5632 | AttackStance 6144\n  let h = x ^ (y << 21) ^ (id << 42) ^ ord;          // 저 21비트에 ord 가 겹치므로 xor==or(disjoint)\n  let idx = h.wrapping_mul(0x9E3779B97F4A7C15) >> 55;   // 0..511\n  // L298~307: 조회 (aux 클로저 #0)\n  let cached: Option<PositioningScore> = POS_EVAL_CACHE.with(|c| {\n    let mut c = c.borrow_mut();                          // borrow!=0 → panic_already_borrowed\n    if c.seed != seed { c.seed = seed; for s in c.slots.iter_mut() { *s = None; } return None; }  // L300~303\n    match &c.slots[idx] {                                // L305 (bounds check <512)\n      Some(s) if s.tick == tick && s.key == key => Some(s.val),   // key: id,x,y 는 ==, purpose 는 discr 같고 LineStyle 이면 내부값도 같아야, version ==\n      _ => None,\n    }\n  });\n  if let Some(v) = cached {                              // L308: sret+49 != 2\n    prof::phase_call(90);  // ENABLED 일 때 PHASE_CALLS[90] += 1 (텔레메트리)\n    return v;                                            // memcpy 56\n  }\n  prof::phase_call(91);                                  // L312\n  let v = position_eval_at_uncached(version, player, data, x, y, purpose);   // L314\n  POS_EVAL_CACHE.with(|c| {                              // L316~321 (aux 클로저 #1)\n    let mut c = c.borrow_mut();\n    if c.seed == seed { c.slots[idx] = Some(PeSlot { tick, key, val: v }); }  // seed 다르면 저장 안 함\n  });\n  v                                                      // L323 memcpy 56\n}",
+
+ "knobs": [
+  {"what": "캐시 슬롯 수", "where": "position_eval.rs:305,319 (배열 [Option<PeSlot>;512] · pe_slot_index 의 >>55)", "value": 512, "effect": "늘리면 같은 틱 안 충돌(덮어쓰기)이 줄어 uncached 재계산이 준다 — 판정값 자체는 불변(캐시는 순수 메모)"},
+  {"what": "해시 승수", "where": "position_eval.rs:102", "value": -7046029254386353131, "effect": "바꾸면 슬롯 분포만 바뀜 — 결과 불변"}
+ ],
+
+ "unknown": [
+  "pe_purpose_ord 의 값이 소스에서 `idx*512` 인지 `ord<<9` 인지 — IR 은 상수 phi 로 접혀 있어 표기 불가(동작은 확정: 위 표)",
+  "LineStyle(Aggressive)=4096 / LineStyle(Defensive)=4608 이 소스 91·92 어느 줄인지 — 24604 select 가 `;L0` 로 줄 소실. 값 대응(태그0→4096, 태그1→4608 · trunc nuw i8→i1)은 확정",
+  "다른 함수가 POS_EVAL_CACHE 를 읽거나 쓰는지 — 이 명세 범위(본체+두 클로저) 밖. 미탐색(grep …PosEvalCacheEE4with… 를 전 IR 에 돌리면 됨)",
+  "지시문이 말한 EPC_CACHE(EpcCache) 는 이 함수가 안 만짐 — entity_positioning_cache_cached 의 캐시로 보이나 그 함수는 담당 밖(미탐색)",
+  "position_eval_at_uncached(0xd851d0 · internal fastcc · 7인자 동일 배치) 내부 — 계약만: (sret 56B, version, &PlayerState, &OperationData, x, y, purpose) → PositioningScore (24687)",
+  "패딩 +0x32..+0x38 6B 의 실제 값 — uncached 가 무엇을 남기는지에 달림. 런타임 대조는 이 6B 마스크 필요",
+  "prof::ENABLED / PHASE_CALLS 는 game_core 정적 — ENABLED 가 런타임에 켜지는 조건은 안 봄(판정 무관 텔레메트리)"
+ ]
+}

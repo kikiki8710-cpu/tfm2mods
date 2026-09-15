@@ -1,0 +1,78 @@
+{
+ "A": {
+  "dossier": "96e0adb0bab713c9",
+  "specs": [
+   "spec_180_position_eval_at_uncached.md"
+  ],
+  "spec_hashes": {
+   "spec_180_position_eval_at_uncached.md": "1ac89516cdfce64c"
+  },
+  "mkdossier": "2785c25f7961fd66",
+  "v3": "5d475642d94a5ae2",
+  "built": "2026-09-15 23:03:40"
+ },
+ "B": {
+  "dossier": "37e8a6e63ba9b98c",
+  "specs": [
+   "spec_181_calculate_interaction_action_score.md"
+  ],
+  "spec_hashes": {
+   "spec_181_calculate_interaction_action_score.md": "78bcecf55f16a8c9"
+  },
+  "mkdossier": "2785c25f7961fd66",
+  "v3": "5d475642d94a5ae2",
+  "built": "2026-09-15 23:03:40"
+ },
+ "C": {
+  "dossier": "18b0f2ce78ac95f5",
+  "specs": [
+   "spec_182_SmallActionRunAway__get_input.md"
+  ],
+  "spec_hashes": {
+   "spec_182_SmallActionRunAway__get_input.md": "8d3e356e461891c8"
+  },
+  "mkdossier": "2785c25f7961fd66",
+  "v3": "5d475642d94a5ae2",
+  "built": "2026-09-15 23:03:40"
+ },
+ "D": {
+  "dossier": "554750d8cb47b617",
+  "specs": [
+   "spec_183_interaction_score.md"
+  ],
+  "spec_hashes": {
+   "spec_183_interaction_score.md": "26e5d11bf03218f0"
+  },
+  "mkdossier": "2785c25f7961fd66",
+  "v3": "5d475642d94a5ae2",
+  "built": "2026-09-15 23:03:40"
+ },
+ "E": {
+  "dossier": "26d8757dec352c2e",
+  "specs": [
+   "spec_184_SmallActionRecall__get_input.md",
+   "spec_185_get_input_target.md"
+  ],
+  "spec_hashes": {
+   "spec_184_SmallActionRecall__get_input.md": "112dfceb5b0bd134",
+   "spec_185_get_input_target.md": "cf1074c3a31054b5"
+  },
+  "mkdossier": "2785c25f7961fd66",
+  "v3": "5d475642d94a5ae2",
+  "built": "2026-09-15 23:03:41"
+ },
+ "F": {
+  "dossier": "a03959fada9c8900",
+  "specs": [
+   "spec_186_calculate_action_score.md",
+   "spec_187_position_eval_at.md"
+  ],
+  "spec_hashes": {
+   "spec_186_calculate_action_score.md": "7856e11adf425f13",
+   "spec_187_position_eval_at.md": "6a79f6708dc4bdd4"
+  },
+  "mkdossier": "2785c25f7961fd66",
+  "v3": "5d475642d94a5ae2",
+  "built": "2026-09-15 23:03:41"
+ }
+}

@@ -1,0 +1,773 @@
+{
+ "name": "position_eval_at_uncached",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached",
+ "src": "game-ai\\src\\position_eval.rs",
+ "src_line": 371,
+ "ir_file": "m07.ll",
+ "ir_from": 24749,
+ "ir_to": 34229,
+ "aux": [],
+ "layer": "행동",
+ "batch": "D",
+ "batch_range": "position_eval.rs:961~1653 (실효 961~1181 — 1181 이 함수 닫는 `}`, 1183+ 는 position_score_at_cell 등 별개 함수라 이 define 에 IR 없음)",
+ "one_line": "셀(x,y)에 선 챔피언의 PositioningScore(risk·tower_risk·gain·gain_me·adjust·unseen_champ_threat·on_trajectory·on_periodic_trajectory)를 계산(EPC_CACHE miss 경로). 배치 D = 적 챔피언 루프 후반(스킬 can_move 감쇠·block_input 반감·돌진 궤도 위험·has_cc 합산 규칙·아군 몸빵 반감·미시야 분할)·고립 가산·아군 스킬 gain 루프·탱커 진입가치·trade_net·purpose 보정·sret 기록·정확도 노이즈.",
+ "signature": {
+  "calling_convention": "internal fastcc — exe 인자 대응표(argscan 0xd851d0 실측 · 스택 인자 3 + 레지스터 4 = 7 = IR 7): rcx=%0 sret(56B) · rdx=%1 version · r8=%2 player · r9=%3 data · [entry_rsp+0x20]=%4 x · [entry_rsp+0x28]=%5 y · [entry_rsp+0x30]=%6 purpose(byte, `cmp byte ptr,0xa`·`test byte ptr,1` 로 1B 사용 확인). ArgumentPromotion 의심 없음 — 배치 D 범위에서 %2 는 +384(info.parameter)·+2344(info.id) 두 gep, %3 는 +0(cache)·+8(context) 두 gep 로 **포인터 그대로** 읽힌다(m07.ll:32011·32119·25010·25071). 재구성 가능(FAKE 불필요 — 원 ABI 그대로).",
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "&mut PositioningScore(56B)",
+    "note": "sret %0. 배치 D 가 최종 기록자 — position_eval.rs:1142 에 인라인된 apply_position_eval_purpose(29~44) 의 44 줄에서 8필드 전부 store(m07.ll:31996~32010), 1176 에서 risk(+0) 를 노이즈 적용값으로 재기록(32157). 조기반환 경로(381)는 배치 A."
+   },
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize(i64 %1)",
+    "note": "배치 D 분기: 1152/1153 `version > 1`(`icmp ugt i64 %1, 1` 32017) — v2+ 는 purpose 가 RunAway/Recall 이면 노이즈 면제, 1165 `version > 1` 이면 t_salt = tick/(tps*6) 6초 버킷, 아니면 tick 그대로(32087). effect_type_cc_time(990)·get_battle_role(1105) 에 그대로 전달."
+   },
+   {
+    "i": 2,
+    "name": "player",
+    "type": "&PlayerState(2528B, readonly)",
+    "note": "%2. 배치 D 읽기: +0x180 info.parameter → AthleteParameter::positioning_accuracy(1148) · +0x928 info.id → 노이즈 해시 시드(1170)."
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B, readonly)",
+    "note": "%3. +0 cache(&AbstractGameWithCache · %118) → +0 game data ptr %151 / +8 vtable %153 (tick 슬롯 0x28 · get_game_mode 슬롯 0x40) · +8 context(&GameContext · %135) → +8 setting → +0x12f8 tick_per_second(1166). get_battle_role 에 cache(%118) 전달(1105)."
+   },
+   {
+    "i": 4,
+    "name": "x",
+    "type": "u64(i64 %4)",
+    "note": "평가 셀 x 좌표(스택 %100 에 저장). 배치 D: dist_to_line_segment 의 점(982·1005·1117), 1172 노이즈 해시에 %130 = x/32000(배치 A 계산, **umin 29 클램프 전 값**)."
+   },
+   {
+    "i": 5,
+    "name": "y",
+    "type": "u64(i64 %5)",
+    "note": "평가 셀 y(스택 %99). 1173 해시에 %132 = y/32000(클램프 전)."
+   },
+   {
+    "i": 6,
+    "name": "purpose",
+    "type": "PositionEvalPurpose(i8 %6, range 0..13)",
+    "note": "메모리 태그(tcxdict --enum): General=2 RunAway=3 Recall=4 Around=5 Positioning=6 Trace=7 Lane=8 LineStyle=untagged(바이트값 0=Aggressive/1=Defensive) LaneSafe=10 Objective=11 AttackStance=12 (9 는 무효 — `assume purpose != 9` 31948). 1142 apply_position_eval_purpose 인라인: idx=(purpose>1 ? purpose-2 : 7) → 7(LineStyle)·8(LaneSafe) 만 보정. 1152: idx ∉ {1,2}(RunAway·Recall) 가 노이즈 조건."
+   }
+  ],
+  "returns": "sret PositioningScore 56B. 살아있는 바이트 = 0..=49 전부(1142/44 줄 store): risk@0 · tower_risk@8 · gain@16 · gain_me@24 · adjust@32(**항상 0**) · unseen_champ_threat@40 · on_trajectory@48(i8) · on_periodic_trajectory@49(i8, 배치 B 루프 639 의 %1260). 바이트 50..55 = 패딩(미기록·undef). 1176 노이즈 경로는 risk@0 만 덮어쓴다.",
+  "tls": "배치 D 범위엔 TLS 접점 없음 — thread_local/LocalKey::with 호출 0건(콜리 effect_type_cc_time·get_damage·get_battle_role·expected_damage_target·positioning_accuracy 는 캐시 없는 순수 함수 시그니처). 전역 접점은 prof 계측뿐: `gc::simulation::prof::ENABLED`(atomic load, 31087) · `PHASE_NANOS[idx]`/`PHASE_CALLS[idx]`(atomicrmw add, 30978·30982·31932·31936·32236·32244·34225) — 관측 전용, 판정 무관. EPC_CACHE(호출자 TLS)·AttackDamageCache 등은 배치 A~C 범위."
+ },
+ "reads": [
+  {
+   "base": "Entity(적 챔피언 ent=%2044·아군 ally=%2784/%3056·적 e=%3095)",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0 (Effect, Arc<dyn EffectType> ptr@+0/vtable@+8)",
+   "note": "961(ent) · 1039(ally, tag 만). tag@0x4f8 == -1 → None"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag(i32, -1=None)",
+   "note": "961 · 1039"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0",
+   "note": "964(ent)·1058(ally): `level > 2` 일 때만 Some 후보(아니면 @anon…31 = tag -1 상수)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x530",
+   "name": "skill2_effect@tag",
+   "note": "2단 gep: Entity+1280(0x500) → +48 (m07.ll:30257·30260 / 31310·31313) — 본문에 1328 리터럴 없음(C3 경고 사유). 964 · 1058"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect@Some.0",
+   "note": "967(ent)·1077(ally): `level > 4` 일 때만"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x568",
+   "name": "ult_effect@tag",
+   "note": "2단 gep: Entity+1336(0x538) → +48 (30297·30300 / 31455·31458) — 리터럴 1384 없음(C3 경고 사유). 967 · 1077"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "964/967(ent) · 1058/1077(ally): skill2 는 level>2, ult 는 level>4 게이트(entity.rs:1693/1701 인라인)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x308",
+   "name": "rush_state@tag(니치 8B) / RushPenetrate.applyed_effect(Vec 헤더)",
+   "note": "978~979: raw<0 이면 tag=raw^0x8000000000000000 (None=0·Move=1·MoveToTarget=2·Rush=3) 아니면 untagged=4(RushPenetrate). Rush·RushPenetrate 두 arm 만 진입"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x310",
+   "name": "rush_state@Rush.applyed_effect (Vec<(Arc<dyn EffectType>,CastingType)> 헤더 · ptr@+8=0x318 · len@+16=0x320)",
+   "note": "978 Rush arm. RushPenetrate arm 은 0x308 헤더(ptr 0x310·len 0x318). 원소 stride 24"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x330",
+   "name": "rush_state@Rush.x (ex)",
+   "note": "978"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x338",
+   "name": "rush_state@Rush.y (ey)",
+   "note": "978"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x340",
+   "name": "rush_state@Rush.range / @RushPenetrate.x",
+   "note": "978 range · 979 ex"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x348",
+   "name": "rush_state@Rush.start_tick / @RushPenetrate.y",
+   "note": "978 start_tick · 979 ey"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x350",
+   "name": "rush_state@RushPenetrate.range",
+   "note": "979"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x358",
+   "name": "rush_state@RushPenetrate.start_tick",
+   "note": "979"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x35c",
+   "name": "rush_state@Rush.casting_target (CastingTarget 4B)",
+   "note": "978 → CastingTarget::check 의 self"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x36c",
+   "name": "rush_state@RushPenetrate.casting_target",
+   "note": "979"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "982(ent) · 1004/1109(ally) · 1114(e)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "982 · 1004/1109 · 1114"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "Entity::radius() 인라인(entity.rs:1511~1515): mult==0 ? radius : radius*(mult+100)/100. champ(%122 → %342) 983·1043·1062·1081·1118 / ally 1006·1043·1062·1081"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius (usize)",
+   "note": "radius() 인라인의 기준값(%343 = champ+0x680)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (Effect)",
+   "note": "1119(ally): atk = &ally.attack_effect → Effect::expected_damage_target"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag(-1=None)",
+   "note": "1119"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "1121: 적 e 의 스탯 HP(현재 hp 0x670 아님) — dmg*100/max(hp,1)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter (AthleteParameter 744B)",
+   "note": "1148 positioning_accuracy(&player.info.parameter)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x928",
+   "name": "info.id",
+   "note": "1170 노이즈 해시 시드 h0"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": "%118(배치 A 로드) → 1105 get_battle_role 인자 · game data/vtable(%151/%153)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext)",
+   "note": "%135(배치 A 로드) → expected_damage(985)·expected_damage_target(1120)·get_battle_role(1105) 인자 · 1166 setting"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "1166"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "1166 t_salt = tick / max(tps*6, 1)"
+  },
+  {
+   "base": "PePlayerCtx(%91, thread_local PE_PLAYER_CTX 복사본 — 배치 A/C)",
+   "offset": "0x20",
+   "name": "my_role (BattleRole i8)",
+   "note": "847(배치 C)에서 %1785 로드. 배치 D 사용: 1001 `(my_role & 6)==2` = BaseAttacker(2)|SkillCaster(3) · 1101 `my_role < 2` = Tanker(0)|Initiator(1). 태그=idx(Direct)"
+  },
+  {
+   "base": "Vec<(EntityPositioningCache, &PlayerState, &Entity, u64)> 원소(448B) — near_allies_with_action(%93 bumpalo Vec, ptr@+0·len@+24=%230)·near_enemies_with_action(%95, len %200)",
+   "offset": "0x8",
+   "name": ".0.skill_ratio",
+   "note": "1040 ally skill ratio"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x10",
+   "name": ".0.skill2_ratio",
+   "note": "1059"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x18",
+   "name": ".0.ult_ratio",
+   "note": "1078"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x40",
+   "name": ".0.skill_range",
+   "note": "1041 `range`"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x48",
+   "name": ".0.skill2_range",
+   "note": "1060"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x50",
+   "name": ".0.ult_range",
+   "note": "1079"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x80",
+   "name": ".0.skill_range_sq",
+   "note": "1043/1052 `dist > range_sq`(호이스트 L0, 31178)"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x88",
+   "name": ".0.skill_range_ext_sq",
+   "note": "1049/1054"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x90",
+   "name": ".0.skill_range_half_sq",
+   "note": "1045"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x98",
+   "name": ".0.skill2_range_sq",
+   "note": "1062/1071"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0xa0",
+   "name": ".0.skill2_range_ext_sq",
+   "note": "1068/1073"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0xa8",
+   "name": ".0.skill2_range_half_sq",
+   "note": "1064"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0xb0",
+   "name": ".0.ult_range_sq",
+   "note": "1081/1090"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0xb8",
+   "name": ".0.ult_range_ext_sq",
+   "note": "1087/1092"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0xc0",
+   "name": ".0.ult_range_half_sq",
+   "note": "1083"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x1a0",
+   "name": ".0.is_skill_linear_move (bool)",
+   "note": "1042"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x1a1",
+   "name": ".0.is_skill2_linear_move",
+   "note": "1061"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x1a2",
+   "name": ".0.is_ult_linear_move",
+   "note": "1080"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x1a8",
+   "name": ".1 &PlayerState (DI: ap)",
+   "note": "1105 get_battle_role 의 4번째 인자. 튜플 레이아웃 근거 = DICompositeType `Vec<tuple$<EntityPositioningCache,ref$<PlayerState>,ref$<Entity>,u64>>`(m07.ll:67789) · EntityPositioningCache 424B(tcxdict)"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x1b0",
+   "name": ".2 &Entity",
+   "note": "874(배치 C, ent) · 1004/1039/1109 ally · 1114 e"
+  },
+  {
+   "base": "EPC 원소",
+   "offset": "0x1b8",
+   "name": ".3 dist (u64, 셀↔엔티티 거리²; DI `dist`/`cell_to_e_sq`)",
+   "note": "860(배치 C) · 1004 비교 기준 · 1025/1026/1038/1115"
+  },
+  {
+   "base": "AbstractGame vtable(%153)",
+   "offset": "0x28",
+   "name": "tick (divtable)",
+   "note": "%382(배치 A 490 줄 로드) → 981·1166·1168 호출"
+  },
+  {
+   "base": "AbstractGame vtable",
+   "offset": "0x40",
+   "name": "get_game_mode (divtable) → GameMode{tag i64, ptr}",
+   "note": "1157: tag 2 = DeathMatch"
+  },
+  {
+   "base": "EffectType vtable(Arc<dyn EffectType> +8)",
+   "offset": "0x120",
+   "name": "can_move (divtable 94% 일치 · 런타임 구현체 불명)",
+   "note": "961/964/967 `e.ty.can_move()`"
+  },
+  {
+   "base": "EffectType vtable",
+   "offset": "0x28",
+   "name": "expected_damage(&self, &GameContext, &dyn AbstractEntity) -> (usize,usize)",
+   "note": "985: 돌진 applyed_effect 각 (Arc,CastingType) 의 (ad, ap)"
+  },
+  {
+   "base": "Arc<dyn EffectType> ArcInner",
+   "offset": "0x10",
+   "name": "데이터 시작(align 계산: (vtable.align-1)&~15 + 16)",
+   "note": "sync.rs:2445 deref 인라인 — Arc 데이터 포인터 산술(2427/2445 줄)"
+  },
+  {
+   "base": "@gc::simulation::prof::ENABLED",
+   "offset": "0x0",
+   "name": "prof 계측 on/off (atomic i8)",
+   "note": "1035 `_t = ProfTimer(116)` 생성 게이트. 관측 전용"
+  }
+ ],
+ "writes": [
+  {
+   "base": "PositioningScore(sret %0)",
+   "offset": "0x0",
+   "name": "risk",
+   "value": "%3204(purpose 보정 후 risk) → 1176 노이즈면 tower_risk + base_risk*factor/1000 로 재기록",
+   "note": "m07.ll:31996 · 32157"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x8",
+   "name": "tower_risk",
+   "value": "%3203 (=%550 배치 B 399 줄값, LaneSafe 면 *3/2)",
+   "note": "31998"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x10",
+   "name": "gain",
+   "value": "%3202 (아군 스킬 max_ratio 합 + 탱커 enabled + trade_net, Aggressive 면 *120/100)",
+   "note": "32000"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x18",
+   "name": "gain_me",
+   "value": "%1782 (배치 C 693/840 max_ratio 그대로)",
+   "note": "32002"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x20",
+   "name": "adjust",
+   "value": "0 (상수)",
+   "note": "32004 — 이 함수는 adjust 를 절대 채우지 않는다"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x28",
+   "name": "unseen_champ_threat",
+   "value": "%1996 (적 루프 1015 누적: 미시야 셀이면 risk - risk/2)",
+   "note": "32006"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x30",
+   "name": "on_trajectory (i8)",
+   "value": "%1995 (적 루프 980 에서 돌진 궤도 판정 통과 시 1)",
+   "note": "32008"
+  },
+  {
+   "base": "PositioningScore",
+   "offset": "0x31",
+   "name": "on_periodic_trajectory (i8)",
+   "value": "%1260 (배치 B 639 루프 산출)",
+   "note": "32010"
+  },
+  {
+   "base": "@gc::simulation::prof::PHASE_NANOS[phase]",
+   "offset": "0x0 -> [phase 115·116]+0 (stride 8, bounds 132)",
+   "name": "prof 누적 ns (atomicrmw add)",
+   "value": "Instant::elapsed 의 ns",
+   "note": "1034(phase 115 `_t` drop)·1141(phase 116)·1181(%98 phase = 배치 A 373 줄). ENABLED 일 때만. 관측 전용"
+  },
+  {
+   "base": "@gc::simulation::prof::PHASE_CALLS[phase]",
+   "offset": "0x0 -> [phase]+0",
+   "name": "prof 호출 수 (atomicrmw add 1)",
+   "value": "1",
+   "note": "동상"
+  }
+ ],
+ "constants": [
+  {
+   "value": 288,
+   "src_line": 961,
+   "meaning": "EffectType vtable 슬롯 오프셋 0x120 = can_move (배열 인덱스류지만 판정 게이트라 기록). 961/964/967 공통"
+  },
+  {
+   "value": 3,
+   "src_line": 961,
+   "meaning": "`udiv i64 ratio, 3` — 해당 스킬 effect.ty.can_move() 이면 skill/skill2/ult ratio 를 1/3 로(961·964·968). 같은 리터럴 3 이 978 switch case(Rush 태그)·1050/1069/1088 `sdiv 3`·1160 `sdiv 3`·1142 `mul 3`(LaneSafe 3/2) 에도 쓰인다"
+  },
+  {
+   "value": 2,
+   "src_line": 964,
+   "meaning": "`icmp ugt level, 2` — level>2 여야 skill2_effect 를 본다(entity.rs:1693 인라인, 964·1058). 같은 2 가 1012/1055/1048/1067/1074/1086/1093 `sdiv 2`, 1142 `sdiv 2`(3/2), 1157 GameMode::DeathMatch 태그, 1001/1105 `(role&6)==2`, 1101 `role<2`, 1152 `version>1`(ugt 1) 의 짝 등에 재사용"
+  },
+  {
+   "value": 4,
+   "src_line": 967,
+   "meaning": "`icmp ugt level, 4` — level>4 여야 ult_effect(entity.rs:1701, 967·1077). 978 switch: RushState untagged=4(RushPenetrate). 1030 `min(cell_e, 4)` 고립 가산 상한"
+  },
+  {
+   "value": -1,
+   "src_line": 961,
+   "meaning": "Option<Effect> 니치 태그 None (i32 -1 @+48): 961/964/967/1039/1058/1077/1119. Option<ProfTimer> None 도 i32 -1(1034/1141/1181)"
+  },
+  {
+   "value": 1,
+   "src_line": 972,
+   "folded_from": 2,
+   "meaning": "972~975 `lshr i64 ratio, 1` = ratio/2 — Entity::block_input(ent) 이면 attack/skill/skill2/ult ratio 전부 반감(비부호 시프트). 1008 `lshr risk, 1` = risk/2 (아군 몸빵). 그 밖에 1175 `or 1`(2*spread+1) · 1121/1166 `umax 1` · 1153/1152 `ugt %1, 1`"
+  },
+  {
+   "value": -9223372036854775808,
+   "src_line": 979,
+   "meaning": "RushState 니치 시작(0x8000000000000000): raw ^ niche_start = 논리 태그(None0/Move1/MoveToTarget2/Rush3). raw≥0 이면 untagged RushPenetrate(=4). tcxdict --enum RushState"
+  },
+  {
+   "value": 20000,
+   "src_line": 983,
+   "meaning": "돌진 궤도 허용폭: dist_to_line_segment(셀, ent→돌진목적지) <= rush.range + 20000 + champ.radius() 이면 궤도 위(30480)"
+  },
+  {
+   "value": 100,
+   "src_line": 983,
+   "meaning": "Entity::radius() 인라인 `radius*(mult+100)/100`(983·1006·1043·1062·1081·1118). 1030 `/100`(25%·cell_e), 1121 `dmg*100/hp`(HP% 환산), 1142 `/100`(120%). 989 는 %335 = inv_hp_q32*100 (배치 A 사전계산)"
+  },
+  {
+   "value": 150,
+   "src_line": 989,
+   "meaning": "rush_ratio 상한: min((inv_hp_q32*100*dmg)>>32, 150) = 돌진 피해의 내 HP% 를 150 으로 클램프(pct_q32 386~387 인라인, umin.i128)"
+  },
+  {
+   "value": 32,
+   "src_line": 989,
+   "meaning": "pct_q32 `lshr i128, 32` — Q32 고정소수 역수(inv_hp_q32 = 2^32/max(hp,1), 배치 A 384) 환산"
+  },
+  {
+   "value": 28000,
+   "src_line": 1006,
+   "meaning": "몸빵 판정 폭: 아군이 셀→적 선분에서 ally.radius()+28000 이내(1006) / 탱커 진입가치: 셀이 아군→적 선분에서 champ.radius()+28000 이내(1118)"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 1025,
+   "meaning": "120000² + 1 (제곱거리 `ult` 비교 = dist ≤ 120000 = 3.75셀): 1025 cell_a(아군 with action 수) · 1026 cell_e(적 with action 수) 필터"
+  },
+  {
+   "value": 14400000000,
+   "src_line": 1109,
+   "meaning": "120000² — 탱커 진입가치: 셀↔후방 아군 거리²(uadd.sat) > 120000² 이면 제외"
+  },
+  {
+   "value": 25,
+   "src_line": 1030,
+   "meaning": "고립 가산: score.risk += champ_threat_risk * 25 * min(cell_e,4) / 100 — 120000 안에 행동 중 아군 0·적 ≥2 일 때 적 1명당 +25% (최대 +100%)"
+  },
+  {
+   "value": 80000,
+   "src_line": 1043,
+   "meaning": "선형이동 스킬 근접 판정: skill_range > ally.radius()+80000+champ.radius() 이면 half_sq 구간 분기, 아니면 dist≤range_sq 만으로 ratio 전액(1043·1062·1081)"
+  },
+  {
+   "value": 6,
+   "src_line": 1001,
+   "meaning": "`and i8 role, 6` == 2 → BattleRole ∈ {BaseAttacker(2), SkillCaster(3)} (1001 my_role · 1105 아군 role). 1166 `tps*6` 6초 버킷"
+  },
+  {
+   "value": 132,
+   "src_line": 1034,
+   "meaning": "prof PHASE_NANOS/PHASE_CALLS 배열 길이(bounds check) — 관측 전용"
+  },
+  {
+   "value": 1000000000,
+   "src_line": 1034,
+   "meaning": "Instant::elapsed → ns 환산(secs*1e9+nanos) — 관측 전용"
+  },
+  {
+   "value": 116,
+   "src_line": 1035,
+   "meaning": "ProfTimer phase id: 1035 `_t = ProfTimer::new(116)`(아군 gain 루프 구간). 115 는 배치 C 851 의 적 루프 구간"
+  },
+  {
+   "value": 9,
+   "src_line": 1142,
+   "meaning": "`assume purpose != 9` — PositionEvalPurpose 태그 9 는 무효(니치 2..12 중 빈 값)"
+  },
+  {
+   "value": -2,
+   "src_line": 1142,
+   "meaning": "idx = purpose - 2 (purpose>1 일 때) = 논리 인덱스. 1152 `icmp ult (idx-3), -2`(=254) → idx ∉ {1 RunAway, 2 Recall}"
+  },
+  {
+   "value": 7,
+   "src_line": 1142,
+   "meaning": "switch case 7 = LineStyle(untagged, purpose 바이트 0/1 → idx 7 로 사상) → 33/36 줄 보정. 8 = LaneSafe → 39/40 줄"
+  },
+  {
+   "value": 8,
+   "src_line": 1142,
+   "meaning": "switch case 8 = LaneSafe: risk = risk*3/2, tower_risk = tower_risk*3/2 (position_eval.rs:39~40)"
+  },
+  {
+   "value": 120,
+   "src_line": 1142,
+   "meaning": "LineStyle 보정 120%: Defensive(1) → risk*120/100 (33줄) · Aggressive(0) → gain*120/100 (36줄)"
+  },
+  {
+   "value": -3,
+   "src_line": 1152,
+   "meaning": "idx-3 (RunAway/Recall 면제 판정용 wrap 비교)"
+  },
+  {
+   "value": 1000,
+   "src_line": 1152,
+   "meaning": "positioning_accuracy < 1000 이면 노이즈(1152/1153). 1158 spread = 1000-acc(DeathMatch). 1175 factor = h%(2s+1) - s + 1000 (=1000±spread ‰). 1176 risk = tower_risk + base_risk*factor/1000"
+  },
+  {
+   "value": 2000,
+   "src_line": 1160,
+   "meaning": "비-데스매치 spread = (2000 - 2*acc)/3 = 2/3·(1000-acc)"
+  },
+  {
+   "value": -7046029254386353131,
+   "src_line": 1171,
+   "meaning": "0x9E3779B97F4A7C15 (황금비 곱, splitmix/fxhash 류) — h = ((((id^t_salt)*K ^ xi)*K ^ yi)*K); 결정론 노이즈 해시(1171~1173)"
+  },
+  {
+   "value": 31,
+   "src_line": 1174,
+   "meaning": "h ^= h >> 31 최종 믹스"
+  },
+  {
+   "value": 448,
+   "src_line": 1003,
+   "meaning": "EPC 튜플 원소 stride (424+8+8+8) — 이터레이션 산술, 판정 아님"
+  },
+  {
+   "value": 24,
+   "src_line": 990,
+   "meaning": "applyed_effect 원소 (Arc<dyn EffectType>16B, CastingType 4B+pad) stride — 이터레이션 산술"
+  }
+ ],
+ "calls": [
+  "game_core::Entity::block_input",
+  "game_core::CastingTarget::check",
+  "game_core::utils::dist_to_line_segment",
+  "game_core::utils::get_damage",
+  "game_ai::fight_check::effect_type_cc_time",
+  "game_ai::utils::get_battle_role",
+  "game_core::Effect::expected_damage_target",
+  "game_core::AthleteParameter::positioning_accuracy",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue",
+  "bumpalo::collections::vec::Vec::drop",
+  "bumpalo::collections::raw_vec::RawVec::drop"
+ ],
+ "logic": "// position_eval.rs:961~1653 (배치 D)  — 실효 961~1181 (1181 = `}`; 1183~ 는 별개 함수)\n// 문맥(배치 C 승계): 853 `for cache in near_enemies_with_action(%95)` 루프 안. cache=(EPC .0, &PlayerState .1, ent: &Entity .2, dist: u64 .3 = 셀↔ent 거리²). 루프 진입 조건 862(dist<1e10 || 슬롯 시야) 통과 후 attack_ratio(%2056)·skill_ratio(%2380)·skill2_ratio(%2379)·ult_ratio(%2381)·has_cc(%2273, 872~) 가 배치 C 에서 계산돼 들어온다. 루프 캐리: score.risk(%1997)·score.unseen_champ_threat(%1996)·score.on_trajectory(%1995)·champ_threat_risk(%1999, 초기 0).\n\n// ── 961~968: 이동 가능 스킬 감쇠 (m07.ll:30217~30334)\n961: if ent.skill_effect.as_ref().map_or(false, |e| e.ty.can_move())   // Option tag@0x4f8 != -1 · vtable 0x120\n       { skill_ratio /= 3 }          // udiv 3 (30247)\n964: if (level>2 ? ent.skill2_effect : None).map_or(false, |e| e.ty.can_move()) { skill2_ratio /= 3 }   // 30256~30290\n967: if (level>4 ? ent.ult_effect : None).map_or(false, |e| e.ty.can_move()) {\n968:   ult_ratio /= 3 }                                                     // 30296~30332\n\n// ── 971~975: 입력 차단 상태 반감 (30212·30359~30366)\n971: if Entity::block_input(ent) {\n972:   attack_ratio >>= 1;  973: skill_ratio >>= 1;  974: skill2_ratio >>= 1;  975: ult_ratio >>= 1 }\n\n// ── 978~990: 돌진 궤도 위험 rush_ratio (30348~30662)\n     rush_ratio = 0;   // on_trajectory 는 기존값 유지\n978: match ent.rush_state {   // tag: raw@0x308 <0 ? raw^0x8000… : 4\n       RushState::Rush{applyed_effect@0x310, x@0x330 ex, y@0x338 ey, range@0x340, start_tick@0x348, casting_target@0x35c, ..}\n979:   | RushState::RushPenetrate{applyed_effect@0x308, x@0x340, y@0x348, range@0x350, start_tick@0x358, casting_target@0x36c, ..} => {\n980:     if CastingTarget::check(&casting_target, ent, champ)                          // 30431\n981:        && game.tick() >= start_tick                                             // vtable 0x28 · `tick < start_tick` 이면 skip (30443)\n982:        && dist_to_line_segment(x, y, ent.x, ent.y, ex, ey)                       // 점=평가 셀, 선분=ent 현위치→돌진 목적지 (30455)\n983:             <= range + 20000 + champ.radius()   {                                // radius()=radius_mult 보정 (30460~30481)\n984:       let (ad, ap) = applyed_effect.iter().fold((0,0), |(ad,ap),(e,_ct)| {\n985:            let (ad2, ap2) = e.ty.expected_damage(ctx, ent as &dyn AbstractEntity);   // vtable 0x28 (30547)\n986:            (ad+ad2, ap+ap2) });                                                       // closure#14 인라인 (30513~30570)\n987:       let dmg = get_damage::<Entity>(ent, champ, ad, AttackType::Skill(1), DamageType::AD(0))   // 30577\n988:               + get_damage::<Entity>(ent, champ, ap, AttackType::Skill(1), DamageType::AP(1));  // 30582\n989:       rush_ratio = min(pct_q32(inv_hp_q32, dmg), 150);   // = min((inv_hp_q32*100*dmg)>>32, 150) ≈ 내 HP 대비 % (30590~30596)\n990:       if !has_cc { has_cc = applyed_effect.iter().any(|(e,_)| effect_type_cc_time(version, &*e.ty).is_some()) }   // closure#15, .0==1 = Some (30600~30658)\n           score.on_trajectory = true;   // 30660 (980 root)\n         }   // 980~983 중 하나라도 실패 → rush_ratio=0, on_trajectory 유지 (%2480)\n       }\n       _ => {}   // None/Move/MoveToTarget\n     }\n\n// ── 995~998: 이 적의 risk 합산 규칙 (30377~30688)\n995: let risk = if has_cc || has_pcc {          // has_pcc=%1263 = 배치 B 639 투사체 루프 산출\n996:     skill_ratio + skill2_ratio + attack_ratio + ult_ratio + rush_ratio          // 전부 합\n     } else {\n998:     rush_ratio + max(attack_ratio, skill_ratio, skill2_ratio, ult_ratio) };    // 최대 1개 + 돌진\n\n// ── 1001~1008: 후방 딜러의 아군 몸빵 반감 (30697~30829)\n1001: if matches!(my_role, BaseAttacker|SkillCaster) && risk > 0 {     // (my_role&6)==2 · my_role = PePlayerCtx+0x20 (배치 C 847)\n1003:   if near_allies_with_action.iter().any(|a| {                       // closure#16 인라인, 원소 448B\n1004:        dist_sq(a.entity.pos, ent.pos) < cache.dist                   // 아군이 나(셀)보다 적에 가깝고 (30768~30781)\n1005:     && dist_to_line_segment(a.entity.x, a.entity.y, x, y, ent.x, ent.y)   // 아군이 셀→적 선분 근처 (30787)\n1006:          <= a.entity.radius() + 28000 })                              // 30791~30815\n1008:   { risk >>= 1 } }\n\n// ── 1012~1018: 미시야 분할·누적 (30835~30856)\n1012: let added = if visible { risk } else { risk / 2 };    // visible=%156 = game.is_visible_cell(enemy_team, xi, yi) (배치 A 394) · sdiv 2\n1013~1015: if !visible { score.unseen_champ_threat += risk - added }\n1017: score.risk += added;\n1018: champ_threat_risk += added;\n     // → 853 루프 다음 적\n\n// ── 1024~1030: 루프 종료 후 고립 가산 (29507·30860~31080)\n1024: if champ_threat_risk > 0 {\n1025:   let cell_a = near_allies_with_action.iter().filter(|a| a.dist <= 120000²).count();   // ult 14400000001 (closure#17)\n1026:   let cell_e = near_enemies_with_action.iter().filter(|e| e.dist <= 120000²).count();  // closure#18\n1029:   if cell_a == 0 && cell_e > 1 {\n1030:     score.risk += champ_threat_risk * 25 * min(cell_e as i64, 4) / 100 } }   // +25%/적, 최대 4명 (31073~31077)\n1034: drop(_t)   // ProfTimer phase 115 (배치 C 851) — PHASE_NANOS/CALLS[115] atomic add, prof 전용\n\n// ── 1035~1096: 아군 스킬 지원 gain (31087~31610)\n1035: let _t = ProfTimer::new(116)   // prof::ENABLED 일 때만 Instant::now\n1036: for a in near_allies_with_action {           // score.gain 캐리 %2779 (초기 %1783 = 배치 C 840)\n1038:   let dist = a.dist;   1039: let ally = a.entity;  let mut max_ratio = 0;\n1039:   if ally.skill_effect.is_some() {\n1040:     let ratio = a.skill_ratio;  1041: let range = a.skill_range;\n1042:     if a.is_skill_linear_move {\n1043:       if dist <= a.skill_range_sq && !(range > ally.radius() + 80000 + champ.radius())\n1044:            { max_ratio = max(ratio, 0) }                       // 31294\n1045:       else if dist <= a.skill_range_half_sq { 1046: max_ratio = max(ratio,0) }   // 31212·31233 (⚠1043 조건 실패 후에만)\n1047:       else if dist <= a.skill_range_sq  { 1048: max_ratio = max(ratio/2, 0) }    // 1047 은 IR 없음(접힘) · 31298\n1049:       else if dist <= a.skill_range_ext_sq { 1050: max_ratio = max(ratio/3, 0) } // 31225·31237\n            // 그 밖 → 0\n1052:     } else if dist <= a.skill_range_sq { 1053: max_ratio = max(ratio, 0) }    // 31182·31196\n1054:       else if dist <= a.skill_range_ext_sq { 1055: max_ratio = max(ratio/2, 0) }   // 31188·31200\n          }\n1058:   if level>2 && ally.skill2_effect.is_some() {   // 동형: ratio=a.skill2_ratio(0x10) range=a.skill2_range(0x48) linear=0x1a1 sq/ext/half=0x98/0xa0/0xa8\n1059~1074: 1062 `dist<=sq && !(range > r_a+80000+r_c)` →1063 ratio / 1064 half →1065 ratio / 1067 ratio/2 / 1068 ext →1069 ratio/3 // 비선형 1071 sq→1072 ratio / 1073 ext→1074 ratio/2\n            max_ratio = max(max_ratio, 그 값) }                          // smax 누적 (31380·31348·31355·31441·31448·31387)\n1077:   if level>4 && ally.ult_effect.is_some() {   // ratio=ult_ratio(0x18) range=ult_range(0x50) linear=0x1a2 sq/ext/half=0xb0/0xb8/0xc0\n1078~1093: 1081/1082/1083/1084/1086/1087/1088 (선형) · 1090/1091/1092/1093 (비선형) 동형 → max_ratio = max(max_ratio, …) }\n1096:   score.gain += max_ratio }                                          // 31599\n\n// ── 1101~1127: 탱커/이니시에이터의 후방 딜러 '진입가치' (31163~31639)\n1101: if matches!(my_role, Tanker|Initiator) {                              // my_role < 2\n1103:   let mut enabled = 0;\n       for ap in near_allies_with_action {\n1105:     if matches!(get_battle_role(version, ctx, cache, ap.player), BaseAttacker|SkillCaster)   // (role&6)==2 (31632~31643)\n1109:       && dist_sq_sat(셀, ap.entity.pos) <= 120000²   {     // umul.with.overflow→-1 · uadd.sat (31659~31723)\n1113:       if let Some(e) = near_enemies_with_action.iter().find(|e| {\n1114~1116:        let a_to_e_sq = dist_sq(ap.entity.pos, e.entity.pos);  e.dist < a_to_e_sq     // 셀이 아군보다 적에 가깝고 (31790)\n1117~1118:     && dist_to_line_segment(x, y, ap.entity.x, ap.entity.y, e.entity.x, e.entity.y) <= champ.radius() + 28000 })  // 셀이 아군→적 선분 위 (31799~31824)\n            {\n1119:         if let Some(atk) = ap.entity.attack_effect {            // tag@0x4c0 != -1\n1120:           let dmg = atk.expected_damage_target(ctx, ap.entity as &dyn AbstractEntity, e.entity);   // 31837\n1121:           enabled += dmg * 100 / max(e.entity.stat_cached.hp, 1) } } } }   // 아군 평타의 적 스탯HP% (31842~31849)\n1127:   score.gain += enabled }\n\n// ── 1134~1136: 교환 순이익 (31870~31878)\n1134: let non_tower_risk = max(score.risk - tower_well_risk, 0);      // %552 = 배치 B 400 줄\n1135: let trade_net = gain_me(max_ratio %1782) - non_tower_risk;\n1136: score.gain += max(trade_net, 0);\n1141: drop(_t)   // phase 116\n\n// ── 1142: score = apply_position_eval_purpose(score, version, player, data, x, y, purpose)  — 인라인(position_eval.rs:29~44) (31947~32010)\n       match purpose { LineStyle(Defensive) => risk = risk*120/100 (33)  |  LineStyle(Aggressive) => gain = gain*120/100 (36)\n                       LaneSafe => { risk = risk*3/2 (39); tower_risk = tower_risk*3/2 (40) }  |  _ => {} }\n       *sret = PositioningScore{ risk, tower_risk, gain, gain_me, adjust: 0, unseen_champ_threat, on_trajectory, on_periodic_trajectory }   // 44줄 store 8건\n\n// ── 1148~1176: 선수 포지셔닝 정확도 노이즈 (32011~32157)\n1148: let acc = AthleteParameter::positioning_accuracy(&player.info.parameter);\n1152: let noisy = if version > 1 { !matches!(purpose, RunAway|Recall) && acc < 1000 }\n1153:             else { acc < 1000 };\n       if !noisy { return }   // → 1181 drop 경로 (%3223)\n1154: let base_risk = risk - tower_risk;\n1155: if base_risk != 0 {                                           // risk == tower_risk 면 return\n1157:   let spread = if game.get_game_mode() is DeathMatch(tag 2)    // vtable 0x40\n1158:                { 1000 - acc }\n1160:                else { (2000 - 2*acc) / 3 };\n1165:   let t_salt = if version > 1 { 1166: game.tick() / max(tps*6, 1) }   // 6초 버킷 (tps = setting.tick_per_second)\n1168:                else { game.tick() };\n1170:   let mut h = player.info.id;\n1171:   h = (h ^ t_salt) * 0x9E3779B97F4A7C15;\n1172:   h = (h ^ (x/32000)) * K;      // %130 = 클램프 전 x 셀\n1173:   h = (h ^ (y/32000)) * K;      // %132\n1174:   h ^= h >> 31;\n1175:   let factor = (h % (2*spread + 1)) as i64 - spread + 1000;   // 1000 ± spread (‰)\n1176:   sret.risk = tower_risk + base_risk * factor / 1000 }   // sdiv, 32154~32157\n1181: }   // near_enemies(%95)·near_allies(%93) bumpalo Vec drop · %98(phase 배치 A) ProfTimer drop · ret",
+ "knobs": [
+  {
+   "what": "이동가능 스킬 위협 감쇠 계수",
+   "where": "position_eval.rs:961/964/968",
+   "value": 3,
+   "effect": "can_move 스킬의 ratio 를 1/3 로. 값을 올리면 이동기 보유 적을 덜 위험하게 본다"
+  },
+  {
+   "what": "block_input 반감",
+   "where": "position_eval.rs:972~975",
+   "value": "lshr 1 (=/2)",
+   "effect": "입력 차단(CC 등) 중인 적의 모든 ratio 반감 — 비트 시프트라 계수 조절은 소스 변경 필요"
+  },
+  {
+   "what": "돌진 궤도 허용폭",
+   "where": "position_eval.rs:983",
+   "value": 20000,
+   "effect": "올리면 돌진 경로에서 더 먼 셀도 on_trajectory·rush_ratio 대상"
+  },
+  {
+   "what": "rush_ratio 상한",
+   "where": "position_eval.rs:989",
+   "value": 150,
+   "effect": "돌진 피해 HP% 클램프. 내리면 돌진 위협 최대치 감소"
+  },
+  {
+   "what": "risk 합산 방식 (CC 유무)",
+   "where": "position_eval.rs:995~998",
+   "value": "has_cc||has_pcc ? 전부 합 : 최대 1 + 돌진",
+   "effect": "CC 가 있는 적은 모든 스킬 위협이 합산돼 훨씬 크게 잡힌다"
+  },
+  {
+   "what": "아군 몸빵 반감 폭",
+   "where": "position_eval.rs:1006",
+   "value": 28000,
+   "effect": "딜러 역할 시 아군이 셀→적 선분 ±(radius+28000) 안이면 risk 반감. 올리면 더 쉽게 반감"
+  },
+  {
+   "what": "미시야 셀 위험 분할",
+   "where": "position_eval.rs:1012",
+   "value": "sdiv 2",
+   "effect": "적 시야 밖 셀은 risk 절반만 risk 로, 나머지는 unseen_champ_threat 로"
+  },
+  {
+   "what": "고립 가산 반경",
+   "where": "position_eval.rs:1025/1026",
+   "value": 14400000001,
+   "effect": "120000²+1. 아군/적 count 반경. 올리면 고립 판정이 넓어진다"
+  },
+  {
+   "what": "고립 가산 계수/상한",
+   "where": "position_eval.rs:1030",
+   "value": "25 · min(cell_e,4)",
+   "effect": "행동 중 아군 0·적 ≥2 일 때 적 수×25% 만큼 champ_threat_risk 를 risk 에 추가(최대 +100%)"
+  },
+  {
+   "what": "선형 스킬 근접 임계",
+   "where": "position_eval.rs:1043/1062/1081",
+   "value": 80000,
+   "effect": "range ≤ r_a+80000+r_c 인 단거리 선형 스킬은 range_sq 안이면 전액; 넘으면 half_sq 구간 규칙"
+  },
+  {
+   "what": "아군 스킬 gain 감쇠",
+   "where": "position_eval.rs:1048/1050/1055 등",
+   "value": "ratio/2, ratio/3",
+   "effect": "거리 구간별 지원 가치 감쇠(sq 안 전액 · sq~ext 1/2 · 선형은 half~sq 1/2, sq~ext 1/3)"
+  },
+  {
+   "what": "탱커 진입가치 반경/폭",
+   "where": "position_eval.rs:1109/1118",
+   "value": "14400000000 / 28000",
+   "effect": "후방 딜러 120000 이내 + 셀이 딜러→적 선분 champ.radius()+28000 이내면 딜러 평타 HP% 를 gain 에 가산"
+  },
+  {
+   "what": "purpose 보정",
+   "where": "position_eval.rs:33/36/39/40 (1142 인라인)",
+   "value": "120/100 · 3/2",
+   "effect": "LineStyle Defensive: risk×1.2 / Aggressive: gain×1.2 / LaneSafe: risk·tower_risk×1.5"
+  },
+  {
+   "what": "노이즈 발동 정확도 임계",
+   "where": "position_eval.rs:1152/1153",
+   "value": 1000,
+   "effect": "positioning_accuracy ≥1000 이면 노이즈 없음. v2+ 는 RunAway/Recall 면제"
+  },
+  {
+   "what": "노이즈 폭",
+   "where": "position_eval.rs:1158/1160",
+   "value": "1000-acc / (2000-2acc)/3",
+   "effect": "데스매치는 전폭, 일반 모드는 2/3 폭. risk = tower_risk + base_risk×(1000±spread)/1000"
+  },
+  {
+   "what": "노이즈 재롤 버킷",
+   "where": "position_eval.rs:1166",
+   "value": "tps*6",
+   "effect": "v2+ 6초마다 factor 재롤(같은 버킷·같은 셀·같은 선수는 동일 factor). 늘리면 포지셔닝이 더 안정"
+  }
+ ],
+ "unknown": [
+  "EffectType vtable 0x120 이름 `can_move` 는 divtable 94% 일치(정적 vtable 기준)이고 런타임 Arc<dyn EffectType> 에 어느 구현체가 꽂히는지는 IR 로 알 수 없다 — 슬롯 번호(0x120=36번째)·시그니처 fn(&self)->bool 만 확정. 0x28 expected_damage 도 동일.",
+  "dist_to_line_segment(i64×6)->u64 의 인자 순서(점, 선분 A, 선분 B)는 982/1005/1117 세 호출부의 의미 정합(982: 점=평가셀·선분=ent→돌진목적지)으로 추정 — 본체(game_core utils.rs:200, mir=0)는 이 배치에서 안 읽음.",
+  "1043~1050 선형 스킬 구간에서 `dist > range_sq` 인데 `dist <= half_sq` 인 1046 경로는 half_sq < range_sq 라면 실행 불가 — skill_range_half_sq 의 실제 정의(EntityPositioningCache::compute_range_sq, score_parameter.rs)는 안 읽었으므로 도달 가능성 미판정(재료 부재 아님·미탐색).",
+  "get_damage::<Entity>(ent, champ, dmg, AttackType 1, DamageType 0/1) 의 4번째 인자 1 = AttackType::Skill(tcxdict --enum AttackType 태그 1) 로 읽었다 — 돌진 applyed_effect 가 스킬 계열이라는 소스 의도와 부합하나 본체 미확인.",
+  "EPC 튜플 원소 +0x1a8 이 `&PlayerState`(.1) 라는 것은 DICompositeType 이름(`tuple$<EntityPositioningCache,ref$<PlayerState>,ref$<Entity>,u64>`)과 get_battle_role 인자 타입으로 확정했지만 tcxdict 는 튜플 레이아웃을 주지 않아 필드 순서는 DI 이름 순서 가정(424+8+8+8=448 로 크기 정합).",
+  "구조체 오프셋 0x0 항목(OperationData.cache · prof ENABLED 등)은 gep 0 이 접혀 C3 에서 검사되지 않는다.",
+  "%130/%132(x/32000, y/32000) 계산은 배치 A(378/379) 소관 — 배치 D 는 1172/1173 에서 소비만. 클램프(umin 29)는 %131/%133 에만 적용되고 해시엔 미클램프 값이 들어간다(관측 사실).",
+  "1181 의 %93/%95 drop 이 `bumpalo Vec::drop` + `RawVec::drop` 두 심볼(B11_/B18_)로 나뉘어 불리는 이유(Drop 체인)는 표준 drop 순서로 보이나 본체 미확인 — 판정 무관."
+ ]
+}

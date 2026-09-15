@@ -8,6 +8,16 @@
 
 전체 161개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
 
+## 밴픽 IR 카탈로그 (별도 세션 09-14 · banpick 소스 define 전수)
+
+bpcatalog → bpdump(irann 방식 일괄 주석) → bpname(RVA 지문 실명).
+
+| 도구 | 하는 일 |
+|---|---|
+| `bpcatalog.py` | 밴픽 관련 소스 파일에 속한 IR define(함수) 전수 카탈로그(파일·줄·define 위치·크기). python bpcatalog.py [--out <json>] [--files <regex>] |
+| `bpdump.py` | bpcatalog.json 의 전 함수를 irann 방식(소스줄 주석·잡음 제거)으로 일괄 덤프한다. python bpdump.py <catalog.json> <outdir> |
+| `bpname.py` | exe RVA 들의 패닉 Location 지문을 bpcatalog.json(밴픽 IR 카탈로그·_gcbc/_gvbc 포함)의 함수 소스 범위와 대조해 실명을 판정한다. python bpname.py <catalog.json> <rva>... |
+
 ## ★exe 함수 정체 판정 — Ghidra 없이 (2026-09-13 신설)
 
 「이 RVA 가 어느 IR 함수인가」. capstone 프로파일 ↔ IR define 프로파일 ↔ 패닉 Location 지문. 인라인 여부만은 xref(§22-85).
@@ -84,6 +94,7 @@ IR·rmeta 를 뽑고 훑는다.
 | `vbr.py` | 함수 본문에서 특정 SSA 인자(기본 %1 = version)에 대한 비교를 전부 뽑고 |
 | `reach.py` | IR 한 함수의 CFG 에서 「알려진 상수 조건」을 접어 사장 블록·사장 호출부를 가른다 (교훈 68 도구화 · 2026-09-13) |
 | `reach_tree.py` | 루트 함수에서 IR 호출 그래프를 따라가며 「도달 가능성」을 봉인한다 (교훈 68 · 2026-09-13) |
+| `rootcut.py` | 거대 함수 IR 을 **루트 소스 줄**(`!dbg`→`inlinedAt` 최상위) 기준으로 분책 경계를 잘라 준다 (2026-09-15 · r12 `upd_blocks.json` 방식 도구화) |
 | `fieldall2.py` | 함수 스코프를 지켜서 gep 오프셋 → store 를 잡는다. |
 | `fieldall.py` | 오프셋에 store 하는 i8 **전부**(상수 + 레지스터). fieldcodes.py 확장. |
 | `fieldcodes.py` | ⛔**오염** — gep 결과 레지스터를 **파일 전역**으로 매칭해 다른 함수의 동명 `%N` 을 잡는다. 후속 정본 = `fieldall2.py` · `<구조체>+<오프셋>` 에 **저장되는 u8 코드값**을 전수로 뽑고 소스 줄을 붙인다. |
@@ -271,12 +282,3 @@ IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.
 | `logsnap.py` | 인게임 검증 전/후 **모드 로그 스냅샷과 diff**. |
 | `modbisect.py` | 크래시 범인 모드 이분탐색 도구. |
 | `apgate.py` | `tfm2_ai_adjust` 의 `apply_*` 바이트패치 체인을 cfg 로 on/off 해서 |
-
-## 미분류 (새로 생긴 도구 — `mktools.py` 의 `CAT` 에 넣어라)
-
-| 도구 | 하는 일 |
-|---|---|
-| `bpcatalog.py` | bpcatalog.py — 밴픽 관련 소스 파일에 속한 IR define(함수) 전수 카탈로그(파일·줄·define 위치·크기). python bpcatalog.py [--out <json>] [--files <regex>] |
-| `bpdump.py` | bpdump.py — bpcatalog.json 의 전 함수를 irann 방식(소스줄 주석·잡음 제거)으로 일괄 덤프한다. python bpdump.py <catalog.json> <outdir> |
-| `bpname.py` | bpname.py — exe RVA 들의 패닉 Location 지문을 bpcatalog.json(밴픽 IR 카탈로그·_gcbc/_gvbc 포함)의 함수 소스 범위와 대조해 실명을 판정한다. python bpname.py <catalog.json> <rva>... |
-| `rootcut.py` | rootcut.py — 거대 함수 IR 을 **루트 소스 줄**(`!dbg`→`inlinedAt` 최상위) 기준으로 분책 경계를 잘라 준다 (2026-09-15 · r12 `upd_blocks.json` 방식 도구화) |

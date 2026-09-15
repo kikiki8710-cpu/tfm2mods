@@ -1,0 +1,172 @@
+{
+ "name": "get_input_target",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target",
+ "src": "game-ai\\src\\abstract_input.rs",
+ "src_line": 345,
+ "ir_file": "m04.ll",
+ "ir_from": 33111,
+ "ir_to": 35159,
+ "aux": [],
+
+ "one_line": "스킬/평타 effect 의 casting 종류별로 실제 입력 대상(Target/Pos/Dir/None)을 산출 — 예측 이동·오판·조준 오차 포함",
+
+ "signature": {
+   "abi": "internal fastcc · sret 24B Option<InputTarget> · IR 인자 9 (sret+8) · exe 0xd31f20 인자 10 = LTO ArgumentPromotion 으로 %5(positioning_score) 가 (cx, cy) 스칼라 2개로 갈라짐 (아래 exe_args)",
+   "params": [
+     {"i": 0, "name": "(sret)", "type": "*mut Option<InputTarget>(24B)", "note": "+0 i32 tag: -1(0xFFFFFFFF)=None / 0=Target / 1=Dir / 2=Pos / 3=InputTarget::None(페이로드 없음). DWARF DISCR_EXACT 4294967295 (m04.ll:79376). ⚠지시문의 「None=+0 8B」는 4B 가 맞다(store i32 -1 · m04.ll:33230)"},
+     {"i": 1, "name": "version", "type": "usize", "note": "이 함수 안 분기 없음. position_score_at_cell 로 전달만(24회)"},
+     {"i": 2, "name": "rnd", "type": "&mut StdRng(320B)", "note": "gen_range 5지점 + apply_aim_offset_* 내부 소비 — writes 참조"},
+     {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "readonly · 0x930 team · 0x9c0 position tag · 0x180 parameter(skill_hit_accuracy/effective 인자) · 0x108 stat.skill_hit(트레이스 전용)"},
+     {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "readonly · +0 cache(&AbstractGameWithCache) · +8 context(&GameContext)"},
+     {"i": 5, "name": "positioning_score", "type": "&PositioningScoreData(2760B)", "note": "readonly · 이 함수는 +0xab8 cx · +0xac0 cy 두 필드만 load(m04.ll:33435/33438/33678/33681) · value[7][7] 은 안 읽음 · position_score_at_cell 에 ptr 로 전달되지만 그 콜리도 `_positioning_score` 미사용(m07.ll:24714 본문 gep 0건)"},
+     {"i": 6, "name": "target", "type": "&Entity(1728B)", "note": "readonly · 입력 대상 엔티티"},
+     {"i": 7, "name": "effect", "type": "&Effect(56B)", "note": "readonly · +0/+8 ty(Arc<dyn EffectType> 데이터·vtable) · +0x20 start_timing · +0x30 casting tag · is_in_range 인자"},
+     {"i": 8, "name": "speed", "type": "usize", "note": "시전 속도 배율(‰ 분모). 0 이면 L364 udiv 패닉(m04.ll:33334)"}
+   ],
+   "exe_args": {
+     "note": "argscan 0xd31f20: 레지스터 4 + 스택 +0x20..+0x48 6개. 확인 근거 = 진입부 디스어셈(140d31f3b `[r9+0x930]`=player.team · 140d31f99 `mov r8,[rsp+0x1d8]` → `[r8+0x660]`=target.x · 140d31f91 `mov rdi,[rsp+0x1e0]` → `[rdi+0x10]/[rdi+0x18]/[rdi]`=Effect.range/growth_range/ty(is_in_range 인라인) · 140d32cae `imul r13,[rsp+0x1c8],0x7d00; add r13,-0xbb80` = (cx-3)*32000+16000 · 140d32ec4 `cmp [rsp+0x1d0],0x1d` + `or rax,[rsp+0x1d0]; js` = position_score_at_cell 인라인의 (x|y)<0 || y>29 경계검사)",
+     "map": [
+       {"exe": "rcx", "ir": "%0", "what": "sret Option<InputTarget>"},
+       {"exe": "rdx", "ir": "%1", "what": "version"},
+       {"exe": "r8", "ir": "%2", "what": "rnd &mut StdRng"},
+       {"exe": "r9", "ir": "%3", "what": "player &PlayerState"},
+       {"exe": "[entry+0x20]", "ir": "%4", "what": "data &OperationData"},
+       {"exe": "[entry+0x28]", "ir": "%5 → load(%5+0xab8)", "what": "positioning_score.cx (i64 승격)"},
+       {"exe": "[entry+0x30]", "ir": "%5 → load(%5+0xac0)", "what": "positioning_score.cy (i64 승격)"},
+       {"exe": "[entry+0x38]", "ir": "%6", "what": "target &Entity"},
+       {"exe": "[entry+0x40]", "ir": "%7", "what": "effect &Effect"},
+       {"exe": "[entry+0x48]", "ir": "%8", "what": "speed"}
+     ],
+     "fake_verdict": "FAKE 재구성 가능. ①exe 재호출(훅→원본): IR 인자에서 cx=*(ps+0xab8), cy=*(ps+0xac0) 를 꺼내 +0x28/+0x30 에 넣고 나머지는 그대로 배치(IR %6,%7,%8 이 스택 +0x38/+0x40/+0x48 로 한 칸씩 밀림). ②IR 재현 호출(원본 인자→내 함수): 2760B PositioningScoreData 가짜를 만들고 +0xab8/+0xac0 만 채우면 충분 — 이 함수와 position_score_at_cell(→position_eval_at 은 인자에서 아예 빠짐) 모두 value[7][7] 을 읽지 않는다. 적용 범위 = 0.5.8 exe 0xd31f20 · SDK m04.ll define 기준. ⚠지시문 가설 「%7 56B 가 (x,y)+? 로 갈라짐」은 기각 — %7 은 exe 에서도 포인터로 들어와 [rdi+0x10] 등으로 역참조된다."
+   },
+   "returns": "Option<InputTarget> 24B (sret). 살아있는 바이트: +0..+4 tag(i32) 는 모든 경로에서 기록. +4..+8 패딩 = 항상 미기록(undef). tag 0(Target): +8 target_id 만 기록, +16..+24 undef. tag 1(Dir)/2(Pos): +8, +16 기록(i64 x2 · apply_aim_offset_* 가 기록하거나 이 함수가 직접). tag -1(None)·3(InputTarget::None): +8..+24 전부 undef. ⚠sweep 비교는 tag 별로 마스크할 것",
+   "tls": "직접 접점 없음(thread_local!/LocalKey::with 0건). 콜리 nt_trace_on() 은 전역 OnceLock<bool>(g06.ll:87923 atomic load) · nt_trace_record_aim 은 전역 Mutex<Option<HashMap<usize,NtAimInfo>>> 기록(텔레메트리) — TLS 아님. rnd 는 인자로 받는 StdRng 이지 TLS 아님"
+ },
+
+ "reads": [
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L346 · <2 bounds check · player_champion[team] 인덱스 · target.visible_state[team] 인덱스는 caster.team.0 을 씀"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "L346 · i32 zext · player_champion[team][position]"},
+   {"base": "PlayerState", "offset": "0x180", "name": "info.parameter", "note": "L357/358 · &AthleteParameter 를 skill_hit_accuracy/skill_hit_effective 에 전달"},
+   {"base": "PlayerState", "offset": "0x108", "name": "info.stat.skill_hit", "note": "L441/485/522/619 · NtAimInfo.skill_hit_raw 트레이스 전용(판정 무관)"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame 팻포인터(+0 data, +8 vtable) · vtable+0x40 get_game_mode · vtable+0x28 tick(트레이스)"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "L346 · gep 480 + team*40 + pos*8 · Option<&Entity> null=None → 즉시 None 반환. 이것이 caster(%39)"},
+   {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B) → move_to / adjust_position / apply_aim_offset_pos"},
+   {"base": "GameContext", "offset": "0x18", "name": "map_setting", "note": "&MapSetting(88B) → move_to"},
+   {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef(28112B) → move_to / adjust_position / apply_aim_offset_pos"},
+   {"base": "Effect", "offset": "0x0", "name": "ty.ptr", "note": "Arc<dyn EffectType> 데이터 포인터 · ArcInner 데이터 = ptr + ((vtable.align-1)&~15) + 16"},
+   {"base": "Effect", "offset": "0x8", "name": "ty.vtable", "note": "+0x10 align · +0xd8 auto_target(bool) · +0xf8 linear_move_speed(Option<usize>)"},
+   {"base": "Effect", "offset": "0x20", "name": "start_timing", "note": "L364 · start_timing*100/speed"},
+   {"base": "Effect", "offset": "0x30", "name": "casting@tag", "note": "CastingType 0 Targeting/1 Position/2 Direction/3 None · L149<353 (casting-1 <u 2) · L377 switch"},
+   {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "caster · TeamType 0 Player/1 Neutral · Neutral 이면 가시성 검사 생략"},
+   {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "caster 팀 index · target.visible_state[team] 인덱스"},
+   {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag", "note": "target · 0x38 + team*24 (gepS stride 24) · 0=Visible"},
+   {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "target · ==13 Champion"},
+   {"base": "Entity", "offset": "0x70", "name": "ty@Champion.0.action_state@tag", "note": "target · ==2 Move"},
+   {"base": "Entity", "offset": "0x78", "name": "ty@Champion.0.action_state@Move.x", "note": "target 이동 목적지 x"},
+   {"base": "Entity", "offset": "0x80", "name": "ty@Champion.0.action_state@Move.y", "note": "target 이동 목적지 y"},
+   {"base": "Entity", "offset": "0x308", "name": "rush_state@tag", "note": "target · 니치: 음수면 xor 0x8000000000000000 → idx(0 None/1 Move/2 MoveToTarget/3 Rush), 비음수 = 4 RushPenetrate"},
+   {"base": "Entity", "offset": "0x340", "name": "rush_state@Move.speed", "note": "phi 접힘 832 · Move"},
+   {"base": "Entity", "offset": "0x348", "name": "rush_state@Move.x", "note": "840"},
+   {"base": "Entity", "offset": "0x350", "name": "rush_state@Move.y", "note": "848"},
+   {"base": "Entity", "offset": "0x328", "name": "rush_state@Rush.speed", "note": "808"},
+   {"base": "Entity", "offset": "0x330", "name": "rush_state@Rush.x", "note": "816"},
+   {"base": "Entity", "offset": "0x338", "name": "rush_state@Rush.y / RushPenetrate.speed", "note": "824 — Rush.y 이자 RushPenetrate.speed(variant 별 phi)"},
+   {"base": "Entity", "offset": "0x340", "name": "rush_state@RushPenetrate.x", "note": "832"},
+   {"base": "Entity", "offset": "0x348", "name": "rush_state@RushPenetrate.y", "note": "840"},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "target.id → InputTarget::Target / move_to 인자 / 트레이스 · caster.id → 트레이스 키"},
+   {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "target · move_to 이동량 = move_speed * lead_timing"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "caster/target 현재 x"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": "caster/target 현재 y"},
+   {"base": "PositioningScoreData", "offset": "0xab8", "name": "cx", "note": "auto_target 셀 스캔 중심 x(셀) · exe 에선 승격 스칼라 +0x28"},
+   {"base": "PositioningScoreData", "offset": "0xac0", "name": "cy", "note": "auto_target 셀 스캔 중심 y(셀) · exe 에선 승격 스칼라 +0x30"},
+   {"base": "PositioningScore", "offset": "0x0", "name": "risk", "note": "position_score_at_cell sret(56B) · v = gain - risk"},
+   {"base": "PositioningScore", "offset": "0x10", "name": "gain", "note": "position_score_at_cell sret · v = gain - risk"}
+ ],
+
+ "writes": [
+   {"base": "Option<InputTarget>(sret)", "offset": "0x0", "name": "tag", "value": "-1 / 0 / 1 / 2 / 3", "note": "None: m04.ll:33230(caster 없음 L346)·33237(사거리 밖 L349)·33292(비가시+Targeting/None L354). Target: 33412(L652). InputTarget::None: 33904(L653). Pos: 34483(L554 auto_target 셀). Dir: 35153(L401 auto_target 셀). 그 외 Pos/Dir 은 apply_aim_offset_pos/dir 이 sret 에 직접 기록"},
+   {"base": "Option<InputTarget>(sret)", "offset": "0x8", "name": "payload.0", "value": "target_id | x | dir_x", "note": "33414 / 34485 / 35155 + 콜리"},
+   {"base": "Option<InputTarget>(sret)", "offset": "0x10", "name": "payload.1", "value": "y | dir_y", "note": "34487 / 35157 + 콜리 · Target(tag0) 경로는 미기록"},
+   {"base": "StdRng(rnd)", "offset": "0x0", "name": "rng 상태 전진", "value": "gen_range::<usize,RangeInclusive>", "note": "★소비 순서(모두 조건부): ①L364 gen_range(1000-te ..= 1000+te) — caster 존재·사거리내·가시성 게이트 통과 후 무조건 1회(m04.ll:33318) ②Position·Champion-Move: L562 gen_range(0..=1000)(33943) ③Position·rush(Move/Rush/RushPen): L596(34083) ④Direction·Champion-Move: L413(34536) ⑤Direction·rush: L462(34693) ⑥apply_aim_offset_pos(L582/638/647)·apply_aim_offset_dir(L448/506/528) 내부: acc≤999 && 오프셋≠0 이면 gen_range(0..=1000-acc) 1회 + u32 워드 ≥1개(bit30 거부표본, m04.ll:39226~/39342~). auto_target 셀 경로·Targeting·None 경로는 ① 뒤 추가 소비 없음"},
+   {"base": "stack", "offset": "-", "name": "target_x/target_y (&mut u64)", "value": "target.x/y → move_to 가 예측 위치로 갱신", "note": "%14/%13(L577-579) · %24/%23(L408-429) · frame 인자는 null(Option<&mut>=None)"},
+   {"base": "global(game_core)", "offset": "-", "name": "nt_trace_record_aim(caster.id, NtAimInfo 88B)", "value": "텔레메트리", "note": "nt_trace_on() 참일 때만 · Position: L611(rush, target Champion) / Direction: L433(Champion-Move 무조건)·L477(rush, Champion)·L514(None/MoveToTarget, Champion) · 판정 무관"}
+ ],
+
+ "constants": [
+   {"value": 2, "src_line": 346, "meaning": "team 인덱스 bounds(<2) · L1483<353 도 동일 · get_game_mode()==2 DeathMatch(L368/565/599/417/465) · casting-1 <u 2 (L149<353: casting∈{Position,Direction}) · action_state tag ==2 Move(L556/403) · InputTarget::Pos tag(L554)"},
+   {"value": 0, "src_line": 353, "meaning": "visible_state tag ==0 Visible · InputTarget::Target tag(L652) · rush None 경로 · gen_range 하한"},
+   {"value": -1, "src_line": 353, "meaning": "casting-1 (L149) · Option::None tag store i32 -1 (L346/349/354)"},
+   {"value": 1000, "src_line": 360, "meaning": "1000 - skill_hit_accuracy = 오판 확률(‰) · L361/362 timing 범위 중심 · L364 /1000 · L391 gen_range 상한 0..=1000"},
+   {"value": 1, "src_line": 360, "folded_from": 2, "meaning": "timing_error = max(1000-acc, 1) (umax) · psp max(psp,1) · rush Move tag 1 · InputTarget::Dir tag(L401) · NtAimInfo.target_dest Some tag · ★거울 반전 `2*caster.x - x`(L571/604/423/470) 의 2 가 `shl i64 %x, 1` 로 접힘(folded_from 2)"},
+   {"value": 100, "src_line": 364, "meaning": "start_timing*100/speed — effect.start_timing 을 speed(‰) 로 환산"},
+   {"value": 12, "src_line": 539, "meaning": "PositionEvalPurpose::AttackStance 메모리 태그 12 (tcxdict --enum: idx 10, 니치 start 2) · L384 도 동일"},
+   {"value": 3, "src_line": 537, "meaning": "셀 스캔 시작 = (cx-3, cy-3) · L551/552/396/397 결과 환산 dx-3 · CastingType::None tag(L377→L653 store i32 3)· rush Rush idx 3"},
+   {"value": 6, "src_line": 537, "meaning": "스캔 범위 0..6 (dx,dy ∈ 0..=5 → 6×6 셀, cx-3..cx+2 — 7×7 배열이지만 +3 열/행은 안 본다) · 내부 dy 루프는 6회 언롤"},
+   {"value": 29, "src_line": 551, "meaning": "셀 인덱스 clamp 상한 (0..=29 = 30 그리드) · L552/396/397"},
+   {"value": 32000, "src_line": 551, "meaning": "셀 → 월드 좌표 변환(셀 크기)"},
+   {"value": 16000, "src_line": 551, "meaning": "셀 중심 오프셋 · Dir 경로(L399/400)는 cell*32000 - caster + 16000"},
+   {"value": 13, "src_line": 556, "meaning": "EntityType::Champion 태그 · L403 도 동일"},
+   {"value": 39, "src_line": 565, "meaning": "caster_skill_hit(skill_hit_effective, 0..100) > 39 && DeathMatch → 오판 시 대상 현재 위치로 대체(거울 대신) · L599/417/465 동일"},
+   {"value": -9223372036854775808, "src_line": 592, "meaning": "RushState 니치 start(0x8000000000000000) — tag xor 로 논리 idx 복원 · L458 동일"},
+   {"value": 4, "src_line": 592, "meaning": "RushState untagged variant RushPenetrate 의 논리 idx(비음수 tag)"},
+   {"value": 5, "src_line": 544, "meaning": "언롤 dy 마지막 인덱스(select i32 5) · 스캔 결과 dy 값 0..5"}
+ ],
+
+ "calls": [
+   "game_core::simulation::effect::Effect::is_in_range",
+   "game_core::simulation::state::player::AthleteParameter::skill_hit_accuracy",
+   "game_core::simulation::state::player::AthleteParameter::skill_hit_effective",
+   "rand::rngs::std::StdRng::gen_range",
+   "game_core::utils::distance",
+   "game_core::utils::isqrt",
+   "game_ai::position_eval::position_score_at_cell",
+   "game_core::simulation::entity::Entity::move_to",
+   "game_core::simulation::game::Game::adjust_position",
+   "game_ai::abstract_input::apply_aim_offset_pos",
+   "game_ai::abstract_input::apply_aim_offset_dir",
+   "game_core::simulation::entity::nt_trace_on",
+   "game_core::simulation::entity::nt_trace_record_aim",
+   "core::panicking::panic_bounds_check",
+   "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "callee_contracts": [
+   {"name": "Effect::is_in_range(&Effect, caster:&Entity, target:&Entity) -> bool", "meaning": "caster→target 이 effect 사거리 안인가(range/growth_range·level·radius·EffectType 슬롯 0xe8 range_adjust 관여 — 내부 미독, g06.ll:51634)"},
+   {"name": "AthleteParameter::skill_hit_accuracy(&self) -> usize range(150,1001)", "meaning": "스킬 명중 정확도(‰). 1000-acc = 오판/오차 폭"},
+   {"name": "AthleteParameter::skill_hit_effective(&self) -> usize range(0,101)", "meaning": "유효 스킬명중(0~100) · >39 게이트에만 사용"},
+   {"name": "StdRng::gen_range(&mut self, RangeInclusive<usize>{start,end,exhausted}) -> usize", "meaning": "균등 [start,end]. 인자는 24B 스택 구조체 (+0 start, +8 end, +16 exhausted=0)"},
+   {"name": "utils::distance(x1,y1,x2,y2) -> i64", "meaning": "유클리드 거리(정수)"},
+   {"name": "utils::isqrt(n) -> i64", "meaning": "정수 제곱근"},
+   {"name": "position_eval::position_score_at_cell(sret PositioningScore 56B, version, player, data, _positioning_score(미사용), xi, yi, purpose:PositionEvalPurpose i8) ", "meaning": "셀 (xi,yi) 가 0..=29 밖이면 risk=9999·나머지 0, 아니면 position_eval_at(version,player,data, xi*32000+16000, yi*32000+16000, purpose) — pub · m07.ll:24714 · exe 에선 get_input_target 에 인라인되고 position_eval_at(0x140d84db0) 이 호출된다"},
+   {"name": "Entity::move_to(setting:&GameSetting, map_setting:&MapSetting, map:&MapDef, id, x:&mut u64, y:&mut u64, speed(이동량), target_x, target_y, frame:&mut Option<..>(null)) ", "meaning": "(x,y) 에서 (target_x,target_y) 로 speed 만큼 이동한 위치를 x,y 에 되쓴다(경로/충돌은 내부 — 미독, g06.ll:82444)"},
+   {"name": "Game::adjust_position(map:&MapDef, setting:&GameSetting, x:i64, y:i64) -> (i64,i64)", "meaning": "맵 경계/장애물 보정 좌표 (g15.ll:72245)"},
+   {"name": "abstract_input::apply_aim_offset_pos(sret InputTarget, rnd, setting, map, skill_hit_accuracy, champ.x, champ.y, x, y)", "meaning": "internal fastcc · &Entity champ 가 (x,y) 로 승격된 형태 · acc>999 또는 (x,y)==champ 면 Pos(x,y) 그대로; 아니면 err=gen_range(0..=1000-acc), 부호=rng u32 bit31, (x,y) += 수직벡터*err/2000 후 adjust_position → Pos (m04.ll:39342)"},
+   {"name": "abstract_input::apply_aim_offset_dir(sret InputTarget, rnd, skill_hit_accuracy, dir_x, dir_y)", "meaning": "internal fastcc · acc>999 또는 dir==(0,0) 이면 Dir 그대로; 아니면 수직 오차 err/2000 가산 → Dir (m04.ll:39226)"},
+   {"name": "entity::nt_trace_on() -> bool", "meaning": "전역 OnceLock<bool> 트레이스 스위치(g06.ll:87923)"},
+   {"name": "entity::nt_trace_record_aim(caster_id, &NtAimInfo 88B)", "meaning": "전역 HashMap 에 조준 정보 기록(텔레메트리)"},
+   {"name": "dyn AbstractGame vtable+0x40 get_game_mode(&self) -> {tag, ptr}", "meaning": "GameMode 0 Moba/1 SingleLane/2 DeathMatch"},
+   {"name": "dyn AbstractGame vtable+0x28 tick(&self) -> usize", "meaning": "현재 틱(트레이스 전용)"},
+   {"name": "dyn EffectType vtable+0xd8 auto_target(&self) -> bool", "meaning": "자동 조준(셀 스캔) 이펙트인가"},
+   {"name": "dyn EffectType vtable+0xf8 linear_move_speed(&self) -> Option<usize>", "meaning": "투사체 직선 속도 · DeathMatch 에서 비행시간 가산 (gamemode=0 사장)"}
+ ],
+
+ "logic": "// L346  team=player.info.team (<2 아니면 bounds 패닉); pos=player.info.position(tag)\n// caster = data.cache.player_champion[team][pos]; None → return None\n// L348  if !effect.is_in_range(caster, target) → return None (L349)\n// L353  if caster.team is Player(tag0) { t=caster.team.0 (<2 bounds); if target.visible_state[t] != Visible(0) { if effect.casting ∉ {Position(1), Direction(2)} → return None (L354) } }   // Neutral 캐스터는 검사 생략\n// L357  acc = player.parameter.skill_hit_accuracy();  L358 eff = skill_hit_effective()\n// L360  mis = 1000 - acc   (오판 임계, ‰)\n// L361-362 te = max(1000-acc,1); min=1000-te; max=1000+te\n// L364  start_timing = gen_range(min..=max) * (effect.start_timing*100 / speed) / 1000   // speed==0 → div0 패닉\n// L368  lead = start_timing; if get_game_mode()==DeathMatch(2) { if let Some(psp)=effect.ty.linear_move_speed() { lead += distance(caster,target)/max(psp,1) } }   // ★gamemode=0 접기: 블록 93/108/121 사장 → lead = start_timing\n// L377  match effect.casting {\n//  Targeting(0) → Some(Target(target.id))                                  // L652\n//  None(3)      → Some(InputTarget::None)                                  // L653 (tag 3)\n//  Position(1) →\n//    L534 if effect.ty.auto_target() {\n//      L537 best=None; for dx in 0..6 { for dy in 0..6 { s=position_score_at_cell(version,player,data,ps, cx-3+dx, cy-3+dy, AttackStance(12)); v = s.gain - s.risk; if best.is_none() || best.v < v { best=(v,dx,dy) } } }   // 첫 최대 유지(strict <)\n//      L551 x = clamp(cx-3+bdx, 0, 29)*32000+16000; y = clamp(cy-3+bdy,0,29)*32000+16000; return Some(Pos(x,y))   // L554 · 조준 오차 없음\n//    } else if target.ty==Champion(13) && target.action_state==Move(2) {   // L556\n//      (x,y) = action_state.Move.{x,y}\n//      L562 misjudged = gen_range(0..=1000) < mis\n//      L565 if misjudged { if eff>39 && DeathMatch { (x,y)=target.pos } else { (x,y)=adjust_position(map,setting, 2*caster.x - x, 2*caster.y - y) } }   // 거울 반전 오판\n//      L577 tx=target.x; ty=target.y; move_to(setting,map_setting,map,target.id,&mut tx,&mut ty, target.stat_cached.move_speed*lead, x,y, None)\n//      L582 return apply_aim_offset_pos(rnd,setting,map,acc, caster.x,caster.y, tx,ty)\n//    } else { match target.rush_state {                                    // L592\n//      Move|Rush|RushPenetrate → (speed,x,y) = 각 variant 의 speed/x/y\n//        L596 misjudged = gen_range(0..=1000) < mis; L599 오판 처리 위와 동일(대상 현재위치 / 거울)\n//        L610 if target is Champion && nt_trace_on() → record_aim(...)   // 텔레메트리\n//        L624 dist = distance(x,y, target.x,target.y); L625 tick = dist/speed (speed==0 → div0 패닉)\n//        L626 if tick < lead { d=(x,y)-caster.pos; sz=max(isqrt(dx²+dy²),1); (x,y) = caster.pos + d*lead/sz }   // 돌진이 lead 안에 끝나면 같은 방향으로 lead 만큼 연장한 점\n//        L638 return apply_aim_offset_pos(rnd,setting,map,acc, caster.x,caster.y, x,y)\n//      None|MoveToTarget → L645-647 return apply_aim_offset_pos(..., target.x, target.y)\n//    } }\n//  Direction(2) →\n//    L379 if auto_target { L382-387 같은 6×6 스캔(purpose 12, v=gain-risk, 첫 최대) ; L396-401 return Some(Dir(cell_x*32000 - caster.x + 16000, cell_y*32000 - caster.y + 16000)) }   // 오차 없음\n//    else if Champion && action_state==Move { (x,y)=Move dest; tx,ty=target.pos; L413 misjudged=gen_range(0..=1000)<mis; L417 if misjudged { if eff>39 && DM {(x,y)=target.pos} else {거울 adjust_position} }; L429 move_to(..,&mut tx,&mut ty, move_speed*lead, x,y); L432 if nt_trace_on() record_aim; L446 return apply_aim_offset_dir(rnd,acc, tx-caster.x, ty-caster.y) }\n//    else match rush_state { Move|Rush|RushPen → L462 misjudged / L465 오판 / L476 trace(Champion) / L490 dist / L491 tick=dist/speed / L492 if tick<lead 연장 / L504-506 return apply_aim_offset_dir(rnd,acc, x-caster.x, y-caster.y)\n//                            None|MoveToTarget → L513 trace(Champion, dest None) ; L526-528 return apply_aim_offset_dir(rnd,acc, target.x-caster.x, target.y-caster.y) }\n// }",
+
+ "knobs": [
+   {"what": "오판 확률·타이밍 오차 폭 = 1000 - skill_hit_accuracy", "where": "abstract_input.rs:360-362", "value": 1000, "effect": "acc 가 낮을수록 (a) 시전 타이밍 gen_range 폭이 넓어지고 (b) 이동 예측이 거울 반전으로 오판될 확률이 오른다 · acc≥1000 이면 오차 0"},
+   {"what": "DeathMatch 오판 완화 게이트", "where": "abstract_input.rs:565/599/417/465", "value": 39, "effect": "eff>39 이면 오판 시 거울 반전 대신 대상 현재 위치를 씀(덜 나쁜 오판) · Moba(gamemode 0)에선 항상 거울 반전"},
+   {"what": "auto_target 셀 스캔 창", "where": "abstract_input.rs:537/382", "value": 6, "effect": "cx-3..cx+2 · 키우면 더 먼 셀까지 조준 후보(7 이면 대칭 7×7)"},
+   {"what": "셀 스캔 purpose", "where": "abstract_input.rs:539/384", "value": 12, "effect": "AttackStance 태그 · 바꾸면 position_eval_at 의 가중 프로파일이 바뀐다"},
+   {"what": "돌진 연장 조건 tick<lead", "where": "abstract_input.rs:626/492", "value": 0, "effect": "돌진이 스킬 도달 전에 끝나면 caster→dest 방향으로 lead 거리만큼 연장한 점을 조준 (상수 없음 · 구조 노브)"}
+ ],
+
+ "unknown": [
+   "position_score_at_cell 로 넘기는 x,y 순서/좌표 축(xi=cx 기반, yi=cy 기반)은 IR 인자 순서로 확정했으나 PositioningScoreData.cx/cy 가 셀 좌표(0..29)임은 clamp(0,29)·*32000 으로 추정(정의부 미독)",
+   "6×6 스캔(0..6)이 의도인지(7×7 배열의 +3 열/행 누락) 소스 표기 불가 — IR 은 dx,dy 각 6회로 확정",
+   "L629-634 돌진 연장식 `caster + d*lead/|d|` 에서 d 의 기준점이 caster(예측점이 아니라)인 것은 IR 확정 — 의도 여부는 소스 주석 부재",
+   "Effect::is_in_range · Entity::move_to · Game::adjust_position 내부(game_core)는 계약만 적고 안 읽음",
+   "gamemode=0 접기로 사장 처리한 블록 93/108/121(DeathMatch 비행시간) 및 `DM && eff>39` 게이트의 DM 항은 Moba 에서 항상 거짓 — DeathMatch 검증 시 재개봉 필요"
+ ]
+}

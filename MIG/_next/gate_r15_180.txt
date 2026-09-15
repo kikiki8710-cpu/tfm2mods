@@ -1,0 +1,38 @@
+
+====================================================================================================
+## 명세 완결 조건 검사 (게임 0.5.8)
+   ⚠**부분 실행** — 함수 **180 만**
+   G1 자기모순=1  G10 class 오분류=1  G11 ev 지시 미반영=0  G12 src_line 대조=4  G13 knobs.where 대조=0  G14 mem.dir 방향=0  G15 consts.kind 관측=0  G16 params.role 대조=0  G17 history 전파=0  G18 logic↔표 상호참조=0  G19 knobs.value 값=0  G2 호출부 전수=0  G20 명세간 공유사실=0  G3 형제 함수=1  G4 술어 시그니처=0  G5 sig 정본 대조=0  G6 logic 미반영=0  G7 과열림=1  G8 표에 옛 값=0  G9 callees 오염=0
+====================================================================================================
+
+### [G1 자기모순] 1건
+  [180] position_eval_at_uncached                       constants[57] src_line=690 인데 meaning 은 같은 파일 position_eval.rs:386 를 가리킨다
+        pct_q32(position_eval.rs:386) 상한: min(well_damage*100*inv_hp_q32 >> 32, 150) = 우물 데미지의 HP% 를 150 에서 캡 (m07.ll:28067)
+
+### [G10 class 오분류] 1건
+  [180] position_eval_at_uncached                       class=미탐색 인데 문면이 **사실 서술**로 끝난다 — 다음 라운드가 이걸 또 판다
+        s_none()` 로 썼는지 `is_some()` 인지 — 인라인 체인은 is_none<is_some): 동작은 nearest_enemy Some → ratio/2, None → ratio 로 확정
+
+### [G12 src_line 대조] 4건
+  [180] position_eval_at_uncached                       consts[12] src_line=458 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [7, 14, 33, 36, 465, 530, 545, 550]
+  [180] position_eval_at_uncached                       consts[51] src_line=514 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [695, 707, 728, 753, 774, 797, 818, 1003]
+  [180] position_eval_at_uncached                       consts[92] src_line=1001 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [305, 507, 847, 1105, 1166]
+  [180] position_eval_at_uncached                       consts[107] src_line=990 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [447, 605, 850, 1034, 1141]
+
+### [G3 형제 함수] 1건
+  [180] position_eval_at_uncached                       siblings.plan == null 인데 자유 함수 화이트리스트에 없다 — 망글링 파싱 실패를 의심하라
+        _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+
+### [G7 과열림] 1건
+  [180] position_eval_at_uncached                       ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        (배치 A) pe_cand_masks 의 is_recent_visible 인자(&blackboard[enemy_team], game, player, e) 의 self 가 적 팀 블랙보드인 이유는 소스 없이는 서술 불
+
+### [참고 — 결함 아님, 건수에 안 들어감] 1건
+  (G9) [180] position_eval_at_uncached                   손확인 2개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        dist(동명 필드 있음), with ★함수만
+
+총 8건

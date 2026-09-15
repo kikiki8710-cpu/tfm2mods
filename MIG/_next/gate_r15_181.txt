@@ -1,0 +1,30 @@
+
+====================================================================================================
+## 명세 완결 조건 검사 (게임 0.5.8)
+   ⚠**부분 실행** — 함수 **181 만**
+   G1 자기모순=0  G10 class 오분류=0  G11 ev 지시 미반영=0  G12 src_line 대조=1  G13 knobs.where 대조=0  G14 mem.dir 방향=0  G15 consts.kind 관측=0  G16 params.role 대조=2  G17 history 전파=0  G18 logic↔표 상호참조=1  G19 knobs.value 값=0  G2 호출부 전수=0  G20 명세간 공유사실=0  G3 형제 함수=1  G4 술어 시그니처=0  G5 sig 정본 대조=0  G6 logic 미반영=0  G7 과열림=1  G8 표에 옛 값=0  G9 callees 오염=0
+====================================================================================================
+
+### [G12 src_line 대조] 1건
+  [181] calculate_interaction_action_score              consts[7] src_line=1074 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [1071]
+
+### [G16 params.role 대조] 2건
+  [181] calculate_interaction_action_score              sig.params[1] P4 role 이 주장한 IR 속성이 `define` 에 없다
+        p[1] _rnd `readnone` — IR %1 = ptr noalias noundef nonnull align 16 dereferenceable(320) %1
+  [181] calculate_interaction_action_score              sig.params[8] P4 role 이 주장한 IR 속성이 `define` 에 없다
+        p[8] _debug `readnone` — IR %8 = ptr noalias noundef nonnull align 8 dereferenceable(224) %8
+
+### [G18 logic↔표 상호참조] 1건
+  [181] calculate_interaction_action_score              logic/P1 logic 이 `+0xa8` 를 인용하는데 mem 표에 그 오프셋이 없다
+        // vtable +0xa8 sret 48B, 태그 0=None
+
+### [G3 형제 함수] 1건
+  [181] calculate_interaction_action_score              siblings.plan == null 인데 자유 함수 화이트리스트에 없다 — 망글링 파싱 실패를 의심하라
+        _RNvNtCshdEBA0ozCnw_7game_ai12action_score34calculate_interaction_action_score
+
+### [G7 과열림] 1건
+  [181] calculate_interaction_action_score              ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        Blackboard::is_recent_visible(self=&blackboard[1-team], game(dyn 2워드), player, entity) 인자 의미는 콜리 소관 — _docs game_core:21
+
+총 6건

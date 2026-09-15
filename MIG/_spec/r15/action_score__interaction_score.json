@@ -1,0 +1,782 @@
+{
+ "name": "interaction_score",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12action_score17interaction_score",
+ "src": "game-ai\\src\\action_score.rs",
+ "src_line": 616,
+ "ir_file": "m05.ll",
+ "ir_from": 34861,
+ "ir_to": 37632,
+ "aux": [
+  {
+   "ir_file": "m05.ll",
+   "ir_from": 10347,
+   "ir_to": 10366,
+   "what": "closure#2 (action_score.rs:689) — near_enemy_tower.is_some_and(|t| t.attack_effect.unwrap().is_in_range(t, champ))"
+  },
+  {
+   "ir_file": "m05.ll",
+   "ir_from": 61776,
+   "ir_to": 61848,
+   "what": "closure#4 call_mut (action_score.rs:764~765) — die_enemies 필터 술어: dist²(champ,e) < 150000²+1 && blackboard[1-player.team].is_recent_visible(game, player, e)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 37967,
+   "ir_to": 38142,
+   "what": "bumpalo Vec<&Entity>::from_iter_in(Filter<FilterMap<Iter<Option<&Entity>>, iter_champions::{closure#0}>, closure#4>) — L766 collect 본체(술어는 위 call_mut)"
+  },
+  {
+   "ir_file": "m00.ll",
+   "ir_from": 91213,
+   "ir_to": 92754,
+   "what": "INTER_CTX.with::<interaction_ctx::{closure#0}> 인스턴스(action_score.rs:576~611 인라인) — TLS 메모 키 검사·hit 복사·miss 계산+저장. 계산부(L581~608)는 계약만 읽음"
+  }
+ ],
+ "one_line": "SmallActionPlay 하나의 상호작용(전투) 점수 i64 — 행동 종류별(RunAway/Around/Trace/Attack/Skill/Skill2/Ult) 피해·위험·탑·근접수 차이로 계산, 조기 거부는 -99999/-9999999",
+ "signature": {
+  "abi": "define noundef i64(외부 가시 · pub · internal fastcc 아님) · exe 0xd57540 인자 7 = IR 7 그대로(version, rnd, player, data, parameter, action, debug) — ArgumentPromotion 없음",
+  "params": [
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "note": "AI 버전. `version > 1` 게이트 3곳(L632·L660·L743 — reach version=2 접기로 전부 true). 콜리(position_eval_at·evaluation_position·check_kill_die_tick·calculate_interaction_action_score·get_battle_role)에 전달"
+   },
+   {
+    "i": 2,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "이 함수는 직접 읽고 쓰지 않음 — check_kill_die_tick(35954)·calculate_interaction_action_score(4곳)에만 전달. writes 는 그 콜리 소관"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState(2528B, readonly)",
+    "note": "+0x930 info.team · +0x928 info.id(ictx pid) · +0x9c0 info.position(champ 슬롯 인덱스, i32)"
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData(24B, readonly)",
+    "note": "+0x0 cache(&AbstractGameWithCache) · +0x8 context(&GameContext) · +0x10 blackboard(&[Blackboard;2])"
+   },
+   {
+    "i": 5,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B, readonly)",
+    "note": "+0x918 player(ChampionScoreParameter 216B) · +0x14d8/+0x14f0 near_enemies Vec · +0x1500 v3_turnback_hold"
+   },
+   {
+    "i": 6,
+    "name": "action",
+    "type": "&SmallActionPlay(184B, readonly)",
+    "note": "니치 태그 +0xb1. get_action() 으로 game_core::SmallAction 으로 변환해 분기(L618) · Around/AroundHide +0x20 goal_gain · LaneMinionPosition +0x20 goal_score · Trace +0x94 dive_ignore_tower_escape"
+   },
+   {
+    "i": 7,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "이 함수는 직접 쓰지 않음 — check_kill_die_tick·calculate_interaction_action_score 에 전달만(35954·37422·37443·37469·37495)"
+   }
+  ],
+  "returns": "i64 점수. 조기 반환값: -9999999(L753 v3_turnback_hold / L770 다이브 중 사망) · -99999(L647 undying / L661 nexus_final_stand / L667 base_defense_focus / L700 자기 분수 안 / L842 상대가 귀환중+더 빠름+사거리 밖 / Trace·Around·Attack·Skill·Skill2 대상 소멸=기본값) · 0(SmallAction 이 Positioning/AroundPosition/Dodge/Stop 이거나 L965 대상 엔티티가 이미 없음) · 그 외 act_score + positioning_score(0 또는 10)",
+  "tls": {
+   "name": "game_ai::action_score::INTER_CTX (thread_local! RefCell<(u64 seed, usize tick, usize pid, InterActionCtx)>) · IR 전역 @anon.fdc8f8a40baf2989242b37eb35661f10.103 · with 인스턴스 = m00.ll 91213~92754",
+   "role": "★작성자 겸 소비자. interaction_ctx(action_score.rs:572)가 이 함수 L619 에 인라인돼 seed/tick/pid 를 잡고(35099~35114) INTER_CTX.with 를 호출(35131). 다른 작성자 후보: interaction_ctx 를 인라인한 다른 함수들(fnparts 가 m11.ll 31594·31649 에 interaction_ctx 클로저 본체 2벌을 더 보임 — 담당 밖·미탐색)",
+   "layout": "RefCell 셀: +0x0 borrow 플래그(i64 · 0=free · -1=borrow_mut) · +0x8 seed u64 · +0x10 tick usize · +0x18 pid usize · +0x20.. InterActionCtx(72B, tcxdict): +0x20 nearest_vis_enemy tag(0/1) · +0x28 값(entity id) · +0x30 near_ally_tower tag · +0x38 값 · +0x40 near_enemy_tower tag · +0x48 값 · +0x50 vis150_nearest tag · +0x58 값 · +0x60 vis150_mask u8 · +0x61 ally100_count u8 · +0x62..+0x68 패딩 6B(hit 시 그대로 복사됨 92712)",
+   "key": "3-튜플 (game.seed() [vtable+0x20], game.tick() [vtable+0x28], player.info.id [+0x928]) — 단일 엔트리(슬롯 배열 없음). L578: seed== && tick== && pid== 이면 hit(92666~92714: 72B 그대로 반환) · 아니면 miss: L581~608 계산 후 L611 에 (seed,tick,pid,ctx) 통째 덮어씀(92522~92550) · borrow 플래그 복원(92567/92711)",
+   "value_semantics(계약 수준 · 계산부 미독)": "nearest_vis_enemy = 가장 가까운 가시 적 챔프 id(Option) · near_ally_tower / near_enemy_tower = 근처 아군/적 타워 id(Option) · vis150_nearest = 150000 이내 가시 적 중 최근접 id(Option) · vis150_mask = 150000 이내 가시 적 챔프 슬롯 비트마스크(u8, 소비처 L713 popcnt) · ally100_count = 100000 이내 아군 챔프 수(u8). 계산 입력 캡처: seed·tick·pid·player·cache·blackboard(&[Blackboard;2])·champ (35118~35130)",
+   "consumption_in_this_fn": "L636 nearest_vis_enemy→get_entity_by_id · L637 near_ally_tower→엔티티 · L638 near_enemy_tower→엔티티 · L713 popcnt(vis150_mask)=near_enemies · L714 ally100_count=near_allies · L947 vis150_nearest→엔티티(positioning_score 판정)",
+   "mirror_hint": "런타임 미러: 스레드별 (seed,tick,pid,ctx) 1개. 같은 틱·같은 플레이어의 두 번째 호출부터 hit. 같은 틱에 다른 플레이어가 호출하면 덮어씀(pid 가 키에 있으므로 재계산). 미러가 게임과 같은 값을 내려면 interaction_ctx 계산부(L581~608, m00.ll 91340~92520)를 재현해야 함 — 이 명세 범위 밖"
+  }
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "34901 · 팀 인덱스(<2 bounds), 적팀 = 1-team"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position(tag i32)",
+   "note": "34914 · player_champion 슬롯 인덱스(PlayerState::position L581 인라인)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x928",
+   "name": "info.id",
+   "note": "35112 · INTER_CTX 키 pid"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "34917"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context(&GameContext)",
+   "note": "35469·35703·35924·36279·36495"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard(&[Blackboard;2])",
+   "note": "35089 · ictx 캡처·L840 in_recall·L848 is_recent_visible ([1-team] 인덱스)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "35099"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "35100 · 슬롯 +0x20 seed · +0x28 tick · +0x40 get_game_mode · +0xf8 is_visible · +0x1f0 get_entity_by_id (divtable)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos] (Option<&Entity> [2][5])",
+   "note": "34921~34924 · unwrap(null→unwrap_failed)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting(&GameSetting)",
+   "note": "35705 · →+0x13f8 tower_attack_disable_tick"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x13f8",
+   "name": "tower_attack_disable_tick",
+   "note": "35707 · tick >= 이면 탑 피해 계산 생략(L904·L806·L825)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map(&MapDef)",
+   "note": "35471"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool(&Bump)",
+   "note": "35925 · die_enemies Vec 할당자"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x6d70",
+   "name": "fountains[team] (x0,y0,x1,y1) stride 32",
+   "note": "35474~35501 · L700 자기 분수 사각형"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x918",
+   "name": "player (ChampionScoreParameter)",
+   "note": "35315 · possible_risk/champion_hp_value 의 self"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x988",
+   "name": "player.applyed_damage",
+   "note": "35317 · L704"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x998",
+   "name": "player.risk_damage",
+   "note": "35392·35427·35605·36014 · base_damage 기본값"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x9b0",
+   "name": "player.risk_possible_tower",
+   "note": "35410·35430·36068 · tower_damage 기본값"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x14d8",
+   "name": "near_enemies.ptr",
+   "note": "36321 · Vec<ChampionScoreParameter>(216B stride)"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x14f0",
+   "name": "near_enemies.len",
+   "note": "36324"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x1500",
+   "name": "v3_turnback_hold",
+   "note": "35846 · true 면 Trace 는 -9999999"
+  },
+  {
+   "base": "ChampionScoreParameter(near_enemies[i])",
+   "offset": "0x58",
+   "name": "id",
+   "note": "36358 · find 키 == 대상 id"
+  },
+  {
+   "base": "ChampionScoreParameter(near_enemies[i])",
+   "offset": "0x80",
+   "name": "risk_damage",
+   "note": "36533 · possible_enemy_damage 가산"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "니치 태그",
+   "note": "34941 · get_action 분기 + L739(==14 Trace) + L915(==5 Around / ==13 LaneMinionPosition)"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "variant 페이로드 target id",
+   "note": "Around/AroundHide/Positioning/AroundPositionBush/LaneMinionPosition/Attack/Skill/Skill2/Ult 의 +0x8 · AroundRegion +0x10 · AroundBush +0x18 · AroundPosition +0x30 · Trace +0x60 (34974~35076)"
+  },
+  {
+   "base": "SmallActionAround / AroundHide",
+   "offset": "0x20",
+   "name": "goal_gain",
+   "note": "35741 · L917 bonus"
+  },
+  {
+   "base": "SmallActionLaneMinionPosition",
+   "offset": "0x20",
+   "name": "goal_score",
+   "note": "35750 · L920 bonus"
+  },
+  {
+   "base": "SmallActionTrace",
+   "offset": "0x94",
+   "name": "dive_ignore_tower_escape",
+   "note": "35767 · L739"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team(TeamType tag)",
+   "note": "35659·35811 · Player(0)/Neutral(1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": "35685·35840"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty tag",
+   "note": "35802·37544 · ==13 Champion"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xb8",
+   "name": "ty@Champion.skill_cooldown",
+   "note": "37551 · L953 > 30"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xc0",
+   "name": "ty@Champion.skill2_cooldown",
+   "note": "37570 · L954 >= 31"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "36180·36396 · 탑 사거리 합산"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult(i32)",
+   "note": "36183·36211·36399·36427"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x488",
+   "name": "stat_buff_cached.undying",
+   "note": "35137 · true 면 no_self_risk 및 RunAway -99999"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some (Effect)",
+   "note": "35671·35862·36161·36377·37419"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "36172·36388"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "36174·36390"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect 니치 태그(i32, -1=None)",
+   "note": "35673·35857·36163·36379·37414"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some",
+   "note": "37440"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect 태그(-1=None)",
+   "note": "37435·37538"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some (+0x30 태그)",
+   "note": "37457~37461·37559~37563 · level>2 일 때만, 아니면 @anon.121 빈 Effect"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect@Some (+0x30 태그)",
+   "note": "37483~37487 · level>4 일 때만"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x570",
+   "name": "attack(Box<dyn Action>)",
+   "note": "37420 · Attack 분기 인자"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x580",
+   "name": "skill(Box<dyn Action>)",
+   "note": "37441"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x590",
+   "name": "skill2(Box<dyn Action>)",
+   "note": "37466 (level>2)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5a0",
+   "name": "ult(Box<dyn Action>)",
+   "note": "37492 (level>4)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5b0",
+   "name": "empty(Box<dyn Action>)",
+   "note": "37466·37492 · 레벨 미달 시 대체"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "35440·36339·36656"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "36176·36392 (growth) · 37455·37481·37557 (>2 / >4)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp(최대 HP)",
+   "note": "35158·35343·35397"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "35887·37339·37342"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "35484 외 다수"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "35504 외 다수"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "35155·35492 외 — 나눗셈 분모(0 이면 panic)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "36195·36202 외 · 사거리 합산"
+  },
+  {
+   "base": "InterActionCtx(ictx, 스택 %20)",
+   "offset": "0x0",
+   "name": "nearest_vis_enemy",
+   "note": "35174~35186"
+  },
+  {
+   "base": "InterActionCtx",
+   "offset": "0x10",
+   "name": "near_ally_tower",
+   "note": "35199~35210"
+  },
+  {
+   "base": "InterActionCtx",
+   "offset": "0x20",
+   "name": "near_enemy_tower",
+   "note": "35223~35234"
+  },
+  {
+   "base": "InterActionCtx",
+   "offset": "0x30",
+   "name": "vis150_nearest",
+   "note": "35593~35594·37513~37514"
+  },
+  {
+   "base": "InterActionCtx",
+   "offset": "0x40",
+   "name": "vis150_mask",
+   "note": "35541 · popcnt"
+  },
+  {
+   "base": "InterActionCtx",
+   "offset": "0x41",
+   "name": "ally100_count",
+   "note": "35546"
+  }
+ ],
+ "writes": [
+  {
+   "base": "TLS INTER_CTX RefCell",
+   "offset": "0x0",
+   "name": "borrow",
+   "value": "-1 → 0(+1 복원)",
+   "note": "aux with 인스턴스 91294·92567·92711"
+  },
+  {
+   "base": "TLS INTER_CTX",
+   "offset": "0x8",
+   "name": "(seed, tick, pid, InterActionCtx) 98B",
+   "value": "miss 시 새 키+계산값 통째 덮어씀",
+   "note": "aux 92526~92550 (L611) — 단일 엔트리, 무효화 없음(키 불일치 = 재계산)"
+  },
+  {
+   "base": "bumpalo Bump(GameContext.pool)",
+   "offset": "-",
+   "name": "die_enemies Vec<&Entity> 할당",
+   "value": "L766 collect · 비면 drop_glue(35938) · 아니면 check_kill_die_tick 에 move",
+   "note": "arena 할당이라 힙 상태 변화는 Bump 커서뿐"
+  },
+  {
+   "base": "(참고) rnd / debug",
+   "offset": "-",
+   "name": "직접 쓰기 없음",
+   "value": "-",
+   "note": "check_kill_die_tick·calculate_interaction_action_score 에 &mut 전달만 — 그 콜리 명세의 writes 참조"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 617,
+   "meaning": "team 인덱스 bounds(<2) (34905)"
+  },
+  {
+   "value": 10,
+   "src_line": 309,
+   "meaning": "SmallActionPlay 니치 무효값 assume(ne 10) — get_action 인라인 (34943)"
+  },
+  {
+   "value": -3,
+   "src_line": 309,
+   "meaning": "SmallActionPlay 태그→논리 idx (`tag-3`) (34945)"
+  },
+  {
+   "value": 7,
+   "src_line": 309,
+   "meaning": "untagged variant AroundPosition 의 논리 idx (34947) — 또 L779 position_eval 목적 Trace 태그(35983)"
+  },
+  {
+   "value": 100,
+   "src_line": 633,
+   "meaning": "hp*100 (퍼센트) — 633·664·681(-100 sdiv)·685·804 radius(100+mult)/100·909/811/829 dmg*100·865 coef/100 등"
+  },
+  {
+   "value": 35,
+   "src_line": 633,
+   "meaning": "HP% 임계 — hp*100 > maxhp*35 이면 base_defense_focus 판정 (35162·35351)"
+  },
+  {
+   "value": 1,
+   "src_line": 633,
+   "meaning": "max(maxhp,1)·max(speed,1) 0 나눗셈 가드 · diff>1 · diff==1 분기 — aux 92643 `shl i8 1, slot` 은 vis150_mask 의 1<<slot 비트(배수 접힘 아님)"
+  },
+  {
+   "value": 3,
+   "src_line": 679,
+   "meaning": "PositionEvalPurpose 태그 3 = RunAway (35372) — 또 L784 tower_possible/3 (36076) · L952 BattleRole-3"
+  },
+  {
+   "value": -100,
+   "src_line": 681,
+   "meaning": "base_damage = risk_damage + maxhp*max(risk,0) / -100 (= 빼기) (35402·35417)"
+  },
+  {
+   "value": 0,
+   "src_line": 681,
+   "meaning": "smax(.,0) 하한 · 반환 0 · tower_damage 0 등"
+  },
+  {
+   "value": 9999,
+   "src_line": 688,
+   "meaning": "ChampionScoreParameter::possible_risk 의 3번째 인자(틱 상한 추정 — 콜리 계약) (35438·36085·36531)"
+  },
+  {
+   "value": -99999,
+   "src_line": 704,
+   "meaning": "act_score 기본/거부값 (35590·37505·37617·37629)"
+  },
+  {
+   "value": 4,
+   "src_line": 731,
+   "meaning": "base_score/4 (35581) — 또 L932 level>4 (37482)"
+  },
+  {
+   "value": -2,
+   "src_line": 731,
+   "meaning": "act_score 상수항 -2 (35584)"
+  },
+  {
+   "value": 800,
+   "src_line": 731,
+   "meaning": "diff_coef*possible_score/800 (35583)"
+  },
+  {
+   "value": 300,
+   "src_line": 719,
+   "meaning": "RunAway diff_coef: near_enemies-near_allies > 1 (35579)"
+  },
+  {
+   "value": 200,
+   "src_line": 721,
+   "meaning": "RunAway diff_coef: diff == 1 (35579) · Around bonus = goal_gain*hp_value/200 (35743) · Trace coef diff>1 (37400)"
+  },
+  {
+   "value": 75,
+   "src_line": 725,
+   "meaning": "RunAway diff_coef: diff == -1"
+  },
+  {
+   "value": 40,
+   "src_line": 725,
+   "meaning": "RunAway diff_coef: diff <= -2"
+  },
+  {
+   "value": -1,
+   "src_line": 721,
+   "meaning": "diff == -1 분기 · Option<Effect> 니치 None(-1 i32) · level-1"
+  },
+  {
+   "value": 5,
+   "src_line": 907,
+   "meaning": "action 태그 5 = Around (35646) — Around 분기 bonus"
+  },
+  {
+   "value": 13,
+   "src_line": 907,
+   "meaning": "action 태그 13 = LaneMinionPosition (35647) · EntityType 태그 13 = Champion (35803·37545)"
+  },
+  {
+   "value": 14,
+   "src_line": 739,
+   "meaning": "SmallActionPlay 태그 14 = Trace (35765)"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 764,
+   "meaning": "150000²+1 — 적 챔프 근접 판정(dist² <) (aux 61821 · 본체 36659 L848)"
+  },
+  {
+   "value": 10000000001,
+   "src_line": 850,
+   "meaning": "100000²+1 — 아군 근접(L850) · positioning_score 근접(L954) (37047·37611)"
+  },
+  {
+   "value": 30000,
+   "src_line": 805,
+   "meaning": "탑 사거리 여유 — attack_range.saturating_sub(30000) (36240·36456)"
+  },
+  {
+   "value": -9999999,
+   "src_line": 753,
+   "meaning": "강한 거부값: v3_turnback_hold / 다이브 사망 (37629)"
+  },
+  {
+   "value": 150,
+   "src_line": 855,
+   "meaning": "Trace coef: diff == 1 (37400)"
+  },
+  {
+   "value": 80,
+   "src_line": 857,
+   "meaning": "Trace coef: diff == 0"
+  },
+  {
+   "value": 60,
+   "src_line": 859,
+   "meaning": "Trace coef: diff == -1"
+  },
+  {
+   "value": 30,
+   "src_line": 859,
+   "meaning": "Trace coef: diff <= -2 (37400) · L953 skill_cooldown > 30 (37552)"
+  },
+  {
+   "value": 31,
+   "src_line": 954,
+   "meaning": "skill2_cooldown < 31 이면 positioning_score 0 (37571)"
+  },
+  {
+   "value": 10,
+   "src_line": 954,
+   "meaning": "positioning_score 가산값 (37612)"
+  },
+  {
+   "value": 2,
+   "src_line": 744,
+   "meaning": "GameMode 태그 2 = DeathMatch 이면 다이브 검사 생략 (35829) · L886 level>2 · L952 BattleRole-3 <u 2 (SkillCaster/Utility) · L680 Option 니치 2"
+  },
+  {
+   "value": 5,
+   "src_line": 763,
+   "meaning": "팀당 챔프 슬롯 5 (iter 상한)"
+  }
+ ],
+ "calls": [
+  "game_ai::action_score::calculate_interaction_action_score",
+  "game_ai::position_eval::position_eval_at",
+  "game_ai::small_action::SmallActionPlay::evaluation_position",
+  "game_ai::plan_legacy::old::defense_nexus::nexus_final_stand",
+  "game_ai::plan_legacy::old::defense_nexus::base_defense_focus",
+  "game_ai::score_parameter::ChampionScoreParameter::possible_risk",
+  "game_ai::utils::champion_hp_value",
+  "game_ai::utils::get_battle_role",
+  "game_ai::fight_check::check_kill_die_tick",
+  "game_ai::lane_economy::line_effect_range_with_radii",
+  "game_ai::plan_legacy::old::battle::max_range",
+  "game_core::simulation::entity::Entity::distance",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::game::blackboard::Blackboard::in_recall",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "core::cell::RefCell<(u64,usize,usize,InterActionCtx)>::with::<interaction_ctx::{closure#0}>",
+  "bumpalo::collections::vec::from_iter_in",
+  "core::ptr::drop_glue",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow"
+ ],
+ "logic": "fn interaction_score(version, rnd, player, data, parameter, action, debug) -> i64 {\n  let game = data.cache.game;  // &dyn AbstractGame\n  let team = player.info.team;  let enemy = 1 - team;\n  // L617\n  let champ = data.cache.player_champion[team][player.position()].unwrap();\n  // L618 (get_action 인라인 · small_action.rs:308)\n  let ty: SmallAction = action.get_action();   // RunAway/Recall/AroundRunAway→RunAway(0) · Around/AroundHide/LaneMinionPosition→Around(2,target) · Positioning(1) · AroundRegion/AroundPosition/AroundPositionBush/AroundBush→AroundPosition(3) · Trace→Trace(4,target) · Attack(6)/Skill(7)/Skill2(8)/Ult(9,target) · Stop(10)\n  // L619 = interaction_ctx(player, data, champ) 인라인: INTER_CTX TLS (키 seed,tick,pid) → ictx: InterActionCtx\n  let ictx = INTER_CTX.with(...);\n  // L631~634\n  let no_self_risk = if champ.stat_buff_cached.undying { true }\n     else if version > 1 { if nexus_final_stand(player,data) { true } else if champ.hp*100 > max(champ.stat_cached.hp,1)*35 { base_defense_focus(player,data) } else { false } }\n     else { false };\n  // L636~638 (Option<id>.and_then(get_entity_by_id))\n  let nearest_enemy_champion = ictx.nearest_vis_enemy → entity;  let near_ally_tower = ictx.near_ally_tower → entity;  let near_enemy_tower = ictx.near_enemy_tower → entity;\n  let mut act_score = -99999;  let mut positioning_score = 0;   // L938 (phi 기본)\n  match ty {\n   RunAway => {                                                         // L647~731\n     if champ.undying { return -99999; }\n     if version > 1 { if nexus_final_stand { return -99999; }\n                      let hp_ratio = champ.hp*100 / max(maxhp,1);  if hp_ratio > 35 && base_defense_focus { return -99999; } }   // L660~667\n     let p = &parameter.player;  let applyed_damage = p.applyed_damage;   // L674\n     let dest_score = action.evaluation_position(version,player,data).map(|(x,y)| position_eval_at(version,player,data,x,y,PositionEvalPurpose::RunAway));   // L678~679\n     let (base_damage, tower_damage) = match dest_score {\n        Some(s) => (max(p.risk_damage + max(maxhp,1)*max(s.risk,0)/-100, 0), max(p.risk_possible_tower + max(maxhp,1)*max(s.tower_risk,0)/-100, 0)),   // L681·685\n        None => (p.risk_damage, p.risk_possible_tower) };                 // L682·686\n     let tower_damage = if game.is_visible(enemy, champ.id) || near_enemy_tower.is_some_and(|t| t.attack_effect.unwrap().is_in_range(t, champ)) { tower_damage } else { 0 };   // L689 (closure#2)\n     let possible_damage = tower_damage + p.possible_risk(data, 9999);    // L688\n     let hp_value = champion_hp_value(data, parameter, p);                // L695\n     let f = map.fountains[team];  if champ.x∈[f.0,f.2] && champ.y∈[f.1,f.3] { return -99999; }   // L697~700 자기 분수 안\n     if applyed_damage < champ.hp {                                       // L704\n        let base_score = hp_value*base_damage / champ.hp;                // L709 (hp==0 → panic)\n        let possible_score = possible_damage*hp_value / champ.hp;         // L710\n        let near_enemies = popcnt(ictx.vis150_mask);  let near_allies = ictx.ally100_count;  let diff = near_enemies - near_allies;   // L713~716\n        let diff_coef = if diff > 1 {300} else { match diff { 1=>200, 0=>100, -1=>75, _=>40 } };   // L719~725\n        act_score = base_score/4 - 2 + diff_coef*possible_score/800;      // L731\n     } // else act_score = -99999\n     // L947~954 positioning_score (RunAway 만)\n     let near = ictx.vis150_nearest → entity;\n     let role = get_battle_role(version, data.context, data.cache, player);\n     if matches!(role, SkillCaster|Utility) && champ.skill_effect.is_some() && champ.ty==Champion && champ.skill_cooldown > 30\n        && champ.skill2_effect_at_level().is_some() /*level>2 이면 skill2_effect 아니면 빈 Effect*/ && champ.skill2_cooldown >= 31\n        && near.is_some_and(|e| dist²(champ,e) < 100000²+1) { positioning_score = 10; }\n   }\n   Around(target_id) => {                                                 // L892~925\n     let Some(target) = game.get_entity_by_id(target_id) else { act_score=-99999; goto L965 };\n     let p = &parameter.player;  let base_damage = p.risk_damage;  let hp_value = champion_hp_value(data,parameter,p);   // L893·895\n     let base_score = hp_value*base_damage / champ.hp;                   // L898\n     let mut tower_score = 0;                                             // L900\n     if let Some(t) = near_ally_tower { if let Some(target) = game.get_entity_by_id(target_id) {   // L902~903\n        if target.team != champ.team && t.attack_effect.unwrap().is_in_range(t, target) && game.tick() < setting.tower_attack_disable_tick { if let Some(e) = nearest_enemy_champion {   // L904\n           tower_score = min(t.attack_effect.expected_damage_target(ctx, t, e)*100 / e.hp, 100); } } } }   // L907~909\n     let bonus = match action { Around(a) => a.goal_gain*hp_value/200, LaneMinionPosition(l) => l.goal_score, _ => 0 };   // L915~921\n     act_score = tower_score - base_score + bonus;                        // L925\n   }\n   Trace(target_id) => {                                                  // L735~865\n     let Some(t) = game.get_entity_by_id(target_id) else { act_score=-99999; goto L965 };\n     let dive_ignore = matches!(action, Trace(x) if x.dive_ignore_tower_escape);   // L739\n     if version > 1 && t.ty==Champion && t.team != champ.team && game.get_game_mode()!=DeathMatch {   // L743~744\n        if parameter.v3_turnback_hold { return -9999999; }              // L753\n        if !(no_self_risk || dive_ignore) {                               // L756\n           let reach = champ.attack_effect.map(|ef| line_effect_range_with_radii(ef, champ, t)).unwrap_or(0);   // L757~758\n           let d = champ.distance(t);                                     // L759\n           if d > reach {                                                 // L760\n              let die_enemies = iter_champions(enemy).filter(|e| dist²(champ,e)<150000²+1 && blackboard[enemy].is_recent_visible(game,player,e)).collect_in(bump);   // L763~766 (closure#4)\n              if !die_enemies.is_empty() {                                 // L767\n                 let walk_tick = (d - reach) / max(champ.move_speed,1);    // L761\n                 let my_die = check_kill_die_tick(version, rnd, data, player, champ, die_enemies, Vec::new_in(bump), debug);   // L768\n                 if my_die <= walk_tick { return -9999999; } } } } }      // L770\n     let pts = action.evaluation_position(version,player,data).map(|(x,y)| position_eval_at(version,player,data,x,y,PositionEvalPurpose::Trace));   // L778~779\n     let p = &parameter.player;\n     let base_damage = pts.map(|s| max(maxhp,1)*max(s.risk,0)/100).unwrap_or(p.risk_damage);   // L781~782 (⚠RunAway 와 달리 risk_damage 에 더하지 않고 대체)\n     let tower_possible = if dive_ignore { 0 } else { pts.map(|s| max(maxhp,1)*max(s.tower_risk,0)/100).unwrap_or(p.risk_possible_tower) / 3 };   // L783~786\n     let possible_damage = p.possible_risk(data,9999) + tower_possible;   // L788\n     let hp_value = champion_hp_value(data,parameter,p);                  // L789\n     let (base_score, possible_score) = if no_self_risk { (0,0) } else { (hp_value*base_damage/champ.hp, possible_damage*hp_value/champ.hp) };   // L793~797\n     let mut tower_score = 0;\n     if let Some(t2) = near_ally_tower { if let Some(target) = game.get_entity_by_id(target_id) {   // L801~802\n        let ef = t2.attack_effect.unwrap();                               // L803\n        let attack_range = (ef.range + t2.stat_buff.range + (t2.level-1)*ef.growth_range) + ef.range_adjust(t2,target) + t2.radius_adj + target.radius_adj;   // L804 (radius_adj = radius*(100+radius_mult)/100, mult==0 이면 radius)\n        let attack_range = attack_range.saturating_sub(30000);            // L805\n        if dist²(target,t2) <= attack_range² && game.tick() < tower_attack_disable_tick { if let Some(e)=nearest_enemy_champion {   // L806\n           tower_score = min(ef.expected_damage_target(ctx,t2,e)*100 / e.hp, 100); } } } }   // L809~811\n     if !dive_ignore { if let Some(t3) = near_enemy_tower { if let Some(target) = game.get_entity_by_id(target_id) {   // L819~821\n        let ef = t3.attack_effect.unwrap();  let attack_range = (같은 식, t3·target).saturating_sub(30000);   // L822~824\n        if dist²(target,t3) <= attack_range² && game.tick() < tower_attack_disable_tick {   // L825\n           tower_score -= min(ef.expected_damage_target(ctx,t3,champ)*100 / champ.hp, 100); } } } }   // L829 (적 탑이 나를 때리는 기대피해)\n     let mut enemy_possible_score = 0;                                    // L836\n     if let Some(ep) = parameter.near_enemies.iter().find(|p| p.id == t.id) {\n        let possible_enemy_damage = ep.possible_risk(data,9999) + ep.risk_damage;   // L837\n        enemy_possible_score = possible_enemy_damage*hp_value / champ.hp;   // L838\n        let ep_player = data.cache.player_by_champion_id(ep.id).unwrap();   // L839\n        let in_recall = blackboard[enemy].in_recall(ep_player.position());   // L840\n        let mr = max_range(champ, t);                                      // L841\n        if in_recall && t.move_speed + 100 > champ.move_speed && dist²(champ,t) > mr² { return -99999; } }   // L842\n     let near_enemies = count(enemy champs e: dist²(champ,e)<150000²+1 && blackboard[enemy].is_recent_visible(game,player,e));   // L847~848 (5슬롯 언롤)\n     let near_allies = count(ally champs a: dist²(champ,a)<100000²+1);     // L850 (자기 자신 포함 · 가시성 검사 없음)\n     let diff = near_enemies - near_allies;                                // L852\n     let coef = if diff > 1 {200} else { match diff { 1=>150, 0=>80, -1=>60, _=>30 } };   // L853~859\n     act_score = tower_score - (base_score + possible_score) + coef*enemy_possible_score/100;   // L865\n   }\n   Attack(id) => act_score = calculate_interaction_action_score(version,rnd,player,data,parameter, &champ.attack, champ.attack_effect.unwrap(), target, debug),   // L871~872\n   Skill(id) => … (&champ.skill, champ.skill_effect.unwrap(), target),      // L878~879\n   Skill2(id) => … (level>2 ? (&champ.skill2, skill2_effect.unwrap()) : (&champ.empty, 빈Effect.unwrap()→None 이면 panic), target),   // L885~886\n   Ult(id) => … (level>4 ? (&champ.ult, ult_effect) : (&champ.empty, 빈Effect), target),   // L931~932 (대상 None 이면 act_score=-99999, L965 검사 없음)\n   Positioning | AroundPosition | Dodge | Stop => return 0,                // L644 default → 0+0\n  }\n  // L965~966 (Around/Trace/Attack/Skill/Skill2 만): if game.get_entity_by_id(target_id).is_none() { return 0; }\n  act_score + positioning_score                                            // L977~978\n}",
+ "knobs": [
+  {
+   "what": "RunAway 근접수 차 계수",
+   "where": "action_score.rs:719~725",
+   "value": "300/200/100/75/40",
+   "effect": "올리면 적이 많을 때 가능피해(possible_score) 항이 커져 후퇴 점수가 오른다(도망 선호)"
+  },
+  {
+   "what": "RunAway 점수식 분모",
+   "where": "action_score.rs:731",
+   "value": "4 · 800 · -2",
+   "effect": "base_score/4 를 키우면 현재 위험이, /800 을 줄이면 가능 위험이 더 반영"
+  },
+  {
+   "what": "Trace 근접수 차 계수",
+   "where": "action_score.rs:853~859",
+   "value": "200/150/80/60/30",
+   "effect": "올리면 상대가 받을 피해 기대(enemy_possible_score)가 커져 추격 점수가 오른다"
+  },
+  {
+   "what": "탑 사거리 여유",
+   "where": "action_score.rs:805·824",
+   "value": 30000,
+   "effect": "줄이면 탑 사거리 끝(약 1셀 안쪽)까지 탑 피해를 계산 → 탑 근처 추격이 더 보수적/공격적"
+  },
+  {
+   "what": "적 근접 반경",
+   "where": "action_score.rs:764·848",
+   "value": 22500000001,
+   "effect": "150000(4.7셀). 늘리면 die_enemies·near_enemies 에 더 먼 적이 들어와 다이브 거부·계수 하락이 잦아진다"
+  },
+  {
+   "what": "아군 근접 반경",
+   "where": "action_score.rs:850·954",
+   "value": 10000000001,
+   "effect": "100000(3.1셀). 늘리면 near_allies 가 늘어 diff 가 작아진다"
+  },
+  {
+   "what": "HP% 임계(base_defense_focus 게이트)",
+   "where": "action_score.rs:633·667",
+   "value": 35,
+   "effect": "낮추면 넥서스 방어 집중 판정이 더 낮은 체력에서만 발동"
+  },
+  {
+   "what": "Trace tower_possible 분모",
+   "where": "action_score.rs:784",
+   "value": 3,
+   "effect": "키우면 추격 시 탑 위험을 덜 본다"
+  },
+  {
+   "what": "positioning_score 스킬 쿨 임계",
+   "where": "action_score.rs:953~954",
+   "value": "30 / 31 / +10",
+   "effect": "SkillCaster·Utility 가 스킬 둘 다 쿨 중이고 적이 3셀 내면 후퇴 +10"
+  },
+  {
+   "what": "Around goal_gain 분모",
+   "where": "action_score.rs:917",
+   "value": 200,
+   "effect": "줄이면 Around 의 목표 이득 보너스 증가"
+  }
+ ],
+ "unknown": [
+  "INTER_CTX miss 시 계산부(interaction_ctx L581~608, m00.ll 91340~92520 ≈1,180줄)의 정확한 판정(어떤 타워를 near 로 잡는지·nearest 의 거리 기준) — 계약(필드 의미)만 적음. 미탐색",
+  "interaction_ctx 를 인라인한 다른 작성자(m11.ll 31594·31649 의 closure 본체 2벌)가 어느 함수인지 — 담당 밖. TLS 미러 설계 시 그 호출자도 같은 키로 덮어쓸 수 있음(미탐색)",
+  "blackboard[1-team] 인덱스의 의미(적 팀 칸이 왜 is_recent_visible 의 self 인지) — IR 대로 적음. Blackboard 계약은 미탐색",
+  "L697 fountain 접근 L235 헬퍼 이름(MapDef::fountain? · MapDef+0x6d70 fountains[team]) — tcxdict 로 필드는 확정, 함수명 미확인",
+  "L742·L1404·L1494·L1665·L1669·L1677·L1693·L1775·L1776·L1791 의 Entity 접근자 이름(attack_effect/skill2_effect_at_level 등) — 오프셋·조건(level>2, level>4)은 확정, 소스 함수명 추정",
+  "possible_risk 의 3번째 인자 9999 의 의미(틱 상한 추정) — 콜리 계약, 미탐색",
+  "L965 재조회로 0 을 반환하는 이유(대상 소멸 시 -99999 대신 0) — 동작은 확정(37625~37629), 의도 미상",
+  "Skill2/Ult 분기에서 레벨 미달 시 @anon.121 (빈 Effect 상수)의 +0x30 태그가 -1 이면 unwrap 패닉 경로 — 상수 내용 미확인(실제로 None 이라면 레벨 미달 Skill2/Ult 호출 = 패닉, 호출자가 걸러줄 것으로 추정)",
+  "L731 의 `-2` 가 소스에서 어느 항인지(base_score/4 - 2 인지 (…)-2 인지) — 표기 불가(줄 안 순서), 값은 확정",
+  "reach 접힘 4건(version=2 → L632/660/743 true · gamemode=0 → L744 진행)은 판정 상수로만 반영, DeathMatch 경로는 살아있는 코드지만 현행 게임모드에선 NA"
+ ]
+}

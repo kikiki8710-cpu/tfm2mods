@@ -25,6 +25,9 @@ DST = os.path.join(HERE, 'TOOLS.md')
 
 # 분류 = (제목, 한 줄 설명, [파일명...])  — 순서가 곧 문서 순서
 CAT = [
+ ('밴픽 IR 카탈로그 (별도 세션 09-14 · banpick 소스 define 전수)',
+  'bpcatalog → bpdump(irann 방식 일괄 주석) → bpname(RVA 지문 실명).',
+  ['bpcatalog.py', 'bpdump.py', 'bpname.py']),
  ('★exe 함수 정체 판정 — Ghidra 없이 (2026-09-13 신설)',
   '「이 RVA 가 어느 IR 함수인가」. capstone 프로파일 ↔ IR define 프로파일 ↔ 패닉 Location 지문. 인라인 여부만은 xref(§22-85).',
   ['fnprobe.py', 'irprobe.py', 'locfind.py', 'namebyline.py', 'namebycaller.py', 'r8addr.py', 'offscan.py', 'rvaname.py', 'argscan.py', 'mergespec.py']),   # mergespec = 분책 명세 조각 합치기(r12 update · 09-14)   # argscan = exe 스택 인자 슬롯 전수(internal ArgumentPromotion 검출 · 09-14)   # rvaname = RVA 목록 실명 일괄(fnprobe+locfind · game-ai Location 만 · 09-13 저녁)   # 09-13 r8: aimap S1 탐색형 · 변위 지문 스캔
@@ -42,6 +45,7 @@ CAT = [
    'ann.py', 'ann2.py', 'ann3.py', 'irfn.py', 'irctx.py', 'dl.py',
    'guard.py', 'inlsites.py', 'vbr.py',
    'reach.py', 'reach_tree.py',                       # 09-13 도달 가능성(교훈 68 도구화)
+   'rootcut.py',                                      # 09-15 거대 함수 분책 경계(루트 줄 · r12 upd_blocks 도구화)
    'fieldall2.py', 'fieldall.py', 'fieldcodes.py', 'knobscan.py',
    'cachedfns.py', 'cachekeys.py', 'memofns.py', 'tlsscan.py', 'coreglobals.py']),
  ('★오라클 — SDK 함수를 진짜 실행',

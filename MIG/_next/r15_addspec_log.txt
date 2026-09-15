@@ -1,0 +1,8 @@
+#189 position_eval__position_eval_at_uncached 0xd851d0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 180  ③ 원장 §1 에 행 추가
+#190 action_score__calculate_interaction_action_score 0xd5bbf0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 181  ③ 원장 §1 에 행 추가
+#191 move_actions__SmallActionRunAway_get_input 0xdc3240 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 182  ③ 원장 §1 에 행 추가
+#192 action_score__interaction_score 0xd57540 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 183  ③ 원장 §1 에 행 추가
+#193 move_actions__SmallActionRecall_get_input 0xdbd260 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 184  ③ 원장 §1 에 행 추가
+#194 abstract_input__get_input_target 0xd31f20 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 185  ③ 원장 §1 에 행 추가
+#195 action_score__calculate_action_score 0xd59940 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 186  ③ 원장 §1 에 행 추가
+#196 position_eval__position_eval_at 0xd84db0 → 다음: ① python -X utf8 MIG\mkspec3.py  ② python -X utf8 MIG\specgate.py --only 187  ③ 원장 §1 에 행 추가

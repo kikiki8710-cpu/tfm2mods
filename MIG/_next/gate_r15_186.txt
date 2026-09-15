@@ -1,0 +1,22 @@
+
+====================================================================================================
+## 명세 완결 조건 검사 (게임 0.5.8)
+   ⚠**부분 실행** — 함수 **186 만**
+   G1 자기모순=0  G10 class 오분류=0  G11 ev 지시 미반영=0  G12 src_line 대조=1  G13 knobs.where 대조=0  G14 mem.dir 방향=0  G15 consts.kind 관측=0  G16 params.role 대조=0  G17 history 전파=0  G18 logic↔표 상호참조=0  G19 knobs.value 값=2  G2 호출부 전수=0  G20 명세간 공유사실=0  G3 형제 함수=1  G4 술어 시그니처=0  G5 sig 정본 대조=0  G6 logic 미반영=0  G7 과열림=0  G8 표에 옛 값=0  G9 callees 오염=0
+====================================================================================================
+
+### [G12 src_line 대조] 1건
+  [186] calculate_action_score                          consts[17] src_line=161 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [63, 169, 173, 174, 184, 333, 346, 354]
+
+### [G19 knobs.value 값] 2건
+  [186] calculate_action_score                          knobs[6] 주장한 값을 IR 관측에서 못 찾는다
+        value=240 · 관측(창)=[-3, 0, 1, 2, 3, 8, 10, 80, 100, 104]
+  [186] calculate_action_score                          knobs[7] 주장한 값을 IR 관측에서 못 찾는다
+        value=20 · 관측(창)=[0, 1, 3, 64, 104, 296, 576]
+
+### [G3 형제 함수] 1건
+  [186] calculate_action_score                          siblings.plan == null 인데 자유 함수 화이트리스트에 없다 — 망글링 파싱 실패를 의심하라
+        _RNvNtCshdEBA0ozCnw_7game_ai12action_score22calculate_action_score
+
+총 4건

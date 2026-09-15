@@ -1,0 +1,29 @@
+
+====================================================================================================
+## 명세 완결 조건 검사 (게임 0.5.8)
+   ⚠**부분 실행** — 함수 **187 만**
+   G1 자기모순=1  G10 class 오분류=1  G11 ev 지시 미반영=0  G12 src_line 대조=4  G13 knobs.where 대조=0  G14 mem.dir 방향=0  G15 consts.kind 관측=0  G16 params.role 대조=0  G17 history 전파=0  G18 logic↔표 상호참조=0  G19 knobs.value 값=0  G2 호출부 전수=0  G20 명세간 공유사실=0  G3 형제 함수=1  G4 술어 시그니처=0  G5 sig 정본 대조=0  G6 logic 미반영=0  G7 과열림=0  G8 표에 옛 값=0  G9 callees 오염=0
+====================================================================================================
+
+### [G1 자기모순] 1건
+  [187] position_eval_at                                자기모순(Option 겹수): 같은 명세에 'Option<Option<' 와 'Option<PositioningScore>' 가 동시에 있다
+
+### [G10 class 오분류] 1건
+  [187] position_eval_at                                class=미탐색 인데 문면이 **사실 서술**로 끝난다 — 다음 라운드가 이걸 또 판다
+        efensive)=4608 이 소스 91·92 어느 줄인지 — 24604 select 가 `;L0` 로 줄 소실. 값 대응(태그0→4096, 태그1→4608 · trunc nuw i8→i1)은 확정
+
+### [G12 src_line 대조] 4건
+  [187] position_eval_at                                consts[10] src_line=91 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [101, 296]
+  [187] position_eval_at                                consts[11] src_line=91 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [101, 296]
+  [187] position_eval_at                                consts[15] src_line=84 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [299, 307, 309, 312, 317]
+  [187] position_eval_at                                consts[25] src_line=426 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [83, 101, 296, 299, 305, 307, 309, 312]
+
+### [G3 형제 함수] 1건
+  [187] position_eval_at                                siblings.plan == null 인데 자유 함수 화이트리스트에 없다 — 망글링 파싱 실패를 의심하라
+        _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+
+총 7건
