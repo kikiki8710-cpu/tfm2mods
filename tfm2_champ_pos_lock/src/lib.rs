@@ -683,13 +683,12 @@ fn fill_grid(root: &mut Node) {
     }
     // 요약 라벨 + 카운트(밴카드 / 최소 / 현재 선택)
     let cnt = config::pos_count(pos);
-    let base_need = config::min_required(style, ban_count); // 이 포지션 자체 필요
-    // 겹침: 공유풀(컴포넌트 합집합) ≥ 픽수요×포지션수 + 밴 이어야 함.
-    let (comp, union_size) = config::overlap_component(pos);
-    let comp_size = comp.len().max(1);
-    let ban_part = ban_count * 2;
-    let pick_part = base_need.saturating_sub(ban_part); // SERIES 부분(하드10/피어5/클2)
-    let union_need = pick_part * comp_size + ban_part; // 공유풀이 넘어야 할 값
+    // ★[2026-09-16] 필요치 = 부분집합 정확식(config::safety). base_need = S={p} 필요, worst = p 를 포함하는 가장 빡빡한 S.
+    let (_pool1, base_need, worst_bits, worst_have, worst_need) = config::pos_safety(pos);
+    let comp_size = worst_bits.count_ones() as usize;
+    let union_size = worst_have;
+    let union_need = worst_need;
+    let worst_label: String = (0..5).filter(|q| worst_bits & (1 << q) != 0).map(i18n::pos_name).collect::<Vec<_>>().join("/");
     if let Some(n) = ui_kit::find_mut(pop, "summary") {
         ui_kit::label_set(n, &i18n::trf("summary_fmt", &[("pos", &i18n::pos_name(pos))]));
     }
@@ -771,28 +770,28 @@ fn fill_grid(root: &mut Node) {
             } else {
                 String::new()
             };
-            i18n::trf(
-                "warn_min",
-                &[
-                    ("need", &base_need.to_string()),
-                    ("pool", &live.to_string()),
-                    ("more", &base_need.saturating_sub(live).to_string()),
-                    ("tail", &tail),
-                ],
-            )
-        } else if comp_size > 1 && union_size < union_need {
-            // ⚠이 줄은 **참고**다 — 공유풀 식(`union_need`)은 아무것도 게이트하지 않는다.
-            //   적용 여부는 위 `active` 가 이미 결정했다(그래서 문구도 "적용 중"을 앞에 둔다).
-            i18n::trf(
-                "status_active_shared",
-                &[
-                    ("pool", &live.to_string()),
-                    ("need", &base_need.to_string()),
-                    ("count", &comp_size.to_string()),
-                    ("want", &union_need.to_string()),
-                    ("have", &union_size.to_string()),
-                ],
-            )
+            if comp_size > 1 && live >= base_need {
+                // 이 포지션 자체는 충분한데 **겹치는 포지션 묶음**의 공유풀이 부족(복수 라인 지정)
+                i18n::trf(
+                    "warn_subset",
+                    &[
+                        ("lines", &worst_label),
+                        ("have", &union_size.to_string()),
+                        ("need", &union_need.to_string()),
+                        ("more", &union_need.saturating_sub(union_size).to_string()),
+                    ],
+                )
+            } else {
+                i18n::trf(
+                    "warn_min",
+                    &[
+                        ("need", &base_need.to_string()),
+                        ("pool", &live.to_string()),
+                        ("more", &base_need.saturating_sub(live).to_string()),
+                        ("tail", &tail),
+                    ],
+                )
+            }
         } else {
             i18n::trf(
                 "status_active",

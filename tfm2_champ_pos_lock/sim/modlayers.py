@@ -15,8 +15,9 @@ NEG = -1.0e9
 
 # ───────────────────────── config.rs ─────────────────────────
 def min_required(style, ban_count):
+    """구 공식(config.rs 09-16 이전): 클래식 2+2b / 피어리스 5+2b / 하드 10+2b"""
     if style == 0:
-        return 1
+        return 2 + ban_count * 2
     if style == 1:
         return 5 + ban_count * 2
     return 10 + ban_count * 2
@@ -39,9 +40,54 @@ class PosState:
         unassigned = sum(1 for c in self.roster if not any(c in self.allowed[q] for q in range(5)))
         return named + unassigned
 
+    gate: str = 'exact'   # 'old'(live_count >= min_required) | 'exact'(홀 정리 부분집합식, 2026-09-16)
+
+    def _safety(self):
+        if getattr(self, '_saf', None) is not None:
+            return self._saf
+        des = {}
+        for c in self.roster:
+            m = 0
+            for p in range(5):
+                if c in self.allowed[p]:
+                    m |= 1 << p
+            des[c] = m
+        active = 0
+        for p in range(5):
+            if self.named_count(p) > 0:
+                active |= 1 << p
+        have = [0] * 32; need = [0] * 32
+        while True:
+            free = MASK_ALL & ~active
+            eff = {c: ((d & active) if (d & active) else (free if free else MASK_ALL)) for c, d in des.items()}
+            for S in range(1, 32):
+                if S & active != S:
+                    have[S] = need[S] = 0
+                    continue
+                n = 0; l = 0
+                for m in eff.values():
+                    if m & S:
+                        n += 1; l |= m
+                opp = min(5, bin(l & active).count('1'))
+                lock = 4 * {0: 0, 1: opp, 2: 2 * opp}[self.style]
+                have[S] = n; need[S] = bin(S).count('1') + 2 * self.ban_count + opp + lock
+            fail = 0
+            for p in range(5):
+                if not active & (1 << p):
+                    continue
+                if any(have[S] < need[S] for S in range(1, 32) if S & (1 << p) and S & active == S):
+                    fail |= 1 << p
+            if not fail:
+                break
+            active &= ~fail
+        self._saf = ([bool(active & (1 << p)) for p in range(5)], have, need)
+        return self._saf
+
     def pos_active(self, p):
-        n = self.live_count(p)
-        return n != 0 and n >= min_required(self.style, self.ban_count)
+        if self.gate == 'old':
+            n = self.live_count(p)
+            return n != 0 and n >= min_required(self.style, self.ban_count)
+        return self._safety()[0][p]
 
     def mask_of(self, lower):
         designated = 0

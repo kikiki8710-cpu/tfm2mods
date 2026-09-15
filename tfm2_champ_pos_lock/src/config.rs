@@ -130,8 +130,14 @@ impl PosState {
     ///     (유저 지시 2026-08-23). 최소 미달이면 밴/픽 몇 장에 풀이 말라 라인업이 성립 못 하고,
     ///     그때마다 fail-open 으로 널뛰느니 **처음부터 제한을 안 건 것**으로 보는 게 예측 가능하다.
     pub fn pos_active(&self, p: usize) -> bool {
-        let n = self.live_count(p);
-        n != 0 && n >= cur_min_required()
+        // ★★[2026-09-16 정정] ~~`live_count(p) >= min_required(style, ban)`~~ → **부분집합별 정확식**(`safety()`).
+        //   구 공식은 포지션별 머릿수만 봐서 ①피어리스가 1 부족(이번 세트 상대 픽 누락) ②복수 라인 지정 시
+        //   챔프를 여러 포지션에 중복 계산해 크게 과소(2라인·12/라인·피어리스를 "적용 가능"으로 통과) —
+        //   적대 상대 시뮬 150행 실측(REPORT RE 09-16). 정확식은 슬랙≥0 이면 강제 위반 0.
+        if self.named_count(p) == 0 {
+            return false;
+        }
+        self.safety_cached().active[p]
     }
     /// ★★[2026-09-04 유저 지시 — 규칙 반전] **지정한 포지션에만 갈 수 있다.**
     ///   ~~구 규칙: 비활성 포지션의 비트를 항상 켰다~~ ⟹ 탑에만 21종을 지정하면 그 21종이
@@ -241,6 +247,7 @@ static ROSTER: RwLock<Option<std::collections::HashSet<String>>> = RwLock::new(N
 pub fn set_roster(ids: &[String]) {
     let set: std::collections::HashSet<String> =
         ids.iter().map(|s| s.to_ascii_lowercase()).collect();
+    ROSTER_VER.fetch_add(1, Ordering::Relaxed);
     *ROSTER.write().unwrap_or_else(|e| e.into_inner()) = Some(set);
     STATE_VER.fetch_add(1, Ordering::Relaxed); // 마스크 재계산 트리거
 }
@@ -385,17 +392,146 @@ pub fn overlap_component(pos: usize) -> (Vec<usize>, usize) {
 /// 알기 어려워 최악(Bo5)으로 고정 — 유저도 "bo5면"으로 기준을 잡음.
 pub const SERIES_GAMES: usize = 5;
 
+// ── ★★[2026-09-16] 최소 선택 수 = 홀(Hall) 정리 기반 부분집합별 정확식 ─────────────────────────────
+//   라인 집합 S 에 대해 N(S) = S 어느 라인에든 갈 수 있는 챔프(미지정 = 전 라인), L(S) = N(S) 챔프들이 갈 수 있는 라인 집합.
+//   적대적 최악에서 N(S) 에서 빠질 수 있는 수:
+//     내 픽 |S| + 양팀 밴 2b + 이번 세트 상대 픽 min(5,|L|)(내 후보를 다른 라인용으로 집어감)
+//     + 이전 세트 잠금 (SERIES-1) × { 클래식 0 / 피어리스 min(5,|L|) / 하드 2·min(5,|L|) }
+//   안전 ⇔ ∀S: |N(S)| ≥ need(S).  단일 라인·S={p} 이면 클래식 2b+2 · 피어리스 2b+6 · 하드 2b+10 (구 공식은 피어리스 2b+5).
+//   포지션 p 의 게이트 = p 를 포함하는 모든 S 의 슬랙 ≥ 0 (가장 빡빡한 S 를 UI 에 보여 준다).
+//   근거·실측 = REPORT\tfm2_champ_pos_lock\RE\2026-09-16_최소선택수-공식검증.md
+#[derive(Clone, Copy)]
+pub struct Safety {
+    pub key: u64,
+    pub active: [bool; 5],
+    /// 부분집합(비트마스크 1..31)별 (|N(S)|, need(S))
+    pub have: [u16; 32],
+    pub need: [u16; 32],
+    /// p 를 포함하는 S 중 슬랙 최소인 S (표시용)
+    pub worst: [u8; 5],
+}
+static SAFETY: RwLock<Option<Safety>> = RwLock::new(None);
+
+impl PosState {
+    /// 정확식 계산(캐시 없이). ★[2026-09-16 2차] **고정점 반복**: 포지션 p 를 끄면 규칙①에 따라 `{p,q}` 지정 챔프가
+    ///   `{q}` 전용으로 줄어 다른 포지션의 여유가 깎이므로, 끈 뒤의 **실효 마스크**로 다시 계산해 더 꺼질 게 없을 때까지
+    ///   반복한다(단조 감소·≤5회). 미지정 챔프 = 비활성 포지션(없으면 전 라인).
+    pub fn compute_safety(&self, style: u8, ban: Option<usize>) -> Safety {
+        let g = ROSTER.read().unwrap_or_else(|e| e.into_inner());
+        let roster: Vec<&str> = match g.as_ref() {
+            Some(set) => set.iter().map(|s| s.as_str()).collect(),
+            None => {
+                let mut v: Vec<&str> = Vec::new();
+                for p in 0..5 { for c in &self.allowed[p] { if !v.contains(&c.as_str()) { v.push(c.as_str()); } } }
+                v
+            }
+        };
+        // 챔프별 지정 라인 비트(원본 목록 기준)
+        let des: Vec<u8> = roster
+            .iter()
+            .map(|c| { let mut m = 0u8; for p in 0..5 { if self.allowed[p].iter().any(|x| x == c) { m |= 1 << p; } } m })
+            .collect();
+        let b = ban.unwrap_or(usize::MAX);
+        let mut have = [0u16; 32];
+        let mut need = [0u16; 32];
+        let mut worst = [0u8; 5];
+        // 시작 활성 집합 = 목록이 있는(로스터에 실재하는 지정이 있는) 포지션
+        let mut active_bits: u8 = 0;
+        for p in 0..5 {
+            if self.allowed[p].iter().any(|c| roster.contains(&c.as_str()) || g.is_none()) { active_bits |= 1 << p; }
+        }
+        let mut have_first = [0u16; 32];
+        let mut need_first = [0u16; 32];
+        let mut first = true;
+        loop {
+            let free = MASK_ALL & !active_bits;
+            // 실효 마스크 = 규칙 ①②③ (mask_of 와 동일 식)
+            let eff: Vec<u8> = des.iter().map(|&d| {
+                let dd = d & active_bits;
+                if dd != 0 { dd } else if free != 0 { free } else { MASK_ALL }
+            }).collect();
+            for s in 1..32usize {
+                if s & active_bits as usize != s { have[s] = 0; need[s] = 0; continue; }
+                let mut n = 0usize;
+                let mut l = 0u8;
+                for &m in &eff { if m as usize & s != 0 { n += 1; l |= m; } }
+                let lcnt = (l & active_bits).count_ones() as usize; // 상대 픽·잠금은 활성 라인 안에서만 의미
+                let opp = lcnt.min(5);
+                let lock = (SERIES_GAMES - 1) * match style { 2 => 2 * opp, 1 => opp, _ => 0 };
+                let nd = if b == usize::MAX { usize::MAX } else { s.count_ones() as usize + 2 * b + opp + lock };
+                have[s] = n.min(u16::MAX as usize) as u16;
+                need[s] = nd.min(u16::MAX as usize) as u16;
+            }
+            if first { have_first = have; need_first = need; first = false; }
+            let mut fail: u8 = 0;
+            for p in 0..5 {
+                if active_bits & (1 << p) == 0 { continue; }
+                let mut ws = (i64::MAX, 1usize << p);
+                for s in 1..32usize {
+                    if s & (1 << p) == 0 || s & active_bits as usize != s { continue; }
+                    let slack = have[s] as i64 - need[s] as i64;
+                    if slack < ws.0 { ws = (slack, s); }
+                }
+                worst[p] = ws.1 as u8;
+                if ws.0 < 0 { fail |= 1 << p; }
+            }
+            if fail == 0 { break; }
+            active_bits &= !fail;
+        }
+        let mut active = [false; 5];
+        for p in 0..5 { active[p] = active_bits & (1 << p) != 0; }
+        // 표시용 have/need: 꺼진 포지션은 첫 반복(원본 목록) 값, 살아남은 포지션은 최종 값
+        for s in 1..32usize {
+            if have[s] == 0 && need[s] == 0 { have[s] = have_first[s]; need[s] = need_first[s]; }
+        }
+        Safety { key: 0, active, have, need, worst }
+    }
+}
+
+impl PosState {
+    /// 상태 버전·룰·로스터 서명으로 캐시된 정확식 결과. ⚠`&self` 로 받는다 — `with_state` 안(STATE read 보유)에서
+    ///   호출되므로 여기서 다시 `with_state` 를 잡으면 같은 스레드 재귀 read = 데드락 위험(config.rs 상단 주석).
+    pub fn safety_cached(&self) -> Safety {
+        let (style, ban) = cur_rule();
+        let key = STATE_VER.load(Ordering::Relaxed)
+            ^ ((style as u64) << 40)
+            ^ ((ban.map(|b| b as u64 + 1).unwrap_or(0)) << 44)
+            ^ (ROSTER_VER.load(Ordering::Relaxed) << 48);
+        if let Some(s) = SAFETY.read().unwrap_or_else(|e| e.into_inner()).as_ref() {
+            if s.key == key { return *s; }
+        }
+        let mut s = self.compute_safety(style, ban);
+        s.key = key;
+        *SAFETY.write().unwrap_or_else(|e| e.into_inner()) = Some(s);
+        s
+    }
+}
+pub fn safety() -> Safety {
+    with_state(|st| st.safety_cached())
+}
+/// 로스터 게시 횟수(안전식 캐시 키).
+pub static ROSTER_VER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+/// UI 표시용: 포지션 p 의 (판정 풀 |N({p})|, 필요 need({p}), 가장 빡빡한 S 비트, 그 S 의 (have, need)).
+pub fn pos_safety(p: usize) -> (usize, usize, u8, usize, usize) {
+    let s = safety();
+    let one = 1usize << p;
+    let w = s.worst[p] as usize;
+    (s.have[one] as usize, s.need[one] as usize, s.worst[p], s.have[w] as usize, s.need[w] as usize)
+}
+
 /// 화이트리스트한 포지션이 가져야 할 최소 챔피언 수.
 /// - 클래식(0): 단판이라도 내 픽1 + 상대 픽1(같은 판 배타) + 양팀 밴(ban×2) 고려 → 2 + ban×2
 ///   (유저 규칙 2026-08-20: "클래식이어도 밴카드·상대 선택 생각하면 최소개수 필요")
 /// - 피어리스(1): 내 팀이 시리즈 내내 안 겹치게 → Bo5 = 5, + 밴카드 빠지는 몫(밴 양팀 = ban×2)
 /// - 하드피어리스(2): ★양팀이 서로도 못 겹침 → Bo5 = 10(=5×2), + 밴카드 ban×2
 ///   (유저: "하드피어리스 bo5면 10개, 밴카드 5장이면 +10, 3장이면 +6")
+/// ⚠[2026-09-16] 이 값은 **단일 라인·포지션 하나** 기준 참고치(로그·설명용)다. 실제 게이트는 `safety()`(부분집합 정확식).
+///   피어리스 = ~~5+2b~~ → **6+2b**(이번 세트 상대 픽 1 누락 정정).
 pub fn min_required(style: u8, ban_count: usize) -> usize {
     match style {
-        2 => SERIES_GAMES * 2 + ban_count * 2, // 하드피어리스
-        1 => SERIES_GAMES + ban_count * 2,     // 피어리스
-        _ => 2 + ban_count * 2,                // 클래식
+        2 => 2 + (SERIES_GAMES - 1) * 2 + ban_count * 2, // 하드: 내1+상대1+잠금 4세트×2 = 10+2b
+        1 => 2 + (SERIES_GAMES - 1) + ban_count * 2,     // 피어리스: 내1+상대1+잠금 4 = 6+2b
+        _ => 2 + ban_count * 2,                          // 클래식: 내1+상대1 = 2+2b
     }
 }
 
