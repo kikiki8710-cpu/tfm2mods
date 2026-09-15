@@ -1,0 +1,16 @@
+{
+ "round": "25",
+ "batch": "B",
+ "errors_applied": 1,
+ "ev_applied": 13,
+ "failed": 8,
+ "stamps": {
+  "/specs[196]/sig/tls[0]/call_conditions": "8c66049730727015",
+  "/specs[196]/consts[14]/meaning": "c2d858d90ab12b5a",
+  "/specs[196]/sig/params[1]/role": "74234e98afe7498f",
+  "/specs[196]/logic": "eca1143c9baf5e86",
+  "/specs[196]/mem[133]/value": "b4f24809d34e441c",
+  "/specs[196]/sig/params[0]/role": "74234e98afe7498f"
+ },
+ "restamped": true
+}

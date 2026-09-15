@@ -1,0 +1,38 @@
+fn 43378 ~ 43964 lines 587
+derived ptrs: {'%0': 0, '%264': 8, '%265': 16, '%285': 8, '%286': 16, '%314': 8, '%315': 16}
+STORE 43868| +0 i64 0   ;; abstract_input.rs:144
+STORE 43870| +8 i64 %262   ;; abstract_input.rs:144
+STORE 43872| +16 i64 %263   ;; abstract_input.rs:144
+STORE 43906| +0 i64 0   ;; abstract_input.rs:127
+STORE 43908| +8 i64 %283   ;; abstract_input.rs:127
+STORE 43910| +16 i64 %284   ;; abstract_input.rs:127
+STORE 43918| +0 i64 -1   ;; abstract_input.rs:140
+STORE 43954| +0 i64 -1   ;; abstract_input.rs:137
+STORE 43958| +0 i64 0   ;; abstract_input.rs:135
+STORE 43960| +8 i64 %298   ;; abstract_input.rs:135
+STORE 43962| +16 i64 %299   ;; abstract_input.rs:135
+--- calls (24)
+CALL 43387| _RNvNtCshdEBA0ozCnw_7game_ai11path_finder20is_enemy_well_danger     ;; abstract_input.rs:123
+CALL 43409| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity11dm_no_dodge     ;; abstract_input.rs:54<?
+CALL 43414| _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter21skill_avoid_effective     ;; abstract_input.rs:55<?
+CALL 43462| _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt     ;; abstract_input.rs:60<?
+CALL 43485| <indirect>     ;; abstract_input.rs:66<?
+CALL 43511| _RNvXs2_NtCs97f5S1uJLkH_9game_core10simulationNtB5_14ProjectileIterNtNtNtNtCsjihNppCmMEE_4core4iter6traits8ite     ;; abstract_input.rs:66<?
+CALL 43539| _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt     ;; abstract_input.rs:116<?
+CALL 43557| _RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position     ;; abstract_input.rs:119<?
+CALL 43599| _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget16check_projectile     ;; abstract_input.rs:69<?
+CALL 43650| _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt     ;; abstract_input.rs:91<?
+CALL 43674| _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt     ;; abstract_input.rs:77<?
+CALL 43694| _RNvXs1f_NtNtCsjihNppCmMEE_4core3cmp5implsxNtB8_3Ord5clamp     ;; abstract_input.rs:81<?
+CALL 43714| _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt     ;; abstract_input.rs:83<?
+CALL 43756| _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt     ;; abstract_input.rs:97<?
+CALL 43763| <indirect>     ;; abstract_input.rs:99<?
+CALL 43775| _RNvMs1_NtNtCs97f5S1uJLkH_9game_core10simulation10projectileNtB5_10Projectile22expected_damage_target     ;; abstract_input.rs:100<?
+CALL 43787| _RNvMs1_NtNtCs97f5S1uJLkH_9game_core10simulation10projectileNtB5_10Projectile6has_cc     ;; abstract_input.rs:102<?
+CALL 43799| _RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const24panic_const_div_overflow     ;; abstract_input.rs:101<?
+CALL 43805| _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache21player_by_champion_id     ;; abstract_input.rs:108<?
+CALL 43814| _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter19skill_hit_effective     ;; abstract_input.rs:109<?
+CALL 43884| _RNvNtCshdEBA0ozCnw_7game_ai11path_finder20is_enemy_well_danger     ;; abstract_input.rs:124
+CALL 43891| _RNvNtCshdEBA0ozCnw_7game_ai11path_finder34is_recent_enemy_well_damage_danger     ;; abstract_input.rs:125
+CALL 43901| _RNvNtCshdEBA0ozCnw_7game_ai11path_finder26enemy_well_escape_position     ;; abstract_input.rs:126
+CALL 43928| _RNvNtCshdEBA0ozCnw_7game_ai11path_finder26enemy_well_escape_position     ;; abstract_input.rs:133

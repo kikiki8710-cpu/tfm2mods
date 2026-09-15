@@ -1,0 +1,348 @@
+{
+ "round": 25,
+ "batch": "J",
+ "errors": [
+  {
+   "path": "/specs[203]/consts[21]/src_line",
+   "kind": "실오류",
+   "old": 316,
+   "new": 370,
+   "evidence": "m04.ll:31063 `store i64 5, ptr %474, align 8, !dbg !44997` — dloc 사슬 = filter.rs:28 < iterator.rs:957 < **valid_deep_push_gank passive_jungle.rs:370** < lead_action_v37:418 < lead_action:687 < next_plan:285 ((0..5) Range 의 end=5 store). L316 의 `for ep in 0..5` 는 **완전 언롤**돼 리터럴 5 가 없다 (m04.ll:30598/30666/30734/30802/30870 `br i1 %423/%431/%439/%447/%455` 5개 블록 · !dbg 사슬 L316 에 상수 없음). 다른 리터럴 5 = 30552 `shl nuw nsw i8 %484, 5`(simulation.rs:1823 tower() stride) · 30582 `icmp samesign ult i8 %502, 5`(tower.rs:100 is_second_tower < entity.rs:1309 is_tower2 < L307/308) · 31342/31900/32225 `mul i64 %802, 5`(is_side_cleared L0<456/514/569 tps*5)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[203]/consts[21]/meaning",
+   "kind": "실오류",
+   "old": "적 슬롯 5 (goal_data.enemy_region[5] · (0..5)) · L865 is_cleared extra tps*5 · Tower2 타입 하한 5 · ⚠`shl i8 line, 5`(=*32 타워 슬롯 stride, L307)는 임계 아님",
+   "new": "슬롯 범위 (0..5) 의 end — L370 valid_deep_push_gank allies `store i64 5`(Range end · L655 valid_gank_line 동형) · L316 enemy_region[5] 루프는 언롤돼 리터럴 없음 · L865 is_cleared extra tps*5(`mul i64 %tps, 5` L0<456/514/569) · Tower2 타입 하한 5(`icmp ult i8 ty, 5` = is_tower2 → tower.rs:100 is_second_tower, L307~308) · `shl i8 line, 5`(=*32 타워 슬롯 stride, simulation.rs:1823 tower())는 곱셈 접힘으로 비교 피연산자에 쓰이지 않는다",
+   "evidence": "kindchk NEG 규칙: 「…임계 아님」 부정문이 kind=임계(관측 CMP_ORD 30582 로 지지됨)와 자기모순. 낱말만 바꾼다 — 분류 근거(하한·CMP_ORD)는 유지. dloc !44827 = tower.rs:100 is_second_tower < entity.rs:1309 is_tower2 < passive_jungle.rs:307 closure$0 < option.rs:661 is_some_and < 307 has_deep_pushed_enemy",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[203]/mem[33]/name",
+   "kind": "실오류",
+   "old": "+0x10 minion_power · +0x20 minion_count(i32)",
+   "new": "+0x10 from_mid(i64) · +0x18 minion_power(i64, 본 함수 미접근) · +0x20 minion_count(i32)",
+   "evidence": "m04.ll:64804~64806(aux s4_0 = valid_gank_line 인라인) `%198 = getelementptr inbounds nuw i8, ptr %111, i64 16` → `%199 = load i64` → `%200 = icmp sgt i64 %199, 3000` (!dbg L678). %111 = minion_state(line) 베이스(64552 `+40` Mid · 64557 `+80` Bottom · 64782 `+32` = minion_count). BrainMinionParameter 레이아웃 = tcxdict: 0x0 front_minion(16B) · **0x10 from_mid(i64)** · **0x18 minion_power(i64)** · 0x20 minion_count(i32); DWARF g07.ll:369066 `from_mid … offset: 128`(=0x10) / 369067 `minion_power … offset: 192`(=0x18). ⟹ L678 이 읽는 필드는 from_mid 다. 이 함수 안에 +0x18(minion_power) 접근은 0건.",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[45]/meaning",
+   "kind": "실오류",
+   "old": "(aux valid_gank_line) bb[team].line.minion_power > 3000 이면 갱 불가",
+   "new": "(aux valid_gank_line) bb[team].minion_state(line).from_mid(+0x10, i64) > 3000 이면 갱 불가 (from_mid 의 의미는 미탐색 — 필드명은 tcx/DWARF 확정)",
+   "evidence": "m04.ll:64804~64806(aux s4_0 = valid_gank_line 인라인) `%198 = getelementptr inbounds nuw i8, ptr %111, i64 16` → `%199 = load i64` → `%200 = icmp sgt i64 %199, 3000` (!dbg L678). %111 = minion_state(line) 베이스(64552 `+40` Mid · 64557 `+80` Bottom · 64782 `+32` = minion_count). BrainMinionParameter 레이아웃 = tcxdict: 0x0 front_minion(16B) · **0x10 from_mid(i64)** · **0x18 minion_power(i64)** · 0x20 minion_count(i32); DWARF g07.ll:369066 `from_mid … offset: 128`(=0x10) / 369067 `minion_power … offset: 192`(=0x18). ⟹ L678 이 읽는 필드는 from_mid 다. 이 함수 안에 +0x18(minion_power) 접근은 0건.",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[21]/what",
+   "kind": "실오류",
+   "old": "valid_gank_line 미니언 파워 상한",
+   "new": "valid_gank_line from_mid 상한(minion_power 가 아니다 — +0x10 필드)",
+   "evidence": "m04.ll:64804~64806(aux s4_0 = valid_gank_line 인라인) `%198 = getelementptr inbounds nuw i8, ptr %111, i64 16` → `%199 = load i64` → `%200 = icmp sgt i64 %199, 3000` (!dbg L678). %111 = minion_state(line) 베이스(64552 `+40` Mid · 64557 `+80` Bottom · 64782 `+32` = minion_count). BrainMinionParameter 레이아웃 = tcxdict: 0x0 front_minion(16B) · **0x10 from_mid(i64)** · **0x18 minion_power(i64)** · 0x20 minion_count(i32); DWARF g07.ll:369066 `from_mid … offset: 128`(=0x10) / 369067 `minion_power … offset: 192`(=0x18). ⟹ L678 이 읽는 필드는 from_mid 다. 이 함수 안에 +0x18(minion_power) 접근은 0건.",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[21]/effect",
+   "kind": "보강",
+   "old": "",
+   "new": "bb[team].minion_state(line).from_mid > 3000 이면 그 라인 갱 불가(내리면 더 자주 갱 후보에서 탈락)",
+   "evidence": "m04.ll:64804~64806(aux s4_0 = valid_gank_line 인라인) `%198 = getelementptr inbounds nuw i8, ptr %111, i64 16` → `%199 = load i64` → `%200 = icmp sgt i64 %199, 3000` (!dbg L678). %111 = minion_state(line) 베이스(64552 `+40` Mid · 64557 `+80` Bottom · 64782 `+32` = minion_count). BrainMinionParameter 레이아웃 = tcxdict: 0x0 front_minion(16B) · **0x10 from_mid(i64)** · **0x18 minion_power(i64)** · 0x20 minion_count(i32); DWARF g07.ll:369066 `from_mid … offset: 128`(=0x10) / 369067 `minion_power … offset: 192`(=0x18). ⟹ L678 이 읽는 필드는 from_mid 다. 이 함수 안에 +0x18(minion_power) 접근은 0건.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/logic",
+   "kind": "실오류",
+   "old": "if ms.minion_power > 3000 → false ; else true   L678",
+   "new": "if ms.from_mid(+0x10, i64) > 3000 → false ; else true   L678 (★minion_power(+0x18) 아님)",
+   "evidence": "m04.ll:64804~64806(aux s4_0 = valid_gank_line 인라인) `%198 = getelementptr inbounds nuw i8, ptr %111, i64 16` → `%199 = load i64` → `%200 = icmp sgt i64 %199, 3000` (!dbg L678). %111 = minion_state(line) 베이스(64552 `+40` Mid · 64557 `+80` Bottom · 64782 `+32` = minion_count). BrainMinionParameter 레이아웃 = tcxdict: 0x0 front_minion(16B) · **0x10 from_mid(i64)** · **0x18 minion_power(i64)** · 0x20 minion_count(i32); DWARF g07.ll:369066 `from_mid … offset: 128`(=0x10) / 369067 `minion_power … offset: 192`(=0x18). ⟹ L678 이 읽는 필드는 from_mid 다. 이 함수 안에 +0x18(minion_power) 접근은 0건.",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/sig/params[3]/note",
+   "kind": "실오류",
+   "old": "BattlePlan::update · buy_item · upgrade_item · PlayerState::strategy · evaluate_gank_opportunity_with_score",
+   "new": "BattlePlan::update · buy_item · upgrade_item · evaluate_gank_opportunity_with_score · (PlayerState::strategy 는 &mut StdRng 를 받지만 미사용 — g15.ll:130480 define 의 %2 가 `readnone captures(none)`, 본문 26줄에 접근 0)",
+   "evidence": "g15.ll:130480 `define void @…PlayerState8strategy(ptr sret %0, ptr readonly %1(player), ptr noalias noundef readnone align 16 captures(none) dereferenceable(320) %2(rnd), ptr %3, ptr %4)` — 본문 130485~130504: is_solorank(vtable+0xe8) ? memcpy(player+0x4f8 solorank_strategy) : game.strategy(vtable+0x108, team). rnd 미접근. rnd 소비 순서(IR) = L251 update → L263 buy_item → L264 upgrade_item → [lead_action: L418 valid_deep_push_gank(rnd) · L422 gen_range(0..1000) · L525 valid_gank_line(rnd) · L530 evaluate_gank(rnd) · L548 gen_range] → L291 gen_range(0..=100)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/logic",
+   "kind": "보강",
+   "old": "pos = map.camp_pos(camp, player.team == 1)                           // L585 (bool = 내 팀이 1인가)",
+   "new": "pos = map.camp_pos(camp, player.team == 1)                           // L585 (bool = 「캠프 소유팀이 0 인가」: camp_pos 메모 키 .1 = !bool → true 면 팀0 캠프 좌표. 여기선 소유팀=적팀=1-player.team 이라 player.team==1 ⇔ 적팀==0)",
+   "evidence": "g07.ll:152582~152587 camp_pos: key.0 = jungle as usize(L212) · key.1 = zext(xor bool, true)(L213) = !bool → [camp][team_idx] (g02.ll:7038 `getelementptr [2 x {i64,[2 x i64]}], %51, %38(camp)` → `%42(team_idx)`). is_cleared(m04.ll:62483) 도 같은 규약: `camp_pos(map, jungle, icmp eq team, 0)` = 소유팀==0. 오라클 cj_bot_switch/cj_chat_300000 이 적팀(팀1) Rhino 좌표 (752000,496000) 로 판정(camp_memo (0,1) 엔트리 생성)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/logic",
+   "kind": "보강",
+   "old": "strategy = player.strategy(rnd, game)                                   // L443",
+   "new": "strategy = player.strategy(rnd, game)                                   // L443 (rnd 미사용 · is_solorank ? player.info.solorank_strategy(+0x4f8) : game.strategy(team))",
+   "evidence": "g15.ll:130480~130505 (위 params[3] 근거와 동일)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[203]/mem",
+   "at": 26,
+   "guard": "pool",
+   "guard_key": "name",
+   "new": {
+    "base": "GameContext",
+    "offset": "0x0",
+    "name": "pool",
+    "dir": "r",
+    "note": "&bumpalo::Bump. L359 valid_deep_push_gank enemies collect_in(m04.ll:31040 `%693 = load ptr, ptr %308`) · L526 lines collect_in(31962 `%987 = load ptr, ptr %308`) · aux s5_0 scored collect_in(m01.ll 47527 from_iter_in). tcxdict GameContext 0x0 pool"
+   },
+   "kind": "보강",
+   "evidence": "G18: logic 이 `collect_in(ctx.pool)` 을 읽는데 mem 표에 행이 없었다. m04.ll:31040 `%693 = load ptr, ptr %308, align 8, !dbg`(L359) · 31962 `%987 = load ptr, ptr %308`(L526) — %308 = data+8 = &GameContext 이고 +0 = pool(tcxdict GameContext 0x0 pool &Bump)",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[203]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): bt_hp49(hp 490/1000 → tag -1) vs bt_hp50(500 → tag 9 Battle) — 경계 `> 49` 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): bt_far120000(dist²=14400000000 → Battle) vs bt_far120001(→ -1) — `< 14400000001` 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): g_hp69(hp_ratio 69 → -1) vs g_hp70(70 → PassiveLine) — agg=0 에서 게이트 70 · `<` 경계 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[30]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): g_pl_mc-2(minion_count -2 → -1) vs g_pl_top(-3 → PassiveLine) · cj_bot_switch(Bee rp=-3 탈락, Rhino rp=-2 통과 → jungle=Rhino) — 두 자리 모두 `< -2` 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[37]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cj_chat_300000(dist²=9e10 → CounterJungle 채팅 push) vs cj_chat_300001(→ push 없음) — `ugt 90000000000` 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cj_resp_420(respawn=T+420, travel 300, tps*2=120 → 후보 채택) vs cj_resp_421(→ None) — `respawn-1 < travel+tick+tps*2` 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): t_gate_eq(first_spawn=T+1800 → gate=T → -1) vs t_gate_plus1(T+1801 → PassiveLine) — tps*30 · `tick < gate` 엄격 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): bt_battle sret +0 = 9 · +8+0x107 entry_src = 9 · g_pl_top 채팅 CoverLine 태그 9 — 세 자리 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): g_pl_top sret +0 = 3(PassiveLine) · bt_battle 채팅 바이트 `03 …`(Chat::Battle) 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): nc_notcleared 등 None 케이스 sret +0..8 = ff×8(-1), +8.. 미기록(0)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[36]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cj_chat_300000 채팅 바이트 `12 00 …` = 태그 18 CounterJungle(+1 camp=0 Rhino)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cd_239(last=T-239 → -1) vs cd_240(T-240 → PassiveLine) — ego=0 에서 cooldown=4*60=240 · `<` 경계 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): bt_hp49/bt_hp50",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): bt_far120000/bt_far120001",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cd_239/cd_240 (ego=0 → 240틱)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): t_gate_eq/t_gate_plus1 · t_tut_topsolo(2)/jungleonly(6) 통과 · t_tut_line(7)/total(8)/midbot(5) 게이트 적용",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): g_hp69/g_hp70(GrowthAndCover) · cj_hp69(CounterJungle 도 69 → None)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): g_pl_mc-2/g_pl_top",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cj_bot_switch: 시작 상태 region_point 적 Rhino=-2(통과)·Bee=-3(탈락) · cj_top_skipped: Stump/Mushroom -3 → 후보 없음",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cj_resp_420/cj_resp_421",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[24]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cj_chat_300000/cj_chat_300001",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/knobs[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): g_pair_uncleared(self.jungle=Rhino · 팀0 Bee respawn=0 → is_side_cleared 거짓 → None) vs g_pair_wrongpair(Mushroom=0 → 영향 없음 → PassiveLine) — 짝 Rhino↔Bee 확정(tps*5 값 자체는 미분리)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[203]/mem[48]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): chats push 실측: g_pl_top CoverLine `09 00 [2..8 잔재] 00×8 …` · bt_battle Battle `03 [1..8 잔재] 18 00…(+8 id) 00…(+16)` · cj_chat_300000 CounterJungle `12 00 …` — self diff 바이트 [0,8..13,16](cap·ptr·len 갱신) 확인",
+   "found_by": "new",
+   "guard": "chats (Vec<Chat>)"
+  },
+  {
+   "path": "/specs[203]/mem[49]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): last_lead_action_tick: g_pl_top/cj_bot_switch 후 =T(100000) · None 케이스 무변화 — self diff 바이트 [88..90]",
+   "found_by": "new",
+   "guard": "last_lead_action_tick"
+  },
+  {
+   "path": "/specs[203]/mem[50]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cj_bot_switch: jungle Bee→Rhino (self diff 바이트 96)",
+   "found_by": "new",
+   "guard": "\"jungle\""
+  },
+  {
+   "path": "/specs[203]/mem[51]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): cj_bot_switch: team 은 1(=적팀=1-player.team 0) 로 유지(입력이 이미 1 이라 바이트 diff 없음 · store 자체는 32336 `store i64 %1074, ptr %34` L626)",
+   "found_by": "new",
+   "guard": "1 - player.info.team"
+  },
+  {
+   "path": "/specs[203]/mem[52]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): sret 실측: None ff×8 · PassiveLine 03 +8=0 +16..32 잔재(`0000545014020000`) +32=0 +40=8 … +286=line +287.. 잔재 · Battle 09 + 280B(+0x58 sub_goal 0 · +0x107 entry_src 9)",
+   "found_by": "new",
+   "guard": "(sret)"
+  },
+  {
+   "path": "/specs[203]/mem[53]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): bt_battle sret +8+0x107 = 9",
+   "found_by": "new",
+   "guard": "entry_src"
+  },
+  {
+   "path": "/specs[203]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "G18/IR 재독: minion_count +0x20 는 IR 64782 `gep %111, 32` 로 확정, from_mid +0x10 은 64804. 오라클 g_pl_top/mid/bot 이 세 라인 minion_count 자리에서 갈림(Top +0x20 · Mid +0x48 · Bottom +0x70)",
+   "found_by": "new",
+   "guard": "top_minion_state"
+  },
+  {
+   "path": "/specs[203]/mem[45]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): set_strategy(early_jungle=CounterJungle) → cj_* 분기 · GrowthAndCover → g_* 분기 · Ganking → gk_none: 태그 0/1/2 세 arm 실측",
+   "found_by": "new",
+   "guard": "early_jungle"
+  },
+  {
+   "path": "/specs[203]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify25/J/oracle/o25j.rs · run25j.py · 케이스당 프로세스 1개 · 로그 o25j_<case>.log): tutorial 태그 {0,5,7,8} 만 시간 게이트 적용(t_tut_*) — TopSolo(2)·JungleOnly(6) 는 미적용",
+   "found_by": "new",
+   "guard": "tutorial"
+  }
+ ],
+ "brief_errors": [
+  "§4 G12 후보 [285, 307, 369, 370, 417, 418, 525, 655] 는 「루트 줄」이 아니라 사슬 중간 줄(passive_jungle.rs 소속)까지 섞은 목록이다 — 지시문 ①은 「G12 는 루트 줄 규약」이라 했지만 srclinecheck 는 같은 파일의 inlinedAt 중간 줄도 후보로 준다(316 은 언롤로 리터럴이 없어 진짜 불일치 — 오탐 아님).",
+  "지시문 ④ TLS 절 검증 대상에 「v48_cast_beams(battle 0xcbbdb0 직접)」이 들어 있지만 0xcbbdb0 은 next_plan 의 콜리가 아니다 — next_plan→BattlePlan::update(m10.ll 23429) 직접 콜리 34종·전이 7단 탐색(tlswalk)에서 v47/v48/HP_VALUE_MEMO/POS_EVAL_CACHE/INTER_CTX 는 도달하지 않는다(간접 vtable 호출 제외). 이 루트에서 닿는 TLS = CAMP_POS_MEMO · MAX_RANGE_CACHE · DieTickCache · battle_recency(game_core) · LAST_STAND(last_stand_flags) · ResolveFightCache · AttackDamageCache · ★ITEM_INDEX_MEMO(upgrade_item 경유, 명세 미기재).",
+  "§5 「dict 필드 하위 키는 /specs[i]/sig/tls/<키> 로 받는다」 — applypatch ②′ 분기는 하위 키 값이 **문자열**일 때만 치환한다. `sig.tls.indirect` 는 dict 의 **리스트**라 `/sig/tls/indirect` 도 `/sig/tls/indirect[1]/call_conditions` 도 못 받는다(전자=「dict 하위 키가 문자열이 아니다」, 후자=resolve 가 tls 를 배열로 못 품). TLS indirect 정정 3건은 산문으로만 낸다.",
+  "§1 표의 「ev≥4(미실행) 126」·§4-b 는 그대로이나, 지시문 ⑥ 「SubPlan self 와 ScoreParameter 는 조립 가능」은 이 함수엔 해당 없음 — 필요한 것은 PassiveJunglePlan(new+pub 필드)·TeamPlan/GoalData/PositioningScoreData/DebugFrameData(Default) 이고 전부 pub 이라 직접 진입됐다(link_name 불필요)."
+ ]
+}

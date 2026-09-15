@@ -1,0 +1,86 @@
+{
+ "round": 25,
+ "batch": "N",
+ "errors": [
+  {
+   "path": "/specs[201]/logic",
+   "kind": "실오류",
+   "old": "L173:   let attack_margin = if target.is_tower() { 2000 } else { 15000 }        // 44872~44876: (ty@tag & 14)==2",
+   "new": "L173:   let attack_margin = if target.ty.is_tower() || target.ty.is_nexus() { 2000 } else { 15000 }   // 44872~44876: LLVM 이 두 icmp(tag==2 ∥ tag==3)를 `and i64 %125, 14; icmp eq i64 %126, 2` 로 접음. ⚠pub `EntityType::is_tower()` 단독은 Nexus 에 false(오라클 case25) — 그대로 쓰면 넥서스 margin 이 15000 으로 틀린다(case12)",
+   "evidence": "m04.ll:44872~44873 `%124 = getelementptr inbounds nuw i8, ptr %6, i64 104` / `%125 = load i64, ptr %124` 의 !dbg 사슬 = entity.rs:1386(is_tower 스코프) < abstract_input.rs:173 · 44874 `%126 = and i64 %125, 14` · 44875 `%127 = icmp eq i64 %126, 2` 는 루트 L173 직접(∥ 병합 위치) · is_structure(entity.rs:1392) 스코프는 0건 · 같은 접힘 패턴이 game_core 에도 있다(g15.ll:57611~57614 is_tower:1386 + `and 14`/`icmp eq 2`@호출줄 · g13.ll:159875~159878 is_nexus:1400 + 동일). 오라클(케이스당 프로세스 1개) case25: pub is_tower(Nexus tag3)=false · is_nexus=true · is_structure=true / case12: 넥서스 대상 게임 출력 Move(851030,108481)=margin 2000(fd 18000) — `is_tower()` 예측(margin 15000)은 MISMATCH, `is_tower()||is_nexus()` 예측은 MATCH",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[201]/consts[2]/meaning",
+   "kind": "보강",
+   "old": "is_tower 마스크 `ty@tag & 14 == 2` — EntityType 태그 2(Tower)·3(Nexus) 를 한 번에 잡는다(entity.rs:1386 인라인)",
+   "new": "`is_tower() || is_nexus()` 를 LLVM 이 접은 마스크 계수 `ty@tag & 14 == 2` — EntityType 태그 2(Tower)·3(Nexus) 를 한 번에 잡는다(load 는 entity.rs:1386 is_tower 스코프, and/icmp 는 루트 L173; pub is_tower() 단독은 Nexus 에 false — 오라클 case25)",
+   "evidence": "m04.ll:44873 load !dbg=entity.rs:1386<173 · 44874 `and i64 %125, 14` !dbg=173 · 44875 `icmp eq i64 %126, 2` !dbg=173 · 오라클 case25 pred_split(tower: is_tower=true is_nexus=false is_structure=true / nexus: is_tower=false is_nexus=true is_structure=true)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[201]/mem[22]/note",
+   "kind": "보강",
+   "old": "L173 (44872~44875, entity.rs:1386 is_tower 인라인) (tag & 14)==2 ⇔ tag∈{2 Tower, 3 Nexus}",
+   "new": "L173 (44872~44875, entity.rs:1386 is_tower 인라인 + is_nexus 항 — 두 icmp 가 `and 14`/`icmp eq 2` 로 접힘) (tag & 14)==2 ⇔ tag∈{2 Tower, 3 Nexus}",
+   "evidence": "m04.ll:44872~44875 (위 logic 정정과 같은 근거)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[201]/sig/params[6]/role",
+   "kind": "보강",
+   "old": "+0x68 ty@tag(is_tower, 44872)",
+   "new": "+0x68 ty@tag(is_tower∥is_nexus 접힘 마스크, 44872~44875)",
+   "evidence": "m04.ll:44872~44875",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[201]/logic",
+   "kind": "보강",
+   "old": "L179:   let x = target.x + from_distance*dx / sz   (sdiv; sz==0 → panic div_by_zero)   // 44881~44909",
+   "new": "L179:   let x = target.x + from_distance*dx / sz   (sdiv; sz==0 → panic div_by_zero 44892 — 단 실행 도달 불가: sz==0 ⇒ Effect::is_in_range 참(g06.ll:51780 `icmp ule i64 %83, %84` dist²≤total²) ⇒ get_input_target 은 L348 로 None 을 못 내고, L354 None 은 !is_visible_from 이라 L185 로 간다)   // 44881~44909",
+   "evidence": "get_input_target m04.ll:33226 `is_in_range` false→33237 `store i32 -1`(L349) · 33242~33272 (L353: is_visible_from 동일 인라인 entity.rs:1482 ∧ casting@Effect+0x30 ∉{1,2} → 33292 store −1 L354) · attack 44753~44775 같은 is_visible_from 이라 그 None 은 44786(L185) 로 감 · is_in_range g06.ll:51752~51780 = |dx|²+|dy|² ≤ (range+range_adjust+radii)² 로 dist 0 은 항상 참 · 오라클 case14(같은 좌표·가시)=Attack, case29(Neutral·같은 좌표·Unknown)=Attack — 어느 쪽도 sdiv 에 못 닿음",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[201]/sig/tls[0]/call_conditions",
+   "kind": "보강",
+   "old": "④get_input_target(44740, L160 — INTER_CTX/POS_EVAL_CACHE 등이 있다면 이 안)",
+   "new": "④get_input_target(44740, L160 — 직접호출 그래프 BFS(_gaibc 16 + _gcbc 16 모듈 · 도달 76함수)에서 TLS 에 닿는 경로는 **POS_EVAL_CACHE 하나**: get_input_target → position_score_at_cell(L384 ×6·L539 ×6 언롤 호출) → position_eval_at(m07.ll:24507; 24637 `LocalKey<RefCell<PosEvalCache>>::with` 조회 → miss 면 24687 position_eval_at_uncached → 24698 with 기록). 도달 조건 = is_in_range(33226) ∧ (is_visible_from ∨ casting∈{Position 1, Direction 2})(33242~33272) ∧ casting switch(33398, Effect+0x30): Position→L534 `effect.ty.auto_target()`(vtable 0xd8, 33431) 참 → L537 7×7 셀 루프 / Direction→L379 auto_target(33674) 참 → L384 루프 ∧ 셀 0≤cx,cy≤29(position_eval.rs:1185, 밖이면 9999 센티널·TLS 무접촉) ∧ 루프 범위 비공백(ps.cx<3 이면 cx−3 u64 언더플로로 RangeInclusive 공백 — 오라클 case19/20 TLS 무접촉의 원인, case26/27 ps.cx=cy=10 에서 POS_EVAL_CACHE state 0→1 CHANGED 실측 · case28 Targeting 은 무접촉). INTER_CTX·SIEGE_STANCE_CACHE·CAST_BEAMS·HP_VALUE_MEMO·DIE_TICK_CACHE·MAX_RANGE_CACHE·LAST_STAND_MEMO·CAMP_POS_MEMO·LANE_PATH_MEMO·PE_CAND_MASKS·PE_PLAYER_CTX·ATTACK_DMG_CACHE·TOWER_MINION_CNT_CACHE = 도달 0(간접 vtable 호출 44곳은 전부 game_core dyn EffectType/ChampionInfo 슬롯이라 game_ai TLS 로 못 간다 — 크레이트 의존 방향))",
+   "evidence": "scratchpad25N/cg_build.py+tls_bfs.py(전 IR define 36,096 · TLS 전역 80 · attack 도달 76 · LocalKey::with 도달 2 = PosEvalCache 모노모프 m00.ll:75374·75614) · m04.ll:33226·33237·33292·33398·33431·33467·33674 · m07.ll:24637·24687·24698·24722~24741 · 오라클 case26/27 `tls POS_EVAL_CACHE state 0->1 CHANGED` / case28 same / case19·20 same",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[201]/sig/tls[0]/role",
+   "kind": "보강",
+   "old": "함수 본문 44657~44931 grep: LocalKey/with/thread_local 0건 — TLS 를 직접 읽거나 쓰지 않는다",
+   "new": "함수 본문 44657~44931 grep: LocalKey/with/threadlocal.address 0건 — TLS 를 직접 읽거나 쓰지 않는다. 간접 접점은 POS_EVAL_CACHE 뿐(call_conditions) · 미러 재현 시 그 밖의 TLS 는 이 루트에서 초기화·갱신되지 않는다",
+   "evidence": "tls_bfs.py 결과(도달 함수 76 중 TLS 직접참조 0 · LocalKey::with 모노모프 2 = PosEvalCache)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[201]/sig/ret",
+   "kind": "보강",
+   "old": "safe_move_avoiding_enemy_well 경로 = 그 콜리의 sret 규약(r13 명세) 그대로 전달(이 함수는 손대지 않음)",
+   "new": "safe_move_avoiding_enemy_well 경로 = 그 콜리의 sret 규약(r13 명세) 그대로 전달(이 함수는 손대지 않음) — 그 규약 = Move(태그 0): +0 i64 0 · +8 x · +0x10 y = 24B live, +0x18..+0x20 undef(m04.ll:43868~43872 L144 · 43906~43910 L127 · 43958~43962 L135) / None: +0 i64 −1 만(43918 L140 · 43954 L137). ⟹ 이 sret 에 담기는 variant 집합 = {None −1, Move 0, Attack 2} 뿐(Return 1·Skill 3~5 없음). Attack 의 InputTarget 세부(get_input_target 이 %8 에 쓰는 바이트): Target(0) +8 i32 0 · +0x10 target_id(33412~33414 L652, +0x18..+0x20 undef) / Dir(1) +8 i32 1 · +0x10 dir_x · +0x18 dir_y(35153~35157 L401) / Pos(2) +8 i32 2 · +0x10 x · +0x18 y(34483~34487 L554) / None(3) +8 i32 3 만(33904 L653, +0x10..+0x20 undef) · +0xc..+0x10 은 어느 variant 도 안 쓴다(undef). 오라클 30케이스 raw sret 0xEE 프리필 대조: None=+8..+0x20 EE · Move=+0x18..+0x20 EE · Attack/Target=+0x18.. 잔재(safe 호출과 값이 다름=undef) · Attack/None(3)=+0x10.. 잔재 · Pos/Dir=+8..+0x20 전부 기록",
+   "evidence": "m04.ll:43868~43872·43906~43910·43918·43954·43958~43962(safe_move sret store) · 33230·33237·33292·33412~33414·33904·34483~34487·35153~35157(get_input_target sret store) · 44747 memcpy 24B · 오라클 o201_case{0..29}.log raw_sret 줄",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": [
+  "v25_prompt_N ②③ 은 SubPlan 루트용 문안이 그대로 실렸다 — #201 attack 은 `&mut self`·action_candidates(bumpalo Vec<SmallActionPlay>)·next_plan(Option<BigPlan>) 이 없고 sret 은 Option<Input> 32B 하나다(define m04.ll:44657 인자 7개 · `&mut` 는 rnd 뿐). SRET_VEC/_SAP_EL/SELF_RESTORE 재료는 이 함수에 해당 없음",
+  "DOSSIER §3 헤더 `exe d35d10 (None) · None바이트 · None명령` — mkdossier 가 exe 조인 실패값을 파이썬 None 그대로 찍는다(호출자 SmallActionAttack::get_input m07.ll:24430→24480 은 IR 로 확정됨)",
+  "v25_prompt_N ⑥ 「SubPlan self 와 ScoreParameter 는 조립 가능」 — #201 에는 둘 다 인자에 없다(PositioningScoreData 2760B 가 있고, 그 cx/cy(+0xab8/+0xac0)가 TLS 도달의 열쇠였다). 지시가 함수별로 안 갈렸다",
+  "`callees[]` 는 v3 파생(tcx+logic)이라 `ev_up` 경로 `/specs[201]/callees[n]` 이 applypatch 에서 「인덱스 범위 밖」으로 거부된다(v2 에 배열 없음) — 인라인 콜리 4건(is_tower 1386·is_visible_from 1482·radius 1511·Effect::range 26)의 IR 앵커(DISubprogram inlinedAt 스코프)를 ev3 으로 올릴 통로가 없다. mkspec3 가 `!dbg` 사슬의 DISubprogram 이름을 호출 심볼과 같은 등급의 앵커로 세야 한다",
+  "명세 `callees[1..3]` 에 `attack` 동명 3행(82 후보)이 있는데 이는 함수 자신의 이름이 `logic` 머리 `fn attack(...)` 에서 긁힌 잡음이다 — IR 44657~44931 에 `attack` 심볼 call 0건. mkspec3 가 자기 이름을 제외해야 한다(도구 결함)"
+ ]
+}

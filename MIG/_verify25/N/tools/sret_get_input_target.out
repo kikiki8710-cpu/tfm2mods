@@ -1,0 +1,89 @@
+fn 33111 ~ 35159 lines 2049
+derived ptrs: {'%0': 0, '%132': 8, '%529': 8, '%530': 16, '%854': 8, '%855': 16}
+STORE 33230| +0 i32 -1   ;; option.rs:2790<abstract_input.rs:346
+STORE 33237| +0 i32 -1   ;; abstract_input.rs:349
+STORE 33292| +0 i32 -1   ;; abstract_input.rs:354
+STORE 33412| +0 i32 0   ;; abstract_input.rs:652
+STORE 33414| +8 i64 %131   ;; abstract_input.rs:652
+STORE 33904| +0 i32 3   ;; abstract_input.rs:653
+STORE 34483| +0 i32 2   ;; abstract_input.rs:554
+STORE 34485| +8 i64 %521   ;; abstract_input.rs:554
+STORE 34487| +16 i64 %528   ;; abstract_input.rs:554
+STORE 35153| +0 i32 1   ;; abstract_input.rs:401
+STORE 35155| +8 i64 %849   ;; abstract_input.rs:401
+STORE 35157| +16 i64 %853   ;; abstract_input.rs:401
+--- calls (74)
+CALL 33203| _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check     ;; abstract_input.rs:346
+CALL 33226| _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect11is_in_range     ;; abstract_input.rs:348
+CALL 33263| _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check     ;; entity.rs:1483<abstract_input.rs:353
+CALL 33276| _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter18skill_hit_accuracy     ;; abstract_input.rs:357
+CALL 33278| _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter19skill_hit_effective     ;; abstract_input.rs:358
+CALL 33318| _RINvYNtNtNtCsMBkRBYhlca_4rand4rngs3std6StdRngNtNtB9_3rng3Rng9gen_rangejINtNtNtCsjihNppCmMEE_4core3ops5range14     ;; abstract_input.rs:364
+CALL 33328| <indirect>     ;; abstract_input.rs:368
+CALL 33334| _RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero     ;; abstract_input.rs:364
+CALL 33351| <indirect>     ;; abstract_input.rs:369
+CALL 33376| _RNvNtCs97f5S1uJLkH_9game_core5utils8distance     ;; abstract_input.rs:370<?
+CALL 33431| <indirect>     ;; abstract_input.rs:534
+CALL 33467| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 33492| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 33516| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 33539| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 33563| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 33587| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 33674| <indirect>     ;; abstract_input.rs:379
+CALL 33710| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 33735| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 33759| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 33782| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 33806| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 33830| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 33943| _RINvYNtNtNtCsMBkRBYhlca_4rand4rngs3std6StdRngNtNtB9_3rng3Rng9gen_rangejINtNtNtCsjihNppCmMEE_4core3ops5range14     ;; abstract_input.rs:562
+CALL 33949| <indirect>     ;; abstract_input.rs:565
+CALL 33984| _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity7move_to     ;; abstract_input.rs:579
+CALL 33992| _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input20apply_aim_offset_pos     ;; abstract_input.rs:582
+CALL 34014| _RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position     ;; abstract_input.rs:570
+CALL 34047| _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input20apply_aim_offset_pos     ;; abstract_input.rs:647
+CALL 34083| _RINvYNtNtNtCsMBkRBYhlca_4rand4rngs3std6StdRngNtNtB9_3rng3Rng9gen_rangejINtNtNtCsjihNppCmMEE_4core3ops5range14     ;; abstract_input.rs:596
+CALL 34090| <indirect>     ;; abstract_input.rs:599
+CALL 34104| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity11nt_trace_on     ;; abstract_input.rs:610
+CALL 34132| _RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position     ;; abstract_input.rs:604
+CALL 34147| _RNvNtCs97f5S1uJLkH_9game_core5utils8distance     ;; abstract_input.rs:624
+CALL 34158| <indirect>     ;; abstract_input.rs:612
+CALL 34189| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity19nt_trace_record_aim     ;; abstract_input.rs:611
+CALL 34200| _RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero     ;; abstract_input.rs:625
+CALL 34215| _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt     ;; abstract_input.rs:631
+CALL 34250| _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input20apply_aim_offset_pos     ;; abstract_input.rs:638
+CALL 34281| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 34310| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 34338| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 34365| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 34393| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 34420| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:539
+CALL 34536| _RINvYNtNtNtCsMBkRBYhlca_4rand4rngs3std6StdRngNtNtB9_3rng3Rng9gen_rangejINtNtNtCsjihNppCmMEE_4core3ops5range14     ;; abstract_input.rs:413
+CALL 34543| <indirect>     ;; abstract_input.rs:417
+CALL 34570| _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity7move_to     ;; abstract_input.rs:429
+CALL 34572| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity11nt_trace_on     ;; abstract_input.rs:432
+CALL 34592| _RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position     ;; abstract_input.rs:422
+CALL 34608| _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input20apply_aim_offset_dir     ;; abstract_input.rs:448
+CALL 34619| <indirect>     ;; abstract_input.rs:434
+CALL 34644| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity19nt_trace_record_aim     ;; abstract_input.rs:433
+CALL 34649| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity11nt_trace_on     ;; abstract_input.rs:513
+CALL 34693| _RINvYNtNtNtCsMBkRBYhlca_4rand4rngs3std6StdRngNtNtB9_3rng3Rng9gen_rangejINtNtNtCsjihNppCmMEE_4core3ops5range14     ;; abstract_input.rs:462
+CALL 34700| <indirect>     ;; abstract_input.rs:465
+CALL 34714| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity11nt_trace_on     ;; abstract_input.rs:476
+CALL 34742| _RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position     ;; abstract_input.rs:470
+CALL 34757| _RNvNtCs97f5S1uJLkH_9game_core5utils8distance     ;; abstract_input.rs:490
+CALL 34768| <indirect>     ;; abstract_input.rs:478
+CALL 34799| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity19nt_trace_record_aim     ;; abstract_input.rs:477
+CALL 34810| _RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero     ;; abstract_input.rs:491
+CALL 34825| _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt     ;; abstract_input.rs:497
+CALL 34858| _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input20apply_aim_offset_dir     ;; abstract_input.rs:506
+CALL 34876| _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input20apply_aim_offset_dir     ;; abstract_input.rs:528
+CALL 34885| <indirect>     ;; abstract_input.rs:515
+CALL 34911| _RNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity19nt_trace_record_aim     ;; abstract_input.rs:514
+CALL 34943| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 34972| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 35000| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 35027| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 35055| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384
+CALL 35082| _RNvNtCshdEBA0ozCnw_7game_ai13position_eval22position_score_at_cell     ;; abstract_input.rs:384

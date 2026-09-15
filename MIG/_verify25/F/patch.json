@@ -1,0 +1,189 @@
+{
+ "round": 25,
+ "batch": "F",
+ "errors": [
+  {
+   "path": "/specs[199]/consts[24]/src_line",
+   "kind": "실오류",
+   "old": 419,
+   "new": 376,
+   "evidence": "m02.ll:42148 `%654 = icmp eq i64 %361, 0` ;L376<204 (res.len()==0 · 의미란의 첫 앵커) — L419 는 `br i1 %653`(in_range bool) 뿐이라 리터럴 0 이 없다(42152). 42273 은 L122<1483<386 · 44238 은 L251",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[199]/sig/params[1]/type",
+   "kind": "실오류",
+   "old": "&EpicPokeSubPlan(0B ZST)",
+   "new": "&mut EpicPokeSubPlan(0B ZST)",
+   "evidence": "tcx sig `fn(&mut game_ai::plan_legacy::sub_plan::EpicPokeSubPlan, …)` · define m02.ll:40509 %1 = `ptr noalias noundef nonnull`(readonly 없음) — ZST 라 쓰기 표면 0B 는 그대로",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[199]/logic",
+   "kind": "보강",
+   "old": "fn action_candidates(&self, version",
+   "new": "fn action_candidates(&mut self, version",
+   "evidence": "tcx sig 첫 인자 `&mut EpicPokeSubPlan`(G5 정정과 동기)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[199]/logic",
+   "kind": "실오류",
+   "old": "     Some(_) | None => res.push(AroundRegion(7,5))\n   }\n }\nL409 if game.is_visible(1-team, champ.id) && (적 챔프.any(|c| !same_team(c,champ) && dist²(c,champ) < 150000²+1) || cache.others[1-team].any(|e| dist²(e,champ) < 150000²+1)) { res.push(RunAway::new(data,player,5)) }\n",
+   "new": "     Some(_) | None => res.push(AroundRegion(7,5))\n   }\nL409   if game.is_visible(1-team, champ.id) && (적 챔프.any(|c| !same_team(c,champ) && dist²(c,champ) < 150000²+1) || cache.others[1-team].any(|e| dist²(e,champ) < 150000²+1)) { res.push(RunAway::new(data,player,5)) }   // ★L376 `if res.is_empty()` 블록 안(중첩) — res 가 이미 있으면(Trace 등) 노출 RunAway 는 추가되지 않는다\n }\n",
+   "evidence": "m02.ll:42149 `br i1 %654(len==0), label %656, label %655` — len!=0 이면 %655(42151~42152 `br i1 %653` = L419 in_range) 로 직행하고, L409 검사 블록 %800(42462) 의 preds 는 전부 match arm 끝(%720 42304 L387 · %793/%796/%799 L384/393/395 · %816 L403 · %831 L406). 오라클 trace_cvis(catk=100000 e0dx=130000 cvis=1): 명세대로면 move=[Trace,RunAway] 에서 score(RunAway)=-1 > score(Trace)=-9999999 라 RunAway 가 돼야 하는데 게임은 Trace(14, target 23) 반환 · 중첩으로 고친 predict 61/61 MATCH(o199_cases.log)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/sig/returns",
+   "kind": "보강",
+   "old": "initializes 속성 없음 → live 는 tcxdict 레이아웃 기준 0..0x30 + path_finder 태그 0x75 로 추정)",
+   "new": "initializes 속성 없음(region<27 bounds 패닉 경로 98459) · 본체 store 실측 m08.ll:98444~98456 = start_tick=game.tick @+0 · target_region @+8 · goal_x/goal_y=map 지역좌표표[region](+27552 {i64,i64}) @+0x10/+0x18 · goal_risk=i64::MAX @+0x20 · end_delay @+0x28 · path_finder 태그 2(None) @0x75; 0x30..0x75·0x76..0xb1 미기록 — 오라클 elem0 실측(+0=1000 +8=7 +0x20=9223372036854775807 +0x28=5 +0x75=2, 0x30 이후 잔재) 일치)",
+   "evidence": "m08.ll:98444 `store i64 %14, ptr %0` · 98446 `store i64 %5, ptr %26`(+8) · 98448/98450 (+16/+24) · 98452 `store i64 9223372036854775807`(+32) · 98454 `store i8 2, ptr %30`(+117) · 98456 `store i64 %6`(+40) · 98460 panic_bounds_check(%5, 27)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/sig/returns",
+   "kind": "보강",
+   "old": "④L262/265/268 vec![best.clone()] — best 는 get_move_action 의 res 원소 = Trace(14:",
+   "new": "④L262/265/268 vec![best.clone()] — ⚠SmallActionPlay::clone(m02.ll:79816) 은 RunAway/Around 의 path_finder None 가지에서 페이로드 슬롯 0x38..0x7d 에 `undef` phi(80158~80168) 를 그대로 store 한다(80185~80229) → sret 원소의 그 바이트는 「미기록」이 아니라 **비결정 쓰기**(런타임 SRET_VEC 대조 시 마스크 필수) · Attack/Skill/Skill2/Ult 는 184B memcpy(80052~80067) — best 는 get_move_action 의 res 원소 = Trace(14:",
+   "evidence": "m02.ll:80158 `%189 = phi ptr [ undef, %10 ], [ %168, %182 ]` … 80168 · 80199 `store ptr %189, ptr %222` … 80229 · 80231 `store i8 3`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/consts[3]/meaning",
+   "kind": "보강",
+   "old": "SmallActionTrace 좌표 Some 마커",
+   "new": "SmallActionTrace 좌표 Option 의 Some 마커는 dbg_value 잔재(41672·41679 `self[0..+8] = i64 1`)일 뿐 store 되지 않는다(phi 로 접혀 41683~41684 · +0 에는 explicit_min_range 태그 0 만 store 41685)",
+   "evidence": "m02.ll:41683 `%464 = phi i64 [ %462, %458 ], [ 0, %456 ]` · 41685 `store i64 0, ptr %28`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/sig/tls/indirect_order",
+   "kind": "실오류",
+   "old": "TLS 메모를 가진 콜리의 호출 순서(미러 설계용, 본체 줄 기준): ① v27_objective_discipline_action(40621, L15) ② action_candidates_old(40641, L19) ③ retain#4 안 aoe_heal_covers_low_ally(아군 대상 Skill/Skill2/Ult 원소마다) ④ retain#5 안 EpicPokeSubPlan::score → interaction_score(INTER_CTX 후보) ×act_actions 원소 ⑤ get_move_action: nontarget_windup_perceived ×적 챔프(41158) → position_score_at_position(41291) → position_eval_at(POS_EVAL_CACHE 후보) → check_kill_die_tick(41359, near_enemies.clone() 인자) → near_enemies 루프 range_misjudge_rng/roll → expected_damage_target(42377) ⑥ L224 루프 range_misjudge_rng/roll · is_recent_visible ⑦ L237 score ×move_actions(43896 + fold) → interaction_score ⑧ get_input(44224) ⑨ position_score_at_position(44252, L255). v47_siege_stance·v48_cast_beams·champion_hp_value 는 이 본체에 직접 호출 없음(콜리 내부 여부는 각 자식 명세 소관).",
+   "new": "직접호출 그래프(_gaibc+_gcbc 전 define · @anon 상수 경유 LocalKey 해석 · vtable 간접호출은 미추적) BFS 실측 — 본체 호출 순서대로: ① v27_objective_discipline_action(40621, L15) — TLS 접점 0 ② action_candidates_old(40641, L19) — POS_EVAL_CACHE(d2 position_eval_at) · 이하 position_eval_at_uncached 의 ATTACK_DMG/EPC/PE_CAND_MASKS/PE_PLAYER_CTX/TOWER_MINION_CNT(d3) · SIEGE_STANCE_CACHE(d4 v47_siege_stance) · CC_TIME/SLOT_READY(d4) · RESOLVE_FIGHT(d6) ③ retain#4 aoe_heal_covers_low_ally — TLS 접점 0 ④ retain#5 EpicPokeSubPlan::score ×act_actions — INTER_CTX(d1 interaction_score) · DIE_TICK_CACHE(d2 check_kill_die_tick) · HP_VALUE_MEMO(d2 champion_hp_value) · LAST_STAND_MEMO(d2 base_defense_focus) · POS_EVAL_CACHE(d2) · SIEGE(d4) ⑤ get_move_action: nontarget_windup_perceived ×적(41158) — 0 → position_score_at_position(41291) — POS_EVAL_CACHE(d1) → check_kill_die_tick(41359) — DIE_TICK_CACHE(d0)·ATTACK_DMG_CACHE(d2 enemy_minion_wave_risk_dps_at) → near 루프 range_misjudge_rng/roll·max_range_can_use/nearly — 0(MAX_RANGE_CACHE 는 max_range_cached 전용이라 미도달) → expected_damage_target(42377) — 0 → Around/AroundRegion/RunAway::new — 0 ⑥ L224 루프 range_misjudge_rng/roll · is_recent_visible — 0 ⑦ L237 score ×move_actions — ④와 같음(RunAway 원소일 때 HP_VALUE_MEMO 실제 발화) ⑧ get_input(44224, L244 돌진/투사체 때만) — variant 별: RunAway=LAST_STAND_MEMO(d1 nexus_final_stand)·PATH_SCRATCH·SPLICE_VISITED(d1)·FIELD_SCRATCH·ATTACK_DMG(d2)·POS_EVAL(d3)·SIEGE(d5) / Trace·Around·AroundRegion=PATH_SCRATCH·SPLICE_VISITED(d1)·FIELD_SCRATCH(d2)·LAST_STAND(d2, AroundRegion 제외)·POS_EVAL(d3~4)·SIEGE(d3~5) ⑨ position_score_at_position(44252, L255) — POS_EVAL_CACHE(d1). CAST_BEAMS(v48_cast_beams)·CAMP_POS_MEMO 는 어느 콜리에서도 미도달. v47_siege_stance·champion_hp_value 는 직접 호출은 없으나 score/get_input/action_candidates_old 경유로 도달한다.",
+   "evidence": "_verify25/F/oracle/tlsreach.py(직접호출 그래프 · TLS 키 35종) 출력 _verify25/F/oracle/tlsreach_root.txt — 예: score → `_RNvNtCshdEBA0ozCnw_7game_ai12action_score17interaction_score` {INTER_CTX} d1 · check_kill_die_tick 본체 @anon.e5f9…173 → `…DIE_TICK_CACHE00…call_once`(m15.ll:192)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/sig/tls/note",
+   "kind": "보강",
+   "old": "get_move_action 의 위 순서는 L299 조기 return(RunAway 단일) 이면 ⑤의 position_score_at_position 까지만 실행된다.",
+   "new": "get_move_action 의 위 순서는 L299 조기 return(RunAway 단일) 이면 ⑤의 position_score_at_position 까지만 실행된다. ★오라클 런타임 확인(o199 · 케이스당 프로세스 1개 · TLS 셀 state 바이트 직독 · closure#0 판 `…0023` / closure#1 판 `…0s_023` 두 전역 모두): DIE_TICK_CACHE=1 · POS_EVAL_CACHE=1 은 전 61케이스(near_enemies 0 이어도 check_kill_die_tick 이 캐시를 초기화) · INTER_CTX=1 은 score 가 불린 케이스만(L234 도주 조기 return 케이스는 0) · HP_VALUE_MEMO=1 은 RunAway 원소를 score 한 케이스만 · LAST_STAND_MEMO=1 은 version 2 에서 score 가 불린 케이스만(version 0 이면 0 = 콜리 내부 version 게이트) · SIEGE_STANCE_CACHE·MAX_RANGE_CACHE·CAST_BEAMS = 전 케이스 0. INTER_CTX 는 `0s_` 판, 나머지는 `0023` 판이 실제로 쓰였다(같은 키에 전역이 둘 — 미러가 셀을 읽을 땐 둘 다 봐야 한다).",
+   "evidence": "_verify25/F/oracle/o199_cases.log 의 tls_after 줄(예: base `DIE_TICK=0/1 POS_EVAL=0/1 INTER=1/0 HPV=0/0 LAST_STAND=0/1 SIEGE=0/0 MAXR=0/0 BEAMS=0/0` · flee_180000 `INTER=0/0 LAST_STAND=0/0`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[199]/mem",
+   "at": 9,
+   "guard": "jungles",
+   "guard_key": "name",
+   "new": {
+    "base": "AbstractGameWithCache",
+    "offset": "0xd0",
+    "name": "jungles",
+    "note": "retain#4(aux m01 18186 gep 208 ptr · 18190 gep 232 len; Skill2 가지 18993/18996 · Ult 가지 19800/19803) — 아군 대상 힐/실드 스킬의 '근처 적' 판정에 정글몹(Vec<&Entity> 32B: ptr@+0 · len@+0x18) 도 포함(epic_poke.rs:105·138·171). tcxdict AbstractGameWithCache 0xd0 jungles"
+   },
+   "kind": "실오류",
+   "evidence": "m01.ll:18186 `%304 = getelementptr inbounds nuw i8, ptr %303, i64 208, !dbg !24514`(!24514 → line 138 ← 2073 ← 105 ← retain closure#4) · 18190 `%307 = load i64, ptr %306`(+232 len) · tcxdict: 0xd0 jungles bumpalo Vec<&Entity>(32B)",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[199]/consts[25]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: L224 emr = 적 max_range_can_use(170000)×롤(1000)/1000 + 10000 = 180000 — flee_179999/180000 → RunAway(3, with_skill 0) · flee_180001 → AroundRegion(7) (`<=` 경계 실측 · flee_diag 108000²+144000² 도 같음)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/consts[30]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: trace_159999 → near_enemies 1 → Trace(14) · trace_160000 → near 0 → AroundRegion(7) (160000² `<` 경계)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/consts[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: flee_st0/1/2 → RunAway(3) · flee_st3/4 → AroundRegion(7) (action_state < 3 = Idle/Return/Move 만 도주 트리거)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/consts[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: empty_cvis_150000 → HP_VALUE_MEMO=1(L409 RunAway 가 score 됨) · empty_cvis_150001 → 0 (150000²+1 `<` 경계 · 단 res.is_empty() 블록 안에서만)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/consts[27]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 실행 확인: e0.rush_state 태그 = 2^63+3 로 쓰면 L244 → get_input(Move) → L262 vec![best.clone()] 경로(rush_base/rush_trace/rush_far MATCH)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 반환 원소 end_delay = 5 (AroundRegion +0x28=5 · RunAway +0x18=5 · Trace +0x80=5, o199_cases.log elem0)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: empty_cvis_150000/150001 에서 L409 RunAway 추가 여부가 갈림(HP_VALUE_MEMO 발화)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 도주 문턱 = 적 사거리 170000 + 10000 = 180000 정확(flee_180000 도주 · 180001 미도주)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/knobs[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 159999/160000 에서 near_enemies 포함 여부 갈림(Trace ↔ AroundRegion)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/knobs[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 에픽 미스폰 세계에서 반환 AroundRegion 의 target_region(+8) = 7",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[199]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: EpicPokeSubPlan::default()(ZST) 로 직접 호출 61케이스 정상 · 쓰기 표면 0B",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "초점 ② 의 `next_plan`(Option<BigPlan> 384B)·`attack`(Option<Input> 32B) 항목은 199 에 해당 없다 — 이 함수의 out 은 sret Vec<SmallActionPlay> 32B 하나뿐(update/plan 루트 지시문이 섞여 들어옴).",
+  "§4 G12 후보 [24,25,37,38,47,48,62,63] 에 정답 376 이 없다 — `icmp eq i64 %361, 0`(42148 ;L376<204) 의 리터럴 0 을 게이트가 수확하지 못한다(0 이 denoise 로 버려지거나 chain 루트 204 만 셈). 지적된 419 자체는 맞게 틀렸지만 정답을 후보에 못 실은 건 게이트 결함.",
+  "초점 ④ 의 TLS 작성자 목록에 `max_range_cached(MAX_RANGE_CACHE)`·`v48_cast_beams(CAST_BEAMS)`·`CAMP_POS_MEMO` 가 있으나 199 의 콜리 그래프(직접호출)에서는 셋 다 미도달 — 이 함수가 부르는 건 max_range_can_use/nearly(캐시 미사용)다.",
+  "§1 표 `open 8` 인데 v2 unknown 은 10건(v3 가 2건을 notes 로 걸러냄) — 산문 보고에서 open 번호는 v3 기준으로 적었다."
+ ]
+}

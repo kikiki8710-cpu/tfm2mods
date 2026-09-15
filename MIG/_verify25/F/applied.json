@@ -1,0 +1,15 @@
+{
+ "round": "25",
+ "batch": "F",
+ "errors_applied": 1,
+ "ev_applied": 11,
+ "failed": 5,
+ "stamps": {
+  "/specs[199]/consts[24]/src_line": "12e2c8df501501b2",
+  "/specs[199]/sig/params[1]/type": "b5a2526a06853ad4",
+  "/specs[199]/logic": "4c884b30e72958a2",
+  "/specs[199]/sig/returns": "e6e2927d40524d47",
+  "/specs[199]/consts[3]/meaning": "ad997510bde0cde8"
+ },
+ "restamped": true
+}

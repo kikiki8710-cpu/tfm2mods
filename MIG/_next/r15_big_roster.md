@@ -1,6 +1,6 @@
 # r15 거대 7 + 미러 래퍼 1 편성표 (생성 2026-09-15 · rvaname 실명 `_next\r15_big_rvaname.txt` · 전부 [확정]/argscan)
 
-> r14 보류 8(TLS 메모 소비자)의 미러 열쇠 = `position_eval_at`(EPC_CACHE) · `interaction_score`(INTER_CTX/LAG). `v47_siege_stance`(SIEGE_STANCE_CACHE)는 exe 에 독립 본체가 없다(0xca2570 = 안쪽 클로저 call_mut · 본체는 호출자에 인라인 추정) · `v48_cast_beams`(CAST_BEAMS)는 with-클로저(m00.ll:93237)가 exe 어디인지 미확정 → r15 뒤 namebycaller 로 후속.
+> r14 보류 8(TLS 메모 소비자)의 미러 열쇠 = `position_eval_at`(EPC_CACHE) · `interaction_score`(INTER_CTX/LAG). `v47_siege_stance`(SIEGE_STANCE_CACHE)는 exe 에 독립 본체가 없다(0xca2570 = 안쪽 클로저 call_mut · 본체는 호출자에 인라인 추정) · `v48_cast_beams`(CAST_BEAMS)는 with-클로저(m00.ll:93237) = exe **0xc89a90**(1,529B · 지도 라벨 max_range 는 오매칭) — `LocalKey::with(&KEY, env)` 라 인자 0 을 내 LocalKey 로 치환하는 EXE_ABI `SYM` 기구가 있어야 미러 → r15 뒤 후속.
 
 | # | RVA | IR 실명(짧게) | IR | define 줄~끝 | IR 줄수 | exe 크기 | 호출자 | 비고 |
 |---|---|---|---|---|---|---|---|---|

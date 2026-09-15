@@ -1,0 +1,297 @@
+{
+ "round": 25,
+ "batch": "H",
+ "errors": [
+  {
+   "path": "/specs[189]/consts[19]/src_line",
+   "kind": "실오류",
+   "old": 40,
+   "new": 259,
+   "evidence": "리터럴 40 이 !dbg 를 달고 있는 명령은 m14.ll:46189 `%325 = icmp eq i64 %310, 40` 뿐이고 사슬 = L1714<180<2493<138<2897<**259**(iter_champions(1−team) 5×8B 행 끝). 45485 `gep %114, i64 40`(사슬 …<55<250)·45793 `gep %97, i64 40`(…<62<60<250) 은 gep 오프셋형(G12 후보 제외)이고 어느 사슬에도 40 이 없다. 소스 L40 은 `player_champion[team][pos]` 줄이라 리터럴 40 이 없음 — 값 40 ↔ 줄 40 을 혼동한 오기",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[189]/consts[19]/meaning",
+   "kind": "보강",
+   "old": "player_champion[team] 행 stride 40(45485·45793) · Flatten 순회 상한 40(46189 = 5×8) — 판정 아님",
+   "new": "player_champion 행([Option<&Entity>;5]) 바이트 길이 40 = 5×8 — L259 iter_champions(1−team) 순회 상한(46189 `icmp eq i64 %310, 40`, 유일한 !dbg 리터럴 → src_line 259) · L55/L62 행 끝 포인터 gep 45485·45793(필드오프셋형, 사슬 루트 250) — 길이, 판정 아님",
+   "evidence": "m14.ll:46189/45485/45793 원문 + 사슬(위 src_line 항목)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[20]/note",
+   "kind": "보강",
+   "old": "L151 (47701~47705) 비가시면 continue",
+   "new": "L151 (47701~47705) 비가시면 continue · 원소 stride 24B(47702 `getelementptr { i64, [2 x i64] }, ptr %853, i64 %850`; 인덱스 %850 = champ.team@Player.0 47694, champ.team 이 Neutral(태그 1)이면 검사 생략 47690→859) · 오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2): visible_state[0]=1 로 세팅한 미니언 2 마리 → Attack/Skill 후보 0",
+   "evidence": "m14.ll:47688~47705 원문",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[39]/note",
+   "kind": "보강",
+   "old": "소비처는 이 함수 밖(미확인)",
+   "new": "소비처(25차 H 확정, DefenseNexusSubPlan 4메서드 범위): `score`(m14.ll:48981~49570)는 self 를 읽지 않음(본문 `%0` 참조 0) · `SubPlan::merge`(m12.ll:36947, DefenseNexusSubPlan::merge 인라인 37110~37118)는 24B memcpy 로 새 플랜을 통째 채택한 뒤 focus(+0/+8)만 옛 값 복원 = last_gate 는 새 값 채택 · `Debug::fmt`(m14.ll:61649~61662 debug_struct_field2_finish) 가 +16 을 읽음 — 판정 소비 0, 텔레메트리. 오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2): 사전값 7 → 0(기본 경로) · 1(L277 게이트 케이스 5건) · 2(L292 게이트 케이스 9건)",
+   "evidence": "m14.ll:48981~49570 grep `ptr %0` 1건(define 헤더뿐) · m12.ll:37110~37118 · m14.ll:61649~61662 · o189 로그",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[40]/note",
+   "kind": "보강",
+   "old": "L40 champ None 경로(45445→%280)는 focus 를 건드리지 않는다 — 조건부 쓰기라 initializes 에 없음",
+   "new": "L40 champ None 경로(45445→%280)는 focus 를 건드리지 않는다 — 조건부 쓰기라 initializes 에 없음 · 오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2): bdf false 케이스 사전 (1,23) → (0,23)(45406 태그만) · version=1 케이스 동일 · L90 케이스 (1,23)/(1,24 kept 우선)/(1,45 minion)",
+   "evidence": "o189 self_before/self_after 24B 덤프",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[41]/note",
+   "kind": "보강",
+   "old": "None 경로(45984 에 tag 0 저장)에서도 +8 은 undef 페이로드를 그대로 쓴다",
+   "new": "None 경로(45984 에 tag 0 저장)에서도 +8 은 undef 페이로드를 그대로 쓴다 — ⚠이 L90 None 경로는 오라클 세계에서 미발화(bdf true ⇔ 적 챔피언 평타 사거리 안 또는 공성 미니언 존재 ⇔ want 가 Some) · 오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2): L37 경로(45406)는 +8 미기록(사전 23·555 보존) · L90 Some 경로는 +8 = id(23/24/45)",
+   "evidence": "o189 sc=0/7 focus=23·555 케이스",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[42]/note",
+   "kind": "보강",
+   "old": "",
+   "new": "★sret 원소 살아있는 바이트(25차 H · 콜리 define `initializes` + 오라클 live 대조 MATCH): RunAway 3 = (0,56)∪{125}∪(128,132)∪{177} · Around 5 = (0,56)∪{125}∪(128,130)∪{177} · Trace 14 = (0,8)∪{85}∪(88,150)∪{177} · Attack 15/Skill 16/Skill2 17 = (0,17)∪{177}; 그 밖은 184B alloca 잔재(오라클 all_diff 39~80B 가 전부 그 범위)",
+   "evidence": "m08.ll:92086/92133 `initializes((0, 56), (125, 126), (128, 132))` · m08.ll:92385 `initializes((0, 56), (125, 126), (128, 130))` · m02.ll:9506 `initializes((0, 8), (85, 86), (88, 150))` · m07.ll:7129/7645/12020 `initializes((0, 17))` · 본체 46000/46327/47366/47436/46980/47141/47211/47263/47845/48024/48198/48816 `store i8 <tag>` @+177",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[43]/value",
+   "kind": "보강",
+   "old": "push Attack(tower) 48918~48945",
+   "new": "push Attack(tower) 48857(Extend<Option>::reserve)+48918~48945(memcpy 177+tag 15+6 로 Option 니치 풀어 %9 에 재조립 48895~48897)",
+   "evidence": "m14.ll:48839~48946 원문(reserve_internal_or_panic 2회 = live 13 중 2)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[189]/mem",
+   "at": 18,
+   "guard": "on_trajectory (bool)",
+   "guard_key": "name",
+   "new": {
+    "base": "PositioningScore(position_score 로컬 %65 = position_score_at_position sret 56B)",
+    "offset": "0x30",
+    "name": "on_trajectory (bool)",
+    "dir": "r",
+    "note": "L274 (46289~46292) `load i8 %65+48` — 참이면 +0x31 을 읽지 않고 last_stand 만으로 L277 분기(46306) · tcxdict PositioningScore 0x30 on_trajectory bool"
+   },
+   "kind": "보강",
+   "evidence": "G18: logic 이 +0x30/+0x31 을 인용하는데 mem 에 PositioningScore 베이스가 없었다 · m14.ll:46289~46292 · tcxdict",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[189]/mem",
+   "at": 19,
+   "guard": "on_periodic_trajectory (bool)",
+   "guard_key": "name",
+   "new": {
+    "base": "PositioningScore(position_score 로컬 %65 = position_score_at_position sret 56B)",
+    "offset": "0x31",
+    "name": "on_periodic_trajectory (bool)",
+    "dir": "r",
+    "note": "L274 (46295~46297) `load i8 %65+49` — +0x30 이 거짓일 때만 로드, (has_non_target || +0x31) 로 or(46299) 뒤 !last_stand 와 결합(46300~46302) · tcxdict PositioningScore 0x31 on_periodic_trajectory bool"
+   },
+   "kind": "보강",
+   "evidence": "G18 · m14.ll:46295~46302 · tcxdict",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[189]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "정상 종료 3곳에서 32B memcpy 로 sret 채움(46377 조기귀환 L279/L294 · 48976 L308)",
+   "new": "정상 종료 3곳에서 32B memcpy 로 sret 채움(46377 조기귀환 L279/L294 · 48976 L308). ★이 함수가 직접 push 하는 variant = Trace 14(L92) · RunAway 3(L279 new_with_skill / L294·L301 new) · Around 5(L120/125/127/129) · Attack 15(L164·L223) · Skill 16(L176) · Skill2 17(L189); extend 로 편입되는 battle_action(47484)·attack_summon_action(48258)·attack_structure_skill_action(48964) 산출 variant 는 IR 전수(각 함수 + 전이 콜리 33/9/10 define 의 `store i8 N` @+177): battle_action = Attack 15·Skill 16·Skill2 17 / attack_summon_action = 15·16·17 / attack_structure_skill_action = 16·17 — 전부 SmallActionAttack/Skill/Skill2::new(24B initializes((0,17))) + memcpy 24 + 태그. ⟹ 이 sret 에 담길 수 있는 variant 전체 = {RunAway 3, Around 5, Trace 14, Attack 15, Skill 16, Skill2 17}(Ult 18·Recall 4·Stop 19·AroundRegion 7·AroundBush 12·LaneMinionPosition 13·AroundPosition 은 이 루트에서 불가). variant 별 live 바이트 = mem[44](sret) 참조.오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2): 원소 수·태그·live 바이트·순서(commit_chase→[L279]→[L294]→base_positioning→RunAway→battle→attack_minion→summon→tower→structure) 전부 MATCH",
+   "evidence": "o189 sc=0~7 로그(elem[i] real_tag/pred_tag/live)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/sig/params[1]/role",
+   "kind": "보강",
+   "old": "focus(+0/+8) 는 조건부 쓰기(commit_chase L37·L90 — 아래 writes 전수).",
+   "new": "focus(+0/+8) 는 조건부 쓰기(commit_chase L37·L90 — 아래 writes 전수). 오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2): L37 경로(bdf false 또는 version<2)는 +0 만 0 으로 쓰고 +8 은 사전값 보존(사전 (1,23) → 후 (0,23)) · L90 경로는 (1,id)(kept 우선: 사전 (1,24)+want 23 → (1,24) · 사전 (1,999999)/(1,18=아군) 무효 → (1,23)) · last_gate 사전값 7 → 0/1/2 · 패딩 +0x11~+0x17 미기록.",
+   "evidence": "o189 self_before/self_after",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/sig/tls[0]/call_conditions",
+   "kind": "보강",
+   "old": "③check_kill_die_tick(L68, 45835; minion None 이고 threats 비어있지 않을 때 threats 원소마다 — 첫 원소 본체, 나머지 m12.ll:25039 fold 안) — fight_check DieTickCache(LocalKey<RefCell<DieTickCache>>, m15.ll:27257·27414) 작성/소비",
+   "new": "③check_kill_die_tick(L68, 45835; minion None 이고 threats 비어있지 않을 때 threats 원소마다 — 첫 원소 본체, 나머지 m12.ll:25039 fold 안) — fight_check DieTickCache(LocalKey<RefCell<DieTickCache>>, m15.ll:27257·27414) 작성/소비(2단: check_kill_die_tick_uncached→enemy_minion_wave_risk_dps_at m07.ll:46770 이 ATTACK_DMG_CACHE 소비)",
+   "evidence": "25차 H 전이 콜그래프(tlsper.py)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/sig/tls[0]/call_conditions",
+   "kind": "보강",
+   "old": "⑦enemy_minion_wave_danger_damage_at(L284, 46314; !(도주 조기귀환) 일 때) — TLS 직접 접점 0",
+   "new": "⑦enemy_minion_wave_danger_damage_at(L284, 46314; !(도주 조기귀환) 일 때) — TLS 직접 접점 0(2단: enemy_minion_wave_risk_damage_at m07.ll:47104 이 ATTACK_DMG_CACHE 소비)",
+   "evidence": "25차 H 전이 콜그래프",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/sig/tls[0]/call_conditions",
+   "kind": "보강",
+   "old": "⑨battle_action(L302, 47484) — 직접 접점 0(내부 2단 콜리는 미확인)",
+   "new": "⑨battle_action(L302, 47484) — 직접 접점 0(25차 H: game_ai 3632 + game_core 32509 define 직접호출 콜그래프 전이 전수 = TLS 0; vtable 간접호출은 미추적)",
+   "evidence": "25차 H 전이 콜그래프",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/sig/tls[0]/call_conditions",
+   "kind": "보강",
+   "old": "v47_siege_stance/v48_cast_beams/champion_hp_value/interaction_score 심볼은 이 함수 IR·1단 콜리 본문에 0건(2단 이하는 미확인)",
+   "new": "★25차 H 전이 콜그래프(직접 호출만 · 루트 도달 310 define · vtable 간접호출 미추적): 루트에서 닿는 TLS 전체 = LAST_STAND_MEMO(d1 ①②④) · DIE_TICK_CACHE(d1 ③) · POS_EVAL_CACHE(d2 ⑥ position_eval_at m07.ll:24507) · ATTACK_DMG_CACHE(d2 ⑦ / d3 ③ / d3 ⑥ position_eval_at_uncached m07.ll:24749) · EPC_CACHE·PE_CAND_MASKS·PE_PLAYER_CTX·TOWER_MINION_CNT_CACHE(d3 ⑥ position_eval_at_uncached) · CC_TIME_MEMO(d4 ⑥ slot_cc_time_cached m15.ll:28148) · SLOT_READY_MEMO(d4 ⑥ slot_ready_cached m15.ll:25909) · SIEGE_STANCE_CACHE(d4 ⑥ v47_siege_stance m07.ll:48393) · RESOLVE_FIGHT_CACHE(d6 ⑥ v47_siege_stance→resolve_fight→resolve_fight_full m10.ll:39915). 따라서 v47_siege_stance 는 ⑥ 아래 4단에서 닿고, v48_cast_beams(CAST_BEAMS)·champion_hp_value(HP_VALUE_MEMO)·interaction_score(INTER_CTX)·max_range_cached(MAX_RANGE_CACHE)·CAMP_POS_MEMO 는 도달 집합에 정의 자체가 없다(접점 0). 호출 순서(미러 재현): ①②(L36/45 · cc 안) → ③(threats 마다) → ④(L253) → ⑤×n(L260) → ⑥(L272 · 조기귀환 L279 앞) → ⑦(L284 · L279 미발화 시) → ⑧(L290) → ⑨(L302) → ⑩ — 오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2)(rng_sync 91/91)",
+   "evidence": "scratchpad25H/tlsreach.py·tlsper.py(정의 3632+32509 · anon 상수→TLS 접근자 매핑 22) 출력",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[189]/sig/params[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2) · sret variant·live 바이트·순서",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2) · focus/last_gate 쓰기 표면",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[41]",
+   "from": 4,
+   "to": 3,
+   "guard": "last_gate (u8)",
+   "evidence": "오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2) · 쓰기 값 대조(삽입 후 인덱스)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[42]",
+   "from": 4,
+   "to": 3,
+   "guard": "focus@tag",
+   "evidence": "오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2) · 쓰기 값 대조(삽입 후 인덱스)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/mem[43]",
+   "from": 4,
+   "to": 3,
+   "guard": "focus@Some.0",
+   "evidence": "오라클 실행 확인(25차 H o189.rs · 케이스당 프로세스 1개 · 총 91케이스 전부 elems/self/rng_sync MATCH + 패닉 실증 2) · 쓰기 값 대조(삽입 후 인덱스)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 경계(o189 sc=5 n=6 dx=2000 · mwd=256<hp): cmax=1000 chp=459(ratio 45)→L294 게이트 · chp=460(ratio 46)→통과 ⟹ `< 46`",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클: hp_ratio = hp*100/max(max_hp,1) 로 예측한 45/46 경계가 실행과 일치(cmax=0 → ratio 40000, 게이트 미발화)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클: range = 30000+10000(champ radius)+speed(1)*30+10000(m radius) = 50030 예측 · dx=50030→Attack, 50031→없음(L163 `<=`) · 타워 L212 도 50030/50031 동일 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클: crange=100000 에서 dx=79999→후보, 80000→후보 0 ⟹ `dist_sq < 80000²` 엄격",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클: Attack 원소 태그 15 실측(미니언 L164 · 타워 L223)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클: Skill 원소 태그 16 실측(L176)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/consts[3]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클: Trace 원소 태그 14 실측(L92, 12케이스)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클: RunAway 원소 태그 3 실측(L279·L294·L301)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 경계 45/46(consts[12] 참조)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 경계 79999/80000(consts[15] 참조)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 경계 50030/50031(consts[14] 참조)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[189]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클: 원소 end_delay 바이트(RunAway+0x18 · Around+0x30 · Trace+0x80) = 5 로 live 대조 MATCH",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§5 경로 문법의 dict 하위키 예(`/specs[<idx>]/sig/tls/<키>`)는 v2 `signature.tls` 가 **리스트**(원소 1개 dict)인 이 함수에선 dict 분기를 못 탄다 — `/specs[189]/sig/tls[0]/<키>` 로 써야 applypatch ③(배열 원소) 경로로 치환된다(--dry 로 확인)",
+  "지시문 ② 의 `next_plan Option<BigPlan> 384B` · `attack Option<Input> 32B` 는 이 함수(sret = bumpalo Vec<SmallActionPlay> 32B, 반환 그 외 없음)에 해당 없음 — 배치 공통 문안이 그대로 실렸다",
+  "§1 표 `ev≥4(미실행) 71` 은 실행 대상 수가 아님(지시문 자체가 경고) — 이번에 오라클로 실제 내린 행은 params 2 · mem(writes) 3 · consts 8 · knobs 4 = 17행"
+ ]
+}

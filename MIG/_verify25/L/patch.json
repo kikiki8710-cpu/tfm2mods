@@ -1,0 +1,495 @@
+{
+ "round": 25,
+ "batch": "L",
+ "errors": [
+  {
+   "path": "/specs[192]/logic",
+   "kind": "실오류",
+   "old": "L20    if is_enemy_side(team, champ.x, champ.y)   // = (team==0) XOR is_blue_side(x,y), is_blue_side = (x - y + setting.height) > setting.width  (map_regions.rs:58, 7~8)",
+   "new": "L20    if !is_enemy_side(team, champ.x, champ.y)   // 아군 진영일 때만 Rhino 검사. is_enemy_side = (team==0) XOR is_blue_side(x,y), is_blue_side = !((x - y + setting.height) > setting.width)  (map_regions.rs:58, 7~8) · IR %79 = (team==0) XOR ugt = !is_enemy_side (m14.ll:30378~30380)",
+   "evidence": "m14.ll:30378 `%78 = icmp ugt i64 %75, %77`(x-y+height > width) · 30379 `%79 = xor i1 %69, %78`(%69 = team==0) · 30380 `br i1 %79, label %80(camp_pos Rhino·70000² 검사), label %99(store move_check=1)`. 오라클 world0.log blue_grid 13점: game_core::is_blue_side(x,y) == !ugt 전점(예 (32000,928000) ugt=false blue=true · (672000,672000) ugt=false blue=true · (928000,32000) ugt=true blue=false) ⟹ %79 == !game_core::is_enemy_side(team,x,y). 실행: s_rhino_enemy(적 Rhino 자리=적 진영) → 거리검사 없이 move_check=1 · s_base_mc0(아군 본진) → Rhino far → move_check=0 · s_rhino_own_eq/gt(아군 Rhino dx 70000/70000+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/logic",
+   "kind": "실오류",
+   "old": "       else { self.move_check = true }   // 아군 진영이면 즉시 통과 (store 는 dbg L0 블록 %99 공유)",
+   "new": "       else { self.move_check = true }   // 적 진영이면 즉시 통과 (store 는 dbg L0 블록 %99 공유)",
+   "evidence": "m14.ll:30378 `%78 = icmp ugt i64 %75, %77`(x-y+height > width) · 30379 `%79 = xor i1 %69, %78`(%69 = team==0) · 30380 `br i1 %79, label %80(camp_pos Rhino·70000² 검사), label %99(store move_check=1)`. 오라클 world0.log blue_grid 13점: game_core::is_blue_side(x,y) == !ugt 전점(예 (32000,928000) ugt=false blue=true · (672000,672000) ugt=false blue=true · (928000,32000) ugt=true blue=false) ⟹ %79 == !game_core::is_enemy_side(team,x,y). 실행: s_rhino_enemy(적 Rhino 자리=적 진영) → 거리검사 없이 move_check=1 · s_base_mc0(아군 본진) → Rhino far → move_check=0 · s_rhino_own_eq/gt(아군 Rhino dx 70000/70000+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/mem[7]/note",
+   "kind": "실오류",
+   "old": "is_blue_side: (x - y + height) > width (map_regions.rs:7~8, gep 4792)",
+   "new": "is_blue_side = !((x - y + height) > width) (map_regions.rs:7~8, gep 4792 — IR 는 ugt 를 만들고 xor 로 부정을 흡수: %79 = (team==0) XOR ugt = !is_enemy_side)",
+   "evidence": "m14.ll:30378 `%78 = icmp ugt i64 %75, %77`(x-y+height > width) · 30379 `%79 = xor i1 %69, %78`(%69 = team==0) · 30380 `br i1 %79, label %80(camp_pos Rhino·70000² 검사), label %99(store move_check=1)`. 오라클 world0.log blue_grid 13점: game_core::is_blue_side(x,y) == !ugt 전점(예 (32000,928000) ugt=false blue=true · (672000,672000) ugt=false blue=true · (928000,32000) ugt=true blue=false) ⟹ %79 == !game_core::is_enemy_side(team,x,y). 실행: s_rhino_enemy(적 Rhino 자리=적 진영) → 거리검사 없이 move_check=1 · s_base_mc0(아군 본진) → Rhino far → move_check=0 · s_rhino_own_eq/gt(아군 Rhino dx 70000/70000+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/mem[37]/note",
+   "kind": "실오류",
+   "old": "조건: !move_check && (!is_enemy_side(team,champ.x,champ.y) || dist²(champ, camp_pos(Rhino, team==0)) < 70000²+1)",
+   "new": "조건: !move_check && (is_enemy_side(team,champ.x,champ.y) || dist²(champ, camp_pos(Rhino, team==0)) < 70000²+1) — 적 진영이면 무조건, 아군 진영이면 아군 Rhino 캠프 70000 이내일 때",
+   "evidence": "m14.ll:30378 `%78 = icmp ugt i64 %75, %77`(x-y+height > width) · 30379 `%79 = xor i1 %69, %78`(%69 = team==0) · 30380 `br i1 %79, label %80(camp_pos Rhino·70000² 검사), label %99(store move_check=1)`. 오라클 world0.log blue_grid 13점: game_core::is_blue_side(x,y) == !ugt 전점(예 (32000,928000) ugt=false blue=true · (672000,672000) ugt=false blue=true · (928000,32000) ugt=true blue=false) ⟹ %79 == !game_core::is_enemy_side(team,x,y). 실행: s_rhino_enemy(적 Rhino 자리=적 진영) → 거리검사 없이 move_check=1 · s_base_mc0(아군 본진) → Rhino far → move_check=0 · s_rhino_own_eq/gt(아군 Rhino dx 70000/70000+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/open[0]",
+   "kind": "실오류",
+   "old": "동작(아군 진영이면 무조건 true, 적 진영이면 Rhino 70000 이내일 때 true)",
+   "new": "동작(적 진영이면 무조건 true, 아군 진영이면 아군 Rhino 캠프 70000 이내일 때 true — 25차 L 오라클 s_rhino_enemy/s_base_mc0/s_rhino_own_eq·gt 실행 확인)",
+   "evidence": "m14.ll:30378 `%78 = icmp ugt i64 %75, %77`(x-y+height > width) · 30379 `%79 = xor i1 %69, %78`(%69 = team==0) · 30380 `br i1 %79, label %80(camp_pos Rhino·70000² 검사), label %99(store move_check=1)`. 오라클 world0.log blue_grid 13점: game_core::is_blue_side(x,y) == !ugt 전점(예 (32000,928000) ugt=false blue=true · (672000,672000) ugt=false blue=true · (928000,32000) ugt=true blue=false) ⟹ %79 == !game_core::is_enemy_side(team,x,y). 실행: s_rhino_enemy(적 Rhino 자리=적 진영) → 거리검사 없이 move_check=1 · s_base_mc0(아군 본진) → Rhino far → move_check=0 · s_rhino_own_eq/gt(아군 Rhino dx 70000/70000+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/knobs[0]/effect",
+   "kind": "실오류",
+   "old": "올리면(반경↑) 적 진영에서 더 멀리서도 move_check 가 켜져 바로 서펜 캠프로 향한다. 내리면 Rhino 캠프에 더 붙어야 통과",
+   "new": "올리면(반경↑) 아군 진영에서 아군 Rhino 캠프로부터 더 멀리서도 move_check 가 켜져 바로 서펜 캠프로 향한다. 내리면 Rhino 캠프에 더 붙어야 통과(적 진영에 있으면 이 반경과 무관하게 즉시 켜진다)",
+   "evidence": "m14.ll:30378 `%78 = icmp ugt i64 %75, %77`(x-y+height > width) · 30379 `%79 = xor i1 %69, %78`(%69 = team==0) · 30380 `br i1 %79, label %80(camp_pos Rhino·70000² 검사), label %99(store move_check=1)`. 오라클 world0.log blue_grid 13점: game_core::is_blue_side(x,y) == !ugt 전점(예 (32000,928000) ugt=false blue=true · (672000,672000) ugt=false blue=true · (928000,32000) ugt=true blue=false) ⟹ %79 == !game_core::is_enemy_side(team,x,y). 실행: s_rhino_enemy(적 Rhino 자리=적 진영) → 거리검사 없이 move_check=1 · s_base_mc0(아군 본진) → Rhino far → move_check=0 · s_rhino_own_eq/gt(아군 Rhino dx 70000/70000+1) → 1/0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[0]/meaning",
+   "kind": "실오류",
+   "old": "70000² + 1 — Rhino 캠프 접근 판정(제곱거리 ult). 이보다 작으면 move_check=true",
+   "new": "70000² + 1 — 아군 Rhino 캠프 접근 판정(제곱거리 ult · 아군 진영일 때만 검사, 적 진영이면 검사 없이 true). 이보다 작으면 move_check=true. 오라클 실행 확인: dx=70000 → 1 · dx=70000,dy=1 → 0 (s_rhino_own_eq/gt)",
+   "evidence": "m14.ll:30410 `%98 = icmp ult i64 %97, 4900000001` · 25차 L 오라클(o25L.exe · run25L.py · 케이스당 프로세스 1개 · 68/68 예측 일치 + 패닉 4건 예측 일치)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/sig/params[7]/role",
+   "kind": "오탐",
+   "old": "IR 속성 nonnull 만(readonly 없음)이나 본문은 v25_objective_posture(self=team_plan) 호출에만 사용. 콜리 시그니처가 &self(readonly) 라 사실상 읽기 전용(추정 근거: m09.ll:15168 define 의 %0 readonly)",
+   "new": "IR define 속성은 `ptr noundef nonnull align 8 %7` 뿐 — noalias·dereferenceable·읽기전용 표식 전부 없음(TeamPlan 에 내부가변성 필드 내포 추정). 본문은 v25_objective_posture(self=team_plan) 호출에만 사용(m14.ll:30627)하고 콜리 define m09.ll:15168 의 %1(self=TeamPlan) 이 `readonly captures(none)` 이라 사실상 읽기 전용",
+   "evidence": "m14.ll:30237 define 원문 `ptr noundef nonnull align 8 %7`(readonly 없음) · m09.ll:15168 `ptr noundef nonnull readonly align 8 captures(none) %1`(%0 은 sret). G16 P4 가 「콜리 시그니처가 &self(readonly)」 절을 본 함수의 속성 주장으로 읽은 오탐 — 절에 파일명이 없어 F8(FOREIGN) 도 F9(NEGATED) 도 안 걸림",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/one_line",
+   "kind": "실오류",
+   "old": "위험(논타겟 윈드업·궤적·근접 적)이면 도주 단일, 아니면 v25 태세→서펜 캠프/경유지 대기 + 전투 후보",
+   "new": "위험(논타겟 윈드업·궤적)이면 도주 단일, 아니면 v25 태세→서펜 캠프/(아군 Rhino) 경유지 대기 + 근접 적(최근 시야 챔프·others 150000 이내)이면 도주 추가 + (적에게 보이면) 전투 후보 + 소환물 공격 후보",
+   "evidence": "m14.ll:30603~30621 L50 분기(on_trajectory‖has_non_target‖on_periodic) 만 조기 return · L94 근접 적 RunAway 는 31404 push 후 계속 진행. 오라클 s_nt_skill_pos → n=1 RunAway 단일 · s_rv_eq → [AroundPosition, RunAway] 2개",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/open[1]",
+   "kind": "실오류",
+   "old": "실전 도달 가능 여부(그 레벨에서 그 액션 상태가 가능한가)는 game_core 규칙이라 미확인",
+   "new": "실전 도달 가능 여부(그 레벨에서 그 액션 상태가 가능한가)는 game_core 규칙이라 미확인. 25차 L 오라클 주입 실행(적 챔프 action_state=Skill2·level 1 / Ult·level 4 + 윈드업 경과틱 1000): 실제로 `unwrap_failed` 패닉 @serpen_check.rs:39:68 / :41:62 (s_nt_skill2_lvl1 · s_nt_ult_lvl4) — 소스 줄 39/41 확정",
+   "evidence": "oracle/s_nt_skill2_lvl1.log `panicked at game-ai\\src\\plan_legacy\\sub_plan\\serpen_check.rs:39:68` · s_nt_ult_lvl4.log `serpen_check.rs:41:62`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/logic",
+   "kind": "실오류",
+   "old": "  L26     if is_enemy_side(team, champ.x, champ.y) {",
+   "new": "  L26     if !is_enemy_side(team, champ.x, champ.y) {     // 아군 진영일 때만 경유지 검사 (IR %597 = (team==0) XOR ugt = !is_enemy_side, m02.ll:39720~39722)",
+   "evidence": "m02.ll:39720 `%596 = icmp ugt i64 %593, %595` · 39721 `%597 = xor i1 %587, %596`(%587 = team==0) · 39722 `br i1 %597, label %600(camp-1<2 → Morgard/Serpen 경유지 거리검사), label %577(store check_move=1 → 캠프 직행)`. game_core::is_blue_side == !ugt(world0.log 격자 13점) ⟹ %597 == !is_enemy_side. 실행: j_enemy_side(적 진영) → check_move=1 즉시 · j_enemy_rhino_base(아군 본진) → Serpen 경유 out_line · check_move=0 · j_serp_eq/gt(경유지 dsq 1e10 / 1e10+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/logic",
+   "kind": "실오류",
+   "old": "          self.check_move = true   // 아군 진영이거나 경유지 100000 이내",
+   "new": "          self.check_move = true   // 적 진영이거나, 아군 진영이면서 경유지 100000 이내",
+   "evidence": "m02.ll:39720 `%596 = icmp ugt i64 %593, %595` · 39721 `%597 = xor i1 %587, %596`(%587 = team==0) · 39722 `br i1 %597, label %600(camp-1<2 → Morgard/Serpen 경유지 거리검사), label %577(store check_move=1 → 캠프 직행)`. game_core::is_blue_side == !ugt(world0.log 격자 13점) ⟹ %597 == !is_enemy_side. 실행: j_enemy_side(적 진영) → check_move=1 즉시 · j_enemy_rhino_base(아군 본진) → Serpen 경유 out_line · check_move=0 · j_serp_eq/gt(경유지 dsq 1e10 / 1e10+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/mem[8]/note",
+   "kind": "실오류",
+   "old": "is_blue_side: (x - y + height) > width (gep 4792)",
+   "new": "is_blue_side = !((x - y + height) > width) (gep 4792 — IR 는 ugt 를 만들고 xor 로 부정을 흡수: %597 = (team==0) XOR ugt = !is_enemy_side)",
+   "evidence": "m02.ll:39720 `%596 = icmp ugt i64 %593, %595` · 39721 `%597 = xor i1 %587, %596`(%587 = team==0) · 39722 `br i1 %597, label %600(camp-1<2 → Morgard/Serpen 경유지 거리검사), label %577(store check_move=1 → 캠프 직행)`. game_core::is_blue_side == !ugt(world0.log 격자 13점) ⟹ %597 == !is_enemy_side. 실행: j_enemy_side(적 진영) → check_move=1 즉시 · j_enemy_rhino_base(아군 본진) → Serpen 경유 out_line · check_move=0 · j_serp_eq/gt(경유지 dsq 1e10 / 1e10+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/mem[49]/note",
+   "kind": "실오류",
+   "old": "조건: player.team != self.team && !check_move && ( !is_enemy_side(team, champ) || (camp∈{Mushroom,Stump} ? dist²(champ, Morgard camp) ≤ 100000² : dist²(champ, Serpen camp) ≤ 100000²) )",
+   "new": "조건: player.team != self.team && !check_move && ( is_enemy_side(team, champ) || (camp∈{Mushroom,Stump} ? dist²(champ, Morgard camp) ≤ 100000² : dist²(champ, Serpen camp) ≤ 100000²) ) — 적 진영이면 무조건, 아군 진영이면 경유지 100000 이내일 때",
+   "evidence": "m02.ll:39720 `%596 = icmp ugt i64 %593, %595` · 39721 `%597 = xor i1 %587, %596`(%587 = team==0) · 39722 `br i1 %597, label %600(camp-1<2 → Morgard/Serpen 경유지 거리검사), label %577(store check_move=1 → 캠프 직행)`. game_core::is_blue_side == !ugt(world0.log 격자 13점) ⟹ %597 == !is_enemy_side. 실행: j_enemy_side(적 진영) → check_move=1 즉시 · j_enemy_rhino_base(아군 본진) → Serpen 경유 out_line · check_move=0 · j_serp_eq/gt(경유지 dsq 1e10 / 1e10+1) → 1/0",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/sig/tls/call_conditions",
+   "kind": "실오류",
+   "old": "L31/L40<148 은 적 캠프이고 check_move 미설정이며 적 진영일 때만",
+   "new": "L31/L40<148 은 적 캠프이고 check_move 미설정이며 아군 진영일 때만(적 진영이면 check_move=1 후 L51 직행)",
+   "evidence": "m02.ll:39720 `%596 = icmp ugt i64 %593, %595` · 39721 `%597 = xor i1 %587, %596`(%587 = team==0) · 39722 `br i1 %597, label %600(camp-1<2 → Morgard/Serpen 경유지 거리검사), label %577(store check_move=1 → 캠프 직행)`. game_core::is_blue_side == !ugt(world0.log 격자 13점) ⟹ %597 == !is_enemy_side. 실행: j_enemy_side(적 진영) → check_move=1 즉시 · j_enemy_rhino_base(아군 본진) → Serpen 경유 out_line · check_move=0 · j_serp_eq/gt(경유지 dsq 1e10 / 1e10+1) → 1/0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[1]/meaning",
+   "kind": "실오류",
+   "old": "100000² — 적 캠프 침투 경유지(Morgard 캠프 L33 / Serpen 캠프 L41)와의 제곱거리 ugt: 멀면 경유지로 out_line 이동, 아니면 check_move=true 후 캠프로",
+   "new": "100000² — 적 캠프 침투 경유지(Morgard 캠프 L33 / Serpen 캠프 L41)와의 제곱거리 ugt(아군 진영일 때만 검사): 멀면 경유지로 out_line 이동, 아니면 check_move=true 후 캠프로. 오라클 실행 확인: dsq=1e10 → check_move=1 · 1e10+1 → out_line (j_morg_eq/gt · j_serp_eq/gt · j_t1_serp_eq/gt)",
+   "evidence": "m02.ll:39762 `%619 = icmp ugt i64 %618, 10000000000` · 39791 `%636 = icmp ugt i64 %635, 10000000000` · 25차 L 오라클(o25L.exe · run25L.py · 케이스당 프로세스 1개 · 68/68 예측 일치 + 패닉 4건 예측 일치)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[9]/src_line",
+   "kind": "실오류",
+   "old": 117,
+   "new": 116,
+   "evidence": "m02.ll:38593~38597 `switch i32 %74, label %67 [ i32 -1, label %75  i32 1, label %77  i32 2, label %77 ]` 의 !dbg 사슬 = L742<116<2893<50<2494<138<2897<114 (루트 116) · 같은 값의 switch 가 38622(루트 118) · 38645(루트 120). `;L117` 은 주석본 cc4260.ll 에 0건. 192 의 같은 자리(m14.ll:30524 루트 37) 규약과 일치시켜 116. G12 후보 목록에 116 이 빠진 것은 case 라벨 줄에 !dbg 가 없어서(§S5-b ①)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[193]/consts[10]/src_line",
+   "kind": "실오류",
+   "old": 117,
+   "new": 116,
+   "evidence": "m02.ll:38593~38597 `switch i32 %74, label %67 [ i32 -1, label %75  i32 1, label %77  i32 2, label %77 ]` 의 !dbg 사슬 = L742<116<2893<50<2494<138<2897<114 (루트 116) · 같은 값의 switch 가 38622(루트 118) · 38645(루트 120). `;L117` 은 주석본 cc4260.ll 에 0건. 192 의 같은 자리(m14.ll:30524 루트 37) 규약과 일치시켜 116. G12 후보 목록에 116 이 빠진 것은 case 라벨 줄에 !dbg 가 없어서(§S5-b ①)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[193]/consts[11]/src_line",
+   "kind": "실오류",
+   "old": 117,
+   "new": 116,
+   "evidence": "m02.ll:38593~38597 `switch i32 %74, label %67 [ i32 -1, label %75  i32 1, label %77  i32 2, label %77 ]` 의 !dbg 사슬 = L742<116<2893<50<2494<138<2897<114 (루트 116) · 같은 값의 switch 가 38622(루트 118) · 38645(루트 120). `;L117` 은 주석본 cc4260.ll 에 0건. 192 의 같은 자리(m14.ll:30524 루트 37) 규약과 일치시켜 116. G12 후보 목록에 116 이 빠진 것은 case 라벨 줄에 !dbg 가 없어서(§S5-b ①)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[193]/one_line",
+   "kind": "실오류",
+   "old": "위험이면 도주 단일, 아니면 전투 후보 + 캠프 몹 공격/스킬/스킬2 후보(attack_jungle_action 인라인) + 캠프 이동(move_action 인라인)",
+   "new": "위험(논타겟 윈드업·궤적)이면 도주 단일, 아니면 전투·소환물 후보 → 캠프 150000 이내/적에게 보임/적 정글몹 150000 이내면 도주 추가 → 캠프 몹 공격/스킬/스킬2 후보(attack_jungle_action 인라인) → 캠프 이동 1개(move_action 인라인, 적 캠프·아군 진영·경유지 멀면 out_line)",
+   "evidence": "m02.ll:38700 battle_action → 38713 attack_summon_action → 39584 RunAway::new(L144) → 39153/39339/39519 Attack/Skill/Skill2::new → 39682/39795/39799 AroundPosition. 오라클 j_at_camp 순서 [RunAway, Attack, Skill, AroundPosition] · j_nt_skill_pos → RunAway 단일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/open[3]",
+   "kind": "실오류",
+   "old": "실전 도달 여부(그 레벨에서 그 상태 불가) 는 game_core 규칙이라 미확인",
+   "new": "실전 도달 여부(그 레벨에서 그 상태 불가) 는 game_core 규칙이라 미확인. 25차 L 오라클 주입 실행(적 챔프 action_state=Skill2·level 1 / Ult·level 4 + 윈드업 경과틱 1000): 실제로 `unwrap_failed` 패닉 @jungle.rs:118:68 / :120:62 (j_nt_skill2_lvl1 · j_nt_ult_lvl4) — 소스 줄 118/120 확정",
+   "evidence": "oracle/j_nt_skill2_lvl1.log `panicked at game-ai\\src\\plan_legacy\\sub_plan\\jungle.rs:118:68` · j_nt_ult_lvl4.log `jungle.rs:120:62`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/open[4]",
+   "kind": "실오류",
+   "old": "get_camp_state(team, camp) 의 내부 인덱싱(blue/red × 4캠프, Morgard/Serpen 입력 시 동작)은 g09.ll:137367 안 — 안 봄",
+   "new": "get_camp_state(team, camp) 의 내부 인덱싱(blue/red × 4캠프, Morgard/Serpen 입력 시 동작)은 g09.ll:137367 안 — 안 봄. 25차 L 오라클 실행: get_camp_state(0|1, Serpen) 은 `unreachable: team value must be 0 or 1` 패닉 @jungle.rs:713:12(tick 0·600 모두) ⟹ self.camp==Serpen 인 JungleSubPlan 은 L56<147 에서 패닉. Morgard 는 정상(두 팀 모두 is_blue_side=false 인 단일 상태 · tick 600 live=[41])",
+   "evidence": "oracle/campstate_probe.log(`o25L.exe 0 cs=5 cst=0|1` → panicked at game-core\\src\\simulation\\entity\\jungle.rs:713:12 · `cs=4` → camp_state_probe … blue=false ty=Morgard)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/open[5]",
+   "kind": "실오류",
+   "old": "AroundPosition::new_with_out_line 의 rnd 소비 여부·AroundPosition 184B 내부 live 바이트는 생성자 명세(r14 new_with_out_line) 참조",
+   "new": "AroundPosition::new / new_with_out_line 의 rnd 소비 = wait_around(m04.ll:33007) 안 SliceRandom::choose 1회(12방향) · AroundPosition 184B live = [0,104)(tick@0 · x,y@8,16 · 0@24 · x,y@32,40 · wait_around 40B@48 · 80000@88 · end_delay@96) + {173}(Option<PathFinder> None 태그 i8 2) + {176}(i8 6) + {177}(outline: new=0 · new_with_out_line=인자) — [104,173)∪[174,176)∪[178,184) 는 alloca 잔재(m08.ll:103238~103308 store 집합). 생성자 정본은 r14 명세 참조",
+   "evidence": "m08.ll:103172~103308 new_with_out_line/new 본문 store 집합 · m04.ll:33007 wait_around(`call … SliceRandom6choose`) · 오라클 elem[] dead_diff 가 [104,173)·178~180 에만 남음(예 j_at_camp elem[3])",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[192]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): s_rhino_own_eq(dsq 4.9e9 → move_check 1) / s_rhino_own_gt(4.9e9+1 → 0) · s_t1_rhino_eq/gt(팀1) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): s_serpen_eq(dsq 2.25e10 → Serpen 직행) / s_serpen_gt_blue(2.25e10+1·mc 0 → Rhino 경유) / s_serpen_gt(mc 1 → Serpen) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): s_rv_eq(적 챔프 dsq 2.25e10 → RunAway 추가) / s_rv_gt(2.25e10+1 → 없음) 예측 일치(others 는 미니언 부재로 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): camp_pos(Rhino, team==0) 좌표 (496000,752000)/(752000,496000) 으로 AroundPosition goal 일치(s_base_mc0 · s_t1_base)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): camp_pos(Serpen) (672000,672000) goal 일치(s_base_mc1) · end_delay 5 는 별항",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): 적 챔프(ty 13) 주입 케이스 s_nt_* 에서 논타겟 판정 발화 · 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): action_state=4(Skill) 주입 → hn (s_nt_skill_pos) · level 4/5 경계(s_nt_ult_lvl4 패닉 / lvl5 hn) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): action_state=6(Ult) 주입 s_nt_ult_lvl5 → hn → RunAway 단일 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): 정적 None(casting -1) unwrap 패닉 s_nt_skill2_lvl1(:39:68) · s_nt_ult_lvl4(:41:62) 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): casting=Position(1) → hn 참(s_nt_skill_pos) · Targeting(0) → 거짓(s_nt_skill_tgt) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): casting=Direction(2) → hn 참(s_nt_skill_dir) · level 2/3 경계(s_nt_skill2_lvl1 패닉 / lvl3 hn) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): RunAway 원소 태그 3(@+177) 실측 — L52 단일(s_nt_skill_pos) · L95 추가(s_rv_eq)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): RunAway end=5 · AroundPosition end_delay 5 원소 바이트 실측(전 케이스 live 범위 일치)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): s_rhino_own_eq/gt 경계 + s_rhino_enemy(적 진영 무관) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): s_serpen_eq / s_serpen_gt_blue / s_serpen_on 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): s_rv_eq/gt 경계 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): RunAway end=5 실측(원소 +24)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(25차 L): move_check 바이트 전이 0→1 / 0 유지 / 1 유지 전 케이스 예측 일치(s_* 30건)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[192]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): 전 케이스 rng_same_after=true — 본문 직접 소비 없음(AroundPosition::new 4곳·battle_action 만 소비)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): j_camp150k_eq/gt(캠프 dsq 2.25e10/+1) · j_jungles_eq/gt(Bee 몹 dsq 2.25e10/+1) · j_vis(is_visible) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): j_morg_eq/gt · j_serp_eq/gt · j_t1_serp_eq/gt(dsq 1e10 / 1e10+1) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): j_range_eq/gt: max=25030(=atk.range+ms(1)×30+반지름 2×10000…) 경계 dx 25030/25031 예측 일치(ms=1 이라 계수 30 의 판별은 30×1 한 점)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): 적 챔프(ty 13) 주입 j_nt_skill_pos 논타겟 발화 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): Morgard camp_pos(288000,288000) goal 일치(j_enemy_mush_base·stump) · action_state 4 주입 hn · level>4(j_nt_ult_lvl4 패닉)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): Serpen 경유지 goal (672000,672000)(j_enemy_rhino_base·bee) · end=5 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): action_state 6 + level 4 → :120 패닉(j_nt_ult_lvl4)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): 정적 None unwrap 패닉 j_nt_skill2_lvl1(:118:68)·j_nt_ult_lvl4(:120:62) · camp-1: Mushroom/Stump → Morgard, Rhino/Bee → Serpen 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): out=1(Outline) 원소 +177 실측(j_enemy_*_base) · Position 캐스팅 hn(j_nt_skill_pos) · check_move=1 전이",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): level 2/3 경계 j_skill2_lvl2(Skill2 없음)/j_skill2_lvl3(Skill2 후보) · (camp-1)<2 분기 j_enemy_mush/stump vs rhino/bee 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): RunAway 태그 3 실측 L131 단일(j_nt_skill_pos) · L144 추가(j_at_camp)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): Attack 태그 15 실측(j_at_camp · j_at_camp_eff 3마리)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): Skill 태그 16 실측(j_at_camp)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): Skill2 태그 17 실측(j_skill2_lvl3)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): j_camp150k_eq/gt · j_jungles_eq/gt 경계 예측 일치 · 원소 순서 [RunAway, Attack…, AroundPosition] 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): j_morg_eq/gt · j_serp_eq/gt 경계 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): j_range_eq/gt 경계(ms=1 한 점) 예측 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): out=1 원소 실측(j_enemy_rhino/mush/stump/bee_base)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/mem[49]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(25차 L): check_move 바이트 전이 전 케이스 예측 일치(j_* 30건)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[193]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 L): 전 케이스 rng_same_after=true",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§4 G16 [192] p[7] 는 오탐이다 — paramrole P4 가 「콜리 시그니처가 &self(readonly)」 절(파일명 없는 콜리 언급)을 본 함수 속성 주장으로 읽는다. F8(FOREIGN) 에 「콜리·피호출·callee」 어휘를 넣거나, 절이 다른 함수명(v25_objective_posture)을 담으면 외부로 취급해야 한다",
+  "§4 G12 [193] consts[9~11] 의 「실제 후보」 목록에 정답 116 이 없다 — srclinecheck 가 switch case 라벨(-1/1/2)을 여전히 못 본다(§S5-b ① 귀속은 「약한 후보」라 목록에 안 실림). 배치가 후보 목록만 보면 117→29 같은 오정정을 낸다. 보고 형식에 「switch 종결자 루트 줄」을 약한 후보로라도 같이 찍어 달라",
+  "지시문 초점 ② 의 「Attack/Skill/Skill2/Ult 15~18 (0,17)」 는 193 에는 Ult(18) 가 없다(attack_jungle_action 은 Attack/Skill/Skill2 만 push · m02.ll:39153/39339/39519). 루트별 variant 집합은 함수마다 다르니 도시에가 일반표를 그대로 싣지 말 것",
+  "지시문이 「§0 dossierfresh 부터」라 했는데 이전 시도가 남긴 oracle/ 산출물(o25L.rs·47 로그)이 배치 폴더에 있었다 — 「산출물 없음」 이 아니라 patch.json/REPORT 만 없었다. 재개 지시에는 남은 산출물 목록을 같이 줘야 재빌드/재검증 범위를 정할 수 있다(이번엔 전량 재빌드·재실행으로 검증했다)",
+  "지시문 ①의 「G10/G15/G18/G7 은 문면·표 정정」 — 이 배치 몫 §4 에는 G12 3건·G16 1건뿐이라 나머지는 대상이 없었다(전역 합계 문구가 배치 몫처럼 읽힘)"
+ ]
+}

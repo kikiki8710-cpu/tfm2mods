@@ -1,0 +1,14 @@
+{
+ "round": "25",
+ "batch": "I",
+ "errors_applied": 1,
+ "ev_applied": 40,
+ "failed": 5,
+ "stamps": {
+  "/specs[202]/sig/params[3]/role": "74234e98afe7498f",
+  "/specs[202]/sig/params[0]/role": "74234e98afe7498f",
+  "/specs[202]/one_line": "0617da5c53838e69",
+  "/specs[202]/consts[7]/meaning": "6e1f0b2f73933d22"
+ },
+ "restamped": true
+}

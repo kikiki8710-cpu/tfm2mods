@@ -1,0 +1,61 @@
+reachable 76 missing defs(declare only) 17
+--- TLS 참조 함수 0
+--- 간접 호출 있는 함수 9 (간접 호출 수 합 44 )
+d=1 n=12 _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target
+d=1 n=1 _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust
+d=1 n=2 _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well
+d=2 n=1 _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect11is_in_range
+d=2 n=4 _RNvMs1_NtNtCs97f5S1uJLkH_9game_core10simulation10projectileNtB5_10Projectile6has_cc
+d=2 n=20 _RNvMs1_NtNtCs97f5S1uJLkH_9game_core10simulation10projectileNtB5_10Projectile22expected_damage_target
+d=3 n=2 _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+d=4 n=1 _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0ozCnw_7game_
+d=4 n=1 _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0ozCnw_7game_
+--- missing(선언만) 예: ['_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check', '_RNvMNtCs9ec1k27omRZ_3std4timeNtB2_7Instant3now', '_RNvMNtNtNtNtCs9ec1k27omRZ_3std3sys4sync5mutex5futexNtB2_5Mutex4wake', '_RNvNtCsbUiDZWNrGSs_11rand_chacha4guts11refill_wide', '_RNvMNtNtNtNtCs9ec1k27omRZ_3std3sys4sync5mutex5futexNtB2_5Mutex14lock_contended', '_RNvCseLSQwpavqd5_7___rustc14___rust_dealloc', '_RNvNtCsjihNppCmMEE_4core9panicking5panic', '_RNvNtCsjihNppCmMEE_4core4cell22panic_already_borrowed', '_RNvNtNtCs9ec1k27omRZ_3std9panicking11panic_count17is_zero_slow_path', '_RNvNtNtCs9ec1k27omRZ_3std6thread5local18panic_access_error', '_RNvMs0_NtNtNtNtCs9ec1k27omRZ_3std3sys4sync4once5futexNtB5_4Once4call', '_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const24panic_const_div_overflow', '_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero', '_RNvNtCsjihNppCmMEE_4core9panicking9panic_fmt', '_RNvMNtCs9ec1k27omRZ_3std4timeNtB2_7Instant7elapsed', 'memcmp', '_RNvCseLSQwpavqd5_7___rustc35___rust_no_alloc_shim_is_unstable_v2']
+--- 전체 TLS 전역 80
+   _RNvNCNKNvCshdEBA0ozCnw_7game_ai16FINISH_AGG_CACHE0023___RUST_STD_INTERNAL_VAL ('m14.ll', 214)
+   _RNvNCNKNvCshdEBA0ozCnw_7game_ai16FINISH_AGG_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m14.ll', 215)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check12CC_TIME_MEMO0023___RUST_STD_INTERNAL_VAL ('m15.ll', 173)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check12CC_TIME_MEMO0s_023___RUST_STD_INTERNAL_VAL ('m15.ll', 174)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check14DIE_TICK_CACHE0023___RUST_STD_INTERNAL_VAL ('m15.ll', 175)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check14DIE_TICK_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m15.ll', 176)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check15SLOT_READY_MEMO0023___RUST_STD_INTERNAL_VAL ('m15.ll', 177)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check15SLOT_READY_MEMO0s_023___RUST_STD_INTERNAL_VAL ('m15.ll', 178)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai12action_score9INTER_CTX0023___RUST_STD_INTERNAL_VAL ('m11.ll', 54)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai12action_score9INTER_CTX0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 55)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_CAND_MASKS0023___RUST_STD_INTERNAL_VAL ('m11.ll', 56)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_CAND_MASKS0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 57)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_PLAYER_CTX0023___RUST_STD_INTERNAL_VAL ('m11.ll', 58)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_PLAYER_CTX0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 59)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval14POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL ('m11.ll', 60)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval14POS_EVAL_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 61)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval16ATTACK_DMG_CACHE0023___RUST_STD_INTERNAL_VAL ('m11.ll', 62)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval16ATTACK_DMG_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 63)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval22TOWER_MINION_CNT_CACHE0023___RUST_STD_INTERNAL_VAL ('m11.ll', 64)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval22TOWER_MINION_CNT_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 65)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval9EPC_CACHE0023___RUST_STD_INTERNAL_VAL ('m11.ll', 66)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval9EPC_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 67)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai16tower_discipline18SIEGE_STANCE_CACHE0023___RUST_STD_INTERNAL_VAL ('m11.ll', 68)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai16tower_discipline18SIEGE_STANCE_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 69)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils13HP_VALUE_MEMO0023___RUST_STD_INTERNAL_VAL ('m11.ll', 70)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils13HP_VALUE_MEMO0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 71)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils17CHAMP_POWERS_MEMO0023___RUST_STD_INTERNAL_VAL ('m11.ll', 72)
+   _RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils17CHAMP_POWERS_MEMO0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 73)
+   _RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v212VIABLE_CACHE0023___RUST_STD_INTERNAL_VAL ('g11.ll', 363)
+   _RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v212VIABLE_CACHE0s_023___RUST_STD_INTERNAL_VAL ('g11.ll', 364)
+   _RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7setting4item15ITEM_INDEX_MEMO0023___RUST_STD_INTERNAL_VAL ('g11.ll', 373)
+   _RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7setting4item15ITEM_INDEX_MEMO0s_023___RUST_STD_INTERNAL_VAL ('g11.ll', 374)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model19RESOLVE_FIGHT_CACHE0023___RUST_STD_INTERNAL_VAL ('m11.ll', 74)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model19RESOLVE_FIGHT_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 75)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus15LAST_STAND_MEMO0023___RUST_STD_INTERNAL_VAL ('m11.ll', 76)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus15LAST_STAND_MEMO0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 77)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle15MAX_RANGE_CACHE0023___RUST_STD_INTERNAL_VAL ('m11.ll', 78)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle15MAX_RANGE_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 79)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle21FIGHT_KIT_RANGE_CACHE0023___RUST_STD_INTERNAL_VAL ('m11.ll', 80)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle21FIGHT_KIT_RANGE_CACHE0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 81)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle10CAST_BEAMSs_0023___RUST_STD_INTERNAL_VAL ('m11.ll', 82)
+   _RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle10CAST_BEAMSs_0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 83)
+   _RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef8camp_pos13CAMP_POS_MEMOs0_0023___RUST_STD_INTERNAL_VAL ('g11.ll', 379)
+   _RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef8camp_pos13CAMP_POS_MEMOs0_0s_023___RUST_STD_INTERNAL_VAL ('g11.ll', 380)
+   _RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef9lane_path14LANE_PATH_MEMOs1_0023___RUST_STD_INTERNAL_VAL ('g11.ll', 381)
+   _RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef9lane_path14LANE_PATH_MEMOs1_0s_023___RUST_STD_INTERNAL_VAL ('g11.ll', 382)
+   _RNvNCNKNvNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy11action_eval16lane_anchor_gain8LAG_MEMOs_0s_023___RUST_STD_INTERNAL_VAL ('m11.ll', 106)

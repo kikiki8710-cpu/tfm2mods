@@ -1,0 +1,18 @@
+{
+ "round": "25",
+ "batch": "G",
+ "errors_applied": 4,
+ "ev_applied": 56,
+ "failed": 2,
+ "stamps": {
+  "/specs[200]/logic": "5ca557cb01db7408",
+  "/specs[200]/reads[46]/note": "5ce6d87623c900f7",
+  "/specs[200]/reads[19]/note": "c2a00da161377a8f",
+  "/specs[200]/signature/returns": "2322a09401fb7b5b",
+  "/specs[200]/signature/params[3]/note": "4205648e02ae919f",
+  "/specs[200]/signature/params[7]/note": "6abbe0abad2bc214",
+  "/specs[200]/signature/params[8]/note": "711d6f5432c57e89",
+  "/specs[200]/reads[52]/note": "8f7307d2ff9b427d"
+ },
+ "restamped": true
+}

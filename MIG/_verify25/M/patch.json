@@ -1,0 +1,251 @@
+{
+ "round": 25,
+ "batch": "M",
+ "errors": [
+  {
+   "path": "/specs[195]/logic",
+   "kind": "실오류",
+   "old": "moved = Σ_{i=1..<move_index} distance(path[i-1], path[i])   (move_index<7 아니면 panic_bounds_check)",
+   "new": "moved = Σ_{i=1..=move_index} distance(path[i-1], path[i])   (RangeInclusive · move_index==0 이면 0회 · i==7 이면 path[i] panic_bounds_check(7,7) → move_index ≤ 6 전제)",
+   "evidence": "m15.ll:21218 `%221 = icmp eq i64 %220, 0`(1<=end 진입판정=RangeInclusive) · 21235 `%227 = icmp uge i64 %226, %220`(is_iterating 부정) · 21522~21524 `%359 = icmp ugt i64 %230, %220` `%360 = select i1 %227, i1 true, i1 %359` `br i1 %360` = start==end 인 회차를 실행한 뒤 종료 · 21491 `icmp eq i64 %226, 7`→panic_bounds_check(7,7). 오라클 o195 sc=3 5케이스(mi=1,2,3,4,6): real 좌표 == 1..=move_index 재구현, ≠ 1..move_index (예 mi=2: real=(80000,260000) incl=(80000,260000) excl=(80000,466000))",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/returns",
+   "kind": "실오류",
+   "old": "Around(태그 5 · SmallActionAround 136B → live [0,136)+[177] · +0x80 position_eval_purpose=LaneSafe(10) 로 덮어씀)",
+   "new": "Around(태그 5 · SmallActionAround 136B → live [0,56)+[125]+[128,130)+[177] — Around::new initializes((0,56),(125,126),(128,130)) · [56,125)·[126,128)·[130,177)·[178,184) 는 alloca %18/%19 잔재 · +0x80 position_eval_purpose=LaneSafe(10) 로 덮어씀)",
+   "evidence": "m08.ll:92385 `define … sret([136 x i8]) … initializes((0, 56), (125, 126), (128, 130)) %0` · 본문 store 전수 = 0,8,16,24,32,40,48,125,128,129 (92437~92455, 단일블록·무조건). 오라클 o195 전 케이스 Around 원소 all_diff_first=[56,57,58,59,60,64,…] · live 범위 내 불일치 0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/returns",
+   "kind": "실오류",
+   "old": "AroundPosition(암묵 · 184B 통째 · +0xb0 purpose=LaneSafe(10) 덮어씀)",
+   "new": "AroundPosition(암묵 · 184B 중 live [0,104)+[173]+[176,178) — AroundPosition::new store: +0 tick · +8/+16 x,y · +24 0 · +32/+40 x,y · [48,88) wait_around Input 40B 전부 · +88 80000 · +96 end_delay · [104,176) 은 Option<PathFinder> None 니치 +104+69 한 바이트만 · +176 purpose 6 · +177 outline_type 0 · [104,173)·[174,176)·[178,184) 는 alloca %15 잔재 · +0xb0 purpose=LaneSafe(10) 덮어씀)",
+   "evidence": "m08.ll:103238 define 에 initializes 없음 → 본문 store 전수(103282~103304): i64×6 @0..48 · memcpy 72B@104←%8(%8 은 `store i8 2, %8+69` 만) · memcpy 40B@48←%7(wait_around m04.ll:33007 sret 40B 전부 store) · i64 80000@88 · i64 %5@96 · i8 0@177 · i8 6@176. 오라클 o195 sc=3 5케이스 AroundPosition 원소 all_diff_first=[104,105,…] · live 범위 내 불일치 0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/returns",
+   "kind": "실오류",
+   "old": "RunAway(태그 3 · 136B → live [0,136)+[177])",
+   "new": "RunAway(태그 3 · 136B → live [0,56)+[125]+[128,132)+[177] — RunAway::new initializes((0,56),(125,126),(128,132)) · 나머지는 alloca %27/%28 잔재)",
+   "evidence": "m08.ll:92133 `define … sret([136 x i8]) … initializes((0, 56), (125, 126), (128, 132)) %0` · store 전수 92158~92180. 오라클 o195 전 케이스 RunAway 원소 all_diff_first=[56,57,58,64,…]",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/returns",
+   "kind": "실오류",
+   "old": "[24,177)·[178,184) 는 생성자 미기록 바이트의 복사",
+   "new": "[17,177)·[178,184) 는 생성자 미기록 바이트의 복사(Attack::new initializes((0,17)) — [17,24) 도 미기록)",
+   "evidence": "m07.ll:7129 `define … sret([24 x i8]) … initializes((0, 17)) %0` · store 3건 = i64@0 · i64@8 · i8@16 (7139~7143). 오라클 o195 sc=5 Attack 원소 all_diff_first=[17,18,24,32,…]",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/tls/key",
+   "kind": "실오류",
+   "old": "④battle_action(L149, 무조건) → INTER_CTX·HP_VALUE_MEMO 등",
+   "new": "④battle_action(L149, 무조건) → TLS 도달 0(m15.ll:23700 본문 및 정적 콜그래프 43함수에 LocalKey 참조 없음)",
+   "evidence": "tlsreach BFS(직접 call/invoke + `@anon.* = constant ptr @<__getit>` 추적): battle_action 서브트리 43함수 · `@llvm.threadlocal.address` 0건. battle_action 본문(m15.ll:23700~25612) 이 참조하는 @anon 6개(.56 .58 .62 .168 .169 .258) 중 TLS getit 없음. 대조군 champion_hp_value 는 같은 도구로 HP_VALUE_MEMO 깊이 0 검출",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/tls/key",
+   "kind": "실오류",
+   "old": "②MapDef::lane_path(L59<46<147, behind 경로만)",
+   "new": "②MapDef::lane_path(L59<46<147, behind 경로만) → LANE_PATH_MEMO(g07.ll thread_local 736B · 이 루트가 닿는 유일한 game_core TLS)",
+   "evidence": "g07.ll:152697 define MapDef::lane_path → LocalKey::with → `@llvm.threadlocal.address(ptr @…MapDef9lane_path14LANE_PATH_MEMOs1_0s_023___RUST_STD_INTERNAL_VAL)` (tlsreach 깊이 1). tlsscan: LANE_PATH_MEMO 736B g07.ll",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/tls/key",
+   "kind": "실오류",
+   "old": "⑨v22_lane_tower_pressure_attack_allowed(L119<152, 사거리 통과 시)",
+   "new": "⑨v22_lane_tower_pressure_attack_allowed(L119<152, 사거리 통과 시) → v47_siege_stance(SIEGE_STANCE_CACHE · 깊이 2) → resolve_fight → resolve_fight_full(RESOLVE_FIGHT_CACHE · 깊이 4)",
+   "evidence": "tlsreach: v22 서브트리 87함수 · TLS 2종. 경로 v22 > v47_siege_stance > LocalKey<RefCell<SiegeStanceCache>>::with > __getit(SIEGE_STANCE_CACHE) · v22 > v47_siege_stance > resolve_fight > resolve_fight_full > __getit(RESOLVE_FIGHT_CACHE)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/tls/key",
+   "kind": "실오류",
+   "old": "①LineType::get_start_position(L22<21<147, twin_towers 원소마다)",
+   "new": "①LineType::get_start_position(L22<21<147, twin_towers 원소마다 — optb 가 Some 이어도 호출됨: `.or()` 가 eager)",
+   "evidence": "m15.ll:20886~20909 `%82 = icmp eq i64 %73, 0` 만 조건으로 `invoke … get_start_position(ptr %1, ptr %77, i64 %43)` · optb 판정 `%115 = icmp eq ptr %68, null` / `select` 는 20972~20973 으로 min_by_key 뒤. 오라클: lane tower Some 인 sc=0 에서도 sp 계산됨(호출 자체는 오라클로는 관측 불가 · IR 근거)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/tls/name",
+   "kind": "실오류",
+   "old": "(직접 접점 없음) — 콜리 경유만",
+   "new": "(직접 접점 없음) — 콜리 경유 도달 TLS 3종: LANE_PATH_MEMO(②lane_path) · SIEGE_STANCE_CACHE(⑨v22→v47_siege_stance) · RESOLVE_FIGHT_CACHE(⑨v22→v47→resolve_fight_full). INTER_CTX·HP_VALUE_MEMO·POS_EVAL_CACHE·DIE_TICK_CACHE·MAX_RANGE_CACHE·LAST_STAND_MEMO·CAMP_POS_MEMO·CAST_BEAMS 는 도달 0(정적 콜그래프 기준 · vtable 간접호출은 미추적)",
+   "evidence": "tlsreach.py(스크래치 scratchpad25M) 루트 BFS: 직접 콜리 29개 전부에 대해 `@llvm.threadlocal.address` 도달 집합 = {LANE_PATH_MEMO(lane_path), SIEGE_STANCE_CACHE·RESOLVE_FIGHT_CACHE(v22)} 만. 본문 직접 참조 0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/tls/call_conditions",
+   "kind": "실오류",
+   "old": "④⑤⑥⑩⑪은 무조건.",
+   "new": "①은 twin_towers[team].len()>0 이면 원소마다(optb 와 무관). ②(LANE_PATH_MEMO)는 fm Some && dist²(fm,nexus) ≥ dist²(tower,nexus) && dist²(fm,tower) ≥ 32400000001 일 때만(fm.ty≠Minion 이면 L95 panic 이 먼저). ④⑤⑥⑩⑪은 무조건.",
+   "evidence": "m15.ll:21056 `%149 = icmp eq ptr %147, null`→%150(Around) · 21128 `%188 = icmp ult i64 %184, %187`→%150 · 21155 `%201 = icmp ult i64 %200, 32400000001`→%363(Around) else %202→21190 `icmp eq i64 %209, 1` else panic(L95) → 21204 lane_path. 오라클 sc=2 dy=1(dist²=32400000001, fm=챔피언)=line_wait.rs:95 panic 실측",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/params[3]/note",
+   "kind": "실오류",
+   "old": "Around::new(_rnd) · AroundPosition::new 에 전달.",
+   "new": "Around::new(_rnd — 콜리 define 에서 rnd 인자 readnone = 소비 0) · AroundPosition::new(wait_around 의 SliceRandom::choose 1회 소비 · behind 경로에서만 rnd 상태 변화) 에 전달.",
+   "evidence": "m08.ll:92385 Around::new `ptr noalias noundef readnone align 16 captures(none) dereferenceable(320) %2` · m08.ll:103238 AroundPosition::new `%1` 은 readonly 없음 → m04.ll:33007 wait_around 가 `rand::seq::SliceRandom::choose(%6, i64 12, rnd)` 호출(33067). 오라클 o195 25케이스 rng_sync=true(복제 rng 로 같은 콜리 호출 시 동기)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/mem[48]/value",
+   "kind": "실오류",
+   "old": "Around::new · AroundPosition::new 이 소비",
+   "new": "AroundPosition::new → wait_around(m04.ll:33007) 의 SliceRandom::choose(12원소) 1회만 소비(behind 경로). Around::new 은 rnd 인자 readnone(m08.ll:92385) = 소비 0",
+   "evidence": "m08.ll:92385 `readnone … dereferenceable(320) %2` · m04.ll:33067 `call … SliceRandom6choose … (%6, i64 12, ptr %1)`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/sig/params[1]/note",
+   "kind": "보강",
+   "old": "★store 0건 = &mut 이지만 쓰기 없음(전수 grep: `store …, ptr %1` 0).",
+   "new": "★store 0건 = &mut 이지만 쓰기 없음(전수 grep: `store …, ptr %1` 0 · 오라클 o195 25케이스 self_before==self_after · size_of 1B 실측).",
+   "evidence": "o195.exe 전 케이스 `RESULT … self=MATCH` · `size=1`. %1 은 20869 `store ptr %1, ptr %79`(클로저 env 에 포인터 값 저장)·20909 get_start_position 인자·20764/21787 load 만",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[195]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): sc=2 dx=180000 dy=0(dist²=32400000000)→Around(태그5) · dy=1(dist²=32400000001)→behind 진입(line_wait.rs:95 panic 실측) — `<` 경계·극성 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): sc=3 5케이스 behind(d=180000) 재구현 좌표 == real(1..=move_index)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): sc=5 dx=0(dist²==max², max=50030=range+…+move_speed×30+radius)→Attack 생성(v22 true 시) · dx=1→후보 없음",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): sc=5 max 계산에 radius()=radius×(100+mult)/100 포함 · 경계 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): 전 케이스 Around 원소 +0x80==10 · AroundPosition 원소 +0xb0==10",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): 전 케이스 Around 원소 태그 +0xb1==5 · end_delay 5 로 재구현 시 live 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): 전 케이스 RunAway 원소 태그 +0xb1==3",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): sc=5 Attack 원소 태그 +0xb1==15",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): fm=챔피언(ty 13) 으로 behind 진입 시 line_wait.rs:95 panic 실측 · 미니언(ty 1) 이면 통과",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): sc=2 dy=0/1 경계 반전",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): sc=3 behind 좌표 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): sc=5 dx=0/1 경계 반전",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): purpose 바이트 10 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o195 · 케이스당 프로세스 1개): end_delay 5 재구현 live 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/mem[43]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 self_before==self_after 25/25 + IR store 0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[195]/mem[48]",
+   "from": 4,
+   "to": 3,
+   "evidence": "IR readnone(Around::new) + choose 호출(wait_around) + 오라클 rng_sync 25/25",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "지시문 초점②가 `next_plan`(Option<BigPlan> 384B)·`attack`(Option<Input> 32B) 의 variant 별 live 를 요구하나 이 함수(195)의 sret 은 bumpalo Vec<SmallActionPlay> 32B 하나뿐이고 next_plan/attack 은 존재하지 않는다 — 배치 공통 문안이 함수별로 안 걸러졌다.",
+  "초점④가 v48_cast_beams CAST_BEAMS 를 'battle 0xcbbdb0 m02.ll:34749 직접' 이라 적었으나 그것은 BattleSubPlan(0xcbbdb0)의 사실이고 LineWait 루트에서는 도달 0 이다 — 도시에가 열거한 TLS 작성자 9종 중 이 루트가 닿는 것은 SIEGE_STANCE_CACHE 하나뿐이고, 대신 목록에 없는 LANE_PATH_MEMO·RESOLVE_FIGHT_CACHE 에 닿는다.",
+  "§4 G10 후보 문면이 open[1](L113/L114) 이 아니라 spec md 의 표시상 open[1] 로만 식별된다 — v2 unknown/still_unknown 인덱스와 v3 open 인덱스가 다르므로 게이트 출력에 v2 원 배열·인덱스를 같이 찍어야 patch 경로를 바로 쓸 수 있다."
+ ]
+}

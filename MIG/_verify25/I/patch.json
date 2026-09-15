@@ -1,0 +1,365 @@
+{
+ "round": 25,
+ "batch": "I",
+ "errors": [
+  {
+   "path": "/specs[202]/sig/params[3]/role",
+   "kind": "보강",
+   "old": "직접 소비 0건. make_gank_battle · check_kill 에 전달만(check_kill 쪽 define 은 %2 readnone)",
+   "new": "직접 소비 0건(본체 94975~98368 에서 %3 의 load/store 0건 · 본 함수 define 의 %3 속성 = noalias align 16 dereferenceable(320)). make_gank_battle(7곳, %2 로 전달 → version≥2 에서만 BattlePlan::update(m10.ll:23429, %2 = &mut StdRng)가 소비)·check_kill(97474)에 전달만 — check_kill 의 define(m13.ll:54538)은 %2 가 readnone 이라 실제로는 안 읽는다. 오라클 실행 확인(o202 · 케이스당 프로세스 1개 · game/mine 프로세스 분리 · 41케이스 41 MATCH · _verify25/I/oracle/run202_all.txt): 41케이스 전부 rnd_changed=false(version 1·2 모두, next_u64 대조)",
+   "evidence": "m08.ll:94975 define 원문 `ptr noalias noundef align 16 dereferenceable(320) %3`(readnone·readonly 없음) · m13.ll:54538 check_kill define `ptr noalias readnone align 16 captures(none) %2` · m10.ll:23429 BattlePlan::update define `ptr noalias noundef align 16 dereferenceable(320) %2`. 옛 문면은 콜리 define 을 파일 없이 인용해 G16 이 본 함수의 속성 주장으로 읽었다(F8)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[202]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "make_gank_battle 경로(7곳)는 sret %0 를 그대로 넘겨 콜리가 채운다(살아있는 바이트 = make_gank_battle 명세)",
+   "new": "make_gank_battle 경로(7곳)는 sret %0 를 그대로 넘겨 콜리가 채우는데 그 콜리도 +0 i64 -1(m08.ll:94430·94472) 또는 +0 i64 9 + +8..+0x120 memcpy 280B(94393~94394)만 쓴다 ⇒ ★이 함수의 sret variant 집합 = {None(-1), Battle(9)} 뿐(LineGanker 10·LineGankCover 11·PassiveLine 3·ActiveRecall 8 은 절대 안 나옴) · 살아있는 바이트 = None: [0,8) / Battle: [0,0x120) 이고 [0x120,0x180) 은 항상 alloca 잔재. Battle 페이로드 280B 안에도 BattlePlan::new 가 안 쓰는 구멍이 있다(Response 목표일 때 main_goal 페이로드 bp+0x48..+0x58 = 잔재 — 오라클 B6b: 0xAA 프리필이 sret+84·+92 에 살아남음) — 그 내부 맵은 BattlePlan structlive 소관. 오라클 실행 확인(o202 · 케이스당 프로세스 1개 · game/mine 프로세스 분리 · 41케이스 41 MATCH · _verify25/I/oracle/run202_all.txt): None 케이스 기록 범위 [(0,8)] · Battle 케이스 [(0,288)] 실측(0xAA 프리필 raw-sret 호출)",
+   "evidence": "m08.ll:94394 `store i64 9, ptr %0` · 94430/94472 `store i64 -1, ptr %0` · 94393 memcpy 280B (make_gank_battle 전 반환 지점) · 본체 95059/97158/98207 `store i64 -1` · 97034 `store i64 9` · 97036 memcpy 280B. 오라클 o202 who=game runs 필드",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/sig/ret",
+   "kind": "보강",
+   "old": "Option<BigPlan>(sret) — None(-1) / Some(Battle(BattlePlan{goal Response, entry_src 3})) / make_gank_battle 의 반환 그대로",
+   "new": "Option<BigPlan>(sret) — None(-1) / Some(Battle(BattlePlan{goal Response(태그 2), entry_src 3})) / make_gank_battle 의 반환 그대로(= None 또는 Battle{goal TryKill(target, min_trace) 태그 0 · entry_src 7}) — variant 는 None·Battle 두 가지뿐",
+   "evidence": "m08.ll:94378 `store i64 0, ptr %11`(TryKill 태그) · 94382/94452 `store i8 7`(entry_src=7) · 94394 `store i64 9`. 오라클: Battle 결과의 +8+0x40 goal_tag ∈ {0,2} · +8+0x107 ∈ {7,3}",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/one_line",
+   "kind": "보강",
+   "old": "노출·인원우위/열세 대응",
+   "new": "노출(적에게 보임+정글 영역) 시 광역 인원우위(아군>적 && 적≠0)면 최근접 가시 적에 make_gank_battle, 아니면(열세·동수·근접 적 0 포함) 가시 적이 하나라도 있으면 즉시 Battle(Response, entry_src 3)+BattleHelp 챗",
+   "evidence": "m08.ll:96437~96440 `ugt %443,%645 & ne %645,0` → 705(L124) / 649(L132 else) · 오라클 B3(근접 적 0 · 400000 떨어진 가시 적 1) → tag 9 entry_src 3 chats push(6,23,0) 실측",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[7]/meaning",
+   "kind": "보강",
+   "old": "(=1초@60tps 추정, 콜리 명세 참조)",
+   "new": "(=1초@60tps 추정, 콜리 명세 참조 — 실측: make_gank_battle 이 BattlePlan::new(goal=TryKill(target, 60)) 로 넘겨 BattlePlan.main_goal(+0x40 태그 0)·+0x50 에 60 이 그대로 저장된다, 오라클 E1/E2b/E3/E4b/F2 min_trace=60)",
+   "evidence": "m08.ll:94375~94378 `store i64 %7 (+8)` `store i64 %8 (+16)` `store i64 0` → BattlePlan::new goal 인자 · 오라클 GAME 행 min_trace=60",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/sig/tls/name",
+   "kind": "보강",
+   "old": "(없음)",
+   "new": "(직접 없음) · 전이 도달 9종: make_gank_battle(version≥2 경로)→ MAX_RANGE_CACHE · FIGHT_KIT_RANGE_CACHE · DIE_TICK_CACHE · ATTACK_DMG_CACHE · RESOLVE_FIGHT_CACHE · LAST_STAND_MEMO · CAMP_POS_MEMO(game_core) · BATTLE_RECENCY(game_core) / lane_path(L369)→ LANE_PATH_MEMO(game_core)",
+   "evidence": "IR 호출 그래프 전이 탐색(스크래치 tlsreach2.py · _gaibc+_gcbc define 36,096 색인 · LocalKey::with 의 anon 함수포인터 상수(예 m02.ll:273 `@anon.… = constant ptr @…CAST_BEAMSs_0s_0…call_once`)까지 추적 · BattleSubPlan::action_candidates 로 CAST_BEAMS 검출 확인) — 경로: make_gank_battle(m08.ll:94354)→open_chase_race_hopeless(m10.ll:47705)→max_range_cached→MAX_RANGE_CACHE / →BattlePlan::update(m10.ll:23429)→{fight_kit_range_cached→FIGHT_KIT_RANGE_CACHE, check_kill_die_tick→DIE_TICK_CACHE→…uncached→enemy_minion_wave_risk→ATTACK_DMG_CACHE, MapDef::camp_pos→CAMP_POS_MEMO, battle_recency→BATTLE_RECENCY, defense_nexus nexus_…→LAST_STAND_MEMO, fight_model resolve_…→RESOLVE_FIGHT_CACHE} / lane_path(m08.ll:95470 호출)→LANE_PATH_MEMO(g11.ll)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/sig/tls/role",
+   "kind": "보강",
+   "old": "직접 접점 0",
+   "new": "직접 접점 0 · 전이 접점은 make_gank_battle(version≥2 에서만: open_chase_race_hopeless 1회 → 아니면 BattlePlan::new+update)과 L369 lane_path 뿐 — check_kill(m13.ll:54538 · 45노드)·get_die_tick_player(m09.ll:52061 · 30노드)·BattlePlan::new(m10.ll:23214 · 12노드)·is_recent_visible·is_in_jungle_area·near_jungle_bush·get_start_position·iter_towers_without_nexus·Entity::distance·Effect::range_adjust·add_text 은 전이 TLS 0",
+   "evidence": "tlsreach2.py BFS: 위 콜리 서브트리에 thread_local 전역 참조 0 (vtable 간접 호출 is_visible/get_entity_by_id/tick 은 정적 추적 밖). v47_siege_stance(SIEGE_STANCE_CACHE)·v48_cast_beams(CAST_BEAMS)·champion_hp_value(HP_VALUE_MEMO)·position_eval_at(POS_EVAL_CACHE)·interaction_score(INTER_CTX)는 직접은 물론 **전이로도 도달 불가**(CAST_BEAMS 의 m02.ll:34749 는 BattleSubPlan::action_candidates 소속)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/sig/tls/call_conditions",
+   "kind": "보강",
+   "old": "TLS 가 있다면 콜리 내부(make_gank_battle · check_kill · get_die_tick_player · BattlePlan::new) — 호출 순서는 logic 의 줄 순서(L127→L136→L212/214/217/221→L225→L227→L241) 그대로이며 한 호출에서 Some 이 나오면 즉시 반환하므로 그 뒤 콜리는 실행되지 않는다",
+   "new": "TLS 작성자는 두 콜리 경유뿐: ① L369 lane_path→LANE_PATH_MEMO — L101/L127/L136 에서 반환하지 않았고 reference 가 None 일 때(front_minion None 이거나 dist²(front,nexus) < dist²(nearest_tower,nexus), 95463) 1회 ② make_gank_battle 7사이트(L127→L212/214/217/221(후보 e 슬롯 순)→L227→L241) — version≥2 에서만 open_chase_race_hopeless(→MAX_RANGE_CACHE) 1회, 거짓이면 BattlePlan::update(→FIGHT_KIT_RANGE·DIE_TICK·ATTACK_DMG·RESOLVE_FIGHT·LAST_STAND·CAMP_POS·BATTLE_RECENCY, 조건은 update 명세 소관); 한 사이트가 Some 이면 즉시 반환하지만 **None(-1)이면 다음 사이트로 이어져 같은 캐시가 한 next_plan 호출 안에서 여러 번 갱신될 수 있다**(오라클 E6/E7/F1b: hopeless 참 → 다음 분기 진행). check_kill·get_die_tick_player·BattlePlan::new 는 전이 TLS 0 이라 version≤1 경로는 lane_path 외 TLS 접점이 없다",
+   "evidence": "m08.ll:95470 lane_path 호출은 216 블록(preds 170·171·180 = front None/filter 탈락) 에서만 · make_gank_battle 94368 `icmp ugt %1, 1` 로 version 분기 · 94426 open_chase_race_hopeless · 94459 BattlePlan::update · 본체 97045/97828/97833/97902/97907/98186/98321 `icmp eq -1` 후속 진행",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[202]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: Response 케이스(B2/B3/B5/B6b/B8) self 48B diff = chats cap(+0)·ptr(+8)·len(+0x10) 뿐, 그 외 케이스 diff 없음 · chat0=(6, enemy.id, 0) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 41케이스 rnd_changed=false (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/sig/params[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: team 0·Jungle(slot 1) 로 player_champion[0][1] 이 champ 로 잡힘(world 행 champ=19) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/sig/params[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: ctx.debug=1 에서 texts 1건(bush 텍스트, y+20000, Color{1,0,0,1}, 1)·infos[e.id] 1건/후보 실측, debug=0 케이스 0건 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: phase=ChangeJungle(태그 0) → None(A1) / Setup(태그 7) → 진행(A2) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: wait_limit-tick = 181 → L218 참(E4 None) / 180 → 거짓(E4b L221 Battle) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: champ 셀 (17,16)=bush 14 에서 champ_bush 14 == bush 14 → 진행(C2), 정글 셀 (13,20)=0 ≠ 14 → None(C1) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: 적 hp 39/max 100 → 인원 제외(B5 Response) / 40 → 포함(B5b L127) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: B5/B5b hp 39↔40 갈림 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: e0 move_speed 10000 → move_to_tower_tick 17(=173850/10000) (D3), 1 → 173850 (D2) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: attack_range 20000 = radius 10000+10000(mult 0) · d=20000 → L241 / 20001 → L240 (F2/F3) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: F2/F3 사거리 경계 20000/20001 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[41]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: Response 케이스에서만 chats len 0→1, 원소 (i8 6, enemy.id, 0) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[43]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: debug=1 C1: texts=(432000, 676000, \"bush: 14, champ_bush: 0\", Color{r:1,g:0,b:0,a:1}, 1) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/mem[44]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: debug=1 D1: infos[19] = \"target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 9999999999, enemy_die_tick: 9999999999\" (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[0]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 실행 확인: A1(ChangeJungle 태그 0<6 → None) / A2(Setup 태그 7 → 진행) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[1]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 실행 확인: B2 goal_tag=2(Response) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 적 거리 250000 → 셈(B6 L127) / 250001 → 안 셈(B6b Response) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: hp% 39 → 제외 / 40 → 포함 (B5/B5b) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: B2 entry_src=3 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[6]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 실행 확인: Battle 케이스 sret+0 = 9 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: min_trace=60 이 BattlePlan+0x50 에 그대로(E1/E2b/E3/E4b/F2) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: champ (560000,528000) → 셀 (17,16) champ_bush=14 (C2) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: texts y = 656000+20000 (C1) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 적 거리 150000 → near_enemies_p 포함(E8 L212) / 150001 → 제외(E8b L240) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: None 케이스 sret+0 = -1(0xFFFF…) · get_die_tick_player 6번째 인자 None 으로 die_tick 산출 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: enemy_die_tick 8 → L205 통과(E1) / 250006 & 1<=1 → continue(E2) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: mtt 17 → L211 분기(D3/E1) / 173850 → L216 분기(D2/E3) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: edt 8 → L212(E1) / 203346 → L213→L214(E2b) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: mdt 9999999999 → L217(E3) / 0 → L218(E4) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: B6/B6b 250000↔250001 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: B5/B5b 39↔40 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: E8/E8b 150000↔150001 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: E1(8)↔E2(250006, continue) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: D3(17)↔D2(173850) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: E1(8 → L212)↔E2b(203346 → L214) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: E3(9999999999 → L217)↔E4(0 → L218) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: E4(rem 181 > 180 → 아무것도)↔E4b(rem 180 → L220→L221) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[8]",
+   "from": 5,
+   "to": 2,
+   "evidence": "오라클 실행 확인: min_trace 60 이 BattlePlan.main_goal(+0x50) 에 그대로 저장(E1/E2b/E3/E4b/F2) (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[202]/knobs[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: B2/B3 entry_src=3 (o202 · 프로세스 분리 · run202_all.txt)",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "지시문 초점 ②가 `action_candidates`(bumpalo Vec<SmallActionPlay> 32B · variant RunAway/Around…)와 `attack`(Option<Input> 32B)의 live 바이트를 요구하는데 이 배치(202 next_plan)의 sret 은 Option<BigPlan> 384B 하나뿐이다 — 다른 배치 지시가 섞였다(문안이 r16 루트 공통 템플릿)",
+  "§4 G7 과열림 인용문이 `shared.is_recent_visible … 확정` 이라 하는데 open[1] 의 물음은 「self 가 왜 blackboard[1-team] 인가」(의미)이지 인덱스 사실이 아니다 — 닫히는 근거는 오라클(bb[1].last_visible[i]=tick 으로 적 슬롯 i 가 recent_visible) 이며 게이트 문면만으로는 닫을 수 없다. open/notes 는 patch 로 못 고치니 아래 산문대로 메인이 옮겨야 한다",
+  "지시 ⑥ 「SubPlan self 와 ScoreParameter 는 조립 가능」은 이 함수(self=LineGankerPlan · ScoreParameter 미사용)엔 해당 없음 — LineGankerPlan::new_with_phase(pub)·TeamPlan/PositioningScoreData/DebugFrameData 의 Default(pub) 로 조립했다(도시에가 이 조립 경로를 안 알려줌)"
+ ]
+}

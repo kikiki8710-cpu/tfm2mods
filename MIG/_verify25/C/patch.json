@@ -1,0 +1,310 @@
+{
+ "round": 25,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[197]/consts[12]/src_line",
+   "kind": "실오류",
+   "old": 270,
+   "new": 271,
+   "evidence": "m02.ll:4269 `%16 = tail call … @…Effect14is_in_range_ex(… i64 15000)` !dbg !13078 = !DILocation(line: 271, scope: !13043=closure$6 s2_0s4_0). 270 은 closure$6 의 DISubprogram 머리줄(!13043 line: 270)이고 `xor`(!13066) 만 270 이다. 같은 형태로 s6_0 4300 → 286(!13104) · s8_0 4331 → 301(!13130)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[48]/src_line",
+   "kind": "실오류",
+   "old": 445,
+   "new": 59,
+   "evidence": "m02.ll:75879 `%43 = icmp ult i64 %42, 67600000001, !dbg !78957` — !78957 = !DILocation(line: 59, scope: !78939, inlinedAt: !78949(function.rs:298 call_mut)). 이 상수는 별도 define(v27_objective_safe_attack_position closure$0 call_mut m02.ll:75824~) 안에 있어 사슬에 445 가 없다 — consts[13](F2 클로저, 324) 과 같은 규약(클로저 상수 = 클로저 사슬의 serpen_hunt.rs 줄)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[49]/src_line",
+   "kind": "실오류",
+   "old": 445,
+   "new": 59,
+   "evidence": "m02.ll:75911 `%61 = icmp ult i64 %60, 48400000001, !dbg !78957`(line 59) · 75970 `%33 = icmp ult i64 %32, 48400000001, !dbg !79024`(!79024 = line 85, scope !79016 closure s1_0). 둘 다 별도 define 의 클로저라 445 는 사슬에 없다 — 첫 사이트 59 채택(85 는 meaning 에 이미 기재)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/knobs[5]/where",
+   "kind": "보강",
+   "old": "serpen_hunt.rs:270·285·300",
+   "new": "serpen_hunt.rs:271·286·301",
+   "evidence": "is_in_range_ex(…, 15000) 호출의 !dbg 줄 = 271/286/301(m02.ll:4269 !13078 · 4300 !13104 · 4331 !13130). 270/285/300 은 클로저 머리줄(DISubprogram line) — consts[12] 정정과 정합",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/open[16]",
+   "kind": "실오류",
+   "old": "max_range_can_use / range_adjust / is_recent_visible / positioning_effective 내부 — 계약만 읽음(경로·game_core 경계). rnd 미러는 호출 순서(462 슬롯순 → 445 helper 144 → 475 → 485)만 이 명세가 보장",
+   "new": "max_range_can_use / range_adjust / positioning_effective 내부 — 계약만 읽음(경로·game_core 경계; 블랙보드 최근가시 술어는 shared 확정이라 제외). rnd 미러 호출 순서 = sig.tls.reach_ir(445 helper 144 와 462 루프는 L441/L455 `act_actions.is_empty()` 로 배타 — 순차가 아니다)",
+   "evidence": "G7: is_recent_visible 은 shared 확정 항목. 순서: m02.ll:14437 `len(+0x18)==0 → %1994(L456)` / 비면 아님 → L442~449 helper(15640 new_with_radius) → 14507 L455 `is_empty()` 거짓 → %1997(L511 반환). 즉 helper 144 의 rnd 소비와 462 루프(16488)의 rnd 소비는 같은 호출에서 함께 일어나지 않는다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/mem[116]/note",
+   "kind": "실오류",
+   "old": "호출 순서 = 462 루프(적 슬롯순, any 단락) → 445 helper 144 → 475 fold → 485",
+   "new": "호출 순서 = [act_actions 비어있지 않음] 445 helper 144(new_with_radius 15640) 뿐(→ 449 반환 또는 511 반환) / [비어있음] 462 루프(적 슬롯순, any 단락, 16488) → 475 fold(16679) → 485(17007) — 두 갈래는 L441/L455 로 배타",
+   "evidence": "m02.ll:14437 (L441 `!act_actions.is_empty()`: len==0 → %1994=L456 직행) · 14507 (L455 `is_empty()`: 거짓 → %1997=L511 memcpy 반환). 445 helper 는 L441 참 가지 안, 462 는 L455 참 가지 안",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/sig/params[3]/role",
+   "kind": "실오류",
+   "old": "소비 콜리: range_misjudge_roll(16488, 적 챔프 슬롯순 · any 단락) → new_with_radius(15640) → serpen_action_score/score(16679 + fold) → get_input(17007). PRNG 미러는 이 호출 순서를 지켜야 함",
+   "new": "소비 콜리(배타 두 갈래): [L441 act 비어있지 않음] new_with_radius(15640, helper 144) / [L455 비어있음] range_misjudge_roll(16488, 적 챔프 슬롯순 · any 단락) → serpen_action_score/score(16679 + fold) → get_input(17007). 배치 G(L428) 안에서는 L600 루프 적 1명당 roll 3회(13141/13152/13163) + me_die_tick<tps 가지 1회(13207) + L656 gen_range(14019, 조건부). PRNG 미러는 이 순서를 지켜야 함(오라클 o197 실측: dist 80000 케이스에서만 rnd 320B 중 258B 변화 = gen_range 1회)",
+   "evidence": "m02.ll:14437/14507 배타 분기 · 13207 `%850 = invoke i64 @ai::utils19range_misjudge_roll(ptr %3, ptr %35, i64 %737, i64 %739) ;L625<428`(블록 %849, %844=`me_die_tick < tps` 참 가지) · 14019 gen_range ;L29<656<428. 오라클 _verify25/C/oracle/o197_case8_*.log",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/logic",
+   "kind": "보강",
+   "old": "//   L606:   mr       = battle::max_range_can_use(champ, enemy)  * utils::range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000",
+   "new": "//   L606:   mr       = battle::max_range_can_use(champ, enemy)  * utils::range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000   // ★아래 `roll` 은 변수가 아니라 매번 새 range_misjudge_roll(rnd,&jrng,min_v,max_v) 호출 — L606 13141 · L607 13152 · L608 13163 · L625 13207 (적 1명당 3회 + me_die_tick<tps 시 1회)",
+   "evidence": "m02.ll:13141/13152/13163/13207 네 곳 모두 `invoke i64 @ai::utils19range_misjudge_roll(ptr %3, ptr %35, i64 %737, i64 %739)` — 결과 레지스터가 서로 다르고(%816/%821/%827/%850) 재사용 없음. 변수로 재현하면 rnd 스트림이 어긋난다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/logic",
+   "kind": "보강",
+   "old": "//   L625:     emr = max_range_nearly_can_use(enemy, champ, 60) * roll / 1000",
+   "new": "//   L625:     emr = max_range_nearly_can_use(enemy, champ, 60) * range_misjudge_roll(rnd, &jrng, min_v, max_v) / 1000   // ★4번째 roll 호출(m02.ll:13207) — 이 가지(me_die_tick < tps)에서만 rnd 추가 소비",
+   "evidence": "m02.ll:13199 `%846 = invoke … max_range_nearly_can_use(ptr %797, ptr %354, i64 60) ;L625` → 13207 `%850 = invoke i64 @…range_misjudge_roll(ptr %3, ptr %35, i64 %737, i64 %739) ;L625` → 13210 `%852 = mul i64 %850, %846` · `%853 = udiv i64 %852, 1000`. 블록 %845/%849 는 %844(`icmp ult i64 %748(me_die_tick), %843(tps)`) 참 가지",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/logic",
+   "kind": "보강",
+   "old": "//   L596: near_enemies: bumpalo Vec<&Entity> = data.cache.iter_champions().filter_map(..).filter(F3(champ)).collect   // F3 본문은 m01/m06 의 iter_champions 클로저 심(이 배치 미독해 — unknown)",
+   "new": "//   L596: near_enemies: bumpalo Vec<&Entity> = data.cache.iter_champions().filter_map(..).filter(F3(champ)).collect   // F3 = 클로저 s1_0(call_mut m02.ll:75047~75120, 캡처 champ): e.is_visible_from(&champ.team)(entity.rs:1482 인라인: champ.team Neutral(tag 1)→true / Player(t)→ e.visible_state[t](+0x38+24t).tag==Visible(0), t>=2 → panic_bounds_check) && dist²(e, champ) < 25600000000 (=160000², 75114 `icmp ult`) — 아군 포함 여부는 iter_champions 심(filter_map) 소관",
+   "evidence": "m02.ll:75058 `%6 = load i64, ptr %4(champ)` trunc→i1 (!78134 entity.rs:1136←1482←596) · 75067 `icmp ult i64 %10, 2` · 75072~75076 `gep %5, 56 → {i64,[2 x i64]}[%10] → icmp eq 0` · 75101~75114 dx/dy(utils.rs:3147/7/8←2158) → `%38 = icmp ult i64 %37, 25600000000, !dbg !78144`(line 596) · 75118 phi [%38, %18], [false, %12]",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/logic",
+   "kind": "보강",
+   "old": "// 이 범위에서 push 되는 variant 집합: {RunAway(태그3 · new_with_skill(data, player, end_delay=5, with_skill=false)), best_move_action 의 variant(clone, 3사이트)}. self 쓰기 0 · debug 쓰기 0 · TLS 0.",
+   "new": "// 이 범위에서 push 되는 variant 집합: {RunAway(태그3 · new_with_skill(data, player, end_delay=5, with_skill=false)), best_move_action 의 variant(clone, 3사이트) ∈ {RunAway 3, AroundPosition(암묵), Trace 14, Stop 19} — get_move_action 인라인의 태그 store 전수: 3 @12412/13804/14297/14359 · 14 @12344/12961/13284/13420/13526/14112 · 19 @13940 · AroundPosition::new @12400}. self 쓰기 0 · debug 쓰기 0 · TLS 0.",
+   "evidence": "m02.ll 11075~17795 안 `getelementptr … i64 177` 뒤 `store i8 N` 전수(tagscan): 3·4·14·19 만 + AroundPosition 생성자 2곳(12400 new · 15640 new_with_radius). 4(Recall) 는 L222 뿐이라 move_actions 에 없다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/sig/ret",
+   "kind": "실오류",
+   "old": "이 배치가 push 하는 variant: Recall(4, 136B payload) · RunAway(3, 136B) · AroundPosition(암묵, 184B) · Trace(14, 152B) · Stop(19, 페이로드 없음 — tag 만 store). 원소 안 live 바이트 = payload 크기까지 + 0xb1 태그(Trace 152B: +0x98..+0xb0 미기록 · RunAway/Recall 136B: +0x88..+0xb0 미기록 · Stop: +0x0..+0xb0 전부 미기록) — 런타임 비교 시 이 구간은 마스크 필요.",
+   "new": "★이 함수가 sret 에 실을 수 있는 variant 전체 = {RunAway 3 · Recall 4 · Trace 14 · Attack 15 · Skill 16 · Skill2 17 · Stop 19 · AroundPosition(암묵)} — Ult 18 은 생산자 없음(battle_action m15.ll:23700~ · attack_summon_action 28194~ · attack_jungle_action m02.ll:17798~ 의 태그 store 는 15/16/17 뿐 · v27_objective_discipline_action m09.ll:19231~ 은 3/AroundPosition/-1). 경로: L222 Recall · L227 v27 결과(RunAway|AroundPosition) · L449 AroundPosition(new_with_radius) · L472/L498 RunAway · L500/503/506 best_move_action clone(RunAway|AroundPosition|Trace|Stop) · L511 act_actions(Attack|Skill|Skill2). ★variant 별 live 바이트(생성자 store/`initializes` 로 확정 · 나머지는 alloca 잔재라 마스크): RunAway = (0,56)+125+(128,132)+177 [new_with_skill m08.ll:92086 initializes((0,56),(125,126),(128,132)) · 136B memcpy 후 tag] · Recall = 69+(72,129)+177 [SmallActionRecall::new m08.ll:98371 initializes((69,70),(72,129))] · Trace = (0,8)+85+(88,150)+177 [Trace::new/new_attack_range/_margin m02.ll:9506/8914/9343 initializes((0,8),(85,86),(88,150)); 루트 인라인 6사이트 동일 · +145 attack_range_only = 1(558/570/657) / 0(615/619/629)] · Attack/Skill/Skill2 = (0,17)+177 [cast::*::new m07.ll:7129/7645/12020 initializes((0,17)) · clone 은 184B memcpy 라 잔재가 그대로 복사됨] · Stop = 177 뿐 · AroundPosition = (0,104)+173+176+177 [new/new_with_radius m08.ll:103238/103103: 0..48 store · 48..88 wait_around 40B(m04.ll:33007 전부 기록) · 88 radius(80000|인자) · 96 end_delay · 104..176 는 Option<PathFinder> 72B alloca 를 memcpy 하는데 그 alloca 는 +69(=절대 173) 니치 2 만 기록 · 176 position_eval_purpose=6(Positioning) · 177 outline_type=0]. 미기록 구간 = RunAway 56..125·126..128·132..177·178.. / Recall 0..69·70..72·129..177·178.. / Trace 8..85·86..88·150..177·178.. / Attack류 17..177·178.. / AroundPosition 104..173·174..176·178.. / Stop 0..177·178.. — 오라클 o197 헥스덤프에서 이 구간에 스택 포인터 잔재(0x7ff6…)가 그대로 관측됨.",
+   "evidence": "define 속성: m08.ll:92086 `sret([136 x i8]) … initializes((0, 56), (125, 126), (128, 132))` · m08.ll:98371 `initializes((69, 70), (72, 129))` · m02.ll:9506 `initializes((0, 8), (85, 86), (88, 150))` · m07.ll:7129 `initializes((0, 17))`; AroundPosition 은 initializes 없음 → 본문 store 전수(m08.ll:103143~103165: 0/8/16/24/32/40 i64 · memcpy 104←%9(72B, %9 는 103128~103129 `gep %9, 69; store i8 2` 만) · memcpy 48←%8(wait_around sret) · 88/96 i64 · 177 i8 0 · 176 i8 6). 루트 push 사이트: 12410 `memcpy 136 %49←%48` + 12412 `store i8 3 @177` 등. 옛 문면(+0x88..+0xb0 미기록)은 payload 안쪽 미기록(예: RunAway 56..125) 을 live 로 잘못 포함",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/notes[0]",
+   "kind": "보강",
+   "old": "소유 파일·이름 — DISubprogram 을 추적하지 않았다(사슬 `L669<236` 의 scope 만 확인)",
+   "new": "소유 = SerpenHuntSubPlan::get_act_action(serpen_hunt.rs:668, DISubprogram !22302 linkageName …SerpenHuntSubPlan14get_act_action; m02.ll:11713 !22328 = line 670 scope !22312(DILexicalBlock line 669) inlinedAt !22314 line 236)",
+   "evidence": "m02.ll 메타: `!22302 = distinct !DISubprogram(name: \"get_act_action\", linkageName: \"_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_huntNtB2_17SerpenHuntSubPlan14get_act_action\", … line: 668)` · `!22312 = distinct !DILexicalBlock(scope: !22302, file: !11917, line: 669)` · `!22328 = !DILocation(line: 670, scope: !22312, inlinedAt: !22314)`. siblings[10] 과 일치",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/notes[1]",
+   "kind": "보강",
+   "old": "동작 확정, 이름 미확정",
+   "new": "동작 확정, 이름 = 별도 헬퍼 없음: 309 는 SmallActionPlay::get_action(small_action.rs:308) 본문 줄(F1 세 사이트 m02.ll:75141/75183/75218 의 !dbg 가 전부 !DILocation(line: 309, scope: !20536=get_action)) — +0x8 추출은 get_action 반환값의 target 인라인",
+   "evidence": "m02.ll:75141 !78248 · 75183 !78314 · 75218 !78366 = `!DILocation(line: 309, scope: !20536, inlinedAt: …)` · !20536 의 상위 DISubprogram = get_action(line 308, file small_action.rs)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/sig/tls/note",
+   "kind": "보강",
+   "old": "SIEGE_STANCE_CACHE·CAST_BEAMS·HP_VALUE_MEMO·POS_EVAL_CACHE·INTER_CTX 중 어느 것을 어느 콜리가 만지는지는 이 배치가 독립 재현 규칙상 확인하지 않았다(콜리 명세 = r13~r15 계약). 미러 설계는 위 호출 순서를 그대로 따르면 된다",
+   "new": "어느 콜리가 어느 TLS 를 만지는지 = `reach_ir` 키(25차 C, game_ai+game_core IR 정적 콜그래프 36,096 define · LocalKey::with 인스턴스 역추적). 요지: 이 루트에서 CAST_BEAMS·MAX_RANGE_CACHE·FIGHT_KIT_RANGE_CACHE·CHAMP_POWERS_MEMO 는 도달 불가(v48_cast_beams 호출자 = BattleSubPlan::action_candidates/v48_on_cast_line 뿐 · max_range_cached 는 max_range_can_use 가 부르지 않음). 도달: DIE_TICK_CACHE(check_kill_die_tick 직접) · CAMP_POS_MEMO(camp_pos 직접 + v25_objective_posture + serpen_action_score) · POS_EVAL_CACHE/PE_PLAYER_CTX/EPC/ATTACK_DMG/TOWER_MINION_CNT/PE_CAND_MASKS/SIEGE_STANCE_CACHE/SLOT_READY/CC_TIME/RESOLVE_FIGHT(position_score_at_position·at_cell → position_eval_at[_uncached] 경유) · INTER_CTX/HP_VALUE_MEMO/LAST_STAND_MEMO(score → serpen_action_score → interaction_score 경유) · ATTACK_DMG_CACHE(check_kill_die_tick_uncached → enemy_minion_wave_risk_dps_at 경유도). 미러 설계는 reach_ir 의 호출 순서를 따르면 된다",
+   "evidence": "스크래치 ircg.py(콜그래프 pickle) + tlsrev.py/tlspath.py 역·정방향 BFS: 루트 define(m02.ll:11075) threadlocal 참조 0 · 직접 콜리 73 · with 인스턴스 265 중 도달 표는 reach_ir",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/sig/tls/reach_ir",
+   "kind": "보강",
+   "old": "",
+   "new": "[25차 C · IR 정적 콜그래프(game_ai m00~m15 + game_core g00~g15, define 36,096) 에서 루트→TLS LocalKey::with 인스턴스 최단 경로; vtable/Arc<dyn> 간접호출은 못 따라감 · get_input 은 variant 디스패치라 과대(이 함수의 best_move_action variant 는 RunAway/AroundPosition/Trace/Stop 뿐)] ①DIE_TICK_CACHE(fight_check::check_kill_die_tick) = 직접 호출 L597 m02.ll:13024 (깊이1) · 인자 near_enemies.clone() — TEMPLATE 함정③(키에 id 만) 그대로 적용 · ②CAMP_POS_MEMO(MapDef::camp_pos) = 직접 L568 12854 / L649 13742 (깊이1) + v25_objective_posture(L543 12214) 경유 + serpen_action_score(L475 16679 · L423 retain) 경유 · ③POS_EVAL_CACHE(position_eval_at) = position_score_at_position(L535 12191 · L445 helper 100 15437 · L493 17035) / position_score_at_cell(helper 124 15777, 셀당 1회 ≤49) → position_eval_at (깊이2); 같은 경로 깊이3~7: PE_PLAYER_CTX · EPC_CACHE(entity_positioning_cache_cached) · ATTACK_DMG_CACHE(expected_attack_damage_cached) · TOWER_MINION_CNT_CACHE · PE_CAND_MASKS · SLOT_READY_MEMO · CC_TIME_MEMO · SIEGE_STANCE_CACHE(position_eval_at_uncached → v47_siege_stance, 깊이4) · RESOLVE_FIGHT_CACHE(v47_siege_stance → resolve_fight_full, 깊이6) · ④INTER_CTX(interaction_score) = self.score(L423 retain s5_0 · L475 max_by_key sa_0 · 첫 원소 16679 serpen_action_score 직접) → serpen_action_score → interaction_score (깊이2~3) · 같은 경로: HP_VALUE_MEMO(utils::champion_hp_value, 깊이3) · LAST_STAND_MEMO(defense_nexus::last_stand_flags ← nexus_final_stand, 깊이3; get_input 경유도) · CAMP_POS_MEMO · POS_EVAL 계열 · ⑤get_input(L485 17007) 경유 = LAST_STAND_MEMO · POS_EVAL 계열 · (variant 상 이 함수엔 해당 없음: PathScratch/FieldScratch/HIDE_NEAREST) · ⑥도달 불가(이 루트에서): CAST_BEAMS(v48_cast_beams: 호출자 BattleSubPlan::action_candidates·v48_on_cast_line 뿐) · MAX_RANGE_CACHE/FIGHT_KIT_RANGE_CACHE(max_range_cached/fight_kit_range_cached 는 max_range_can_use·max_range_nearly_can_use 가 부르지 않음) · CHAMP_POWERS_MEMO · FINISH_AGG_CACHE · V48_PROJ_PROFILE · BATTLE_RECENCY(run_tick 쪽). 호출 순서(루트 소스줄 순, m02.ll): L206 expected_damage_target 11363 → L226 v27_objective_discipline_action 11405 → L236 battle_action 11712 · attack_summon_action 11730 · attack_jungle_action 11743 → L237 strategy 11762 → L243 F1 11872 → L314 F2 11892 → L423 retain(score) 11916 → [L428 인라인] L523 nontarget_windup_perceived 12054 → L535 position_score_at_position 12191 → L543 v25_objective_posture 12214 → L566 range_adjust 12755 → L568 camp_pos 12854 · v23 12860 → L577 strategy 12718 → L592 positioning_accuracy 12980 → L597 check_kill_die_tick 13024 → L600 루프{L601 can_enemy_hit_objective 13119 → L605 range_misjudge_rng 13126 → L606 max_range_can_use 13137·roll 13141 → L607 13148·13152 → L608 nearly 13159·roll 13163 → [L612 참] L625 nearly(60) 13199·roll 13207 / [거짓] L613 remain_action_time 13203} → L640 range_adjust 13637 → L649 camp_pos 13742·v23 13748 → L656 range_adjust 13884·distance 13998·gen_range 14019(조건부) → [L441 act 있음] L442 → L445 helper{range_adjust 14725 · threats 수집(is_recent_visible aux 75824) · max_range_nearly_can_use(50) 15125 · position_score_at_position 15437 · positioning_effective 15445 · 셀 루프 position_score_at_cell 15777·positioning_effective 15784 · new_with_radius 15640} → 449 반환 | 511 반환 / [L455 act 없음] L456 positioning_accuracy 16271 → L462 루프{rng 16476 → max_range_can_use 16484 → roll 16488 → max_range_can_use 16496 → is_recent_visible 16503 → block_input 16553} → L472 반환 | L475 serpen_action_score 16679 + fold → L479 iter_projectile 16706 → L482 → L485 clone 16996·get_input 17007 → L493 position_score_at_position 17035 → L498/500/503/506 반환",
+   "evidence": "_next/reach/cb1ce0.ll 콜사이트 전수(;L 사슬 루트줄 정렬, 스크래치 callorder.txt) + ircg.py/tlsrev.py/tlspath.py 콜그래프 도달표(스크래치 tlsowner.txt·reach_root.txt)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[197]/consts",
+   "at": 80,
+   "guard_key": "meaning",
+   "guard": "= 160000²: F3(near_enemies 필터 · get_move_action 클로저 s1_0 call_mut m02.ll:75047~75120) dist²(e, champ) < 이 값 ⟺ 거리 < 160000(5셀) — e.is_visible_from(&champ.team) 통과 뒤에만(75058~75076) · 임계",
+   "new": {
+    "value": 25600000000,
+    "src_line": 596,
+    "meaning": "= 160000²: F3(near_enemies 필터 · get_move_action 클로저 s1_0 call_mut m02.ll:75047~75120) dist²(e, champ) < 이 값 ⟺ 거리 < 160000(5셀) — e.is_visible_from(&champ.team) 통과 뒤에만(75058~75076) · 임계"
+   },
+   "kind": "보강",
+   "found_by": "new",
+   "behavior_change": true,
+   "evidence": "m02.ll:75114 `%38 = icmp ult i64 %37, 25600000000, !dbg !78144`(!78144 = line 596 scope closure s1_0, inlinedAt function.rs:298) · 75118 `%40 = phi i1 [ %38, %18 ], [ false, %12 ]` · ret. 이 상수·술어가 명세 어디에도 없었다(open[6] 미탐색) — near_enemies 원소 수가 곧 L600 루프 rnd 소비 횟수라 재구현에 필수"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[197]/knobs",
+   "at": 30,
+   "guard_key": "what",
+   "guard": "세르펜 사냥 근접 적 수집 반경(near_enemies)",
+   "new": {
+    "what": "세르펜 사냥 근접 적 수집 반경(near_enemies)",
+    "where": "serpen_hunt.rs:596 (클로저 s1_0 · m02.ll:75114)",
+    "value": "25600000000 (=160000²)",
+    "effect": "올리면 더 먼 가시 적 챔피언도 near_enemies 에 들어가 check_kill_die_tick 인자와 L600 루프(적 1명당 추적/도주 판정 + roll 3~4회)가 늘어난다; 내리면 근접 적만 본다"
+   },
+   "kind": "보강",
+   "found_by": "new",
+   "behavior_change": true,
+   "evidence": "m02.ll:75114 `icmp ult i64 %37, 25600000000` · %37 = dx²+dy²(75111~75113) · 가시성 선행 게이트 75058~75076"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[197]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): 세르펜 스폰(공격 50) · champ.hp=3*dmg=150 → need_recall 1·Recall / hp=151 → 0·Trace (o197_case3.log·case4.log)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): max_hp 1000 · hp 299(ratio 29) → need_recall 1 유지·Recall / hp 300(ratio 30) → 0·RunAway; 290/301 도 동일 (o197_case1*.log·case2*.log)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): Recall·RunAway·Trace 원소 end_delay 필드 = 5 관측(Recall +96 · RunAway +24 · Trace +128)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): L222 경로 원소 +0xb1 = 4 관측(case1/case3)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): L570/L657 경로 원소 +0xb1 = 14 관측(case4 · case8)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): L662→L506 경로 원소 +0xb1 = 3 · with_skill@+0x80 = 0 관측(case7 · case2)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): L570 Trace margin@+120 = 15000 관측(case4 · case8 dist 105001/130000)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[29]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): max_range 105000(80000+반경 10000+15000): dist 90000 → margin 45000 = clamp(105000-10000, …) 상한 / dist 89999 → gen_range 소비(258B 변화) — `dist+15000 < range` 엄격 (case8)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[30]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): dist 30000/60000 → margin 12000 · dist 60001 → gen_range(38629) — `inner+dist > range` 엄격 (case8)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/consts[31]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): dist 90000/100000/105000 → margin 45000 (umin 상한) · dist 105001 → 사거리 밖 Trace 15000 — L567 `dist² <= mr²` 확정 (case8)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): hp=3*dmg → 귀환 / 3*dmg+1 → 계속 (case3/4)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): ratio 29 유지 / 30 해제 (case1/2)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): margin 12000·45000·gen_range(12000..=45000)=38629 세 구간 전부 관측 (case8 dist 30000~105000)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): self+0 1/0 세팅에 따라 L204 갈래가 갈림",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/mem[108]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): 호출 뒤 self+0 이 1→0(case2) · 0→1(case3) 으로 바뀌고 그 외 케이스는 불변",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/mem[39]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): +0x628 을 1000 으로 써서 ratio 분모로 쓰임을 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[197]/mem[42]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(25차 C o197, 케이스당 프로세스 1개): +0x670 세팅이 need_recall 판정을 좌우",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "v25_prompt_C ②의 variant 목록(Around 5 · AroundRegion 7 · AroundBush 12 · LaneMinionPosition 13 · Ult 18 포함)은 SmallActionPlay 전 variant 이지 이 함수의 sret 집합이 아니다 — 197 이 실을 수 있는 것은 {3,4,14,15,16,17,19,AroundPosition} 8종뿐(생산자 IR 전수)",
+  "v25_prompt_C ④의 TLS 작성자 목록 중 v48_cast_beams(CAST_BEAMS) · max_range_cached(MAX_RANGE_CACHE) 는 이 루트에서 도달 불가(콜그래프 깊이 14 까지 0) — CAST_BEAMS 는 BattleSubPlan::action_candidates(0xcbbdb0) 의 것이고 max_range_can_use 는 max_range_cached 를 부르지 않는다. 루트별로 목록을 갈라 줘야 한다",
+  "DOSSIER §1 표의 exe 칸 `cb1ce0 (None) · None바이트 · None명령` — rvaname 확정 주소인데 bytes/insn 이 None 으로 조립됐다(mkdossier 결함)",
+  "DOSSIER §4 G7 항목 문구가 `(배치 H) range_misjudge_roll …` 로 시작해 다른 배치 것처럼 읽힌다 — 실제로는 197 의 open 문면(r16 분책 H 유래) 이다"
+ ]
+}

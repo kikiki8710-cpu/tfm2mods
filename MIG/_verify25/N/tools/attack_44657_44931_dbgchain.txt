@@ -1,0 +1,275 @@
+44657| define void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input6attack(ptr dead_on_unwind noalias noundef writable writeonly sret([32 x i8]) align 8 captures(none) dereferenceable(32) %0, i64 noundef %1, ptr noalias noundef align 16 der   ;; distinct !DISubprogram(name: "attack", linkageName: "_RNvNtC
+44658|   %8 = alloca [24 x i8], align 8
+44659|     #dbg_value(i64 %1, !56733, !DIExpression(), !56778)
+44660|     #dbg_value(ptr %2, !56734, !DIExpression(), !56778)
+44661|     #dbg_value(ptr %3, !56735, !DIExpression(), !56778)
+44662|     #dbg_value(ptr %4, !56736, !DIExpression(), !56778)
+44663|     #dbg_value(ptr %5, !56737, !DIExpression(), !56778)
+44664|     #dbg_value(ptr %6, !56738, !DIExpression(), !56778)
+44665|     #dbg_value(ptr %6, !56779, !DIExpression(), !56785)
+44666|     #dbg_value(ptr %6, !56787, !DIExpression(), !56794)
+44667|     #dbg_declare(ptr %8, !56755, !DIExpression(), !56796)
+44668|     #dbg_declare(ptr poison, !56757, !DIExpression(), !56797)
+44669|     #dbg_declare(ptr poison, !56741, !DIExpression(), !56798)
+44670|     #dbg_declare(ptr poison, !56747, !DIExpression(), !56799)
+44671|   %9 = getelementptr inbounds nuw i8, ptr %3, i64 2352   ;; abstract_input.rs:149
+44672|   %10 = load i64, ptr %9, align 8, !!   ;; abstract_input.rs:149
+44673|   %11 = icmp ult i64 %10, 2   ;; abstract_input.rs:149
+44674|   br i1 %11, label %13, label %12   ;; abstract_input.rs:149
+44675| 
+44676| 12:                                               ; preds = %7
+44677|   tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %10, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae   ;; abstract_input.rs:149
+44678|   unreachable   ;; abstract_input.rs:149
+44679| 
+44680| 13:                                               ; preds = %7
+44681|     #dbg_value(ptr %3, !56801, !DIExpression(DW_OP_plus_uconst, 2496, DW_OP_stack_value), !56804)
+44682|   %14 = getelementptr inbounds nuw i8, ptr %3, i64 2496   ;; entity.rs:581 < abstract_input.rs:149
+44683|   %15 = load i32, ptr %14, align 8, !!!noundef !8   ;; entity.rs:581 < abstract_input.rs:149
+44684|   %16 = zext nneg i32 %15 to i64   ;; entity.rs:581 < abstract_input.rs:149
+44685|   %17 = load ptr, ptr %4, align 8, !!!align !14311, !!   ;; abstract_input.rs:149
+44686|   %18 = getelementptr inbounds nuw i8, ptr %17, i64 480   ;; abstract_input.rs:149
+44687|   %19 = getelementptr inbounds nuw [5 x ptr], ptr %18, i64 %10   ;; abstract_input.rs:149
+44688|   %20 = getelementptr inbounds nuw ptr, ptr %19, i64 %16   ;; abstract_input.rs:149
+44689|   %21 = load ptr, ptr %20, align 8, !!!noundef !8   ;; abstract_input.rs:149
+44690|     #dbg_value(ptr %21, !56806, !DIExpression(), !56811)
+44691|   %22 = icmp eq ptr %21, null   ;; option.rs:2775 < abstract_input.rs:149
+44692|   br i1 %22, label %25, label %23   ;; option.rs:2775 < abstract_input.rs:149
+44693| 
+44694| 23:                                               ; preds = %13
+44695|     #dbg_value(ptr %21, !56739, !DIExpression(), !56813)
+44696|     #dbg_value(ptr %21, !56782, !DIExpression(), !56785)
+44697|     #dbg_value(ptr %21, !56814, !DIExpression(), !56818)
+44698|     #dbg_value(ptr %21, !56787, !DIExpression(), !56794)
+44699|   %24 = tail call noundef zeroext i1 @_RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity10can_attack(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21)   ;; abstract_input.rs:150
+44700|   br i1 %24, label %28, label %27   ;; abstract_input.rs:150
+44701| 
+44702| 25:                                               ; preds = %13
+44703|   store i64 -1, ptr %0, align 8   ;; option.rs:2790 < abstract_input.rs:149
+44704|   br label %26   ;; lib.rs:1
+44705| 
+44706| 26:                                               ; preds = %47, %37, %36, %27, %25
+44707|   ret void   ;; abstract_input.rs:188
+44708| 
+44709| 27:                                               ; preds = %23
+44710|   store i64 -1, ptr %0, align 8   ;; abstract_input.rs:151
+44711|   br label %26   ;; lib.rs:1
+44712| 
+44713| 28:                                               ; preds = %23
+44714|     #dbg_value(ptr %21, !56830, !DIExpression(DW_OP_plus_uconst, 1168, DW_OP_stack_value), !56837)
+44715|   %29 = getelementptr inbounds nuw i8, ptr %21, i64 1168   ;; option.rs:742 < abstract_input.rs:154
+44716|   %30 = getelementptr inbounds nuw i8, ptr %21, i64 1216   ;; option.rs:742 < abstract_input.rs:154
+44717|   %31 = load i32, ptr %30, align 8, !!!noundef !8   ;; option.rs:742 < abstract_input.rs:154
+44718|   %32 = icmp eq i32 %31, -1   ;; option.rs:742 < abstract_input.rs:154
+44719|   br i1 %32, label %36, label %33   ;; option.rs:742 < abstract_input.rs:154
+44720| 
+44721| 33:                                               ; preds = %28
+44722|     #dbg_value(ptr %29, !56745, !DIExpression(), !56840)
+44723|     #dbg_value(ptr %29, !56817, !DIExpression(), !56818)
+44724|     #dbg_value(ptr %21, !56830, !DIExpression(DW_OP_plus_uconst, 1168, DW_OP_stack_value), !56841)
+44725|   %34 = getelementptr inbounds nuw i8, ptr %21, i64 1208   ;; abstract_input.rs:156
+44726|   %35 = tail call noundef zeroext i1 @_RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget5check(ptr noalias noundef nonnull readonly align 4 captures(address, read_provenance) dereferenceable(4) %34,    ;; abstract_input.rs:156
+44727|   br i1 %35, label %38, label %37   ;; abstract_input.rs:156
+44728| 
+44729| 36:                                               ; preds = %28
+44730|   store i64 -1, ptr %0, align 8   ;; option.rs:2790 < abstract_input.rs:154
+44731|   br label %26   ;; lib.rs:1
+44732| 
+44733| 37:                                               ; preds = %33
+44734|   store i64 -1, ptr %0, align 8   ;; abstract_input.rs:157
+44735|   br label %26   ;; lib.rs:1
+44736| 
+44737| 38:                                               ; preds = %33
+44738|   call void @llvm.lifetime.start.p0(ptr nonnull %8)   ;; abstract_input.rs:160
+44739|   %39 = tail call noundef i64 @_RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity17attack_speed_mult(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21)   ;; abstract_input.rs:160
+44740|   call fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target(ptr noalias noundef align 8 captures(none) dereferenceable(24) %8, i64 noundef %1, ptr noalias noundef align 16 dereferenceable(320) %2, ptr noalia   ;; abstract_input.rs:160
+44741|   %40 = load i32, ptr %8, align 8, !!!noundef !8   ;; abstract_input.rs:162
+44742|   %41 = icmp eq i32 %40, -1   ;; abstract_input.rs:162
+44743|   br i1 %41, label %44, label %42   ;; abstract_input.rs:162
+44744| 
+44745| 42:                                               ; preds = %38
+44746|   %43 = getelementptr inbounds nuw i8, ptr %0, i64 8   ;; abstract_input.rs:163
+44747|   call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(24) %43, ptr noundef nonnull align 8 dereferenceable(24) %8, i64 24, i1 false)   ;; abstract_input.rs:162
+44748|   store i64 2, ptr %0, align 8   ;; abstract_input.rs:163
+44749|   br label %47   ;; abstract_input.rs:162
+44750| 
+44751| 44:                                               ; preds = %38
+44752|     #dbg_value(ptr %21, !56850, !DIExpression(), !56855)
+44753|   %45 = load i64, ptr %21, align 8, !!!noundef !8   ;; entity.rs:1136 < entity.rs:1482 < abstract_input.rs:165
+44754|   %46 = trunc nuw i64 %45 to i1   ;; entity.rs:1136 < entity.rs:1482 < abstract_input.rs:165
+44755|   br i1 %46, label %63, label %48   ;; entity.rs:1136 < entity.rs:1482 < abstract_input.rs:165
+44756| 
+44757| 47:                                               ; preds = %142, %58, %42
+44758|   call void @llvm.lifetime.end.p0(ptr nonnull %8)   ;; abstract_input.rs:188
+44759|   br label %26   ;; abstract_input.rs:188
+44760| 
+44761| 48:                                               ; preds = %44
+44762|   %49 = getelementptr inbounds nuw i8, ptr %21, i64 8   ;; entity.rs:1136 < entity.rs:1482 < abstract_input.rs:165
+44763|     #dbg_value(ptr %21, !56853, !DIExpression(DW_OP_plus_uconst, 8, DW_OP_stack_value), !56859)
+44764|   %50 = load i64, ptr %49, align 8, !!   ;; entity.rs:1137 < entity.rs:1482 < abstract_input.rs:165
+44765|     #dbg_value(i64 %50, !56783, !DIExpression(), !56860)
+44766|   %51 = icmp ult i64 %50, 2   ;; entity.rs:1483 < abstract_input.rs:165
+44767|   br i1 %51, label %52, label %57   ;; entity.rs:1483 < abstract_input.rs:165
+44768| 
+44769| 52:                                               ; preds = %48
+44770|     #dbg_value(ptr poison, !56862, !DIExpression(), !56865)
+44771|   %53 = getelementptr inbounds nuw i8, ptr %6, i64 56   ;; data.rs:122 < entity.rs:1483 < abstract_input.rs:165
+44772|   %54 = getelementptr inbounds nuw { i64, [2 x i64] }, ptr %53, i64 %50   ;; data.rs:122 < entity.rs:1483 < abstract_input.rs:165
+44773|   %55 = load i64, ptr %54, align 8, !!!noundef !8   ;; data.rs:122 < entity.rs:1483 < abstract_input.rs:165
+44774|   %56 = icmp eq i64 %55, 0   ;; data.rs:122 < entity.rs:1483 < abstract_input.rs:165
+44775|   br i1 %56, label %63, label %58   ;; abstract_input.rs:165
+44776| 
+44777| 57:                                               ; preds = %48
+44778|   tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %50, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae   ;; entity.rs:1483 < abstract_input.rs:165
+44779|   unreachable   ;; entity.rs:1483 < abstract_input.rs:165
+44780| 
+44781| 58:                                               ; preds = %52
+44782|   %59 = getelementptr inbounds nuw i8, ptr %6, i64 1632   ;; abstract_input.rs:185
+44783|   %60 = load i64, ptr %59, align 8, !!   ;; abstract_input.rs:185
+44784|   %61 = getelementptr inbounds nuw i8, ptr %6, i64 1640   ;; abstract_input.rs:185
+44785|   %62 = load i64, ptr %61, align 8, !!   ;; abstract_input.rs:185
+44786|   tail call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well(ptr noalias noundef nonnull sret([32 x i8]) align 8 captures(none) dereferenceable(32) %0, i64 noundef %1, ptr noalias noundef nonnull r   ;; abstract_input.rs:185
+44787|   br label %47   ;; abstract_input.rs:165
+44788| 
+44789| 63:                                               ; preds = %52, %44
+44790|   %64 = getelementptr inbounds nuw i8, ptr %21, i64 1632   ;; abstract_input.rs:166
+44791|   %65 = load i64, ptr %64, align 8, !!   ;; abstract_input.rs:166
+44792|   %66 = getelementptr inbounds nuw i8, ptr %6, i64 1632   ;; abstract_input.rs:166
+44793|   %67 = load i64, ptr %66, align 8, !!   ;; abstract_input.rs:166
+44794|   %68 = sub i64 %65, %67   ;; abstract_input.rs:166
+44795|     #dbg_value(i64 %68, !56759, !DIExpression(), !56869)
+44796|   %69 = getelementptr inbounds nuw i8, ptr %21, i64 1640   ;; abstract_input.rs:167
+44797|   %70 = load i64, ptr %69, align 8, !!   ;; abstract_input.rs:167
+44798|   %71 = getelementptr inbounds nuw i8, ptr %6, i64 1640   ;; abstract_input.rs:167
+44799|   %72 = load i64, ptr %71, align 8, !!   ;; abstract_input.rs:167
+44800|   %73 = sub i64 %70, %72   ;; abstract_input.rs:167
+44801|     #dbg_value(i64 %73, !56761, !DIExpression(), !56871)
+44802|   %74 = mul i64 %68, %68   ;; abstract_input.rs:168
+44803|   %75 = mul i64 %73, %73   ;; abstract_input.rs:168
+44804|   %76 = add i64 %75, %74   ;; abstract_input.rs:168
+44805|   %77 = tail call noundef i64 @_RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt(i64 noundef %76)   ;; abstract_input.rs:168
+44806|     #dbg_value(i64 %77, !56763, !DIExpression(), !56873)
+44807|   %78 = getelementptr inbounds nuw i8, ptr %21, i64 1184   ;; effect.rs:26 < abstract_input.rs:170
+44808|   %79 = load i64, ptr %78, align 8, !!   ;; effect.rs:26 < abstract_input.rs:170
+44809|   %80 = getelementptr inbounds nuw i8, ptr %21, i64 1192   ;; effect.rs:26 < abstract_input.rs:170
+44810|   %81 = load i64, ptr %80, align 8, !!   ;; effect.rs:26 < abstract_input.rs:170
+44811|   %82 = getelementptr inbounds nuw i8, ptr %21, i64 1480   ;; effect.rs:26 < abstract_input.rs:170
+44812|   %83 = load i64, ptr %82, align 8, !!   ;; effect.rs:26 < abstract_input.rs:170
+44813|   %84 = add i64 %83, -1   ;; effect.rs:26 < abstract_input.rs:170
+44814|   %85 = mul i64 %84, %81   ;; effect.rs:26 < abstract_input.rs:170
+44815|   %86 = getelementptr inbounds nuw i8, ptr %21, i64 1080   ;; effect.rs:26 < abstract_input.rs:170
+44816|   %87 = load i64, ptr %86, align 8, !!   ;; effect.rs:26 < abstract_input.rs:170
+44817|   %88 = tail call noundef i64 @_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(56) %29, ptr noalias nou   ;; abstract_input.rs:170
+44818|   %89 = getelementptr inbounds nuw i8, ptr %21, i64 1136   ;; entity.rs:1511 < abstract_input.rs:170
+44819|   %90 = load i32, ptr %89, align 8, !!   ;; entity.rs:1511 < abstract_input.rs:170
+44820|     #dbg_value(i32 %90, !56790, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !56876)
+44821|   %91 = icmp eq i32 %90, 0   ;; entity.rs:1512 < abstract_input.rs:170
+44822|   br i1 %91, label %92, label %95   ;; entity.rs:1512 < abstract_input.rs:170
+44823| 
+44824| 92:                                               ; preds = %63
+44825|   %93 = getelementptr inbounds nuw i8, ptr %21, i64 1664   ;; entity.rs:1513 < abstract_input.rs:170
+44826|   %94 = load i64, ptr %93, align 8, !!   ;; entity.rs:1513 < abstract_input.rs:170
+44827|   br label %102   ;; entity.rs:1512 < abstract_input.rs:170
+44828| 
+44829| 95:                                               ; preds = %63
+44830|   %96 = sext i32 %90 to i64   ;; entity.rs:1511 < abstract_input.rs:170
+44831|     #dbg_value(i64 %96, !56790, !DIExpression(), !56876)
+44832|   %97 = getelementptr inbounds nuw i8, ptr %21, i64 1664   ;; entity.rs:1515 < abstract_input.rs:170
+44833|   %98 = load i64, ptr %97, align 8, !!   ;; entity.rs:1515 < abstract_input.rs:170
+44834|   %99 = add nsw i64 %96, 100   ;; entity.rs:1515 < abstract_input.rs:170
+44835|   %100 = mul i64 %98, %99   ;; entity.rs:1515 < abstract_input.rs:170
+44836|   %101 = udiv i64 %100, 100   ;; entity.rs:1515 < abstract_input.rs:170
+44837|   br label %102   ;; entity.rs:1512 < abstract_input.rs:170
+44838| 
+44839| 102:                                              ; preds = %95, %92
+44840|   %103 = phi i64 [ %94, %92 ], [ %101, %95 ]   ;; entity.rs:0 < abstract_input.rs:170
+44841|   %104 = getelementptr inbounds nuw i8, ptr %6, i64 1136   ;; entity.rs:1511 < abstract_input.rs:170
+44842|   %105 = load i32, ptr %104, align 8, !!   ;; entity.rs:1511 < abstract_input.rs:170
+44843|     #dbg_value(i32 %105, !56792, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !56880)
+44844|   %106 = icmp eq i32 %105, 0   ;; entity.rs:1512 < abstract_input.rs:170
+44845|   br i1 %106, label %107, label %110   ;; entity.rs:1512 < abstract_input.rs:170
+44846| 
+44847| 107:                                              ; preds = %102
+44848|   %108 = getelementptr inbounds nuw i8, ptr %6, i64 1664   ;; entity.rs:1513 < abstract_input.rs:170
+44849|   %109 = load i64, ptr %108, align 8, !!   ;; entity.rs:1513 < abstract_input.rs:170
+44850|   br label %117   ;; entity.rs:1512 < abstract_input.rs:170
+44851| 
+44852| 110:                                              ; preds = %102
+44853|   %111 = sext i32 %105 to i64   ;; entity.rs:1511 < abstract_input.rs:170
+44854|     #dbg_value(i64 %111, !56792, !DIExpression(), !56880)
+44855|   %112 = getelementptr inbounds nuw i8, ptr %6, i64 1664   ;; entity.rs:1515 < abstract_input.rs:170
+44856|   %113 = load i64, ptr %112, align 8, !!   ;; entity.rs:1515 < abstract_input.rs:170
+44857|   %114 = add nsw i64 %111, 100   ;; entity.rs:1515 < abstract_input.rs:170
+44858|   %115 = mul i64 %113, %114   ;; entity.rs:1515 < abstract_input.rs:170
+44859|   %116 = udiv i64 %115, 100   ;; entity.rs:1515 < abstract_input.rs:170
+44860|   br label %117   ;; entity.rs:1512 < abstract_input.rs:170
+44861| 
+44862| 117:                                              ; preds = %110, %107
+44863|   %118 = phi i64 [ %109, %107 ], [ %116, %110 ]   ;; entity.rs:0 < abstract_input.rs:170
+44864|   %119 = add i64 %87, %79   ;; effect.rs:26 < abstract_input.rs:170
+44865|   %120 = add i64 %119, %85   ;; effect.rs:26 < abstract_input.rs:170
+44866|   %121 = add i64 %120, %88   ;; abstract_input.rs:170
+44867|   %122 = add i64 %121, %103   ;; abstract_input.rs:170
+44868|   %123 = add i64 %122, %118   ;; abstract_input.rs:170
+44869|     #dbg_value(i64 %123, !56765, !DIExpression(), !56884)
+44870|     #dbg_value(i64 %123, !56885, !DIExpression(), !56889)
+44871|     #dbg_value(ptr %6, !56891, !DIExpression(DW_OP_plus_uconst, 104, DW_OP_stack_value), !56894)
+44872|   %124 = getelementptr inbounds nuw i8, ptr %6, i64 104   ;; entity.rs:1386 < abstract_input.rs:173
+44873|   %125 = load i64, ptr %124, align 8, !!!noundef !8   ;; entity.rs:1386 < abstract_input.rs:173
+44874|   %126 = and i64 %125, 14   ;; abstract_input.rs:173
+44875|   %127 = icmp eq i64 %126, 2   ;; abstract_input.rs:173
+44876|   %128 = select i1 %127, i64 2000, i64 15000   ;; abstract_input.rs:173
+44877|     #dbg_value(i64 %128, !56888, !DIExpression(), !56889)
+44878|     #dbg_value(i64 %128, !56767, !DIExpression(), !56897)
+44879|   %129 = tail call i64 @llvm.usub.sat.i64(i64 %123, i64 %128)   ;; uint_macros.rs:2472 < abstract_input.rs:178
+44880|     #dbg_value(i64 %129, !56769, !DIExpression(), !56899)
+44881|   %130 = mul i64 %129, %68   ;; abstract_input.rs:179
+44882|   %131 = icmp eq i64 %77, 0   ;; abstract_input.rs:179
+44883|   br i1 %131, label %136, label %132   ;; abstract_input.rs:179
+44884| 
+44885| 132:                                              ; preds = %117
+44886|   %133 = icmp eq i64 %77, -1   ;; abstract_input.rs:179
+44887|   %134 = icmp eq i64 %130, -9223372036854775808   ;; abstract_input.rs:179
+44888|   %135 = and i1 %133, %134   ;; abstract_input.rs:179
+44889|   br i1 %135, label %141, label %137   ;; abstract_input.rs:179
+44890| 
+44891| 136:                                              ; preds = %117
+44892|   tail call void @_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.190)    ;; abstract_input.rs:179
+44893|   unreachable   ;; abstract_input.rs:179
+44894| 
+44895| 137:                                              ; preds = %132
+44896|     #dbg_value(!DIArgList(i64 %67, i64 %130, i64 %77), !56771, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_LLVM_arg, 2, DW_OP_div, DW_OP_plus, DW_OP_stack_value), !56901)
+44897|   %138 = mul i64 %129, %73   ;; abstract_input.rs:180
+44898|   %139 = icmp eq i64 %138, -9223372036854775808   ;; abstract_input.rs:180
+44899|   %140 = and i1 %133, %139   ;; abstract_input.rs:180
+44900|   br i1 %140, label %156, label %142   ;; abstract_input.rs:180
+44901| 
+44902| 141:                                              ; preds = %132
+44903|   tail call void @_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const24panic_const_div_overflow(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.190)   ;; abstract_input.rs:179
+44904|   unreachable   ;; abstract_input.rs:179
+44905| 
+44906| 142:                                              ; preds = %137
+44907|   %143 = sdiv i64 %130, %77   ;; abstract_input.rs:179
+44908|     #dbg_value(!DIArgList(i64 %67, i64 %143), !56771, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_plus, DW_OP_stack_value), !56901)
+44909|   %144 = add i64 %143, %67   ;; abstract_input.rs:179
+44910|     #dbg_value(i64 %144, !56771, !DIExpression(), !56901)
+44911|   %145 = sdiv i64 %138, %77   ;; abstract_input.rs:180
+44912|   %146 = add i64 %145, %72   ;; abstract_input.rs:180
+44913|     #dbg_value(i64 %146, !56773, !DIExpression(), !56903)
+44914|   %147 = getelementptr inbounds nuw i8, ptr %4, i64 8   ;; abstract_input.rs:181
+44915|   %148 = load ptr, ptr %147, align 8, !!!align !14311, !!   ;; abstract_input.rs:181
+44916|   %149 = getelementptr inbounds nuw i8, ptr %148, i64 32   ;; abstract_input.rs:181
+44917|   %150 = load ptr, ptr %149, align 8, !!!align !14311, !!   ;; abstract_input.rs:181
+44918|   %151 = getelementptr inbounds nuw i8, ptr %148, i64 8   ;; abstract_input.rs:181
+44919|   %152 = load ptr, ptr %151, align 8, !!!align !14311, !!   ;; abstract_input.rs:181
+44920|   %153 = tail call { i64, i64 } @_RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(28112) %150, ptr noa   ;; abstract_input.rs:181
+44921|   %154 = extractvalue { i64, i64 } %153, 0   ;; abstract_input.rs:181
+44922|   %155 = extractvalue { i64, i64 } %153, 1   ;; abstract_input.rs:181
+44923|     #dbg_value(i64 %154, !56775, !DIExpression(), !56905)
+44924|     #dbg_value(i64 %155, !56777, !DIExpression(), !56905)
+44925|   tail call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well(ptr noalias noundef nonnull sret([32 x i8]) align 8 captures(none) dereferenceable(32) %0, i64 noundef %1, ptr noalias noundef nonnull r   ;; abstract_input.rs:183
+44926|   br label %47   ;; abstract_input.rs:165
+44927| 
+44928| 156:                                              ; preds = %137
+44929|   tail call void @_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const24panic_const_div_overflow(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.191)   ;; abstract_input.rs:180
+44930|   unreachable   ;; abstract_input.rs:180
+44931| }
