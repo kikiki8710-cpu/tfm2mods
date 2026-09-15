@@ -11,7 +11,7 @@
       "tab_support": "Support",
       "summary_default": "Pick a position",
       "summary_fmt": "{pos}",
-      "hint": "Pick a position from the tabs, then click champions to allow or disallow them for that position. A champion you assign can ONLY play the positions you assigned it to - to let it play elsewhere, assign it there too. Positions you leave empty accept any champion that is not assigned somewhere else. Minimum per position = your pick + both teams' bans + the opponent's picks that can take your champions (up to 5 when champions are assigned to several positions) + champions locked by earlier sets (Fearless: 4 sets, Hard: both teams). Positions below the minimum are treated as unrestricted.",
+      "hint": "Pick a position from the tabs, then click champions to allow or disallow them for that position. A champion you assign can ONLY play the positions you assigned it to - to let it play elsewhere, assign it there too. Positions you leave empty accept any champion that is not assigned somewhere else. The minimum accounts for bans, opponent picks, earlier sets and overlapping lists.",
       "clear_pos": "Clear this position (allow all)",
       "select_all_pos": "Select all for this position",
       "cancel": "Cancel",
@@ -42,7 +42,7 @@
       "warn_min_tail_stale": " · {n} champions not in the current roster are excluded from the count",
       "warn_shared": "⚠ {count} overlapping positions share a champion pool - {want} needed in total (currently {have})",
       "count_label_pool": "Selected: {n}  (pool {pool} = {n} named + unassigned)",
-      "warn_subset": "⚠ Overlapping positions {lines} share {have} champions but need {need} ({more} more) - this position is treated as unrestricted",
+      "warn_subset": "⚠ With this position on, positions {lines} would share only {have} champions but need {need} ({more} more) - this position is treated as unrestricted",
       "warn_others": "⚠ Other positions below minimum (treated as unrestricted): {list}"
     }
   },
@@ -58,7 +58,7 @@
       "tab_support": "서폿",
       "summary_default": "포지션을 고르세요",
       "summary_fmt": "{pos} 포지션",
-      "hint": "탭에서 포지션을 고르고, 그 포지션에 쓸 챔피언을 클릭해 켜고 끕니다. 지정한 챔피언은 지정한 포지션에만 갈 수 있습니다 - 다른 포지션에도 쓰려면 거기서도 똑같이 골라 주세요. 비워 둔 포지션은 어디에도 지정되지 않은 챔피언을 전부 쓸 수 있습니다. 포지션별 최소 = 내 픽 + 양팀 밴 + 상대가 내 후보를 가져갈 수 있는 수(복수 포지션 지정 시 최대 5) + 이전 세트 잠금(피어리스 4세트, 하드는 양팀). 최소 미만인 포지션은 제한 없음으로 취급됩니다.",
+      "hint": "탭에서 포지션을 고르고, 그 포지션에 쓸 챔피언을 클릭해 켜고 끕니다. 지정한 챔피언은 지정한 포지션에만 갈 수 있습니다 - 다른 포지션에도 쓰려면 거기서도 똑같이 골라 주세요. 비워 둔 포지션은 어디에도 지정되지 않은 챔피언을 전부 쓸 수 있습니다. 최소 선택 수는 밴·상대 픽·이전 세트·겹치는 목록을 반영합니다.",
       "clear_pos": "이 포지션 비우기(전체 허용)",
       "select_all_pos": "이 포지션에 전체 선택",
       "cancel": "취소",
@@ -89,7 +89,7 @@
       "warn_min_tail_stale": " · 지금 로스터에 없는 챔프 {n}개는 제외하고 셉니다",
       "warn_shared": "⚠ 겹친 {count}개 포지션이 챔프풀 공유 - 합쳐서 최소 {want}개 필요 (현재 {have})",
       "count_label_pool": "현재 선택 수: {n}  (판정 풀 {pool} = 지정 {n} + 미지정)",
-      "warn_subset": "⚠ 겹치는 포지션 {lines}의 공유 후보 {have}개 < 필요 {need}개 ({more}개 더 필요) - 이 포지션은 제한 없음 취급",
+      "warn_subset": "⚠ 이 포지션을 켜면 {lines}의 공유 후보가 {have}개로 필요 {need}개에 못 미칩니다 ({more}개 더 필요) - 이 포지션은 제한 없음 취급",
       "warn_others": "⚠ 다른 포지션 최소 미달(제한 없음 취급): {list}"
     }
   }

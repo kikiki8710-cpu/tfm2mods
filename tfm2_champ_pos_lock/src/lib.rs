@@ -770,7 +770,7 @@ fn fill_grid(root: &mut Node) {
             } else {
                 String::new()
             };
-            if comp_size > 1 && live >= base_need {
+            if worst_bits != (1u8 << pos) || live >= base_need {
                 // 이 포지션 자체는 충분한데 **겹치는 포지션 묶음**의 공유풀이 부족(복수 라인 지정)
                 i18n::trf(
                     "warn_subset",
@@ -826,7 +826,7 @@ fn fill_grid(root: &mut Node) {
                     continue;
                 }
                 let (pool1, need1, wbits, whave, wneed) = config::pos_safety(p);
-                let item = if wbits.count_ones() <= 1 {
+                let item = if wbits == (1u8 << p) {
                     format!("{} {}/{}", i18n::pos_name(p), pool1, need1)
                 } else {
                     let lines: String = (0..5).filter(|q| wbits & (1 << q) != 0).map(i18n::pos_name).collect::<Vec<_>>().join("/");

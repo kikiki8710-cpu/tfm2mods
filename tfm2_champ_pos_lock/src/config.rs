@@ -407,8 +407,11 @@ pub struct Safety {
     /// 부분집합(비트마스크 1..31)별 (|N(S)|, need(S))
     pub have: [u16; 32],
     pub need: [u16; 32],
-    /// p 를 포함하는 S 중 슬랙 최소인 S (표시용)
+    /// 표시용: 활성 p = p 를 포함하는 S 중 슬랙 최소 / 비활성 p = **A∪{p} 전체**에서 슬랙 최소인 S(p 를 안 포함할 수 있다 —
+    ///   p 를 켜면 겹치는 챔프의 마스크가 넓어져 다른 포지션의 필요치가 올라 깨지는 경우)
     pub worst: [u8; 5],
+    pub worst_have: [u16; 5],
+    pub worst_need: [u16; 5],
 }
 static SAFETY: RwLock<Option<Safety>> = RwLock::new(None);
 
@@ -476,6 +479,7 @@ impl PosState {
         }
         let a = best.map(|x| x.0).unwrap_or(0);
         let mut have = [0u16; 32]; let mut need = [0u16; 32]; let mut worst = [0u8; 5];
+        let mut worst_have = [0u16; 5]; let mut worst_need = [0u16; 5];
         table(a, &mut have, &mut need);
         for p in 0..5 {
             if a & (1 << p) != 0 {
@@ -485,24 +489,26 @@ impl PosState {
                     let sl = have[s] as i64 - need[s] as i64;
                     if sl < ws.0 { ws = (sl, s); }
                 }
-                worst[p] = ws.1 as u8;
+                worst[p] = ws.1 as u8; worst_have[p] = have[ws.1]; worst_need[p] = need[ws.1];
             } else if named_bits & (1 << p) != 0 {
-                // 꺼진 포지션: A∪{p} 에서 p 를 포함하는 가장 나쁜 S (왜 못 켜는지 표시용)
+                // 꺼진 포지션: A∪{p} **전체**에서 가장 나쁜 S. p 를 켜면 p 지정 챔프의 마스크가 넓어져 L 이 커지고,
+                //   p 를 안 포함하는 S(예: 서폿)의 필요치가 올라 깨질 수 있다 — 그 S 를 그대로 보여 준다.
                 let ap = a | (1 << p);
                 table(ap, &mut th, &mut tn);
                 let mut ws = (i64::MAX, 1usize << p);
                 for s in 1..32usize {
-                    if s & (1 << p) == 0 || s & ap as usize != s { continue; }
+                    if s & ap as usize != s { continue; }
                     let sl = th[s] as i64 - tn[s] as i64;
                     if sl < ws.0 { ws = (sl, s); }
                 }
-                worst[p] = ws.1 as u8;
-                for s in 1..32usize { if s & (1 << p) != 0 && s & ap as usize == s { have[s] = th[s]; need[s] = tn[s]; } }
+                worst[p] = ws.1 as u8; worst_have[p] = th[ws.1]; worst_need[p] = tn[ws.1];
+                // S={p} 의 (have, need) 는 표시용으로 채운다(활성 표에는 없음)
+                have[1 << p] = th[1 << p]; need[1 << p] = tn[1 << p];
             }
         }
         let mut active = [false; 5];
         for p in 0..5 { active[p] = a & (1 << p) != 0; }
-        Safety { key: 0, active, have, need, worst }
+        Safety { key: 0, active, have, need, worst, worst_have, worst_need }
     }
 }
 
@@ -533,8 +539,7 @@ pub static ROSTER_VER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU
 pub fn pos_safety(p: usize) -> (usize, usize, u8, usize, usize) {
     let s = safety();
     let one = 1usize << p;
-    let w = s.worst[p] as usize;
-    (s.have[one] as usize, s.need[one] as usize, s.worst[p], s.have[w] as usize, s.need[w] as usize)
+    (s.have[one] as usize, s.need[one] as usize, s.worst[p], s.worst_have[p] as usize, s.worst_need[p] as usize)
 }
 
 /// 화이트리스트한 포지션이 가져야 할 최소 챔피언 수.
