@@ -701,6 +701,7 @@ pos_lock_popup:color {
     #min_label:label { @"asset/base/style/main#label"; x: 24px; y: 234px; width: 429px; height: 24px; size: 16; align_y: Center; }
     #count_label:label { @"asset/base/style/main#bold_label"; x: 24px; y: 262px; width: 429px; height: 26px; size: 16; align_y: Center; }
     #warning_min:label { @"asset/base/style/main#label"; x: 24px; y: 298px; width: 429px; height: 100px; size: 15; line_height: 24; color: #ff4a4aff; align_y: Center; }
+    #warning_others:label { @"asset/base/style/main#label"; x: 24px; y: 398px; width: 429px; height: 70px; size: 14; line_height: 22; color: #ffb04aff; align_y: Center; }
 
     #clear_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 470px; width: 429px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.clear_pos"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
     #select_all_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 522px; width: 429px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.select_all_pos"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }

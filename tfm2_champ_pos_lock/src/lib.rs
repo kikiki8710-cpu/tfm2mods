@@ -813,6 +813,35 @@ fn fill_grid(root: &mut Node) {
             },
         );
     }
+    // ★[2026-09-16 유저 요청] **다른 포지션**의 조건 불성립도 지금 보는 탭에 경고한다 — 겹치게 고르면
+    //   먼저 설정한 포지션이 뒤늦게 깨질 수 있는데, 그 탭으로 돌아가야만 보였다. safety() 는 전 포지션을
+    //   한 번에 계산하므로 여기서 p≠pos 중 named>0 ∧ !active 를 모아 한 줄로 보여 준다.
+    if let Some(n) = ui_kit::find_mut(pop, "warning_others") {
+        let s = if ban_opt.is_none() {
+            String::new()
+        } else {
+            let mut items: Vec<String> = Vec::new();
+            for p in 0..5 {
+                if p == pos || config::pos_count(p) == 0 || config::pos_active_of(p) {
+                    continue;
+                }
+                let (pool1, need1, wbits, whave, wneed) = config::pos_safety(p);
+                let item = if wbits.count_ones() <= 1 {
+                    format!("{} {}/{}", i18n::pos_name(p), pool1, need1)
+                } else {
+                    let lines: String = (0..5).filter(|q| wbits & (1 << q) != 0).map(i18n::pos_name).collect::<Vec<_>>().join("/");
+                    format!("{}({} {}/{})", i18n::pos_name(p), lines, whave, wneed)
+                };
+                items.push(item);
+            }
+            if items.is_empty() {
+                String::new()
+            } else {
+                i18n::trf("warn_others", &[("list", &items.join(" · "))])
+            }
+        };
+        ui_kit::label_set(n, &s);
+    }
     // 그리드 셀
     let Some(contents) = ui_kit::find_mut(pop, "contents") else {
         return;
