@@ -159,6 +159,14 @@ def _kind(sp, x, kmat):
         return word or u"임계"                          # 계측 실패 시 예전 동작
 
 
+def _rolenote(p):
+    """v2 params 행의 role + note 를 한 문면으로(role 우선). 둘 다 없으면 None."""
+    r, n = p.get("role"), p.get("note")
+    if r and n and r != n:
+        return u"%s · %s" % (r, n)
+    return r or n
+
+
 def evtier(txt):
     t = txt or u""
     for tier, keys in EV:
@@ -561,8 +569,10 @@ def conv(i, sp):
         "path": (tcxfn or {}).get("path"),
         "mir": (tcxfn or {}).get("mir"),
         "ev": 3 if tcxfn and tcxfn.get("sig") else 5,
+        # ★09-16(26차 5배치 B·D·E·I·J 적발): v2 params 행에 `role`(IR 속성·용처)과 `note`(DI 이름) 가 둘 다 있는 204행이
+        #   `note` 만 v3 에 실려 role 정정이 보이지 않는 칸에 들어가고 G16 이 빈 문면을 대조했다 → 둘을 합쳐 노출(role 우선 · note 는 뒤에 ` · ` 로).
         "params": [{"i": p.get("i"), "name": p.get("name"), "type": p.get("type"),
-                    "role": p.get("note"), "ev": evtier(p.get("note"))}
+                    "role": _rolenote(p), "ev": evtier(_rolenote(p))}
                    for p in (sp.get("signature", {}) or {}).get("params", [])],
         "ret": (sp.get("signature", {}) or {}).get("returns"),
         # ★09-15(22차·23차 B·E·F 적발): v2 `signature.abi`(exe 인자 대응표 · EXE_ABI 판정 근거)가 v3 에 없어

@@ -1,0 +1,33 @@
+{
+ "round": "26",
+ "batch": "I",
+ "errors_applied": 9,
+ "ev_applied": 183,
+ "failed": 7,
+ "stamps": {
+  "/specs[227]/logic": "aa34f94893063c2a",
+  "/specs[227]/consts[3]/meaning": "aca858dfc5f8292f",
+  "/specs[227]/knobs[0]/where": "e711c3b4fb992079",
+  "/specs[227]/knobs[0]/effect": "c820ba8a51b83571",
+  "/specs[227]/mem[24]/name": "5426d23b10fcacd6",
+  "/specs[227]/mem[24]/note": "58c9da996d69a513",
+  "/specs[224]/consts[21]/meaning": "c78a4e28181fb065",
+  "/specs[225]/logic": "7c58bc318821d0a9",
+  "/specs[225]/sig/params[5]/name": "fc9fa3a9c9c2140c",
+  "/specs[225]/sig/params[5]/type": "7ba161990b646fd2",
+  "/specs[225]/sig/params[5]/note": "17f8c1db444aca68",
+  "/specs[225]/sig/params[5]/role": "620f36452cb68015",
+  "/specs[225]/sig/params[3]/name": "28b8c501c87f1857",
+  "/specs[225]/sig/params[3]/type": "9306af22e2622b8f",
+  "/specs[225]/sig/params[3]/note": "b6755d273ef9e15a",
+  "/specs[225]/sig/params[0]/note": "b14744a1729af482",
+  "/specs[225]/sig/params[1]/note": "debaff1d446934e9",
+  "/specs[225]/sig/params[2]/note": "615e0b1492d68a18",
+  "/specs[225]/sig/params[4]/note": "9a0a21f1b392a567",
+  "/specs[226]/mem[9]/name": "56acad14d050602a",
+  "/specs[226]/mem[10]/name": "bc63d2904d1039f2",
+  "/specs[226]/mem[24]/note": "f4d490ce578d4601",
+  "/specs[223]/logic": "23e064ebd89de21d"
+ },
+ "restamped": true
+}

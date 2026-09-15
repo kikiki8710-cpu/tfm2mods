@@ -1,0 +1,33 @@
+{
+ "round": "26",
+ "batch": "E",
+ "errors_applied": 3,
+ "ev_applied": 156,
+ "failed": 15,
+ "stamps": {
+  "/specs[209]/consts[4]/src_line": "5c3e9040008c9150",
+  "/specs[209]/consts[4]/meaning": "4ee42702909ee4a0",
+  "/specs[209]/consts[6]/meaning": "8209bdcc90ea660d",
+  "/specs[209]/consts[8]/meaning": "462f25dd9233c58f",
+  "/specs[209]/sig/returns": "f91a4eb8a91a6bc9",
+  "/specs[210]/sig/params[3]/note": "846ac972f55c2898",
+  "/specs[210]/sig/returns": "542ffeb9e643e83b",
+  "/specs[210]/open[1]": "2335df2ae651b981",
+  "/specs[210]/open[2]": "2335df2ae651b981",
+  "/specs[211]/consts[0]/meaning": "0933961bcb4dabb6",
+  "/specs[211]/sig/returns": "670e8944d5c3f781",
+  "/specs[211]/consts[5]/src_line": "2c8b871e52d4e5f5",
+  "/specs[211]/consts[6]/src_line": "2c8b871e52d4e5f5",
+  "/specs[211]/consts[7]/src_line": "2c8b871e52d4e5f5",
+  "/specs[211]/consts[8]/src_line": "2c8b871e52d4e5f5",
+  "/specs[211]/consts[9]/src_line": "2c8b871e52d4e5f5",
+  "/specs[211]/consts[5]/meaning": "d5af3cce4de00e13",
+  "/specs[211]/consts[7]/meaning": "23ab167c2d30521a",
+  "/specs[211]/sig/params[1]/note": "7f9a2230b5d2e19a",
+  "/specs[211]/sig/params[7]/note": "f3954a53019f75ea",
+  "/specs[211]/logic": "ea195b4be622d0f3",
+  "/specs[211]/open[0]": "ba5d282cee4f64e3",
+  "/specs[211]/sig/tls": "6690d7fff7f093cc"
+ },
+ "restamped": true
+}

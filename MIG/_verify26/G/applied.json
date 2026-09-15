@@ -1,0 +1,23 @@
+{
+ "round": "26",
+ "batch": "G",
+ "errors_applied": 1,
+ "ev_applied": 121,
+ "failed": 11,
+ "stamps": {
+  "/specs[218]/consts[3]/src_line": "60f070e3393291d6",
+  "/specs[218]/consts[4]/src_line": "60f070e3393291d6",
+  "/specs[218]/consts[5]/src_line": "793733573a1dfd14",
+  "/specs[218]/consts[6]/src_line": "793733573a1dfd14",
+  "/specs[218]/consts[7]/src_line": "085b2a38876eeddc",
+  "/specs[218]/consts[13]/src_line": "6bcaea9882504292",
+  "/specs[218]/consts[14]/src_line": "6bcaea9882504292",
+  "/specs[218]/consts[15]/src_line": "6bcaea9882504292",
+  "/specs[216]/open[4]/q": "274ab82f3c0e3ec6",
+  "/specs[216]/open[0]/q": "274ab82f3c0e3ec6",
+  "/specs[216]/logic": "7afe5364e7efbb46",
+  "/specs[216]/notes[0]/q": "274ab82f3c0e3ec6",
+  "/specs[217]/open[3]/q": "7fff2bdd5fa0dded"
+ },
+ "restamped": true
+}

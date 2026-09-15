@@ -1,0 +1,115 @@
+# -*- coding: utf-8 -*-
+"""26차 배치G patch.json 생성 — v16(215) · walkup(216) · v17(217) · update_state(218)."""
+import sys, io
+sys.path.insert(0, r"C:\tfm2mods\MIG")
+import mkpatch
+
+p = mkpatch.Patch(round=26, batch="G")
+
+# ── 218 G12: consts.src_line 은 「이 함수 소스(lib.rs) 루트 줄」 규약. 인라인 콜리(small_action.rs/bumpalo vec.rs/prof.rs)의 줄이 적혀 있었다 ──
+G12 = [
+    (3, 463, 591, u"m14.ll:34788 `%220 = add nsw i8 %218, -15` !dbg 사슬 L463(small_action.rs:463 is_action_complete)<811(lib.rs can_skip_eval)<591(lib.rs 루트). 463 은 다른 파일의 줄이라 own-file 후보([591,811])가 아니다 — 루트 591 로"),
+    (4, 463, 591, u"m14.ll:34789 `%221 = icmp ult i8 %220, 4` 같은 사슬 L463<811<591 — 루트 591"),
+    (5, 445, 592, u"m14.ll:34867 `%268 = add nsw i8 %266, -3` !dbg 사슬 L445(small_action.rs:445 extend_action)<592(lib.rs 루트) — 루트 592"),
+    (6, 445, 592, u"m14.ll:34869 `%270 = select i1 %269, i8 %268, i8 7` 사슬 L445<592 — 루트 592"),
+    (7, 547, 570, u"m14.ll:34458 `store ptr inttoptr (i64 8 to ptr), ptr %13` 사슬 L547(bumpalo vec.rs new_in)<690<570 · 같은 리터럴이 34477(L547<684<574)·34486(L547<572)에도 — 첫 출현의 루트 570(572·574 는 다른 두 arm)"),
+    (13, 825, 560, u"m14.ll:34371 `%36 = icmp ult i64 %35, 132` 사슬 L185(prof.rs)<825<825<560(lib.rs 루트 · _t_ev drop) · 576·598 의 drop 에도 같은 리터럴 — 첫 출현 루트 560"),
+    (14, 825, 560, u"m14.ll:34386 `%44 = mul i64 %42, 1000000000` 사슬 L632<185<825<825<560 — 루트 560"),
+    (15, 825, 560, u"m14.ll:34356 `%33 = icmp eq i32 %32, -1` 사슬 L825<560 — 루트 560"),
+]
+for j, old, new, ev in G12:
+    p.fix("/specs[218]/consts[%d]/src_line" % j, old=old, new=new, evidence=ev, behavior_change=False, found_by="reused")
+
+# ── 216 G7 과열림: open[4] 가 확정 항목 is_recent_visible 을 부른다 ──
+p.fix("/specs[216]/open[4]/q",
+      old=u"positioning_score_at · check_kill_die_tick · enemy_minion_line_action_danger_damage_at · possible_risk · max_range_nearly_can_use · is_recent_visible 본문은 계약만(담당 밖)",
+      new=u"positioning_score_at · check_kill_die_tick · enemy_minion_line_action_danger_damage_at · possible_risk · max_range_nearly_can_use 본문은 계약만(담당 밖)",
+      evidence=u"G7: is_recent_visible 은 shared 확정 항목(오라클 o216 g52/g53: bb[1].last_visible[p]=tick 이면 attackers 에 들어가고 아니면 빈 Vec → false) — 미탐색 목록에서 제거",
+      behavior_change=False, found_by="reused")
+
+# ── 216 open[0]: Effect::range 시그니처는 tcx 에 있다(재료 부재가 아니었다) ──
+p.fix("/specs[216]/open[0]/q",
+      old=u"Effect::range(effect.rs:26) 의 정확한 시그니처 — 본 함수에선 caster_radius 가산이, v47 에선 15000 가산이 L26 로 귀속돼 `range(&self, caster, extra)` 형태로 추정. add 가 nsw 없이 재결합 가능해 dbg 귀속만으로는 확정 불가",
+      new=u"Effect::range 시그니처 = tcx `game_core::Effect::range` `fn(&Effect, &Entity) -> u64`(effect.rs:25 · mir=true xinl=true · 인자 2개, extra 없음). 본체 = self.range(+0x10) + caster.stat_buff_cached.range(+0x438) + self.growth_range(+0x18)×(caster.level−1) (m14.ll 29133~29140·29170~29171 %263/%271/%269). caster_radius(L58)·range_adjust·target.radius() 와 v47 의 15000 은 호출부(L59/v47) 가산이고 `%289 = add %263, %261` 이 L26 로 귀속된 것은 add 재결합. 오라클 o216 g57/g58: casting==Targeting 이면 champ.radius()(10000) 만큼 walkup 이 target 에서 멀어짐(경계 345000/335000 에서 attackers 포함/제외 반전)",
+      evidence=u"_tcx/game_core.json i=2912 `game_core::Effect::range` sig fn(&Effect,&Entity)->u64 · sp effect.rs:25:3~46 · IR m14.ll:29170 `%289 = add i64 %263, %261` ;L26<59 / 29171 `%290 = add i64 %289, %271` ;L26<59 / 29172 `%291 = add i64 %290, %269` ;L59",
+      behavior_change=False, found_by="new")
+p.fix("/specs[216]/logic",
+      old=u"        // Effect::range(effect.rs:26) 인라인 = effect.range + caster_radius + champ.stat_buff_cached.range + growth_range×(level-1)  (add 재결합 가능 · dbg L26 귀속)",
+      new=u"        // Effect::range(&self, caster)(effect.rs:25 · tcx 2인자) 인라인 = effect.range + champ.stat_buff_cached.range + growth_range×(level-1) · caster_radius/range_adjust/target.radius() 는 L59 호출부 가산(IR 이 range+caster_radius 를 먼저 더해 L26 에 귀속한 것은 add 재결합)",
+      evidence=u"_tcx/game_core.json `game_core::Effect::range` fn(&Effect,&Entity)->u64 · m14.ll:29170~29173 add 사슬(%263 range · %261 caster_radius · %271 stat_buff.range · %269 growth×(lv−1) · %272 range_adjust · %288 target.radius) — 합은 동일",
+      behavior_change=False, found_by="new")
+p.fix("/specs[216]/logic",
+      old=u"   L59: range = effect.range(champ, caster_radius) + range_adjust(effect, champ, target) + target.radius()",
+      new=u"   L59: range = effect.range(champ) + caster_radius + range_adjust(effect, champ, target) + target.radius()",
+      evidence=u"tcx Effect::range 는 (&self,&Entity) 2인자 — caster_radius 는 호출부 항. IR m14.ll:29170 `%289 = add i64 %263(effect.range), %261(caster_radius)`",
+      behavior_change=False, found_by="new")
+
+# ── 216 notes[0]: backoff 는 action_walkup_position 안 match (시그니처에 backoff 인자 없음) ──
+p.fix("/specs[216]/notes[0]/q",
+      old=u"backoff(150000/15000) 의 소스 줄 — phi %62 에 dbg 없음. action_walkup_position 시그니처에 backoff 인자가 있는지, 아니면 L60~61 안에서 match 하는지 미확정",
+      new=u"backoff(150000/15000) 는 action_walkup_position 내부(L60~61) 의 SmallAction match 로 정해진다 — tcx 시그니처 `fn(&LineDefenseSubPlan, &Entity, &Entity, SmallAction, &Effect, &OperationData) -> Option<(u64,u64)>`(line_defense.rs:38) 에 backoff 인자가 없고 SmallAction 값(phi %63: 6/7/8/9)이 넘어간다. phi %62(150000/15000) 에 dbg 가 없는 것은 인라인 뒤 L75 switch 로 점프스레딩된 호이스트(정상). 오라클 o216: Attack 태그면 걸어갈 위치 = target + (range−15000)(경계 345000 포함/345001 제외로 실측)",
+      evidence=u"_tcx/game_ai.json `LineDefenseSubPlan::action_walkup_position` sig(인자 6개 · backoff 없음) · m14.ll:28755 `%62 = phi i64 [ 150000, %60 ], [ 15000, %59 ], [ 15000, %58 ], [ 15000, %46 ]` / 28756 `%63 = phi i64 [ 9, %60 ], [ 8, %59 ], [ 7, %58 ], [ 6, %46 ]`(dbg 없음) · 29179 `%294 = tail call i64 @llvm.usub.sat.i64(i64 %293, i64 %62)` ;L2472<61<105",
+      behavior_change=False, found_by="new", kind=u"보강")
+
+# ── 217 open[3]: _version 미사용은 IR 로 확정된 사실 서술 ──
+p.fix("/specs[217]/open[3]/q",
+      old=u"`_version`(i64 %0) 미사용 — 버전 분기 없음",
+      new=u"`_version`(i64 %0) 미사용 — 버전 분기 없음(확정: m05.ll 59244~60293 본문에서 %0 의 use 는 `#dbg_value(i64 %0, !58751…)` 1건뿐 · define 의 %0 에 속성 없음) — 사실 서술로 이동 요망",
+      evidence=u"m05.ll 59245~60293 grep `%0\\b` = 1건(#dbg_value) · define m05.ll:59244 `i64 noundef %0`",
+      behavior_change=False, found_by="new", kind=u"보강")
+
+# ── ev 상향(오라클 실행 확인) ──
+O215 = u"오라클 실행 확인(26차G o215 · 52케이스 전부 MATCH · 케이스당 프로세스 1개 · _verify26/G/oracle/o215_truth.log): "
+E215 = {
+    "consts": {0: u"c01 다른 Action(Swordman ult) 이면 0 · GamblerUltAction 이면 통과", 1: u"c03 타워(ty 2) 대상 0", 2: u"c00 TeamType Player·c08 cc_time 0 → 0", 3: u"c05 Stun(태그1) 0",
+               6: u"c06 BlockAttack(3) 은 통과·c07 Charm(9) 0 / c40 target_parameter 없을 때 +6 이 np=1 에서 사라짐(32 vs 38)",
+               8: u"c07 Charm(9) 0", 9: u"c12 charm 39 → base 13", 10: u"c10/c11 charm 35·36 → 12 · c12 39 → 13", 11: u"c10 base 12 · c35 sup==target +12",
+               12: u"c13 89 → 29 · c14 90 → 30 · c15 300 → 30", 13: u"c44 hv=100 clamp(attack_value 1000)", 14: u"c4b ult 4951×100/100 → 35 상한(12+35+16=63)", 15: u"c48 incoming 100×100/100 → 22 상한(12+0+16+22=50)",
+               16: u"c21 120000 포함(+5) · c22 120001 제외", 17: u"c27 90000 포함 · c28 90001 제외(4→3)", 18: u"c21 ally 1 → +5 · c20 ally 4 → +15(min 3)", 19: u"c51 71 → 70"},
+    "knobs": {0: u"c10~c15 12..30 clamp", 1: u"c4b 35 상한", 2: u"c48 22 상한", 3: u"c21/c22 120000 경계", 4: u"c27/c28 90000 경계", 5: u"c35 sup=target +12 · c00 focus=target +12 · c30 RunAway 0", 6: u"c51 clamp 70", 7: u"c40 vs c00: np 있으면 +6 없음"},
+    "mem": {3: u"charm_duration(+0x10) 값이 base 를 바꿈", 7: u"c04 +0x468 write_volatile(1) → 0", 13: u"c43 thp=0 → max(hp,1)=1 분모", 11: u"c21/c22 +0x660 이동으로 ally_near 반전", 12: u"c20 +0x668 이동", 29: u"c30/c31 태그 4·7 → focus None", 30: u"c32/c33 focus id 비교", 8: u"c05/c06/c07 cc Vec 원소 태그 판정", 9: u"c07 2원소 Vec 순회", 14: u"c06 태그3 통과·c05 태그1 차단", 6: u"c03 ty 태그 2 → 0", 19: u"c40 near_enemies[0].id(+0x58)==target.id 매치", 20: u"c41 applyed_damage(+0x70) 이 incoming 에", 21: u"c4a risk_damage(+0x80) 300 → +22 상한", 24: u"c24/c25 blackboard[1].last_visible → enemy_near 0/4"},
+}
+for fld, m in E215.items():
+    for j, ev in m.items():
+        p.ev("/specs[215]/%s[%d]" % (fld, j), evidence=O215 + ev, to=(3 if fld == "mem" else 2), found_by="new")
+
+O217 = u"오라클 실행 확인(26차G o217 · 46케이스 전부 가설 일치 · _verify26/G/oracle/o217_truth.log): "
+E217 = {
+    "consts": {0: u"c01 Trace·c02 End → 0 / c23 +4", 1: u"c04 타워 0", 2: u"c03 아군 0", 3: u"c0a thp=0 → max 1", 5: u"c15 mdist 200000(reach 밖) → heavy 불성립 0", 6: u"c23 spd 2000·mdist 44000 → +4 · c24 44001 → 0",
+               7: u"c13/c14 ready 70/69 ×100 vs 7000", 8: u"c13 7000>=7000 → 14 기본 · c14 6900 → 0", 9: u"c00 lethal 75", 10: u"c10/c11 ready≥hp → 48", 11: u"c12/c13 heavy → 14", 12: u"c20 +10 · c30 +10 · esc +10(ne=5 일 때)",
+               13: u"c21 35000 포함 +10 · c22 35001 제외", 15: u"c30 6000>=6000 +10 · c31 5900 → +5", 16: u"c32 3000>=3000 +5 · c33 2900 → 0", 17: u"c51 na>=ne → +5", 18: u"c40 3500<=3500 +8 · c41 3600 → 0", 19: u"c40 +8",
+               20: u"c53 120000 포함 · c54 120001 제외", 21: u"c57 heavy·ne5·na0 → 14+10+10−15=19", 22: u"c60 108 → 95"},
+    "knobs": {0: u"c13/c14", 1: u"c00/c10/c12", 2: u"c00 esc +10(ne=5) vs c50 esc 0(ne=1)", 3: u"c20~c25", 4: u"c30~c37", 5: u"c40~c42", 6: u"c57", 7: u"c51~c53", 8: u"c53/c54", 9: u"c60"},
+    "mem": {0: u"c01/c02 태그 0·7 → 0", 3: u"c04", 4: u"c05 +0x488 → 0", 5: u"c08/c09 current>=hp 경계 · c0a max(hp,1)", 6: u"c40/c41 +0x628", 7: u"c23/c24 +0x640", 8: u"c20~c25 +0x660", 19: u"c30~c33 +0x988", 20: u"c34 +0x998", 21: u"c35/c36 +0x9b0 /2", 14: u"c06 vis=0 → 0"},
+}
+for fld, m in E217.items():
+    for j, ev in m.items():
+        p.ev("/specs[217]/%s[%d]" % (fld, j), evidence=O217 + ev, to=(3 if fld == "mem" else 2), found_by="new")
+
+O216 = u"오라클 실행 확인(26차G o216 · 47케이스 · _verify26/G/oracle/o216_truth.log): "
+E216 = {
+    "consts": {3: u"g00~g06 Attack(태그15) 통과", 4: u"g20 Skill 태그16 → skill_effect None → false", 5: u"g21 Skill2 → false", 6: u"g22 Ult → false(level≤4)", 8: u"g54/g55: walkup = target+(220000−15000)=477000 에서 attackers 경계 345000/345001 반전",
+               10: u"mhp=2 die_tick=120 → path A(연장 아님) · mhp=3 die_tick 180 → path B", 11: u"g57/g58 casting Position 이면 caster_radius 0(walkup 467000)", 12: u"g40 attack_effect None → false", 13: u"g22", 15: u"mhp=1 risk=1 (100>=35) → high_risk true · mhp=2 risk=1(100>=70) true · risk=0 false",
+               17: u"g10 path B 에서 runaway=1·score.risk 0 → false", 18: u"g54 r=max_range_nearly_can_use(120000)+20000=140000 포함 · g55 140001 제외"},
+    "knobs": {1: u"g54/g55 backoff 15000", 2: u"g54/g55 +20000 경계", 6: u"die_tick 120 vs 180"},
+    "mem": {0: u"g20~g26 태그별 분기", 1: u"target id(+0x8) 로 get_entity_by_id", 19: u"g30 챔피언 대상 false", 17: u"g31 아군 타워 false", 20: u"g42 dmg 0 < hp 1 → v22 경로(이 세계 false) 진입", 21: u"g43/g44 visible_state 태그 2·1 → walkup=타워 좌표 → tower_focus true", 47: u"g57/g58 casting +0x30", 41: u"mhp 1/2/3 → die_tick 60/120/180", 16: u"spf 998 risk_damage", 54: u"g42 #v22 문자열 미발생(v22 false)", 55: u"g43 infos 'v19 lane danger block: target 3, trajectory=false, tower_focus=true'", 56: u"g01 infos 'die_tick=60, score_risk=0, high_risk=false, minion_wave=false'"},
+}
+for fld, m in E216.items():
+    for j, ev in m.items():
+        p.ev("/specs[216]/%s[%d]" % (fld, j), evidence=O216 + ev, to=(3 if fld == "mem" else 2), found_by="new")
+
+O218 = u"오라클 실행 확인(26차G o218 · _verify26/G/oracle/o218_truth.log): "
+E218 = {
+    "consts": {1: u"last_eval_tick=2995(3000<3005) → extend(+0x28a0=3000 · rnd 미소비) / 2990(3000<3000 거짓) → update_small_action(태그 4→5 · last_eval_tick=3000)", 5: u"Recall(태그4) → case 1 → +0x28a0 쓰기", 7: u"반환 Vec ptr=0x8 · bump=&pool · cap=0 · len=0 (전 케이스)"},
+    "knobs": {0: u"let=2995 vs 2990"},
+    "mem": {1: u"let=2995/2990 경계", 2: u"satag=19(Stop) 이면 extend 쓰기 없음 · 태그 4 이면 +0x28a0", 4: u"mhp=5 lehp=10 → 재평가", 26: u"let=2995 satag=4: self_diff 에 0x28a0..0x28a2 · 값 3000", 25: u"satag=19 에서 0x2858 diff 없음", 28: u"dbg=1 에서 +0x48..+0xe0 diff(merge)", 14: u"vec_bump == &pool", 8: u"dbg=1 에서 big_debug clone→merge 로 +0x0.. 변경"},
+}
+for fld, m in E218.items():
+    for j, ev in m.items():
+        p.ev("/specs[218]/%s[%d]" % (fld, j), evidence=O218 + ev, to=(3 if fld == "mem" else 2), found_by="new")
+
+p.brief_error(u"§4 G7 건 표기가 「positioning_score_at · check_kill_die_tick · …」 줄에 잘려 어느 항목(open[4])인지 인덱스가 없다 — 배치가 v3 를 다시 열어 찾아야 했다. 게이트 출력에 open 인덱스를 붙여 달라")
+p.brief_error(u"§1 표의 `ev≥4(미실행)` 60/86/55/49 는 vtable 진입점 잔여 4함수에 대해 「오라클 직접 진입 불가」를 암시하지 않지만, 도시에 어디에도 `define hidden` 4/4 라는 사실이 없어 링크 가능 여부를 배치가 다시 확인해야 했다(4/4 hidden · internal 0 — link_name 직접 진입 전부 성공)")
+p.brief_error(u"callees[].pick 문면 「⚠간접호출(vtable) — 망글링 심볼이 원래 없다」가 **완전 인라인된 private 함수**(216 action_walkup_position·action_effect · 218 can_skip_eval·extend_action)에도 붙는다 — 심볼이 없는 이유가 vtable 이 아니라 인라인이라 문면이 틀리다(도구 결함 · mkspec3 pick 생성부)")
+p.brief_error(u"지시문 ②의 「Vec<TurnEvent> 32B(update_state · 항상 빈 Vec · bump 포인터 프로세스 의존)」은 맞지만 +0x0 의 댕글링 ptr 8 은 상수·+0x10 cap/+0x18 len 은 0 으로 **전 32B 가 store 됨**(미초기화 0B) — SRET_LIVE 마스크는 「+0x8..+0x10 만 제외」가 정확하다")
+p.save()

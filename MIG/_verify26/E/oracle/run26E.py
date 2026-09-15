@@ -1,0 +1,127 @@
+# -*- coding: utf-8 -*-
+"""o26E 드라이버 — 케이스당 프로세스 1개(TLS 메모 규칙). 결과 요약을 o26E_cases.log 에 남긴다. python -X utf8 run26E.py [209|210|211]"""
+import subprocess, os, io, sys
+EXE = os.path.join(os.environ['LOCALAPPDATA'], 'Temp', 'tfm2_spanprobe', 'o26E.exe')
+CASES = {
+ "209": [
+  ("C01 count==0 조기반환(ticks 0)",                 "fn=209 ticks=0 depth=30 sq=3"),
+  ("C02 미니언 3 · 소스 없음",                        "fn=209 ticks=900 nearm=0 depth=30 sq=3"),
+  ("C03 소스 3 + Target 투사체 · sq3 depth60",        "fn=209 ticks=1600 nearm=0 depth=60 sq=3"),
+  ("C04 sq=0 (타워 제외·투사체 없음)",                "fn=209 ticks=1600 nearm=0 depth=60 sq=0"),
+  ("C05 sq=1 (투사체 없음)",                          "fn=209 ticks=1600 nearm=0 depth=60 sq=1"),
+  ("C06 sq=2 (Target 만)",                            "fn=209 ticks=1600 nearm=0 depth=60 sq=2"),
+  ("C07 경계 arrival 17 > depth 16 → 제외",           "fn=209 ticks=1600 nearm=0 depth=16 sq=3"),
+  ("C08 경계 arrival 17 <= depth 17 → 포함",          "fn=209 ticks=1600 nearm=0 depth=17 sq=3"),
+  ("C09 depth=4 → ncp 0",                             "fn=209 ticks=1600 nearm=0 depth=4 sq=3"),
+  ("C10 depth=5 → ncp 1",                             "fn=209 ticks=1600 nearm=0 depth=5 sq=3"),
+  ("C11 depth=9 → ncp 1",                             "fn=209 ticks=1600 nearm=0 depth=9 sq=3"),
+  ("C12 depth=10 → ncp 2",                            "fn=209 ticks=1600 nearm=0 depth=10 sq=3"),
+  ("C13 depth=200 → ncp 18 상한",                     "fn=209 ticks=1600 nearm=0 depth=200 sq=3"),
+  ("C14 강한 미니언(matk 1000) → 사망 보간",           "fn=209 ticks=1600 nearm=0 depth=90 sq=3 matk=1000"),
+  ("C15 강한 미니언 depth=200",                        "fn=209 ticks=1600 nearm=0 depth=200 sq=3 matk=1000"),
+  ("C16 매우 강한(matk 5000) 첫 체크포인트 사망",      "fn=209 ticks=1600 nearm=0 depth=90 sq=3 matk=5000"),
+  ("C17 mhp0 (current_hp 0 → prev_hp<=0 가지 death=tick_off)", "fn=209 ticks=1600 nearm=0 depth=90 sq=3 matk=1000 mhp0=0"),
+  ("C18 mhp0 (matk 기본, dps 0 → hp 0 <1 → death=5)", "fn=209 ticks=1600 nearm=0 depth=90 sq=3 mhp0=0"),
+  ("C19 gather 13 → 12 슬롯 상한",                    "fn=209 ticks=1600 nearm=0 gather=13 depth=30 sq=3"),
+  ("C20 gather 20 → 12 슬롯 상한(순회 순서)",          "fn=209 ticks=2200 nearm=0 gather=20 depth=30 sq=3"),
+  ("C21 gather 12 → 정확히 12",                        "fn=209 ticks=1600 nearm=0 gather=12 depth=30 sq=3"),
+  ("C22 경계 dist 80000 (dx=80000) 포함",             "fn=209 ticks=900 nearm=0 dx=80000 depth=30 sq=3"),
+  ("C23 경계 dist 80001 제외",                         "fn=209 ticks=900 nearm=0 dx=80001 depth=30 sq=3"),
+  ("C24 tick 3000 (다른 웨이브 상태)",                  "fn=209 ticks=3000 nearm=0 depth=60 sq=3"),
+  ("C25 tick 3000 team=1",                             "fn=209 ticks=3000 nearm=0 depth=60 sq=3 team=1"),
+  ("C26 tick 2200 pos=2 team=1 matk=300",              "fn=209 ticks=2200 nearm=1 depth=60 sq=3 team=1 pos=2 matk=300"),
+  ("C27 tick 1600 nearm=3 depth 45 matk 200",          "fn=209 ticks=1600 nearm=3 depth=45 sq=3 matk=200"),
+  ("C28 tick 1700 nearm=0 sq=3 depth=30 matk=50",      "fn=209 ticks=1700 nearm=0 depth=30 sq=3 matk=50"),
+  ("C29 gather+vtick matk=100 → 사망 보간 death=50(cp10)",   "fn=209 ticks=900 nearm=0 gather=4 gathera=6 vtick=1 depth=90 sq=3 matk=100"),
+  ("C30 gather+vtick matk=300 → death 25/44",                "fn=209 ticks=900 nearm=0 gather=4 gathera=6 vtick=1 depth=90 sq=3 matk=300"),
+  ("C31 gather+vtick matk=1000 → 첫 cp 사망 death=4",          "fn=209 ticks=900 nearm=0 gather=4 gathera=6 vtick=1 depth=90 sq=3 matk=1000"),
+  ("C32 gather+vtick matk=300 depth=30 (ncp 6 · 사망 전 종료)", "fn=209 ticks=900 nearm=0 gather=4 gathera=6 vtick=1 depth=30 sq=3 matk=300"),
+  ("C33 gather+vtick matk=300 sq=0 team=1",                   "fn=209 ticks=900 nearm=0 gather=4 gathera=6 vtick=1 depth=90 sq=0 matk=300 team=1"),
+  ("C34 gather 13 + gathera 9 + vtick (슬롯 상한 + 소스 다수)",  "fn=209 ticks=1600 nearm=0 gather=13 gathera=9 vtick=1 depth=60 sq=3 matk=200"),
+ ],
+ "210": [
+  ("C01 target None · commit → Morgard camp AP",       "fn=210 target=2 commit=1"),
+  ("C02 target None · Lurk → Morgard camp AP",         "fn=210 target=2 commit=0"),
+  ("C03 Epic · tick0 live_list 비어 → Morgard camp",   "fn=210 target=0 commit=1 ticks=0"),
+  ("C04 Serpen · tick0 → Serpen camp",                  "fn=210 target=1 commit=1 ticks=0"),
+  ("C05 Epic commit 멀리 → AP(new_with_out_line) 만",   "fn=210 target=0 commit=1 ticks=100"),
+  ("C06 Serpen commit at target cdmg → Attack+Skill+AP","fn=210 target=1 commit=1 ticks=100 attgt=1 cdmg=100"),
+  ("C07 경계 atk dx=55030 포함",                        "fn=210 target=1 commit=1 ticks=100 attgt=1 cdmg=100 dx=55030"),
+  ("C08 경계 atk dx=55031 제외(skill 도 제외)",          "fn=210 target=1 commit=1 ticks=100 attgt=1 cdmg=100 dx=55031"),
+  ("C09 경계 skill dx=25030 포함",                       "fn=210 target=1 commit=1 ticks=100 attgt=1 cdmg=100 dx=25030"),
+  ("C10 경계 skill dx=25031 제외(atk 포함)",             "fn=210 target=1 commit=1 ticks=100 attgt=1 cdmg=100 dx=25031"),
+  ("C11 lvl=3 s2dmg → Skill2",                          "fn=210 target=0 commit=1 ticks=100 attgt=1 cdmg=100 lvl=3 s2dmg=100"),
+  ("C12 lvl=2 s2dmg → Skill2 없음(level>2)",             "fn=210 target=0 commit=1 ticks=100 attgt=1 cdmg=100 lvl=2 s2dmg=100"),
+  ("C13 lvl=5 udmg → Ult",                              "fn=210 target=0 commit=1 ticks=100 attgt=1 cdmg=100 lvl=5 s2dmg=100 udmg=100"),
+  ("C14 lvl=4 udmg → Ult 없음(level>4)",                 "fn=210 target=0 commit=1 ticks=100 attgt=1 cdmg=100 lvl=4 udmg=100"),
+  ("C15 cms=1000 → ms*30 여유 30000 · dx=85000 포함",                    "fn=210 target=1 commit=1 ticks=100 attgt=1 cdmg=100 cms=1000 dx=85000"),
+  ("C16 cms=1000 dx=85001 제외",                         "fn=210 target=1 commit=1 ticks=100 attgt=1 cdmg=100 cms=1000 dx=85001"),
+  ("C17 Lurk Epic · 적 없음 → AroundBush",               "fn=210 target=0 commit=0 ticks=100"),
+  ("C18 Lurk Serpen → AroundBush",                       "fn=210 target=1 commit=0 ticks=100"),
+  ("C19 Lurk 적 근접(130000·evis) → RunAway",             "fn=210 target=0 commit=0 ticks=100 e0=1 enear=130000 evis=1"),
+  ("C20 Lurk 적 130001·evis → AroundBush",                "fn=210 target=0 commit=0 ticks=100 e0=1 enear=130001 evis=1"),
+  ("C21 Lurk 적 근접 evis 없음 → AroundBush",             "fn=210 target=0 commit=0 ticks=100 e0=1 enear=100"),
+  ("C22 Lurk 적 슬롯4 근접 evis → RunAway",               "fn=210 target=1 commit=0 ticks=100 e4=1 enear=1000 evis=1"),
+  ("C23 team=1 target None → camp(Morgard,false)",        "fn=210 target=2 commit=1 team=1"),
+  ("C24 team=1 Serpen commit at target",                  "fn=210 target=1 commit=1 ticks=100 team=1 attgt=1 cdmg=100"),
+  ("C25 team=1 Lurk Epic",                                "fn=210 target=0 commit=0 ticks=100 team=1"),
+  ("C26 seed=1 rnd 동기",                                 "fn=210 target=2 commit=1 seed=1"),
+  ("C27 seed=42 commit AP",                               "fn=210 target=0 commit=1 ticks=100 seed=42"),
+  ("C28 version=55",                                      "fn=210 target=0 commit=1 ticks=100 version=55"),
+  ("C29 pos=0(Top) commit Epic",                          "fn=210 target=0 commit=1 ticks=100 pos=0 attgt=1 cdmg=100"),
+  ("C31 champ None(cache 슬롯 null) → Recall(4) end_delay 5",     "fn=210 target=0 commit=1 ticks=100 cnone=1"),
+  ("C32 champ None · Lurk · target None → Recall(champ 검사가 먼저)", "fn=210 target=2 commit=0 ticks=100 cnone=1"),
+  ("C30 lvl=3 growth 0 · cdmg crange 60000",              "fn=210 target=1 commit=1 ticks=100 attgt=1 cdmg=100 crange=60000 dx=85030"),
+ ],
+ "211": [
+  ("C01 undying → i64::MAX",                              "fn=211 ticks=100 und=1"),
+  ("C02 적 0 타워 0 · hp1000 → hp*60/1",                  "fn=211 ticks=100 chp=1000"),
+  ("C03 적 1 (edmg 50)",                                  "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=1000"),
+  ("C04 적 2",                                            "fn=211 ticks=100 ne=2 e0=1 e1=1 edmg=50 chp=1000"),
+  ("C05 타워 1 (tdmg 200)",                               "fn=211 ticks=100 nt=1 tdmg=200 chp=1000"),
+  ("C06 타워 2",                                          "fn=211 ticks=100 nt=2 tdmg=200 chp=1000"),
+  ("C07 적 2 타워 2",                                     "fn=211 ticks=100 ne=2 e0=1 e1=1 edmg=50 nt=2 tdmg=200 chp=1000"),
+  ("C08 적 5 타워 6 (키 상한 8/12 안)",                    "fn=211 ticks=100 ne=5 e0=1 e1=1 e2=1 e3=1 e4=1 edmg=50 nt=6 tdmg=200 chp=1000"),
+  ("C09 ecool=60 (<= tps) → 공격 nuke 포함",               "fn=211 ticks=100 ne=1 e0=1 edmg=50 ecool=60 chp=1000"),
+  ("C10 ecool=61 (> tps) → 공격 nuke 제외",                "fn=211 ticks=100 ne=1 e0=1 edmg=50 ecool=61 chp=1000"),
+  ("C11 escool=61 esdmg → 스킬 nuke 제외",                 "fn=211 ticks=100 ne=1 e0=1 edmg=50 esdmg=80 escool=61 chp=1000"),
+  ("C12 escool=60 esdmg → 스킬 nuke 포함",                 "fn=211 ticks=100 ne=1 e0=1 edmg=50 esdmg=80 escool=60 chp=1000"),
+  ("C13 chp=0 (hp<=75%) · line_phase false → 미니언 dps",  "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=500 cmhp=1000"),
+  ("C14 chp=0 · fst=5000 line_phase true → 미니언 제외",    "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=500 cmhp=1000 fst=5000"),
+  ("C15 chp=0 · fst=1900 tick=100 경계(100<1900-1800=100 거짓)", "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=500 cmhp=1000 fst=1900"),
+  ("C16 chp=0 · fst=1901 tick=100 경계(100<101 참)",        "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=500 cmhp=1000 fst=1901"),
+  ("C17 ebuff=1 → 미니언 dps 무조건",                       "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=1000 ebuff=1"),
+  ("C18 tut=1(First) chp=0 → line_phase true → 제외",        "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=500 cmhp=1000 tut=1"),
+  ("C19 tut=7(Line) chp=0 → 계산 → 포함",                    "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=500 cmhp=1000 tut=7"),
+  ("C20 tut=1 ebuff=1 → 포함",                              "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=1000 tut=1 ebuff=1"),
+  ("C21 judger=적 팀(jteam 1)",                              "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=1000 jteam=1 jpos=2"),
+  ("C22 judger pos=0",                                       "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=1000 jpos=0"),
+  ("C23 tick=119 bucket 0",                                  "fn=211 ticks=100 tick=119 ne=2 e0=1 e1=1 edmg=50 chp=1000"),
+  ("C24 tick=120 bucket 1",                                  "fn=211 ticks=100 tick=120 ne=2 e0=1 e1=1 edmg=50 chp=1000"),
+  ("C25 tick=5000 bucket 41",                                "fn=211 ticks=100 tick=5000 ne=2 e0=1 e1=1 edmg=50 nt=1 tdmg=200 chp=1000"),
+  ("C26 version=55",                                         "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=500 cmhp=1000 version=55"),
+  ("C27 team=1 focus",                                       "fn=211 ticks=100 team=1 ne=2 e0=1 e1=1 edmg=50 nt=1 tdmg=200 chp=1000"),
+  ("C28 focus pos=3 ChampionCache[fpos]",                    "fn=211 ticks=100 pos=3 ne=2 e0=1 e1=1 edmg=70 chp=1000"),
+  ("C29 nuke > hp (edmg 5000) → saturating 0",               "fn=211 ticks=100 ne=1 e0=1 edmg=5000 chp=10"),
+  ("C30 tick 1600 미니언 근처 chp=0 (minion risk >0?)",       "fn=211 ticks=1600 nearm=0 ne=1 e0=1 edmg=50 chp=500 cmhp=1000"),
+  ("C31 chp=751 cmhp=1000: 75100>75000 → hp_over → 제외",       "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=751 cmhp=1000"),
+  ("C32 chp=750 cmhp=1000: 75000>75000 거짓 → low_enough → 포함", "fn=211 ticks=100 ne=1 e0=1 edmg=50 chp=750 cmhp=1000"),
+  ("C33 tick 1600 nearm 미니언 근처 low_enough → minion_risk>0", "fn=211 ticks=1600 nearm=0 ne=1 e0=1 edmg=50 chp=500 cmhp=1000"),
+  ("C34 tick 1600 nearm ebuff=1 hp 높음 → minion_risk>0", "fn=211 ticks=1600 nearm=0 ne=1 e0=1 edmg=50 chp=1000 cmhp=1000 ebuff=1"),
+ ],
+}
+which = sys.argv[1:] or ["209", "210", "211"]
+out = io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'o26E_cases.log'), 'a', encoding='utf-8')
+tot = 0; ok = 0
+for w in which:
+    for name, args in CASES[w]:
+        r = subprocess.run([EXE] + args.split(), capture_output=True, text=True, encoding='utf-8', errors='replace')
+        txt = r.stdout + r.stderr
+        res = [l for l in txt.splitlines() if l.startswith('RESULT')]
+        log = [l for l in txt.splitlines() if l.startswith('log:') or l.startswith('got') or l.startswith('pred') or l.startswith('world') or l.startswith('WARN') or l.startswith('gather') or l.startswith('mhp0') or l.startswith('attgt')]
+        line = f"[{w}] {name} :: {args}\n  " + ("\n  ".join(res) if res else "NO RESULT rc=%s tail=%s" % (r.returncode, txt[-600:]))
+        print(line[:900]); tot += 1
+        if res and 'MATCH' in res[0] and 'MISMATCH' not in res[0]: ok += 1
+        out.write(line + "\n  " + "\n  ".join(l[:700] for l in log) + "\n")
+print(f"TOTAL {ok}/{tot} MATCH")
+out.write(f"TOTAL {ok}/{tot} MATCH\n"); out.close()

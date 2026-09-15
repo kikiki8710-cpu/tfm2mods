@@ -1,0 +1,571 @@
+{
+ "round": 26,
+ "batch": "L",
+ "errors": [
+  {
+   "path": "/specs[241]/consts[0]/meaning",
+   "kind": "보강",
+   "old": "단위는 new 내부(미독) · 본 배치 범위 밖",
+   "new": "단위 = 틱: SmallActionRecall::new 가 인자를 +0x60 에 그대로 저장(m08.ll:98394~98395 `%21 = gep %0, 96` · `store i64 %3, ptr %21`)하고 is_end 가 `game.tick() < start_tick+end_delay`(m08.ll:99690~99696 `%60 = add %59,%57` · `icmp ult %55,%60`)로 비교 — 오라클 실행 확인(o_isend r1/r2: start=100 → tick 104 false / 105 true)",
+   "evidence": "m08.ll:98394~98395 `%21 = getelementptr inbounds nuw i8, ptr %0, i64 96` / `store i64 %3, ptr %21`(new 의 end_delay 인자 raw 저장) · m08.ll:99696 `%61 = icmp ult i64 %55, %60`(tick < start+end) · 오라클 o_isend r1/r2",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[241]/knobs[0]/effect",
+   "kind": "보강",
+   "old": "SmallActionRecall 내부 end_delay 로 저장(+0x60) — 의미·단위는 new/is_end 쪽(본 배치 범위 밖) · 값 변경 효과 미확인이라 knob 판정 보류",
+   "new": "귀환 소액션 수명(틱): new 가 +0x60 에 그대로 저장하고 is_end 가 `tick < start_tick+end_delay` 인 동안만 액션을 유지 — 5틱(60tps ≈0.08초) 지나면 goal 도달·우물 진입과 무관하게 종료돼 재평가된다. 올리면 귀환 액션이 더 오래 붙들려 재평가가 늦고 0 이면 다음 틱 즉시 종료. 오라클 실행 확인(o_isend r1/r2: tick 104 false / 105 true)",
+   "evidence": "m08.ll:98394~98395(raw 저장) · m08.ll:99690~99697(비교·분기) · 오라클 o_isend r1/r2 · o241 첫 원소 +0x60=5 · +0x48=100(=tick)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/mem[4]/note",
+   "kind": "실오류",
+   "old": "mode.rs:231 인라인 as_moba 류",
+   "new": "game.rs:231 인라인 · GameMode::as_moba(game-core\\src\\simulation\\game.rs:230 · tcx AssocFn pub)",
+   "evidence": "_tcx/game_core.json: `game_core::GameMode::<'a>::as_moba` 정의처 game-core\\src\\simulation\\game.rs:230 · m02.ll:27462 `;L231<27<137`(as_moba 본체 231행 인라인) — mode.rs 가 아니다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[242]/knobs[2]/where",
+   "kind": "보강",
+   "old": "steal.rs:139~142(줄 표기 불가 · small_action.rs:314 접힘)",
+   "new": "steal.rs:149(rmeta 줄 길이 산술: L146 47자=`SmallAction::Trace { target_id, .. } => {` · L147 57자=100 arm(IR !dbg 147) · L148 7자=`}` · L149 47자=`SmallAction::AroundPosition { .. } => 90,` · L150 13자=`_ => 0,` — IR 은 phi 라 !dbg 없음, small_action.rs:314 접힘)",
+   "evidence": "rmeta_srcmap game_ai sub_plan\\steal.rs 136~153: L140 39/L141 40/L142 41/L143 43(= `SmallAction::Attack { target_id }` | Skill | Skill2 | `Ult { target_id } => {` 6칸 들여쓰기) · L144 58(=8칸+`if target_id == target.id { 1000 } else { -99999 }` 50자 · IR !dbg 144) · L145 7 · L146 47 · L147 57(=8칸+49자 100 arm · IR !dbg 147) · L148 7 · L149 47 · L150 13 · L151 5 · L152 3 — 1000@144·100@147 이 IR 로 고정되므로 90 arm 은 L149 만 가능",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[242]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "→ 90 (m02.ll:27543~27548 → %62)",
+   "new": "→ 90 (m02.ll:27543~27548 → %62 · 소스 arm 은 L149: rmeta 줄 길이 산술, phi 라 !dbg 없음 — src_line 139 는 IR 귀속인 match 머리)",
+   "evidence": "rmeta_srcmap 줄 길이 산술(knobs[2].where 참조) · 오라클 o242: AroundRegion(tag7)/AroundPosition(tag0) → 90, Around(tag5) → 0",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[245]/sig/params[5]",
+   "guard": "game.vtable_ptr",
+   "guard_key": "name",
+   "kind": "실오류",
+   "old": "game.vtable_ptr",
+   "new": "",
+   "evidence": "G16 P3 규약(paramrole.py:25 · 정본 07·15 · #21/#23 표기): `&dyn AbstractGame` 팻포인터는 소스 인자 1개 = params 1행이고 IR 2슬롯(%4 data · %5 vtable)은 그 행의 type/role 에 적는다. 별도 행이라 i=[0,1,2,3,4,4,5] 7행 → 6행",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[245]/sig/params[4]/name",
+   "kind": "실오류",
+   "old": "game.data_ptr",
+   "new": "game",
+   "evidence": "P3 규약: 소스 인자명 game(tcx sig arg4 `&dyn AbstractGame`)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[245]/sig/params[4]/type",
+   "kind": "실오류",
+   "old": "*const dyn AbstractGame (%4)",
+   "new": "&dyn AbstractGame — 팻포인터 = IR 2슬롯(%4 data ptr · %5 vtable ptr)",
+   "evidence": "m14.ll:35109 define `ptr nonnull readnone captures(none) %4, ptr noalias readonly align 8 captures(none) %5`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[245]/sig/params[4]/role",
+   "kind": "실오류",
+   "old": "readnone · nonnull · captures(none) — 미사용(레거시 호출에 poison)",
+   "new": "본문 미사용 — define 속성 %4 `nonnull readnone captures(none)` · %5 `noalias readonly align 8 captures(none)`(dereferenceable 없음) · 레거시 upgrade_item 호출엔 `ptr poison, ptr poison`(m14.ll:35133 · 콜리도 안 읽음) · v26 경로(item_v26_slot/item_v26)엔 전달 안 됨. tcx 소스 인자 5 ↔ define 7행(sret+dyn 분할)이 정상",
+   "evidence": "m14.ll:35109 define · m14.ll:35133 `tail call void @…upgrade_item(ptr sret %0, i64 poison, ptr %2, ptr %3, ptr poison, ptr poison, ptr %6)` · 35155/35181 v26 콜리 인자에 %4/%5 없음",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[246]/sig/tls",
+   "kind": "보강",
+   "old": "없음 — LocalKey::with / @anon…call_once fn-포인터 참조 0 (31556~31675 전수)",
+   "new": "없음(직접) — LocalKey::with / @anon…call_once fn-포인터 참조 0 (31556~31675 전수). 간접 소비: 콜리 interaction_score(#183) 가 INTER_CTX((seed,tick,pid) 단일 엔트리)·POS_EVAL 을 작성·소비 — 본 함수는 그 반환 i64 만 더하고 TLS 상태를 직접 읽지 않는다. 런타임 미러·SRET/TLS 등록은 #183 소관",
+   "evidence": "m14.ll:31556~31675 grep: @anon 참조 0 · call 3개(interaction_score · unwrap_failed · llvm.assume) · #183 sig.tls INTER_CTX 정본",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[246]/logic",
+   "kind": "보강",
+   "old": "★JT tail-jump 디스패처(exe 0xe388c0) 주의: 이 IR 은 SDK 판이고 exe 측 진입부는 별도 확인 필요 — 명세 범위 밖.",
+   "new": "★exe 0xe388c0(966B) = SubPlan::score JT 디스패처(jump-table lea @e388fc)이지 이 함수 단독 본체가 아니다 — SerpenCheck::score 본체는 그 안에 **인라인**(fnprobe: 패닉 Location serpen_check.rs:127:73 @e38c6a · IND call [r15+0x40]=get_game_mode @e389c4 → [r15+0x1f0]=get_entity_by_id @e389ec → [r15+0xf8]=is_visible @e38c40 · call 0xd57540(9212B)=interaction_score @e3897f). 형제 EpicCheck::score 도 같은 디스패처에 인라인(epic_check.rs:127:71 @e38c78 — 문자 복제 형제) · Steal::score 는 TAIL-JMP 0xcbbca0(269B). ev1 프로브는 디스패처 단위로 잡아야 한다. 오라클(o246 9케이스) 은 IR 독해와 전부 일치.",
+   "evidence": "fnprobe.py 0xe388c0: .pdata 0xe388c0~0xe38c86 · jump-table lea @e388fc→0x33e89cc · TAIL-JMP 0xcbbca0 · panic Location serpen_check.rs:127:73/epic_check.rs:127:71 · IND [r15+0x40]/[+0x1f0]/[+0xf8]",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[247]/sig/params[4]",
+   "guard": "game.vtable_ptr",
+   "guard_key": "name",
+   "kind": "실오류",
+   "old": "game.vtable_ptr",
+   "new": "",
+   "evidence": "G16 P3 규약(paramrole.py:25 · #21/#23 표기): `&dyn AbstractGame` 는 소스 인자 1행, IR 2슬롯(%3 data · %4 vtable)은 type/role 에 기재. i=[1,2,3,4,4,5] 6행 → 5행",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[247]/sig/params[3]/name",
+   "kind": "실오류",
+   "old": "game.data_ptr",
+   "new": "game",
+   "evidence": "P3 규약: 소스 인자명 game",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[247]/sig/params[3]/type",
+   "kind": "실오류",
+   "old": "*const dyn AbstractGame (%3)",
+   "new": "&dyn AbstractGame — 팻포인터 = IR 2슬롯(%3 data ptr · %4 vtable ptr)",
+   "evidence": "m14.ll:38174 define `ptr nonnull readnone captures(none) %3, ptr noalias readonly align 8 captures(none) %4`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[247]/sig/params[3]/role",
+   "kind": "실오류",
+   "old": "readnone · nonnull · captures(none) — 본문에서 전혀 안 씀(레거시 호출에도 poison). 팻포인터 앞절반",
+   "new": "본문 미사용 — define 속성 %3 `nonnull readnone captures(none)` · %4 `noalias readonly align 8 captures(none)`(dereferenceable 없음) · 레거시 buy_item 호출엔 `ptr poison, ptr poison`(m14.ll:38195 · 콜리도 안 읽음) · v26 경로(item_v26_slot/item_v26)엔 전달 안 됨. tcx 소스 인자 5 ↔ define 6행(반환 {i64,i64} 레지스터라 sret 없음)이 정상",
+   "evidence": "m14.ll:38174 define · 38195 `tail call { i64, i64 } @…buy_item(i64 poison, ptr %1, ptr %2, ptr poison, ptr poison, ptr %5)` · 38219/38241 v26 콜리 인자에 %3/%4 없음",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[247]/sig/params[0]/role",
+   "kind": "실오류",
+   "old": "IR 속성 없음(noalias · align 16 · dereferenceable(10704)) · 동작상 읽기만",
+   "new": "IR 속성 **readonly** · noalias · captures(none) · align 16 · dereferenceable(10704) — 속성으로 쓰기 0 확정(upgrade_item 과 동일) · item_v26 IR 호출(m14.ll:38241)은 self 를 안 받는다(fastcc DeadArg: rnd·player·&context.item_list·build_slot·tag 0·payload)",
+   "evidence": "m14.ll:38174 define `ptr noalias noundef readonly align 16 captures(none) dereferenceable(10704) %0` — \"속성 없음\" 은 거짓(readonly 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[247]/open[2]",
+   "kind": "보강",
+   "old": "item_v26_slot 이 None 자리에 무엇을 쓰는지 안 봄(콜리는 tag 0 이면 안 읽음)",
+   "new": "확인: item_v26_slot 은 내부 None 경로에서 +16 을 **undef** 로 남긴다(m14.ll:35667 `%128 = phi i64 [ %125, %121 ], [ undef, %108 ], [ undef, %115 ]` → 35862 `store i64 %128` @+16 · 외부 None 은 +8=-1 만 store 35256/35882) — 콜리 item_v26 은 tag 0 이면 payload 를 안 읽으므로 동작 무관",
+   "evidence": "m14.ll:35667~35669 phi 3개(%128 payload undef · %129 tag 0/1 · %130 build_slot) · 35858~35862 sret store",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[248]/logic",
+   "kind": "보강",
+   "old": "★rnd/version 미사용 · 쓰기 0.",
+   "new": "★rnd/version 미사용 · 쓰기 0.\n★exe 0xe23750(2,118B) = SmallActionPlay::is_end JT 디스패처(jump-table lea @e2378c)이지 이 함수 단독 본체가 아니다 — Ult::is_end 본체는 그 안에 **인라인**(fnprobe: 패닉 Location cast.rs:293:99 @e238b0 · 293:21 @e23f34 · IND call [r12+0x28]=tick @e237b3 → [r12+0x1f0]=get_entity_by_id @e237c8 · entity.rs:1483 bounds). 같은 디스패처에 Attack(cast.rs:101)/Skill(163)/Skill2(228)/Around 계열(around.rs:289·495·668·803·1038)/LaneMinionPosition is_end 도 인라인 · Recall::is_end 는 call 0xdbd130(291B) · Trace::is_end 는 TAIL-JMP 0xcce0c0(333B) · 상수 0x5f5e101(1e8+1)은 디스패처 안 Around/Trace 몫. 오라클(o_isend u0~u7 · link_name 직접 진입 8케이스) 전부 IR 독해와 일치.",
+   "evidence": "fnprobe.py 0xe23750: .pdata 0xe23750~0xe23f96(2118B) · jump-table lea @e2378c→0x33e67a4 · call 0xdbd130 @e23a5b · TAIL-JMP 0xcce0c0 @e23a7b · panic Location cast.rs:293:99/:21 · consts 0x5f5e101",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[241]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(26차 L): cc5ca0 = 본체 직접(571B · fnprobe: panic Location recall.rs:18:97/:19 · call 0xeb6100(5068B)=battle_action · 0xeb8b80(1874B)=attack_summon_action · 상수 0x7d00/0xe2900=SmallActionRecall::new goal 32000/928000 인라인) · 호출자 1",
+   "evidence": "fnprobe.py 0xcc5ca0 (capstone · .pdata 경계 · 패닉 Location · call/tail-jmp)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(26차 L): cbbca0 = 본체 직접(269B · fnprobe: panic Location steal.rs:27:71/28:73 · jump-table lea @cbbd3b · 상수 0x198/0x1c8/0x3e8) · 호출자 = SubPlan::score 디스패처 0xe388c0 의 TAIL-JMP",
+   "evidence": "fnprobe.py 0xcbbca0 (capstone · .pdata 경계 · 패닉 Location · call/tail-jmp)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[243]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(26차 L): cce0c0 = 본체 직접(333B · fnprobe: panic Location trace.rs:407:95/:17 · entity.rs:1483:7 · 상수 0x5f5e101) · 호출자 = SmallActionPlay::is_end 디스패처 0xe23750 의 TAIL-JMP @e23a7b",
+   "evidence": "fnprobe.py 0xcce0c0 (capstone · .pdata 경계 · 패닉 Location · call/tail-jmp)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[244]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(26차 L): dbd130 = 본체 직접(291B · fnprobe: panic Location move_actions.rs:1033:95/:17 · 상수 0x6d70(fountains)/0x5f5e101) · 호출자 = 디스패처 0xe23750 의 call @e23a5b",
+   "evidence": "fnprobe.py 0xdbd130 (capstone · .pdata 경계 · 패닉 Location · call/tail-jmp)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[245]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(26차 L): e8e160 = 본체 직접(254B · fnprobe: panic Location lib.rs:1199:27 · call 0xe8e260(691B)=item_v26_slot · 0xe8fd70(818B)=item_v26 · 0xe7a8c0(932B)=레거시 upgrade_item) · 호출자 1",
+   "evidence": "fnprobe.py 0xe8e160 (capstone · .pdata 경계 · 패닉 Location · call/tail-jmp)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[246]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(26차 L): e388c0 = **SubPlan::score JT 디스패처(966B)** — 이 함수 본체는 그 안에 인라인(panic Location serpen_check.rs:127:73 @e38c6a · IND [r15+0x40]/[+0x1f0]/[+0xf8]) · EpicCheck::score 도 인라인(epic_check.rs:127:71) · Steal::score 는 TAIL-JMP 0xcbbca0 · 호출자 2(0xca6700 · 0xe65b10). ev1 은 디스패처 단위",
+   "evidence": "fnprobe.py 0xe388c0 (capstone · .pdata 경계 · 패닉 Location · call/tail-jmp)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[247]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(26차 L): e8fc80 = 본체 직접(230B · fnprobe: panic Location lib.rs:1182:27 · call 0xe8e260=item_v26_slot · 0xe8fd70=item_v26 · 0xe7b640(856B)=레거시 buy_item) · 호출자 1",
+   "evidence": "fnprobe.py 0xe8fc80 (capstone · .pdata 경계 · 패닉 Location · call/tail-jmp)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[248]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(26차 L): e23750 = **SmallActionPlay::is_end JT 디스패처(2,118B)** — 이 함수 본체는 그 안에 인라인(panic Location cast.rs:293:99 @e238b0 · IND [r12+0x28] tick → [r12+0x1f0] get_entity_by_id) · Attack/Skill/Skill2/Around 계열도 인라인 · Recall::is_end call 0xdbd130 · Trace::is_end TAIL-JMP 0xcce0c0 · 호출자 1(0xe8d6f0). ev1 은 디스패처 단위",
+   "evidence": "fnprobe.py 0xe23750 (capstone · .pdata 경계 · 패닉 Location · call/tail-jmp)",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[241]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: o241 첫 원소 +0x60(end_delay)=5 · o_isend r1/r2 로 틱 단위 경계 확정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[241]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: o241 3케이스 전부 res[0] 태그 +0xb1 = 4(Recall) · len = 1 + battle(0) + summon(0)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[241]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: o241 end_delay=5 저장 · o_isend r1/r2 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[241]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: o241 res[0] +0xb1 == 4 실측 · tcxdict --enum SmallActionPlay Recall 메모리태그 4",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): target None → 0 · live_list 비어있음 → 0 · live_list[0]=존재하지 않는 id → 0 · Around/Recall/Stop → 0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): AroundRegion(tag 7)·AroundPosition(tag 0) → 90 (Epic/Serpen 양쪽)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): Attack/Skill/Skill2/Ult(target==live_list[0]) → 1000",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): Trace(target==live_list[0]) → 100",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): Attack/Skill/Skill2/Ult/Trace 의 target≠live_list[0] → -99999",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): StealSubPlan{target:None}(니치 2) → 전 액션 0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): 값 집합 {-99999,0,90,100,1000} 실측 · define `range(i64 -99999, 1001)` 과 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): 값 집합 {-99999,0,90,100,1000} 실측 · define `range(i64 -99999, 1001)` 과 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): 값 집합 {-99999,0,90,100,1000} 실측 · define `range(i64 -99999, 1001)` 과 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o242 · 5 target × 12 action = 60 케이스 · 케이스당 프로세스 1개 · 전부 IR 독해와 일치): 값 집합 {-99999,0,90,100,1000} 실측 · define `range(i64 -99999, 1001)` 과 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: target None→0 / Some(Epic)→epic.live_list[0] / Some(Serpen)→serpen.live_list[0] 갈림 실측 · tcxdict StealSubPlan +0x8 Option<StealTarget>",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: game.mode.jungle_runner.epic.live_list=[B,A] 로 Epic 대상 = B 실측 · tcxdict MobaMode.jungle_runner 0x18 + JungleRunner.epic 0x180 = 0x198",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: serpen.live_list=[A,B] 로 Serpen 대상 = A 실측 · tcxdict JungleRunner.serpen 0x1b0 → 0x1c8",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: live_list 비어있음 → 0 · 첫 원소만 대상(둘째 원소 id 는 -99999) · tcxdict JungleCampState.live_list Vec<usize> +0x0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: target id 일치/불일치로 1000·100/-99999 갈림 · tcxdict Entity.id 0x5c0",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: SmallActionTrace::new(data, A, 30) 의 Trace 액션 target 비교 실측(+0x60) · tcxdict SmallActionTrace.target 0x60",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[242]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: Attack/Skill/Skill2/Ult ::new(data, id) 의 target 비교 실측 · tcxdict SmallActionAttack/Ult.target 0x8",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[243]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend t0~t10 · link_name 직접 진입 · 케이스당 프로세스 1개 · 11/11 IR 독해와 일치): goal dx=10000 → true · dx=10001 → false · dx=6000,dy=8000 → true(1e8 < 1e8+1)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[243]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend t0~t10 · link_name 직접 진입 · 케이스당 프로세스 1개 · 11/11 IR 독해와 일치): target.visible_state[0]=Invisible/Unknown → false(goal 도달 상태에서도 false: t9) · Visible → dist 판정",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[243]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend t0~t10 · link_name 직접 진입 · 케이스당 프로세스 1개 · 11/11 IR 독해와 일치): dist² 1e8 true / (10001)² false",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[243]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend t0~t10 · link_name 직접 진입 · 케이스당 프로세스 1개 · 11/11 IR 독해와 일치): start=100,end_delay=30 → tick 129 false / 130 true(만료) · SmallActionTrace::new(data, target, end_delay) 인자 순서 Debug 출력으로 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[243]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: mark_abandoned() 후 true(t1) · tcxdict SmallActionTrace.abandoned 0x92",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[243]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: Entity.visible_state[0] 을 Visible/Invisible/Unknown 으로 write_volatile 해 t0/t5/t6 갈림 · tcxdict Entity.visible_state 0x38 [VisibleState;2] 24B",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[244]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend r0~r12 · link_name 직접 진입 · 케이스당 프로세스 1개 · 13/13 IR 독해와 일치): 우물 (lx,ly) 안 v2 → true / v1 → false",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[244]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend r0~r12 · link_name 직접 진입 · 케이스당 프로세스 1개 · 13/13 IR 독해와 일치): goal dx=10000 → true · dx=10001 → false · dx=6000,dy=8000 → true",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[244]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend r0~r12 · link_name 직접 진입 · 케이스당 프로세스 1개 · 13/13 IR 독해와 일치): dist² 경계 1e8 true / 1e8+20001 false",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[244]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend r0~r12 · link_name 직접 진입 · 케이스당 프로세스 1개 · 13/13 IR 독해와 일치): version 1 이면 우물 안이어도 false(r6) · version 2 면 true(r5/r7)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[244]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: map.fountain(0)=(0,896000,64000,960000) · champ (lx,ly)/(rx,ry) 경계 포함 true · x=lx-1 / y=ry+1 false · tcxdict MapDef.fountains 0x6d70 [(u64,u64,u64,u64);2]",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[244]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: new(data,player,5) 뒤 Debug 출력 end_delay: 5 · tick 104 false / 105 true · tcxdict SmallActionRecall.end_delay 0x60",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[246]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o246 · 9케이스 · 케이스당 프로세스 1개 · base 는 별도 프로세스의 interaction_score · 9/9 IR 독해와 일치): Around(A)·AroundHide(A) & live_list[0]=A & visible_state[0]=Invisible/Unknown → base+10 · Visible → base · Around(B)(≠live_list[0]) → base · Attack(A)/Recall → base",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[246]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o246 · 9케이스 · 케이스당 프로세스 1개 · base 는 별도 프로세스의 interaction_score · 9/9 IR 독해와 일치): serpen.live_list=[] → base(가산 0) · live_list=[B,A] 이면 Around(A) 도 base(첫 원소만)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[246]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o246 · 9케이스 · 케이스당 프로세스 1개 · base 는 별도 프로세스의 interaction_score · 9/9 IR 독해와 일치): 가산 정확히 +10 실측(base 0 → 10)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[246]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: 태그 5(Around)·6(AroundHide) 만 가산 경로 · 15(Attack)·4(Recall) 은 base 그대로 · tcxdict --enum SmallActionPlay",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[246]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: live_list 비어있음 → 가산 0 · tcxdict JungleCampState.live_list Vec +0x10 len",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[246]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: live_list=[B,A] 이면 A 대상 가산 없음(첫 원소만) · tcxdict Vec ptr +0x8",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[246]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: game.is_visible(0,A) true → 0 · false → 10 (visible_state[0] write_volatile 로 갈림)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[248]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend u0~u7 · link_name 직접 진입 · 케이스당 프로세스 1개 · 8/8 IR 독해와 일치): start=100 → tick 104 false / 105 true(start+5 <= tick)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[248]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend u0~u7 · link_name 직접 진입 · 케이스당 프로세스 1개 · 8/8 IR 독해와 일치): target.visible_state[0]=Invisible/Unknown → true · Visible → false(tick 100)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[248]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o_isend u0~u7 · link_name 직접 진입 · 케이스당 프로세스 1개 · 8/8 IR 독해와 일치): 5틱 경계 104/105",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[248]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: transmute([100,tgt,1]) 로 is_act=true → tick 100 에서 true(u3) · tcxdict SmallActionUlt.is_act 0x10",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[248]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: visible_state[0] Visible/Invisible/Unknown 으로 u0/u5/u6 갈림 · tcxdict Entity.visible_state 0x38",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "지시문 4행 「Recall retain 술어(tag−16 <u 3 · Attack 포함)」— 술어 대상은 Skill16/Skill2 17/Ult18 뿐이고 Attack(15) 은 대상이 **아니다**(항상 keep · m01.ll:13914~13915). 「Attack 포함」이 「Attack 은 술어에 안 걸린다」는 뜻이면 문면을 그렇게 써야 다음 배치가 반대로 읽지 않는다",
+  "지시문 6행 ②「`Vec<SmallActionPlay>` 32B(Steal/Recall action_candidates …)」— Steal::action_candidates 는 이 배치(241~248)에 없다(r16). 배치 L 의 Vec 반환은 241 뿐",
+  "§4 G16 P3(245/247) 는 오탐이 아니라 실오류였다 — 도시에 초점①의 「G16 은 define 줄에 실제로 있는 IR 속성만」은 P4/P6 류 얘기고, P3 행 수 규약(팻포인터 1행 · #21/#23 표기)은 별개 축이다. 두 규칙을 한 줄에 섞으면 다음 배치가 P3 를 오탐으로 닫는다",
+  "§1 표 exe 열이 8함수 전부 `(None) · None바이트 · None명령` — r17 진입점은 exe module/bytes/instrs 가 채워지지 않은 채 배포됐다. fnprobe 로 8건 다 채울 수 있었으니(이 patch 의 exe/note) mkdossier 가 빈 exe 를 경고로 찍어 주면 좋겠다",
+  "§3 파일명이 `spec_243_trace__SmallActionTrace__is_end.md` 처럼 모듈 접두를 붙이는데 도시에 §1 표·§4 게이트 출력은 `trace::SmallActionTrace::is_end` — 같은 함수를 세 표기로 부른다(id 는 `trace__SmallActionTrace__is_end`). grep 할 때 하나로 안 잡힌다",
+  "★도구 결함(mkspec3.py:565): v3 `sig.params[].role` 을 v2 `note` 에서만 만들고 v2 `role` 을 버린다. r17 정본(243~248)은 v2 `role` 에 IR 속성·읽는 필드가 다 적혀 있고 `note` 엔 DI 이름만 있어서, 도시에엔 role 이 빈칸/`DI self = %0` 으로 보였고 G16 도 그 빈 문면을 대조했다. 이 patch 의 params 정정은 v2 `role` 문면을 old 로 썼다(force) — applypatch 는 `role` 키가 있으면 그쪽을 치환한다"
+ ]
+}

@@ -1,0 +1,801 @@
+{
+ "round": 26,
+ "batch": "H",
+ "errors": [
+  {
+   "path": "/specs[219]/sig/params[5]/role",
+   "kind": "오탐",
+   "old": "IR 속성: `noalias noundef align 8 captures(address, read_provenance) dereferenceable(5384)` — readonly/initializes 없음 = &mut · v15_can_keep_support_pressure 에도 4번 인자로 통과(그쪽은 readonly)",
+   "new": "IR 속성: `noalias noundef align 8 captures(address, read_provenance) dereferenceable(5384)` — 읽기전용·initializes 속성이 붙지 않은 &mut · v15_can_keep_support_pressure(m05.ll:57757) 에도 4번 인자로 통과(그쪽 define 의 %3 은 읽기 전용 참조) · 본 함수의 직접 store 는 +0x9c0/+0x9c8 두 곳뿐이고 나머지 쓰기는 near_enemies/near_allies 힙 원소 +0xa8/+0xb0",
+   "evidence": "m02.ll:36309 define `ptr noalias noundef align 8 captures(address, read_provenance) dereferenceable(5384) %5` — readonly 없음이 맞다. 게이트 F9(부재 서술) 가 `readonly/initializes 없음` 의 슬래시 결합과 `(그쪽은 readonly)` 절을 걸러내지 못한 오탐 · 오라클 c_* 27케이스 ScoreParameter 5384B diff = [(2496,2497),(2504,2505)] 뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[219]/sig/params[4]/role",
+   "kind": "실오류",
+   "old": "+0x8 context(aux 에서 is_recent_visible 인자)",
+   "new": "+0x8 context 는 본 함수·aux 어디서도 읽지 않음(is_recent_visible 의 2번 인자는 cache.game 팻포인터 = cache+0x0/+0x8)",
+   "evidence": "m02.ll:36725 `load ptr, ptr %4`(data+0 cache) · 36748 `gep %4, 16`+load(blackboard) — data+8 load 0건 · aux m06.ll:33207~33208 `%103 = load ptr, ptr %22`(cache+0) `%104 = load ptr, ptr %24`(cache+8) → 33285 is_recent_visible(%123 blackboard, %103, %104, %20 player, %105 c) · 정의 g07.ll:157005 인자 5개 = (self, game data, game vtable, player, entity)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/logic",
+   "kind": "실오류",
+   "old": "tower_attack_range = t.attack_effect.as_ref().map(|e| e.range(t)).unwrap_or(0)      [L914~916 · 33138~33193 · Effect::range = e.range + t.stat_buff_cached.range + (t.level-1)*e.growth_range + t.radius_adj]",
+   "new": "tower_attack_range = t.attack_effect.as_ref().map(|e| e.range(t) + t.radius()).unwrap_or(0)      [L914~916 · 33138~33193 · Effect::range(effect.rs:26) = e.range + t.stat_buff_cached.range + (t.level-1)*e.growth_range (33185~33186) · `+ t.radius()`(radius_adj 33167~33178) 는 L915 클로저에서 더한다(33187 !dbg battle.rs:915)]",
+   "evidence": "m06.ll:33187 `%95 = add i64 %94, %90, !dbg !48546` 의 사슬 루트 = battle.rs:915 closure$0(Effect::range 프레임 밖) · 33185~33186(`%93 = add %75,%69` · `%94 = add %93,%92`) 만 effect.rs:26 range 프레임 · 동일 인라인이 v46_stage2 L797(m04.ll:18170~18181)에선 radius 없이 끝남 · 오라클 c_g4_nt: 타워 attack_effect Some(range 0)+radius 10000 → pub Effect::range(t)=0 으로 예측하면 MISMATCH(적 값 50 vs 예측 10) · `+ t.radius()` 로 고치면 c_g4_nt/nt_eq/nt_out/nt_edy 4케이스 MATCH(경계 d²=20000² 안 · 20001² 밖)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/logic",
+   "kind": "실오류",
+   "old": "blackboard[enemy_team].is_recent_visible(cache, context, player, c)",
+   "new": "blackboard[enemy_team].is_recent_visible(cache.game /*&dyn AbstractGame 팻포인터*/, player, c)",
+   "evidence": "m06.ll:33285 호출 인자 = (%123 blackboard[enemy], %103 = load cache+0, %104 = load cache+8, %20 player, %105 c) · g07.ll:157005 define 인자 5개(self, game data, game vtable, player, entity) · context 는 캡처조차 안 됨(m02.ll:36750~36752 f = {cache, blackboard, player}) · 오라클 predict 가 `is_recent_visible(cache.game, player, c)` 로 27/27 MATCH",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[9]/meaning",
+   "kind": "보강",
+   "old": "50000²+1 — 타워↔내 챔프 거리² < 이 값 ⟺ 거리 ≤ 50000(=1.5625셀) 인 타워만 후보 (m06.ll:33115 `icmp ult` · m11.ll 동일)",
+   "new": "50000²+1 — 타워↔내 챔프 거리² < 이 값 ⟺ 거리 ≤ 50000(=1.5625셀) 인 타워만 후보(거리 임계 · m06.ll:33115 `icmp ult` · m11.ll 동일 · 오라클 mdx=50000 후보/50001 제외 확증)",
+   "evidence": "m06.ll:33115 `%62 = icmp ult i64 %61, 2500000001` · 오라클 c_g4_nt_eq(d²=2.5e9 → 후보 → 50) / c_g4_nt_far(50001² → 제외 → 10) MATCH",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/open[4]/q",
+   "kind": "보강",
+   "old": "Blackboard::is_recent_visible(&self, cache, context, player, entity) -> bool 내부(game_core g07.ll:157005) — 계약만",
+   "new": "Blackboard::is_recent_visible(&self, game: &dyn AbstractGame, player, entity) -> bool 내부(game_core g07.ll:157005) — 실측: game.is_visible(player.info.team, entity.id)(vtable+0xf8) 이면 true · 아니면 game.player_by_champion_id(entity.id)(vtable+0x150) 가 None 이면 false · Some(ps) 면 self+0x1e0+ps.info.position*8 (last_seen tick) + 120 >= game.tick()(vtable+0x28) · G7 과열림(shared 확정) — 닫을 것",
+   "evidence": "g07.ll:157011~157048 원문(157017 `%12 = call %11(%1, %7 team, %9 id)` vtable+248=0xf8 · 157023 vtable+336=0x150 · 157036~157043 `blackboard+480+pos*8` + 120 `icmp uge` vs vtable+40 tick) · m06.ll:33285 호출 인자 5개",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[220]/sig/params[6]",
+   "guard": "committers.len",
+   "kind": "오탐",
+   "old": "committers.len",
+   "new": "",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일) — P3 규약(i = 소스 시그니처 위치 · 07·15 정본)대로 팻/승격 슬롯을 소스 인자 1행에 합친다(129 should_add_self_etc_buff_action 선례)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[0]/name",
+   "kind": "오탐",
+   "old": "team",
+   "new": "self",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[0]/type",
+   "kind": "오탐",
+   "old": "usize",
+   "new": "&PassiveLinePlan (280B)",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[0]/ir",
+   "kind": "오탐",
+   "old": "%0 (속성 없음)",
+   "new": "IR 슬롯 없음(DeadArgElim 소거)",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "내 팀 인덱스(0/1). player_champion[team] 순회·iter_towers_without_nexus(team). bounds<2 패닉 가드(L802)",
+   "new": "IR 인자 없음 — DeadArgElim 으로 소거(본문이 self 필드를 한 번도 읽지 않음 · define 7슬롯 어디에도 self 없음) · exe(0xd27d50)도 7인자",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[1]/name",
+   "kind": "오탐",
+   "old": "cache",
+   "new": "player",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[1]/type",
+   "kind": "오탐",
+   "old": "&AbstractGameWithCache(8840B)",
+   "new": "&PlayerState (2528B)",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[1]/ir",
+   "kind": "오탐",
+   "old": "%1 (IR 속성 없음 · 동작상 읽기만)",
+   "new": "%0 i64 = player.info.team (승격 · 속성 없음)",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[1]/role",
+   "kind": "보강",
+   "old": "game 팻포인터(+0x0/+0x8 → vtable+0x1f0 get_entity_by_id · +0x28 tick) · player_champion(+0x1e0) · player_champion_cache(+0x280) · player_by_champion_id",
+   "new": "승격: IR %0 = i64 team = player.info.team(+0x930) 만 넘어온다(호출부 m04.ll:21682 `i64 %64` ← 19164~19165 `gep %3, 2352` load) — 본문은 player_champion[team](L802)·iter_towers_without_nexus(team)(L831)·bounds<2(18244) 에만 사용",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[2]/name",
+   "kind": "오탐",
+   "old": "ctx",
+   "new": "data",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[2]/type",
+   "kind": "오탐",
+   "old": "&GameContext(64B)",
+   "new": "&OperationData (24B)",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[2]/ir",
+   "kind": "오탐",
+   "old": "%2 (captures(address, read_provenance) · readonly 속성 없음 · 동작상 읽기만)",
+   "new": "%1 = data.cache(속성 없음) · %2 = data.context(captures(address, read_provenance) · 읽기전용 속성 없음) — 승격 2슬롯 · 동작상 읽기만",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[2]/role",
+   "kind": "보강",
+   "old": "setting(+0x8 → tps +0x12f8 · tower_attack_disable_tick* +0x13f8/0x1400/0x1408) · tutorial(+0x38) · expected_damage_target 의 ctx",
+   "new": "승격: IR %1 = data.cache(+0x0 · &AbstractGameWithCache 8840B · 19175 `load ptr, ptr %4`) · IR %2 = data.context(+0x8 · &GameContext 64B · 19194~19195 `gep %4, 8` load · `captures(address, read_provenance)`) — blackboard(+0x10) 미사용. %1 로 player_champion(+0x1e0)·player_champion_cache(+0x280)·game 팻포인터(+0/+8 → vtable+0x1f0 get_entity_by_id · +0x28 tick)·iter_towers_without_nexus/player_by_champion_id 수신자 · %2 로 setting(+0x8 → tick_per_second +0x12f8 · tower_attack_disable_tick* +0x13f8/0x1400/0x1408)·tutorial(+0x38)·expected_damage_target 2번 인자",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[3]/role",
+   "kind": "보강",
+   "old": "나. 사거리·반경만 읽음(L797~798). 어느 콜리에도 안 넘김",
+   "new": "IR %3 `noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728)` — attack_effect(+0x4c0 tag/+0x4a0 range/+0x4a8 growth_range)·level(+0x5c8)·stat_buff_cached.range(+0x438)·radius_mult(+0x470)·radius(+0x680) 읽음(L797 my_range · L798 pull)",
+   "evidence": "m04.ll:18037 define · 18159~18181 · 18190~18208",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[4]/role",
+   "kind": "보강",
+   "old": "CS 대상. 반경(L798) · 아군/타워 거리 기준점(L812·L835)",
+   "new": "IR %4 `noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728)` — radius_mult(+0x470)·radius(+0x680) 읽음(L798 pull) · Entity::distance 의 대상(18630 아군 a.distance(front) L812 · 18490 타워 t.distance(front) L835)",
+   "evidence": "m04.ll:18037 define · 18214~18232 · 18490 · 18630",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[5]/name",
+   "kind": "오탐",
+   "old": "committers.data_ptr",
+   "new": "committers",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[5]/type",
+   "kind": "오탐",
+   "old": "&[(usize,usize,usize)] 의 ptr (원소 24B: +0 e.id, +8 my_die, +16 kill_dps)",
+   "new": "&bumpalo Vec<(usize,usize,usize)> (32B · 원소 24B: +0 e.id, +8 my_die, +16 kill_dps)",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[5]/ir",
+   "kind": "오탐",
+   "old": "%5",
+   "new": "%5 = buf.ptr · %6 = len (승격 2슬롯 · 속성 없음)",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/sig/params[5]/role",
+   "kind": "보강",
+   "old": "stage1 결과. c.2(kill_dps) 는 이 함수에서 읽지 않음",
+   "new": "승격: IR %5 = buf.ptr(vec+0x0 · 호출부 21681 `load ptr, ptr %37`) · IR %6 = len(vec+0x18 · 21676 `gep %37, 24` load) — min_by_key(.1 = my_die)(18119) 로 첫 최소 원소만 읽음(L786 · +0 e.id 18125 · +8 my_die 18128) · +16 kill_dps 미사용 · len==0 → true(18091~18092)",
+   "evidence": "m04.ll:18037 `define internal fastcc noundef zeroext i1 @…v46_stage2(i64 %0, ptr %1, ptr captures(address, read_provenance) %2, ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(1728) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %4, ptr %5, i64 %6)` · 호출부 m04.ll:21682/21903(PassiveLinePlan::update m04.ll:19038) 인자 = (%64 = load player+2352 info.team, %70 = load data+0 cache, %79 = load data+8 context, champ, front, %1095 = load vec+0 ptr, %1092 = load vec+24 len) · self 슬롯 없음 · argscan 0xd27d50 = 레지스터 4 + 스택 3 = exe 인자 7(IR 과 동일) · m04.ll:18091~18128",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[220]/logic",
+   "kind": "보강",
+   "old": "for a in cache.player_champion[team].iter().flatten() {",
+   "new": "for a in cache.iter_champions(team) {   // = player_champion[team].iter().filter_map(|c| *c) · IR 18306 iter_champions::{closure#0}::call_mut · None 슬롯 skip",
+   "evidence": "m04.ll:18306 `call ptr @gc::simulationNtBW_21AbstractGameWithCache14iter_champions0…call_mut(ptr %8, ptr %117)` · 18248~18260 player_champion[team] 5슬롯 IntoIter",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[220]/consts[11]/meaning",
+   "kind": "실오류",
+   "old": "타워 front 배열 길이 6(Option<&Entity> ×6: top/top2/mid/mid2/bottom/bottom2 — assume ult 6). 판정값 아님",
+   "new": "타워 front 배열 길이 6(Option<&Entity> ×6 · 순서 = [top_tower, mid_tower, bottom_tower, top_tower2, mid_tower2, bottom_tower2] = cache+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0 · 뒤 절반 = twin_towers[team] 슬라이스(+0x130)). 판정값 아님",
+   "evidence": "_gcbc g15.ll:108978~109044 iter_towers_without_nexus 본문: load cache+384/416/448/400/432/464 순으로 sret+24..+64 에 store · 109009~109014 twin_towers(+304) ptr/len → sret+104/+112 · 오라클 towers 출력 순서 [2 top1, 6 mid1, 10 bot1, 4 top2, 8 mid2, 12 bot2, 14·15 twins]",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[220]/open[4]/q",
+   "kind": "보강",
+   "old": "타워 이터레이터의 6슬롯 순서(top/top2/mid/mid2/bottom/bottom2)는 AbstractGameWithCache 필드 순서로 추정 — iter_towers_without_nexus 본문(_gcbc g15.ll:108971) 미열람이라 순서는 추정",
+   "new": "타워 이터레이터의 6슬롯 순서 = [top, mid, bottom, top2, mid2, bottom2](cache+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0) · 뒤 절반 = twin_towers[team] — g15.ll:108978~109055 열람·오라클 실측으로 확정(사실 서술 → notes 로 이동)",
+   "evidence": "g15.ll:108978~109044 · 오라클 towers 출력",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/sig/tls/invalidation",
+   "kind": "보강",
+   "old": "(m00.ll:78026~78046)",
+   "new": "(m00.ll:78027~78051 · seed 78028 · tick 78031 · 슬롯 tag 10개 78032~78050)",
+   "evidence": "m00.ll:78027 `33:` 블록 — 78028 `store i64 %20, ptr %17`(RefCell+488 seed) · 78031 `store i64 %34, ptr %35`(+496 tick) · 78032~78050 `store i64 0` ×10(+8,56,…,440)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/sig/tls/call_conditions",
+   "kind": "보강",
+   "old": "(m00.ll:78141~78156)",
+   "new": "(m00.ll:78168~78185 seed·tick 대조 → 불일치 시 %49 로 곧장 · 78219~78224 slot tag=1 + 40B memcpy)",
+   "evidence": "m00.ll:78168~78173 `%17 = load +488 … icmp eq … br %20, label %22, label %49` · 78180~78185 `+496 … br %27, label %28, label %49` · 78222 `store i64 1, ptr %45` · 78224 memcpy 40B",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[30]/value",
+   "kind": "보강",
+   "old": "(m00.ll:78218~78222)",
+   "new": "(m00.ll:78222~78224)",
+   "evidence": "m00.ll:78222 `store i64 1, ptr %45` · 78223 `%46 = gep %45, 8` · 78224 `llvm.memcpy(%46, %3, 40)`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/sig/tls/role",
+   "kind": "실오류",
+   "old": "base_defense_focus(200 · 57133 · `.2` 추정—본문 미독)",
+   "new": "base_defense_focus(200 · 57133 · `.0 || .2` = last_stand || base_attacking_minion — 57173 `and i24 %19, 65537` · 57174 `icmp ne`)",
+   "evidence": "m04.ll:57166 LocalKey::with → i24 %19 · 57173 `%20 = and i24 %19, 65537`(byte0|byte2) · 57174 `%21 = icmp ne i24 %20, 0` · 57175 ret · 비교: nexus_last_stand 57040 `trunc i24 to i1`(.0) · nexus_final_stand 57082 `and i24 %19, 256`(.1)",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[219]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 27케이스 MATCH · ScoreParameter 5384B 전후 diff = [(2496,2497),(2504,2505)] · 힙 원소 216B diff = [(168,169),(176,177)] 만 · BattleSubPlan 48B 불변 · rnd 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g0_nof 적 전원 30 · c_g0_f0 비-focus 30 · 아군 30",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g0_f0/f2 focus 60 · c_g5/c_g5_nof Assassin 전원 60",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g5 tag 5 = Assassin 분기(focus 무관 60)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g1_f1/c_g2_nof/c_g3_f0 자기·아군·비-focus 50 · c_g4_nt 타워근접 적 50",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g1_f1 focus 80 · c_g3_f0 focus 80",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g6/c_g4/c_g7 자기 100 · RunAway/End 아군 100",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g6 적·아군 10 · c_g4/c_g7 near_tower 거짓·csf 거짓 → 10",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — pteam 0/1 양쪽 bounds 통과",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g4_nt_eq(50000² 후보) / c_g4_nt_far(50001² 제외)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — tactic=0 케이스 전부 곱 생략(원값 그대로)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t3 usable=1 → 적 attack ×120/100 (80→96)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t3_down skill_cooldown 주입 → usable=0 → ×60/100 (80→48)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[18]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t2 BacklineDPS 90/90 · c_t5 AllIn self 90",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t2 self 130 · c_t3 self 130 · c_t5 attack 130",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t1 self 70 · c_t4/c_t4_g0 attack 70",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[21]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t1 ally 140 · c_t4 ally 140",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t4 util 150 · c_t6 self 150",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t4 self 110",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/consts[24]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — 전 tactic 케이스 value*mult/100 정수 나눗셈(30*70/100=21 등)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g0_f0 비-focus 30",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g0_f0 focus 60 · c_g5 전원 60",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g1_f1 focus 80",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g1_f1 자기·아군·비-focus 50",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g6 적·아군 10 · 자기 100",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_g4_nt_eq 50000 후보 / c_g4_nt_far 50001 제외 · 적 사거리 경계 20000 안/20001 밖",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/knobs[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — c_t3_down usable 0 → 60 · c_t3 usable 1 → 120",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[219]/knobs[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — tactic 1~6 전부 자기/적/아군 배율 일치(c_t1~c_t6 · c_t4_g0 · c_t1_pteam1)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — p_* 10케이스 MATCH(attack_power 0/1000/3000 · util 0) · 216B diff 는 +0xb8~ 범위뿐",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — p_* 10케이스 MATCH(attack_power 0/1000/3000 · util 0) · 216B diff 는 +0xb8~ 범위뿐",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — p_* 10케이스 MATCH(attack_power 0/1000/3000 · util 0) · 216B diff 는 +0xb8~ 범위뿐",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — p_* 10케이스 MATCH(attack_power 0/1000/3000 · util 0) · 216B diff 는 +0xb8~ 범위뿐",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — p_* 10케이스 MATCH(attack_power 0/1000/3000 · util 0) · 216B diff 는 +0xb8~ 범위뿐",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — p_* 10케이스 MATCH(attack_power 0/1000/3000 · util 0) · 216B diff 는 +0xb8~ 범위뿐",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — `#[thread_local] extern static CHAMP_POWERS_MEMO0s_0…VAL` 직독: RefCell+0 flag 0 · +8+480 seed=1234 · +8+488 tick=0→7 · slot[t][p] = {tag 1, version, a, u, cc, b} 48B stride(+8 기점) · 같은 프로세스에서 hit 재생(캐시값 +5000 후에도 옛 값) · version+1 miss 로 슬롯 덮어씀 · tick 변경 시 다른 슬롯 tag 0 으로 전멸 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — `#[thread_local] extern static CHAMP_POWERS_MEMO0s_0…VAL` 직독: RefCell+0 flag 0 · +8+480 seed=1234 · +8+488 tick=0→7 · slot[t][p] = {tag 1, version, a, u, cc, b} 48B stride(+8 기점) · 같은 프로세스에서 hit 재생(캐시값 +5000 후에도 옛 값) · version+1 miss 로 슬롯 덮어씀 · tick 변경 시 다른 슬롯 tag 0 으로 전멸 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — team 0/1 bounds 통과",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — atk_total 15000 → attack_power 3000(/5) · 5000 → 1000",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — p_lvl4_ult(ult 제외) / p_lvl5_ult(ult 포함 slot2 Some)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — skill2/ult None 슬롯 skip(p_lvl2_s2 slot1=None)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — p_lvl3_s2 cd=1 슬롯 umax(1,1)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — lvl 2→3 에서 skill2 슬롯 등장 · lvl 4→5 에서 ult 슬롯 등장",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — atk_total/5 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[221]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — hit 재생·version miss·tick 무효화 3경로 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_* 9케이스 MATCH(nexus 사거리 안 true · twin[0]/[1] 사거리 안 true · 나에게만 닿음+미니언 없음 false · 사거리 밖 false · pteam=1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — pteam 0/1 bounds",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — pteam=1 → enemy 0 (n_t1 true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — n_me/n_me_minions: base_attacking_minion None → is_some 거짓 → false",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[222]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(26차 배치H o26H.exe · _verify26/H/oracle/*.log · 케이스당 프로세스 1개) — ③ 참·④ 거짓 조합(n_me) 이 false 로 떨어짐 실측 · ①만 참(n_nexus/n_twin) 이면 ②~④ 미평가",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "★r17 명세 9건(209·213·220·221·230·231·234·235·246)이 `signature.params[].role` 키로 썼는데 `mkspec3.py` 는 `note` 만 읽는다 → v3·도시에의 인자 역할이 전부 null 로 보이고 G16 P4/P5/P6 이 그 9건에서 눈을 감고 있다(220 은 role 6행·`ir` 키까지 v2 에 있다). 수정 = mkspec3 `p.get(note) or p.get(role)` 또는 v2 키 일괄 개명 — 이번 patch 의 220 role 정정은 v2 `role` 키를 겨냥했으니 개명 뒤에도 살아남는다.",
+  "§4 G5/G16-P3 [220] 는 명세 오류가 아니라 게이트 사각지대다 — internal fastcc 가 ArgumentPromotion+DeadArgElim 을 받으면 IR 슬롯 수(7) 가 tcx 인자 수(6) 와 어긋나는 것이 정상이고, `ARG_PROMOTED={129}` 는 손으로 적는 예외 목록이라 220 을 못 봤다. 도시에가 「sig 정본 대조」로 지시했지만 define 원문·argscan 이 판정 재료였다.",
+  "§1 표의 220 `vis=in:…` 함수는 `define internal fastcc` 라 §1 각주(「막히는 것은 internal fastcc 뿐」)대로 오라클 직접 진입 불가 — 표에 internal 여부를 같이 찍어 주면 배치가 grep 없이 안다(219/221 pub · 222 hidden 은 진입 성공).",
+  "초점 ②의 「sret」 열거에 이 배치 4함수는 하나도 해당하지 않는다(219 void+&mut · 220/222 i1 · 221 void+&mut) — 배치 공통 문면이라 무해하나, 「&mut 5384B ScoreParameter 미초기화 패딩」은 219 가 아니라 204 calculate_score_parameter 의 sret 얘기다."
+ ]
+}

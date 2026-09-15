@@ -1,0 +1,1350 @@
+{
+ "round": 26,
+ "batch": "E",
+ "errors": [
+  {
+   "path": "/specs[209]/consts[4]/src_line",
+   "kind": "실오류",
+   "old": 654,
+   "new": 725,
+   "evidence": "_next/reach/d377a0.ll:50391 `%200 = icmp eq i64 %198, 12 ;L725`(minions[slot] bounds) · 51856 `%709 = icmp ult i64 %670, 12 ;L711` · 51537 `%585 = icmp eq i64 %97, 12 ;L1916<900<985<724` · slice_index_fail(i64 0, i64 %97, i64 12) 51610 `;L443<529<19<391<655<691` / 52111 `;L443<529<19<391<655<677`(클로저 본문 655 가 호출부 691/677 에 인라인). 654 에 !dbg 가 붙은 명령은 50286 `memcpy(%13, %16, 96)`·50288 `store i64 %97`(클로저 캡처)뿐이라 리터럴 12 사슬에 654 는 없다 — 루트 줄 규약상 725",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[209]/consts[4]/meaning",
+   "kind": "보강",
+   "old": "target_ids[12]·dps_per_tick[12]·one_shot_damages[12]·one_shot_count[12] 배열 크기 = 슬롯 상한 · L725 minions[slot] bounds · [..target_count] 슬라이스 검사(target_count < 13)",
+   "new": "target_ids[12]·dps_per_tick[12]·one_shot_damages[12]·one_shot_count[12] 배열 크기 = 슬롯 상한(배열 memset 96/3072 은 리터럴 아님) · 리터럴 12 의 !dbg 사이트 = L725 minions[slot] bounds(50391) · L711 one_shot_count[slot] bounds(51856) · L724 슬롯 루프 종료(51537, 루트 724) · [..target_count] 슬라이스 검사 slice_index_fail(0,%97,12)(51610/52111, 클로저 L655 가 L691/L677 에 인라인). 오라클: 적 미니언 13/20 마리를 모아도 count 는 12 에서 멈춘다(26E C19·C20·C21)",
+   "evidence": "위 src_line 정정과 같은 줄들 + o26E C19(gather 13 → count=12)·C20(gather 20 → count=12)·C21(gather 12 → 12) 2320B 비트동일",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[209]/consts[6]/meaning",
+   "kind": "오탐",
+   "old": "체크포인트 간격(틱) — num_checkpoints = prediction_depth/5 (udiv)",
+   "new": "체크포인트 간격(틱) — num_checkpoints = prediction_depth/5 (udiv · ★G12 오탐: m04.ll:50342 `%188 = udiv i64 %3, 5` · 50343 `%189 = call i64 @llvm.umin.i64(i64 %188, i64 18)` · 50344 `%190 = icmp ult i64 %3, 5` 는 슬롯 루프 밖으로 호이스트된 루프불변식이라 `!dbg` 가 없다 — srclinecheck 가 못 보는 사이트이고 소스 루트 줄은 728 이 맞다. 오라클 depth 4/5/9/10/200 → ncp 0/1/1/2/18 실측 26E C09~C13)",
+   "evidence": "m04.ll:50342~50344 세 명령 모두 `!dbg` 부재(원문: `  %188 = udiv i64 %3, 5` 줄 끝에 메타데이터 없음) · 주석본 d377a0.ll 같은 줄에 `;L` 사슬 없음 · o26E C09~C13 MATCH",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[209]/consts[8]/meaning",
+   "kind": "보강",
+   "old": "num_checkpoints 상한 = checkpoint_hp[18] 배열 크기 (llvm.umin)",
+   "new": "num_checkpoints 상한 = checkpoint_hp[18] 배열 크기 (llvm.umin · m04.ll:50343 호이스트 명령이라 `!dbg` 없음 — 루트 728. 오라클 depth=200 → checkpoint_count 18 실측 26E C13)",
+   "evidence": "m04.ll:50343 `%189 = call noundef i64 @llvm.umin.i64(i64 %188, i64 18)` !dbg 부재 · o26E C13 MATCH",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[209]/sig/returns",
+   "kind": "보강",
+   "old": "sret MinionWaveSnapshot 2320B — **전 바이트 살아있음(undef·패딩 0)**",
+   "new": "sret MinionWaveSnapshot 2320B — **전 바이트 살아있음(undef·패딩 0 · 오라클 26E 34 케이스 전건 2320B 비트동일 = SRET_LIVE 마스크는 전량)**",
+   "evidence": "m04.ll:49998~50072 Default 초기화(memset 144×12 · memset 40×12 + store i64 -1 ×12 · memset 16) → 50271/… memcpy 2320 → o26E run26E.py 209 34/34 diffbytes=0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/sig/params[3]/note",
+   "kind": "보강",
+   "old": "IR 속성 없음(=&mut).",
+   "new": "IR 속성 = `noalias noundef align 16 dereferenceable(320)` 만이고 readonly 없음(=&mut).",
+   "evidence": "m02.ll:25360 define 인자 `ptr noalias noundef align 16 dereferenceable(320) %3`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[210]/sig/returns",
+   "kind": "보강",
+   "old": "생성자 define 에 initializes 속성 없음 → live 표면은 SmallActionAroundPosition 레이아웃(tcxdict --deep: +0..+0x60 필드 · +0xad path_finder 니치 · +0xb0 position_eval_purpose · +0xb1 outline_type)으로만 추정 — 미확정",
+   "new": "생성자 define 에 initializes 속성 없음 → 본문 store 전수(m08.ll:103238 new / 103172 new_with_out_line)로 확정: live = +0x0..+0x68(start_tick=game.tick() · goal_x · goal_y · goal_score_diff=0 · target_x · target_y · around_input 40B=wait_around sret 전량 store(m04.ll:33088~33096) · around_radius=80000 · end_delay) · +0xad(=104+69 path_finder Option<PathFinder> None 니치 i8 2) · +0xb0(position_eval_purpose i8 6=Positioning) · +0xb1(outline_type: new 은 0, new_with_out_line 은 인자 %6). **undef = +0x68..+0xad(69B, PathFinder 본체) · +0xae..+0xb0(2B) · +0xb2..+0xb8(6B)**. 오라클 26E 는 이 live 범위에서 비트동일(C01~C05·C23·C26·C27 등)",
+   "evidence": "m08.ll:103282~103304 store 목록: +0 i64 %15 · +8 %3 · +16 %4 · +24 0 · +32 %3 · +40 %4 · +48 memcpy 40(%7=wait_around) · +88 80000 · +96 %5 · +104 memcpy 72(%8: alloca 에 +69 i8 2 만 store) · +176 i8 6 · +177 i8 0 — 103172 판은 +177 이 `store i8 %6`. tcxdict SmallActionAroundPosition: +0x68 path_finder(72B) · +0xb0 position_eval_purpose · +0xb1 outline_type",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/sig/returns",
+   "kind": "보강",
+   "old": "new_with_target 에 initializes 속성 없음 → SmallActionAroundBush 레이아웃(+0 start_tick · +0x8 change_tick · +0x10 bush · +0x18 target_x · +0x20 target_y · +0x6d path_finder 니치 · +0x70 out_line) 추정 · +0xb1 태그",
+   "new": "new_with_target 에 initializes 속성 없음 → 본문 store 전수(m08.ll:104917~105112)로 확정: live = +0x0..+0x28(start_tick · change_tick · bush · target_x · target_y 각 i64 store) · +0x6d(=0x28+0x45 path_finder None 니치 i8 2) · +0x70(out_line i8 %4) · +0xb1 태그. **undef = +0x28..+0x6d(69B) · +0x6e..+0x70(2B) · +0x71..+0xb1(64B)**. 오라클 26E C17·C18·C20·C21·C25 이 live 범위 비트동일",
+   "evidence": "m08.ll:105099 `store i64 %65`(+0) · 105101 +8 · 105104 +16 · 105106 +24 · 105108 +32 · 105110 `store i8 2` +109 · 105112 `store i8 %4` +112 — sret 파생 포인터로의 store/memcpy 는 이 7건이 전부(sretstore.py 전수)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/open[1]",
+   "kind": "보강",
+   "old": "생성자 define 에 initializes 속성이 없어 레이아웃 기반 추정(미확정). sweep 대조 시 갈리면 이 세 variant 의 undef 슬롯부터 의심",
+   "new": "생성자 define 에 initializes 속성이 없어 26E 가 본문 store 전수로 확정(sig.returns 참조: AroundPosition live +0..+0x68·+0xad·+0xb0·+0xb1 / AroundBush live +0..+0x28·+0x6d·+0x70·+0xb1). 오라클 26E 이 범위 비트동일 — 사실 서술로 이동 가능",
+   "evidence": "m08.ll:103282~103304 · 103209~103231 · 105099~105112 store 전수 + o26E run26E.py 210 32/32 MATCH",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/open[2]",
+   "kind": "보강",
+   "old": "미확정 아님, 논리상 사장",
+   "new": "미확정 아님, 논리상 사장(26E 재확인: m02.ll:25444 switch 가 tag 2 를 %872 폴백으로 먼저 보내므로 27044 `icmp eq i8 %52, 2` 는 항상 거짓 — 오라클 C02(target None·Lurk)도 폴백 AroundPosition 1개를 낸다)",
+   "evidence": "_next/reach/cba660.ll 25444~25447 `switch i8 %52 [i8 2 → %872, i8 0 → %63]` · 27044 · o26E C02 got tags [AroundPosition]",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/consts[0]/meaning",
+   "kind": "오탐",
+   "old": "i64::MAX — focus 가 undying 이면 반환하는 검열 die_tick(usize::MAX/2)",
+   "new": "i64::MAX(9223372036854775807) — focus 가 undying 이면 반환하는 검열 die_tick(_docs game_ai L364 가 「지평 밖 검열 큰 값」이라 부르는 값 · i64::MAX 하나뿐이고 다른 센티널 없음. 오라클 26E C01 und=1 → 9223372036854775807)",
+   "evidence": "m15.ll:33001 `%718 = phi i64 [ 9223372036854775807, %736 ], [ %716, %715 ]` — 센티널은 이 하나. G1 이 잡은 'usize::MAX' 는 이 문면의 「/2」 서술이지 별개 값이 아니었다(오탐 → 문면에서 토큰 제거)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/sig/returns",
+   "kind": "오탐",
+   "old": "9223372036854775807(i64::MAX = usize::MAX/2, 검열값)",
+   "new": "9223372036854775807(i64::MAX, 검열값 — _docs 가 「지평 밖 검열 큰 값」으로 부르는 것)",
+   "evidence": "m15.ll:33001 phi 상수 · G1 토큰 통일",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/consts[5]/src_line",
+   "kind": "실오류",
+   "old": 989,
+   "new": 1007,
+   "evidence": "_next/reach/eba9b0.ll 31528~31552 첫 사이트 `;L184<197<202<1007`·`;L185<197<202<1007`·`;L186<197<202<1007`(next_u64 182~186 ← range_usize 197~202 ← 루트 1007) · 같은 상수가 1012·1017·1023·1028·1033·1038·1052 루트에 7번 더 나오고 **989 루트에는 없다**(989 는 31286 `%51 = mul i64 %46, -7046029254386353131 ;L2660<989` 시드 곱뿐). 루트 줄 규약 = 첫 사이트 1007",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/consts[6]/src_line",
+   "kind": "실오류",
+   "old": 989,
+   "new": 1007,
+   "evidence": "_next/reach/eba9b0.ll 31528~31552 첫 사이트 `;L184<197<202<1007`·`;L185<197<202<1007`·`;L186<197<202<1007`(next_u64 182~186 ← range_usize 197~202 ← 루트 1007) · 같은 상수가 1012·1017·1023·1028·1033·1038·1052 루트에 7번 더 나오고 **989 루트에는 없다**(989 는 31286 `%51 = mul i64 %46, -7046029254386353131 ;L2660<989` 시드 곱뿐). 루트 줄 규약 = 첫 사이트 1007",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/consts[7]/src_line",
+   "kind": "실오류",
+   "old": 989,
+   "new": 1007,
+   "evidence": "_next/reach/eba9b0.ll 31528~31552 첫 사이트 `;L184<197<202<1007`·`;L185<197<202<1007`·`;L186<197<202<1007`(next_u64 182~186 ← range_usize 197~202 ← 루트 1007) · 같은 상수가 1012·1017·1023·1028·1033·1038·1052 루트에 7번 더 나오고 **989 루트에는 없다**(989 는 31286 `%51 = mul i64 %46, -7046029254386353131 ;L2660<989` 시드 곱뿐). 루트 줄 규약 = 첫 사이트 1007",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/consts[8]/src_line",
+   "kind": "실오류",
+   "old": 989,
+   "new": 1007,
+   "evidence": "_next/reach/eba9b0.ll 31528~31552 첫 사이트 `;L184<197<202<1007`·`;L185<197<202<1007`·`;L186<197<202<1007`(next_u64 182~186 ← range_usize 197~202 ← 루트 1007) · 같은 상수가 1012·1017·1023·1028·1033·1038·1052 루트에 7번 더 나오고 **989 루트에는 없다**(989 는 31286 `%51 = mul i64 %46, -7046029254386353131 ;L2660<989` 시드 곱뿐). 루트 줄 규약 = 첫 사이트 1007",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/consts[9]/src_line",
+   "kind": "실오류",
+   "old": 989,
+   "new": 1007,
+   "evidence": "_next/reach/eba9b0.ll 31528~31552 첫 사이트 `;L184<197<202<1007`·`;L185<197<202<1007`·`;L186<197<202<1007`(next_u64 182~186 ← range_usize 197~202 ← 루트 1007) · 같은 상수가 1012·1017·1023·1028·1033·1038·1052 루트에 7번 더 나오고 **989 루트에는 없다**(989 는 31286 `%51 = mul i64 %46, -7046029254386353131 ;L2660<989` 시드 곱뿐). 루트 줄 규약 = 첫 사이트 1007",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/consts[5]/meaning",
+   "kind": "보강",
+   "old": "0xBF58476D1CE4E5B9 — splitmix64 1차 믹스 곱(ai_interface.rs:184)",
+   "new": "0xBF58476D1CE4E5B9 — splitmix64 1차 믹스 곱(ai_interface.rs:184 · noise() 호출부 L1007/1012/1017/1023/1028/1033/1038/1052 8곳에 인라인 · 오라클 26E 34 케이스 noise 재구현 일치)",
+   "evidence": "eba9b0.ll 31541 `%128 = mul i64 %127, -4658895280553007687 ;L2660<184<197<202<1007` 외 7곳",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/consts[7]/meaning",
+   "kind": "보강",
+   "old": "①splitmix64 lshr 30 (ai_interface.rs:184)",
+   "new": "①splitmix64 lshr 30 (ai_interface.rs:184 · 루트 1007 외 7곳)",
+   "evidence": "eba9b0.ll 31533 `%126 = lshr i64 %125, 30 ;L184<197<202<1007`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/sig/params[1]/note",
+   "kind": "오탐",
+   "old": "gen_range 호출 사이트 0 — 노이즈는 StdRng 가 아니라 결정론 NoiseRng(splitmix64) 로 뽑는다(아래 logic)",
+   "new": "★IR define 인자에서 제거됨(미사용 · 인자 없음 · DI !42125 만 남고 값은 poison · 래퍼 check_kill_die_tick 은 이 자리를 `readnone captures(none)` 으로 받는다). gen_range 사이트 0 — 노이즈는 StdRng 가 아니라 결정론 NoiseRng(splitmix64) 로 뽑는다(아래 logic)",
+   "evidence": "m15.ll:31120 define 인자 6개 `(i64 %0, ptr %1 data, ptr %2 judger, ptr %3 focus, ptr %4 enemy, ptr %5 towers)` — _rnd(arg 2)·_debug(arg 8) 자리 없음 · !42125 `_rnd arg: 2` · 래퍼 27042 `ptr noalias readnone align 16 captures(none) %1`. G16 오탐 원인 = 「시그니처에서 제거」가 paramrole.DROPPED 어휘(`인자에서 제거`)와 어긋남",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/sig/params[7]/note",
+   "kind": "오탐",
+   "old": "exe 6인자(argscan 스택2+레지스터4)와 IR 6인자 일치",
+   "new": "★IR define 인자에서 제거됨(미사용 · 인자 없음 · DI !42131 만 남고 값은 poison · 래퍼 check_kill_die_tick 은 `readnone captures(none) %7`). exe 6인자(argscan 스택2+레지스터4)와 IR 6인자 일치",
+   "evidence": "m15.ll:31120 define 인자 6개 · !42131 `_debug arg: 8` · 래퍼 27042 마지막 인자 `ptr noalias readnone align 8 captures(none) %7`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[211]/logic",
+   "kind": "실오류",
+   "old": "no_enemy_epic := !(game.get_game_mode() is Moba(m)) || m.epic_minion_buff_time[1 - player.team] == 0   // DI 이름 enemy_epic_buff = 이 i1 (값은 '버프 없음' 쪽이 true)   L1095",
+   "new": "enemy_epic_buff := (game.get_game_mode() is Moba(m)) && m.epic_minion_buff_time[1 - player.team] != 0   // IR %653 은 이 값의 부정(dbg_value 에 DW_OP_not) — 소스 변수명·극성 일치   L1095",
+   "evidence": "m15.ll:32811 `#dbg_value(i1 %653, !42197, !DIExpression(DW_OP_not, DW_OP_LLVM_convert, 1, DW_ATE_unsigned, …))` — 변수 enemy_epic_buff = NOT %653 · %653 = phi [ %651(==0), %647 ], [ true, %635(비-Moba) ]",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/logic",
+   "kind": "실오류",
+   "old": "hp_over_75 := focus.hp*100 > max(focus.stat_cached.hp,1)*75   // DI 이름 low_enough_to_care_minions   L1096",
+   "new": "low_enough_to_care_minions := focus.hp*100 <= max(focus.stat_cached.hp,1)*75   // IR %661 은 이 값의 부정(dbg_value DW_OP_not) · 오라클 C31(751/1000 → 제외)·C32(750/1000 → 포함) 경계   L1096",
+   "evidence": "m15.ll:32822 `#dbg_value(i1 %661, !42199, !DIExpression(DW_OP_not, …))` · 32821 `%661 = icmp ugt i64 %659, %660`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/logic",
+   "kind": "실오류",
+   "old": "if !(no_enemy_epic && (hp_over_75 || line_phase)) { enemy_dps += enemy_minion_wave_risk_dps_at(version, data, focus, focus.x, focus.y) }   L1098~1099  (분기 방향 그대로: no_enemy_epic 거짓이면 무조건 가산)",
+   "new": "if enemy_epic_buff || (low_enough_to_care_minions && !line_phase) { enemy_dps += enemy_minion_wave_risk_dps_at(version, data, focus, focus.x, focus.y) }   L1098~1099  (IR: %653 참 && (%661 || %673) 이면 건너뜀 — 동치 · 오라클 C13/C14/C17/C18/C19/C33/C34 로 4분기 전부 실행 확인)",
+   "evidence": "m15.ll:32843 `br i1 %653, label %668, label %675` · 32859 `%674 = or i1 %661, %673` · 32860 `br i1 %674, label %677(skip), label %675(add)` · 32847(튜토리얼 외: `br i1 %653, %677, %675`) + o26E C13(포함 24)·C14(제외 25)·C17(ebuff 포함)·C18(tut First 제외)·C19(tut Line 포함)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/logic",
+   "kind": "보강",
+   "old": "line_phase := if tutorial ∈ {None,MidBottom,Line,Total} { game.tick() < setting.epic_jungle.first_spawn_tick.saturating_sub(tps_raw*30) } else { true }   L1097",
+   "new": "line_phase := if tutorial ∈ {None,MidBottom,Line,Total} { game.tick() < setting.epic_jungle.first_spawn_tick.saturating_sub(tps_raw*30) } else { true }   L1097  (오라클 C15 fst=1900·tick=100 → 100<100 거짓 / C16 fst=1901 → 참 경계 실측)",
+   "evidence": "m15.ll:32857 `%673 = icmp ult i64 %662, %672` · o26E C15/C16",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/open[0]",
+   "kind": "실오류",
+   "old": "DI 변수명 enemy_epic_buff(%653)·low_enough_to_care_minions(%661)·line_phase 가 값의 극성과 반대로 보인다(enemy_epic_buff 가 buff_time==0 일 때 true). 소스 표기(`!` 위치)는 column 부재로 복원 불가 — logic 은 IR 분기 방향 기준으로 적었고 이름은 참고만",
+   "new": "DI 변수명 enemy_epic_buff·low_enough_to_care_minions 는 %653·%661 에 **DW_OP_not 이 붙은 dbg_value** 로 대응한다(m15.ll:32811·32822) — 즉 변수 값 = IR i1 의 부정이고 이름과 극성이 일치한다(26E 정정 · logic 에 반영). 소스 표기(`!` 위치)는 column 부재로 복원 불가 → 사실 서술",
+   "evidence": "m15.ll:32811 · 32822 dbg_value DW_OP_not",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/sig/tls",
+   "kind": "보강",
+   "old": "TLS 메모는 이 함수 밖의 래퍼(check_kill_die_tick, fight_check.rs:917 · 이 배치 범위 밖)에 있을 것으로 보이나 미열람",
+   "new": "TLS 메모는 래퍼 check_kill_die_tick(fight_check.rs:917 · m15.ll:27042 · pub)에 있다 — 26E 확인: name=game_ai::fight_check::DIE_TICK_CACHE(thread_local! RefCell<DieTickCache>) · 접점 @anon.e5f9a016f1220e5cee86475419aee1e5.173 = constant ptr @…DIE_TICK_CACHE…call_once · LocalKey::with 인스턴스 2개(m00.ll:73353 조회 closure#0 → Option<usize> · m00.ll:74500 삽입 closure#1) · role=래퍼가 작성자 겸 유일 소비자(이 함수는 miss 일 때만 호출됨 27256~27385) · layout=RefCell 셀 +0x0 borrow 플래그 i64 · +0x8 DieTickCache 80B{ +0x0 map HashMap<DieTickKey,usize>(64B) · +0x40 seed u64 · +0x48 tick usize } · key=DieTickKey 192B{ +0x0 enemy [usize;8] · +0x40 tower [usize;12] · +0xa0 version · +0xa8 judger.info.id(+0x928) · +0xb0 focus.id(+0x5c0) · +0xb8 enemy_len u8 · +0xb9 tower_len u8 }(DI !4093~!4107 · 27097~27120 조립 · 원소 id 는 Vec 순서 그대로, 정렬 없음) · call_conditions=enemy.len()<9 && towers.len()<13 일 때만 캐시 경유(27082 `icmp ult %32, 9`·27085 `icmp ult %35, 13`, 아니면 우회 직접 호출) · invalidation=closure#0 이 cache.seed(+0x48 rel RefCell) != game.seed()[vtable+0x20] 또는 cache.tick(+0x50) != game.tick()[vtable+0x28] 이면 map 을 비우고 seed/tick 을 갱신(m00.ll:73367~73378 → %308) · hit 이면 map 값 반환 · miss 면 uncached 호출 뒤 closure#1 이 (key, die_tick) 삽입. ★오라클 규칙(케이스당 프로세스 1개)의 근거 = 키에 hp·스탯이 없다",
+   "evidence": "m15.ll:192 @anon.173 상수 · 27042 define · 27097~27120 key store(+160 version · +168 judger id · +176 focus id · +184/+185 len) · 27082/27085 상한 검사 · 27257/27414 LocalKey::with 호출 · m00.ll:73367 `%13 = gep %4, 72`(seed) · 73374 `icmp eq %14, %16` · 73372 `%21 = gep %4, 80`(tick) · DI !4070(DieTickCache 640bit: map · seed@512 · tick@576) · !4093(DieTickKey 1536bit)",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[209]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C22(dx=80000 포함)·C23(dx=80001 제외) 경계 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C03~C34 태그 1 수집 · max(cooltime,1)·arrival +5 경로 실행",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C19·C20·C21 12 슬롯 상한 실측(13/20 마리 → count 12)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C09~C13 ncp 0/1/1/2/18 · C29~C31 사망 보간 frac=prev_hp*5/(prev_hp-hp)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C29~C31 dps_per_tick 누적 → hp -= dps*5 궤적 비트동일",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C13 depth=200 → checkpoint_count 18",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C03·C06·C07·C08 Target 투사체(태그 6) 도달틱 = dist/max(speed,1)+5 실측 17",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C02 등 안 죽는 슬롯 expected_death_tick=-1 · C17·C18 current_hp 0 → death=5",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C01 count==0 조기 반환(current_tick 만 채워짐)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C22/C23 80000/80001 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C29~C31 5틱 체크포인트·보간",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C13 ncp 18 상한 · C19~C21 12 슬롯 상한",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C07(depth16 제외)/C08(depth17 포함) arrival=dist/speed+5=17 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C04(sq0)·C05(sq1)·C06(sq2)·C03(sq3) 게이트",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[209]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해(raw read)로 재구현한 predict 가 2320B 비트동일(34/34)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C01·C03 Morgard 캠프 폴백 AroundPosition::new(rnd,data,x,y,5) 원소 비트동일(live 범위)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C05·C06 등 tps*5=300 → steal_damage_entry_pos 로 재구현 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C05 등 new_with_out_line(…,5,Outline) 원소 비트동일",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C19·C22 RunAway::new_with_skill(data,player,5,true) 원소 비트동일",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C07(dx 55030 포함)/C08(55031 제외) — max = range+range_adjust+radii+ms*30 = 55030 경계 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C09(25030 포함)/C10(25031 제외) 스킬 사거리 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C11(lvl3 → Skill2 사거리 75030 안 포함)·C12(lvl2 제외)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C13(lvl5 → Ult)·C14(lvl4 제외)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C19(d2=130000² 포함)·C20(130001² 제외) 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C11/C12 level 3/2 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C13/C14 level 5/4 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C05(attack_effect None → Attack 없음)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C01·C03·C23 Morgard(4) camp_pos",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C04 Serpen(5) camp_pos",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[18]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C23·C24·C25 team=1 → is_blue_side false",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C01·C02 None(2) 폴백",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C04 Serpen 폴백 캠프 선택",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[21]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C19·C22 RunAway 태그 3",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C31·C32 champ None → Recall 태그 4",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C17·C18·C20 AroundBush 태그 12",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[24]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C06 Attack 15",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[25]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C06 Skill 16",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[26]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C11 Skill2 17",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[27]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C13 Ult 18",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[28]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C05·C11 epic live_list(+0x198) 해석",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[29]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C06·C18 serpen live_list(+0x1c8) 해석",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[30]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — get_game_mode 슬롯 호출로 대상 해석",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/consts[31]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — get_entity_by_id 슬롯 호출로 대상 해석",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C19/C20 130000/130001 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C07/C08·C09/C10·C15/C16 사거리 경계(ms*30)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C01·C03·C04·C23 폴백 캠프",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[210]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 의 원소 수·태그·live 바이트가 32/32 일치(self 16B 쓰기 0 · rnd 소비 동기)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C01 und=1 → 9223372036854775807",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C23(tick 119 → bucket 0)/C24(tick 120 → bucket 1) 결과 25/26 갈림",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스 시드 = judger.id*golden ^ focus.id<<24 ^ bucket 재구현 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스 splitmix 상태 증가분",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C05~C08 타워 루프 dps·nuke 2회 추첨(상태 +2×golden) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스 + C15/C16 tps*30",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스 ja=820 → 폭 90, 각 기여 *noise/1000",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C09/C10 ecool 60/61 · C11/C12 escool 60/61 (Champion 태그 13 경로)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C11/C12 skill_effect Some",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C31/C32 hp*100 vs maxhp*75 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C31(751)/C32(750) 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C19 tut=7(Line) 계산 경로",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/consts[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C02 hp 1000*60/max(0,1)=60000",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 전 케이스 noise 재구현(lo=1000-d, 폭 (1000-ja)|1) 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C09/C10·C11/C12 쿨다운 60/61 경계",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C31/C32 751/750",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C15/C16 fst 1900/1901",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C02 60000",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — C23/C24 119/120",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[211]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(26E o26E.rs · 케이스당 프로세스 1개 · 명세 logic 독립 재구현 predict ↔ 실행 대조 · run26E.py 100/100 MATCH) — 이 오프셋 독해로 재구현한 predict 가 34/34 일치(others·effect_buffs 는 이 세계에서 비어 있어 미실행)",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§1 표의 209 `open 8`·211 `open 7` 중 209 open[1]·[2]·[3] 과 211 open[0] 은 「표기 불가/사실 서술」이라 이번 라운드 표적이 아닌데 표적 수에 섞여 있다 — open 표에 class 열이 있으니 §1 은 `미탐색` 만 세는 편이 낫다",
+  "지시문 ②의 「AroundPosition/AroundBush 생성자에 initializes 없음 → store 로 확정」 은 맞지만, 그 store 가 sret 로 **memcpy 하는 alloca(Option<PathFinder> 72B)** 의 초기화까지 따라가야 한다는 말이 없다 — 72B 중 1B(+69 니치)만 store 된다. 「store 전수」 규칙에 「memcpy 원본 alloca 의 store 도 전수」를 덧붙일 것",
+  "지시문 ④가 211 을 「간접 소비(DieTickCache ← check_kill_die_tick)」로 분류했는데 실제 관계는 반대다: 래퍼가 작성자 겸 소비자이고 uncached 는 TLS 를 전혀 만지지 않는 피호출자다. 「간접 소비」가 아니라 「TLS 없는 피호출자(호출자가 캐시)」로 써야 오라클 규칙(케이스당 프로세스 1개)의 이유가 맞게 전달된다",
+  "도구 결함(applypatch.py L555): 211 처럼 v2 params 행에 `role` 과 `note` 가 **둘 다** 있으면 `/sig/params[j]/role` 패치가 v2 `role`(v3 가 안 싣는 죽은 칸 — mkspec3.py L565 는 v3 role 을 v2 note 로만 만든다)로 들어가고, G16 이 읽는 v3 role(=v2 note)은 안 바뀐다 — 「원래 키가 그 행에 있으면 그쪽 우선」 규칙이 v3 role→v2 note 매핑을 덮는다. 이번엔 `/sig/params[j]/note` 경로로 우회했다(dry 로 27/27). 규칙을 「params 의 role 은 항상 note」로 고쳐라",
+  "지시문이 209 의 exe 를 `d377a0 (None) · None바이트 · None명령` 으로 싣는다 — 세 함수 모두 exe 절이 evidence=fp 뿐이고 callers/callees 비어 있다. exe 절은 이 라운드 표적이 아니면 §3 에서 빼거나 「rvaname 확정·바이트 미계측」이라 적어라(None 은 미측정인지 부재인지 안 갈린다)"
+ ]
+}

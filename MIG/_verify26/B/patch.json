@@ -1,0 +1,287 @@
+{
+ "round": 26,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[205]/consts[52]/src_line",
+   "kind": "실오류",
+   "old": 394,
+   "new": 395,
+   "evidence": "m14.ll:59000 `%7 = add nsw i8 %5, -15` !dbg !68809 = small_action.rs:309[get_action] inlinedAt !68808 = auction.rs:395[closure$27] (58996~59002 전부 동일 사슬). 394 는 `.filter(` 머리줄이고 리터럴은 395 에 있다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[205]/consts[53]/src_line",
+   "kind": "실오류",
+   "old": 394,
+   "new": 395,
+   "evidence": "m14.ll:59001 `%8 = icmp ult i8 %7, 3` !dbg !68809 → small_action.rs:309 <- auction.rs:395[closure$27]",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[205]/consts[55]/src_line",
+   "kind": "실오류",
+   "old": 394,
+   "new": 396,
+   "evidence": "m14.ll:59006 `%11 = icmp sgt i64 %10, 0` !dbg → auction.rs:396[closure$27] (59005 load score, 59007 br 는 395). 클로저는 L394(.filter 머리)·L395(종류 arm)·L396(`score > 0`) 3줄",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[205]/consts[52]/meaning",
+   "kind": "보강",
+   "old": "aux sp_0: 태그-15 를 ult 3 → 태그 15/16/17 = Attack/Skill/Skill2 만 (Ult 18 제외) — Around 계열 갈아타기 후보 필터",
+   "new": "aux sp_0: 태그-15 를 ult 3 → 태그 15/16/17 = Attack/Skill/Skill2 만 (Ult 18 제외) — Around 계열 갈아타기 후보 필터. 소스는 `act.get_action()` 을 SmallAction::Attack|Skill|Skill2 로 매치(small_action.rs:309 get_action 인라인 사슬 · auction.rs:395)하고 컴파일러가 play 태그 15..17 비교로 접었다",
+   "evidence": "m14.ll:58996~59002 !dbg !68809 사슬 = small_action.rs:309[get_action] <- auction.rs:395[closure$27] — get_action 이 인라인된 것이 IR 에 남아 있다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/knobs[14]/where",
+   "kind": "보강",
+   "old": "auction.rs:394 (closure#27)",
+   "new": "auction.rs:396 (closure#27 · L394 `.filter(` ~ L396 `score > 0`)",
+   "evidence": "m14.ll:59006 `icmp sgt i64 %10, 0` !dbg → auction.rs:396[closure$27]",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[205]/knobs[15]/where",
+   "kind": "보강",
+   "old": "auction.rs:394 (closure#27)",
+   "new": "auction.rs:395 (closure#27 · `get_action()` 매치, small_action.rs:309 인라인)",
+   "evidence": "m14.ll:59000~59001 `add nsw i8 %5, -15` / `icmp ult i8 %7, 3` !dbg → small_action.rs:309 <- auction.rs:395[closure$27]",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[205]/mem[86]/note",
+   "kind": "실오류",
+   "old": "+0 ptr · +8 cap · +0x10 &Bump · +0x18 len — L260·L282·L291·L313~L324·L338 n_cand",
+   "new": "+0 ptr · +0x8 &Bump · +0x10 cap · +0x18 len (mem[50] 과 동일 — DWARF RawVec{ptr@0, a@+8, cap@+0x10}, Vec.len@+0x18) — L260·L282·L291·L313~L324·L338 n_cand",
+   "evidence": "m01.ll DWARF !69990 RawVec<tuple$<i64,enum2$<SmallActionPlay>>> members: ptr(offset 0) · a(offset: 64 = +8) · cap(offset: 128 = +0x10) · Vec.len !69995 offset: 192 = +0x18. 초기화 m01.ll:48966 `store ptr inttoptr (i64 8 to ptr), ptr %9`(+0 dangling ptr) · 48968 `store ptr %2, ptr %10`(+8 ← &Bump 인자 %2). 본문 len 로드 m13.ll:48582 `gep %70, 24`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/mem[143]/offset",
+   "kind": "실오류",
+   "old": "0x0",
+   "new": "0x48",
+   "evidence": "g13.ll:122046~122129 DebugFrameData::add_log 전수: %0 파생 쓰기 = 122099 grow_one(%0+72=0x48 RawVec<DebugLog>) · 122117 memcpy 56B → *(%0+80=0x50 ptr)[len] · 122119 `store i64 %35, ptr %23`(%23 = %0+88 = 0x58 len). tcxdict DebugFrameData: logs @0x48 Vec<DebugLog>(24B)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/mem[143]/name",
+   "kind": "보강",
+   "old": "add_log 내부 쓰기 표면",
+   "new": "logs.push(DebugLog 56B) — add_log 콜리 내부 쓰기 표면(cap 0x48 · ptr 0x50 · len 0x58)",
+   "evidence": "g13.ll:122099/122117/122119 (위 행) · tcxdict DebugLog 56B = champ String@0 · data String@0x18 · tick usize@0x30",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/mem[143]/value",
+   "kind": "보강",
+   "old": "String 로그 1건 추가(조건부 L350)",
+   "new": "DebugLog{ champ = player.info.name.clone()(g13.ll:122073 %2+128 String::clone) · data = 인자 String(122079 memcpy) · tick = game.tick()(122063 vtable+0x28) } 을 logs 에 push(len 0x58 += 1 · cap==len 이면 grow_one) — add_log 내부 게이트 없음(호출측 L329 debug·L331·L337 게이트만) · L332/L338/L350 세 호출 공통",
+   "evidence": "g13.ll:122054~122119 (add_log 본체 · 122067 %16 phi 는 언와인드 cleanup 분기이지 게이트가 아님)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/mem[143]/note",
+   "kind": "보강",
+   "old": "콜리 계약만 — 표면 미확인",
+   "new": "콜리 g13.ll:122046~122129 전수 — 쓰기 표면 = logs Vec 삼중항(0x48/0x50/0x58)과 힙 원소 56B 뿐(texts/lines/circles/positiong_score/infos 무접촉)",
+   "evidence": "g13.ll 위 범위 %0 파생 store/memcpy/call 인자 전수(writes.py): +0x48 grow_one · *(+0x50)[len] memcpy 56 · +0x58 store",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/sig/params[0]/note",
+   "kind": "보강",
+   "old": "(배치 F) F 범위의 쓰기 = L305 조기 반환 1곳: +0 ← parameter(%95) 5384B memcpy(m13.ll:49352) · +5384(0x1508) ← score i64(49356) · +5392(0x1510) ← run play 184B memcpy(49354) | (배치 G) IR 속성: dead_on_unwind noalias writable writeonly sret([5576 x i8]) dereferenceable(5576)",
+   "new": "(배치 F) F 범위의 쓰기 = L305 조기 반환 1곳: +0 ← parameter(%95) 5384B memcpy(m13.ll:49352) · +5384(0x1508) ← score i64(49356) · +5392(0x1510) ← run play 184B memcpy(49354) | (배치 G) IR 속성: dead_on_unwind noalias writable writeonly sret([5576 x i8]) dereferenceable(5576) | (26차 B) 전 범위 %0 파생 쓰기 전수 41건 = 반환 12곳 × {+0x0 ScoreParameter 5384B memcpy · +0x1508 i64 score · +0x1510 SmallActionPlay}: L52(46305~46311) 는 +0x1510 ← RunAway::new sret 136B(%84) + 태그 3 @+0x15c1 · L75(46540~46546) 는 24B(Ult::new %82) + 태그 18 @+0x15c1 · 나머지 10곳(49352~52324)은 184B memcpy(%49+8 / %53 / %23 / %18) — L52 는 +0x1598..+0x15c0·+0x15c2..+0x15c7, L75 는 +0x1528..+0x15c0·+0x15c2..+0x15c7 이 미기록(sret 잔재). ScoreParameter 영역 중 이 함수가 직접 쓰는 것 = +0x0 태그 1(45982) · +0x8..+0x918 wave_snapshot 2320B(45980) · +0x1500 v3_turnback_hold(46183, v2+·비데스매치 조건) — 나머지는 calculate_score_parameter 사본. 오라클 실행 확인(o26B.exe): size_of 반환 튜플 5576 · c2(hp=0) 반환 +0x1508=99999·+0x15c1=3 · c0 +0x0 태그=1",
+   "evidence": "writes.py m13.ll 45629~52585 root %0 전수(41 hit): 46305 memcpy len=136 <- %84 · 46307 memcpy 5384 <- %85(%95 사본 46293) · 46309 store i64 99999 · 46311 store i8 3 @5569 / 46540 memcpy 24 <- %82 · 46546 store i8 18 @5569 / 49352·50735·50906·50928·51483·51553·51609·51645·52201·52319 memcpy 5384 <- %95 · 짝 memcpy 184 · store i64 @5384. _verify26/B/oracle/out_c2.txt: `RESULT score=99999 action=RunAway` · `ret_play_tag(+0xb1) 3` · `size_of_ret 5576`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/sig/params[1]/note",
+   "kind": "보강",
+   "old": "(배치 F) F 범위의 &mut 쓰기 = pending_trace_events push(L239) 1곳뿐. 읽기 = plan 태그(0x5e8)·Battle.sub_goal 태그(0x648)·&sub_plan(0x768)·&team_plan(0xf8) | (배치 G) IR 속성: noalias align 8 dereferenceable(6168) (readonly 없음 — 다른 배치가 쓴다)",
+   "new": "(배치 F) F 범위의 &mut 쓰기 = pending_trace_events push(L239) 1곳뿐. 읽기 = plan 태그(0x5e8)·Battle.sub_goal 태그(0x648)·&sub_plan(0x768)·&team_plan(0xf8) | (배치 G) IR 속성: noalias align 8 dereferenceable(6168) (readonly 없음 — 다른 배치가 쓴다) | (26차 B) 전 범위 %1 파생 쓰기 전수(writes.py) = 직접 store/memcpy 15 사이트: 0x990 memcpy 2760(45873) · 0x1809(46184) · 0x530←0(46551) · 0x1804(46834) · 0x1805(46841) · 0x1813(46888) · 0x1812(46933) · 0x1540/0x1548 select-gep +=1(46947) · 0x560←1(47033) · 0x568(47034) · 0x17a0+8i 루프 11회(47068) · 0x868 len(47877·48575) · *(0x860)[len] 184B memcpy(47875·48573, heap) + &mut 전달 = 0x768 sub_plan(45861·46573·46748·49332 및 closure$3 env) · 0x858 RawVec grow_one(47857·48555). 오라클 실행 확인(o26B.exe 6168B before/after 바이트 diff · 프로세스별 c0/c1/c3/c4/c5/c6): 갈린 범위 ⊂ {0x530, 0x560, 0x568, 0x990~0x1458, 0x17a0~0x17f8} — 표 밖 쓰기 0 · c3 는 0x530 1→0 · c6 2회째 호출 시 0x560/0x17a0 불변(재롤 없음)",
+   "evidence": "scratchpad26B/self_writes.txt(writes.py m13.ll 45629 52585 %1) 전수 22행 · _verify26/B/oracle/out_c0.txt self_diff_ranges · out_c3.txt `f/0x530 pending_global_ult tag 1 -> 0` · out_c6.txt `ratio_same=true`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/open[16]",
+   "kind": "보강",
+   "old": "(배치 F) L261 println 이 debug 플래그와 무관하게 실행되는지: IR 상 %1177(L260) 은 %688(L254 게이트 거짓 분기)과 %1204(디버그 루프 종료) 양쪽에서 들어오므로 **게이트 없음 확정** — 단 with_score 가 비면 L291 unwrap_failed 로 패닉하므로 실전에서는 후속이 없다(패닉 경로).",
+   "new": "(배치 F) L261 println 은 debug 플래그와 무관하게 실행된다: IR 상 %1177(L260 · m13.ll:48579 `preds = %1204, %688`) 은 %688(L254 게이트 거짓 분기)과 %1204(디버그 루프 종료) 양쪽에서 들어오므로 **게이트 없음 확정** — 단 with_score 가 비면 L291 unwrap_failed 로 패닉하므로 실전에서는 후속이 없다(패닉 경로) — 「사실 서술」이다.",
+   "evidence": "m13.ll:48579 `1177: ; preds = %1204, %688` · 48584~48585 `icmp eq i64 %1179, 0` → %1300 → 48985 `invoke @__print(@anon.140)` — debug 플래그(%691) 비교 없음. 26차 B 재확인",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[205]/open[4]",
+   "kind": "보강",
+   "old": "(배치 E) L70/L194 blackboard 인덱스가 **1-team(적팀 인덱스)** 인 이유 — IR(46426 `gep …, i64 %350`, %350=1-team) 은 확정, 의미(관측 주체 vs 관측 대상 기준)는 Blackboard::is_recent_visible 계약 소관",
+   "new": "(배치 E) L70/L194 blackboard 인덱스가 **1-team(적팀 인덱스)** 인 이유 — IR(46426 `gep …, i64 %350`, %350=1-team) 은 확정, 의미 = 개발자 주석(`_docs\\game_core.txt:21` 「Blackboard[team]은 team 팀 자체 정보 추적, 관측은 1-team」): blackboard[1-team] 은 **적팀(1-team) 자체를 추적하는 보드**이고 그 관측자는 team(자기 팀)이라, is_recent_visible(game, player, e=적) 은 「우리 팀 관측으로 본 적 e 의 최근 가시성」이 맞다 — 「사실 서술」이다.",
+   "evidence": "_docs/game_core.txt:20~21 (rmetadocs, game_core lib.rmeta 개발자 주석 원문) · IR m13.ll:46426 gep 인덱스 %350=1-team 은 배치 E 확정 그대로",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[205]/open[10]",
+   "kind": "오탐",
+   "old": "줄 사슬(L229 거리 · L230 radius · L231 결합)만 확정.",
+   "new": "줄 사슬(L229 거리 · L230 radius · L231 결합)만 확정. (G7 「과열림」은 오탐 — is_recent_visible 은 확정 콜리를 서술상 인용한 것이고 물음은 한 줄 안 `&&` 두 항의 소스 순서라 콜리 확정 여부와 무관)",
+   "evidence": "m13.ll:48362 call is_recent_visible 무조건 → 48366~48386 거리 비교 → select 결합(배치 F 확정 그대로). column 0 이라 순서 복원 재료 없음(METHOD_MAP §0 「한 줄 안 표현식 순서 = mir=1 일 때만」, 본 함수 mir=False)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[205]/open[11]",
+   "kind": "오탐",
+   "old": "로 읽었다 — 줄 분할은 추정.",
+   "new": "로 읽었다 — 줄 분할은 추정. (G7 「과열림」은 오탐 — is_recent_visible 은 확정 콜리를 서술상 인용한 것이고 물음은 L235/L236 두 줄의 문면 분할이라 콜리 확정 여부와 무관)",
+   "evidence": "closure#11 DISubprogram 위치 236:25(배치 F) · rmeta srcmap 줄 길이 80/113 만 있고 원문 없음 — 콜리 명세와 별개의 표기 문제",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[205]/mem[115]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c0/c1/c3/c4/c5/c6 프로세스 6개): 호출 후 self+0x990..+0x1458(2760B) == 반환 param+0x9f0..(2760B) 바이트 동일 true 6/6",
+   "found_by": "new",
+   "guard": "0x990"
+  },
+  {
+   "path": "/specs[205]/mem[117]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c3): self+0x530/+0x538/+0x540 에 Some((적id 23, 999999)) 주입 → 호출 후 +0x530 = 0(can_ult=false·level 1 경로 → L88 소거)",
+   "found_by": "new",
+   "guard": "0x530"
+  },
+  {
+   "path": "/specs[205]/mem[124]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c0): +0x560 0→1 · c2(L52 조기반환) 0→0 유지",
+   "found_by": "new",
+   "guard": "0x560"
+  },
+  {
+   "path": "/specs[205]/mem[125]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c0): +0x568 0→1 (plan=PassiveLine 판별자) · c2 조기반환 시 불변",
+   "found_by": "new",
+   "guard": "0x568"
+  },
+  {
+   "path": "/specs[205]/mem[126]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c0): 11값 [1066,944,989,1062,1086,1075,1047,1072,933,1070,1080] 전부 1000±86 안(judgement 80) · c6 같은 플랜 2회째 호출 ratio_same=true(재롤 없음) · c2 조기반환 시 초기값 1000 유지",
+   "found_by": "new",
+   "guard": "0x17a0"
+  },
+  {
+   "path": "/specs[205]/mem[130]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c2 champ.hp=0 write_volatile): 반환 score=99999",
+   "found_by": "new",
+   "guard": "0x1508"
+  },
+  {
+   "path": "/specs[205]/mem[131]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c2): 반환 play+0xb1 = 3 · get_action()=RunAway · rnd 320B 불변(조기반환 전 rnd 미소비)",
+   "found_by": "new",
+   "guard": "0x15c1"
+  },
+  {
+   "path": "/specs[205]/mem[133]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c0~c7): 반환 param+0x0 태그 1 · param.positioning_score == self+0x990",
+   "found_by": "new",
+   "guard": "ScoreParameter"
+  },
+  {
+   "path": "/specs[205]/mem[89]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c5 ctx.debug=true): debug.infos 키 = 18 = champ.id, 값 13개 중 마지막이 본 함수 L256 항목",
+   "found_by": "new",
+   "guard": "0xa0"
+  },
+  {
+   "path": "/specs[205]/mem[136]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o26B.exe c5): infos[18] 마지막 원소 = \"Around { target_id: 2 }: 0\" (= format!(\"{:?}: {}\", play.get_action(), score))",
+   "found_by": "new",
+   "guard": "infos"
+  },
+  {
+   "path": "/specs[205]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o26B.exe c2 hp=0): (99999, RunAway) 선반환 · c0(hp=1) 는 score 0 Around",
+   "found_by": "new",
+   "guard": "99999"
+  },
+  {
+   "path": "/specs[205]/consts[12]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o26B.exe c2): 반환 SmallActionPlay+0xb1 = 3 이고 get_action()=SmallAction::RunAway",
+   "found_by": "new",
+   "guard": "RunAway"
+  },
+  {
+   "path": "/specs[205]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o26B.exe c2): 반환 score 99999 그대로(호출자 비교 없이 즉시 반환)",
+   "found_by": "new",
+   "guard": "99999"
+  },
+  {
+   "path": "/specs[205]/sig/params[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o26B.exe): size_of<(ScoreParameter,i64,SmallActionPlay)> = 5576 · c2 +0x1508=99999 · +0x15c1=3 · c0 +0=1(wave_snapshot Some)",
+   "found_by": "new",
+   "guard": "(sret)"
+  },
+  {
+   "path": "/specs[205]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o26B.exe 6168B 바이트 diff · 프로세스 6개): 갈린 범위 ⊂ {0x530,0x560,0x568,0x990~0x1458,0x17a0~0x17f8} — writes 표 밖 쓰기 0",
+   "found_by": "new",
+   "guard": "self"
+  }
+ ],
+ "brief_errors": [
+  "§5 정정 경로 `/specs[205]/sig/params[j]/role` 은 v3 표시 문면에 닿지 않는다 — mkspec3.py:565 가 v3 `role` 을 v2 `note` 에서 만들고 v2 `role`(더 긴 원문)은 버리는데, applypatch V2KEY 는 행에 `role` 이 있으면 v2 `role` 에 쓴다(specs[205] params 는 둘 다 있음) ⟹ role 정정이 보이지 않는 칸에 들어간다. 이번엔 `/note` 로 냈다(force). 도구 정합 필요",
+  "지시문 v26_prompt_B 「&mut self 6,168B 쓰기 12곳」— IR 전수는 직접 store/memcpy 사이트 15(0x1540/0x1548 select-gep 1사이트, 0x17a0 루프 1사이트, 0x868 ×2, 힙 원소 memcpy ×2 포함) + &mut 전달 6(sub_plan ×4·closure env, grow_one ×2). 세는 규칙(필드 단위 12 = 0x990·0x1809·0x530·0x1804·0x1805·0x1813·0x1812·0x1540/48·0x560/68·0x17a0·0x858~0x868·힙원소)을 명시해야 대조가 된다",
+  "§1 표 `exe` 절이 `e65b10 (None) · None바이트 · None명령` — rvaname 확정 주소인데 크기·명령수가 비어 있어 exe 절 정합 확인이 불가(prompt 는 「exe 주소는 rvaname 확정(재탐색 금지)」)",
+  "§4 G12 「실제 후보」는 aux 클로저(m14.ll sp_0)의 사슬 루트를 function.rs:298(FnMut::call_mut)로 보고 auction.rs 줄을 중간 프레임으로 잡는다 — aux 클로저는 closure$N 프레임 줄(395/396)을 루트로 봐야 한다(이번 3건은 후보에 395 가 있었지만 396 은 없었다)"
+ ]
+}
