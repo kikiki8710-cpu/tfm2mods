@@ -25,7 +25,7 @@ def load_meta(path):
 
 def root_line(meta, mid, depth=0):
     l = meta.get("!" + mid)
-    if l is None or "DILocation" not in l or depth > 20:
+    if l is None or "DILocation" not in l or depth > 64:
         return None
     ia = re.search(r"inlinedAt:\s*!(\d+)", l)
     if ia:

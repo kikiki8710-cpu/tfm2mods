@@ -50,7 +50,7 @@ def load_meta(path):
 def loc_chain(meta, mid, depth=0):
     """DILocation → 'line' 또는 'line<부모line<...' (인라인 체인)."""
     l = meta.get('!' + mid)
-    if l is None or 'DILocation' not in l or depth > 12:   # 09-15: 6 → 12(r14 get_input 계열이 7단 인라인 · 사슬이 잘렸다)
+    if l is None or 'DILocation' not in l or depth > 64:   # 09-15: 6 → 12 → 64(r15 C 적발: position_eval 이 12단 넘게 인라인 · 사슬 끝이 `<` 로 잘려 루트 오판)
         return ''
     ln = re.search(r'line:\s*(\d+)', l)
     out = ln.group(1) if ln else '?'
