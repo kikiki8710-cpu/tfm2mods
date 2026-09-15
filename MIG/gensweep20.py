@@ -938,6 +938,12 @@ SPEC_RVA_OVERRIDE = {
 #   ⚠교훈: internal 함수는 `try_engage_dive`(#74)·`try_engage`(#85)·`v3_assign_anchor`(#45) 처럼 승격이 없을 때만 sweep 이 성립 —
 #      1단계 발화 카운트는 인자를 안 보므로 이를 잡지 못한다. 편입 전에 **ghidra 로 exe 스택 인자 개수 = IR 인자 개수** 를 확인할 것.
 EXE_ABI_UNRECOVERABLE = {
+    # ★r17(09-16 판 3 이분 · fnprobe): exe 0xe35a40 은 393B/102명령 · 레지스터 3(rcx=스택 구조체 &[5 qword] · rdx=ptr · r8d=i32)만 읽고 end_check/line_exists 호출이 없다 —
+    #   LTO 가 handle_nexus_attack 을 호출자(0xdcea30)가 미리 계산한 환경을 받는 아웃라인 조각으로 바꿨다(IR 6인자와 무관). 래퍼가 IR 대로 a2 를 StdRng 로 복원해 memcpy AV(VCRUNTIME+0x1cca7).
+    228: u"exe 0xe35a40 = 호출자 아웃라인 조각(rcx=&[5 qword] 스택 구조체 · rdx=ptr · r8d=i32 · 393B · end_check 호출 없음) — IR 6인자(self,version,rnd,player,data,debug)와 대응 불가 → 미편입(#103 부류)",
+    # ★r17(09-16 판 2·4 크래시): v46_stage1/2 — 내 사본이 `front`(dereferenceable(1728)) 를 진입 직후 투기 로드(+0x24a179 AV) · 게임은 그 경로에서 front 를 안 읽는다 → 인자 검증 기구 전까지 보류
+    213: u"내 사본 호이스트 로드 AV — 게임이 dereferenceable 인자에 역참조 불가 포인터를 넘기는 경로가 있다(exe 는 안 읽음) · 래퍼 인자 safe_read 검사 기구 필요(보류)",
+    220: u"213 과 같은 인자(front) · 보류",
     # ~~129 should_add_self_etc_buff_action~~ → 09-14 EXE_ABI VTABLE(가짜 vtable 재구성)으로 편입 — 「복원 불가」는 원 포인터를 못 만들 때만.
     98: u"exe 0xd9bce0 = sret+13 인자(IR sret+11) — LTO ArgumentPromotion(%1 2528B→i64 · %3→팀idx/ctx/world · %2 널검사→bool) 로 원 포인터 복원 불가. "
         u"진입부 detour 재호출 방식 한정 불가 · 호출자 #104 should_steal_now(pub) 대조로 간접 검증(09-13 판 2 AV 0xd9c012 · ghidra-re 대응표)",
@@ -1412,10 +1418,10 @@ def main():
     #   ⟹ 명세와 같은 모양의 합성 항목을 만들어 기존 경로를 그대로 태운다(특수 분기 X).
     #   ⚠`idx` 는 20 이상(명세와 겹치지 않게) · 1단계 발화수가 없으므로 `무효` 로 찍힌다.
     _spec_addrs = set(str((sp.get("exe") or {}).get("addr") or "").lower() for sp in D)
-    for ex in EXTRA_SWEEP:
-        # ★r17(09-16): 명세가 같은 함수를 편입하면(#207 resolve_fight_uncached) 이름 키 슬롯을 만들지 않는다 — 같은 진입부 이중 detour 방지.
-        if ex["addr"].lower() in _spec_addrs:
-            continue
+    # ★r17(09-16): 명세가 같은 함수를 편입하면(#207 resolve_fight_uncached) 이름 키 슬롯을 만들지 않는다 — 같은 진입부 이중 detour 방지.
+    #   ⚠`continue` 로 빼면 아래 `len(_EXTRA)` 산술이 마지막 명세(#248)를 EXTRA 로 오인한다(판 2·3 실사고 — #248 이 EXTRA 취급돼 슬롯 기록 오류) → 목록 자체를 걸러 쓴다.
+    _EXTRA = [ex for ex in EXTRA_SWEEP if ex["addr"].lower() not in _spec_addrs]
+    for ex in _EXTRA:
         D = D + [{
             "name": ex["name"], "sym": ex["sym"], "src": ex.get("src", "?"),
             "ir": {"file": ex["ir_file"], "frm": ex["ir_frm"], "to": ex["ir_frm"] + 400},
@@ -1434,14 +1440,14 @@ def main():
         # ★★명세 밖 이분 대상은 **`probe20_tbl.rs` 의 idx 와 충돌하면 안 된다.**
         #   실사고(2026-09-12): 합성 항목이 idx 20 을 받았는데 그 자리엔 이미 `AUX[20] BigPlan::sub_plan`
         #   (`0xcaf9f0`)이 있어서 **엉뚱한 함수 주소가 붙었다**. ⟹ 자기 `exe.addr` 을 쓰고 idx 를 밀어 둔다.
-        if i >= len(D) - len(EXTRA_SWEEP):
+        if i >= len(D) - len(_EXTRA):
             rva = int((sp.get("exe") or {}).get("addr"), 16)
         # ★무효 표시가 있으면 **숫자를 쓰지 않는다**(위 INVALID_FIRE 주석 참조).
         cnt_s = INVALID_FIRE[i] if i in INVALID_FIRE else (
             u"{:,}".format(cnt) if isinstance(cnt, int) else (u"0" if i in DEAD else u"?"))
         # ★명세 밖 이분 대상은 1단계 발화수가 **애초에 없다** — 「미측정」으로 찍고
         #   `bad_cnt` 를 세워 아래 표기 경로가 숫자를 만지지 않게 한다(None 포맷 오류 방지).
-        _extra = i >= len(D) - len(EXTRA_SWEEP)
+        _extra = i >= len(D) - len(_EXTRA)
         if _extra and cnt is None:
             cnt_s = u"미측정(명세 밖 이분 대상)"
         # ★표시 번호는 **여기 한 곳에서만** 만든다 — 포함표와 제외표가 다른 식을 쓰면
@@ -1641,7 +1647,7 @@ def main():
         if _abi:
             rngs = [_abi[j] for j in rngs if isinstance(_abi[j], int)]
         rows.append(dict(sret_n=sret_n, live=live, sret_enum=sret_enum, sret_enum_none=sret_enum_none, sret_enum_extra=sret_enum_extra, sret_vec=sret_vec, sret_struct=sret_struct, sites=sites,
-                         extra=(i >= len(D) - len(EXTRA_SWEEP)),
+                         extra=(i >= len(D) - len(_EXTRA)),
                          selfr=(None if SELF_RESTORE_OFF else self_restore_of(i, nm)),
                          idx=didx, name=nm, sym=sym, rva=rva, args=g["args"], rty=rty,
                          pro=(pro or []), rng=rngs, cnt=cnt, cnt_s=cnt_s, mod=sp.get("src", "?"),
