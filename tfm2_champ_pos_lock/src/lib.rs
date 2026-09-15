@@ -113,6 +113,55 @@ pub fn champ_names() -> Option<&'static Vec<String>> {
     names()
 }
 
+// ── ★★[2026-09-15 v0.6.1] AI 모델 공간 — 두 번째 인덱스 축 ─────────────────────────────
+//   `DraftScoreContext`(mod_ai.rs:85) 의 슬라이스 5개·finalize(0x201da90) 의 `champion_list`·Hook A `rdx` 는
+//   전부 **AI 모델 챔피언 목록**(ChampionInfoSheet 순서, 실측 95) 의 인덱스다. NAMES(db.available_champions,
+//   커스텀 풀 세이브에선 31)와 크기·순서가 다르다 — 실측 `model_cnt=95 names=31` · `ctx.ally_pick=[?]`
+//   (REPORT 03 09-15). 테스트 세이브는 95=95 라 우연히 일치해 6회 검증이 못 봤다.
+//   ⟹ 모델 목록은 finalize 의 `champion_list`(이름 String 배열)에서 1회 캡처해 게시하고, 모델 인덱스로
+//   조회하는 층(score_pick·Hook A·CB·argmax)은 **이 테이블**을 쓴다. 캡처 전(첫 AI 결정 = 보통 첫 밴)은 fail-open.
+static MODEL_NAMES_PTR: AtomicPtr<Vec<String>> = AtomicPtr::new(std::ptr::null_mut());
+static MODEL_MASK: AtomicPtr<Vec<u8>> = AtomicPtr::new(core::ptr::null_mut());
+static MODEL_SIG: AtomicU64 = AtomicU64::new(0);
+static MODEL_APPLIED_VER: AtomicU64 = AtomicU64::new(u64::MAX);
+pub(crate) fn model_names() -> Option<&'static Vec<String>> {
+    let p = MODEL_NAMES_PTR.load(Ordering::Acquire);
+    if p.is_null() { None } else { Some(unsafe { &*p }) }
+}
+pub(crate) fn model_masks() -> Option<&'static Vec<u8>> {
+    let p = MODEL_MASK.load(Ordering::Acquire);
+    if p.is_null() { None } else { Some(unsafe { &*p }) }
+}
+/// 모델 목록 게시(워커 스레드에서 호출됨). 서명이 같으면 no-op. 게시 직후 마스크도 즉시 계산한다.
+pub(crate) fn publish_model_names(v: Vec<String>) {
+    let sig = roster_sig(&v);
+    if MODEL_SIG.load(Ordering::Relaxed) == sig {
+        return;
+    }
+    let lower: Vec<String> = v.iter().map(|n| n.to_ascii_lowercase()).collect();
+    MODEL_NAMES_PTR.store(Box::into_raw(Box::new(lower)), Ordering::Release);
+    MODEL_SIG.store(sig, Ordering::Relaxed);
+    MODEL_APPLIED_VER.store(u64::MAX, Ordering::Relaxed);
+    recompute_model_masks_if_needed();
+    if config::get().debug {
+        config::dlog(&format!("model 목록 캡처: {}종 (sig={sig:#x})", v.len()));
+    }
+}
+fn recompute_model_masks_if_needed() {
+    let Some(mn) = model_names() else { return };
+    let ver = config::state_version();
+    if MODEL_APPLIED_VER.load(Ordering::Relaxed) == ver {
+        return;
+    }
+    let v: Vec<u8> = mn.iter().map(|n| config::mask_of(n)).collect();
+    MODEL_MASK.store(Box::into_raw(Box::new(v)), Ordering::Release);
+    MODEL_APPLIED_VER.store(ver, Ordering::Relaxed);
+}
+/// 이름 → 마스크(현재 상태 기준). 워커에서도 안전(RwLock read).
+pub(crate) fn mask_of_name(n: &str) -> u8 {
+    config::mask_of(&n.to_ascii_lowercase())
+}
+
 // ── 설정 팝업 그리드: 한글 이름 가나다순 정렬 ─────────────────────────────
 //   라벨은 i18n 태그(`#asset/...?description.{id}.name`)로 넘겨 게임이 해석하므로
 //   모드는 한글 문자열을 모른다 ⟹ 정렬하려면 i18n 을 우리가 읽어야 한다.
@@ -1185,14 +1234,17 @@ impl ModDraftScoreHook for PosLockDraftAi {
             return DraftScoreDecision::Pass;
         }
         let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            let masks = masks()?;
+            // ★★[2026-09-15 v0.6.1] `candidate`·`ctx.*` 인덱스 = **AI 모델 공간** ⟹ 모델 테이블로 조회.
+            //   ~~구: `masks()`(NAMES 공간)~~ — 커스텀 풀 세이브에서 엉뚱한 챔프의 마스크를 썼다.
+            //   모델 목록 미캡처(첫 AI 결정 전)면 판정 불가 → Pass.
+            let masks = model_masks()?;
             let cand = masks.get(candidate).copied().unwrap_or(MASK_ALL);
             CNT_SEEN.fetch_add(1, Ordering::Relaxed);
             if cand == MASK_ALL {
                 return None;
             }
             let nm = |i: usize| {
-                names().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
+                model_names().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
             };
             // ★진단(2026-08-21): SDK 필드 매핑 vs raw ctx 오프셋 대조 — 어느 게 진짜 아군 픽인지
             //   씬 실픽과 비교해 확정. 총 상한 200줄. (동작 변경 없음 = 로깅만.)
@@ -1852,12 +1904,23 @@ fn recompute_blocklist(root: &Node) {
         exit_note(2, "씬 4벡터(픽/밴) 읽기 실패");
         return; // 씬 형태 이상(과도기) → 일시적이므로 직전 목록 유지
     };
-    // taken = 4벡터(픽·밴) 이름 합집합.
+    // taken = 4벡터(픽·밴) 이름 합집합 + ★[2026-09-15 v0.6.1] 게임이 피어리스로 회색 처리한 챔프(FEARLESS_SEEN).
+    //   ~~구: 4벡터만~~ → 피어리스/하드 2세트부터 이전 세트 픽이 판정 풀에 남아 ①`any_feasible` 이 잠긴 챔프로
+    //   참이 돼 fail-open 이 안 걸리고 ②자유 슬롯 예산이 부풀린 풀로 과소평가돼 **합법 후보가 있는데 전부 회색**
+    //   (정적 시뮬레이터 1,515판 중 26~39판 재현 · v0.6.1 반영 후 0). FEARLESS_SEEN 은 contains 콜사이트 wrapper 가
+    //   `orig==true` 관측을 누적한 것(hooks.rs contains_wrapper) — 새 세트 감지 시 비운다.
+    let fearless_seen: std::collections::HashSet<String> = {
+        let g = hooks::FEARLESS_SEEN.lock().unwrap_or_else(|e| e.into_inner());
+        g.as_ref().cloned().unwrap_or_default()
+    };
     let mut taken: std::collections::HashSet<&str> = std::collections::HashSet::new();
     for v in [&picks_a, &picks_e, &bans_a, &bans_e] {
         for s in v {
             taken.insert(s.as_str());
         }
+    }
+    for s in &fearless_seen {
+        taken.insert(s.as_str());
     }
     // ★★2026-08-22 정정: "픽 수가 적은 쪽"(next-picker) 추정은 스네이크 픽 순서에서 틀리고,
     //   드래프트가 끝난 뒤에도 계산돼 pinned=5 → 전 후보 불가 → anyfeasible=false → fail-open
@@ -1948,7 +2011,8 @@ fn recompute_blocklist(root: &Node) {
         if (total as i64) < last_total {
             SIDE_MAP.store(0, Ordering::Relaxed);
             MY_SIDE.store(-1, Ordering::Relaxed);
-            config::llog("draft: 새 세트 감지 → 진영 캐시 리셋");
+            *hooks::FEARLESS_SEEN.lock().unwrap_or_else(|e| e.into_inner()) = None; // 피어리스 관측도 세트마다 새로
+            config::llog("draft: 새 세트 감지 → 진영 캐시·피어리스 관측 리셋");
         }
     }
     //   진영 → 씬 픽벡터 매핑: 양쪽 확정 픽 수가 다를 때 대조해서 확정(그 뒤 캐시).
@@ -2178,6 +2242,7 @@ fn recompute_masks_if_needed() {
         .collect();
     publish_masks(v);
     APPLIED_VER.store(ver, Ordering::Relaxed);
+    recompute_model_masks_if_needed(); // 모델 공간 테이블도 같은 버전으로
     if config::get().debug {
         config::dlog(&format!("masks 재계산 (ver={ver})"));
     }

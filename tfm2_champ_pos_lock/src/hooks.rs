@@ -325,7 +325,8 @@ extern "C" fn pos_mask_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> u
         if !cfg.enabled || !cfg.ai_assign_mask {
             return None;
         }
-        let masks = crate::masks()?;
+        // ★[2026-09-15 v0.6.1] rdx = 모델 인덱스 ⟹ 모델 테이블(미캡처면 fail-open).
+        let masks = crate::model_masks()?;
         let m = *masks.get(rdx)?;
         if m == MASK_ALL || m == 0 {
             // MASK_ALL=제한없음. m==0=어떤 화이트리스트에도 없는 챔프 → 0마스크를 게임에
@@ -1240,41 +1241,66 @@ unsafe extern "C" fn finalize_hook(
         if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
             return None;
         }
-        // ★★[2026-09-13] 개입 조건을 두 갈래로 나눈다.
-        //   ①**내 팀 픽 차례라고 확신**(MY_PICK_TURN) → BLOCKLIST 로 order 를 좁힌다(종전 동작).
-        //   ②그 외(상대 AI·백그라운드) → BLOCKLIST 는 쓰지 않는다(09-04 "상대 굶김" 사고). 단
-        //     **추천 픽(pref_idx)이 어차피 버려지는 경우**(밴/픽됨·order 밖)에만 게임의 폴백
-        //     (order[0]/선형스캔 첫 가용 = 표시명 정렬 첫 챔프 = 격투가)을 **점수 최대 후보**로 바꾼다.
-        //     정상 추천은 손대지 않으므로 상대 AI 의 원래 판단은 그대로다.
-        let my_turn = MY_PICK_TURN.load(Ordering::Relaxed);
-        let block: std::collections::HashSet<String> = if my_turn {
-            let g = BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
-            g.as_ref().cloned().unwrap_or_default()
-        } else {
-            std::collections::HashSet::new()
-        };
         if cand_len == 0 || cand_len > 512 || !ptr_ok(cand_ptr) {
             return None;
         }
-        // 이미 쓰인 챔프(= orig 의 가용성 술어가 보는 것과 같은 출처):
-        //   ctx 의 Vec 4개(양팀 밴2·픽2) + 단계별 추가목록(use_b 로 A/B 택일).
-        let mut taken: std::collections::HashSet<String> = std::collections::HashSet::new();
-        if ptr_ok(ctx) {
-            for base in [0x38usize, 0x50, 0x68, 0x80] {
-                let p = safe_rd_u64(ctx + base).unwrap_or(0) as usize;
-                let l = safe_rd_u64(ctx + base + 8).unwrap_or(0) as usize;
-                read_str_vec_into(p, l, &mut taken);
+        // ★★[2026-09-15 v0.6.1] ①모델 목록 캡처 — `champion_list` 가 곧 AI 모델 공간의 이름 배열이다.
+        //   (score_pick·Hook A 가 쓰는 두 번째 인덱스 축. 매 호출 서명 대조는 publish 쪽이 한다.)
+        {
+            let mut v: Vec<String> = Vec::with_capacity(cand_len);
+            for i in 0..cand_len {
+                let Some(n) = read_str_elem(cand_ptr + i * 0x18) else { break };
+                v.push(n);
+            }
+            if v.len() == cand_len {
+                crate::publish_model_names(v);
             }
         }
-        if use_b & 0xff != 0 {
-            read_str_vec_into(lb_p, lb_l, &mut taken);
-        } else {
-            read_str_vec_into(la_p, la_l, &mut taken);
+        // ②밴 차례는 불개입(포지션 무관).
+        let is_ban = use_b & 0xff != 0;
+        if is_ban {
+            return None;
         }
+        // 이미 쓰인 챔프(= orig 의 가용성 술어가 보는 것과 같은 출처):
+        //   ctx(set_info) 의 Vec 4개(블루밴 +0x38 · 레드밴 +0x50 · 블루픽 +0x68 · 레드픽 +0x80 — ptr/len) + 내 피어리스 lock(la).
+        let mut taken: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let mut blue_pick: Vec<String> = Vec::new();
+        let mut red_pick: Vec<String> = Vec::new();
+        let mut lens = [0usize; 4];
+        if !ptr_ok(ctx) {
+            return None;
+        }
+        for (k, base) in [0x38usize, 0x50, 0x68, 0x80].into_iter().enumerate() {
+            let p = safe_rd_u64(ctx + base).unwrap_or(0) as usize;
+            let l = safe_rd_u64(ctx + base + 8).unwrap_or(0) as usize;
+            lens[k] = l;
+            let mut tmp: std::collections::HashSet<String> = std::collections::HashSet::new();
+            read_str_vec_into(p, l, &mut tmp);
+            if k == 2 {
+                blue_pick = tmp.iter().cloned().collect();
+            } else if k == 3 {
+                red_pick = tmp.iter().cloned().collect();
+            }
+            taken.extend(tmp);
+        }
+        read_str_vec_into(la_p, la_l, &mut taken);
+        // ③이번 픽의 진영 = MatchSetInfo::banpick_phase(match_info.rs:449) 그대로: ban_count(+0xf0)·rule(+0xf9)·total.
+        let ban_count = safe_rd_u64(ctx + 0xf0).unwrap_or(0) as usize;
+        let rule = safe_rd_u8(ctx + 0xf9).unwrap_or(3) as usize;
+        if rule > 3 || ban_count > 10 {
+            return None;
+        }
+        const PICK_TBL: [&[u8]; 4] = [&[0, 1, 0, 1], &[0, 1, 1, 0, 0, 1], &[0, 1, 1, 0, 1, 0, 0, 1], &[0, 1, 1, 0, 0, 1, 1, 0, 0, 1]];
+        let total: usize = lens.iter().sum();
+        let base = 2 * ban_count;
+        if total < base || total - base >= PICK_TBL[rule].len() {
+            return None; // 밴 구간/종료 — 여긴 픽만 다룬다
+        }
+        let side = PICK_TBL[rule][total - base];
+        let my_picks: &Vec<String> = if side == 0 { &blue_pick } else { &red_pick };
+        let team_n = rule + 2;
 
-        // ★[2026-09-13] 게임이 준 `order`(후보 인덱스 목록·recommend 이전에 생성 = 점수 아님)를
-        //   **멤버십·순서 그대로** 거른다. ~~구: 후보 배열 0..cand_len 전체 순회~~ (order 밖 후보까지
-        //   허용에 넣었고, 순서도 버렸다). order 를 못 읽으면 종전대로 후보 순회.
+        // ④게임이 준 `order`(활성 ∖ 밴픽 ∖ lock · recommend 이전 생성 = 점수 아님)를 멤버십·순서 그대로 쓴다.
         let src: Vec<usize> = if order_len > 0 && order_len <= 512 && ptr_ok(order_ptr) {
             let mut v = Vec::with_capacity(order_len);
             for k in 0..order_len {
@@ -1283,62 +1309,54 @@ unsafe extern "C" fn finalize_hook(
                     v.push(idx);
                 }
             }
-            if v.is_empty() {
-                (0..cand_len).collect()
-            } else {
-                v
-            }
+            v
         } else {
-            (0..cand_len).collect()
+            Vec::new()
         };
-        let mut allowed: Vec<usize> = Vec::with_capacity(64);
-        let mut allowed_names: Vec<String> = Vec::with_capacity(64);
-        let mut cut_block = 0usize;
+        if src.is_empty() {
+            return None; // order 없음 = 게임이 선형스캔 폴백으로 간다(총고갈) — 개입 불가
+        }
+        let mut cand: Vec<(usize, u8)> = Vec::with_capacity(src.len());
         for &i in &src {
             let Some(n) = read_str_elem(cand_ptr + i * 0x18) else { continue };
             if taken.contains(&n) {
                 continue;
             }
-            if block.contains(&n) {
-                cut_block += 1;
-                continue;
-            }
-            allowed.push(i);
-            allowed_names.push(n);
-            if allowed.len() >= 256 {
-                break;
-            }
+            cand.push((i, crate::mask_of_name(&n)));
         }
-        if allowed.is_empty() {
-            return None; // fail-open — 좁히면 오히려 선형스캔 폴백으로 제한이 풀린다
+        if cand.is_empty() {
+            return None;
         }
+        // ⑤팀별 자체 합법 판정(UI BLOCKLIST 불용 — 팀·프레임 지연·차례 판정에 의존하지 않는다):
+        //   pinned = 이 팀의 실제 픽(제한만) · 자유 슬롯 예산 = UI 와 같은 규칙(free_left) · 후보 = helps 또는 무제한.
+        let pinned: Vec<u8> = my_picks.iter().map(|n| crate::mask_of_name(n)).filter(|&m| m != MASK_ALL).collect();
+        let pinned_all: Vec<u8> = my_picks.iter().map(|n| crate::mask_of_name(n)).collect();
+        let pool: Vec<u8> = cand.iter().map(|&(_, m)| m).collect();
+        let allowed: Vec<usize> = if pinned.is_empty() || crate::free_left(&pinned_all, &pool, team_n) > 0 {
+            cand.iter().map(|&(i, _)| i).collect()
+        } else {
+            let a: Vec<usize> = cand.iter().filter(|&&(_, m)| m == MASK_ALL || crate::helps(&pinned, m)).map(|&(i, _)| i).collect();
+            if a.is_empty() { cand.iter().map(|&(i, _)| i).collect() } else { a } // 합법 후보 0 → fail-open
+        };
+        let cut_block = cand.len() - allowed.len();
         let pref_ok = allowed.contains(&pref_idx);
         if pref_ok && cut_block == 0 {
-            return None; // 추천 픽이 그대로 유효하고 차단도 없음 → 원본 인자 통과(상대 AI 정상 경로)
+            return None; // 추천 픽이 그대로 유효하고 잘라낼 것도 없음 → 원본 인자 통과
         }
-        // ★대체 픽 = 허용 후보 중 **이번 recommend 의 base_score 최대**. 점수표가 없으면(랜덤픽 플래그
-        //   경로 등 recommend 가 안 돈 경우) 종전대로 order 첫 허용 후보.
+        // ⑥대체 픽 = 허용 후보 중 **이번 recommend 의 base_score 최대**(점수표 키 = cand 인덱스 = score_pick candidate).
+        //   점수표가 없으면(랜덤픽 플래그 경로 등) order 첫 허용 후보.
         let pref = if pref_ok {
             pref_idx
         } else {
             let scores = recent_scores();
-            let name_idx: std::collections::HashMap<String, usize> = crate::names()
-                .map(|v| {
-                    v.iter()
-                        .enumerate()
-                        .map(|(k, n)| (n.to_ascii_lowercase(), k))
-                        .collect()
-                })
-                .unwrap_or_default();
             let mut best: Option<(usize, f32)> = None;
-            for (k, i) in allowed.iter().enumerate() {
-                let Some(&ni) = name_idx.get(&allowed_names[k].to_ascii_lowercase()) else { continue };
-                let Some(&sc) = scores.get(&ni) else { continue };
+            for &i in &allowed {
+                let Some(&sc) = scores.get(&i) else { continue };
                 if !sc.is_finite() {
                     continue;
                 }
                 if best.map_or(true, |(_, b)| sc > b) {
-                    best = Some((*i, sc));
+                    best = Some((i, sc));
                 }
             }
             match best {
@@ -1368,7 +1386,7 @@ unsafe extern "C" fn finalize_hook(
             if n < 40 {
                 let nm = read_str_elem(cand_ptr + pref * 0x18).unwrap_or_default();
                 config::dlog(&format!(
-                    "fzfilt#{n}: cand={cand_len} order={order_len}→{nbuf} pref={pref_idx}→{pref}({nm}) bl={bl_n} my_turn={} scored={} noscore={}",
+                    "fzfilt#{n}: cand={cand_len} order={order_len}→{nbuf} pref={pref_idx}→{pref}({nm}) cut={bl_n} my_turn={} scored={} noscore={}",
                     MY_PICK_TURN.load(Ordering::Relaxed),
                     CNT_FZ_SCORED.load(Ordering::Relaxed),
                     CNT_FZ_NOSCORE.load(Ordering::Relaxed)
@@ -3541,7 +3559,7 @@ unsafe fn orch_demote(out: usize, agent: usize) {
         return;
     }
     let _ = agent; // agent+0xf10 은 런타임에서 픽 아님 확정 → 술어 캡처(TL_PINNED) 사용.
-    let Some(masks) = crate::masks() else {
+    let Some(masks) = crate::model_masks() else { // ★v0.6.1 모델 공간
         return;
     };
     let mask_of = |i: usize| masks.get(i).copied().unwrap_or(config::MASK_ALL);
@@ -3718,7 +3736,7 @@ unsafe fn f848_penalty(champ_ptr: usize, count: usize) -> bool {
     if !(2..=6).contains(&count) || !ptr_ok(champ_ptr) {
         return false;
     }
-    let Some(masks) = crate::masks() else {
+    let Some(masks) = crate::model_masks() else { // ★v0.6.1 모델 공간
         return false;
     };
     let mut pins: Vec<u8> = Vec::with_capacity(count);
@@ -5259,18 +5277,12 @@ unsafe fn cand_filter(sret: usize, argpack: usize) {
     if mine.is_empty() {
         return;
     }
-    let (Some(names), Some(masks)) = (crate::names(), crate::masks()) else {
+    let (Some(_names), Some(masks)) = (crate::names(), crate::model_masks()) else { // ★v0.6.1 후보 인덱스 = 모델 공간
         return;
     };
     let pinned: Vec<u8> = mine
         .iter()
-        .map(|nm| {
-            names
-                .iter()
-                .position(|n| n.eq_ignore_ascii_case(nm))
-                .and_then(|i| masks.get(i).copied())
-                .unwrap_or(config::MASK_ALL)
-        })
+        .map(|nm| crate::mask_of_name(nm))
         .filter(|&m| m != config::MASK_ALL)
         .collect();
     if pinned.is_empty() {
