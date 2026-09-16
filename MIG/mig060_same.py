@@ -91,6 +91,9 @@ def main():
 
     OKG = (u"동일", u"이동만", u"오프셋", u"skel동일", u"Loc유사", u"소폭")
     targets = [r for r in J if "new" in r and r["verdict"].split("(")[0] in OKV and (allrows or r["src"] == "spec")]
+    if "--pair" in sys.argv:   # --pair OLD NEW : 등급 무관 한 짝만(변경 함수의 차이 내역 보기)
+        po, pn = sys.argv[sys.argv.index("--pair") + 1].lower(), sys.argv[sys.argv.index("--pair") + 2].lower()
+        base = JM.get(int(po, 16), {}); targets = [dict(base, old=po, new=pn, name=base.get("name", "FUN_" + po), src=base.get("src", "?"), verdict=base.get("verdict", u"?"))]
     print(u"대상 %d" % len(targets))
     out = []; mismatch = collections.Counter()
     for r in targets:
@@ -311,12 +314,12 @@ def main():
                    callees=len(callees), callee_grades=dict(cg), bad_callee=bad_callee[:12])
         out.append(row)
         print(u"%s→%s %-38s %-14s → %s" % (r["old"], r["new"], r["name"][:38], row["v0"], v))
-    json.dump(out, io.open(os.path.join(HERE, "_next", "mig060_same%s.json" % ("_all" if allrows else "")), "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+    json.dump(out, io.open(os.path.join(HERE, "_next", "mig060_same%s.json" % ("_all" if allrows else ("_pair" if "--pair" in sys.argv else ""))), "w", encoding="utf-8"), ensure_ascii=False, indent=0)
     # 호출부 실측이 mig060 짝과 다른 콜리 = mig060 정정 후보(호출부 합의)
     fix = collections.defaultdict(collections.Counter)
     for (to, tn), c in mismatch.items(): fix[to][tn] += c
     fixes = [dict(old="%x" % to, was=JM[to]["new"], now="%x" % max(c, key=c.get), votes=dict((("%x" % k), v) for k, v in c.items()), name=JM[to]["name"]) for to, c in fix.items()]
-    json.dump(fixes, io.open(os.path.join(HERE, "_next", "mig060_same_fix%s.json" % ("_all" if allrows else "")), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(fixes, io.open(os.path.join(HERE, "_next", "mig060_same_fix%s.json" % ("_all" if allrows else ("_pair" if "--pair" in sys.argv else ""))), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(u"mig060 짝 정정 후보(호출부 실측) %d: " % len(fixes) + u" · ".join(u"%s %s→%s" % (f["old"], f["was"], f["now"]) for f in fixes))
     C = collections.Counter(x["strict"].split(u" ·")[0].split("(")[0] for x in out)
     C2 = collections.Counter((u"콜리 주의" if x["bad_callee"] else u"콜리 전부 OK") for x in out)
@@ -329,7 +332,7 @@ def main():
         L.append(u"| `%s` | `%s` | %s | %s | **%s** | %d/%d | %d | %d | %d | %d | %d | %d(%s) | %s |" % (
             x["old"], x["new"], x["name"][:40], x["v0"], x["strict"], x["ninsn"][0], x["ninsn"][1], len(x["imm"]), len(x["disp"]), len(x["data"]), x["loc_ok"], x["data_ok"], x["callees"],
             u"·".join(u"%s%d" % (k[:8], c) for k, c in sorted(x["callee_grades"].items(), key=lambda kv: -kv[1])[:4]), ev[:300].replace("|", "¦")))
-    io.open(os.path.join(HERE, "_next", "mig060_same%s.md" % ("_all" if allrows else "")), "w", encoding="utf-8").write(u"\n".join(L))
+    io.open(os.path.join(HERE, "_next", "mig060_same%s.md" % ("_all" if allrows else ("_pair" if "--pair" in sys.argv else ""))), "w", encoding="utf-8").write(u"\n".join(L))
     print(u"\n" + L[2])
 
 if __name__ == "__main__": main()
