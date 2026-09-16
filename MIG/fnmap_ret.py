@@ -43,7 +43,7 @@ EXTNAME.update({
     "df1f50": u"LineGankCoverPlan::next_plan(BigPlan::next_plan JT arm 9 · ghidra 09-16)",
     "c88300": u"LocalKey::with<interaction_ctx 클로저>(InterActionCtx 메모 캐시 · action_score.rs:577 · ghidra 09-16)",
     "e03360": u"buff_value::noncombat_steroid_window(ghidra 09-16 · ⚠지도 d75cb0 라벨과 충돌 · 확인 필요)",
-    "e0b030": u"[추정 강] fight_model::resolve_join_stake(sret 64 · resolve_fight_full ×3 · ghidra 09-16)",
+    "e0b030": u"fight_model::resolve_fight_stake_roster(09-13 ghidra 확정 · ⚠09-16 재판정은 resolve_join_stake 로 봤으나 그건 0xe05e70=#54 DIFF 0 이라 기존 확정 유지)",
     "eb5dd0": u"fight_check::expected_dps(오프셋 6개 일치 · ghidra 09-16)",
     "dd9f30": u"[추정] TeamPlan::can_near_enemies(can_near_enemies_range 위임 · ghidra 09-16)",
     "e25030": u"[추정 강] SmallActionLaneMinionPosition::target_score(ghidra 09-16)",

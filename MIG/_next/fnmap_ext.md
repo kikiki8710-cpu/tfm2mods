@@ -10,7 +10,7 @@
 | `c87850` | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | 1 | 확정 | 261,096,987 | base_attacking_minion_uncached · defense_nexus::nexus_last_stand_uncached · defense_nexus::nexus_final_stand_uncached | battle::base_battle_action(battle.rs:1306 · 본체 4/4) · FUN_d3c610 · FUN_d3c680 · BattleSubPlan::action_candidates |
 | `eb82d0` | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | 1 | 확정 | 173,533,035 | check_kill_die_tick · fight_check::check_kill_die_tick_uncached | FUN_e04c60 · FUN_e34d50 · FUN_e35160 · death_battle::dm_trade_lean |
 | `ca89a0` | SerpenStanceData::update_plan 클로저 호출부 | 1 | 추정/정적 | 149,991,310 | SerpenStanceData::update_plan::{closure#4} | SerpenStanceData::update_plan |
-| `d96190` | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) | 1 | 추정/정적 | 131,011,370 | estimate_damage_to · game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) | old::battle::v30_wave_danger_chase_guard · FUN_d96b10 |
+| `d96190` | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) | 1 | 추정/정적 | 131,011,370 | estimate_damage_to · game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) | FUN_d96b10 · old::battle::v30_wave_danger_chase_guard |
 | `ca8f60` | EpicStanceData::update_plan 클로저 호출부 | 1 | 추정/정적 | 125,177,970 | EpicStanceData::update_plan::{closure#4} | EpicStanceData::update_plan |
 | `eb8b00` | available_cc_in_window 래퍼 | 1 | 추정/정적 | 124,271,141 | available_cc_in_window | position_eval_at_uncached |
 | `e0d720` | support_min_action_range 래퍼 | 1 | 추정/정적 | 99,920,922 | support_min_action_range | with_runaway · with_runaway · with_runaway · FUN_d6bd40 |
@@ -39,7 +39,7 @@
 | `c986c0` | is_cleared 호출 헬퍼 | 1 | 추정/정적 | 16,913,220 | is_cleared | best_jungle_goal |
 | `d717e0` | (미명명) | 1 | 미확정 | 14,713,256 | noncombat_steroid_window · aoe_heal_covers_low_ally | buff_value::noncombat_steroid_window(ghidra 09-16 · ⚠지도 d75cb0 라벨과 충돌 · 확인 필요) |
 | `d70900` | (미명명) | 1 | 미확정 | 13,134,964 | FUN_e3bd30 · engage_requires_dive · v3_survival_incoming | score_parameter::calculate_score_parameter |
-| `e0b030` | [추정 강] fight_model::resolve_join_stake(sret 64 · resolve_fight_full ×3 · ghidra 09-16) | 1 | 확정 | 11,452,905 | resolve_fight_full | BattleSubPlan::action_candidates · update_v32 |
+| `e0b030` | fight_model::resolve_fight_stake_roster(09-13 ghidra 확정 · ⚠09-16 재판정은 resolve_join_stake 로 봤으나 그건 0xe05e70=#54 DIFF 0 이라 기존 확정 유지) | 1 | 확정 | 11,452,905 | resolve_fight_full | BattleSubPlan::action_candidates · update_v32 |
 | `ca33c0` | (미명명) | 1 | 미확정 | 11,423,918 | is_skip_serpen | simulation.rs:1905 래퍼 |
 | `181cd60` | game_core simulation.rs(1603/1741/1542 · 57 Location · 시뮬 본체) | 1 | 확정 | 10,769,132 | estimate_damage_to | game_core mode.rs 시뮬레이션 틱 루프(AI 루트 · Agent::get_input 호출) |
 | `cd05f0` | battle::base_battle_action(battle.rs:1306 · 본체 4/4) | 1 | 확정 | 10,687,060 | v3_beyond_enemy_line · last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | BattleSubPlan::action_candidates |
@@ -79,7 +79,7 @@
 | `c8cf40` | (미명명) | 1 | 미확정 | 483,383 | FUN_e9fdc0 · action_candidates_cl · action_candidates_cl | SerpenPokeSubPlan::action_candidates |
 | `ca0eb0` | (미명명) | 1 | 미확정 | 461,399 | with_runaway | BattleSubPlan::action_candidates |
 | `c9fd60` | (미명명) | 1 | 미확정 | 439,770 | FUN_d41fe0 | FUN_d41980 |
-| `ccacf0` | LineSafeSubPlan::action_candidates(line_safe.rs:26 · 본체 2/2) | 1 | 확정 | 430,330 | attack_summon_action · attack_structure_skill_action · line_minion_action_candidates · v22_lane_tower_pressure_attack_allowed · v30 tower_aggro_risk 래퍼 … | SubPlan::action_candidates 디스패처(JT 0x33e8910 · 17 arm 전부 아웃라인 · ghidra 09-16) |
+| `ccacf0` | LineSafeSubPlan::action_candidates(line_safe.rs:26 · 본체 2/2) | 1 | 확정 | 430,330 | attack_summon_action · attack_structure_skill_action · line_minion_action_candidates · v22_lane_tower_pressure_attack_allowed · fight_check::battle_action(fight_check.rs:622 · 본체 2/2) … | SubPlan::action_candidates 디스패처(JT 0x33e8910 · 17 arm 전부 아웃라인 · ghidra 09-16) |
 | `ca0560` | (미명명) | 1 | 미확정 | 383,190 | FUN_cd7370 | SerpenHuntSubPlan::action_candidates |
 | `ca2c30` | (미명명) | 1 | 미확정 | 376,234 | can_enemy_hit_objective | tower_dive_is_viable |
 | `c965f0` | (미명명) | 1 | 미확정 | 358,294 | epic_action_score | EpicHuntSubPlan::action_candidates |
@@ -110,8 +110,6 @@
 | `c98290` | (미명명) | 1 | 미확정 | 8,678 | score | EpicPokeSubPlan::action_candidates |
 | `c8b710` | (미명명) | 1 | 미확정 | 7,084 | clone | FUN_c5ded0 · FUN_c72c60 · get_input_cl |
 | `dfdd50` | (미명명) | 1 | 미확정 | 4,006 | base_sub_goal | try_engage · try_engage_dive |
-| `d6fc40` | (미명명) | 2 | 미확정 | 0 | [추정 강] SmallActionLaneMinionPosition::target_score(ghidra 09-16) | lane_minion_position_action |
-| `d71230` | (미명명) | 2 | 미확정 | 0 | [추정 강] SmallActionLaneMinionPosition::target_score(ghidra 09-16) | lane_minion_position_action |
 | `e26230` | (미명명) | 2 | 미확정 | 0 | FUN_e26080 | lane_stance_risk |
 | `c9d5b0` | (미명명) | 2 | 미확정 | 0 | battle::max_range_cached 외곽(로스터 idx→TLS 키 · 폴백 e0e890 max_range · ghidra 09-16) | BattleSubPlan::action_candidates |
 | `ca0a10` | (미명명) | 2 | 미확정 | 0 | battle::max_range_cached 외곽(로스터 idx→TLS 키 · 폴백 e0e890 max_range · ghidra 09-16) | death_battle::dm_trade_lean · action_candidates |
@@ -122,19 +120,21 @@
 | `e0ad90` | (미명명) | 2 | 미확정 | 0 | battle::max_range_cached 외곽(로스터 idx→TLS 키 · 폴백 e0e890 max_range · ghidra 09-16) | make_gank_battle · update_v32 · try_engage · try_engage_dive |
 | `e704b0` | (미명명) | 2 | 미확정 | 0 | battle::max_range_cached 외곽(로스터 idx→TLS 키 · 폴백 e0e890 max_range · ghidra 09-16) | handle_interact_battle |
 | `ebe790` | (미명명) | 2 | 미확정 | 0 | battle::max_range_cached 외곽(로스터 idx→TLS 키 · 폴백 e0e890 max_range · ghidra 09-16) | decide_deathmatch · update · action_candidates |
-| `d3c610` | (미명명) | 2 | 미확정 | 0 | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | update_v32 |
-| `d3c680` | (미명명) | 2 | 미확정 | 0 | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | interaction_score · GoalData::update |
-| `ca0d30` | (미명명) | 2 | 미확정 | 0 | line_defense.rs:125 클로저(max_range_nearly_can_use 호출) | line_defense::LineDefenseSubPlan::unsafe_v19_non_champion_walkup |
 | `d68090` | battle_common::v16_knight_ult_zone_bonus | 2 | 확정 | 0 | FUN_d37680 | battle::BattleSubPlan::score · score |
 | `e03ed0` | (미명명) | 2 | 미확정 | 0 | FUN_d37680 | calculate_interaction_action_score |
+| `d96b10` | (미명명) | 2 | 미확정 | 0 | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) | old::battle::v30_wave_danger_chase_guard · passive_line::PassiveLinePlan::update · update · score_parameter::calculate_score_parameter |
+| `e0dfc0` | old::battle::v30_wave_danger_chase_guard | 2 | 확정 | 0 | game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) · simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) · FUN_d96b10 | update · update · update_v32 |
 | `e34a30` | (미명명) | 2 | 미확정 | 0 | fight_check::expected_dps(오프셋 6개 일치 · ghidra 09-16) | decide_deathmatch |
 | `ebe220` | (미명명) | 2 | 미확정 | 0 | fight_check::expected_dps(오프셋 6개 일치 · ghidra 09-16) | new_filtered · get_input · get_input · build |
+| `d3c610` | (미명명) | 2 | 미확정 | 0 | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | update_v32 |
+| `d3c680` | (미명명) | 2 | 미확정 | 0 | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | interaction_score · GoalData::update |
+| `e248f0` | SmallActionLaneMinionPosition::choose_goal(ghidra 09-16) | 2 | 추정/정적 | 0 | SmallActionLaneMinionPosition::choose_goal 후보 클로저(push_candidate 경로 · can_tower_focused 캐시 래퍼 아님 · ghidra 09-16) | get_input · lane_minion_position_action |
+| `d6fc40` | (미명명) | 2 | 미확정 | 0 | [추정 강] SmallActionLaneMinionPosition::target_score(ghidra 09-16) | lane_minion_position_action |
+| `d71230` | (미명명) | 2 | 미확정 | 0 | [추정 강] SmallActionLaneMinionPosition::target_score(ghidra 09-16) | lane_minion_position_action |
+| `e9bf40` | <AgentVerHamster as AiAgent>::update_on_dead vtable thunk(slot 17 · ghidra 09-16) | 2 | 추정/정적 | 0 | LegacyPlanHandler::update_on_dead(update 아웃라인 조각 아님 · ghidra 09-16) |  |
+| `ca0d30` | (미명명) | 2 | 미확정 | 0 | line_defense.rs:125 클로저(max_range_nearly_can_use 호출) | line_defense::LineDefenseSubPlan::unsafe_v19_non_champion_walkup |
 | `e34d50` | (미명명) | 2 | 미확정 | 0 | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | DefenseNexusSubPlan::action_candidates |
 | `e35160` | (미명명) | 2 | 미확정 | 0 | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | update · update |
 | `ebe380` | death_battle::dm_trade_lean | 2 | 확정 | 0 | FUN_ca0a10 · check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | decide_deathmatch |
-| `e9bf40` | <AgentVerHamster as AiAgent>::update_on_dead vtable thunk(slot 17 · ghidra 09-16) | 2 | 추정/정적 | 0 | LegacyPlanHandler::update_on_dead(update 아웃라인 조각 아님 · ghidra 09-16) |  |
-| `e0dfc0` | old::battle::v30_wave_danger_chase_guard | 2 | 확정 | 0 | game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) · simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) · FUN_d96b10 | update · update · update_v32 |
-| `d96b10` | (미명명) | 2 | 미확정 | 0 | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) | old::battle::v30_wave_danger_chase_guard · passive_line::PassiveLinePlan::update · update · score_parameter::calculate_score_parameter |
-| `e248f0` | SmallActionLaneMinionPosition::choose_goal(ghidra 09-16) | 2 | 추정/정적 | 0 | SmallActionLaneMinionPosition::choose_goal 후보 클로저(push_candidate 경로 · can_tower_focused 캐시 래퍼 아님 · ghidra 09-16) | get_input · lane_minion_position_action |
 | `ca4900` | (미명명) | 3 | 미확정 | 0 | FUN_e04c60 | resolve_fight_stake |
 | `d6a860` | (미명명) | 3 | 미확정 | 0 | FUN_d66a10 | battle::BattleSubPlan::score · score |
