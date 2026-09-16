@@ -1,0 +1,1228 @@
+{
+ "round": 27,
+ "batch": "D",
+ "errors": [
+  {
+   "path": "/specs[257]/consts[14]/src_line",
+   "kind": "오탐",
+   "old": 2195,
+   "new": 2195,
+   "evidence": "m10.ll:52569 `%105 = phi i64 [ -1, %83 ], … [ 7, %274 ], [ 3, %277 ], [ %282, %281 ], [ 4, %275 ]`(!dbg 없음 · 주석본 ;L0) — 태그 3 은 phi 인입 상수이고 그 인입 블록 %277 의 명령은 m10.ll:52927~52929 `gep %3, 1472 / load / br` 전부 ;L2195·L2194. src_line 2195 가 맞고 srclinecheck 가 phi 상수를 line 0 으로 버린 도구 오탐. 실제 후보 [2089(mul tps,3)·2157(udiv tps,3)·2161·2181(store i8 3)] 은 전부 다른 의미의 리터럴 3",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[14]/meaning",
+   "kind": "보강",
+   "old": "반환 태그 3 = BattleSubPlanGoal::KitingBack{focus} (Direct 태그, tcxdict --enum) / *wave_obs 코드 3",
+   "new": "반환 태그 3 = BattleSubPlanGoal::KitingBack{focus} (Direct 태그, tcxdict --enum · 리터럴은 %105 phi 인입 `[ 3, %277 ]` m10.ll:52569 L0 · 인입 블록 %277 = L2195 — 디버그 줄 없는 phi 상수라 G12 사각) / *wave_obs 코드 3 (L2161·L2181 `store i8 3`) · 오라클 KitingBack 38 케이스 payload == focused.id(0x5c0) 확인",
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · m10.ll:52569/52927~52929",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/knobs[7]/effect",
+   "kind": "보강",
+   "old": "관측 출력 캡(u8). 판정엔 wave_pct 원값(캡 전 %183)이 쓰이므로 동작 무영향",
+   "new": "관측 출력 캡(u8). 판정엔 wave_pct 원값(캡 전 %183)이 쓰이므로 동작 무영향. ★실질 미도달: 콜리 enemy_minion_line_action_damage_at 가 반환을 min(dmg, max(hp.saturating_mul(2),1)) 로 캡(m07.ll:47677 `shl nuw %91(hp@0x670), 1` → 47696 `umin`) → version>1 경로에서 wave_pct ≤ 200(오라클 실측 hp=1·2·20 전부 pct 200)",
+   "evidence": "m07.ll:47672~47696 · 오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/consts[6]/meaning",
+   "kind": "보강",
+   "old": "wave_pct_out 상한(umin 254 → u8 trunc). 255 는 미사용 센티널로 남김",
+   "new": "wave_pct_out 상한(umin 254 → u8 trunc · 임계 캡). 255 는 미사용 센티널로 남김. version>1 경로에선 콜리가 wave_damage 를 2·hp 로 캡해(m07.ll:47677~47696) wave_pct ≤ 200 → 254 캡 실질 미도달",
+   "evidence": "m07.ll:47672~47696 · 오라클 pct 최대 0xc8(200)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[256]/sig/params[0]/role",
+   "kind": "오탐",
+   "old": "dereferenceable(6168) · noalias · readonly/readnone/initializes 속성 없음(=&mut · 쓰기 표면은 writes 전수)",
+   "new": "dereferenceable(6168) · noalias · noundef · align 8 — 읽기전용 계열 속성 부재(=&mut · 쓰기 표면은 writes 전수)",
+   "evidence": "m13.ll:10120 define `ptr noalias noundef align 8 dereferenceable(6168) %0` — readonly/readnone 이 실제로 없다는 서술이었는데 G16 P4 가 `속성 없음` 의 부정을 못 읽고 속성어만 잡은 오탐. 지시(G16 은 define 에 실제로 있는 속성만)대로 속성어를 문면에서 제거",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/notes",
+   "kind": "보강",
+   "old": "(sret (BigPlan,u8) 392B, &mut self, version, &mut rnd, &PlayerState, &OperationData, &mut debug))",
+   "new": "(sret (BigPlan,u8) 392B, &self — tcx `fn(&LegacyPlanHandler, …)` · IR %1 은 `ptr noundef nonnull align 8`(readonly/noalias 없음 = 내부 가변성 타입 포함), version, &mut rnd, &PlayerState, &OperationData, &mut debug))",
+   "evidence": "m13.ll:6495 define passive_plan 인자 %1 속성 · callees[7] tcx 시그니처 fn(&game_ai::…::LegacyPlanHandler, usize, &mut StdRng, &PlayerState, &OperationData, &mut DebugFrameData) -> (BigPlan, u8)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/consts[1]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::player_count 인라인 결과 — None(0)/Line(7)/Total(8) → 4명 (phi m14.ll:8836·10209)",
+   "new": "L1280/L1342 의 인원 요구값 4 = None(0)/Line(7)/Total(8) 세 태그의 공통값 (phi m14.ll:8836·10209 · 인입 블록에 !dbg 없음). ★TutorialType::player_count 자체는 None=5 · Line=4 · Total=5 (MIR runner.rs:302~304 `const 4/5/5` · 오라클 실측 pc=5/4/5) — 즉 이 4 는 player_count 원값이 아니라 `min(player_count, 4)` 와 외연 동일한 접힘값(9 variant 전부). 재구현 시 pub player_count() 를 그대로 쓰면 None/Total 에서 5 가 나와 틀린다",
+   "evidence": "_tcx/mirdump_game_core.txt:1114~1147 TutorialType::player_count MIR: bb2(None)=5 @runner.rs:304 · bb3(Total)=5 @303 · bb4(Line)=4 @302 · bb5(MidBottom)=3 @301 · bb6(Bottom)=2 @300 · bb7(First)=2 @299 · bb8(JungleOnly)=1 @298 · bb9(MidSolo)=1 @297 · bb10(TopSolo)=1 @296. 오라클 o27D_ec.exe `ctx.tutorial.player_count()` 실측 tut=0→5 · 7→4 · 8→5 · 5→3 · 3→2 · 2/4/6→1. end_check IR m14.ll:8836 `%52 = phi i64 [ 3, %50 ], [ 2, %48 ], [ 1, %49 ], [ 4, %27 ]×3`(None·Line·Total 인입은 switch 블록 직접 · 줄 없음 = 5·4·5 가 전부 4 로 접힌 뒤 병합)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/logic",
+   "kind": "실오류",
+   "old": "L1280: required_allies = ctx.tutorial.player_count()   // None/Line/Total=4 · First/Bottom=2 · TopSolo/MidSolo/JungleOnly=1 · MidBottom=3",
+   "new": "L1280: required_allies = min(ctx.tutorial.player_count(), 4)   // 외연 동일 표기(표기 불가) · player_count 원값: None/Total=5 · Line=4 · First/Bottom=2 · TopSolo/MidSolo/JungleOnly=1 · MidBottom=3 (MIR runner.rs:296~304) → 접힘값 4/4/2/1/3 (phi m14.ll:8836)",
+   "evidence": "_tcx/mirdump_game_core.txt:1114~1147 · m14.ll:8810~8836 · 오라클 pc 실측 5/4/5/3/2/1",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/logic",
+   "kind": "실오류",
+   "old": "L1312: required_group = match player_count { 4 => 3, 3 => 3, 2 => 2, 1 => 1 }  (= min(player_count,3) · m14.ll:10153)",
+   "new": "L1312: required_group = min(player_count, 3)   // player_count 5(None/Total)·4(Line)·3(MidBottom) → 3 · 2(First/Bottom) → 2 · 1(TopSolo/MidSolo/JungleOnly) → 1 (phi m14.ll:10153 `[3,%569]·[2,%591]·[1,%592]`)",
+   "evidence": "m14.ll:10130~10153 switch 태그 0/5/7/8 → 3 · 1/3 → 2 · 2/4/6 → 1 + MIR player_count 원값(None 5 · Line 4)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/logic",
+   "kind": "실오류",
+   "old": "L1342:   return state.near_finish_line_healthy_ally_50_count >= ctx.tutorial.player_count() }   // 4/2/1/3 원값 (m14.ll:10209~10210)",
+   "new": "L1342:   return state.near_finish_line_healthy_ally_50_count >= min(ctx.tutorial.player_count(), 4) }   // 접힘값 4(None/Line/Total)/2/1/3 — player_count 원값은 None/Total=5 (m14.ll:10187~10210 · MIR runner.rs:302~304)",
+   "evidence": "m14.ll:10187~10210 `%618 = phi i64 [ 3, %616 ], [ 2, %614 ], [ 1, %615 ], [ 4, %613 ]×3` · MIR player_count None=5",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/open",
+   "kind": "실오류",
+   "old": "매핑은 4개 switch 사이트에서 일관되게 관측(None/Line/Total=4, First/Bottom=2, TopSolo/MidSolo/JungleOnly=1, MidBottom=3)되어 확정. 단 소스의 match arm 순서는 표기 불가",
+   "new": "매핑은 4개 switch 사이트에서 일관되게 관측되나 그 값은 접힘값이다: player_count 원값 = None=5·Line=4·Total=5·MidBottom=3·First/Bottom=2·TopSolo/MidSolo/JungleOnly=1 (MIR _tcx/mirdump_game_core.txt:1114 · 오라클 실측) · L1280/L1342 는 min(pc,4)(5·4·5→4) · L1312 는 min(pc,3) · L1266 은 match{2→1,3→2,_→3} 과 외연 동일(9 variant 전부). arm 순서는 MIR span 으로 확정: 296 TopSolo·297 MidSolo·298 JungleOnly·299 First·300 Bottom·301 MidBottom·302 Line·303 Total·304 None",
+   "evidence": "_tcx/mirdump_game_core.txt:1114~1147(문장별 span) · o27D_ec.exe tut 스윕",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/open",
+   "kind": "보강",
+   "old": "내부에서 rnd 를 소비하는지 — 계약만(이 명세 범위 밖). 소비한다면 end_check 가 PRNG 스트림을 전진시키는 지점이 된다",
+   "new": "내부에서 rnd 를 소비하는지 → ★해소(27D · 사실 서술로 닫을 것): g15.ll:130480 define 의 rnd 인자 = `ptr noalias noundef readnone align 16 captures(none) dereferenceable(320) %2`(readnone) · 본문 = game.is_solorank()[vtable 0xe8] ? memcpy(player.solorank_strategy @+0x4f8 · 24B) : vtable 0x108 strategy(sret, game, team) — 두 경로 모두 rnd 를 넘기지 않음. 오라클 o27D_ec 249 케이스 전부 rnd 320B 불변(rnd_same=true). ⟹ end_check 는 PRNG 스트림을 전진시키지 않는다",
+   "evidence": "g15.ll:130480~130505 · o27D_ec.log rnd_same=true 249/249",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/sig/tls/key",
+   "kind": "보강",
+   "old": "콜리 계약 밖(미탐색) — FinishAggCache = slots[2][5] Option<FinishAggregates 64B>(니치 태그 +0x39 = has_epic_buff 바이트) 로 보이나(tcxdict --deep) 키 구성(tick/team/pos)은 콜리 명세 소관",
+   "new": "키 = 전역 (game.seed()[vtable 0x20], game.tick()[vtable 0x28]) + 슬롯 [team][pos]. FinishAggCache 656B(tcxdict) = slots [[Option<FinishAggregates>;5];2] @+0x0(원소 64B · 니치 태그 +0x39 == 2 → None) · seed u64 @+0x280 · tick usize @+0x288. 콜리 build_game_finish_check_state 가 env(72B: seed·tick·team·pos·cache·ctx·player·champ·nexus 포인터 9개 · m14.ll:7782~7813) 를 LocalKey::with 클로저(m00.ll:72405)에 넘겨 RefCell+648(=seed)·+656(=tick) 을 비교(m00.ll:72464~72481)하고 slots[team<2][pos<5] 의 태그(+57 == 2)로 캐시 유무를 본다(72540~72545)",
+   "evidence": "m00.ll:72440~72545 · m14.ll:7775~7814 · tcxdict FinishAggCache/FinishAggregates · divtable AbstractGame 0x20=seed 0x28=tick",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/sig/tls/invalidation",
+   "kind": "보강",
+   "old": "미탐색(콜리 소관)",
+   "new": "seed ≠ cache.seed 또는 tick ≠ cache.tick 이면 cache.seed/tick 을 갱신(m00.ll:72490~72493 store)하고 slots 10칸 태그를 전부 2(None)로 리셋(72494~72513 `store i8 2` @RefCell+65+64k, k=0..9) → 그 뒤 slots[team][pos] 가 None 이면 계산·저장, Some 이면 재사용. 즉 같은 (seed,tick) 안에서는 선수별 1회 계산 · tick 이 바뀌면 전부 무효. RefCell borrow 플래그(+0) ≠0 이면 panic_already_borrowed(72473)",
+   "evidence": "m00.ll:72452~72545",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/sig/tls/layout",
+   "kind": "보강",
+   "old": "FinishAggregates 64B: +0 live_ally_count +8 live_enemy_count +0x10 healthy_ally_50 +0x18 healthy_ally_55 +0x20 near_player_ally +0x28 near_enemy_nexus_healthy_50 +0x30 near_enemy_nexus_healthy_55 +0x38 has_enemy_twin_tower +0x39 has_epic_buff",
+   "new": "FinishAggregates 64B: +0 live_ally_count +8 live_enemy_count +0x10 healthy_ally_50 +0x18 healthy_ally_55 +0x20 near_player_ally +0x28 near_enemy_nexus_healthy_50 +0x30 near_enemy_nexus_healthy_55 +0x38 has_enemy_twin_tower +0x39 has_epic_buff(=Option 니치 태그 바이트, 2=None) · FinishAggCache 656B: +0x0 slots[[Option<FinishAggregates>;5];2](stride 64 · [team][pos]) +0x280 seed u64 +0x288 tick usize · TLS 실체 = RefCell<FinishAggCache>(+0 borrow i64 · +8 값) → IR 오프셋 = 값 오프셋 + 8 (65/129/…/641 = 태그 · 648 seed · 656 tick)",
+   "evidence": "tcxdict FinishAggCache(656B · 필드 3) · m00.ll:72461~72513",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[257]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[14]",
+   "from": 3,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/consts[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) — 독립 재구현(predict)과 tag/payload/obs/pct/danger 5출력 전부 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/knobs[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · raw 오프셋(0x0/0x8/0x38+24t/0x660/0x668/0x640/0x670/0x628/0x5c0/cache+0x170/ctx+0x8/+0x20/setting+0x12f8) 으로 읽은 예측기 일치 + offsets_ok(pub 필드↔raw 6종) true",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[257]/sig/params[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[257]/sig/params[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_v30.exe 369 케이스 MATCH 369/DIFF 0(_verify27/D/oracle/o27D_v30.log · 케이스당 프로세스 1개 · None obs1~4 197 · 미기록 4 · Some tag3 38/tag4 89/tag7 41) · wave_obs/wave_pct_out/wave_danger_out 센티널 0xAA 기법으로 조기 None 3경로(같은 팀·max_range 0·비가시 Invisible/Unknown) 미기록 4/4 · wave_damage==0 경로 wave_danger_out 미기록 96/96 확인",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[256]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[38]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[39]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[44]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/mem[46]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신 · is_passive switch(태그 3 → 유지 · 태그 2 ForcePassive → 교체) · Battle 태그 9 → ff 스냅샷 · src 16/24 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) — 기본(plan 태그 3 PassiveLine): 변경 오프셋 = 0x514(team_plan 콜리)·0x7c8/0x7d0/0x7d8(chats cap/ptr/len: chats_wait 1건 → push)·0x7f0(chats_wait len→0)·0x1800·0x1815 만, mf_swap/ff/plan 불변 / force=2(ForcePassive): +0x5e8~(plan 384B 교체 → 태그 3)·0x1610=24·0x1618=3000 / force=9(Battle): +0x15f8=3000·0x1600=16·0x1608~0x160f 8B 갱신",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[256]/sig/params[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_uod.exe 6168B 바이트 diff(기본/force=2 ForcePassive/force=9 Battle · _verify27/D/oracle/o27D_uod.log) · 3 케이스 전부 rnd 320B 불변(rnd_changed=false) — 본문 0회 + 이 세계에서 passive_plan/TeamPlan::update/GoalData::update 도 미소비",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[255]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/consts[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) — 경계 실측: 아군 집결 1,200,000 포함/1,200,001 제외 · 넥서스 600,000 포함/600,001 제외 · hp 40% ok/39% 제외 · epic 1199(<tps·20) vs 1200 · minion_count 6 vs 5 · required_edge tut3→1·tut5→2·else 3",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[4]",
+   "from": 3,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 o27D_ec.exe Flexible 213 MATCH + line_exists 게이트 29(예측기 미구현 · got=false 정상) + unwrap 패닉 1(champ None 기대) · DIFF 0(_verify27/D/oracle/o27D_ec.log) · Flexible 경로 독립 재구현(predict)이 pub 필드·raw 오프셋(0x628/0x670 · cache 타워/넥서스/player_champion/twin_towers · MobaMode+0x240 · Blackboard minion_count · setting tower_attack_disable_tick/tps)으로 계산해 일치",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[255]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "o27D_ec 249 케이스 rnd 320B 불변 + g15.ll:130480 PlayerState::strategy rnd readnone — end_check 는 PRNG 를 전진시키지 않음",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§1 표·spec 머리 `exe` 가 세 함수 모두 `(None) · None바이트 · None명령` — r18_roster.json 에는 bytes 2859/2734/2242 가 있다(e7b9f0/e49a50/e0dfc0). mkspec3/mkdossier 가 roster 의 bytes 를 exe.bytes 로 안 옮긴다.",
+  "지시문 초점 ②「sret/반환 살아있는 바이트 … i64/bool 스칼라(end_check)」— end_check·update_on_dead 는 sret 가 없고(bool 반환 / void) v30 은 {i64,i64} 레지스터 반환이라 이 배치엔 「sret 표」 대상이 없다. 초점 ③④(kite_reposition_point·choose_goal·push_candidate·base_battle_action·base_defense_focus)도 전부 다른 배치 함수다 — 배치 D 지시문에 배치 공통 초점을 그대로 실어 표적이 흐려진다.",
+  "§4 G12 규약 문구 「그 함수 소스 루트 줄」— 이 배치의 consts 는 대부분 인라인 콜리 줄(v30 consts[0] 2206·[1] 2225 = battle_chase_stance 안 · end_check consts[11~13] 1255 는 자기 줄)인데 게이트는 통과시켰고, 유일한 지적(257 consts[14] 2195)은 루트 줄이 맞는 phi 오탐이었다. 게이트 실제 규약 = 「사슬 안 자기 파일 프레임 아무거나」(20A brief 와 동일 지적) — 문구를 게이트에 맞추거나 게이트를 루트 전용으로 좁혀라.",
+  "G16 이 「readonly/readnone … 속성 없음」처럼 부정어가 뒤에 오는 문면을 긍정 주장으로 읽는다(256 params[0]). 20A 가 `아님`을 지적했고 이번엔 `없음` 이 뒤에 붙은 `A/B/C 속성 없음` 꼴 — NEGATED 어휘가 있어도 「속성어 나열 뒤 부정」을 못 본다. 문면 쪽을 고쳐 닫았다.",
+  "spec_255 consts[1]·logic L1280/L1342·open[4] 의 「player_count None/Line/Total=4」는 1차부터 있던 실오류(MIR·오라클로 None/Total=5·Line=4 확정) — G12/G15/G19 어느 게이트도 「접힘 상수의 출처 함수 원값」을 보지 않는다. 검사기 제안: consts.meaning 이 `<함수> 인라인 결과` 라고 주장하면 `_tcx/mirdump_*.txt` 의 그 함수 `const` 값 집합과 대조(여기선 {1,2,3,4,5} vs 명세 {1,2,3,4} → 5 누락 적발)."
+ ]
+}

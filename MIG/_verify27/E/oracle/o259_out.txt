@@ -1,0 +1,45 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	A	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+A.call1(pred Some(4321,7000,0))	Some	speed=4321	half=7000	delay=0	raw_tag=1
+A.call2(cache hit · same)	Some	speed=4321	half=7000	delay=0	raw_tag=1
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	B	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+B.call1(pred Some(999,20000,0))	Some	speed=999	half=20000	delay=0	raw_tag=1
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	C	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+C.call1 lv2 (pred None: level>2 gate)	None	raw_tag=0	(+8..+32 undef — 대조 금지)
+  level now 9
+C.call2 lv9 (pred None: cache replay ★)	None	raw_tag=0	(+8..+32 undef — 대조 금지)
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	C2	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+C2.call1 lv9 fresh process (pred Some(4321,7000,0))	Some	speed=4321	half=7000	delay=0	raw_tag=1
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	D	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+D.call1 lv5 ult (pred Some(0,1234,17) if Delayed.applyed==delay)	Some	speed=0	half=1234	delay=5	raw_tag=1
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	D2	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+D2.call1 lv4 ult (pred None: level>4 gate)	None	raw_tag=0	(+8..+32 undef — 대조 금지)
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	E	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+E.call1 Targeting (pred None)	None	raw_tag=0	(+8..+32 undef — 대조 금지)
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	F	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+F.call1 AttackEffect no projectile (pred None)	None	raw_tag=0	(+8..+32 undef — 대조 금지)
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	G	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+  champ2.id=19 name="swordman"
+G.champ1 (pred Some(4321,7000,0))	Some	speed=4321	half=7000	delay=0	raw_tag=1
+G.champ2 same name (pred Some(4321,7000,0) = 이름 키 공유 · 자기 값 (1,100,0) 아님)	Some	speed=4321	half=7000	delay=0	raw_tag=1
+-- exit=0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	H	seed=1234	champ.id=18	name="swordman"	name.len=8	level=1	x=15000	y=913000
+H.call1 skill None (pred None)	None	raw_tag=0	(+8..+32 undef — 대조 금지)
+-- exit=0

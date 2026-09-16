@@ -1,0 +1,191 @@
+{
+ "round": 27,
+ "batch": "A",
+ "errors": [
+  {
+   "path": "/specs[249]/consts[40]/src_line",
+   "kind": "실오류",
+   "old": 1798,
+   "new": 1810,
+   "evidence": "m02.ll:70805 `%2140 = mul i64 %239, 15` 에는 `!dbg` 가 없다(루프 preheader 블록 2139 로 LICM 호이스트 · 블록 종결자 70810 `br label %2376` 의 사슬만 ;L180<1798). 유일 소비 = m02.ll:71432 `%2441 = add i64 %2141, %2423 ;L1810`(range_adjust 결과와 합산) · DILocalVariable `range` line 1810(m02.ll:154796 !71891) · `max_dist` line 1811(!71893) · rmeta 줄 길이 L1798=39B(`for e in cache.jungles.iter() {` 만 들어감) vs L1810=97B. 1798 은 리터럴이 있는 줄이 아니라 호이스트 블록이 귀속된 for 줄이다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/consts[40]/meaning",
+   "kind": "오탐",
+   "old": "★적 정글캠프 루프 전용 이동 틱 = 15 (max_dist = move_speed*15 + atk_base + …). 정글/others 루프는 max_tick(%97: 30 또는 0, 배치 A) 사용",
+   "new": "★적 정글캠프 루프 전용 이동 틱 = 15 (L1810 range = move_speed*15 + atk_base + range_adjust · L1811 max_dist = range + e.radius()). 정글/others 루프는 max_tick(%97: 30 또는 0, 배치 A) 사용 (★G12 오탐(27차 A): 게이트 「실제 후보」 1372/1391/1401/1428/1779/1813/1849 는 전부 `store i8 15`(SmallActionPlay::Attack 태그 · consts[6]/[32]) 사이트라 이 상수와 무관. 리터럴 15 의 실제 사이트 m02.ll:70805 `mul i64 %239, 15` 는 `!dbg` 없는 LICM 호이스트라 srclinecheck 가 못 본다 · 소스 루트 줄은 소비 71432 ;L1810)",
+   "evidence": "m02.ll:70805(dbg 없음) · 70810 `br label %2376 ;L180<1798` · 71432 `%2441 = add i64 %2141, %2423 ;L1810` · store i8 15 사이트 = 66928/67088/67163/67508/70969/71477/72017(각 L1372/1391/1401/1428/1779/1813/1849)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[249]/knobs[13]/where",
+   "kind": "실오류",
+   "old": "battle.rs:1798 (m02.ll:70805 `mul %239, 15`)",
+   "new": "battle.rs:1810 (호이스트 m02.ll:70805 `mul %239, 15` · `!dbg` 없음 · 소비 m02.ll:71432 `%2441 = add i64 %2141, %2423` ;L1810)",
+   "evidence": "consts[40] 정정과 동일 근거(m02.ll:70805 dbg 부재 · 71432 ;L1810 · DILocalVariable range line 1810)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/sig/params[4]/role",
+   "kind": "오탐",
+   "old": "IR 속성 `readonly ... dereferenceable(24)` — 읽기 전용.",
+   "new": "IR 속성 `readonly ... dereferenceable(24)` — 읽기 전용(IR 슬롯 = `ptr %3` · define m02.ll:66196 `ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %3`). ★G16 P4/P5 오탐(27차 A): paramrole.align() 이 「IR 인자 6 == params 6」이라 j→%j 항등 매핑을 택해 data 를 `i64 %4`(=sub_goal.tag) 로 읽었다 — _rnd 소거(−1)와 sub_goal 승격(+1)이 상쇄돼 수가 같아진 경우이고 `params[].ir`(\"ptr %3\") 을 게이트가 안 본다. call 밖 사용 5회는 %4 의 switch/icmp(1312/1467/1627/1887/1915)이지 data 가 아니다.",
+   "evidence": "m02.ll:66196 define 원문 — %3 에 readonly·dereferenceable(24) 실재 · %4 는 `i64 %4`(속성 없음) · exe 0xcd05f0 도 r9=data([r12]=cache · [r12+8]=context · [r12+0x10]=blackboard) / [caller_rsp+0x20]=tag 로 분리(argscan058)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/one_line",
+   "kind": "실오류",
+   "old": " (배치 A = 1305~1511: 머리·Attack 3종·적 챔프 Skill·아군 Skill 전반부)",
+   "new": " (battle.rs:1305~2039 전체 · 4분책 병합본)",
+   "evidence": "v2 logic 은 배치 A~D 4구간(0~1511 · 1513~1685 · 1697~1862 · 1863~2039)을 전부 담고 있는데 one_line 만 배치 A 한정 문구가 남아 있었다(_next\\cd05f0_blocks.json cuts 4구간)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/sig/abi",
+   "kind": "보강",
+   "old": "exe 0xcd05f0 는 argscan 스택 인자 참조(외부 명세).",
+   "new": "exe 0xcd05f0(0.5.8) = 레지스터 4 + 스택 2 = 6 인자로 IR define 과 1:1 (rcx=%0 sret · rdx=%1 version · r8=%2 player · r9=%3 data · [caller_rsp+0x20]=%4 sub_goal.tag · [caller_rsp+0x28]=%5 focus — 상세 `exe_abi`). exe 에는 base_defense_focus(battle.rs:1313)가 인라인돼 있어 exe 콜리에 `LocalKey::with<last_stand_flags>`(0xc87850) 가 직접 보인다.",
+   "evidence": "0.5.8 백업 exe(C:\\Users\\jungs\\Desktop\\claude\\tfm2\\tfm2_0.5.8\\TeamfightManager2.exe · 설치본은 09-16 14:40 에 0.6.0 으로 바뀜) 에 fnprobe/argscan 사본(scratchpad27A\\fnprobe058.py·argscan058.py · EXE 경로만 교체)을 돌린 결과: .pdata 0xcd05f0~0xcd588d 21,149B · 4,574명령 · 패닉 Location battle.rs:1306:93/1306:15/1396:27/1511:24/1667:24 + entity.rs:1483:7 ×16 · argscan 「스택 인자 2개 + 레지스터 4 = exe 인자 6」(entry_rsp+0x20 x9 → IR %4 · +0x28 x1 → IR %5) · 디스어셈(dis058.py cd05f0 120): cd061d `mov r9,[r8+0x930]`(player.info.team) · cd0631 `mov eax,[r8+0x9c0]`(position) · cd0638 `mov r15,[r12]`(data.cache · r12=r9) · cd0619 `mov [rbp+0x38],rdx`(version 스필=IR %73) · cd065f `mov [rbp-0x50],rcx`(sret) · cd0676 `cmp [rbp+0x310],3`(sub_goal.tag==KitingBack) · cd0687 `cmp rdx,2; jb`(version>1) · cd475c `mov rdx,[rbp+0x318]`(focus → get_entity_by_id) · 호출자 6곳 전부 0xcbbdb0(action_candidates 23,506B) = IR 호출처 6곳(m02.ll:29209/29225/29230/31654/31799/35473) 과 수 일치",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/sig/exe_abi",
+   "kind": "보강",
+   "old": null,
+   "new": {
+    "exe": "0xcd05f0 (게임 0.5.8 · .pdata 0xcd05f0~0xcd588d · 21,149B · 4,574명령 · 프롤로그 push rbp,r15,r14,r13,r12,rsi,rdi,rbx / sub rsp,0x328 / lea rbp,[rsp+0x80])",
+    "count": "레지스터 4 + 스택 2 = 6 = IR define 인자 6 — DAE(_rnd 소거)·ArgumentPromotion(sub_goal → tag/focus) 이 SDK IR 과 exe 에 동일하게 적용됨 · FAKE 재구성 불필요",
+    "map": "rcx=%0 sret(→[rbp-0x50] · 끝에서 32B memcpy) · rdx=%1 version(→[rbp+0x38] 스필 = IR %73 · cd0687 `cmp rdx,2; jb` = version>1) · r8=%2 player(cd061d `[r8+0x930]` info.team · cd0631 `[r8+0x9c0]` info.position) · r9=%3 data(→r12 · `[r12]` cache · `[r12+8]` context · `[r12+0x10]` blackboard) · [caller_rsp+0x20]=%4 sub_goal.tag(→[rbp+0x310] · cd0676 `cmp …,3` KitingBack · cd1528 `cmp …,0` · cd1536/cd2822 `cmp …,5` · cd1327 switch 로드) · [caller_rsp+0x28]=%5 sub_goal.focus(→[rbp+0x318] · cd475c `mov rdx,[rbp+0x318]` → get_entity_by_id 인자 · 1회)",
+    "inlined": "base_defense_focus(defense_nexus.rs:200 · m04.ll:57133 43줄) 인라인: cd068d~cd06ef = game.seed()[vtable+0x20] · game.tick()[+0x28] → 클로저 env {&seed,&tick,player,data} → call 0xc87850 = LocalKey::with<last_stand_flags::closure>(dllmatch jaccard 1.0 · 패닉 defense_nexus.rs:170:19) → `test eax,0x10001`(= IR `and i24 %19, 65537`) → max_tick 30/0",
+    "callees": "0xca1e10 from_iter_in<FilterMap…>(near_allies · m01.ll:41528 계열) · 0xca59f0 from_iter_in<Map<Filter<Map<Enumerate…>>>>(near_enemies_with_action · m01.ll:47342 · 패닉 battle.rs:1320:24 ×2 = unwrap_failed ×2 · 1325:44 · player.rs:24:5 can_target 인라인 · is_enemy_well_danger 호출) · 0xca3940 from_iter_in<Filter<Chain<Flatten…>>>(enemy_towers · m01.ll:42815) · 0xc87850 LocalKey::with<last_stand_flags> · 0xd36990 is_dash_worth(utils.rs:142) · 0xe02f30 aoe_heal_covers_low_ally · 0xcad5e0 effect_buff_target(추정 · entity.rs:1483 패닉) · 0x12a0180 CastingTarget::check(type.rs:239) · 0x129ed50 Entity::can_skill(entity.rs:1714) · 0x128cf70 can_skill2(1727) · 0x129d130 can_ult(1740) · 0xccc7a0 RawVec::reserve_internal_or_panic · 0xcb0310 Vec::push · 0x16ef850 PrisonerSkill2Action::has_enemy_champion_target_or_action_threat(추정 · cd3365/cd3376 as_any/type_id 직후) · vtable 간접: [+0x1f0] get_entity_by_id · [+0x28] tick · [+0x68] as_any/expected_move_on_hit · [+0x58] expected_move_distance · [+0x120] can_move · [+0xc0] can_activate · [+0xc8] target_constraint · [+0x40]/[+0x48] expected_heal/shield · [+0x90] etc_buff · [+0xb0] expected_on_attack_damage · [+0x18] type_id",
+    "mislabel": "★dllmatch.json 이 0xca59f0(835B) 를 `BattlePlan::v3_beyond_enemy_line`(jaccard 0.305 · 임계 0.9 미달) 로 라벨했으나 실제는 near_enemies from_iter_in — exe 콜리 목록의 「v3_beyond_enemy_line」은 이 오라벨. IR 에 없는 콜리가 아니다",
+    "callers": "6곳 전부 0xcbbdb0 BattleSubPlan::action_candidates(23,506B · dllmatch 0.988): @cbcfef/@cbd558/@cbd5da/@cc0c5d/@cc178e/@cc186f = IR m02.ll:29209/29225/29230/31654/31799/35473",
+    "evidence": "0.5.8 백업 exe(C:\\Users\\jungs\\Desktop\\claude\\tfm2\\tfm2_0.5.8\\TeamfightManager2.exe · 설치본은 09-16 14:40 에 0.6.0 으로 바뀜) 에 fnprobe/argscan 사본(scratchpad27A\\fnprobe058.py·argscan058.py · EXE 경로만 교체)을 돌린 결과: .pdata 0xcd05f0~0xcd588d 21,149B · 4,574명령 · 패닉 Location battle.rs:1306:93/1306:15/1396:27/1511:24/1667:24 + entity.rs:1483:7 ×16 · argscan 「스택 인자 2개 + 레지스터 4 = exe 인자 6」(entry_rsp+0x20 x9 → IR %4 · +0x28 x1 → IR %5) · 디스어셈(dis058.py cd05f0 120): cd061d `mov r9,[r8+0x930]`(player.info.team) · cd0631 `mov eax,[r8+0x9c0]`(position) · cd0638 `mov r15,[r12]`(data.cache · r12=r9) · cd0619 `mov [rbp+0x38],rdx`(version 스필=IR %73) · cd065f `mov [rbp-0x50],rcx`(sret) · cd0676 `cmp [rbp+0x310],3`(sub_goal.tag==KitingBack) · cd0687 `cmp rdx,2; jb`(version>1) · cd475c `mov rdx,[rbp+0x318]`(focus → get_entity_by_id) · 호출자 6곳 전부 0xcbbdb0(action_candidates 23,506B) = IR 호출처 6곳(m02.ll:29209/29225/29230/31654/31799/35473) 과 수 일치"
+   },
+   "evidence": "0.5.8 백업 exe(C:\\Users\\jungs\\Desktop\\claude\\tfm2\\tfm2_0.5.8\\TeamfightManager2.exe · 설치본은 09-16 14:40 에 0.6.0 으로 바뀜) 에 fnprobe/argscan 사본(scratchpad27A\\fnprobe058.py·argscan058.py · EXE 경로만 교체)을 돌린 결과: .pdata 0xcd05f0~0xcd588d 21,149B · 4,574명령 · 패닉 Location battle.rs:1306:93/1306:15/1396:27/1511:24/1667:24 + entity.rs:1483:7 ×16 · argscan 「스택 인자 2개 + 레지스터 4 = exe 인자 6」(entry_rsp+0x20 x9 → IR %4 · +0x28 x1 → IR %5) · 디스어셈(dis058.py cd05f0 120): cd061d `mov r9,[r8+0x930]`(player.info.team) · cd0631 `mov eax,[r8+0x9c0]`(position) · cd0638 `mov r15,[r12]`(data.cache · r12=r9) · cd0619 `mov [rbp+0x38],rdx`(version 스필=IR %73) · cd065f `mov [rbp-0x50],rcx`(sret) · cd0676 `cmp [rbp+0x310],3`(sub_goal.tag==KitingBack) · cd0687 `cmp rdx,2; jb`(version>1) · cd475c `mov rdx,[rbp+0x318]`(focus → get_entity_by_id) · 호출자 6곳 전부 0xcbbdb0(action_candidates 23,506B) = IR 호출처 6곳(m02.ll:29209/29225/29230/31654/31799/35473) 과 수 일치",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/sig/ret",
+   "kind": "보강",
+   "old": "배치 A 가 만드는 variant = Attack(태그 15) · Skill(태그 16).",
+   "new": "이 함수가 만드는 variant 4종 = Attack(태그 15 · push 7곳 L1372/1391/1401/1428/1779/1813/1849) · Skill(16 · 6곳 L1491/1562/1587/1786/1822/1857) · Skill2(17 · 6곳 L1647/1718/1754/1792/1831/1865) · Ult(18 · 3곳 L1935/2002/2033) — 총 22 사이트(`store i8 <태그>, ptr …+177` 22건 · reach 콜리 집계 Attack::new 7/Skill 6/Skill2 6/Ult 3 과 일치). ★네 생성자 define 모두 sret 에 `initializes((0, 17))` (m07.ll:7129 SmallActionAttack::new · 7645 SmallActionSkill::new · 12020 SmallActionSkill2::new · 12535 SmallActionUlt::new) 이라 variant 무관하게 원소 live = [0x0,0x11) + [0xb1].",
+   "evidence": "m07.ll:7129/7645/12020/12535 define 줄 `ptr dead_on_unwind noalias noundef writable writeonly sret([24 x i8]) align 8 captures(none) dereferenceable(24) initializes((0, 17)) %0` · m02.ll store i8 15/16/17/18 사이트 22건 grep · tcxdict --enum SmallActionPlay: 판별자 enum+0xb1 니치 · 15 Attack/16 Skill/17 Skill2/18 Ult",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/sig/tls/role",
+   "kind": "보강",
+   "old": "접점 없음",
+   "new": "직접 접점 없음(define 본문 LocalKey 0건) · ★전이 1건(27차 A): battle.rs:1313 base_defense_focus(m04.ll:57133 · KitingBack && version>1 일 때만 호출) → m04.ll:57166 `LocalKey::with<last_stand_flags::closure>`(본체 m00.ll:90215) · TLS = defense_nexus.rs:169~183 `last_stand_flags: RefCell<(u64, usize, HashMap<usize,(bool,bool,bool)>)>` · 키 = player.info.id(PlayerState+0x928 · m00.ll:90278 `gep … 2344`) · 무효화 = cache.0 != game.seed()[vtable+0x20] 또는 cache.1 != game.tick()[vtable+0x28] 이면 map.clear 후 (seed,tick) 재기록(m00.ll:90262/90273 `br … label %89` → 90491~90499 store·RawTable::clear) · 값 = (nexus_last_stand_uncached, nexus_final_stand_uncached, base_attacking_minion_uncached.is_some())(m00.ll:90533~90541 · i24 byte0/1/2) · base_defense_focus 반환 = .0 || .2(m04.ll:57173 `and i24 %19, 65537`) · exe 0xcd05f0 에선 base_defense_focus 가 인라인되어 exe 함수 본문이 직접 TLS 키를 만진다(cd06cf `lea rcx,[rip+…]` · call 0xc87850) · 오라클/스윕: 같은 (seed,tick) 안에서 세계를 바꿔 재호출하면 KitingBack&&version>1 경로의 max_tick 판정이 첫 값으로 재생됨(TEMPLATE 함정 ③ 계열 · 틱이 바뀌면 자동 무효화)",
+   "evidence": "m04.ll:57133~57176 base_defense_focus 본문(57145/57150 vtable+32/+40 호출 · 57166 LocalKey::with 호출 · 57173 and 65537) · m00.ll:90215~90610 클로저 본체(90259~90273 seed/tick 비교 · 90278 gep 2344 · 90491~90499 clear · 90533~90541 uncached 3종 · 90556~90561 i24 조립) · tcxdict PlayerState 0x928 = info.id · divtable AbstractGame 0x20 seed / 0x28 tick · exe cd0687~cd06ef 디스어셈",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/sig/tls/evidence",
+   "kind": "보강",
+   "old": "(적용 범위: IR 본문 grep · 형제 death_battle m15 는 미확인)",
+   "new": "(적용 범위: IR 본문 grep · 형제 death_battle m15 는 미확인) · ★27차 A 정정: 그 승계 메모는 exe 콜리 목록에서 온 것이고 ①`last_stand_flags::with`(0xc87850) = base_defense_focus 인라인의 내부 호출(전이 TLS · role 참조) ②`v3_beyond_enemy_line` = dllmatch 가 0xca59f0(near_enemies from_iter_in · 패닉 battle.rs:1320/1325) 에 붙인 오라벨(jaccard 0.305) ③`estimate_damage_to` 는 dllmatch·fnprobe 콜리 15개 라벨 어디에도 없음(출처 미확인 · 재료 부재: dllmatch.json + fnprobe058 0xcd05f0 콜리 전수). ⚠sig.tls 의 name/key/layout/invalidation/call_conditions 가 null 이라 applypatch 「dict 하위 키가 문자열이 아니다」로 못 채웠다 — 값은 role 문면에 있다(name=last_stand_flags · key=player.info.id · layout=RefCell<(u64 seed, usize tick, HashMap<usize,(bool,bool,bool)>)> · invalidation=(seed,tick) 불일치 시 clear · call_conditions=sub_goal==KitingBack(3) && version>1)",
+   "evidence": "dllmatch.json 0x140ca59f0 {name: v3_beyond_enemy_line, jaccard 0.305, bytes 835} vs fnprobe058 0xca59f0 패닉 Location battle.rs:1320:24 ×2/1325:44/player.rs:24:5 · 0x140c87850 {name: last_stand_flags_cl, jaccard 1.0}",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp · fnprobe 확인(27차 A · 0.5.8 백업 exe): cd05f0 = 본체 직접(21,149B · 패닉 Location battle.rs:1306:93/1306:15/1396:27/1511:24/1667:24 · entity.rs:1483:7 ×16 · 상수 0x1e0(player_champion)/0x2255100(=36000000 focus_radius)/0x10001(last_stand and) · 호출자 6 = 0xcbbdb0 action_candidates) · ⚠설치본 exe 는 09-16 14:40 0.6.0 으로 교체됨 — 현행 exe 에서 0xcd05f0 은 함수 시작이 아니다(.pdata 0xcd0390~0xcd0a2e 1,694B)",
+   "evidence": "0.5.8 백업 exe(C:\\Users\\jungs\\Desktop\\claude\\tfm2\\tfm2_0.5.8\\TeamfightManager2.exe · 설치본은 09-16 14:40 에 0.6.0 으로 바뀜) 에 fnprobe/argscan 사본(scratchpad27A\\fnprobe058.py·argscan058.py · EXE 경로만 교체)을 돌린 결과: .pdata 0xcd05f0~0xcd588d 21,149B · 4,574명령 · 패닉 Location battle.rs:1306:93/1306:15/1396:27/1511:24/1667:24 + entity.rs:1483:7 ×16 · argscan 「스택 인자 2개 + 레지스터 4 = exe 인자 6」(entry_rsp+0x20 x9 → IR %4 · +0x28 x1 → IR %5) · 디스어셈(dis058.py cd05f0 120): cd061d `mov r9,[r8+0x930]`(player.info.team) · cd0631 `mov eax,[r8+0x9c0]`(position) · cd0638 `mov r15,[r12]`(data.cache · r12=r9) · cd0619 `mov [rbp+0x38],rdx`(version 스필=IR %73) · cd065f `mov [rbp-0x50],rcx`(sret) · cd0676 `cmp [rbp+0x310],3`(sub_goal.tag==KitingBack) · cd0687 `cmp rdx,2; jb`(version>1) · cd475c `mov rdx,[rbp+0x318]`(focus → get_entity_by_id) · 호출자 6곳 전부 0xcbbdb0(action_candidates 23,506B) = IR 호출처 6곳(m02.ll:29209/29225/29230/31654/31799/35473) 과 수 일치",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/mem[10]/base",
+   "kind": "보강",
+   "old": "Blackboard[1-team]",
+   "new": "Blackboard(1-team)",
+   "evidence": "D9-OFF 규약 `<타입>[.<필드경로>][(<한정어>)]` — 대괄호 첨자가 들어가 chk 가 「tcx 사전에 타입 없음」으로 파싱 실패. tcxdict Blackboard 0x78 = small_actions[0]@tag(Niche · 8B) 실재",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[249]/consts[13]/meaning",
+   "kind": "보강",
+   "old": "150000^2 — near_allies 필터(aux closure$0 m02.ll:77019~): 자기 자신 제외 && dist_sq < 150000^2(strict · +1 없음).",
+   "new": "150000^2 임계 — near_allies 필터(aux closure$0 m02.ll:77019~77072): 자기 자신 제외(id 비교 gep 1472) && dist_sq < 150000^2(m02.ll:77066 `icmp ult i64 %30, 22500000000` · strict · +1 없음).",
+   "evidence": "m02.ll:77019~77072 closure$0 본문: `%6/%8 = gep … 1472`(id) · `%10 = icmp eq` · `%31 = icmp ult i64 %30, 22500000000`. kind 가 「미상」인 것은 meaning 에 어휘(임계)가 없어서였다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[249]/logic",
+   "kind": "보강",
+   "old": "// 1312  kb_hold: bool = (sub_goal.tag == 3 KitingBack) && version > 1 && base_defense_focus(player, data)",
+   "new": "// 1312  kb_hold: bool = (sub_goal.tag == 3 KitingBack) && version > 1 && base_defense_focus(player, data)\n//       base_defense_focus(defense_nexus.rs:200 · m04.ll:57133) = last_stand_flags(TLS 메모 · 키 player.info.id · (seed,tick) 바뀌면 clear).0 || .2 = nexus_last_stand_uncached || base_attacking_minion_uncached.is_some()   // exe 에선 인라인(0xcd05f0 cd0687~cd06ef)",
+   "evidence": "m04.ll:57133~57176 · m00.ll:90215~90610 · exe cd0687~cd06ef(`test eax,0x10001; mov eax,0x1e; cmove rax,rcx`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/open[4]",
+   "kind": "보강",
+   "old": "형제 death_battle(m15) 또는 다른 버전 잔재로 추정 — 적용 범위: m02.ll:66196~74096 본문",
+   "new": "형제 death_battle(m15) 또는 다른 버전 잔재로 추정 — 적용 범위: m02.ll:66196~74096 본문 → ★27차 A 해소(닫을 것): last_stand_flags::with = base_defense_focus(1313) 인라인의 내부 호출(exe 0xc87850 · IR m04.ll:57166) · v3_beyond_enemy_line = dllmatch 오라벨(0xca59f0 = near_enemies from_iter_in · jaccard 0.305) · estimate_damage_to 만 출처 미확인(dllmatch·fnprobe 라벨 0건). 형제 잔재 추정은 기각",
+   "evidence": "sig.tls.role/evidence · sig.exe_abi 참조",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[249]/open[5]",
+   "kind": "보강",
+   "old": "대응은 미확인(IR 만 읽음) — sweep 편입 전 argscan.py 로 대조 필요",
+   "new": "대응은 미확인(IR 만 읽음) — sweep 편입 전 argscan.py 로 대조 필요 → ★27차 A 해소(닫을 것): argscan 0xcd05f0(0.5.8) = 레지스터 4 + 스택 2 = 6 · rcx sret/rdx version/r8 player/r9 data/[+0x20] tag/[+0x28] focus 로 IR 과 1:1(sig.exe_abi)",
+   "evidence": "argscan058.py 0xcd05f0 출력 · dis058.py 프롤로그",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[249]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PlayerState 0x930 = info.team usize 8B · exe cd061d `mov r9,[r8+0x930]`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[249]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict PlayerState 0x9c0 = info.position@tag 4B Direct · exe cd0631 `mov eax,dword [r8+0x9c0]`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[249]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict Blackboard 0x78 = small_actions[0]@tag(Niche 8B) — base 표기를 Blackboard(1-team) 으로 고쳐 chk 가 닿게 함",
+   "found_by": "reused"
+  }
+ ],
+ "brief_errors": [
+  "★설치본 exe 가 09-16 14:40 에 0.6.0(mod-sdk-stable/base_version.txt) 으로 바뀌었다 — 도시에는 0.5.8 기준이고 fnprobe.py/argscan.py 는 설치본 경로가 하드코딩이라 그대로 돌리면 0xcd05f0 이 「.pdata 시작 아님(0xcd0390~ 1,694B)」로 나온다. 0.5.8 백업(Desktop\\claude\\tfm2\\tfm2_0.5.8\\TeamfightManager2.exe)으로 EXE 경로만 바꾼 사본을 써서 진행했다. 도구에 --exe 옵션(또는 버전별 경로 표)이 필요하다",
+  "§4 G16 2건은 전부 게이트 결함(오탐): paramrole.align() 이 「IR 인자 수 == params 수」면 j→%j 항등 매핑을 택한다. DAE 소거 1개 + ArgumentPromotion 승격 1개가 상쇄되면 수가 같아져 자리가 어긋난다(249: params[4] data → %4 sub_goal.tag). v2 params[].ir(\"ptr %3\") 을 우선 파싱하면 닫힌다",
+  "§4 G12 consts[40] 의 「실제 후보」 7줄은 전부 `store i8 15`(태그) 사이트라 오탐이고, 정답 사이트(70805 `mul %239, 15`) 는 `!dbg` 없는 LICM 호이스트라 게이트가 못 본다 — 호이스트 명령은 「첫 dbg 소비 명령의 루트 줄」로 귀속하는 약한 후보 규칙이 필요하다(26차 A·E 가 같은 형태를 보고했다). 명세 값 1798 도 호이스트 블록의 for 줄이라 1810 으로 정정",
+  "지시 ④ 「exe 콜리 last_stand_flags::with·v3_beyond_enemy_line = base_defense_focus 인라인 추정」은 절반만 맞다 — last_stand_flags::with 만 그것이고 v3_beyond_enemy_line 은 dllmatch 오라벨(0xca59f0 jaccard 0.305 = near_enemies from_iter_in). 지도의 exe 콜리 라벨은 jaccard<0.9 를 걸러야 한다",
+  "§1 「형제 0개」 — 동명 형제 `death_battle::base_battle_action`(death_battle.rs:1452 · m15.ll:39122 internal fastcc · 시그니처 c2=193 동일) 가 있다. G3 이 같은 leaf 이름·다른 모듈을 안 본다",
+  "applypatch: `sig/tls/<키>` 가 null 이면 「dict 하위 키가 문자열이 아니다」로 실패해 name/key/layout/invalidation/call_conditions 를 patch 로 못 채운다(값은 role 문면에 넣었다). `old` 가 null/빈값이고 현재값이 None 이면 새로 채우게 해야 한다. 또 `sig/return_live_table/Skill2(17)` 처럼 괄호 든 키는 PATH 정규식이 못 가리킨다(Skill2/Ult 칸이 「배치 소관」 자리표시자로 남아 있다 — sig/ret 에 4종 전부를 적어 우회)",
+  "오라클: 대상이 `internal fastcc` 라 직접 링크 불가. pub 래퍼 BattleSubPlan::action_candidates(define void · 8인자: &mut self, version, &mut StdRng, &PlayerState, &OperationData, &ScoreParameter(5384B · pub 생성자 없음), &TeamPlan(Default 있음), &mut DebugFrameData) 경유가 유일한 통로 — ScoreParameter 조립이 미탐색이라 이번 라운드는 실행 못 했다(미탐색 · 재료 부재 아님)"
+ ]
+}

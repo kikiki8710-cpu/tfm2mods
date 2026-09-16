@@ -1,0 +1,22 @@
+{
+ "round": "27",
+ "batch": "B",
+ "errors_applied": 16,
+ "ev_applied": 18,
+ "failed": 0,
+ "stamps": {
+  "/specs[250]/consts[13]/src_line": "0fd42b3f73c448b3",
+  "/specs[250]/consts[13]/meaning": "274e532edfe4ffdb",
+  "/specs[250]/mem[25]/name": "4b8c90cd124c7b33",
+  "/specs[250]/mem[25]/note": "fc085fcab308cd4e",
+  "/specs[250]/open[3]": "4c60b1485b7cfa3d",
+  "/specs[250]/open[6]": "4c60b1485b7cfa3d",
+  "/specs[250]/sig/abi": "94f6d7655c3cf520",
+  "/specs[250]/exe/callers": "b3aaee99c20e9ffb",
+  "/specs[250]/exe/evidence": "b00c107e30338ba7",
+  "/specs[251]/sig/params[0]/role": "f5331fbd06ce85f4",
+  "/specs[251]/consts[21]/meaning": "44482f20b8e3bca2",
+  "/specs[251]/exe/callers": "4d74b53722707b91",
+  "/specs[251]/exe/evidence": "4f7df29fb7337475"
+ }
+}

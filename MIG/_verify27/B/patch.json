@@ -1,0 +1,292 @@
+{
+ "round": 27,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[250]/consts[13]/src_line",
+   "kind": "오탐",
+   "old": 109,
+   "new": 109,
+   "evidence": "_next/reach/df1f50.ll:13317 `store i64 9, ptr %0 ;L0` — 블록 %554(13316 `preds = %559, %551`) 는 L109 arm(%559 · 13341~13345 `;L109` → `br label %554`)과 L113 arm(%551 · 13310~13314 `;L113`)의 공통 태그 store 를 line 0 으로 호이스트한 병합 블록. 13570 `store i64 9, ptr %0 ;L127` 는 L127 경로. ⟹ claim 109 는 arm 귀속으로 참(G12 규약: line 0 호이스트 = 도구 오탐). 후보 [127] 만 강한 후보로 잡힌 것은 호이스트 store 에 !dbg 가 없어서다.",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[250]/consts[13]/meaning",
+   "kind": "보강",
+   "old": "13317·13570",
+   "new": "13317(병합 블록 %554 · `store i64 9 ;L0` = L109 arm %559 와 L113 arm %551 의 공통 태그 store 가 line 0 으로 호이스트)·13570(L127)",
+   "evidence": "df1f50.ll:13316~13317 · 13339~13345 · 13308~13314 · 13564~13570",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[250]/mem[25]/name",
+   "kind": "오탐",
+   "old": "infos",
+   "new": "infos",
+   "evidence": "df1f50.ll:12698 `%365 = gep %8, i64 160` 의 유일한 사용 = 13037 `invoke … rustc_entry(ptr sret %18, ptr %365, i64 %465)` 의 &mut self 인자. 본문에 +0xa0 load/store 0(전 함수 grep `%365`). 읽기(엔트리 탐색)·쓰기(insert/push)는 콜리 내부 — G14 규약 「콜리 안 부재는 결함 아님」. 게이트 후보 문면 「base 동정 루트 %0 shift +0」 자체가 오귀속(base 는 %8 debug, %0 은 sret) — 도구 결함.",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[250]/mem[25]/note",
+   "kind": "보강",
+   "old": "L95 · HashMap<usize,Vec<String>> entry(me.id)",
+   "new": "L95 · HashMap<usize,Vec<String>> entry(me.id) · IR 접점 = `%365 = gep %8, i64 160`(12698) 을 rustc_entry(13037) 의 &mut self 로 전달만(본문 load/store 0 · 조회/삽입은 콜리 내부 · 쓰기 표면은 mem[46])",
+   "evidence": "df1f50.ll:12698 · 13037",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[250]/open[3]",
+   "kind": "실오류",
+   "old": "near_jungle_bush·is_recent_visible·add_text",
+   "new": "near_jungle_bush·add_text",
+   "evidence": "specs20_v3.json shared.is_recent_visible = 확정(g07.ll:157005~157050 · 판정식·120틱·blackboard 인덱스 의미까지) — open 에 남겨 둘 이유 없음",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[250]/open[3]",
+   "kind": "실오류",
+   "old": "Blackboard 정본 미독 · 인덱스 사실만 기록",
+   "new": "★shared.is_recent_visible.blackboard_인덱스_의미 로 해소: Blackboard[1−team].last_visible[pos] = 팀 team(내 팀)이 적 pos 챔프를 마지막으로 본 틱 = '내 팀의 적 관측 기록' ⟹ closure#2 는 내 팀 기준 최근 가시 적만 남긴다(closed 이동 권고)",
+   "evidence": "shared.is_recent_visible.blackboard_인덱스_의미(Blackboard::update g15.ll:249663 · game_ai 소비처 2곳 교차검증)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[250]/open[6]",
+   "kind": "실오류",
+   "old": "'관측 대상 팀' 인덱스일 수 있으나 소스 없이 확정 불가(IR 사실만 기록)",
+   "new": "'관측 대상 팀' 인덱스로 ★확정 — shared.is_recent_visible.blackboard_인덱스_의미: Blackboard[T].last_visible[pos] = 팀 (1−T) 가 팀 T 의 pos 챔프를 마지막으로 본 틱 ⟹ blackboard[1−player.team] = 내 팀이 적을 본 기록(closed 이동 권고)",
+   "evidence": "shared.is_recent_visible.blackboard_인덱스_의미 · 재료 부재 판정은 shared 미참조에서 온 것",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[250]/sig/abi",
+   "kind": "보강",
+   "old": "(_tcx/game_ai.json i=2497)",
+   "new": "(_tcx/game_ai.json i=2497) · ★exe_abi(0.5.8 exe df1f50~df347a 5418B · argscan/fnprobe 09-16 · 백업 exe tfm2_0.5.8): rcx=%0 sret · rdx=%1 self · r8=%2 version · r9=%3 _rnd(미접근) · [entry+0x20]=%4 player(9회) · +0x28=%5 data(8회) · +0x30=%6 _positioning_score · +0x38=%7 _team_plan(둘 다 미접근) · +0x40=%8 debug(8회) — 슬롯 9 = IR 인자 9 (1:1 · ArgumentPromotion/DAE 없음) · 0.5.8 직접 호출자 1(cafe10 · 237B · BigPlan::next_plan JT arm) · 상수 지문 0x249f0(150000)·0x4e20(20000)·0x5f5e0ff(99999999) 일치 · ⚠0.6.0 exe(2026-09-16 14:40 설치 · 링크 12:06 KST)에선 fa8570~fa9ae7(5495B) · PlayerState.info team +0xa00 / position@tag +0xa90 (0.5.8 의 +0x930/+0x9c0 에서 +0xd0 이동 · GameSetting +0x12f8·MapDef +0x1c98·cache +0x180/+0x1e0 은 동일)",
+   "evidence": "argscan58/fnprobe58(0.5.8 백업 exe) · loc2fn(cover.rs Location 10/10 → .pdata df1f50~df347a) · xdis fa8570: `mov r10,[rcx+0xa00]`·`mov ecx,[rcx+0xa90]` vs 0.5.8 df1f9a `[rcx+0x930]`·df1fb2 `[rcx+0x9c0]`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[250]/exe/callers",
+   "kind": "보강",
+   "old": "[]",
+   "new": "[\"cafe10\"]",
+   "evidence": "fnprobe58 df1f50: callers(.text raw scan) 1 = @cafe95 in fn 0xcafe10(237B) — 명세 호출처 1곳(m02.ll:8661)과 정합",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[250]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp + loc2fn(0.5.8 백업 exe: cover.rs 패닉 Location 10/10 → .pdata df1f50~df347a 5418B) ⚠0.6.0 exe(09-16 14:40) 에선 fa8570~fa9ae7 5495B — 현 설치 exe 에서 df1f50 은 Debug fmt(df1f40~df23d7) 내부",
+   "evidence": "scratchpad27B/loc2fn.py · pdchk.py 양 exe 실행",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[250]/sig/tls/call_conditions",
+   "kind": "보강",
+   "old": "-",
+   "new": "직접 접점 0(본문 11810~13615 grep threadlocal/LocalKey/__getit/call_once 0) · 전이 1: L214 MapDef::lane_path(front_minion None 일 때만 · 사장값 경로) → LANE_PATH_MEMO(g07.ll:407 · TLS 736B RefCell 메모 · 순수 기하) — 판정 무관 · get_die_tick_player(m09.ll:52061~52663)·BattlePlan::new(m10.ll:23214~23383)·is_recent_visible(g07.ll:157005~157050)·target_bush_v30(m10.ll:11483~11731) 본문 threadlocal 0 ⟹ 오라클은 한 프로세스 반복 측정 가능(lane_path 메모는 인자 결정적)",
+   "evidence": "grep -c threadlocal 각 define 범위 0 · g07.ll:351677 lane_path::LANE_PATH_MEMO call_once 만 TLS",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[251]/sig/exe_args",
+   "kind": "보강",
+   "old": null,
+   "new": {
+    "exe": "0.5.8 eb6100~eb74cc (5068B · insn 1106) · 0.6.0(2026-09-16 14:40 설치) ed6300~ed76cc (5068B · 크기 동일)",
+    "map": "rcx=%0 sret(32B) · rdx=%1 _version(미접근 — argscan 의 rdx 읽기는 Instant::now 반환 edx · eb6100+0x57) · r8=%2 _rnd(미접근) · r9=%3 player(`mov rsi,r9`) · [entry+0x20]=%4 data(6회) · +0x28=%5 _end_delay(미접근)",
+    "note": "슬롯 6 = IR 인자 6 · 1:1 · ArgumentPromotion/DAE 없음(pub) · 0.5.8 직접 호출자(call rel32) 19 사이트/14 함수 — IR 호출처 23 과의 차는 간접/인라인 · ⚠0.6.0 exe 는 PlayerState.info +0xd0 이동(team +0xa00 · position +0xa90) · Entity(0x4c0·0x4f0·0x5c8·0x640·0x660·0x680…)·cache +0x1e0·Blackboard +0x78 은 동일",
+    "tool": "argscan.py/fnprobe.py(0.5.8 백업 exe 사본 · scratchpad27B/argscan58.py) · loc2fn(fight_check.rs:622:15/622:93 Location → .pdata) · xdis ed6300 프롤로그"
+   },
+   "evidence": "argscan58 eb6100: entry_rsp+0x20 x6 만 · fnprobe58: argregs r9·rcx(·rdx=call 반환) · pdchk 양 exe",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "배치 F L786 에서 memcpy)",
+   "new": "배치 F L786 에서 memcpy) · ★live 바이트(오라클 o251 18/18 MATCH · 24845 memcpy 32): +0 ptr(빈 Vec = inttoptr 8 · 23899) · +8 bump(23901 = data.context.pool · 실측 ==ctx.pool) · +0x10 cap · +0x18 len(23906 memset 0) — 4필드 전부 live · 원소 184B: 태그 +0xb1(15 Attack/16 Skill/17 Skill2 · tcxdict 니치) · 페이로드 [0,17)=start_tick·target·is_act(생성자 initializes((0,17)) m07.ll:7129·7645·12020) · [0x11,0xb1)·[0xb2,0xb8) undef(alloca 잔류) · 전문 = v2 signature.return(⚠mkspec3 가 `returns` 만 읽어 v3 ret=null)",
+   "evidence": "eb6100.ll:23899~23906 · 24159~24160 · 24845 · tcxdict --enum SmallActionPlay · o251_case1/8/12/13.log vec=[ptr bump(==ctx.pool) cap len]",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[251]/consts[21]/meaning",
+   "kind": "보강",
+   "old": "`add i64 %93, -1` 로 접힘 (%538)",
+   "new": "`add i64 %93, -1` 로 접힘 (%538 · 24889 · !dbg 없음=호이스트 → G12 강한 후보 아님 · 소비 `mul i64 %579, %538 ;L26<742` 24986 / `;L26<768` 25255 로 귀속)",
+   "evidence": "eb6100.ll:24889 · 24986 · 25255",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[251]/exe/callers",
+   "kind": "보강",
+   "old": "[]",
+   "new": "[\"cb03b0\",\"cb1ce0\",\"cb7540\",\"cc4260\",\"cc5ca0\",\"cc9740\",\"ccacf0\",\"e80070\",\"e81680\",\"e83390\",\"e8b5e0\",\"e928f0\",\"eaeda0\",\"eb43a0\"]",
+   "evidence": "fnprobe58 eb6100 callers(.text raw scan) 19 사이트(cb7540 ×5 · e83390 ×2) = 14 함수 · 0.5.8 exe",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[251]/exe/evidence",
+   "kind": "보강",
+   "old": "fp",
+   "new": "fp + loc2fn(0.5.8 백업 exe: fight_check.rs:622:15·622:93 Location → .pdata eb6100~eb74cc 5068B) ⚠0.6.0 exe(09-16 14:40) 에선 ed6300~ed76cc 5068B — 현 설치 exe 에서 eb6100 은 21KB 함수(eb52b0~eba51b) 내부",
+   "evidence": "scratchpad27B/loc2fn.py · pdchk.py 양 exe 실행",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[251]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case1/2 ms=500 → amax=range+radius×2+ms×30=35000 포함·35001 제외 (L658 Attack·L687 Skill) · case8/9 walk=30: 35000 포함·35001 제외 (L703)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case3/4 small_action=RunAway(태그 0) → ms.saturating_sub(적 ms 200)=300 → 경계 29000 포함·29001 제외 / case5 visible_state 태그 2(Unknown) → 제외 · 태그 0(Visible) → 포함",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case7 champ+0x4c0 에 -1 store → Attack 0·Skill 만(16) / 기본 level=1 → skill2_effect None(정적 NONE) → 17 없음 · case12 level=3 → 17 등장",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): 원소 +0xb1 raw 읽기 = 15 (Attack · case1/3/12/14)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): 원소 +0xb1 raw 읽기 = 16 (Skill · 적/아군/self 전부)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/consts[18]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): 원소 +0xb1 raw 읽기 = 17 (Skill2 · case12 적 · case13 아군+self)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case15/16 ms=6000(스킬 아군 사거리 200000) · ally0 at 150000 → 제외 / 149999 → 포함 ⟹ near_allies 게이트 `<` 엄격 · case17 대각 (106066,106066) 포함",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/consts[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case12/13 level 1→3 store(+0x5c8) 로 skill2 게이트 개폐 실측(1 닫힘·3 열림 · >2 vs >=3 은 외연 동일)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case15/16 150000 제외·149999 포함",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case1/2 ms×30 경계 35000/35001",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case3/4 RunAway 상대속도 경계 29000/29001 (절대속도면 29001 포함이어야 함 → 실측 제외)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): case8/9 swordman 스킬 expected_buff_deep None → walk=30 경계 35000/35001 (90 이면 65000)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): raw store 후 판정 변화 실측 — case5 +0x38 태그 2 store → 제외",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): raw store 후 판정 변화 실측 — case7 +0x4c0 -1 store → Attack 소멸",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): raw store 후 판정 변화 실측 — case8~11·14 +0x4f0 CastingTarget store(Ally 0/Enemy 5) → 아군/적 경로 전환",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): raw store 후 판정 변화 실측 — case12/13 +0x5c8 level store → skill2 게이트",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): raw store 후 판정 변화 실측 — +0x640 ms store 500/6000 → 경계 이동 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[251]/mem[63]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(o251 · 케이스당 프로세스 1 · 18/18 MATCH · 모델=명세 logic 독립 재구현): raw store 후 판정 변화 실측 — case13 champ+0x500+0x28 store Ally → Skill2 아군 push",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "★★게임이 라운드 도중 0.6.0 으로 패치됐다(설치 exe mtime 2026-09-16 14:40:18 · PE 링크 12:06:57 KST · mod-sdk-stable\\base_version.txt=0.6.0 · bundle.game_data 동시 갱신). 편성표 r18_roster(13:06)·도시에(14:55)·명세 exe 주소는 전부 0.5.8 기준 — 현 설치 exe 에서 df1f50 은 Debug fmt(df1f40~df23d7) 내부, eb6100 은 21KB 함수 내부(둘 다 .pdata 시작 아님). 0.5.8 백업 exe(tfm2_0.5.8)로는 10/10·2/2 Location 일치 = 편성표 자체는 옳았다. 0.6.0 주소: next_plan fa8570(5495B · +77B) · battle_action ed6300(5068B). ★PlayerState.info team/position 이 +0x930/+0x9c0 → +0xa00/+0xa90 (+0xd0) 이동 — 20함수 명세의 PlayerState mem 전부 0.6.0 에선 재검증 대상 · version-migrator 라우팅 필요.",
+  "지시 ③ 「sig.exe_abi 로 확정」 — v3 투영 키는 `exe_args`(mkspec3.py:583) 이고 `exe_abi` 는 v2/v3/applypatch 어디에도 없다 → `/specs[i]/sig/exe_args`(dict 신설) 로 냈다.",
+  "spec_251 의 「sig.ret = null · TLS 절 문자열」은 정본 부재가 아니다 — v2 signature 키가 `return`(≠`returns`)·`self` 로 적혀 있어 mkspec3 가 못 읽었다(v2 251 signature keys = params/self/return/tls). sret 살아있는 바이트 전문은 v2 `return` 에 이미 있고 오라클 18/18 로 참 확인. mkspec3 `ret: sig.get('returns') or sig.get('return')` 한 줄이면 닫힌다.",
+  "applypatch: 스칼라 필드 `old:null → new:<str>`(빈 ret/abi 채우기)를 지원하지 않고, 그 항목에서 `old[:60]`(applypatch.py:514) TypeError 로 **배치 전체 적용이 중단**된다(다른 항목까지 0건). None 가드 + 「cur None & new str 이면 채움」 분기가 필요.",
+  "G14 후보 문면 「base 동정 루트 %0 shift +0」(mem[25]) — 실제 base 는 %8(debug)·+0xa0 이고 %0 은 sret. 게이트의 base 귀속이 틀렸다(오탐 원인 = gep 결과가 콜리 인자로만 쓰일 때 load/store 부재를 'w 로만' 으로 읽음).",
+  "`_next\\reach\\<rva>.ll`·`<rva>_blocks.json` 파일명이 0.5.8 RVA 다. 0.6.0 에선 같은 RVA 가 다른 함수라 파일명만 보고 exe 를 열면 오귀속된다 — 파일명 또는 헤더에 버전 태그 필요.",
+  "도시에 §1 표 exe 열 「(None) · None바이트 · None명령」 — 두 함수 exe.bytes/instrs 가 비어 있다(0.5.8: df1f50 5418B/1068 insn · eb6100 5068B/1106 insn · fnprobe58). 정수 키 신설은 applypatch 로 못 하니 mkdossier/main 쪽에서 채워야 한다."
+ ]
+}

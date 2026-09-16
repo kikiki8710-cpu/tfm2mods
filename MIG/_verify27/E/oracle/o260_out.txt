@@ -1,0 +1,57 @@
+case	R1R2	champ.id=18	a1.id=19	a2.id=20	dir=-1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R1 unbound(pred = absolute)	focus=(0,0)	soaker=(1,19)	rescue=(0,0)	net=0	line=2	line_abs=2
+R2 bound  (pred = diff · line_abs==R1.line)	focus=(0,0)	soaker=(1,19)	rescue=(0,0)	net=0	line=2	line_abs=2
+check	R2.line_abs==R1.line	true	line_diverged=false	rescue_expected=callee-value
+-- exit=0
+case	R1R2	champ.id=18	a1.id=19	a2.id=20	dir=0	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R1 unbound(pred = absolute)	focus=(0,0)	soaker=(1,19)	rescue=(0,0)	net=0	line=3	line_abs=3
+R2 bound  (pred = diff · line_abs==R1.line)	focus=(0,0)	soaker=(1,19)	rescue=(0,0)	net=0	line=3	line_abs=3
+check	R2.line_abs==R1.line	true	line_diverged=false	rescue_expected=callee-value
+-- exit=0
+case	R1R2	champ.id=18	a1.id=19	a2.id=20	dir=1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R1 unbound(pred = absolute)	focus=(0,0)	soaker=(1,19)	rescue=(0,0)	net=0	line=0	line_abs=0
+R2 bound  (pred = diff · line_abs==R1.line)	focus=(0,0)	soaker=(1,19)	rescue=(0,0)	net=0	line=0	line_abs=0
+check	R2.line_abs==R1.line	true	line_diverged=false	rescue_expected=callee-value
+-- exit=0
+case	R3	champ.id=18	a1.id=19	a2.id=20	dir=-1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R3a self bound	focus=(0,0)	soaker=(1,18)	rescue=(0,0)	net=0	line=2	line_abs=2
+R3b self unbound	focus=(0,0)	soaker=(1,18)	rescue=(0,0)	net=0	line=2	line_abs=2
+check	R3a==R3b(58B)	true
+-- exit=0
+case	R4	champ.id=18	a1.id=19	a2.id=20	dir=-1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R4 empty roster	focus=(0,422787255312)	soaker=(0,140700722107499)	rescue=(0,0)	net=0	line=3	line_abs=3
+-- exit=0
+case	R5	champ.id=18	a1.id=19	a2.id=20	dir=-1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R5u two unbound (absolute)	focus=(0,0)	soaker=(1,20)	rescue=(0,0)	net=0	line=2	line_abs=2
+R5 two bound (diff)	focus=(0,0)	soaker=(1,20)	rescue=(0,0)	net=0	line=2	line_abs=2
+check	line_abs==abs.line	true	diverged=false	nearest_ally=20	rescue=(0,0)
+-- exit=0
+case	R5	champ.id=18	a1.id=19	a2.id=20	dir=1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R5u two unbound (absolute)	focus=(0,0)	soaker=(1,20)	rescue=(0,0)	net=0	line=0	line_abs=0
+R5 two bound (diff)	focus=(0,0)	soaker=(1,20)	rescue=(0,0)	net=0	line=0	line_abs=0
+check	line_abs==abs.line	true	diverged=false	nearest_ally=20	rescue=(0,0)
+-- exit=0
+case	R6	champ.id=18	a1.id=19	a2.id=20	dir=-1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+unknown
+-- exit=0
+case	R6	champ.id=18	a1.id=19	a2.id=20	dir=1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+unknown
+-- exit=0
+case	R6	champ.id=18	a1.id=19	a2.id=20	dir=0	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+unknown
+-- exit=0
+case	R6	champ.id=18	a1.id=19	a2.id=20	dir=-1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R6u two unbound (absolute)	focus=(1,24)	soaker=(1,20)	rescue=(0,0)	net=-123172	line=2	line_abs=2
+R6 two bound (diff)	focus=(1,24)	soaker=(1,20)	rescue=(0,18446744073709551614)	net=0	line=2	line_abs=2
+check	line_abs==abs.line	true	diverged=false	nearest_ally=20	rescue=(0,18446744073709551614)
+-- exit=0
+case	R6	champ.id=18	a1.id=19	a2.id=20	dir=1	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R6u two unbound (absolute)	focus=(1,24)	soaker=(1,20)	rescue=(0,0)	net=-123172	line=2	line_abs=2
+R6 two bound (diff)	focus=(1,24)	soaker=(1,20)	rescue=(1,20)	net=0	line=0	line_abs=2
+check	line_abs==abs.line	true	diverged=true	nearest_ally=20	rescue=(1,20)
+-- exit=0
+case	R6	champ.id=18	a1.id=19	a2.id=20	dir=0	champ=(15000,913000)	a1=(45000,913000)	a2=(25000,918000)
+R6u two unbound (absolute)	focus=(1,24)	soaker=(1,20)	rescue=(0,0)	net=-123172	line=2	line_abs=2
+R6 two bound (diff)	focus=(1,24)	soaker=(1,20)	rescue=(1,20)	net=0	line=3	line_abs=2
+check	line_abs==abs.line	true	diverged=true	nearest_ally=20	rescue=(1,20)
+-- exit=0

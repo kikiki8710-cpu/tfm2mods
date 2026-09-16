@@ -1,0 +1,27 @@
+{
+ "round": "27",
+ "batch": "C",
+ "errors_applied": 18,
+ "ev_applied": 131,
+ "failed": 0,
+ "stamps": {
+  "/specs[252]/consts[7]/meaning": "4d2e0cbd544881b1",
+  "/specs[252]/consts[16]/src_line": "a30f4ef42176d28f",
+  "/specs[252]/consts[16]/meaning": "ac8bf83560b456cc",
+  "/specs[252]/knobs[6]/where": "83802bec68e2d514",
+  "/specs[252]/open[2]": "cbe4414360b0c9df",
+  "/specs[253]/sig/params[1]/ty": "74234e98afe7498f",
+  "/specs[253]/logic": "aec64ea73ef16c08",
+  "/specs[253]/sig/params[3]/role": "c8c843c5f907e6d8",
+  "/specs[253]/exe/evidence": "5b6f4417833da97f",
+  "/specs[253]/exe/callers": "6da109beb7ec8ae2",
+  "/specs[254]/consts[12]/meaning": "0e1c66d887dd852a",
+  "/specs[254]/open[0]": "fdf460e81136c095",
+  "/specs[254]/open[2]": "fdf460e81136c095",
+  "/specs[254]/open[7]": "fdf460e81136c095",
+  "/specs[254]/exe/evidence": "7d81d3a785bf945f",
+  "/specs[254]/exe/callers": "3c42f3c1b3abab44",
+  "/specs[252]/exe/evidence": "2eb9940391171cdb",
+  "/specs[252]/exe/callers": "656f3e6df6e0d0ed"
+ }
+}

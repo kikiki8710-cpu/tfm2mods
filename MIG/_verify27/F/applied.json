@@ -1,0 +1,28 @@
+{
+ "round": "27",
+ "batch": "F",
+ "errors_applied": 20,
+ "ev_applied": 31,
+ "failed": 0,
+ "stamps": {
+  "/specs[263]/consts[1]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/consts[2]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/consts[3]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/consts[4]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/consts[9]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/consts[7]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/consts[8]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/consts[10]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/consts[11]/src_line": "3068430da9e4b7a6",
+  "/specs[263]/sig/params[2]/role": "74234e98afe7498f",
+  "/specs[266]/consts[3]/src_line": "da6813d10025369a",
+  "/specs[266]/consts[4]/src_line": "da6813d10025369a",
+  "/specs[267]/consts[5]/src_line": "5f9c4ab08cac7457",
+  "/specs[267]/consts[6]/src_line": "5f9c4ab08cac7457",
+  "/specs[267]/logic": "8ecdf932735b0c11",
+  "/specs[264]/sig/params[6]": "94fd07f3b1decc72",
+  "/specs[264]/sig/params[5]/name": "aa962f43aa13b734",
+  "/specs[264]/sig/params[5]/type": "b34a95155f39c789",
+  "/specs[264]/sig/params[5]/role": "74234e98afe7498f"
+ }
+}
