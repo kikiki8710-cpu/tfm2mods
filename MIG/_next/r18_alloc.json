@@ -1,0 +1,98 @@
+{
+ "cd05f0.partA": [
+  "A",
+  "battle__base_battle_action.partA"
+ ],
+ "cd05f0.partB": [
+  "B",
+  "battle__base_battle_action.partB"
+ ],
+ "cd05f0.partC": [
+  "C",
+  "battle__base_battle_action.partC"
+ ],
+ "cd05f0.partD": [
+  "D",
+  "battle__base_battle_action.partD"
+ ],
+ "eb6100.partE": [
+  "E",
+  "fight_check__battle_action.partE"
+ ],
+ "eb6100.partF": [
+  "F",
+  "fight_check__battle_action.partF"
+ ],
+ "df1f50.partG": [
+  "G",
+  "LineGankCoverPlan__next_plan.partG"
+ ],
+ "df1f50.partH": [
+  "H",
+  "LineGankCoverPlan__next_plan.partH"
+ ],
+ "d68090.partI": [
+  "I",
+  "battle_common__v16_knight_ult_zone_bonus.partI"
+ ],
+ "d68090.partJ": [
+  "J",
+  "battle_common__v16_knight_ult_zone_bonus.partJ"
+ ],
+ "ccacf0": [
+  "K",
+  "LineSafe__action_candidates"
+ ],
+ "e03360": [
+  "L",
+  "buff_value__noncombat_steroid_window"
+ ],
+ "e02bc0": [
+  "L",
+  "buff_value__v54_aoe_ally_heal_value"
+ ],
+ "e7b9f0": [
+  "M",
+  "end_check"
+ ],
+ "e49a50": [
+  "M",
+  "LegacyPlanHandler__update_on_dead"
+ ],
+ "e0b030": [
+  "N",
+  "fight_model__resolve_fight_stake_roster"
+ ],
+ "eba320": [
+  "N",
+  "fight_check__v48_projectile_profile"
+ ],
+ "eb5dd0": [
+  "N",
+  "fight_check__expected_dps"
+ ],
+ "cd5ee0": [
+  "O",
+  "battle__kite_reposition_point"
+ ],
+ "e0dfc0": [
+  "O",
+  "battle__v30_wave_danger_chase_guard"
+ ],
+ "e25030": [
+  "P",
+  "SmallActionLaneMinionPosition__target_score"
+ ],
+ "e25450": [
+  "P",
+  "SmallActionLaneMinionPosition__choose_goal(후보 클로저)"
+ ],
+ "dd9f30": [
+  "Q",
+  "TeamPlan__can_near_enemies"
+ ],
+ "ca6700": [
+  "Q",
+  "get_small_action 점수 합성 클로저"
+ ]
+}

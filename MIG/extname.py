@@ -42,6 +42,8 @@ def idents(sym):
     u"""v0 망글에서 식별자 목록"""
     ids, i = [], 0
     while i < len(sym):
+        mb = re.match(r"[sB][0-9A-Za-z]*_(?=\d)", sym[i:])   # v0 backref `B<base62>_` · 판별자 `s<base62>_` — 뒤에 <len><ident> 가 온다
+        if mb: i += len(mb.group(0)); continue
         m = re.match(r"(\d+)", sym[i:])
         if m:
             n = int(m.group(1)); s = i + len(m.group(1)); ident = sym[s:s + n]
