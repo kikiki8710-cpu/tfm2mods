@@ -53,7 +53,7 @@ use crate::{
 
 /// 슬롯 상한. ★표 길이에 의존하지 않는다 — `#5/#13/#17` RVA 가 확정돼 표가 20행으로
 /// 재생성돼도 코드는 그대로 `PROBES20.len()` 으로 돈다. 여유를 크게 둔다.
-pub const CAP: usize = 320; // ★09-14 낮 192→320: r14 편입으로 진입부 175 > CS_SLOT0 160 → 13개(i167~179) 미측정(판 1 실측) // ★09-13 밤 128→192: r10 편입으로 진입부 96 = CS_SLOT0 상한 도달 // ★09-13 64→128: r7 잎 20 편입으로 진입부 35 가 CS_SLOT0(32)를 넘쳐 3개(i=37·38·AUX20) 미설치 — probe20.txt 경고로 적발
+pub const CAP: usize = 1024; // ★09-16 판 8 320→1024: --map-all 지도 전 노드(진입부 649) // ★09-14 낮 192→320: r14 편입으로 진입부 175 > CS_SLOT0 160 → 13개(i167~179) 미측정(판 1 실측) // ★09-13 밤 128→192: r10 편입으로 진입부 96 = CS_SLOT0 상한 도달 // ★09-13 64→128: r7 잎 20 편입으로 진입부 35 가 CS_SLOT0(32)를 넘쳐 3개(i=37·38·AUX20) 미설치 — probe20.txt 경고로 적발
 
 /// ★리턴 주소 히스토그램(2026-09-16 · 간접 호출 실측): 스텁 +8 의 `lock inc` 뒤에 붙는 112B 조각.
 ///   push rax,rcx,rdx,r8,r9 → r8=[rsp+0x28](리턴 주소) → rcx=(r8>>4)&15 → 스텁 +0x100 의 addr[16]/cnt[16](+0x180) 오픈어드레싱
@@ -79,7 +79,7 @@ static mut OVERFLOW: usize = 0;
 //   슬롯 인덱스 = `CS_SLOT0 + j`. 진입부는 `0..NPROBE` 를 쓴다.
 //   ★고정 오프셋인 이유: `PROBES20.len()` 은 static 이라 const 문맥에서 못 읽는다
 //     (constants cannot refer to statics) ⟹ 상수로 칸을 나누고 install 시 상한을 검사한다.
-pub const CS_SLOT0: usize = 288; // ★09-14 낮 160→288(현재 175 · 거대 7+루트 16+경로 171 대비) // 진입부 프로브 160개까지(09-13 밤 96→160 · 현재 96 · 거대 9+update 대비) // 진입부 프로브는 96개까지(09-13 32→96 · 현재 35 · 서브트리 107 대비)
+pub const CS_SLOT0: usize = 1000; // ★09-16 판 8 288→1000(--map-all · 진입부 649) // ★09-14 낮 160→288(현재 175 · 거대 7+루트 16+경로 171 대비) // 진입부 프로브 160개까지(09-13 밤 96→160 · 현재 96 · 거대 9+update 대비) // 진입부 프로브는 96개까지(09-13 32→96 · 현재 35 · 서브트리 107 대비)
 pub const CS_CAP: usize = 8; // 호출부 프로브 함수 수 상한(현재 1)
 pub const MAXSITE: usize = 8; // 함수당 호출부 수 상한(현재 2)
 
@@ -139,9 +139,11 @@ pub unsafe fn install_all() -> (usize, usize) {
         //   패치 = 공존 불가 — 위 SWEPT 주석). ⚠순서가 load-bearing 이다: `lib.rs::do_install` 이
         //   **sweep → abiprobe → probe** 순으로 설치하므로, 가장 늦은 probe 가 둘을 다 보고 양보한다.
         //   (반대 순서면 probe 가 먼저 12B 를 덮어 둘 다 「이미 훅됨」으로 전부 미설치된다.)
-        if crate::sweep20::is_installed_spec(p.idx) || crate::abiprobe::is_installed_spec(p.idx) {
+        // ★idx 는 u16(--map-all AUX 300+ · 09-16) — sweep/abiprobe 표는 명세 idx(u8)만 안다
+        let spec_idx: u8 = if p.idx < 256 { p.idx as u8 } else { 255 };
+        if p.idx < 256 && (crate::sweep20::is_installed_spec(spec_idx) || crate::abiprobe::is_installed_spec(spec_idx)) {
             SLOTS[i] = 0;
-            FAILS[i] = if crate::sweep20::is_installed_spec(p.idx) { F_SWEEP } else { F_ABI };
+            FAILS[i] = if crate::sweep20::is_installed_spec(spec_idx) { F_SWEEP } else { F_ABI };
             SWEPT[i] = true;
             swept += 1;
             continue;
@@ -504,13 +506,13 @@ pub unsafe fn report(header: &str) -> String {
     let ncs = NCS;
     // ★종류(`kind`)를 **마지막 필드**로 붙였다 — 아래 집계들이 쓰는 기존 인덱스가 그대로 살아 있게.
     // (델타, 누적, idx, rva, name, module, ins, kind)
-    let mut hit: Vec<(u64, u64, u8, usize, &str, &str, u32, String)> = Vec::new();
-    let mut zero: Vec<(u8, usize, &str, &str, u32, String)> = Vec::new();
-    let mut miss: Vec<(u8, usize, &str, &str, &'static str, String)> = Vec::new();
+    let mut hit: Vec<(u64, u64, u16, usize, &str, &str, u32, String)> = Vec::new();
+    let mut zero: Vec<(u16, usize, &str, &str, u32, String)> = Vec::new();
+    let mut miss: Vec<(u16, usize, &str, &str, &'static str, String)> = Vec::new();
     // ★sweep/abiprobe 가 대체한 것 = 실패도 미발화도 아니다. 섞으면 「측정 안 됨」과 구분이 안 된다.
     //   ★★어느 계측이 대체했는지(FAILS[i] = F_SWEEP / F_ABI)를 **같이 싣는다** — 둘의 의미가 다르다:
     //     sweep 대체 = 발화수가 sweep20.txt 에 **있다** / abiprobe 대체 = 발화수는 **어디에도 없다**.
-    let mut swept: Vec<(u8, usize, &str, &str, &'static str)> = Vec::new();
+    let mut swept: Vec<(u16, usize, &str, &str, &'static str)> = Vec::new();
     for (i, p) in PROBES20.iter().take(n).enumerate() {
         let kind = || "[진입부]".to_string();
         if SWEPT[i] {
@@ -544,7 +546,7 @@ pub unsafe fn report(header: &str) -> String {
         let live = (0..nsite).filter(|&k| CS_WHY[j][k].is_empty()).count();
         let kind = format!("[호출부 {}/{}곳]", live, nsite);
         if SLOTS[slot] == 0 {
-            miss.push((c20.idx, c20.target_rva, c20.name, c20.module, FAILS[slot], kind));
+            miss.push((c20.idx as u16, c20.target_rva, c20.name, c20.module, FAILS[slot], kind));
             continue;
         }
         let c = count_at(slot);
@@ -552,7 +554,7 @@ pub unsafe fn report(header: &str) -> String {
             hit.push((
                 c.saturating_sub(BASE[slot]),
                 c,
-                c20.idx,
+                c20.idx as u16,
                 c20.target_rva,
                 c20.name,
                 c20.module,
@@ -560,7 +562,7 @@ pub unsafe fn report(header: &str) -> String {
                 kind,
             ));
         } else {
-            zero.push((c20.idx, c20.target_rva, c20.name, c20.module, c20.ins, kind));
+            zero.push((c20.idx as u16, c20.target_rva, c20.name, c20.module, c20.ins, kind));
         }
     }
     hit.sort_by(|a, b| b.1.cmp(&a.1).then(b.0.cmp(&a.0)));
@@ -709,7 +711,7 @@ pub unsafe fn report(header: &str) -> String {
             let slot = CS_SLOT0 + j;
             s.push_str(&format!(
                 "    #{:02} {}/{} → {:#010x}   스텁 {:#x}   누적 {}\n         사유: {}\n",
-                c20.idx,
+                c20.idx as u16,
                 c20.module,
                 c20.name,
                 c20.target_rva,

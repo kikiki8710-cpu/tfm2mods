@@ -25,7 +25,18 @@ EXTNAME = {"1879080": u"game_core mode.rs 시뮬레이션 틱 루프(AI 루트 �
            "e49a50": u"[추정] LegacyPlanHandler::update 아웃라인 조각(GoalData::update·passive_plan·handle_chat 호출)",
            "e9bf10": u"[추정] upgrade_item 래퍼", "e9c610": u"[추정] buy_item 래퍼", "e25450": u"[추정] can_tower_focused 캐시 래퍼(1.04억회)",
            "c986c0": u"[추정] is_cleared 호출 헬퍼", "c93f60": u"[추정] v30 tower_aggro_risk 래퍼", "c94500": u"[추정] v19 non_champion_walkup 래퍼",
-           "c94140": u"[추정] LineDefenseSubPlan::score 래퍼", "d84c60": u"[추정] abstract_input::attack 래퍼(position_eval 근방)"}
+           "c94140": u"[추정] LineDefenseSubPlan::score 래퍼", "d84c60": u"[추정] abstract_input::attack 래퍼(position_eval 근방)",
+           # ↓ 판 8(지도 전 노드 · 09-16) 추가 — rvaname Location 지문 / 콜리 집합
+           "eb6100": u"fight_check::battle_action(fight_check.rs:622 · 본체 2/2)", "cd05f0": u"battle::base_battle_action(battle.rs:1306 · 본체 4/4)",
+           "ccacf0": u"LineSafeSubPlan::action_candidates(line_safe.rs:26 · 본체 2/2)", "181cd60": u"game_core simulation.rs(1603/1741/1542 · 57 Location · 시뮬 본체)",
+           "d95d00": u"[추정] game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회)", "d96190": u"[추정] simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출)",
+           "d958b0": u"[추정] simulation.rs:1848 래퍼", "d96d00": u"[추정] tower_discipline.rs:533 LocalKey::with 캐시 래퍼", "c88300": u"[추정] action_score.rs:577/594 interaction 클로저·TLS 래퍼",
+           "e03360": u"[추정] simulation.rs:1905 래퍼", "d6abe0": u"[추정] simulation.rs:1905 래퍼(v21_defensive_cc_score 호출)", "d663f0": u"[추정] simulation.rs:1905 래퍼",
+           "ea0c00": u"[추정] line_defense.rs:125 클로저(max_range_nearly_can_use 호출)",
+           "d70620": u"[추정] tower_discipline 공용 래퍼(aggro_damage·engage_requires_dive·survival_incoming 호출 · 9.9억회 · 지문 없음)",
+           "d70530": u"[추정] position_eval 공용 래퍼(count_in_range_fold·engage_requires_dive 호출)", "e0cf10": u"[추정] max_range_cached TLS 래퍼(1.44억회)",
+           "ca89a0": u"[추정] SerpenStanceData::update_plan 클로저 호출부", "ca8f60": u"[추정] EpicStanceData::update_plan 클로저 호출부",
+           "eb8b00": u"[추정] available_cc_in_window 래퍼", "e0d720": u"[추정] support_min_action_range 래퍼"}
 
 def main():
     av = sys.argv[1:]
@@ -84,6 +95,13 @@ def main():
         rep(u"<i style=\"background:var(--ly-etc)\"></i>기타 · 옅은 띠 = 모듈로 추정</span>",
             u"<i style=\"background:var(--ly-etc)\"></i>기타 · 옅은 띠 = 모듈로 추정 · <i style=\"background:var(--new)\"></i>초록 선 = 실측 간접 호출(리턴 주소 히스토그램 · 09-16 판 7)</span>")
         rep(u".rel{display:grid; grid-template-columns:1fr 1fr; gap:0}", u".rel{display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0}\n@media (max-width:1100px){ .rel{grid-template-columns:1fr 1fr} }")
+    # 판 태그·footer 수치는 매 실행 갱신(JS 는 1회 패치라 문자열만 치환)
+    tag = (j.get("meta") or {}).get("tag") or u"판 ?"
+    h = re.sub(u"리턴 주소 · 판 ?\d+", u"리턴 주소 · " + tag, h)
+    h = re.sub(u"판 ?\d+ 에서 진입부 프로브 \d+곳이", u"%s 에서 진입부 프로브 %d곳이" % (tag, (j.get("meta") or {}).get("probes", 0)), h)
+    h = re.sub(u"슬롯당 16칸 히스토그램 · \d+행", u"슬롯당 16칸 히스토그램 · %d행" % (j.get("meta") or {}).get("rows", 0), h)
+    h = re.sub(u"없던 간접 간선 \d+개와 지도 밖 호출자 \d+곳", u"없던 간접 간선 %d개와 지도 밖 호출자 %d곳" % (n_im, len(j["ext"])), h)
+    h = re.sub(u"실측 간접 호출\(리턴 주소 히스토그램 · 09-16 판 ?\d+\)", u"실측 간접 호출(리턴 주소 히스토그램 · 09-16 %s)" % tag, h)
     io.open(H, "w", encoding="utf-8").write(h)
     print(u"im 간선 %d · 실측 호출자 있는 노드 %d → %s" % (n_im, n_ic, H))
 

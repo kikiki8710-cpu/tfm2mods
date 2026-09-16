@@ -77,7 +77,8 @@ def main():
     E.sort(key=lambda e: -e["n"])
     X = [{"s_rva": "%x" % s, "t": "%x" % t, "n": n} for (s, t), n in ext.items()]
     X.sort(key=lambda e: -e["n"])
-    j = {"meta": {"src": src, "tag": tag, "rows": len(rows), "edges": len(E), "indirect_new": sum(1 for e in E if e["kind"] == "indirect"),
+    mp = re.search(u"진입부 (\d+)", txt)
+    j = {"meta": {"src": src, "tag": tag, "rows": len(rows), "probes": int(mp.group(1)) if mp else 0, "edges": len(E), "indirect_new": sum(1 for e in E if e["kind"] == "indirect"),
                   "ext": len(X), "overflow": {"%x" % k: v for k, v in ovf.items()}, "unresolved": len(unres)},
          "edges": E, "ext": X}
     os.makedirs(os.path.dirname(out), exist_ok=True)

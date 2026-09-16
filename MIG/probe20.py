@@ -45,6 +45,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 import aiprobe                      # ★prolog_of·sections 재사용(복사하면 규칙이 갈린다)
+import re
+MAP_HTML = r"C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
+MAPALL_IDX0 = 300   # --map-all AUX idx 시작(명세 idx·AUX 250 과 안 겹침 · P20.idx 는 u16)
 
 SPEC = r"C:\tfm2mods\MIG\_spec\specs20_v3.json"
 
@@ -236,6 +239,21 @@ def load():
         a, nm, mod, why = AUX[i]
         out.append({"i": i, "name": nm, "addr": a, "src": why,
                     "ins": None, "mod": mod, "aux": True})
+    # ★--map-all (2026-09-16 · 판 8): AI함수지도의 **모든 노드**를 AUX 진입부 프로브로 얹는다(idx 300+ · u16).
+    #   목적 = 리턴 주소 히스토그램(probe.rs RETREC)을 명세 밖 411 노드에도 걸어 「누가 부르나」를 지도 전체에서 실측.
+    #   회계(명세 N/N)와 sweep 비트에는 안 섞인다(aux) · 게이트 0x0 전용.
+    if "--map-all" in sys.argv:
+        have = {r["addr"] for r in out if r["addr"]} | {t for t, _, _ in CALLSITE.values()}
+        h = io.open(MAP_HTML, encoding="utf-8").read()
+        nodes = json.loads(re.search(r'<script id="fndata" type="application/json">(.*?)</script>', h, re.S).group(1))
+        k = 0
+        for n in nodes:
+            a = n["a"].lower()
+            if a.startswith("spec-") or a in have: continue
+            have.add(a)
+            out.append({"i": MAPALL_IDX0 + k, "name": (n.get("n") or u"FUN_" + a)[:60].replace(u'"', u"'"),
+                        "addr": a, "src": u"--map-all 지도 노드", "ins": n.get("i"), "mod": n.get("m") or u"?", "aux": True})
+            k += 1
     return out
 
 
@@ -337,7 +355,7 @@ def main():
          u"//!   ★목적 = `ev1`(런타임 DIFF=0) 측정의 **선행조건** 확인 — 「발화 0 = 검증 표본 불성립」.",
          u"//!   스텁은 레지스터·스택·인자를 안 건드리므로 sret·페어반환·5인자+ 도 안전하다.",
          u"#![allow(dead_code)]",
-         u"pub struct P20 { pub idx: u8, pub rva: usize, pub len: u8, pub prolog: &'static [u8],",
+         u"pub struct P20 { pub idx: u16, pub rva: usize, pub len: u8, pub prolog: &'static [u8],",
          u"                 pub name: &'static str, pub module: &'static str, pub ins: u32 }",
          u"pub static PROBES20: &[P20] = &["]
     for r in ok:
@@ -368,7 +386,7 @@ def main():
     L.append(u"];")
     L.append(u"")
     L.append(u"/// ★표에 **없는** 함수와 그 이유. 「빠진 것을 모르는 상태」를 만들지 않는다.")
-    L.append(u"pub static MISSING20: &[(u8, &str, &str)] = &[")
+    L.append(u"pub static MISSING20: &[(u16, &str, &str)] = &[")
     for r in nul + bad:
         L.append(u"    (%d, \"%s\", \"%s\")," % (r["i"], r["name"], r.get("why") or u"?"))
     L.append(u"];")
