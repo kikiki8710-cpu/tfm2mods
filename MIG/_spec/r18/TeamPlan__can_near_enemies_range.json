@@ -1,0 +1,116 @@
+{
+ "name": "TeamPlan::can_near_enemies_range",
+ "sym": "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan22can_near_enemies_range",
+ "src": "game-ai\\src\\plan_legacy\\team_plan.rs",
+ "src_line": 483,
+ "ir_file": "m09.ll",
+ "ir_from": 25960,
+ "ir_to": 26127,
+ "exe_rva": "0xdd9f30 (745B · .pdata 0xdd9f30~0xdda219)",
+ "aux": [
+  {"ir_file": "m01.ll", "ir_from": 24912, "ir_to": 25358, "what": "bumpalo Vec<&Entity>::from_iter_in<FilterMap<Filter<Range<usize>, closure0>, closure_s_0>> — 필터 술어(closure0 · team_plan.rs:506~535)가 통째로 인라인된 수집 루프. 판정의 알맹이 전부가 여기"},
+  {"ir_file": "m09.ll", "ir_from": 66111, "ir_to": 66147, "what": "closure_s_0::call_mut(team_plan.rs:537) — 인덱스 i → data.cache.player_champion[1-team][i](Option<&Entity>) 로 바꾸는 map 조각"}
+ ],
+ "note": "★배치 Q 판정(exe 0xdd9f30 = can_near_enemies 가 아니라 이 range 판) 재확인 — 5축 전부 일치. ①argscan 0xdd9f30: 레지스터 4(sret·self·_version·rnd) + 스택 슬롯 5 = entry+0x20(mov → player %4) · +0x28(mov ×3 → data %5) · +0x30/+0x38/+0x40(lea ×1 씩 → x·y·d 를 주소로 캡처 = IR 이 %6/%7/%8 을 alloca %21/%20/%19 에 store 해 클로저에 포인터로 넘기는 것과 정확히 대응) · +0x48(_debug) 접근 0 = IR 인자 10개 중 readnone _debug 만 미사용. 비-range 판 can_near_enemies(m09 25501) 는 인자 7(sret·self·version·rnd readnone·player·data·debug readnone)이라 스택 슬롯이 2개뿐 → 불일치. ②fnprobe 0xdd9f30: 간접 call 순서 [vt+0x40]get_game_mode → [vt+0x28]tick → [vt+0x20]seed → call 0x16047b0(711B · 인자 reg4+stack3 = 7×i64 = game_core::ai_interface::awareness_lapse_state(seed,pid,tick,tps,concentration,mental,…) — player_awareness_lapse 가 exe 에서 인라인되고 그 내부 콜리만 남음 · IR m04 49803 참조) → [vt+0x20]seed → [vt+0x28]tick → call 0xc99fe0 = IR L494 get_game_mode / L496 lapse(내부 seed·tick) / L500 seed / L501 tick / L505 from_iter 순서와 동일. 상수 0x3e8(1000)·0x384(900) = judge_accuracy(=100+9·min(j·cond/1000,100) · g15 125794) 인라인 후 1000−ja = 900−9m 로 접힌 값. ③fnprobe 0xc99fe0(1882B · 호출자 = 0xdd9f30 하나뿐): 패닉 Location team_plan.rs:506:7 ×2 + 537:23 ×1 = locfind 로 m01 @anon.cadd6bc2f3e661f92eedbec466b7a957.69(506:7 · from_iter 클로저 안 참조 2건 = 25046·25096) + m09 @anon.17beaf855860b1a5c4c224343f517d87.68(537:23 · call_mut 심 66132·66136 — exe 에선 0xc99fe0 에 인라인) 정확히 대응. exe 상수 0x1e0(480=player_champion)·0x2e8(744=Blackboard stride)·0x493e0(300000) 도 클로저 본문과 일치. ④호출자 수: exe .text 스캔 14 = IR 14(call 3: PassiveLinePlan::sub_plan m04 26253 · SinglePlanLine::sub_plan m06 41158 · epic_passive_plan m09 63515 / invoke 11: DeathMatchBattle::update · SinglePlanBattle::update · handle_none_or_gank_objective · BattlePlan::update_v32 ×2 · LegacyPlanHandler::update · handle_interact_battle ×5) — exe 0xe5d5d0(32177B) 안 5사이트 ↔ IR handle_interact_battle 5사이트까지 1:1. IR can_near_enemies(비-range) 호출자 = 0(call/invoke 모두). ⑤크기: IR 168줄+446+37 ↔ exe 745B+1882B. ⟹ 판정 유지. ⚠`_next\\reach\\dd9f30.ll`·`.reach.txt` 는 옛 라벨(can_near_enemies 25501~25651) 기준으로 생성된 것이라 이 함수엔 못 쓴다 — 스크래치에서 reach.py 를 range 본체(%36=0)·from_iter 클로저(%90=0) 에 새로 돌려 사장 판정을 냈다(logic 참조).",
+ "one_line": "(x,y) 반경 d 안에 '있을 수 있는' 비가시 적 챔피언 목록 — 안 보인 시간·이속·판단력 추정으로 후보를 걸러 bumpalo Vec<&Entity> 로 반환",
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo::collections::vec::Vec<&Entity> (32B)", "role": "sret · dead_on_unwind noalias writable captures(none) dereferenceable(32)", "note": "반환 컨테이너. 아래 returns 참조"},
+   {"i": 1, "name": "self", "type": "&TeamPlan (1064B)", "role": "IR 속성 = noundef nonnull align 8 (readonly 없음) · 동작상 읽기만(vision.* 3배열을 클로저 캡처 포인터 self[40] 경유로 read)", "note": "&self — 쓰기 0 (writes 절 참조)"},
+   {"i": 2, "name": "_version", "type": "usize", "role": "미사용 — #dbg_value(i64 poison) · 본문 참조 0", "note": "버전 분기 없음"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "role": "IR 속성 = noalias noundef align 16 dereferenceable(320) (readonly 없음)", "note": "클로저 캡처 self[96] 로만 전달 · gen_range 호출 사이트 1개(aux m01 25196 · team_plan.rs:528 · is_dm 분기 안에서만) — gamemode=0 이면 rnd 소비 0"},
+   {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "role": "readonly captures(address, read_provenance)", "note": "info.parameter(+0x180)·info.team(+0x930)·info.id(+0x928)"},
+   {"i": 5, "name": "data", "type": "&OperationData (24B)", "role": "readonly captures(address, read_provenance)", "note": "cache(+0)·context(+8)·blackboard(+0x10)"},
+   {"i": 6, "name": "x", "type": "u64", "role": "값 인자 → alloca %21 에 store 후 클로저에 &x 로 캡처(self[56])", "note": "질의 중심 x (exe 는 entry+0x30 스택 슬롯을 lea 로 그대로 캡처)"},
+   {"i": 7, "name": "y", "type": "u64", "role": "값 인자 → alloca %20 · 클로저 캡처 self[64]", "note": "질의 중심 y"},
+   {"i": 8, "name": "d", "type": "u64", "role": "값 인자 → alloca %19 · 클로저 캡처 self[72]", "note": "질의 반경. 거리에서 saturating_sub 되는 '허용 반경'"},
+   {"i": 9, "name": "_debug", "type": "&mut DebugFrameData", "role": "IR 속성 = noalias readnone align 8 captures(none) · 미사용(#dbg_value ptr poison)", "note": ""}
+  ],
+  "returns": "sret 32B = bumpalo Vec<&Entity>: +0x0 buf.ptr(non-null · 원소 포인터 배열) · +0x8 buf.a(&Bump = data.context.pool) · +0x10 cap · +0x18 len — 32B 전부 live(패딩 0 · 니치 0 · Option 아님). 원소 = 8B `&Entity`(non-null 포인터 1개 · 태그 없음 · 원소 안 live 8/8 · variant 없음) · 순서 = 슬롯 인덱스 i 오름차순(0..5). 인지 공백 경로(L497) = ptr=8(dangling) · a=pool · cap=0 · len=0 (m09 26115~26119) / 정상 경로 = from_iter 결과 32B memcpy(m01 25355). ⚠주의: 원소는 '보이지 않는' 적 챔피언만(가시 적은 L507 에서 제외) — 이름과 달리 '근처에 있을 수 있는 미시야 적' 목록",
+  "tls": "없음 — 본체(m09 25960~26127)와 aux 2조각의 @anon 참조는 @anon.cadd6…69 · @anon.17be…68 두 건뿐이고 둘 다 panic Location 상수(locfind 확인). llvm.threadlocal.address 0 · LocalKey::with 0. 콜리 unseen_estimated_pos / awareness_lapse_state 내부의 TLS 여부는 미조사(계약만)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter (AthleteParameter 744B)", "note": "m09 25991 gep 384 → judge_accuracy(L487)·judgement_base(L499) 인자"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "aux m01 25035 gep 2352 · m09 66121 — 1-team 으로 적 팀 인덱스"},
+  {"base": "PlayerState", "offset": "0x928", "name": "info.id", "note": "aux m01 25258 gep 2344 — unseen_estimated_pos observer_pid"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache (&AbstractGameWithCache)", "note": "m09 26003"},
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "m09 26035·26111"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard (&[Blackboard; 2])", "note": "m09 26043 — 클로저 캡처 self[8]"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr (dyn AbstractGame)", "note": "m09 26004 · aux 25059"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "m09 26005 · aux 25060"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion [[Option<&Entity>;5];2]", "note": "aux m01 25054 gep 480 · m09 66142 — [1-team][i] (stride 40·8)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool (&Bump)", "note": "m09 26101(정상)·26113(lapse 빈 Vec) — sret buf.a"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting (&GameSetting)", "note": "m09 26037"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "m09 26039 gep 4856 → tps"},
+  {"base": "vtable AbstractGame", "offset": "0x40", "name": "get_game_mode() -> GameMode(16B {tag,payload})", "note": "m09 26007~26009 · divtable 일치율 98% · 태그만 사용"},
+  {"base": "vtable AbstractGame", "offset": "0x20", "name": "seed() -> u64", "note": "m09 26025 → game_seed"},
+  {"base": "vtable AbstractGame", "offset": "0x28", "name": "tick() -> usize", "note": "m09 26030 → tick(캡처) · aux m01 25202 (is_dm 분기에서 재호출)"},
+  {"base": "vtable AbstractGame", "offset": "0xf8", "name": "is_visible(team, id) -> bool", "note": "aux m01 25123~25125 gep 248 — is_visible(player.info.team, e.id)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "aux m01 25121 gep 1472"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "aux m01 25132 gep 1600 → move_speed_raw"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "aux m01 25260 gep 1632 → unseen_estimated_pos actual_x"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "aux m01 25262 gep 1640 → actual_y"},
+  {"base": "TeamPlan", "offset": "0x230", "name": "vision.last_visible_pos[i] (u64,u64) stride 16", "note": "aux m01 25164·25212 gep 560 + i*16 — 마지막 목격 좌표"},
+  {"base": "TeamPlan", "offset": "0x280", "name": "vision.mia_call_ticks[i] stride 8", "note": "aux m01 25236 gep 640 — is_dm 분기 L534 비교에만"},
+  {"base": "TeamPlan", "offset": "0x2a8", "name": "vision.last_visible_ticks[i] stride 8", "note": "aux m01 25142·25213 gep 680 — 마지막 목격 틱"},
+  {"base": "[Blackboard;2]", "offset": "0x2e8", "name": "stride 744 → blackboard[1-team]", "note": "aux m01 25243 getelementptr 구조체타입 idx %48 — is_recent_visible_big_action self 인자(is_dm 분기만)"}
+ ],
+ "writes": [
+  {"base": "sret Vec<&Entity>", "offset": "0x0", "name": "buf.ptr", "value": "8(dangling · lapse 경로) / from_iter 결과 memcpy 32B", "note": "m09 26115 · aux m01 25355"},
+  {"base": "sret Vec<&Entity>", "offset": "0x8", "name": "buf.a", "value": "data.context.pool", "note": "m09 26117 / aux 24924"},
+  {"base": "sret Vec<&Entity>", "offset": "0x10", "name": "cap·len (16B)", "value": "0·0 (memset) / from_iter 누적", "note": "m09 26119 / aux 25337~25340 (push: ptr[len]=t · len+=1 · cap 부족 시 reserve_internal_or_panic)"},
+  {"base": "TeamPlan(&self)", "offset": "-", "name": "(쓰기 없음)", "value": "-", "note": "&self 불변 참조 · 본체+aux 전 범위에서 self 기준 store 0 (initializes 속성 없음)"},
+  {"base": "StdRng(rnd)", "offset": "-", "name": "내부 상태(gen_range 경유)", "value": "-", "note": "aux m01 25196 gen_range 1사이트 — is_dm 분기 안에서만 · 후보 i 마다 1회 · gamemode=0 이면 0회"}
+ ],
+ "constants": [
+  {"value": 1000, "src_line": 488, "meaning": "판단 정확도 스케일 상한(judge_accuracy ∈[100,1000]). range_min = 1000 − (1000 − ja)/2 · range_max = 1000 + (1000 − ja)/2 (m09 25995~26000) · aux L528 `gen*move_speed_raw/1000`(m01 25210) = 이속 배율 ‰"},
+  {"value": 1, "folded_from": 2, "src_line": 488, "meaning": "`(1000 − ja) / 2` 가 `lshr i64 %24, 1` 로 접힘(m09 25996) — 오차 폭 절반. ⚠aux 의 `sub i64 1, %team`(25037·66123)은 별개: 1 − team = 적 팀 인덱스"},
+  {"value": 2, "src_line": 494, "meaning": "GameMode@tag == 2 = DeathMatch (tcxdict --enum GameMode: Moba 0 · SingleLane 1 · DeathMatch 2 · Direct 8B) → is_dm. ⚠aux 의 `icmp ult %48, 2`(25038)는 [Blackboard;2]/player_champion[2] 바운드 검사"},
+  {"value": 0, "src_line": 505, "meaning": "Range 시작 — 슬롯 인덱스 i ∈ 0..5 (m09 26094 iter[120])"},
+  {"value": 5, "src_line": 505, "meaning": "Range 끝(배타) — 포지션 슬롯 5개 (m09 26096 iter[128]) · aux 바운드 검사 `ult %26, 5`(25042·66128)"},
+  {"value": 3, "src_line": 513, "meaning": "aux L513 `elapsed > tps*3`(m01 25149) — 3초 넘게 안 보였으면 '판단력 미시야 추정' 경로, 아니면 '도달 원반' 경로"},
+  {"value": 300000, "src_line": 520, "meaning": "aux L520 `err > 300000` → 추정 불능(어디 있는지 전혀 모름) → 후보 제외 (m01 25160). _docs game_core:163 「추정 불능 경계」와 동일 값(300k = 9.375셀)"},
+  {"value": 3, "src_line": 525, "meaning": "aux L525 `move_speed_raw*3*tps`(m01 25279~25280) — 3초 이동 여유. 허용 = err + 3초이동 + d"}
+ ],
+ "calls": [
+  "game_core::simulation::state::player::AthleteParameter::judge_accuracy",
+  "game_core::simulation::state::player::AthleteParameter::judgement_base",
+  "game_ai::utils::player_awareness_lapse",
+  "bumpalo::collections::vec::from_iter_in",
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::ai_interface::unseen_error_radius",
+  "game_core::simulation::ai_interface::unseen_estimated_pos",
+  "game_core::utils::distance",
+  "rand::rngs::std::StdRng::gen_range",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible_big_action",
+  "TeamPlan::can_near_enemies_range::{closure_s_0}::call_mut",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic",
+  "core::ops::drop::Drop::drop"
+ ],
+ "callee_contracts": [
+  {"name": "AthleteParameter::judge_accuracy(&self) -> usize", "where": "_gcbc g15 125794", "meaning": "range(100,1001). = 100 + 9·min(param+0x98(stat.judgement)·param+0x2d0(judgement_mental_ratio)/1000, 100) (tcxdict AthleteParameter). 컨디션(정신력 비율) 반영 판단 정확도 ‰"},
+  {"name": "AthleteParameter::judgement_base(&self) -> usize", "where": "_gcbc g15 125814", "meaning": "range(0,101) = min(param+0x98, 100). 컨디션 미적용 로비 judgement(_docs game_core:76 「미시야 오판 기준치」)"},
+  {"name": "game_ai::utils::player_awareness_lapse(player:&PlayerState, data:&OperationData) -> bool", "where": "_gaibc m04 49803", "meaning": "true = 인지 공백(집중력/정신력 lapse) 중. 내부 = game.seed()/tick() + concentration_base/mental_base → ai_interface::awareness_lapse_state(7×i64) -> (bool,bool). exe 에선 0xdd9f30 에 인라인되고 awareness_lapse_state(0x16047b0) 만 call 로 남음"},
+  {"name": "ai_interface::unseen_error_radius(judgement_base, elapsed_ticks, tps) -> u64", "where": "_gcbc g11 264589 · ai_interface.rs:237", "meaning": "미시야 위치 추정 오차 반경(_docs: 40k + 성장률·경과초, 성장률 = 3k + 57k·((100−j)/100)²/초)"},
+  {"name": "ai_interface::unseen_estimated_pos(game_seed, observer_pid, enemy_pos(슬롯 i), tick, tps, actual_x, actual_y, error_radius) -> (u64,u64)", "where": "_gcbc g11 264615 · ai_interface.rs:246", "meaning": "추정 위치 = 실제 위치 + (시드·관측자·적 포지션·6초 버킷) 결정론 오차 오프셋(_docs game_core:172)"},
+  {"name": "game_core::utils::distance(x1,y1,x2,y2) -> u64", "where": "_gcbc g06 87697", "meaning": "유클리드 거리(비제곱 · range(0,2^63))"},
+  {"name": "AbstractGame::is_visible(&self, team, id) -> bool (vt+0xf8)", "where": "_gcbc g08 200059 (ExpectedGame impl)", "meaning": "team 시야에 엔티티 id 가 보이는가"},
+  {"name": "Blackboard::is_recent_visible_big_action(&self, game:&dyn AbstractGame, player:&PlayerState, target:&Entity) -> bool", "where": "_gcbc g07 157514 · blackboard.rs:367", "meaning": "내부 미독(계약만). 호출 = blackboard[1-team](적 팀 판) · is_dm 분기 L534 에서만"},
+  {"name": "StdRng::gen_range::<u64, RangeInclusive<u64>>(rnd, range_min..=range_max) -> u64", "where": "_gaibc m04 13974", "meaning": "균등 정수 1회 추첨. 호출 사이트 1(aux m01 25196 · L528) · is_dm 분기만"}
+ ],
+ "logic": "fn can_near_enemies_range(&self, _version, rnd, player, data, x, y, d, _debug) -> bumpalo Vec<&Entity>\n// team_plan.rs:487~489 (m09 25991~26001)\nja = player.info.parameter.judge_accuracy()            // [100,1000]\nrange_min = 1000 - (1000 - ja)/2                        // [550,1000]  (lshr 1)\nrange_max = 1000 + (1000 - ja)/2                        // [1000,1450]\n// L494 (26003~26013)\nis_dm = (data.cache.game.get_game_mode()@tag == 2 /*DeathMatch*/)\n// L496~497 (26014~26018 · 75)  ★극성: is_dm 이 참이면 lapse 는 평가조차 안 함(A||B 의 B)\nif !is_dm && player_awareness_lapse(player, data) {\n    return Vec::new_in(data.context.pool)                // ptr=8 · cap=0 · len=0 (26115~26119)\n}\n// L499~502 (26022~26041)\njudgement_base = player.info.parameter.judgement_base()  // [0,100]\ngame_seed = game.seed();  tick = game.tick();  tps = data.context.setting.tick_per_second\n// L505~537 (26064~26102 → aux m01 24912~25358 from_iter · 캡처 15포인터 = cache,blackboard,player,&is_dm,&tick,self,&tps,&x,&y,&d,&judgement_base,&game_seed,rnd,&range_min,&range_max)\nout = Vec::new_in(data.context.pool)\nfor i in 0..5 {                                          // 적 팀 슬롯 순회 (Range 0..5 · 25983~25992)\n  // ── filter 술어 closure0 (L506~535) ──\n  et = 1 - player.info.team                              // 25035~25038 · et<2 아니면 panic(506:7)\n  c = data.cache.player_champion[et][i]                  // 25053~25057 · i<5 아니면 panic(506:7)\n  if c.is_none() { continue }                            // 25092 null → 제외\n  e = c.unwrap()\n  // L507 (25121~25129)\n  if game.is_visible(player.info.team, e.id) { continue } // ★보이는 적은 제외 — 이 목록은 '비가시' 적 전용\n  // L510\n  move_speed_raw = e.stat_cached.move_speed              // 25132\n  // L511 (25135~25137)\n  if !is_dm {                                            // ── MOBA/SingleLane ──\n    // L512~513 (25140~25151)\n    elapsed = tick.saturating_sub(self.vision.last_visible_ticks[i])\n    if elapsed > tps*3 {                                 // 3초 넘게 미목격 → 판단력 미시야 추정\n      // L519~520 (25154~25161)\n      err = unseen_error_radius(judgement_base, elapsed, tps)\n      if err > 300000 { continue }                       // 추정 불능 → 제외\n      // L523 (25257~25264)\n      (ex, ey) = unseen_estimated_pos(game_seed, player.info.id, i, tick, tps, e.x, e.y, err)\n      // L525 (25272~25284)\n      keep = distance(ex, ey, x, y) <= err + move_speed_raw*3*tps + d   // IR: `dist > err+3·ms·tps+d` 이면 제외\n    } else {                                             // ≤3초 → 도달 원반(마지막 목격 + 이속·경과)\n      // L515~517 (25164~25185)\n      can_move = elapsed * move_speed_raw\n      dist_from_last = distance(x, y, self.vision.last_visible_pos[i].0, .1).saturating_sub(d)\n      keep = can_move >= dist_from_last                  // IR: `can_move < dist_from_last` 이면 제외\n    }\n  } else {                                               // ── DeathMatch (gamemode=0 에선 사장 · NA 봉인) ──\n    // L528 (25189~25210)  ★gen_range 사이트 1 — 후보 i 마다 1회, tick() 재호출보다 먼저\n    move_speed = rnd.gen_range(range_min..=range_max) * move_speed_raw / 1000   // 판단 정확도 노이즈 ±(1000−ja)/2 ‰\n    // L531 (25202~25218)\n    can_move = game.tick().saturating_sub(self.vision.last_visible_ticks[i]) * move_speed\n    // L533 (25220~25234)\n    dist_from_last = distance(x, y, self.vision.last_visible_pos[i].0, .1).saturating_sub(d)\n    // L534~535 (25235~25254)\n    if self.vision.last_visible_ticks[i] > self.vision.mia_call_ticks[i] {\n      keep = blackboard[et].is_recent_visible_big_action(game, player, e) && can_move >= dist_from_last   // IR: 호출을 무조건 먼저 수행 후 `and`(25244~25249)\n    } else {\n      keep = can_move >= dist_from_last                  // 25253\n    }\n  }\n  if !keep { continue }\n  // ── filter_map closure_s_0 (L537 · aux m09 66111~66147) ──\n  t = data.cache.player_champion[1 - player.info.team][i]   // Option<&Entity> 재조회(바운드 검사 재수행 · 537:23) · None 이면 skip(25295 · 실제론 위에서 Some 확정)\n  out.push(t)                                            // 25308~25340 (cap==len 이면 reserve_internal_or_panic)\n}\nreturn out                                               // 25355 memcpy 32B\n\n■ 사장 판정(reach.py · version=2 무관(버전 분기 없음) · gamemode=0 → %36=0(본체) · %90=0(클로저)): 본체 5블록 전부 live / 클로저 36블록 중 7 사장 = is_dm 분기(L528~535) → gen_range · distance(L533) · is_recent_visible_big_action 3 호출부 NA. 살아있는 콜리 = panic_bounds_check ×2 · unseen_error_radius · distance ×2(L516·L525) · unseen_estimated_pos · call_mut · reserve_internal_or_panic · Drop::drop(unwind 정리).\n■ rnd(StdRng) 소비: gen_range 사이트 1(L528) · is_dm 일 때만 · 순서 = i 오름차순으로 (Some 챔피언 && !is_visible) 인 후보마다 1회(그 뒤 keep 여부와 무관). gamemode=0 → 0회.\n■ 호출 순서(부작용 순): judge_accuracy → get_game_mode(vt+0x40) → [!is_dm] player_awareness_lapse → judgement_base → seed(vt+0x20) → tick(vt+0x28) → from_iter 루프.",
+ "knobs": [
+  {"what": "미목격 3초 경계(도달원반 ↔ 판단력 추정 전환)", "where": "team_plan.rs:513 (aux m01 25149 `mul %tps, 3`)", "value": 3, "effect": "올리면 더 오래 '마지막 목격점+이속·경과' 원반 모델로 보수적 추적(원반이 커져 거의 전원 포함) · 내리면 판단력 오차 추정으로 빨리 넘어가 저판단력 선수가 더 빨리 '모름'(300k 초과) 처리"},
+  {"what": "추정 불능 경계", "where": "team_plan.rs:520 (aux m01 25160)", "value": 300000, "effect": "올리면 오차가 커도 후보로 남겨(넓은 범위에 '있을 수 있음') 회피/경계 과잉 · 내리면 미시야 적을 빨리 무시. _docs game_core:163 의 경계와 같은 값 — 둘이 따로 상수라 한쪽만 바꾸면 어긋남"},
+  {"what": "추정 위치 허용 이동 여유(초)", "where": "team_plan.rs:525 (aux m01 25279 `mul %ms, 3`)", "value": 3, "effect": "올리면 추정 위치에서 더 멀리(3초→N초 이동분) 있는 적도 '근처 가능'으로 포함 → 경계 과잉 · 내리면 놓침"},
+  {"what": "DM 이속 인지 노이즈 폭(판단 정확도 반영 계수)", "where": "team_plan.rs:488~489 (m09 25995~26000 · `/2`=lshr 1)", "value": "1000 ± (1000−ja)/2", "effect": "gamemode=0 에선 죽은 값(gen_range 사장). DM 에서 나누는 수를 키우면 저판단력도 이속을 정확히 봄"}
+ ],
+ "unknown": [
+  "team_plan.rs:534 `is_recent_visible_big_action(...) && can_move >= dist_from_last` 의 소스 상 좌우 순서 — IR 은 호출(invoke)을 무조건 먼저 하고 `and` 로 합치므로(25244~25249) 호출이 왼쪽일 가능성이 높으나 column 정보 0 이라 표기 불가(동작은 확정: 둘 다 참일 때만 keep)",
+  "closure0 의 소스 인자 이름 — DI `x = i64 %26`(24994)은 Iterator::find::check 의 `x`(인라인)로 보이며 캡처 좌표 `x` 와 충돌하므로 사용자 클로저 인자명은 미확정(명세는 i 로 표기)",
+  "L531 이 캡처 `tick` 대신 game.tick() 을 재호출하는 이유(값은 동일 프레임이면 같음) — 소스 부재",
+  "is_recent_visible_big_action · unseen_error_radius · unseen_estimated_pos · awareness_lapse_state 내부(계약만 · 각 _gcbc 위치 callee_contracts) — 범위 밖. 특히 unseen_estimated_pos 의 TLS 사용 여부 미조사",
+  "exe 0xc99fe0 의 상수 0x7d1(2001)·0xbb8(3000)·0x9c41(40001) 의 IR 대응 — IR 클로저 본문엔 없음. 인라인된 gen_range(UniformInt · range 폭 산술)·unseen_error_radius(40k 상수) 조각으로 추정(미검증 · exe 측만)",
+  "`_next\\reach\\dd9f30.*` 가 옛 라벨(can_near_enemies) 기준 생성물 — 이 함수의 정식 reach 산출물은 스크래치 r18R\\range.reach.json · closure.reach.json 에만 있음(메인이 _next 로 재생성 필요)"
+ ]
+}

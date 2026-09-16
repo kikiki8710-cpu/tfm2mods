@@ -1,0 +1,83 @@
+{
+ "name": "expected_dps",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check12expected_dps",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 9,
+ "ir_file": "m15.ll",
+ "ir_from": 23520,
+ "ir_to": 23697,
+ "aux": [],
+ "exe_rva": "0xeb5dd0",
+ "one_line": "self(캐스터)가 enemy 에게 넣는 기대 DPS = 3슬롯(평타·skill·skill2) 각 expected_damage_target×1000/쿨타임 의 합(usize)",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "context", "type": "&GameContext(64B)", "role": "IR 속성 `noalias readonly captures(address, read_provenance) dereferenceable(64)` · 본문에서 직접 필드 읽기 없음 — expected_damage_target ×3 에 그대로 전달만"},
+   {"i": 2, "name": "self", "type": "&Entity(1728B)", "role": "IR 속성 `noalias readonly dereferenceable(1728)` · 캐스터. DI 변수명은 `target` 과 `self` 둘 다 %1 에 붙어 있음(m15.ll:23523~23524) — 소스 인자명은 확정 못 함(tcx sig 는 이름 없이 `&Entity`)"},
+   {"i": 3, "name": "enemy", "type": "&Entity(1728B)", "role": "IR 속성 `noalias readonly dereferenceable(1728)` · 피해 대상. expected_damage_target 의 5번째 인자(target)로만 전달"}
+  ],
+  "returns": "i64(usize, `noundef`) — 세 슬롯 DPS 의 합. 단위 = 「피해×1000/쿨타임틱」(즉 1000틱당 피해 = tps 60 기준 16.7초당 피해). 슬롯이 None 이면 그 항은 0. 0 가능(전 슬롯 None 또는 기대피해 0). sret 아님 · 니치 없음",
+  "tls": null
+ },
+
+ "reads": [
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect (Option<Effect> 56B, Some 페이로드 시작)", "note": "m15.ll:23557 `%1+1168` → expected_damage_target 의 &Effect 인자(DI `atk`). tcxdict Entity 0x490 = attack_effect@Some.0.ty.ptr"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (니치 태그 i32, -1=None)", "note": "m15.ll:23551~23553 `load i32 … icmp eq -1` → None 이면 평타 항 건너뜀. tcxdict: attack_effect@tag (Niche, 4B)"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect (Option<Effect>, Some 페이로드 시작)", "note": "m15.ll:23597 `%1+1224` (DI `skill`)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag (i32, -1=None)", "note": "m15.ll:23565~23567"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level (usize)", "note": "m15.ll:23605~23607 `icmp ugt level, 2` — 인라인된 `Entity::skill2_effect()`(entity.rs:1693, dloc !37105) 의 레벨 게이트"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect (Option<Effect>, Some 페이로드 시작)", "note": "m15.ll:23608~23609 level>2 이면 `%1+1280`, 아니면 상수 None(`@anon.…58` = 48B undef + tag FF FF FF FF, m15.ll:64) 을 select"},
+  {"base": "Entity", "offset": "0x530", "name": "skill2_effect@tag (i32, -1=None) — select 결과 +48 로 읽음", "note": "m15.ll:23610~23612 `gep %46, 48` → level≤2 이면 상수 None 의 태그(-1) 를 읽어 항상 건너뜀"},
+  {"base": "static", "offset": "0x0", "name": "game_core::simulation::prof::ENABLED (atomic i8)", "note": "m15.ll:23533 계측 스위치 — 0 이면 ProfTimer 미생성(%13=-1). 판정과 무관"}
+ ],
+
+ "writes": [
+  {"base": "stack", "offset": "0x0", "name": "_t: Option<ProfTimer>(24B alloca %4)", "value": "phase=52 @+0, Instant.secs @+8, Instant.nanos(-1=None) @+16", "note": "m15.ll:23541~23549 — 계측 전용 로컬. 함수 밖 &mut 쓰기 없음(전 인자 readonly)"},
+  {"base": "static", "offset": "0x1a0", "name": "prof::PHASE_NANOS[52] (atomicrmw add, ns)", "value": "elapsed ns", "note": "m15.ll:23669 `PHASE_NANOS+416`(=52×8) — ENABLED 였을 때만(%13≠-1). 계측 카운터, 판정과 무관"},
+  {"base": "static", "offset": "0x1a0", "name": "prof::PHASE_CALLS[52] (atomicrmw add 1)", "value": "+1", "note": "m15.ll:23672 `PHASE_CALLS+416`. 계측 카운터"}
+ ],
+
+ "constants": [
+  {"value": -1, "src_line": 13, "meaning": "Option<Effect> 니치 태그 None. attack(L13)·skill(L17)·skill2(L21) 세 곳 모두 `icmp eq i32 tag, -1` 로 None 판별(m15.ll:23553·23567·23612)"},
+  {"value": 1000, "src_line": 14, "meaning": "DPS 스케일 — `expected_damage_target × 1000 / cooltime`. 세 항 동일(m15.ll:23576·23616·23680). 정수 나눗셈이라 1000 을 먼저 곱해 정밀도 확보"},
+  {"value": 2, "src_line": 21, "meaning": "인라인 `Entity::skill2_effect()`(entity.rs:1693) 의 레벨 게이트 `level > 2` — 3레벨 미만이면 skill2 슬롯을 None 으로 취급(m15.ll:23607)"},
+  {"value": 0, "src_line": 14, "meaning": "`udiv` 0 나눗셈 가드(`icmp eq cooltime, 0` → panic_const_div_by_zero, m15.ll:23581·23621·23685). 콜리 정의가 `range(i64 3,0)`(attack/skill) · `range(i64 1,0)`(skill2) 라 실제로는 도달 불가"},
+  {"value": 52, "src_line": 10, "meaning": "prof 계측 phase 번호(ProfTimer). 판정과 무관(m15.ll:23541)"},
+  {"value": 416, "src_line": 10, "meaning": "PHASE_NANOS/PHASE_CALLS 배열 바이트 오프셋 = 52×8. 계측 전용(m15.ll:23669·23672)"},
+  {"value": 1000000000, "src_line": 10, "meaning": "Instant.elapsed → ns 환산(secs×1e9+nanos). 계측 전용(m15.ll:23661~23662)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_core::simulation::entity::Entity::skill_cooltime",
+  "game_core::simulation::entity::Entity::skill2_cooltime",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::ptr::drop_glue"
+ ],
+
+ "callee_contracts": [
+  {"callee": "Effect::expected_damage_target", "define": "_gcbc/g06.ll:52355", "sig": "(ptr readonly deref(56) %effect, ptr readonly deref(64) %ctx, ptr nonnull %caster_data, ptr readonly deref(88) %caster_vtable, ptr readonly deref(1728) %target) -> i64(noundef)", "note": "caster 는 `&dyn AbstractEntity` 팻포인터(data=%1 self, vtable=@anon.e5f9a016f1220e5cee86475419aee1e5.56 = Entity 의 AbstractEntity vtable: drop/size/align + x·y·hp·get_stat·stat_ref·buff_state·level·get_buff_by_name, m15.ll:62). 반환 = 그 effect 가 target 에 넣을 기대 피해(정수). 게임코어 경계 — 내부 미독해"},
+  {"callee": "Entity::attack_cooltime", "define": "_gcbc/g06.ll:66510", "sig": "(ptr readonly deref(1728) %self) -> i64 range(3, 0)", "note": "= max(3, attack.vtable[+0x90](self) × 100 / max(1, stat_buff_cached+0x3fc(=Entity+0x3fc) + 100)) (g06.ll:66512~66531, entity.rs:1767). 즉 「기본쿨×100/(가속+100)」 하한 3틱 — 지시문 요지와 일치. ≥3 보장 → 0 나눗셈 불가"},
+  {"callee": "Entity::skill_cooltime", "define": "_gcbc/g06.ll:66405", "sig": "(ptr readonly deref(1728) %self) -> i64 range(3, 0)", "note": "≥3 보장. 내부 미독해(게임코어 경계)"},
+  {"callee": "Entity::skill2_cooltime", "define": "_gcbc/g06.ll:66747", "sig": "(ptr readonly deref(1728) %self) -> i64 range(1, 0)", "note": "≥1 보장(attack/skill 과 하한이 다름 — 3 이 아니라 1). 내부 미독해"}
+ ],
+
+ "logic": "// fight_check.rs:9  pub fn expected_dps(ctx:&GameContext, self:&Entity, enemy:&Entity) -> usize\n// L10: let _t = ProfTimer::new(52)  — prof::ENABLED(atomic i8)==0 이면 None(%13=-1), 아니면 Instant::now 저장. 계측 전용\nres = 0\n// L13~14 평타 슬롯\nif self.attack_effect.tag(@0x4c0) != -1 {                       // Some\n   dmg = Effect::expected_damage_target(&self.attack_effect(@0x490), ctx, self as &dyn AbstractEntity, enemy)\n   cd  = Entity::attack_cooltime(self)          // ≥3\n   if cd == 0 { panic div_by_zero }              // 도달 불가(range 3..)\n   res = dmg * 1000 / cd                          // udiv\n}\n// L17~18 skill 슬롯\nif self.skill_effect.tag(@0x4f8) != -1 {\n   dmg = expected_damage_target(&self.skill_effect(@0x4c8), ctx, self, enemy)\n   cd  = Entity::skill_cooltime(self)           // ≥3\n   res += dmg * 1000 / cd\n}\n// L21~22 skill2 슬롯 — DI 지역변수명은 `ult` 이지만 IR 이 읽는 것은 skill2_effect(@0x500) 이고 쿨타임도 skill2_cooltime (IR 정본)\nult = if self.level(@0x5c8) > 2 { &self.skill2_effect(@0x500) } else { &NONE }   // 인라인 Entity::skill2_effect() entity.rs:1693\nif ult.tag(+0x30) != -1 {\n   dmg = expected_damage_target(ult, ctx, self, enemy)\n   cd  = Entity::skill2_cooltime(self)          // ≥1\n   res += dmg * 1000 / cd\n}\n// L26 return — drop(_t): ENABLED 였으면 PHASE_NANOS[52] += elapsed_ns, PHASE_CALLS[52] += 1 (atomicrmw)\nreturn res\n\n// 분기 순서: attack → skill → skill2 (소스 줄 13→17→21). 각 항은 독립(앞 항의 결과가 뒤 조건에 영향 없음). 궁(ult_effect @0x538)은 이 함수에서 읽지 않는다.\n// rnd 인자 없음 · gen_range 0회.",
+
+ "knobs": [
+  {"what": "DPS 스케일 계수", "where": "fight_check.rs:14/18/22", "value": 1000, "effect": "세 항에 동일 적용되는 스케일이라 소비자(교전 저울)의 다른 통화와의 비율만 바뀐다. 한 항만 바꾸면 그 슬롯의 비중이 바뀜(예: 평타만 500 → 평타 DPS 절반 평가)"},
+  {"what": "skill2 슬롯 레벨 게이트", "where": "entity.rs:1693 (인라인, Entity::skill2_effect)", "value": 2, "effect": "`level > 2` — 낮추면(예 0) 1~2레벨에서도 skill2 DPS 가 합산돼 저레벨 교전 평가가 공격적으로 변함. 이 함수 안에서 바꾸려면 select 조건을 패치"},
+  {"what": "쿨타임 하한", "where": "entity.rs:1767 Entity::attack_cooltime (콜리 내부)", "value": 3, "effect": "attack/skill 쿨 하한 3틱 → DPS 상한 = dmg×1000/3. 하한을 내리면 초고가속 캐스터의 DPS 가 폭증. skill2 는 하한 1"}
+ ],
+
+ "unknown": [
+  "소스 인자명: %1 에 DI 변수 `target` 과 `self` 가 둘 다 붙어 있고(m15.ll:23523~23524) tcx sig 는 이름 없이 `&Entity` 라 소스의 실제 인자명(target? self?)은 확정 못 함. 동작상 %1 = 캐스터(effect·cooltime 의 self), %2 = 피해 대상 — IR 정본",
+  "L21 의 DI 지역변수명이 `ult` 인데 읽는 필드는 skill2_effect(@0x500)·쿨타임은 skill2_cooltime — 소스 오기(변수명만 ult)로 보이나 소스 원문 부재라 「이름」은 표기 불가·「동작」은 IR 로 확정(skill2). 궁(ult_effect @0x538)은 이 함수가 읽지 않는다",
+  "expected_damage_target 내부(피해 공식·방어 적용·대상 가능 여부)는 게임코어 경계로 미독해 — 반환 0 이면 그 항이 0 이 되는 것만 확정",
+  "skill_cooltime / skill2_cooltime 의 내부 공식은 미독해(attack_cooltime 만 확인: max(3, base×100/max(1,가속+100))). skill2 하한이 1 인 이유(range(1,0))도 미독해",
+  "src_line: DISubprogram(m15.ll:100573) line 9 = 시그니처 줄, 본문 첫 줄(ProfTimer) 은 10 — src_line 은 9 로 기록"
+ ]
+}

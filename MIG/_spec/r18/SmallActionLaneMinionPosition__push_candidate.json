@@ -1,0 +1,114 @@
+{
+ "name": "SmallActionLaneMinionPosition::push_candidate",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition14push_candidate",
+ "src": "game-ai\\src\\small_action\\lane_minion.rs",
+ "src_line": 439,
+ "ir_file": "m11.ll",
+ "ir_from": 44238,
+ "ir_to": 44465,
+ "aux": [],
+ "layer": "small_action/lane_minion 후보 채점(r18 배치 P 추가분 — 지시엔 없었으나 **지시의 exe 0xe25450(952B) 의 실제 정체가 이 함수**로 판정돼 명세를 붙임 · 근거는 choose_goal 명세 unknown[0]). internal fastcc · 16 인자 · 반환 없음(Vec push 가 유일한 출력). exe 0xe25450: argscan 17 인자(i8 12·16번째) · 호출자 0xe248f0 안 3곳 ↔ IR 호출자 choose_goal 3곳. reach 판정 파일 없음(_next\\reach 에 rc 없음 · 손 독해: 블록 16 · 조기 ret 6곳 전부 도달 가능)",
+ "one_line": "라인 미니언 공격 위치 후보 (x,y) 하나를 벽·우물·라인·불필요 타워·사거리·스탠스 위험으로 거르고 점수를 매겨 candidates 에 push",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "candidates", "type": "&mut bumpalo::Vec<(u64,u64,i64)>(32B) %0", "note": "define 줄 속성: noalias noundef nonnull align 8 dereferenceable(32) — readonly 없음(가변) · initializes 속성 없음. 쓰기는 bumpalo Vec::push(m11.ll:44459) 한 곳뿐(콜리 안에서 ptr/cap/len 갱신·원소 24B 기록). 이 함수 본문의 직접 store 는 지역 %18(24B 튜플) 뿐"},
+   {"i": 2, "name": "version", "type": "usize (i64 %1)", "note": "속성 noundef. 본문 분기 없음 — is_enemy_well_danger·is_unnecessary_enemy_tower_position·position_score_at_position 1번째 인자로 전달. lane_stance_risk 에는 `i64 poison` 을 넘김(44433 · 콜리가 안 읽는다는 뜻)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B) %2", "note": "속성 noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(2528). +0x180 info.parameter(AthleteParameter 744B) 를 positioning_effective(×2 경로)·skill_avoid_effective 의 self 로. 그 밖엔 콜리 전달"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B) %3", "note": "속성 noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(24). +8 context → GameContext(+0x20 map → MapDef+0x78 walls) 읽음 · is_near_line 에 &GameContext 전달"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B) %4", "note": "속성 noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(1728). +0x660 x · +0x668 y 만 읽음(482 move_penalty) · lane_stance_risk 4번째 인자"},
+   {"i": 6, "name": "target.x", "type": "i64 %5 (ArgumentPromotion 조각 1/2 · DI `target` = ptr poison)", "note": "IR 속성 없음. 468줄 utils::distance 3번째 인자로만. 호출자 choose_goal 이 target+0x660 을 load 해 넘김(m11.ll:43534~43535)"},
+   {"i": 6, "name": "target.y", "type": "i64 %6 (ArgumentPromotion 조각 2/2)", "note": "IR 속성 없음. 468줄 utils::distance 4번째 인자로만(target+0x668, 43536~43537)"},
+   {"i": 7, "name": "positioning_score", "type": "&PositioningScoreData(2760B) %7", "note": "속성 noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(2760). +0xab8 cx · +0xac0 cy 읽음(363~364 격자 안 판정) · position_score_at_position 4번째 인자"},
+   {"i": 8, "name": "x", "type": "u64 (i64 %8, noundef)", "note": "후보 좌표 x. 456 `x/32000` clamp(0,29) = xi"},
+   {"i": 9, "name": "y", "type": "u64 (i64 %9, noundef)", "note": "후보 좌표 y. 457 yi"},
+   {"i": 10, "name": "position_eval_purpose", "type": "PositionEvalPurpose (i8 %10, noundef range(i8 0,13))", "note": "본문 분기 없음 — position_score_at_position 7번째 인자로 전달만"},
+   {"i": 11, "name": "attack_range", "type": "u64 (i64 %11, noundef)", "note": "469 `dist_to_target > attack_range` 거절 · 473 `> 69999` 장거리 분기 · 473 min_spacing = attack_range*55/100"},
+   {"i": 12, "name": "preferred_range", "type": "u64 (i64 %12, noundef range(i64 0, -14000))", "note": "480 band_penalty = |dist_to_target - preferred_range|"},
+   {"i": 13, "name": "target_score", "type": "i64 %13 (noundef)", "note": "489 점수 기저(= 호출자의 self.goal_score)"},
+   {"i": 14, "name": "line", "type": "LineType (i8 %14, noundef range(i8 0,3))", "note": "is_near_line 4번째 인자로만"},
+   {"i": 15, "name": "source_bonus", "type": "i64 %15 (noundef range(i64 0,36))", "note": "489 가산(호출자: 현재위치 35 · 링 0 · 격자 10)"}
+  ],
+  "returns": "() — 반환값 없음. 출력 = candidates.push((x, y, score)) 1회(44459) 또는 거절(push 없이 ret · 44463 블록 %123 의 preds 7곳 중 6곳이 거절 경로). 지역 %18(24B) 에 +0 x · +8 y · +0x10 score 를 store 한 뒤 push 에 by-ref 전달",
+  "tls": {
+   "name": "없음",
+   "role": "없음 — 본문(44238~44465)에 `LocalKey`/`call_once`/`llvm.threadlocal.address`/`@anon.* = constant ptr` 참조 0",
+   "key": "해당 없음",
+   "layout": "해당 없음",
+   "invalidation": "해당 없음",
+   "call_conditions": "콜리 position_score_at_position(→ position_eval_at, 계약만)·lane_stance_risk 내부의 TLS 메모 여부는 범위 밖(미열람)"
+  }
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "m11.ll:44268~44269 (%23/%24). is_near_line 1번째 인자(dereferenceable(64) = GameContext)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map (&MapDef)", "note": "m11.ll:44270~44271 (%25/%26)"},
+  {"base": "MapDef", "offset": "0x78", "name": "walls[yi][xi] ([[usize;30];30] · gep [30 x i64] %22(yi) 행 → %20(xi) 열)", "note": "m11.ll:44272~44275 (%27~%30). != 0 이면 거절(458). tcxdict MapDef 0x78 = walls[0][0]"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter (AthleteParameter 744B 시작)", "note": "m11.ll:44377·44384·44416 (%77/%80/%95). positioning_effective(371)·skill_avoid_effective(377 positioning_risk_value 인라인) 의 &self"},
+  {"base": "PositioningScoreData", "offset": "0xab8", "name": "cx", "note": "m11.ll:44340~44342 (%56~%58 · trunc i32). 363줄 local_position_score 인라인"},
+  {"base": "PositioningScoreData", "offset": "0xac0", "name": "cy", "note": "m11.ll:44344~44346 (%59~%61). 364줄"},
+  {"base": "PositioningScore (지역 sret %17 56B · position_score_at_position 결과)", "offset": "0x0", "name": "risk", "note": "m11.ll:44411 (%94). 377줄 positioning_risk_value(version, player, risk, on_trajectory=false) 인라인 → risk*2(shl 1, 44418)"},
+  {"base": "PositioningScore (지역 %17)", "offset": "0x10", "name": "gain", "note": "m11.ll:44409~44410 (%92/%93). local_score = gain - (trajectory_penalty + risk*2)(377)"},
+  {"base": "PositioningScore (지역 %17)", "offset": "0x30", "name": "on_trajectory (bool)", "note": "m11.ll:44367~44369 (%70~%72). 370줄 `on_trajectory || on_periodic_trajectory`(단락: 참이면 +0x31 안 읽음 · 블록 %79)"},
+  {"base": "PositioningScore (지역 %17)", "offset": "0x31", "name": "on_periodic_trajectory (bool)", "note": "m11.ll:44373~44375 (%74~%76). +0x30 이 거짓일 때만 읽음(블록 %73)"},
+  {"base": "Entity", "offset": "0x660", "name": "x (champ)", "note": "m11.ll:44427~44428 (%102/%103). 482 move_penalty = distance(champ.x, champ.y, x, y)"},
+  {"base": "Entity", "offset": "0x668", "name": "y (champ)", "note": "m11.ll:44429~44430 (%104/%105)"}
+ ],
+ "writes": [
+  {"base": "&mut bumpalo::Vec<(u64,u64,i64)> (candidates %0)", "offset": "0x0..0x20", "name": "push 1회 — 원소 24B (+0 x u64 · +8 y u64 · +0x10 score i64) · Vec ptr/cap/len 은 콜리 push 가 갱신", "value": "(x, y, score) — 44454~44458 지역 %18 에 store 후 44459 `bumpalo::Vec::push(candidates, &%18)`", "note": "쓰기 표면 전수 = 이 push 1회(모든 거절 경로는 쓰기 0). initializes 속성 없음. 원소 안 live 바이트 24B 전부(패딩 없음 · u64,u64,i64)"}
+ ],
+ "constants": [
+  {"value": 32000, "src_line": 456, "meaning": "셀 크기 — xi = x/32000 · yi = y/32000 (udiv 44256·44262)"},
+  {"value": 29, "src_line": 456, "meaning": "clamp(0, 29) 상한(cmp.rs:2027 인라인 · umin 44260·44266) — 30×30 격자 인덱스. 하한 0 은 unsigned 라 접힘"},
+  {"value": 0, "src_line": 458, "meaning": "walls[yi][xi] == 0 이어야 통과(44276) · 481 격자 밖이면 local_score = 0(44425 phi) · 473~474 close_penalty 기본 0(44315 phi) · 372 on_trajectory 거짓이면 trajectory_penalty 0(44407 phi) · 373 smax(·,0)"},
+  {"value": 69999, "src_line": 473, "meaning": "`attack_range > 69999`(44298) 장거리 챔프만 근접 페널티(close_penalty) 적용 — choose_goal 495 와 같은 임계"},
+  {"value": 55, "src_line": 473, "meaning": "min_spacing = attack_range*55/100(44302~44303) — 장거리 챔프가 목표에 이보다 가까이 서면 페널티"},
+  {"value": 100, "src_line": 473, "meaning": "백분율 분모(44303 udiv)"},
+  {"value": 1000, "src_line": 475, "meaning": "close_penalty = (min_spacing - dist_to_target)/1000(44310 udiv) — 부족 거리 1000 당 1점 감점"},
+  {"value": -4, "src_line": 363, "meaning": "local_position_score 인라인: gx = xi - 4 - cx(44348) · gy = yi - 4 - cy(44351). `(gx as u32) < 0xFFFFFFF9`(44350 icmp ult -7) 가 참이면 격자 밖 ⟺ |xi-cx|>3 또는 |yi-cy|>3 → local_score 0"},
+  {"value": -7, "src_line": 365, "meaning": "위 격자 밖 판정의 unsigned 비교값(0xFFFFFFF9 · 44350·44353). 유효 = gx ∈ [-7,-1] ⟺ xi-cx ∈ [-3,3](7×7 격자)"},
+  {"value": 48, "src_line": 370, "meaning": "PositioningScore+0x30 on_trajectory 오프셋(44367) — 필드 오프셋이지만 gep 상수라 등록"},
+  {"value": 49, "src_line": 370, "meaning": "PositioningScore+0x31 on_periodic_trajectory 오프셋(44373)"},
+  {"value": 50, "src_line": 373, "meaning": "trajectory_penalty = clamp(220 - 3*max(50 - positioning_effective, 0), 70, 220) — 포지셔닝 능력치 50 기준(44392)"},
+  {"value": -3, "src_line": 373, "meaning": "능력치 부족분 1당 페널티 3 감소(`mul -3` 44396 · 220 에서 뺌)"},
+  {"value": 220, "src_line": 373, "meaning": "궤적 위 페널티 최대(능력치<=50 근처)·clamp 상한(44397·44402 umin)"},
+  {"value": 70, "src_line": 373, "meaning": "궤적 위 페널티 최소·clamp 하한(44401 smax) — 능력치 100 이면 220-150=70"},
+  {"value": 1, "src_line": 377, "folded_from": 2, "meaning": "positioning_risk_value(…, on_trajectory=false) 인라인(small_action.rs:81) = risk*2 가 `shl i64 %94, 1`(44418)로 접힘 — value 1 은 시프트량·소스값은 2(IR 에 리터럴 2 없음). 같은 인라인이 skill_avoid_effective 를 호출하지만 결과 %96 미사용(on_trajectory=false 경로라 사장 · 콜리가 readnone 이 아니라 호출만 남음)"},
+  {"value": -5000, "src_line": 482, "meaning": "move_penalty = distance(champ, 후보)/-5000(sdiv 44440) — 현재 위치에서 5000 멀어질 때마다 -1"},
+  {"value": -3000, "src_line": 480, "meaning": "band_penalty = |dist_to_target - preferred_range|/-3000(sdiv 44442 · abs 44319) — 선호 사거리에서 3000 벗어날 때마다 -1"},
+  {"value": 80, "src_line": 489, "meaning": "점수 기저 가산: score = target_score + 80 + source_bonus + band_penalty/-3000 - close_penalty + local_score + move_penalty/-5000 - stance_risk(44445~44451)"}
+ ],
+ "calls": [
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_core::simulation::map_regions::is_near_line",
+  "game_ai::path_finder::is_unnecessary_enemy_tower_position",
+  "game_core::utils::distance",
+  "game_ai::position_eval::position_score_at_position",
+  "game_core::simulation::state::player::AthleteParameter::positioning_effective",
+  "game_core::simulation::state::player::AthleteParameter::skill_avoid_effective",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::lane_stance_risk",
+  "bumpalo::collections::vec::Vec::push",
+  "llvm.umin.i64",
+  "llvm.abs.i64",
+  "llvm.smax.i64"
+ ],
+ "logic": "fn push_candidate(candidates, version, player, data, champ, target{x,y}, positioning_score, x, y, purpose, attack_range, preferred_range, target_score, line, source_bonus)   // lane_minion.rs:439~454\n// 456~458  격자 셀·벽\nxi = (x/32000).clamp(0,29); yi = (y/32000).clamp(0,29);\nif data.context.map.walls[yi][xi] != 0 { return }                                   // 458 (벽/막힌 셀)\nif is_enemy_well_danger(version, player, x, y) { return }                            // 458 (같은 줄 `||` · 좌우 순서 표기 불가·단락 순서는 IR 대로 walls 먼저)\n// 461\nif !is_near_line(data.context, x, y, line) { return }                                // 라인 근처가 아니면 거절\n// 464\nif is_unnecessary_enemy_tower_position(version, player, data, x, y) { return }\n// 468~469\ndist_to_target = distance(x, y, target.x, target.y);\nif dist_to_target > attack_range { return }                                          // 사거리 밖 후보 거절\n// 473~476  장거리 챔프 근접 페널티\nclose_penalty = if attack_range > 69999 { min_spacing = attack_range*55/100;\n                    if dist_to_target < min_spacing { (min_spacing - dist_to_target)/1000 } else { 0 } } else { 0 };\n// 480\nband_penalty = (dist_to_target as i64 - preferred_range as i64).abs();               // 나중에 /-3000\n// 481  local_score = Self::local_position_score(version, player, data, positioning_score, x, y, purpose) (lane_minion.rs:360~378 인라인)\n//   361~365: xi,yi(위와 동일) · cx,cy = positioning_score.cx/cy · if |xi-cx|>3 || |yi-cy|>3 { local_score = 0 } else {\n//   369: score: PositioningScore(56B) = positioning_score_at_position(version, player, data, positioning_score, x, y, purpose)  (small_action.rs:101 래퍼 → position_eval::position_score_at_position · 계약만)\n//   370: on_trajectory = score.on_trajectory || score.on_periodic_trajectory\n//   371: positioning = player.info.parameter.positioning_effective()\n//   372~373: trajectory_penalty = if on_trajectory { clamp(220 - 3*max(50 - positioning, 0), 70, 220) } else { 0 }\n//   377: local_score = score.gain - (trajectory_penalty + positioning_risk_value(version, player, score.risk, on_trajectory=false))   // = risk*2 · skill_avoid_effective 호출 결과 미사용\n//   }\n// 482\nmove_penalty = distance(champ.x, champ.y, x, y);                                     // 나중에 /-5000\n// 483\nlet stance_risk = Self::lane_stance_risk(version(poison), player, data, champ, x, y)?;   // Option<i64> · None 이면 거절(push 없이 ret)\n// 489~490\nscore = target_score + 80 + source_bonus + band_penalty/-3000 - close_penalty + local_score + move_penalty/-5000 - stance_risk;   // i64 sdiv(0 방향 절삭)\ncandidates.push((x, y, score));\n\n※ 거절 6경로(벽·우물위험·라인 밖·불필요 타워·사거리 밖·stance_risk None) 는 전부 push 없이 ret — 호출자 choose_goal 은 후보 0개면 None.\n※ 481 줄 local_position_score 안에서 position_score_at_position 은 격자 안(|Δ|<=3)일 때만 호출된다 — 격자 밖 후보는 local_score=0 이지만 거절되진 않는다."
+ ,
+ "knobs": [
+  {"what": "점수 기저 가산", "where": "lane_minion.rs:489 (m11.ll:44445)", "value": 80, "effect": "모든 후보에 균등 가산이라 후보 간 순위엔 영향 없음 — 호출자 밖(다른 small_action 과의 비교)에서만 의미. 올리면 lane_minion 목표 점수 전반↑"},
+  {"what": "장거리 근접 페널티 비율(%)", "where": "lane_minion.rs:473 (m11.ll:44302)", "value": 55, "effect": "올리면 장거리 챔프가 목표에서 더 멀리 서려 함(사거리 55% 안 후보 감점). 1000 분모(475)를 내리면 감점 기울기↑"},
+  {"what": "선호 사거리 이탈 페널티 분모", "where": "lane_minion.rs:480·489 (m11.ll:44442 sdiv -3000)", "value": -3000, "effect": "절댓값을 내리면 preferred_range 밴드를 더 엄격히 지킨다(밴드 밖 후보 감점↑)"},
+  {"what": "이동 거리 페널티 분모", "where": "lane_minion.rs:482 (m11.ll:44440 sdiv -5000)", "value": -5000, "effect": "절댓값을 내리면 현재 위치 근처 후보 선호↑(이동 감소). 호출자의 현재위치 bonus 35 와 합쳐 '제자리' 성향을 결정"},
+  {"what": "궤적 위 페널티 clamp(70~220)·능력치 기준 50·기울기 3", "where": "lane_minion.rs:373 (m11.ll:44392~44402)", "value": "220 - 3*max(50-positioning,0), clamp 70..220", "effect": "포지셔닝 능력치가 낮을수록 스킬 궤적 위 셀을 크게 감점(최대 220). 220/70 을 올리면 궤적 회피 성향↑, 기울기 3 을 올리면 능력치 차이가 더 벌어짐"},
+  {"what": "포지셔닝 risk 배수", "where": "small_action.rs:81 positioning_risk_value 인라인 (m11.ll:44418 shl 1)", "value": 2, "effect": "올리면 position_score.risk 가 큰 셀(적 위협)을 더 피함"},
+  {"what": "격자 안 판정 반경 ±3", "where": "lane_minion.rs:363~365 (m11.ll:44348~44353 -4/-7)", "value": 3, "effect": "positioning_score 7×7 격자 크기와 묶여 있어 단독 변경 불가(격자 밖은 local_score 0)"}
+ ],
+ "unknown": [
+  "이 명세는 지시 밖 추가분 — 지시의 exe 0xe25450 이 이 함수라는 판정(choose_goal 명세 unknown[0])에 따라 붙였다. 검증은 런타임 프로브(0xe25450 리턴 주소가 0xe248f0 안 3곳인지)로",
+  "reach 판정 파일(_next\\reach\\<rva>.reach.txt)이 이 함수엔 없다(rc_e254a2fe48e5 는 다른 해시) — 사장 판정은 손 독해: version 분기 0 · 조기 ret 6 경로 전부 입력 의존이라 살아있음",
+  "458 줄 `walls != 0 || is_enemy_well_danger(...)` 의 한 줄 안 좌우 순서는 column 부재로 표기 불가 — IR 단락 순서(walls 먼저, 참이면 콜리 안 부름)는 확정",
+  "377 줄 positioning_risk_value(small_action.rs:81) 인라인이 skill_avoid_effective 를 호출하고 결과(%96)를 버린다 — on_trajectory=false 상수 전달로 그 값이 쓰이는 분기가 접힌 것으로 추정(원본 정의는 범위 밖·미열람). 콜리가 readonly 라 부작용은 없으나 exe 에서 호출 자체는 남을 수 있음",
+  "365 줄 격자 안 판정을 `-4`/`-7` unsigned 비교로 접었다 — 소스가 `(xi+3-cx) as usize >= 7` 인지 `!(cx-3..=cx+3).contains(&xi)` 인지 표기 불가(동작 동일: |xi-cx|<=3 && |yi-cy|<=3)",
+  "콜리 계약만: is_enemy_well_danger(version, &PlayerState, x, y)->bool · is_near_line(&GameContext(64B), x, y, LineType)->bool · is_unnecessary_enemy_tower_position(version, &PlayerState, &OperationData, x, y)->bool · position_score_at_position(sret PositioningScore 56B, version, &PlayerState, &OperationData, &PositioningScoreData, x, y, purpose:i8) · AthleteParameter::positioning_effective/skill_avoid_effective(&self 744B)->i64 · lane_stance_risk(version, &PlayerState, &OperationData, &Entity, x:u64, y:u64)->Option<i64>(m11.ll:44468 · DI !66711) · bumpalo Vec::push(&mut Vec, &(u64,u64,i64))",
+  "walls 의 값 의미(0=통과 · 비0=?)는 MapDef 쪽 정본 미열람 — 이 함수는 `!= 0` 만 본다",
+  "`_docs\\game_ai.txt` 에 push_candidate 관련 개발자 주석 0건"
+ ]
+}

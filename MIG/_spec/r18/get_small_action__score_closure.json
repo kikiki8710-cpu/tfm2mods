@@ -1,0 +1,267 @@
+{
+ "name": "get_small_action_score_closure",
+ "sym": "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtB3_8IntoIterBW_ENCNvMNtNtNtB10_11plan_legacy7handler7auctionNtB3l_17LegacyPlanHandler16get_small_actions1_0EEB10_",
+ "src": "game-ai\\src\\plan_legacy\\handler\\auction.rs",
+ "src_line": 177,
+ "ir_file": "m01.ll",
+ "ir_from": 48954,
+ "ir_to": 49327,
+ "aux": [],
+ "layer": "handler 잎(r18 배치 Q) — 판 8 리턴 주소 실측 지도 밖 판단 로직. exe 0xca6700(1,007B) ↔ IR 339 ins. 클로저 인스턴스: DI 루트 = bumpalo vec.rs:605 from_iter_in, 판정 본체 = auction.rs:177~184 closure$3(get_small_action 의 4번째 클로저) + small_action.rs:308~326 SmallActionPlay::get_action(인라인). reach(version=2·gamemode=0): 블록 34 · 살아있음 33 · 사장 1(L209 Map drop_glue 언와인드 경로만). ⚠부모 get_small_action 명세는 열람 금지 지시 — env 포인터 정체만 부모 IR(m13.ll:47102~47144)에서 확인",
+ "one_line": "각 후보 SmallActionPlay 에 SubPlan::score 기본점수를 매기고, |점수|≥6 이면 액션 분류별 judge_noise_ratio[cat]/1000 배율을 곱해 (점수, 액션) 벡터로 수집",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "bumpalo::collections::vec::Vec<(i64, SmallActionPlay), &Bump> (32B) %0",
+    "note": "define 줄 속성: dead_on_unwind noalias writable sret([32 x i8]) captures(none) dereferenceable(32). 레이아웃 +0 buf.ptr · +8 buf.a(&Bump) · +16 cap · +24 len (m01.ll:48966~48979 초기화 · 49324 memcpy 32B)"
+   },
+   {
+    "i": 1,
+    "name": "iter",
+    "type": "Map<bumpalo IntoIter<SmallActionPlay>, closure_env$3> (80B, by-value · dead_on_return) %1",
+    "note": "define 줄 속성: dead_on_return align 8 dereferenceable(80). [0..64) = closure env 8 ptr(부모 m13.ll:47126~47140 store 순): env[0]=&self.sub_plan(LegacyPlanHandler+0x768 · SubPlan 72B) · env[8]=&version(i64) · env[16]=&parameter(ScoreParameter 5384B 지역) · env[24]=rnd(&mut StdRng 320B) · env[32]=player(&PlayerState) · env[40]=data(&OperationData) · env[48]=debug(&mut DebugFrameData 224B) · env[56]=&judge_noise_ratio([i64;11] 88B 지역 = self+0x17a0 복사, auction.rs:175) · +64 IntoIter.ptr(원소 184B stride) · +72 IntoIter.end"
+   },
+   {
+    "i": 2,
+    "name": "bump",
+    "type": "&Bump %2",
+    "note": "define 줄 속성 없음(plain ptr). 결과 Vec 의 allocator(부모: data.context.pool · m13.ll:47141~47143). sret+8 에 저장(48968)"
+   }
+  ],
+  "returns": "sret Vec<(i64, SmallActionPlay), &Bump>(32B · 4필드 전부 live). 원소 = 192B `{ i64, { [177 x i8], i8, [6 x i8] } }`(49295): +0x0 score(i64 · live 8) · +0x8 SmallActionPlay 184B — 태그 = 원소+0xb9(=184B 안 +0xb1 · i8 · 니치: 3+idx, AroundPosition 은 untagged(값 0..2 = outline_type)) · 페이로드 live = variant 별(tcxdict --enum SmallActionPlay): RunAway/Recall/Around/AroundRunAway 136B · AroundHide/AroundRegion/AroundBush 120B · Positioning 112B · AroundPosition 178B(0..0xb2 전부 · 태그 바이트 자체가 outline_type) · AroundPositionBush 96B · LaneMinionPosition 128B · Trace 152B · Attack/Skill/Skill2/Ult 24B · Stop 0B. 바이트 +0xba..+0xc0(6B)는 어느 variant 도 안 쓰는 패딩(memcpy 6 으로 복사만 됨 49081·49189 — 비교 시 제외). 원소 순서 = 입력 IntoIter 순서 그대로(필터 없음 · len 동일). 빈 입력이면 {ptr=8 dangling, bump, cap=0, len=0}",
+  "tls": null
+ },
+ "reads": [
+  {
+   "base": "Map<IntoIter,closure>(iter %1)",
+   "offset": "0x40",
+   "name": "IntoIter.ptr (현재 원소 · 184B stride)",
+   "note": "m01.ll:48983~48984 (%14 origin) · 49033 (%31)"
+  },
+  {
+   "base": "Map<IntoIter,closure>(iter %1)",
+   "offset": "0x48",
+   "name": "IntoIter.end",
+   "note": "m01.ll:48985~48986 (%16) · 49032 (%30). end-ptr 로 size_hint(49001) · 루프 종료(49034·49310)"
+  },
+  {
+   "base": "closure_env$3",
+   "offset": "0x0",
+   "name": "sub_plan (&SubPlan 72B = LegacyPlanHandler+0x768)",
+   "note": "m01.ll:49047 (%43) → SubPlan::score 의 self"
+  },
+  {
+   "base": "closure_env$3",
+   "offset": "0x8",
+   "name": "&version → *ptr (i64)",
+   "note": "m01.ll:49048 (%44) · 49092 load i64 (%62)"
+  },
+  {
+   "base": "closure_env$3",
+   "offset": "0x10",
+   "name": "parameter (&ScoreParameter 5384B)",
+   "note": "m01.ll:49049 (%45) → score 3번째 인자"
+  },
+  {
+   "base": "closure_env$3",
+   "offset": "0x18",
+   "name": "rnd (&mut StdRng 320B)",
+   "note": "m01.ll:49050 (%46) → score 4번째 인자. 이 클로저 자체는 gen_range 호출 0 — rnd 소비는 콜리 score 내부(계약만)"
+  },
+  {
+   "base": "closure_env$3",
+   "offset": "0x20",
+   "name": "player (&PlayerState)",
+   "note": "m01.ll:49051 (%47)"
+  },
+  {
+   "base": "closure_env$3",
+   "offset": "0x28",
+   "name": "data (&OperationData)",
+   "note": "m01.ll:49052 (%48)"
+  },
+  {
+   "base": "closure_env$3",
+   "offset": "0x30",
+   "name": "debug (&mut DebugFrameData 224B)",
+   "note": "m01.ll:49053 (%49) → score 8번째 인자"
+  },
+  {
+   "base": "closure_env$3",
+   "offset": "0x38",
+   "name": "judge_noise_ratio (&[i64;11])",
+   "note": "m01.ll:49054 (%50) · 49169~49170 [cat] 로드 (%87 ratio). 원본 = LegacyPlanHandler+0x17a0 judge_noise_ratio(tcxdict) 의 88B 지역 복사(부모 auction.rs:175)"
+  },
+  {
+   "base": "SmallActionPlay(원소 c)",
+   "offset": "0xb1",
+   "name": "니치 태그 (i8 · gep 177)",
+   "note": "m01.ll:49068~49069 (%58). -1(0xFF) 비교 49073 = IntoIter::next 의 Option 니치 None(실제로는 ptr==end 가 종료 조건). 49106~49110 로 SmallAction 분류 인덱스 복원"
+  }
+ ],
+ "writes": [
+  {
+   "base": "(sret)",
+   "offset": "0x0",
+   "name": "buf.ptr",
+   "value": "inttoptr 8(dangling) → reserve 후 bump 할당 ptr",
+   "note": "m01.ll:48966 · 49024 reserve(0, count) · 49213 reserve(len,1)"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x8",
+   "name": "buf.a",
+   "value": "bump(%2)",
+   "note": "m01.ll:48968"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x10",
+   "name": "buf.cap",
+   "value": "0 → reserve 결과",
+   "note": "m01.ll:48979 memset 16B"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "0 → 원소마다 +1",
+   "note": "m01.ll:49299~49300"
+  },
+  {
+   "base": "(sret) buf.ptr[len] (192B stride)",
+   "offset": "0x0",
+   "name": "score (i64)",
+   "value": "%93 = |base|<6 ? base : base*ratio/1000",
+   "note": "m01.ll:49191 store → %6 지역 · 49298 memcpy 192B 로 벡터에 복사"
+  },
+  {
+   "base": "(sret) buf.ptr[len]",
+   "offset": "0x8",
+   "name": "SmallActionPlay 184B (payload 177 + tag@+0xb9 + 6B)",
+   "value": "입력 원소 c 를 그대로 이동(memcpy 177 + tag store + memcpy 6)",
+   "note": "m01.ll:49188~49192"
+  },
+  {
+   "base": "Map<IntoIter,closure>(iter 지역 복사 %7)",
+   "offset": "0x40",
+   "name": "IntoIter.ptr 전진",
+   "value": "old+184",
+   "note": "m01.ll:49098·49222 (언와인드 cleanup 에서만 store · 정상 경로는 phi %55 로 레지스터 유지) · 49067 gep 184"
+  }
+ ],
+ "constants": [
+  {
+   "value": -1,
+   "src_line": 177,
+   "meaning": "0xFF = Option<SmallActionPlay> 니치 None 센티널(IntoIter::next 인라인 · bumpalo vec.rs:1161). 태그 바이트 +0xb1 == 255 면 루프 종료. 실제 원소의 태그는 0..=19 라 항상 거짓 — 실질 종료 조건은 ptr==end(49034·49310). m01.ll:49073 · 49264"
+  },
+  {
+   "value": 10,
+   "src_line": 309,
+   "meaning": "llvm.assume(tag != 10): 니치 3+7=10 은 AroundPosition(untagged) 자리라 실제로 나올 수 없는 값. m01.ll:49106~49107"
+  },
+  {
+   "value": -3,
+   "src_line": 309,
+   "meaning": "니치 복원 idx = tag − 3 (niche_start=3 · tcxdict --enum SmallActionPlay). m01.ll:49108 add nsw -3"
+  },
+  {
+   "value": 2,
+   "src_line": 309,
+   "meaning": "tag > 2 (unsigned) 이면 tag−3 이 논리 idx, 아니면(0..2 = AroundPosition.outline_type 값) idx 7 = AroundPosition. m01.ll:49109~49110 select"
+  },
+  {
+   "value": 7,
+   "src_line": 309,
+   "meaning": "untagged variant AroundPosition 의 논리 idx 7(select 의 기본값). m01.ll:49110"
+  },
+  {
+   "value": 6,
+   "src_line": 180,
+   "meaning": "|base_score| < 6 이면 노이즈 배율 면제(점수 그대로). llvm.abs(i64, poison=false) → icmp slt 6. m01.ll:49164~49166. 5 이하의 작은 점수(고정 센티널류)는 노이즈로 흔들지 않는 의도(추정 — _docs 에 직접 주석 없음)"
+  },
+  {
+   "value": 1000,
+   "src_line": 183,
+   "meaning": "score = base * ratio / 1000 — judge_noise_ratio 는 천분율(‰) 배율. sdiv(부호 있는 0 방향 절삭). m01.ll:49172~49173"
+  },
+  {
+   "value": 0,
+   "src_line": 310,
+   "meaning": "SmallAction::RunAway 인덱스 — SmallActionPlay idx 0 RunAway · 1 Recall · 5 AroundRunAway → 0. phi 49162 ([0,%66]×3) — ⚠IR 에 L310 마커 없음(switch 에서 phi 로 직행) · 310~311 arm 줄은 rmeta 줄 길이(63·62자) 기반 추정"
+  },
+  {
+   "value": 1,
+   "src_line": 312,
+   "meaning": "SmallAction::Positioning — SmallActionPlay idx 6 Positioning → 1. m01.ll:49140~49141 · phi 49162"
+  },
+  {
+   "value": 3,
+   "src_line": 314,
+   "meaning": "SmallAction::AroundPosition — idx 4 AroundRegion · 7 AroundPosition · 8 AroundPositionBush · 9 AroundBush → 3. m01.ll:49137~49138"
+  },
+  {
+   "value": 4,
+   "src_line": 321,
+   "meaning": "SmallAction::Trace — idx 11 Trace → 4. m01.ll:49143~49144"
+  },
+  {
+   "value": 8,
+   "src_line": 324,
+   "meaning": "SmallAction::Skill2 — idx 14 Skill2 → 8. m01.ll:49152~49153 (2=Around: idx 2 Around·3 AroundHide·10 LaneMinionPosition, 49134 / 6=Attack idx 12, 49146 / 7=Skill idx 13, 49149 / 9=Ult idx 15, 49155 / 10=Stop idx 16, 49158 — 값 5 Dodge 는 어느 variant 도 안 매핑)"
+  },
+  {
+   "value": 183,
+   "src_line": 176,
+   "meaning": "size_hint 예약: (end−ptr)+183 < 367 ⟺ 원소 수 0 이면 reserve 생략, 아니면 reserve(0, (end−ptr)/184). 184B stride 산술(원소 크기) — 판정 상수 아님. m01.ll:49010~49011 · 49020 sdiv 184"
+  },
+  {
+   "value": 367,
+   "src_line": 176,
+   "meaning": "= 2*184−1. 위 size_hint 예약 판정 짝. m01.ll:49011"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::sub_plan::SubPlan::score",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic",
+  "core::ptr::drop_glue",
+  "llvm.abs.i64",
+  "llvm.assume",
+  "llvm.memcpy.p0.p0.i64",
+  "llvm.memset.p0.i64"
+ ],
+ "logic": "// Vec<(i64, SmallActionPlay), &Bump>::from_iter_in(candidates.into_iter().map(closure$3), bump)   [bumpalo vec.rs:605~609 · 클로저 auction.rs:177~184]\n// 부모(get_small_action · 열람 금지 · IR 만 참조)에서 env 구성: sub_plan=&self.sub_plan(+0x768) · version · parameter(지역 5384B) · rnd · player · data · debug · judge_noise_ratio(=self.judge_noise_ratio 88B 복사, auction.rs:175)\nlet mut v = Vec::new_in(bump);                                   // 48966~48979 {ptr=8, bump, cap=0, len=0}\nlet n = (iter.end − iter.ptr) / 184;                             // 48995~49001 (size_hint)\nif n >= 1 { v.reserve_internal_or_panic(0, n, exact=true) }      // 49010~49025 ((bytes+183) < 367 ⟺ n==0 이면 생략)\nwhile iter.ptr != iter.end {                                     // 49034 · 49310\n    let c: SmallActionPlay = *iter.ptr; iter.ptr += 184;         // 49067 · 49079~49082 (177B + tag + 6B 복사)\n    if c.tag == 0xFF { break }                                   // 49073 — Option 니치 None(실제 도달 불가)\n178:    let base: i64 = sub_plan.score(version, parameter, rnd, player, data, &c, debug);   // 49092~49093 (디스패처 e388c0 · 계약만: (&SubPlan 72B, usize, &ScoreParameter 5384B, &mut StdRng, &PlayerState, &OperationData, &SmallActionPlay 184B, &mut DebugFrameData) -> i64)\n179:    let cat: usize = c.get_action() as usize;                // small_action.rs:308~326 인라인 · SmallAction 판별자(game_core blackboard.rs:82 · Direct 0..10)\n           // 니치 복원(49106~49110): idx = (tag > 2) ? tag−3 : 7(AroundPosition)\n           // match idx(SmallActionPlay 논리 idx) → SmallAction(49111~49162):\n           //   0 RunAway·1 Recall·5 AroundRunAway            → 0 RunAway        (L310)\n           //   6 Positioning                                 → 1 Positioning    (L312)\n           //   2 Around·3 AroundHide·10 LaneMinionPosition    → 2 Around         (L316)\n           //   4 AroundRegion·7 AroundPosition·8 AroundPositionBush·9 AroundBush → 3 AroundPosition (L314)\n           //   11 Trace → 4 (L321) · 12 Attack → 6 (L322) · 13 Skill → 7 (L323) · 14 Skill2 → 8 (L324) · 15 Ult → 9 (L325) · 16 Stop → 10 (L326)\n           //   (5 Dodge 는 미매핑 · 그 외 idx = unreachable 49131)\n180:    let score = if base.abs() < 6 { base }                   // 49164~49166 · llvm.abs(poison=false)\n183:                else { base * judge_noise_ratio[cat] / 1000 };   // 49169~49173 · mul 순서 IR = ratio*base(표기 불가) · sdiv 절삭\n184:    let t = (score, c);                                       // 49188~49192 → 192B 지역 %6\n    if v.len == v.cap { v.reserve_internal_or_panic(v.len, 1, true) }   // 49201~49218\n    v.ptr[v.len] = t (memcpy 192); v.len += 1;                   // 49292~49300\n}\n// 루프 종료 후 남은 원소 drop(49249~49287 · 정상 경로에선 ptr==end 라 0회) → sret = v (49324 memcpy 32B)\n\n요지(한 줄 판정식): out[i] = ( |s|<6 ? s : s·W[cat(c_i)]/1000 , c_i )  where s = SubPlan::score(sub_plan, …, &c_i) · W = judge_noise_ratio[0..11] · cat = SmallActionPlay→SmallAction 판별자(위 표). 필터 없음 · 순서 보존 · len(out) = len(in).\n\n&mut 표면: iter(by-value 소비 · ptr 전진) · sret 32B + 원소 192B×len (bump 할당) · rnd·debug 는 콜리 score 에만 전달(이 본문 직접 쓰기 0).\nrnd: 이 본문 gen_range 사이트 0.",
+ "knobs": [
+  {
+   "what": "노이즈 면제 임계(|기본점수| < 6)",
+   "where": "auction.rs:180 (m01.ll:49165)",
+   "value": 6,
+   "effect": "올리면 더 큰 점수까지 judge_noise_ratio 배율을 안 받아 '원점수 그대로' 후보가 늘어난다(노이즈 영향↓). 내리면(예: 1) 거의 모든 후보가 분류별 배율을 받는다. 0 이면 score==0 도 배율(0 유지)이라 사실상 전부 적용"
+  },
+  {
+   "what": "천분율 분모",
+   "where": "auction.rs:183 (m01.ll:49173)",
+   "value": 1000,
+   "effect": "judge_noise_ratio 의 스케일. 분모를 바꾸면 W 전체의 실효 배율이 비례해 변한다(W 와 같이 바꿔야 함). 부호 있는 sdiv 라 음수 점수는 0 쪽으로 절삭"
+  },
+  {
+   "what": "분류별 배율표 judge_noise_ratio[11] (SmallAction 판별자 인덱스 0 RunAway·1 Positioning·2 Around·3 AroundPosition·4 Trace·5 Dodge(미사용)·6 Attack·7 Skill·8 Skill2·9 Ult·10 Stop)",
+   "where": "LegacyPlanHandler+0x17a0 (부모 get_small_action auction.rs:168~169 가 rnd 로 채움 · 175 복사) — 이 클로저는 읽기만(m01.ll:49169)",
+   "value": "런타임 값(부모 소관)",
+   "effect": "특정 분류의 값을 1000 보다 키우면 그 분류 후보의 점수가 부풀어 선택 확률↑(음수 점수는 더 음수), 줄이면 억제. 분류 병합 규칙 자체(위 표)는 get_action 코드 — 예: Recall 은 RunAway 배율을 같이 받는다"
+  }
+ ],
+ "unknown": [
+  "judge_noise_ratio 원소의 실제 값 범위·생성 규칙(부모 get_small_action auction.rs:168~169 의 gen_range(RangeInclusive) 루프 — 부모 명세 열람 금지·이 배치 범위 밖). 이 클로저는 [i64;11] 을 읽기만 함(m01.ll:49169)",
+  "SubPlan::score 내부(디스패처 e388c0 = m12.ll:37190 · sub_plan.rs:164 · 각 SubPlan 별 score 로 분기) — 계약만. rnd 소비(gen_range) 는 그 안에서 일어날 수 있으나 이 본문에는 0",
+  "auction.rs:183 의 곱셈 피연산자 순서(`score * ratio` vs `ratio * score`) — IR mul %87(ratio), %63(score) · column 정보 없음 → 표기 불가(외연 동일)",
+  "노이즈 면제 임계 6 의 설계 의도 — _docs(game_ai.txt) 에 judge_noise / 면제 관련 주석 0건. '작은 고정 점수(센티널)를 흔들지 않기' 는 추정",
+  "값 5(SmallAction::Dodge) 가 어느 SmallActionPlay 에서도 안 나오므로 judge_noise_ratio[5] 는 이 경로에서 사장(다른 소비처는 미탐색)",
+  "IntoIter 남은 원소 drop 루프(49249~49287)와 언와인드 cleanup(49096~49100 · 49178~49181 · 49220~49225 · 49313~49319)은 예외 경로 — reach 가 L209 Map drop_glue 를 사장으로 판정. 정상 경로 재현엔 불필요",
+  "src_line 177 은 `.map(|c| {` 시작 줄(Map::new 의 inlinedAt 루트 L177 · m13.ll:47122~47140 ;L69<836<177) 이고 define 의 DI 루트는 bumpalo vec.rs:605 — 클로저 인스턴스라 둘을 병기"
+ ],
+ "note_name_orig": "get_small_action 점수 합성 클로저 (LegacyPlanHandler::get_small_action::{closure#3} · Vec<(i64,SmallActionPlay),&Bump>::from_iter_in<Map<IntoIter<SmallActionPlay>, closure#3>> 인스턴스)"
+}

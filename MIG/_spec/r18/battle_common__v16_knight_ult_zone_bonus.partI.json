@@ -1,0 +1,107 @@
+{
+ "name": "v16_knight_ult_zone_bonus",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common25v16_knight_ult_zone_bonus",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle_common.rs",
+ "src_line": 177,
+ "ir_file": "m05.ll",
+ "ir_from": 55831,
+ "ir_to": 57754,
+ "aux": [
+  {"ir_file": "m09.ll", "ir_from": 66150, "ir_to": 66155, "what": "AbstractGameWithCache::iter_champions::{closure#0} call_mut 심(game_core 소유 · game_ai 모노모피) — `|x: &Option<&Entity>| *x` (ptr 1개 load 후 ret · null=None). L201 for 루프의 filter_map 술어. 함수 전체 공용(배치 J 의 L236·L243·L251 iter_champions 도 같은 클로저가 인라인/호출됨)"}
+ ],
+
+ "one_line": "BattleSubPlan/DeathBattleSubPlan::score 가 후보 액션마다 부르는 '나이트 궁(KnightUltAction) 존 보너스' i64(0..75). action 이 KnightUltAction 이고 target 이 아군 챔피언일 때만: 존(range)·영향권(range+35000) 안의 아군 수·위협받는 아군 수·압박 점수(예상 피해×HP가치/HP)·영향권 내 가시 적 수(배치 I, L185~239) 를 세고, 배치 J(L243~268) 가 존 내 적 수 등을 더 세어 가중합(허용 압박/3≤18 · 위협 아군×14 · 가시 적×3 · 적>아군 페널티 −12 …)을 0..75 로 clamp 해 돌려준다. 그 외(다른 액션·적/비챔피언 target)는 0.",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState (2528B)", "role": "IR 속성 noalias readonly captures(address, read_provenance) dereferenceable(2528) · info.team(+0x930) 읽기 · is_recent_visible(…, player, …) 인자 · champion_hp_value 에는 안 넘김(그쪽은 data/parameter) · 클로저$1/$2 캡처", "mutability": "&"},
+   {"i": 2, "name": "data", "type": "&OperationData (24B: +0 cache &AbstractGameWithCache · +8 context · +0x10 blackboard &[Blackboard;2])", "role": "IR 속성 noalias readonly captures(address, read_provenance) dereferenceable(24) · cache.game(dyn 팻포인터)·cache.player_champion · blackboard[1-team] · possible_risk/champion_hp_value 에 전달 · context(+8)는 배치 I 범위에서 읽지 않음", "mutability": "&"},
+   {"i": 3, "name": "parameter", "type": "&ScoreParameter (5384B)", "role": "IR 속성 noalias readonly captures(address, read_provenance) dereferenceable(5384) · player(+0x918 ChampionScoreParameter) 의 applyed_damage/risk_damage · near_allies(+0x14b8 ptr · +0x14d0 len) 선형 탐색 · champion_hp_value 에 통째 전달 · version(+0x14f8) 은 배치 I 범위에서 읽지 않음", "mutability": "&"},
+   {"i": 4, "name": "action", "type": "&Box<dyn Action> (16B 팻포인터: +0 data_ptr · +8 vtable_ptr)", "role": "IR 속성 noalias readonly captures(none) dereferenceable(16) · L185 vtable+0x68 as_any() → &dyn Any(data, vtable) → Any vtable+0x18 type_id() 16B sret 로 KnightUltAction 판별(downcast_ref) · 이후 knight_ult.range(+0x10)·duration(+0x30) 만 읽음", "mutability": "&"},
+   {"i": 5, "name": "champ", "type": "&Entity (1728B) — 자기 챔피언", "role": "IR 속성 noalias readonly captures(none) dereferenceable(1728) · team(+0/+8)·id(+0x5c0) 만 읽음(L188 팀 비교 · L207 자기 자신 판별)", "mutability": "&"},
+   {"i": 6, "name": "target", "type": "&Entity (1728B) — 액션 대상(궁 시전 대상 아군)", "role": "IR 속성 noalias readonly captures(none) dereferenceable(1728) · team(+0/+8)·ty@tag(+0x68)·x/y(+0x660/+0x668) 읽기 · 존 중심으로 쓰임(L202/L238 distance_sq 의 other) · 클로저$2 캡처", "mutability": "&"}
+  ],
+  "self": "없음(자유 함수) — &mut self 없음 · sret 없음 · initializes 속성 없음 · 전 인자 readonly ⇒ writes 표면 0(함수 속성 #2 = uwtable 만, memory(...) 미부여이나 본문 store 는 alloca %7/%8/%9(지역 iter/TypeId 슬롯)뿐)",
+  "return": "i64 직접 반환(sret 아님) · define 속성 `range(i64 0, 76)` = 0..=75. 배치 I 범위의 반환 지점은 ret 블록 %29(phi %30)로 모이는 조기 0 4곳: %6(downcast 실패 L185→186) · %22(target.team != champ.team L188→189) · %33/%41(!target.is_champion() L188→189). 정상 경로의 값(%551 = umin(smax(score,0),75))은 배치 J(L267~268). 니치·패딩 없음(스칼라).",
+  "tls": {"name": "없음(직접) — 본문 55831~57754 에 LocalKey/call_once/llvm.threadlocal.address/__getit 참조 0건(grep) · 간접 접점 1: 콜리 utils::champion_hp_value(m04.ll:49583) 가 `LocalKey<RefCell<HashMap<usize,i64,ahash::RandomState>>>::with`(m00.ll:91035) 메모를 읽고 쓴다", "role": "소비자(간접 · 콜리 경유) — 이 함수는 키를 만들지도 무효화하지도 않음", "key": "champion_hp_value 가 조립(m04.ll:49599~49618): game.seed()(vtable+0x20 · divtable) · game.tick()(vtable+0x28) · parameter.player.id(+0x970) · &p · &parameter 를 40B 클로저 환경으로 넘김 — 실제 해시 키 구성은 자식 명세(champion_hp_value_uncached r13 잎 / 캐시 래퍼) 소관", "layout": "HashMap<usize(j), i64(x), ahash::RandomState> in RefCell in thread_local — 망글 `RefCellTyjjINt…HashMapjx…RandomState` 로 확인", "invalidation": "이 함수 범위 밖(미독 · 자식 명세 소관)", "call_conditions": "L212(자기 자신) 또는 L219(near_allies 에서 찾은 아군) — 존 내 아군 1명당 최대 1회, near_allies 에 없는 아군이면 호출 안 함(L222 (0,50)). 호출 순서: possible_risk → champion_hp_value (블록 %573 57336→57338) · 존 내 아군 순서 = player_champion[team][0..5] 슬롯 순"}
+ },
+
+ "reads": [
+  {"base": "Box<dyn Action> (action)", "offset": "0x0", "name": "data_ptr", "note": "L185 as_any(self=data_ptr) 인자 · downcast 성공 시 그대로 &KnightUltAction(%16 · llvm.assume non-null)"},
+  {"base": "Box<dyn Action> (action)", "offset": "0x8", "name": "vtable_ptr", "note": "L185 vtable+0x68 = Action::as_any (divtable g02 @anon.1197 슬롯 13, 일치율 58%) → {ptr,ptr} = &dyn Any"},
+  {"base": "dyn Any vtable", "offset": "0x18", "name": "type_id", "note": "L185 슬롯 3(drop,size,align 다음) · sret 16B(%8) → i128 비교(any.rs:229 downcast_ref → :204 is → :2450 TypeId::eq)"},
+  {"base": "KnightUltAction", "offset": "0x10", "name": "range", "note": "L192 zone_radius(u64) · 제곱=zone_sq(L193) · +35000=influence(L194)"},
+  {"base": "KnightUltAction", "offset": "0x30", "name": "duration", "note": "L211/L218 possible_risk 의 tick_cut = duration + 30 (블록 %55 로 호이스팅된 gep %72, load 는 %573 57334)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "L188 target.team != champ.team (TeamType derive PartialEq entity.rs:1127 인라인): 태그 0=Player(+0x8 비교) · 1=Neutral(태그만)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "L188 태그 둘 다 0 일 때 팀 인덱스 비교(%34/%35)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "L188 target.is_champion() (entity.rs:1404 인라인) ⇔ ==13(Champion)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "champ.id(%66, 블록 %55 호이스팅) · ally.id(L207 %557) — 자기 자신 판별 및 near_allies.find(|p| p.id == ally.id)(L214)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(entity.rs:2158 인라인 · |dx|²+|dy|²): target.x(%62 호이스팅) · ally.x(L202 %101 · L227 %596) · enemy.x(L227 %593 · L238 %125…)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "위와 짝(%64 · %103 · %597 · %595 · %127…)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "L232 ally.hp.max(1) — 압박 점수 분모(umax 1 → sdiv)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L201 team(0/1) · <2 bounds check(panic_bounds_check(team,2) simulation.rs:1905) · 1-team = 적팀 행/blackboard 인덱스(%79)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L201 &AbstractGameWithCache(%51) · L226/L237 cache.game 팻포인터 재로드(%117/%118 · %585/%586)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2](%83) → %84 = &blackboard[1 - team] (★적팀 blackboard · IR 정본 · 줄 길이 산술도 `data.blackboard[1 - player.info.team]` 37자와 정합) — is_recent_visible 의 &self"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "L226/L237 is_recent_visible 의 game 인자(dyn AbstractGame 팻포인터 앞 절반)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "팻포인터 뒤 절반(%118/%586)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][0..5]", "note": "L201 자기 행(gep [5 x ptr] %56, team → %57 · 끝 %58=+40) 을 filter_map(closure#0) 로 순회 · L226/L237 적 행(%80 = 행 1-team) 5칸을 언롤(+0/+8/+16/+24/+32 = %80/%85/%86/%87/%88) · 원소 Option<&Entity> 니치(null=None)"},
+  {"base": "ScoreParameter", "offset": "0x918", "name": "player (ChampionScoreParameter 216B)", "note": "L209~212 자기 자신일 때의 p(%73) — possible_risk 의 &self · champion_hp_value 의 3번째 인자"},
+  {"base": "ScoreParameter", "offset": "0x988", "name": "player.applyed_damage", "note": "L209 (%74/%75, 블록 %55 호이스팅 · dbg 없음)"},
+  {"base": "ScoreParameter", "offset": "0x998", "name": "player.risk_damage", "note": "L210 (%76/%77) · %78 = applyed + risk"},
+  {"base": "ScoreParameter", "offset": "0x14b8", "name": "near_allies.buf.ptr", "note": "L214 iter().find 시작(%68)"},
+  {"base": "ScoreParameter", "offset": "0x14d0", "name": "near_allies.len", "note": "L214 끝 = ptr + len*216(%71 gep 원소타입 216B)"},
+  {"base": "ChampionScoreParameter", "offset": "0x58", "name": "id", "note": "L214 find 술어 p.id == ally.id(%565 == %557) · 원소 stride 216(gep %560 +216)"},
+  {"base": "ChampionScoreParameter", "offset": "0x70", "name": "applyed_damage", "note": "L216 (%568/%569)"},
+  {"base": "ChampionScoreParameter", "offset": "0x80", "name": "risk_damage", "note": "L217 (%570/%571) · %572 = risk + applyed"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 166200278922247868797912749936351073298, "src_line": 185, "meaning": "TypeId::of::<game_core::setting::champion::knight::KnightUltAction>() (u128) — action.as_any().downcast_ref::<KnightUltAction>() 의 판별 상수. 불일치 → return 0. 타입 확정 근거 = DI `knight_ult: ref$<KnightUltAction>`(!56546) + dloc any.rs:229 downcast_ref<KnightUltAction>"},
+  {"value": 0, "src_line": 188, "meaning": "TeamType 태그 0=Player — 둘 다 0 이면 +0x8 팀 인덱스까지 비교(derive PartialEq). 또한 L197~199 누산기 초기값 0, L222 near_allies 미발견 시 incoming=0, L226 any 거짓=0"},
+  {"value": 13, "src_line": 188, "meaning": "EntityType::Champion 메모리태그(tcxdict --enum EntityType: idx13=discr13=tag13) — target.is_champion() 게이트"},
+  {"value": 35000, "src_line": 194, "meaning": "influence = zone_radius + 35000 — 존 바깥 영향권 여유(약 1.09셀 · 셀=32000). enemies_near(L238) 반경 = (range+35000)²"},
+  {"value": 2, "src_line": 201, "meaning": "player_champion 행 인덱스 상한(team<2, panic_bounds_check(team, 2) · simulation.rs:1905 iter_champions 인라인)"},
+  {"value": 30, "src_line": 211, "meaning": "possible_risk 의 tick_cut = knight_ult.duration + 30 (L211 자기 자신 · L218 아군 — 컴파일러가 블록 %573 하나로 합쳐 dbg 소실, %577) — 궁 지속시간 + 30틱 이내의 잠재 위험만 합산"},
+  {"value": 100, "src_line": 212, "meaning": "hp_value = champion_hp_value(..).min(100) 상한(L212 자기 · L219 아군 · smin %581 cmp.rs:1078 min<i64>)"},
+  {"value": 50, "src_line": 222, "meaning": "near_allies 에 그 아군의 ChampionScoreParameter 가 없을 때 (incoming, hp_value) = (0, 50) — hp_value 기본값(phi %583 [50,%559])"},
+  {"value": 10000000001, "folded_from": 10000000000, "src_line": 227, "meaning": "100000² (=100_000*100_000 · 약 3.125셀) — enemy.distance_sq(ally) <= 100000² 를 LLVM 이 `icmp ult …, 10000000001` 로 정규화. enemy_close_to_ally 반경"},
+  {"value": 1, "src_line": 232, "meaning": "ally.hp.max(1) — 압박 점수 분모 0 방지(umax cmp.rs:1039 max<usize>). 또한 L229 threatened_allies += 1 · L206 allies_in_zone += 1 · L239 count 의 zext 증분"},
+  {"value": 45, "src_line": 232, "meaning": "아군 1명당 압박 점수 상한: ((incoming*hp_value)/ally.hp.max(1)).min(45) — pressure_score 누적 전 clamp(smin %734)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_champions::{closure#0}::call_mut",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::score_parameter::ChampionScoreParameter::possible_risk",
+  "game_ai::utils::champion_hp_value",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "llvm.assume",
+  "llvm.smin.i64",
+  "llvm.umax.i64"
+ ],
+
+ "logic": "// battle_common.rs:0~239 (배치 I)\n// 호출자(정적 2곳 · 둘 다 version 분기 없이 직접 invoke · 이 함수엔 version 인자 자체가 없음): BattleSubPlan::score(battle.rs:760 · m02.ll:38216) 와 DeathBattleSubPlan::score(death_battle.rs:769 · m15.ll:12656) — 둘 다 calculate_action_score 뒤 `v21_runaway_defensive_cc_bonus → v16_gambler_ult_cc_bonus → ★v16_knight_ult_zone_bonus → v17_runaway_counterattack_bonus` 순서로 후보 액션마다 호출(인자 = player, data, parameter, &candidate.action(Box<dyn Action>), champ, target). 판 8 프로브 미설치 · 발화수 미계측.\n// 콜리 계약(그 밖의 콜리 = 시그니처·반환 의미만): Blackboard::is_recent_visible(&self(744B), game:&dyn AbstractGame(ptr,vtable), player:&PlayerState, target:&Entity)->bool (g07.ll:157005 · blackboard.rs:346) = game.is_visible(player.info.team, target.id)(vtable+0xf8) || get_player_by_champion_id(target.id)(vtable+0x150) 가 Some 이고 self.last_visible[+0x1e0][p.info.position] + 120 >= game.tick()(vtable+0x28) · TLS 없음 / ChampionScoreParameter::possible_risk(&self(216B), data:&OperationData, tick_cut:usize)->i64 (m07.ll:7315 · score_parameter.rs:1407) = self.risk_possible(+0x18, PossibleGain 24B) 중 tick_cut 이내 항목의 값 합(출처 중복 제거 · 본문 미상세) / utils::champion_hp_value(data, parameter:&ScoreParameter, p:&ChampionScoreParameter)->i64 (m04.ll:49583) = TLS HashMap 메모 래퍼(자식 명세 champion_hp_value_uncached r13) / AbstractGameWithCache::iter_champions(team) = player_champion[team][0..5].iter().filter_map(closure#0 |x| *x) (simulation.rs:1905 인라인 · aux m09:66150).\n// 2-space 들여쓰기 · 아래 소스 복원은 IR 정본 + rmeta 줄 길이 산술(L185 82 · L188 61 · L201 60 · L207 56 · L214 98 · L225 78 · L226 110 · L228 45 · L231 22 · L232 79 · L236 69 · L237 111 전부 ±1 정합)로 표기한 것.\n\n[L185] let Some(knight_ult) = action.as_any()(vtable+0x68 · {ptr,ptr}).downcast_ref::<KnightUltAction>() else { [L186] return 0 }\n       // = Any vtable+0x18 type_id() 16B == 0x7D0A…(u128 상수 166200278922247868797912749936351073298) · 성공 시 knight_ult = action.data_ptr(%16, llvm.assume non-null)\n[L188] if target.team != champ.team [entity.rs:1127 derive PartialEq · cmp.rs:264 ne] || !target.is_champion() [entity.rs:1404 · ty@tag(+0x68) != 13] { [L189] return 0 }\n       // team 비교: 태그(+0) 다르면 ne · 둘 다 0(Player) 이면 +0x8 인덱스 비교 · 둘 다 1(Neutral) 이면 같음 → is_champion 만 검사(%41). ⚠target 은 '아군 챔피언'이어야 통과(자기 자신 포함 — 아래 L207 참조)\n[L192] zone_radius: u64 = knight_ult.range(+0x10)\n[L193] zone_sq = zone_radius * zone_radius\n[L194] influence = zone_radius + 35000\n[L195] influence_sq = influence * influence\n[L197~199] allies_in_zone = 0i64; threatened_allies = 0i64; pressure_score = 0i64\n[L201] team = player.info.team(+0x930); if team >= 2 → panic_bounds_check(team, 2)\n       for ally in data.cache.iter_champions(team) {        // player_champion[team][0..5] 슬롯 순 · None(null) 은 closure#0 이 걸러 건너뜀(%95→%92)\n[L202]   if ally.distance_sq(target) > zone_sq { [L203] continue }          // |dx|²+|dy|² (x +0x660, y +0x668) · ugt %48 → %90(다음 슬롯)\n[L206]   allies_in_zone += 1\n[L207]   let (incoming, hp_value) = if ally.id(+0x5c0) == champ.id {\n[L208~213]   ( parameter.player.applyed_damage(+0x988) as i64 + parameter.player.risk_damage(+0x998) as i64 + parameter.player.possible_risk(data, knight_ult.duration(+0x30) + 30),\n               champion_hp_value(data, parameter, &parameter.player).min(100) )\n[L214]   } else if let Some(ally_parameter) = parameter.near_allies(+0x14b8..len +0x14d0, stride 216).iter().find(|p| p.id(+0x58) == ally.id) {   // 선형 탐색, 첫 일치\n[L215~220]   ( ally_parameter.applyed_damage(+0x70) as i64 + ally_parameter.risk_damage(+0x80) as i64 + ally_parameter.possible_risk(data, knight_ult.duration + 30),\n               champion_hp_value(data, parameter, ally_parameter).min(100) )\n[L221]   } else { [L222] (0, 50) };                         // near_allies 에 없으면 possible_risk/champion_hp_value 호출 없음\n         // IR: 두 Some 분기가 블록 %573 하나로 합쳐짐(phi %574=p, %575=applyed+risk) → 호출 순서 possible_risk(p, data, duration+30) 다음 champion_hp_value(data, parameter, p) → smin 100 · 이 두 call 은 dbg 소실(root L0)\n[L225~227] let enemy_close_to_ally = data.cache.iter_champions(1 - team)\n             .any(|enemy| data.blackboard[1 - team](+0x10 → 행 1-team, ★적팀 blackboard).is_recent_visible(data.cache.game, player, enemy)\n                          && enemy.distance_sq(ally) <= 100000²)      // 적 행 5칸 언롤(%80/%85/%86/%87/%88) · 단락: 첫 참에서 %707 로 · 결과 i64 0/1(phi %708)\n[L228]   if incoming > 0 || enemy_close_to_ally { [L229] threatened_allies += 1 }\n[L231]   if incoming > 0 { [L232] pressure_score += ((incoming * hp_value) / (ally.hp(+0x670).max(1) as i64)).min(45) }\n         // IR 형태(동치): incoming > 0 → {threatened+=1; pressure+=min(sdiv,45)} / else → threatened += enemy_close_to_ally(0/1), pressure 불변. sdiv 오버플로 가드(i64::MIN / -1 → panic_const_div_overflow)는 가드일 뿐\n[L234] }\n[L236~239] let enemies_near = data.cache.iter_champions(1 - team)\n             .filter(|enemy| data.blackboard[1 - team].is_recent_visible(data.cache.game, player, enemy))   // L237 · closure$2\n             .filter(|enemy| enemy.distance_sq(target) <= influence_sq)                                          // L238 (ule %50)\n             .count() as i64                                                                                      // L239 · 5칸 언롤 fold(%142→%170→%198→%226→%254) · 언롤 순서 슬롯 0..4\n// 배치 I 산출(배치 J 로 넘어가는 살아있는 값): allies_in_zone(%722/%555) · threatened_allies(%721) · pressure_score(%720) · enemies_near(%254) · zone_sq(%48) · champ.id(%66) · target.x/y(%62/%64) · 적 행 %80 · 존 내 아군 순회에서 마지막 ally 포인터(%97)\n// → 배치 J(줄 243): 블록 %253(56487~) 에서 enemies_in_zone(L243 · dist<=zone_sq 인 적 수) 부터. 최종 ret 은 %29(57917) — 조기 0 4곳은 배치 I, 정상값 %551 은 배치 J L267~268(umin(smax(score,0),75))",
+
+ "knobs": [
+  {"what": "존 영향권 여유(influence = range + 35000)", "where": "battle_common.rs:194", "value": 35000, "effect": "올리면 존 밖 더 먼 가시 적까지 enemies_near 로 세어(배치 J 의 ×3 항) 보너스가 커진다 · 내리면 존 바로 밖 적만"},
+  {"what": "아군 위협 판정 반경(enemy_close_to_ally, 100000²)", "where": "battle_common.rs:227", "value": 10000000001, "effect": "IR 값은 100000²+1(ult). 올리면 멀리 있는 가시 적만으로도 존 내 아군이 '위협받음'(threatened_allies, incoming<=0 이라도)에 들어가 배치 J 의 ×14 항이 커진다 · 내리면 예상 피해가 있는 아군만"},
+  {"what": "possible_risk 시간 창 여유(tick_cut = duration + 30)", "where": "battle_common.rs:211 · :218", "value": 30, "effect": "올리면 궁 지속시간보다 더 뒤의 잠재 위험까지 incoming 에 합산 → threatened/pressure 가 늘어 보너스 증가 · 0 이면 지속시간 이내만"},
+  {"what": "hp_value 상한", "where": "battle_common.rs:212 · :219", "value": 100, "effect": "champion_hp_value 가 100 을 넘는 챔피언의 압박 기여를 100 으로 눌러 pressure_score 의 챔피언 가치 편차를 제한 · 올리면 고가치 아군 보호 성향↑"},
+  {"what": "near_allies 미등록 아군의 기본 hp_value", "where": "battle_common.rs:222", "value": 50, "effect": "incoming=0 이라 L232 에서는 안 쓰이고 값만 남는다(배치 I 범위에서 실효 0 · 배치 J 에서도 hp_value 는 안 쓰임 — 루프 지역변수). 사실상 무효 노브"},
+  {"what": "아군 1명당 압박 점수 상한", "where": "battle_common.rs:232", "value": 45, "effect": "((incoming*hp_value)/hp).min(45). 올리면 한 명이 크게 위험할 때 pressure_score 가 더 커진다(배치 J 에서 pressure/3 ≤ 18 로 다시 눌림 → 총합 54 를 넘는 부분은 무효) · 내리면 여러 명이 고루 위험해야 보너스"},
+  {"what": "is_recent_visible 최근 가시 창(120틱)", "where": "blackboard.rs:346 (g07.ll:157025 `add 120`) — 콜리 내부", "value": 120, "effect": "현재 안 보여도 마지막 가시 후 120틱(2초@60tps) 이내면 가시로 침. 이 함수 상수 목록엔 없음(콜리 소유)"}
+ ],
+
+ "unknown": [
+  "정확한 소스 표기(들여쓰기·식 순서)는 rmeta 줄 길이 산술로 복원한 추정 — `L238` 만 길이 48 이 `.filter(|enemy| enemy.distance_sq(target) <= influence_sq)`(59) 와 안 맞아 클로저 인자 이름/표현이 다를 것(동작은 IR 로 확정: ule influence_sq)",
+  "L228 `incoming > 0 || enemy_close_to_ally` 는 줄 길이 44 정합 + IR(else 분기에서 threatened += enemy_close_to_ally) 로 복원한 것. DI 가 enemy_close_to_ally 를 i64 로 보고하나 소스는 bool(any) 일 가능성이 높음 — 동작 동일(표기 불가)",
+  "data.blackboard[1 - team](적팀 blackboard)를 아군 player 와 함께 is_recent_visible 에 넘기는 것이 의도인지(자기팀 blackboard 오타인지) — IR·줄 길이 모두 1-team. 판정 동작은 확정, 의도만 미상. blackboard.last_visible 의 기록 주체(어느 팀 기준 '마지막 가시'인지)는 game_core 경계라 미독",
+  "possible_risk 내부(중복 제거 기준 필드·합산 필드 오프셋) — 그 밖의 콜리 규칙으로 시그니처·반환 의미만 적음(m07.ll:7315~7564 미상세)",
+  "champion_hp_value TLS 메모의 실제 해시 키 구성·무효화 — 콜리 소유(m00.ll:91035 클로저 · r13 잎 champion_hp_value_uncached 자식 명세 소관)",
+  "판 8 리턴 주소 실측에 이 함수 프로브가 없어 발화수 미계측 — 정적 호출자 2곳(Battle/DeathBattle score) 뿐이고 vtable/fn-ptr 간접 호출 흔적 없음(grep: invoke 2 · declare 2 · gv 요약)",
+  "배치 J(줄 243~268): enemies_in_zone(L243)·L245 분기·L251 5칸 언롤 카운트(중심 %391/%393)·가중합 계수(/3≤18 · min4 · ×14 · umin4×3 · umin3 · min50/3 · ×6 · 적>아군 ×−12 · %540==champ.id 분기)·clamp 0..75 — 이 배치 범위 밖, one_line 용으로 훑기만 함"
+ ]
+}

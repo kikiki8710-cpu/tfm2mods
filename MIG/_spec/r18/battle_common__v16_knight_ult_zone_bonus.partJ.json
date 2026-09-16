@@ -1,0 +1,98 @@
+{
+ "name": "v16_knight_ult_zone_bonus",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common25v16_knight_ult_zone_bonus",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle_common.rs",
+ "src_line": 177,
+ "ir_file": "m05.ll",
+ "ir_from": 55831,
+ "ir_to": 57754,
+ "aux": [],
+ "layer": "battle_common (BattleSubPlan::score 보너스 항)",
+ "batch": "J — battle_common.rs 소스 루트 줄 243~268 (IR 296줄 · d68090_blocks.json cuts[1])",
+
+ "one_line": "나이트 궁(KnightUltAction) 사용 후보의 배틀 점수 보너스(0~75): 존 안 적/아군·위협 아군·압박 점수를 캡·계수로 합산하고 자기 주변 아군 과다·자기대상 캐스팅을 감점. 정적 호출자 1 = BattleSubPlan::score(battle.rs:760, m02.ll:38216) 에서 gambler(759)·runaway(761) 보너스와 함께 무조건 합산(발화수 미계측 — 판 8 프로브 없음).",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "role": "readonly · noalias · captures(address, read_provenance) (define 줄 실제 속성)", "note": "(배치 J) 내 범위에선 is_recent_visible 의 player 인자로만 전달(L243 ×5). team 로드(+0x930)는 배치 I(L201)."},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "role": "readonly · noalias · captures(address, read_provenance)", "note": "(배치 J) data.cache.player_champion[team](L251 자기팀 5칸 · ll 56922/56979/57038/57097/57156) · [1-team](L243 적팀 5칸 · 로드 ll 56552/56610/56676/56742/56808 · gep %143/%171/%199/%227 정의는 배치 I L239 CSE) · data.blackboard[1-team](%84 · is_recent_visible self) · data.cache.game 팻포인터(%117/%118 · 로드는 배치 I L237)."},
+   {"i": 3, "name": "parameter", "type": "&ScoreParameter(5384B)", "role": "readonly · noalias · captures(address, read_provenance)", "note": "(배치 J) 내 범위에서 읽지 않음."},
+   {"i": 4, "name": "action", "type": "&Box<dyn Action>(16B 팻포인터: data_ptr +0 / vtable_ptr +8)", "role": "readonly · noalias · captures(none)", "note": "(배치 J) 배치 I(L185~188) 에서 TypeId 비교로 KnightUltAction 으로 다운캐스트한 %16(DI 이름 knight_ult) 을 내 범위에서 +0x18 damage_reduce 로 읽음(L253 · ll 57214). 호출자(BattleSubPlan::score)는 champ.ult(Entity+0x5a0) 또는 empty(+0x5b0) 를 넘긴다."},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B)", "role": "readonly · noalias · captures(none)", "note": "(배치 J) x/y(+0x660/+0x668 · L251 self_cover 의 중심 · ll 56904~56907) · id(%66 · 로드는 배치 I 호이스트 ll 55992 · L263 에서 target.id 와 비교)."},
+   {"i": 6, "name": "target", "type": "&Entity(1728B)", "role": "readonly · noalias · captures(none)", "note": "(배치 J) x/y(%62/%64 · 로드는 배치 I 호이스트 ll 55988/55990 · L243 enemies_in_zone 의 중심) · id(+0x5c0 · L263 · ll 57264)."}
+  ],
+  "returns": "i64 — define 속성 `range(i64 0, 76)` = 0..=75. sret 아님·스칼라(니치/패딩 없음). 내 범위의 반환 경로: ①L245 `enemies_in_zone==0 && threatened_allies==0` → 0 (phi %30 [0,%385]) ②L267 `score.max(0).min(75)`(llvm.smax 0 → llvm.umin 75) → L268 `ret i64 %30`(블록 %29 는 배치 I 의 조기 0 반환 5경로와 공유).",
+  "tls": null,
+  "tls_note": "없음 — 본체 55831~57754 전체에 llvm.threadlocal.address 0건, LocalKey/call_once fn-포인터 상수 0건. 등장하는 @anon.*.75/.199 는 panic Location(bounds_check/div_overflow) 상수."
+ },
+
+ "reads": [
+  {"base": "KnightUltAction", "offset": "0x18", "name": "damage_reduce", "note": "L253 (ll 57214~57216): `(damage_reduce as i64)/3` 을 18 로 캡해 score 초기값. base 는 action 을 다운캐스트한 %16(배치 I L185). tcxdict KnightUltAction 80B: +0x10 range(배치 I zone_radius)·+0x18 damage_reduce·+0x30 duration(배치 I %72) 과 오프셋 정합."},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L243 closure#3(L242) 적 챔피언 x(ll 56577 등 5회) · L251 closure#4(L250) 자기팀 챔피언 x(ll 56931 등 5회) · L251 champ.x(ll 56904, 중심)."},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "L243/L251 동상(ll 56581 · 56933 · 56906 등)."},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "L263 (ll 57264~57266): target.id == champ.id(%66) → 자기대상 캐스팅 감점 게이트."},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][0..5]", "note": "[[Option<&Entity>;5];2] · 팀당 40B. L251: %57=&[team] 의 +0/+8/+16/+24/+32 로드(ll 56922/56979/57038/57097/57156) · L243: %80=&[1-team] 의 5칸 로드(ll 56552/56610/56676/56742/56808). None(null) 칸은 스킵(iter_champions filter_map)."},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "%51 (로드는 배치 I L201 ll 55960) — 내 범위에서 player_champion 기저와 game 팻포인터(%117/%118) 로 소비."},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "%83 (로드 ll 56009, 배치 I 호이스트) → %84 = &blackboard[1-team](744B stride) 를 L243 is_recent_visible 의 &self 로 전달 ×5. _docs game_core.txt:21 「Blackboard[team]은 team 팀 자체 정보 추적, 관측은 1-team」 ⟹ [1-team] = 적 팀 챔피언에 관한 관측 정보."}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 0, "src_line": 245, "meaning": "`(enemies_in_zone | threatened_allies) == 0` → return 0 (ll 56875~56877 · `or` 로 접힌 두 `==0` 의 AND)"},
+  {"value": 3, "src_line": 253, "meaning": "damage_reduce / 3 (sdiv · ll 57216)"},
+  {"value": 18, "src_line": 253, "meaning": "damage_reduce/3 의 상한(llvm.smin · ll 57219) — score 초기값"},
+  {"value": 5, "src_line": 254, "meaning": "기본 가산 +5 (ll 57242)"},
+  {"value": 4, "src_line": 254, "meaning": "allies_in_zone 캡(llvm.smin · ll 57223)"},
+  {"value": 6, "src_line": 254, "meaning": "allies_in_zone 계수 — IR 은 `(min(enemies_in_zone,3) + min(allies_in_zone,4)) * 6`(ll 57240~57241, dbg L258) 로 인수분해돼 있어 L254 의 allies 계수와 L257 의 enemies_in_zone 계수가 둘 다 6 임은 확정(어느 줄에 6 이 적혀 있는지는 표기 불가)"},
+  {"value": 4, "src_line": 255, "meaning": "threatened_allies 캡(llvm.smin · ll 57227)"},
+  {"value": 14, "src_line": 255, "meaning": "threatened_allies 계수 ×14 (ll 57228)"},
+  {"value": 4, "src_line": 256, "meaning": "enemies_near 캡(llvm.umin · ll 57231 · usize)"},
+  {"value": 3, "src_line": 256, "meaning": "enemies_near 계수 ×3 (ll 57232)"},
+  {"value": 3, "src_line": 257, "meaning": "enemies_in_zone 캡(llvm.umin · ll 57235 · usize) · 계수 6 은 L254 항목 참조"},
+  {"value": 50, "src_line": 258, "meaning": "pressure_score 캡(llvm.smin · ll 57238)"},
+  {"value": 3, "src_line": 258, "meaning": "min(pressure_score,50) / 3 (sdiv · ll 57239)"},
+  {"value": 3, "src_line": 261, "meaning": "(self_cover - allies_in_zone) 캡(llvm.smin · ll 57255)"},
+  {"value": -12, "src_line": 261, "folded_from": 12, "meaning": "소스 `score -= x.min(3) * 12` 가 `mul -12` + `add` 로 접힘(ll 57256~57257)"},
+  {"value": 2, "src_line": 263, "meaning": "allies_in_zone < 2 (icmp slt · ll 57270) 및 enemies_near < 2 (icmp samesign ult · ll 57271)"},
+  {"value": -15, "src_line": 263, "folded_from": 15, "meaning": "자기대상(target.id==champ.id) && allies_in_zone<2 && enemies_near<2 → score -= 15 가 `add -15` + select 로 접힘(ll 57273~57274)"},
+  {"value": 0, "src_line": 267, "meaning": "score.max(0) 하한(llvm.smax · ll 57282)"},
+  {"value": 75, "src_line": 267, "meaning": "score.min(75) 상한(llvm.umin · ll 57285) — define 의 range(i64 0, 76) 과 일치"}
+ ],
+
+ "calls": [
+  {"name": "game_core::simulation::game::blackboard::Blackboard::is_recent_visible", "note": "L243 closure#3(L241) 안에서 ×5 (ll 56571/56629/56695/56761/56827). 계약(_gcbc/g07.ll:157005): fn(&self: &Blackboard(744B), game: &dyn AbstractGame(data,vtable 816B), player: &PlayerState, entity: &Entity) -> bool = `game.is_visible(player.team, entity.id)`(vtable+0xf8) || (game.get_player_by_champion_id(entity.id)(vtable+0x150) 가 Some(p) && self.last_visible[p.info.position]+120 >= game.tick()(vtable+0x28)). 즉 지금 보이거나 최근 120틱(2초@60tps) 안에 보인 적. 인자 = (&data.blackboard[1-team], data.cache.game, player, 적 챔피언 x)."},
+  {"name": "llvm.smin.i64", "note": "L253·254·255·258·261·267 의 `.min()` (i64 부호 있음)"},
+  {"name": "llvm.umin.i64", "note": "L256·257 의 `.min()` (usize) · L267 의 `.min(75)`"},
+  {"name": "llvm.smax.i64", "note": "L267 의 `.max(0)`"}
+ ],
+ "callers": [
+  {"name": "game_ai::plan_legacy::sub_plan::battle::BattleSubPlan::score", "where": "battle.rs:760 · m02.ll:38216 (invoke)", "args": "(player=%4, data=%5, parameter=%2, action=ult_action(=&champ.ult Entity+0x5a0 또는 empty +0x5b0, battle.rs:743), champ=champ(battle.rs:617), target=t(battle.rs:742, get_entity_by_id 결과))", "condition": "같은 블록 %548 에서 v16_gambler_ult_cc_bonus(759)→본 함수(760)→v17_runaway_counterattack_bonus(761) 순으로 무조건 합산(%555 = … + %549). score 안에서 그 블록에 도달하는 조건은 r17 BattleSubPlan::score 명세 소관. 판 8 프로브 없음 → 발화수 미계측. 정적 호출자는 이 1곳뿐(_gaibc 전량 grep)."}
+ ],
+
+ "logic": "// battle_common.rs:243~268 (배치 J)\n// 선행(배치 I): L185~188 action 을 KnightUltAction 으로 다운캐스트(%16=knight_ult) · target.ty==champ.ty(tag 13) 게이트 · L192 zone_radius=knight_ult.range(+0x10) · L193 zone_sq=zone_radius² (%48) · L201~232 루프 → allies_in_zone(%722, i64)·threatened_allies(%721, i64)·pressure_score(%720, i64) · L239 enemies_near(%254, usize)\n// 진입: → 배치 I(줄 239) 블록 %250/%225 에서 %253(ll 56486, phi %254=enemies_near) 으로 들어옴. 이탈: L245 → 블록 %29(줄 268 ret, 배치 I 조기반환과 공유) · L268 → %29.\n// TLS 접점 없음.\n\n// L243  enemies_in_zone = data.cache.iter_champions(1 - player.team)      // player_champion[1-team] 5칸, None 스킵 (ll 56552~56869)\n//           .filter(|x| /*L241*/ data.blackboard[1-team].is_recent_visible(data.cache.game, player, x)\n//                    && /*L242*/ x.pos().distance_sq(target.pos()) <= zone_sq)   // (x.x,x.y)=(+0x660,+0x668) · 중심 = target(%62,%64) · icmp ule\n//           .count();                                                   // usize (%386) · 5칸 완전 언롤, 각 칸: null? →0 / is_recent_visible false →0 / dist²<=zone_sq → +1\n// L245  if enemies_in_zone == 0 && threatened_allies == 0 { return 0; }   // IR: (%386 | %721) == 0 → %29 (ll 56875~56877) · 두 항의 소스 순서는 표기 불가(or 로 접힘)\n\n// L251  self_cover = data.cache.iter_champions(player.team)             // player_champion[team] 5칸(champ 자신 포함), None 스킵 (ll 56904~57210)\n//           .filter(|x| /*L250*/ x.pos().distance_sq(champ.pos()) <= zone_sq)   // 중심 = champ(%391,%393 · +0x660/+0x668) · 가시성 검사 없음\n//           .count();                                                   // usize (%511)\n\n// L253  let mut score: i64 = (knight_ult.damage_reduce /*+0x18*/ as i64 / 3).min(18);          // ll 57214~57219\n// L254  score += 5 + allies_in_zone.min(4) * 6;                          // ll 57223·57242 · 계수 6 은 (z+a)*6 인수분해에서 확정(아래 L257)\n// L255  score += threatened_allies.min(4) * 14;                          // ll 57227~57228\n// L256  score += (enemies_near.min(4) * 3) as i64;                       // umin · ll 57231~57232\n// L257  score += (enemies_in_zone.min(3) as i64) * 6;                    // umin · ll 57235 · IR: %525 = (min(z,3)+min(a,4))*6 (ll 57240~57241)\n// L258  score += pressure_score.min(50) / 3;                             // smin·sdiv · ll 57238~57239\n//       // 합산 순서는 컴파일러 재결합(ll 57242~57246: ((p/3+5)+t*14)+n*3+(z+a)*6+dmg) — 정수 덧셈이라 결과 동일\n// L260  if (self_cover as i64) > allies_in_zone {                        // icmp sgt (ll 57248)\n// L261      score -= (self_cover as i64 - allies_in_zone).min(3) * 12;   // sub·smin 3·mul -12 (ll 57252~57257)\n//       }\n// L263  if target.id == champ.id && allies_in_zone < 2 && enemies_near < 2 { score -= 15; }\n//       // IR: id 비교(+0x5c0, ll 57264~57267)가 br, 나머지 두 비교는 블록 %542 에서 and+select(-15) (ll 57270~57274) · 세 조건의 소스 순서는 표기 불가\n// L267  score = score.max(0).min(75);                                    // smax 0 → umin 75 (ll 57282·57285)\n// L268  return score;                                                    // → 블록 %29 phi %30 [%551,%548] · ret i64 (ll 55917)\n",
+
+ "knobs": [
+  {"what": "조기 탈락 조건(존 안 가시 적 0 && 위협 아군 0)", "where": "battle_common.rs:245", "value": 0, "effect": "이 조건을 없애면 존에 적이 없어도 damage_reduce·아군·압박 항만으로 보너스가 붙는다(최소 5+dmg/3)"},
+  {"what": "damage_reduce 항 상한", "where": "battle_common.rs:253", "value": 18, "effect": "올리면 감쇠율 높은 궁 레벨에서 보너스 기저가 커진다(damage_reduce/3 이 18 을 넘을 때만 체감)"},
+  {"what": "damage_reduce 나눗수", "where": "battle_common.rs:253", "value": 3, "effect": "내리면 같은 damage_reduce 로 기저 점수 상승"},
+  {"what": "기본 가산", "where": "battle_common.rs:254", "value": 5, "effect": "L245 통과한 모든 후보에 균일 가산 — 올리면 나이트 궁 후보 전반 가점"},
+  {"what": "allies_in_zone 캡·계수", "where": "battle_common.rs:254", "value": "min 4 × 6", "effect": "존 안 아군 수 반영폭(최대 24) — 계수 올리면 아군 뭉친 곳에 궁 선호"},
+  {"what": "threatened_allies 캡·계수", "where": "battle_common.rs:255", "value": "min 4 × 14", "effect": "가장 큰 항(최대 56) — 위협받는 아군 수가 보너스 주도. 계수 내리면 수비적 궁 사용 감소"},
+  {"what": "enemies_near 캡·계수", "where": "battle_common.rs:256", "value": "min 4 × 3", "effect": "영향권(influence, 배치 I) 안 적 수 반영(최대 12)"},
+  {"what": "enemies_in_zone 캡·계수", "where": "battle_common.rs:257", "value": "min 3 × 6", "effect": "존 안 가시 적 수 반영(최대 18) — 캡 3 이라 4명 이상 몰려도 추가 가점 없음"},
+  {"what": "pressure_score 캡·나눗수", "where": "battle_common.rs:258", "value": "min 50 / 3", "effect": "압박 점수(배치 I 루프) 반영(최대 16)"},
+  {"what": "자기 주변 아군 과다 감점", "where": "battle_common.rs:260~261", "value": "(self_cover-allies_in_zone).min(3) × 12", "effect": "캐스터 주변 아군이 target 존 안 아군보다 많으면 최대 -36 — 계수 내리면 아군에서 떨어진 대상에도 궁을 쓴다"},
+  {"what": "자기대상 캐스팅 감점", "where": "battle_common.rs:263", "value": "-15 (allies_in_zone<2 && enemies_near<2)", "effect": "target==champ 이고 주변이 한산하면 -15 — 임계 2 를 올리면 자기대상 궁이 더 자주 감점"},
+  {"what": "최종 클램프", "where": "battle_common.rs:267", "value": "0..=75", "effect": "상한 75 를 올리면 항 합(이론 최대 18+5+24+56+12+18+16=149)이 더 반영된다 — 현재는 대부분 상한에서 잘림"}
+ ],
+
+ "unknown": [
+  "L245 `A==0 && B==0` 의 A/B 소스 순서 — column 0 이고 IR 이 `or` 하나로 접혀 표기 불가(동작은 확정: 둘 다 0 일 때만 0 반환).",
+  "L263 세 조건(target.id==champ.id / allies_in_zone<2 / enemies_near<2)의 소스 순서 — IR 은 id 비교만 br 이고 나머지는 and+select 로 평탄화(부작용 없음) ⟹ 표기 불가 · 동작은 세 조건 AND 로 확정.",
+  "계수 6 이 L254(allies) 와 L257(enemies_in_zone) 중 어느 줄의 리터럴인지 — IR 이 `(min(z,3)+min(a,4))*6` 로 인수분해(ll 57240~57241 dbg L258) ⟹ 둘 다 6 임은 확정, 줄 배정만 표기 불가.",
+  "self_cover(usize count) 와 allies_in_zone(i64) 의 비교가 `icmp sgt`·`sub` 인 점에서 `self_cover as i64` 캐스팅으로 읽었다(추정 · 동작엔 영향 없음: 두 값 모두 0..=5).",
+  "발화수·발화 조건(런타임): 판 8 에 이 함수 프로브가 없어 미계측. 정적 호출자는 BattleSubPlan::score(battle.rs:760) 1곳(_gaibc 전량 grep). score 안에서 블록 %548 도달 조건은 r17 명세 소관이라 여기 적지 않음.",
+  "blackboard[1-team] 을 &self 로 넘기는 의미는 _docs game_core.txt:21(「Blackboard[team]은 team 팀 자체 정보 추적, 관측은 1-team」) 에 근거해 「적 팀 챔피언에 관한 관측 정보」로 읽었다 — 주석 근거(IR 은 인덱스 1-team 만 확정)."
+ ]
+}

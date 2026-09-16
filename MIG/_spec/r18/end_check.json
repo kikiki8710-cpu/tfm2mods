@@ -1,0 +1,466 @@
+{
+ "name": "end_check",
+ "sym": "_RNvCshdEBA0ozCnw_7game_ai9end_check",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 1211,
+ "ir_file": "m14.ll",
+ "ir_from": 8724,
+ "ir_to": 10217,
+ "aux": [],
+ "one_line": "판 종료(넥서스 마무리 진입) 판정 — 선수의 game_finish 전략(Stable/Flexible/Aggressive)별로 라인 타워·생존/건강 아군 수·적 넥서스 근접 인원을 세어 bool 반환",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize(i64 %0)",
+    "role": "IR 속성 없음 · 본문에서 미사용(DI 이름 `_version` 으로만 남음 · m14.ll:8871)",
+    "note": "AI 버전 게이트 — 이 함수엔 분기 없음"
+   },
+   {
+    "i": 2,
+    "name": "rnd",
+    "type": "&mut StdRng(320B, ptr %1)",
+    "role": "dereferenceable(320) · noalias · IR 속성에 readonly 없음(=&mut) · 본문에서 직접 읽기/쓰기 0 — PlayerState::strategy 에 그대로 전달만(m14.ll:8745)",
+    "note": "gen_range 호출 사이트: 이 함수 본문 0회. strategy 콜리 내부 사용 여부는 계약 밖(미탐색)"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState(2528B, ptr %2)",
+    "role": "readonly · captures(address, read_provenance)",
+    "note": "info.team(+0x930) · info.position 태그(+0x9c0) 읽음 · strategy/build_game_finish_check_state 에 전달"
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData(24B, ptr %3)",
+    "role": "readonly · captures(none)",
+    "note": "+0x0 cache(&AbstractGameWithCache) · +0x8 context(&GameContext) · +0x10 blackboard(&[Blackboard;2])"
+   },
+   {
+    "i": 5,
+    "name": "line",
+    "type": "LineType(i8 %4, range 0..3)",
+    "role": "값 인자",
+    "note": "메모리태그 0=Top 1=Mid 2=Bottom(tcxdict --enum LineType) — 라인 타워 쌍 선택·blackboard minion_state 선택"
+   },
+   {
+    "i": 6,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B, ptr %5)",
+    "role": "readnone · captures(none) — 본문에서 완전 미사용",
+    "note": ""
+   }
+  ],
+  "returns": "bool(zeroext i1) — true=이 라인으로 판을 끝내러 가도 된다(finish 진입 허용). 모든 경로가 %620 phi(m14.ll:10214) 또는 %20 phi(m14.ll:8755) 로 모여 단일 ret(m14.ll:8756 · lib.rs:1221)",
+  "tls": {
+   "name": "FINISH_AGG_CACHE(thread_local! RefCell<FinishAggCache> 656B · lib.rs:1376)",
+   "role": "이 함수 본문 자체는 TLS 접점 0(m14.ll 8724~10217 에 LocalKey/@anon fn-포인터 상수 참조 없음). TLS 는 콜리 build_game_finish_check_state(m14.ll:7703, fastcc internal) 안에서만 `LocalKey<RefCell<FinishAggCache>>::with(m00.ll:72405 · @anon.b0108….71 = FINISH_AGG_CACHE call_once fn-포인터)` 로 읽고/쓴다 → 소비자(간접)",
+   "key": "콜리 계약 밖(미탐색) — FinishAggCache = slots[2][5] Option<FinishAggregates 64B>(니치 태그 +0x39 = has_epic_buff 바이트) 로 보이나(tcxdict --deep) 키 구성(tick/team/pos)은 콜리 명세 소관",
+   "layout": "FinishAggregates 64B: +0 live_ally_count +8 live_enemy_count +0x10 healthy_ally_50 +0x18 healthy_ally_55 +0x20 near_player_ally +0x28 near_enemy_nexus_healthy_50 +0x30 near_enemy_nexus_healthy_55 +0x38 has_enemy_twin_tower +0x39 has_epic_buff",
+   "invalidation": "미탐색(콜리 소관)",
+   "call_conditions": "end_check 가 콜리를 부르는 지점 2곳: Stable 경로 L1279(m14.ll:8769 · 조건 line_exists && game_finish==Stable) / Aggressive 경로 L1311(m14.ll:10088 · 조건 line_exists && game_finish==Aggressive && (tick>tower_attack_disable_tick || 적 라인 타워 2기 모두 None)). Flexible 경로는 콜리를 부르지 않음(TLS 무관)"
+  }
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache(m14.ll:8741)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext(m14.ll:8735)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] — Flexible L1255 에서만(m14.ll:9652)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "&dyn AbstractGame 데이터 포인터(m14.ll:8742)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "vtable — 슬롯 0x28 tick(m14.ll:8889) · 0x40 get_game_mode(m14.ll:9612) (divtable AbstractGame)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x148",
+   "name": "twin_towers[enemy].len",
+   "note": "`gep {{ptr,ptr,i64},i64} cache, enemy`(stride 32B) + 328 → twin_towers[0].len=0x148 / [1]=0x168 (m14.ll:9056~9060) · has_enemy_twin_tower = len != 0"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[enemy]",
+   "note": "Option<&Entity> · None 이면 unwrap_failed 패닉(L1234 · m14.ll:8960~8977)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[enemy]",
+   "note": "line=Top 일 때 phi 384 (m14.ll:8934)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2[enemy]",
+   "note": "line=Top 일 때 phi 400 (m14.ll:8935)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1a0",
+   "name": "mid_tower[enemy]",
+   "note": "line=Mid 일 때 phi 416"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1b0",
+   "name": "mid_tower2[enemy]",
+   "note": "line=Mid 일 때 phi 432"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1c0",
+   "name": "bottom_tower[enemy]",
+   "note": "line=Bottom 일 때 phi 448"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1d0",
+   "name": "bottom_tower2[enemy]",
+   "note": "line=Bottom 일 때 phi 464"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][0..5]",
+   "note": "[[Option<&Entity>;5];2] · `gep [5 x ptr], cache+480, team` (m14.ll:8981~9045) — Flexible 경로에서 적/아군 챔피언 순회(iter_champions 인라인)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "&GameSetting(m14.ll:8892)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial@tag",
+   "note": "TutorialType 1B — TutorialType::player_count(runner.rs:295) 인라인 switch(m14.ll:8808~8820, 9685~9697, 10128~10140, 10187~10197)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x13f8",
+   "name": "tower_attack_disable_tick",
+   "note": "tick > 이 값이면 라인 타워 검사 생략(m14.ll:8894, 10029)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "×20 = 에픽 버프 잔여 임계(m14.ll:9640)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "enemy = 1 - team (m14.ll:8865, 10035)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "Position 4B 태그(Top0 Jungle1 Mid2 Bottom3 Support4) → player_champion[team][pos] 인덱스(m14.ll:8867, 9069)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "distance_sq(entity.rs:2158→utils.rs:7) 인라인"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "최대 HP — 0 이면 panic_const_div_by_zero(m14.ll:9456~9460)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "hp*100/stat_cached.hp > 39 (m14.ll:9464~9468)"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x240",
+   "name": "epic_minion_buff_time[team]",
+   "note": "MobaMode::remain_epic_time(game.rs:210) 인라인 · `gep i64, mode+576, team` (m14.ll:9633~9635)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x20",
+   "name": "top_minion_state.minion_count",
+   "note": "i32 · blackboard[team](stride 744B) + line 선택(+0/+40/+80 · blackboard.rs:379~382 인라인) + 0x20 (m14.ll:9654~9673)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x48",
+   "name": "mid_minion_state.minion_count",
+   "note": "line=Mid — gep 40 + gep 32 두 단계로 접힘(본문에 72 리터럴은 alloca 크기뿐)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x70",
+   "name": "bottom_minion_state.minion_count",
+   "note": "line=Bottom — gep 80 + gep 32 두 단계로 접힘(본문에 112 리터럴 없음 · C3 경고 사유)"
+  },
+  {
+   "base": "Strategy(sret 24B 스택 %9)",
+   "offset": "0x15",
+   "name": "game_finish",
+   "note": "GameFinishStrategy 1B: 0=Stable 1=Flexible 2=Aggressive (m14.ll:8746~8752)"
+  },
+  {
+   "base": "Option<GameFinishCheckState>(스택 %8/%7 72B)",
+   "offset": "0x44",
+   "name": "has_epic_buff / 니치 태그",
+   "note": "바이트 2 = None(콜리 m14.ll:7763 `store i8 2` 로 확인) · Some 이면 bool"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x0",
+   "name": "live_ally_count",
+   "note": "Stable"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x8",
+   "name": "live_enemy_count",
+   "note": "Stable/Aggressive"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x10",
+   "name": "healthy_ally_50_count",
+   "note": "Aggressive"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x18",
+   "name": "healthy_ally_55_count",
+   "note": "Stable"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x20",
+   "name": "near_player_ally_count",
+   "note": "Stable"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x28",
+   "name": "near_enemy_nexus_healthy_ally_50_count",
+   "note": "Aggressive"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x30",
+   "name": "near_enemy_nexus_healthy_ally_55_count",
+   "note": "Stable"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x38",
+   "name": "near_finish_line_healthy_ally_50_count",
+   "note": "Aggressive"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x40",
+   "name": "has_enemy_twin_tower",
+   "note": "Stable/Aggressive"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x41",
+   "name": "line_tower_alive",
+   "note": "Stable/Aggressive"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x42",
+   "name": "stable_pushed_line",
+   "note": "Stable"
+  },
+  {
+   "base": "GameFinishCheckState",
+   "offset": "0x43",
+   "name": "aggressive_pushed_line",
+   "note": "Aggressive"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 1279,
+   "meaning": "Option<GameFinishCheckState> 니치 태그 None(+68 바이트 == 2) — L1279(m14.ll:8772)·L1311(m14.ll:10091) 두 곳. 별도로 L1326 `healthy_ally_50 < live_enemy + 2`(m14.ll:10166) 의 2, player_count 매핑값 2(First/Bottom), required_edge/required_group 2 도 같은 리터럴"
+  },
+  {
+   "value": 4,
+   "src_line": 1280,
+   "meaning": "TutorialType::player_count 인라인 결과 — None(0)/Line(7)/Total(8) → 4명 (phi m14.ll:8836·10209)"
+  },
+  {
+   "value": 3,
+   "src_line": 1280,
+   "meaning": "player_count: MidBottom(5) → 3명 · required_edge 기본값(L1266~1269) · required_group 상한(L1312 · player_count 4→3)"
+  },
+  {
+   "value": 1,
+   "src_line": 1280,
+   "meaning": "player_count: TopSolo(2)/MidSolo(4)/JungleOnly(6) → 1명 · required_edge(2명 모드) · required_group(1명 모드) · L1298 `live_enemy == 1` switch case · L1255 saturating_sub(1)"
+  },
+  {
+   "value": 0,
+   "src_line": 1298,
+   "meaning": "L1298 switch live_enemy_count==0 → true / L1326·L1260·L1255 `live_enemy_count == 0` / L1238 twin_towers.len != 0 / L1253 stat_cached.hp==0 div-by-zero 가드 / map_or 기본값 0(L1254)"
+  },
+  {
+   "value": 1440000000001,
+   "src_line": 1244,
+   "meaning": "1200000^2 + 1 — 챔피언 기준 아군 근접 반경 1,200,000(=37.5셀) 제곱비교 `dist2 < 1200000^2+1` ⇔ dist ≤ 1,200,000 (m14.ll:9152·9209·9267·9325·9383)"
+  },
+  {
+   "value": 360000000001,
+   "src_line": 1271,
+   "meaning": "600000^2 + 1 — 적 넥서스 기준 아군 근접 반경 600,000(=18.75셀) 제곱비교 (m14.ll:9779·9833·9888·9943·9998)"
+  },
+  {
+   "value": 100,
+   "src_line": 1253,
+   "meaning": "hp*100/max_hp 백분율 산출(m14.ll:9466)"
+  },
+  {
+   "value": 39,
+   "src_line": 1253,
+   "meaning": "hp% > 39 ⇔ HP 40% 이상을 ok_ally 로 셈(m14.ll:9468)"
+  },
+  {
+   "value": 20,
+   "src_line": 1254,
+   "meaning": "tick_per_second * 20 = 20초 — 에픽 미니언 버프 잔여시간 임계(m14.ll:9642)"
+  },
+  {
+   "value": 5,
+   "src_line": 1255,
+   "meaning": "blackboard[team].<line>_minion_state.minion_count > 5 (i32 sgt · m14.ll:9674)"
+  },
+  {
+   "value": 40,
+   "src_line": 1255,
+   "meaning": "Blackboard 라인별 BrainMinionParameter stride(mid=+40 · m14.ll:9663) — 임계 아님"
+  },
+  {
+   "value": 80,
+   "src_line": 1255,
+   "meaning": "bottom=+80 (m14.ll:9667) — 임계 아님"
+  },
+  {
+   "value": 32,
+   "src_line": 1255,
+   "meaning": "BrainMinionParameter+0x20 minion_count 필드 오프셋(m14.ll:9672) — 임계 아님"
+  },
+  {
+   "value": 576,
+   "src_line": 1254,
+   "meaning": "MobaMode+0x240 epic_minion_buff_time 필드 오프셋(m14.ll:9633) — 임계 아님"
+  },
+  {
+   "value": 328,
+   "src_line": 1238,
+   "meaning": "cache+32*enemy+328 → twin_towers[enemy].len(0x148/0x168) — 임계 아님"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_ai::build_game_finish_check_state",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "llvm.usub.sat.i64"
+ ],
+ "logic": "fn end_check(version, rnd, player, data, line, debug) -> bool   // lib.rs:1211\nctx = data.context; cache = data.cache; game = cache.game(&dyn AbstractGame)\nL1212: if !rule_scope::line_exists(ctx, line) { return false }           // m14.ll:8736~8737, %20 phi false\nL1216: strat = player.strategy(rnd, game)  (sret Strategy 24B)  ; match strat.game_finish(+0x15) {\n\n== Stable (tag 0) → end_check_stable(player, data, line)  lib.rs:1279~1302 ==\nL1279: state = build_game_finish_check_state(player, data, line)?   // None(+68==2) → return false (m14.ll:8772→%47)\nL1280: required_allies = ctx.tutorial.player_count()   // None/Line/Total=4 · First/Bottom=2 · TopSolo/MidSolo/JungleOnly=1 · MidBottom=3\nL1282: if (state.line_tower_alive(raw u8 +65) != state.has_enemy_twin_tower(raw u8 +64)) || state.line_tower_alive { return false }\n        // IR 문면 `icmp ne %40,%38 ; or ..., %41`(m14.ll:8838~8840). 불 대수상 line_tower_alive || has_enemy_twin_tower 와 동치. 소스 표기는 미확정(표기 불가)\nL1286: if !(state.live_ally_count >= required_allies && state.healthy_ally_55_count >= state.live_ally_count && state.near_player_ally_count == state.live_ally_count && state.stable_pushed_line) { return false }   // m14.ll:8843~8849\nL1298: match state.live_enemy_count { 0 => return true,                                            // m14.ll:8853\nL1302:   1 => return state.near_enemy_nexus_healthy_ally_55_count >= required_allies,               // m14.ll:8858\n         _ => return false }                                                                        // %65\n\n== Flexible (tag 1) → end_check_flexible(player, data, line)  lib.rs:1225~1271 ==\nteam = player.info.team; enemy = 1 - team; pos = player.info.position as usize\nL1225: if !(game.tick() > setting.tower_attack_disable_tick) {\nL1226:   (t1, t2) = cache.tower(line, enemy)   // (top|mid|bottom)_tower[enemy], _tower2[enemy]\nL1230:   if !(t1.is_none() && t2.is_none()) { return false } }   // m14.ll:8942~8948 → %620 false\nL1234: enemy_nexus = cache.nexus[enemy].unwrap()   // None → unwrap_failed 패닉\nL1235~1236: live_enemy_count = cache.iter_champions(enemy).count()   // player_champion[enemy] 의 Some 개수(5칸 완전 언롤)\nL1237: has_enemy_twin_tower = if game.tick() > setting.tower_attack_disable_tick { false } else {\nL1238:     cache.twin_towers[enemy].len() != 0 }\nL1243: champ = cache.player_champion[team][pos].unwrap()   // None → unwrap_failed 패닉\nL1244: near_ally = cache.iter_champions(team).filter(|a| a.distance_sq(champ) < 1440000000001).count()   // 자기 자신 포함(dist 0)\nL1247: if near_ally != cache.iter_champions(team).count() { return false }   // 생존 아군 전원이 1,200,000 안에 모여야 함 (m14.ll:9433~9434)\nL1253: ok_ally = cache.iter_champions(team).filter(|a| a.hp*100 / a.stat_cached.hp > 39).count()   // stat_cached.hp==0 → div_by_zero 패닉\nL1254: epic_remain = game.get_game_mode().as_moba().map_or(0, |m| m.remain_epic_time(team))   // = MobaMode.epic_minion_buff_time[team]\n       if epic_remain < setting.tick_per_second * 20 {\nL1260:   if live_enemy_count == 0 { return true }  if has_enemy_twin_tower { return false }     // m14.ll:9647~9649 (%382: 반환값 = live_enemy==0)\n       } else {\nL1255:   cond = (ok_ally >= live_enemy_count.saturating_sub(1) && blackboard[team].minion_state(line).minion_count > 5) || live_enemy_count == 0\n         if cond { return true }  if has_enemy_twin_tower { return false }                        // m14.ll:9675~9681 (%393: 반환값 = cond)\n       }\nL1266~1269: required_edge = match ctx.tutorial.player_count() { 2 => 1, 3 => 2, _ => 3 }   // 1명·4명 모드 모두 3 (m14.ll:9687~9708)\nL1271: near_nexus = cache.iter_champions(team).filter(|a| a.distance_sq(enemy_nexus) < 360000000001).count()\n       return near_nexus >= required_edge + live_enemy_count                                       // m14.ll:10010~10011\n\n== Aggressive (tag 2) → end_check_aggressive(player, data, line)  lib.rs:1307~1342 ==\nL1307: if !(game.tick() > setting.tower_attack_disable_tick) {\nL1308:   (t1,t2) = cache.tower(line, 1-team); if !(t1.is_none() && t2.is_none()) { return false } }   // m14.ll:10079~10084\nL1311: state = build_game_finish_check_state(player, data, line)?   // None → false (m14.ll:10091→%590)\nL1312: required_group = match player_count { 4 => 3, 3 => 3, 2 => 2, 1 => 1 }  (= min(player_count,3) · m14.ll:10153)\nL1314: if state.line_tower_alive { return false }\nL1318: if !(state.healthy_ally_50_count >= required_group && state.near_finish_line_healthy_ally_50_count >= required_group && state.aggressive_pushed_line) { return false }   // m14.ll:10158~10162\nL1326: if !(state.live_enemy_count != 0 && state.healthy_ally_50_count < state.live_enemy_count + 2) { return true }   // 적 전멸 또는 건강 아군이 적+2 이상 (m14.ll:10165~10169)\nL1334: if !state.has_enemy_twin_tower {\nL1335:   if state.healthy_ally_50_count > state.live_enemy_count && state.near_enemy_nexus_healthy_ally_50_count >= required_group { return true } }   // m14.ll:10175~10178\nL1340: if state.healthy_ally_50_count > state.live_enemy_count && state.has_epic_buff {\nL1342:   return state.near_finish_line_healthy_ally_50_count >= ctx.tutorial.player_count() }   // 4/2/1/3 원값 (m14.ll:10209~10210)\n       return false\n}\n\n분기 극성 근거: %620 phi(m14.ll:10214) — false:{%275,%47,%51,%55,%65,%90,%590,%553,%593,%610,%595} true:{%62,%600,%606} 값:{%63→%64, %382→%383, %527→%530, %393→%402, %617→%619}.\nrnd: 본문 gen_range 0회(strategy 에 전달만). version/debug 미사용.",
+ "knobs": [
+  {
+   "what": "Flexible 아군 집결 반경(챔피언 기준)",
+   "where": "lib.rs:1244",
+   "value": 1440000000001,
+   "effect": "올리면 더 흩어져 있어도 '전원 근접' 으로 인정돼 finish 진입이 쉬워진다(1,200,000 = 37.5셀)"
+  },
+  {
+   "what": "Flexible 적 넥서스 근접 반경",
+   "where": "lib.rs:1271",
+   "value": 360000000001,
+   "effect": "올리면 넥서스에서 더 멀어도 near_nexus 로 세어 finish 진입이 쉬워진다(600,000 = 18.75셀)"
+  },
+  {
+   "what": "Flexible ok_ally HP 임계",
+   "where": "lib.rs:1253",
+   "value": 39,
+   "effect": "내리면 저체력 아군도 ok_ally 로 세어 에픽 버프 중 조기 finish 가 쉬워진다"
+  },
+  {
+   "what": "에픽 버프 잔여 임계(초)",
+   "where": "lib.rs:1254",
+   "value": 20,
+   "effect": "내리면 버프가 얼마 안 남아도 L1255 완화 경로(ok_ally·미니언 5+)를 탄다"
+  },
+  {
+   "what": "Flexible 라인 미니언 수 임계",
+   "where": "lib.rs:1255",
+   "value": 5,
+   "effect": "내리면 웨이브가 작아도 에픽 버프 경로에서 true"
+  },
+  {
+   "what": "Flexible required_edge 매핑",
+   "where": "lib.rs:1266~1269",
+   "value": "2명→1 · 3명→2 · 그 외→3",
+   "effect": "내리면 넥서스 근접 인원 요구(required_edge+live_enemy)가 줄어 finish 진입이 쉬워진다"
+  },
+  {
+   "what": "Aggressive 적 여유 인원",
+   "where": "lib.rs:1326",
+   "value": 2,
+   "effect": "내리면 healthy_ally_50 이 적보다 덜 많아도 즉시 true"
+  }
+ ],
+ "unknown": [
+  "L1282 의 소스 표기: IR 은 `(line_tower_alive != has_enemy_twin_tower) || line_tower_alive`(m14.ll:8838~8840) 로 나오며 불 대수상 `line_tower_alive || has_enemy_twin_tower` 와 외연 동일 — 소스가 어느 쪽인지는 표기 불가(IR·MIR(mir=0)·오라클 어디에도 차이가 안 남음). 동작은 확정",
+  "L1255/L1260 의 소스 문장 구조: 두 블록(%382·%393) 모두 '조건 true → return true; has_enemy_twin_tower → return false; 아니면 L1266 진행' 로 동작이 확정되지만, 소스에서 `if … { return … }` 가 몇 문장인지는 표기 불가(column 0)",
+  "PlayerState::strategy(_gcbc g15.ll:130480 · (sret Strategy 24B, &PlayerState, &mut StdRng, &dyn AbstractGame(data,vtable)) 내부에서 rnd 를 소비하는지 — 계약만(이 명세 범위 밖). 소비한다면 end_check 가 PRNG 스트림을 전진시키는 지점이 된다",
+  "build_game_finish_check_state(m14.ll:7703 · (out 72B, &PlayerState, &OperationData, LineType) → Option<GameFinishCheckState>, None 니치 +68==2) 의 각 필드 계산·TLS FinishAggCache 키/무효화 — 계약만(지시: DIFF 0 · 계약만)",
+  "TutorialType::player_count(runner.rs:295~301) 은 인라인(별도 define 없음) — 매핑은 4개 switch 사이트에서 일관되게 관측(None/Line/Total=4, First/Bottom=2, TopSolo/MidSolo/JungleOnly=1, MidBottom=3)되어 확정. 단 소스의 match arm 순서는 표기 불가",
+  "constants 의 2·1·0·3·4 는 여러 의미(니치 None·player_count 결과·산술)가 같은 리터럴을 공유 — meaning 에 사이트별로 분리 기재",
+  "vtable 슬롯 0x28=tick, 0x40=get_game_mode 는 divtable(정적 vtable ExpectedGame 기준) — 런타임 구현체(Game)에서도 같은 슬롯 순서라는 가정(트레이트 vtable 은 구현체 무관하게 동일 순서이므로 안전)"
+ ]
+}

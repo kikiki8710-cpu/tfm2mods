@@ -1,0 +1,94 @@
+{
+ "name": "noncombat_steroid_window",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_window",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 378,
+ "ir_file": "m10.ll",
+ "ir_from": 36654,
+ "ir_to": 37661,
+ "aux": [
+  {"ir_file": "m10.ll", "ir_from": 6523, "ir_to": 7225, "note": "in_window 클로저(426~433) = IR 심볼 …noncombat_steroid_windows1_0 · internal fastcc · exe 0xd75cb0(1166B) 추정 짝. team_action_hits 클로저(405~416)가 이 안에 인라인"},
+  {"ir_file": "m06.ll", "ir_from": 34523, "ir_to": 34660, "note": "440 타워 any 술어(s3_0) 의 Chain<Flatten<IntoIter<Option<&Entity>,6>>,Copied<Iter>>::try_fold(any::check) 본체 — m10 에는 declare 만(63401)"},
+  {"ir_file": "m06.ll", "ir_from": 8556, "ir_to": 8629, "note": "447 미니언 any 술어(s5_0) 의 Chain<Copied<Iter>,Copied<Iter>>::try_fold 본체 — m10 에는 declare 만(63407). 내부 Copied::try_fold 는 아래 m11 조각"},
+  {"ir_file": "m11.ll", "ir_from": 30693, "ir_to": 30759, "note": "s5_0 의 Copied<Iter<&Entity>>::try_fold(any::check) — 미니언 하나당 술어 본체(can_target && in_window)"}
+ ],
+ "layer": "buff_value 잎(r18 배치 L) — 지도 밖 판단 로직. exe 0xe03360(2922B) ↔ IR 945 ins. reach: 블록 62 · 살아있음 62 · 사장 0(version=2·gamemode=0). 콜리 = is_recent_visible ×5(적 챔프 5칸 언롤) · iter_towers_without_nexus · iter_minions · range_adjust(aux) · panic_bounds_check",
+ "one_line": "비교전 스테로이드 창: 적 챔프가 교전권 밖(최근 비가시)일 때 아군 소액션이 노리는 정글/타워/넥서스/미니언이 수혜자 공격범위+0.5초 안이면 창 종류(반격형/미니언웨이브) 반환",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B) %0", "note": "define 줄 속성: noalias readonly captures(address, read_provenance). +0x930 info.team 만 직접 읽음(390 · 클로저 안 407 에서도). is_recent_visible 3번째 인자 · team_action_hits 클로저 캡처(%9+16)"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B) %1", "note": "define 줄 속성: noalias readonly captures(none). +0 cache(&AbstractGameWithCache %86) · +0x10 blackboard(&[Blackboard;2] %98). +8 context 는 안 읽음"},
+   {"i": 3, "name": "caster", "type": "&Entity(1728B) %2", "note": "define 줄 속성: noalias readonly captures(none). 시전자. engage 클로저(389: caster_engage) 와 적 근접 판정(393: c.distance_sq(caster)) 에만 쓰임 — in_window 창 계산에는 안 들어감(창의 기준은 beneficiary)"},
+   {"i": 4, "name": "beneficiary", "type": "&Entity(1728B) %3", "note": "define 줄 속성: noalias readonly captures(address, read_provenance). 수혜자. engage(388) · 적 근접(393) · attack_effect(419 · None 이면 None 반환) · move_allow(420) · in_window 의 사거리·거리 기준(429~431) · team_action_hits 의 아군 근접 기준(408)"}
+  ],
+  "returns": "{i8, i8} = Option<NoncombatSteroidWindow>(2B · struct{fights_back: bool @0, minion_wave: bool @1} · tcx layout offsets [0,1]). byte0 = fights_back 이자 니치 태그: 2 = None. byte1 = minion_wave. live 표: None 경로 = {2, undef}(byte1 미기록 — 적 근접(390~394)·attack_effect None(419) 경로) · 미니언 실패 경로 = {2, 1}(byte1=1 은 쓰레기) · Some 경로 = 정글 히트 {1,0}(fights_back=true, minion_wave=false) / 타워 히트 {0,0} / 넥서스 히트 {0,0} / 미니언 히트 {0,1}(minion_wave=true). ⚠타워·넥서스 창은 Some{false,false} 로 '창은 있으나 반격형도 미니언웨이브도 아님' 을 뜻함(호출자 noncombat_steroid_value 가 소비 · 범위 밖)",
+  "tls": "TLS 접점 0 — 본문(36654~37661)·aux 4조각 전부에 `call_once`/`LocalKey`/`threadlocal`/fn-포인터 상수 참조 없음. 콜리 is_recent_visible·range_adjust·iter_* 는 game_core(계약만)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "m10.ll:36813~36814 (gep 2352). enemy_team = 1 - team(390) · 클로저 안(m10.ll:6565~6566)에서는 내 팀 인덱스로 player_champion/blackboard 조회. <2 아니면 panic_bounds_check(37514 / 7111)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache (&AbstractGameWithCache)", "note": "m10.ll:36811. cache+0 game 팻포인터(36825~36827: data %94 · vtable %96 → is_recent_visible 2번째 인자) · +0x1e0 player_champion[team] · +0xd0/+0xe8 jungles · +0x170 nexus[team] · iter_towers_without_nexus/iter_minions self"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard (&[Blackboard;2])", "note": "m10.ll:36828~36829. 본문: blackboard[enemy_team](36872 gep Blackboard, %89) → is_recent_visible self. 클로저: blackboard[my_team].small_actions[pi](6573~6574 +120, stride 24)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][0..5] (Option<&Entity> ×5 · null=None)", "note": "m10.ll:36821~36822 (gep 480 + team*40). iter_champions(simulation.rs:1905) 인라인 → 5칸 언롤(36874·37000·37130·37256·37382). 클로저 안 6568~6569 도 동일(내 팀)"},
+  {"base": "AbstractGameWithCache", "offset": "0xd0", "name": "jungles.buf.ptr (&Entity 원소 8B)", "note": "m10.ll:37533~37534 (gep 208). 436 정글 any 루프(stride shl 3 = 8B)"},
+  {"base": "AbstractGameWithCache", "offset": "0xe8", "name": "jungles.len", "note": "m10.ll:37536~37537 (gep 232). 0 이면 루프 생략"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team] (Option<&Entity> · null=None)", "note": "m10.ll:37604~37606 (gep 368 + team*8). 441 적 넥서스 1개 검사"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (Option<Effect> 니치 = Effect.casting CastingType · -1 = None)", "note": "beneficiary 36688~36691 · caster 36753~36756 (gep 1216, i32 == -1). 385 engage 클로저의 map/unwrap_or(0) 판별 · 419 `beneficiary.attack_effect?`(37511 %12 재사용)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0 (Effect 56B 선두)", "note": "m10.ll:37518 (gep 1168) → atk. in_window 클로저 캡처(%7+8). 클로저 안 atk+16 range(7123~7124) · atk+24 growth_range(7125~7126) · range_adjust self(7133)"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect@Some.0.range", "note": "m10.ll:36699~36700 / 36764~36765 (gep 1184). Effect::range(effect.rs:26) 인라인 = stat_buff_cached.range + range + (level-1)*growth_range"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range", "note": "m10.ll:36701~36702 / 36766~36767 (gep 1192)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "m10.ll:36703~36705 / 36768~36770 (gep 1480, -1). 클로저 7127~7129"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "m10.ll:36707~36708 / 36772~36773 (gep 1080). 클로저 7131~7132"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult (i32)", "note": "Entity::radius() 인라인(entity.rs:1511~1515): beneficiary 36717~36718 · caster 36782~36783 · 적 챔프 c 36897~36898 외 4 · 클로저 안 beneficiary 7134~7135 · target 7161~7162"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "Entity::radius() 인라인 (gep 1664). 36724·36731 / 36789·36796 / 적 5칸 / 클로저 7145·7152·7168·7175"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "m10.ll:36741~36743 (bene ×120) · 36806~36808 (caster ×120) · 37521 (bene ×30 = move_allow)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(entity.rs:2158) 인라인. bene 36864/36868 · caster 36866/36870 · 적 c 36928~36929 외 4 · 클로저 6571(bene)·6603(ally)·7193(target)·7201(bene)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "distance_sq 인라인. bene 36865/36869 · caster 36867/36871 · 적 c 36934~36935 외 4 · 클로저 6572·6607·7197·7205"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "클로저 안 m10.ll:6541~6542 target.id(427) · 6570(bene.id) · 6595~6598 ally.id == bene.id(408) · small_actions target_id 와 비교(415: 6646~6647 등)"},
+  {"base": "Entity", "offset": "0x6b9", "name": "can_target (bool)", "note": "Entity::can_target()(entity.rs:1477~1478) 인라인 = can_target && block_target_tick==0. 정글 37570~37573 · 넥서스 37617~37620 · 타워 aux m06.ll:34625~34627 · 미니언 aux m11.ll:30732~30734"},
+  {"base": "Entity", "offset": "0x6a0", "name": "block_target_tick", "note": "==0 조건. 정글 37576~37578 · 넥서스 37623~37625 · 타워 m06.ll:34628~34630 · 미니언 m11.ll:30735~30737"},
+  {"base": "Blackboard", "offset": "0x78", "name": "small_actions[pi]@tag (Option<SmallAction> · 24B stride · Direct 태그)", "note": "클로저 안 m10.ll:6573~6574 (+120) · 6634~6642 switch. 9 Ult / 2 Around / 4 Trace / 6 Attack / 7 Skill / 8 Skill2 만 대상 id 비교, 그 외(0 RunAway·1 Positioning·3 AroundPosition·5 Dodge·10 Stop·None) 는 false. 5칸 언롤(6738 +144, … stride 24)"},
+  {"base": "Blackboard", "offset": "0x80", "name": "small_actions[pi]@Some.0@{Ult|Around|Trace|Attack|Skill|Skill2}.target_id", "note": "클로저 안 m10.ll:6645~6647 (+128) 등 == target.id(415)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": -1, "src_line": 385, "meaning": "Option<Effect> 니치 None 태그(Entity+0x4c0 = Effect.casting CastingType 4B == -1). 385(engage 의 map/unwrap_or) · 419(`attack_effect?` → None 반환). m10.ll:36690·36755. 또 `level - 1`(add -1, 36705·36770 · 클로저 7129) = Effect::range 의 (level-1)*growth_range"},
+  {"value": 100, "src_line": 386, "meaning": "Entity::radius() 인라인(entity.rs:1515): radius*(radius_mult+100)/100 백분율 스케일. 36733·36735 외 전 radius 호출부"},
+  {"value": 120, "src_line": 386, "meaning": "engage(e) = 공격사거리 + radius + move_speed*120 — 교전권 판정에 120틱(=2초 @60tps 추정, tps 는 안 읽음) 이동 여유를 더함. 36743(bene)·36808(caster)"},
+  {"value": 1, "src_line": 390, "meaning": "enemy_team = 1 - player.info.team (36815 `sub i64 1, %88`). 또 Some 태그(DI self[0..+8]=1) · 반환 byte 값 1(fights_back=true 37643 / minion_wave=true 37643)"},
+  {"value": 2, "src_line": 390, "meaning": "player_champion[team] 배열 길이 2 경계(36817 `icmp ult %89, 2` · 실패 시 panic_bounds_check 37514) · 반환 니치 None 태그 2(37639 select · 37651·37657 phi)"},
+  {"value": 30, "src_line": 420, "meaning": "move_allow = beneficiary.move_speed * 30 — in_window 사거리에 더하는 30틱(=0.5초 @60tps 추정) 이동 여유. m10.ll:37521"},
+  {"value": 0, "src_line": 436, "meaning": "Entity::can_target() 인라인의 block_target_tick == 0 (37578·37625 · aux m06.ll:34630 · m11.ll:30737). 또 반환 byte 0(false) · unwrap_or(0) 기본값(DI default=0)"},
+  {"value": 3600000000, "src_line": 408, "meaning": "60000² — team_action_hits: 아군 ally 가 beneficiary 본인이거나 beneficiary 로부터 ≤60000(=1.875셀) 안에 있어야 그 아군의 소액션 대상을 인정(`icmp ugt dist_sq, 3600000000` 이면 제외). aux m10.ll:6630·6734 외 5칸"},
+  {"value": 9, "src_line": 413, "meaning": "SmallAction 메모리태그 9 = Ult(tcxdict --enum SmallAction · Direct 인코딩 · idx==태그). aux m10.ll:6636 switch case"},
+  {"value": 4, "src_line": 414, "meaning": "SmallAction 태그 4 = Trace. aux m10.ll:6638"},
+  {"value": 6, "src_line": 412, "meaning": "SmallAction 태그 6 = Attack. aux m10.ll:6639"},
+  {"value": 7, "src_line": 412, "meaning": "SmallAction 태그 7 = Skill. aux m10.ll:6640"},
+  {"value": 8, "src_line": 413, "meaning": "SmallAction 태그 8 = Skill2. aux m10.ll:6641. (태그 2 = Around 는 위 `2` 항목과 값이 겹침 — aux m10.ll:6637 switch case 2 → 415 target_id 비교)"}
+ ],
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "core::panicking::panic_bounds_check",
+  "core::iter::traits::iterator::Iterator::try_fold"
+ ],
+ "logic": "fn noncombat_steroid_window(player, data, caster, beneficiary) -> Option<NoncombatSteroidWindow>  [buff_value.rs:378~452]\n\n384~387: let engage = |e: &Entity| -> u64 {                    // 클로저#0 · 전부 인라인\n           e.attack_effect.as_ref().map(|ef| ef.range(e)).unwrap_or(0)   // Effect::range(effect.rs:26) = e.stat_buff_cached.range(+0x438) + ef.range(+0x4a0) + (e.level(+0x5c8) - 1) * ef.growth_range(+0x4a8) · None(+0x4c0 == -1) 이면 0\n           + e.radius()                                          // entity.rs:1511~1515: mult=+0x470; mult==0 ? +0x680 : +0x680*(mult+100)/100\n           + e.stat_cached.move_speed(+0x640) * 120 };\n388: let bene_engage   = engage(beneficiary);\n389: let caster_engage = engage(caster);\n390: let enemy_team = 1 - player.info.team;                         // (36815) · team>=2 면 panic_bounds_check(37514)\n390: let enemy_near = data.cache.iter_champions(enemy_team).any(|c| {   // player_champion[enemy_team][0..5] 5칸 언롤 · null 칸 skip\n391:     let rb = bene_engage   + c.radius();\n392:     let rc = caster_engage + c.radius();\n393:     (c.distance_sq(beneficiary) <= rb*rb || c.distance_sq(caster) <= rc*rc)   // IR: dist_b > rb² 일 때만 dist_c 검사(단락) · `icmp ugt … → skip`\n394:     && data.blackboard[enemy_team].is_recent_visible(data.cache.game, player, c)   // 5회 call(36988·37114·37240·37366·37492)\n     });\n395~404(추정): if enemy_near { return None; }                        // IR: is_recent_visible true → %440 {2, undef}\n405~416: let team_action_hits = |target_id: usize| -> bool {          // 클로저#2 · in_window 안에 인라인(aux m10.ll:6565~7112)\n           let my = player.info.team;                                     // <2 아니면 panic_bounds_check(7111)\n407:       data.cache.iter_champions(my).enumerate().any(|(pi, ally)| {   // player_champion[my][0..5] 5칸 언롤\n408:           (ally.id == beneficiary.id || ally.distance_sq(beneficiary) <= 3600000000 /*60000²*/)\n411:           && match data.blackboard[my].small_actions[pi] {           // Blackboard+0x78 + pi*24\n412~415:           Some(Attack{target_id:t}|Skill{t}|Skill2{t}|Ult{t}|Trace{t}|Around{t}) => t == target_id,   // 태그 6·7·8·9·4·2 · 페이로드 +8\n                   _ => false }                                          // RunAway·Positioning·AroundPosition·Dodge·Stop·None\n           }) };\n419: let atk = beneficiary.attack_effect.as_ref()?;                    // +0x4c0 == -1 → return None (%12 재사용 · 37511)\n420: let move_allow = beneficiary.stat_cached.move_speed * 30;\n426~433: let in_window = |target: &Entity| -> bool {                   // 클로저#3 = IR s1_0(aux m10.ll:6523~7225)\n427:       let target_id = target.id;                                     // +0x5c0\n428:       if !team_action_hits(target_id) { return false; }              // 아군 누구도(가까운 아군) 그 대상을 소액션으로 안 노리면 창 아님\n429:       let range = atk.range(beneficiary) + atk.range_adjust(beneficiary, target) + beneficiary.radius() + target.radius() + move_allow;   // 7186~7191 덧셈 순서: (stat_range + range) + (level-1)*growth → + range_adjust → + bene.radius → + target.radius → + move_allow\n431:       beneficiary.distance_sq(target) <= range*range                 // `icmp ule` (7223) · 경계 포함\n         };\n436: if data.cache.jungles.iter().any(|e| e.can_target() && in_window(e)) {   // +0xd0/+0xe8 · can_target = +0x6b9 && +0x6a0==0\n         return Some(NoncombatSteroidWindow { fights_back: true, minion_wave: false });   // {1,0}\n     }\n440: if data.cache.iter_towers_without_nexus(enemy_team).any(|t| t.can_target() && in_window(t)) {   // aux m06.ll:34523 · Chain<Flatten<[Option<&Entity>;6]>, Copied<Iter>>\n         return Some(NoncombatSteroidWindow { fights_back: false, minion_wave: false });  // {0,0}\n     }\n441: if let Some(n) = data.cache.nexus[enemy_team] { if n.can_target() && in_window(n) {   // +0x170 + team*8\n         return Some(NoncombatSteroidWindow { fights_back: false, minion_wave: false }); } }   // {0,0} (37629~37630 → %434 [0,0])\n447: if data.cache.iter_minions(enemy_team).any(|m| m.can_target() && in_window(m)) {   // aux m06.ll:8556 → m11.ll:30693\n         return Some(NoncombatSteroidWindow { fights_back: false, minion_wave: true });   // {0,1}\n     }\n452: None                                                             // {2, 1} (byte1 쓰레기)\n\n분기 순서(IR 블록): 적 5칸 각각 %109/%164/%219/%274/%329 null 검사 → 거리 2단 → is_recent_visible true 면 즉시 None(%440) / 5칸 모두 통과 → %381(enemy_near=false · team_action_hits 캡처 구성) → %12(attack_effect None) → %437 None / %386 move_allow·in_window 캡처 → 정글 루프(%399~%412) → %414 타워 → %416 넥서스 → %431 미니언 → %434 phi.\n부작용 0(writes 없음 · alloca 5개는 클로저 캡처·sret 임시: %9 team_action_hits{cache,blackboard,player,beneficiary} 32B · %8 move_allow 8B · %7 in_window{&team_action_hits,atk,beneficiary,&move_allow} 32B · %6 towers 이터 120B · %5 minions 이터 56B). rnd 인자 없음 · gen_range 0. version 인자 없음(버전 분기 없음).",
+ "knobs": [
+  {"what": "교전권(engage) 이동 여유 틱", "where": "buff_value.rs:386 (m10.ll:36743·36808)", "value": 120, "effect": "engage = 사거리 + 반지름 + 이속×120. 올리면 더 먼 적 챔프까지 '근접' 으로 잡혀 비교전 창이 더 자주 None(스테로이드 아낌) · 내리면 적이 꽤 가까워도 창을 열어 구조물/정글에 버프를 소모"},
+  {"what": "in_window 이동 여유 틱(move_allow)", "where": "buff_value.rs:420 (m10.ll:37521)", "value": 30, "effect": "창 사거리 = 공격사거리 + range_adjust + 두 반지름 + 이속×30. 올리면 대상이 더 멀어도 창 인정(버프를 일찍 켬) · 내리면 대상이 거의 사거리 안이어야 창"},
+  {"what": "team_action_hits 아군 근접 반경", "where": "buff_value.rs:408 (aux m10.ll:6630)", "value": 3600000000, "effect": "60000²+0(경계 포함 ≤). 올리면 더 먼 아군의 소액션 대상도 '팀이 노리는 대상' 으로 인정돼 창이 넓어짐 · 내리면 본인/바로 옆 아군의 대상만. 값은 제곱이라 반경 R 로 바꾸려면 R²"},
+  {"what": "창을 여는 소액션 종류 집합", "where": "buff_value.rs:411~415 (aux m10.ll:6635~6642 switch)", "value": "태그 {9 Ult, 2 Around, 4 Trace, 6 Attack, 7 Skill, 8 Skill2}", "effect": "집합에서 빼면 그 소액션으로 노리는 대상은 창을 못 연다(예: Around 제거 → 배회 중인 대상은 제외). Positioning/AroundPosition(좌표형)·RunAway·Dodge·Stop 은 대상 id 가 없어 원리상 제외"},
+  {"what": "창 우선순위(정글 → 타워 → 넥서스 → 미니언)", "where": "buff_value.rs:436→440→441→447", "value": "순서 고정", "effect": "정글이 창이면 fights_back=true 가 확정되고 미니언 검사는 안 한다. 순서를 바꾸면 같은 상황에서 반환 플래그가 달라져 noncombat_steroid_value 의 가치 계산이 바뀜"}
+ ],
+ "unknown": [
+  "395~404 사이 소스 줄의 정확한 형태(`if enemy_near { return None; }` 추정) — IR 은 is_recent_visible true → 즉시 {2,undef} 반환으로 접혀 있고 그 구간 DILocation 이 없다(빈 줄/주석 가능). 동작은 확정, 표기만 추정",
+  "412~415 의 variant 나열 순서(어느 줄에 어느 variant) — 태그별 !dbg 줄(6·7→412 · 8·9→413 · 4→414 · 2→415)만 있고 column 이 없어 줄 안 순서는 표기 불가(동작 확정)",
+  "Blackboard 인덱스 의미: is_recent_visible 은 blackboard[enemy_team](관측 대상 팀), team_action_hits 는 blackboard[my_team].small_actions — 'blackboard[t] = t 팀 챔피언들의 기록' 으로 읽으면 정합. is_recent_visible 내부(g07.ll:157005 · 계약만)는 안 읽음",
+  "iter_towers_without_nexus(simulation.rs:1830)·iter_minions(1847) 반환 이터레이터 내부 레이아웃(120B/56B sret) — 계약만. try_fold 조각(aux) 은 원소를 &Entity 로 꺼내 술어만 적용함을 확인",
+  "Effect::range_adjust(&Effect, &Entity caster, &Entity target) -> u64 (effect.rs:29) 내부 — 계약만(aux m10.ll:7133 호출)",
+  "120·30 틱의 초 환산은 tps=60 가정(본문에 tps 읽기 없음 · 리터럴 확정)",
+  "개발자 주석: 구조체 NoncombatSteroidWindow(364)·fights_back(366)·minion_wave(369) 에는 _docs game_ai.txt:37~40 주석이 있으나 이 함수(378) 자체 주석은 0건",
+  "exe 0xd75cb0(1166B · 콜리 0) = s1_0 클로저 추정(642 ins) — 이 클로저는 range_adjust 를 call 하므로 '콜리 0' 과는 안 맞을 수 있음(range_adjust 가 exe 에서 인라인됐거나 다른 함수일 가능성) · 미검증"
+ ]
+}

@@ -1,0 +1,116 @@
+{
+ "name": "SmallActionLaneMinionPosition::choose_goal",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition11choose_goal",
+ "src": "game-ai\\src\\small_action\\lane_minion.rs",
+ "src_line": 493,
+ "ir_file": "m11.ll",
+ "ir_from": 43376,
+ "ir_to": 43887,
+ "aux": [],
+ "layer": "small_action/lane_minion 후보 생성·선택(r18 배치 P) — 지도 밖 판단 로직. internal fastcc · sret 32B. reach: 블록 36 · 살아있음 36 · 사장 0(version=2·gamemode=0). ★exe 정체 판정(note 참조): 지시의 exe 0xe25450(952B) 은 choose_goal 본체도 후보 클로저도 아니고 **push_candidate**(m11.ll:44238) 로 판정 — choose_goal 본체의 exe 는 0xe248f0(1,731B) 로 추정 강",
+ "one_line": "라인 미니언 공격 위치 후보(현재 위치·목표 주변 16방향 링·7×7 격자)를 push_candidate 로 채점해 최고 점수 (x,y,score) 를 고른다",
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut Option<(u64,u64,i64)> (32B) %0", "note": "define 줄 속성: dead_on_unwind noalias noundef nonnull writable writeonly align 8 captures(none) dereferenceable(32). +0 태그(i64: 0=None · 1=Some) · +8 x(u64) · +0x10 y(u64) · +0x18 score(i64). DI 반환 타입 !5887 = enum2$<Option<tuple$<u64,u64,i64>>>"},
+   {"i": 1, "name": "self.goal_score (ArgumentPromotion 조각 1/2)", "type": "i64 %1", "note": "IR 에 `&self` 는 없다(DI self = ptr poison). 호출자 get_input(m11.ll:46257~46260) 이 `self+0x20`(=SmallActionLaneMinionPosition.goal_score i64, tcxdict) 을 load 해 넘긴다. 본문에서는 push_candidate 의 13번째 인자 `target_score` 로만 3회 전달(43538·43869·43878) — 분기 없음. IR 속성 없음"},
+   {"i": 1, "name": "self.position_eval_purpose (ArgumentPromotion 조각 2/2)", "type": "i8 %2", "note": "호출자 get_input 이 `self+0x78`(position_eval_purpose: PositionEvalPurpose 1B) 을 load 해 넘김(m11.ll:46259~46260). push_candidate 10번째 인자(range(i8 0,13)) 로만 3회 전달. IR 속성 없음"},
+   {"i": 2, "name": "version", "type": "usize (i64 %3)", "note": "define 줄 속성: noundef. 본문 분기 없음 — push_candidate 2번째 인자로 3회 전달만"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B) %4", "note": "define 줄 속성: noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(2528). 본문 필드 읽기 0 — push_candidate 3번째 인자로 전달만"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B) %5", "note": "define 줄 속성: noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(24). +8 context 만 읽음(→ GameContext +0 pool(bump) · +8 setting · +0x20 map). push_candidate 4번째 인자로도 전달"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B) %6", "note": "define 줄 속성: noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(1728). 읽는 필드: +0x4c0 attack_effect 니치태그 · +0x4a0/+0x4a8 attack_effect.range/growth_range · +0x438 stat_buff_cached.range · +0x470 radius_mult · +0x5c8 level · +0x660 x · +0x668 y · +0x680 radius. range_adjust(caster)·Entity::distance(self)·push_candidate 5번째 인자"},
+   {"i": 6, "name": "target", "type": "&Entity(1728B) %7", "note": "define 줄 속성: noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(1728). 읽는 필드: +0x470 radius_mult · +0x680 radius · +0x660 x · +0x668 y. push_candidate 에는 &Entity 가 아니라 target.x/target.y 두 i64(%91/%93) 로 전달(push_candidate 쪽 ArgumentPromotion)"},
+   {"i": 7, "name": "positioning_score", "type": "&PositioningScoreData(2760B) %8", "note": "define 줄 속성: noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(2760). +0xab8 cx · +0xac0 cy 만 직접 읽음(격자 중심). push_candidate 7번째 인자로 전달(value[7][7] 은 콜리에서 소비)"},
+   {"i": 8, "name": "line", "type": "LineType (i8 %9, range(i8 0,3))", "note": "define 줄 속성: noundef range(i8 0, 3). 본문 분기 없음 — push_candidate 14번째 인자로 전달만"}
+  ],
+  "returns": "sret Option<(u64,u64,i64)> 32B. 살아있는 바이트: Some 경로(m11.ll:43806~43810·43828) = +0 태그 1 · +8..+0x20 (x,y,score) 24B 전부(fold 결과의 +8..+32 를 memcpy). None 경로 2곳 = (a) champ.attack_effect 가 None(43497 `store i64 0`) (b) candidates 가 비어 있음(43826 phi 0) — 둘 다 +0 만 쓰고 +8..+0x20 은 미기록(호출자가 읽으면 안 되는 슬롯). 니치 없음(태그 별도 8B)",
+  "tls": {
+   "name": "없음",
+   "role": "없음 — 본문(43376~43887)에 `LocalKey`/`call_once`/`llvm.threadlocal.address`/`@anon.* = constant ptr @…call_once` 참조 0. @anon 참조 자체가 없다",
+   "key": "해당 없음",
+   "layout": "해당 없음",
+   "invalidation": "해당 없음",
+   "call_conditions": "콜리 push_candidate → position_score_at_position(→ position_eval_at 계약만) 쪽에 TLS 메모가 있을 수 있으나 이 함수 범위 밖(미열람)"
+  }
+ },
+ "reads": [
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (니치 = Some.0.casting 4B, champ)", "note": "m11.ll:43420~43422 (%17/%18 · i32 == -1 → None). tcxdict Entity 0x4c0: attack_effect@tag(Niche). 인라인 helper attack_range(lane_minion.rs:355 `champ.attack_effect.as_ref()?` · option.rs:742)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0 (&Effect 56B 시작, champ)", "note": "m11.ll:43426 (%21 = champ+1168). range_adjust 의 self 로 전달"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect.range (champ)", "note": "m11.ll:43429~43430 (%22/%23). Effect::range(caster) 인라인(effect.rs:26) — Effect+0x10"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect.growth_range (champ)", "note": "m11.ll:43431~43432 (%24/%25). `(level-1)*growth_range` — Effect+0x18"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level (champ)", "note": "m11.ll:43433~43435 (%26/%27/%28 add -1)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range (champ)", "note": "m11.ll:43437~43438 (%30/%31)"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult (champ 43440 / target 43463)", "note": "i32. Entity::radius() 인라인(entity.rs:1511~1515)"},
+  {"base": "Entity", "offset": "0x680", "name": "radius (champ 43447·43454 / target 43470·43477)", "note": "attack_range 에 양쪽 반경 가산(356)"},
+  {"base": "Entity", "offset": "0x660", "name": "x (champ 43529·43531 / target 43534~43535)", "note": "champ.x → 첫 후보 좌표(503) · target.x → 링 후보 중심(513) 및 push_candidate 6번째 인자"},
+  {"base": "Entity", "offset": "0x668", "name": "y (champ 43532~43533 / target 43536~43537)", "note": "503·514"},
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "m11.ll:43520~43521 (%80/%81)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool (&Bump)", "note": "m11.ll:43522 (%82). bumpalo Vec::new_in(500)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map (&MapDef 28112B)", "note": "m11.ll:43651·43717 (%134/%160). Game::adjust_position 1번째 인자(515)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting (&GameSetting 5432B)", "note": "m11.ll:43652·43718 (%135/%161). Game::adjust_position 2번째 인자(515)"},
+  {"base": "PositioningScoreData", "offset": "0xab8", "name": "cx", "note": "m11.ll:43656~43658 (%137/%138 · trunc i32). 격자 중심 x(521)"},
+  {"base": "PositioningScoreData", "offset": "0xac0", "name": "cy", "note": "m11.ll:43660~43662 (%140/%141). 격자 중심 y(522)"},
+  {"base": "bumpalo::Vec<(u64,u64,i64)> (지역 %16 32B)", "offset": "0x0", "name": "ptr (원소 배열 시작 · 초기 dangling 8)", "note": "m11.ll:43524(store) · 43754(load %175). 원소 24B stride(43760 `mul %176, 24`): +0 x · +8 y · +0x10 score"},
+  {"base": "bumpalo::Vec<(u64,u64,i64)> (지역 %16)", "offset": "0x18", "name": "len", "note": "m11.ll:43528·43755~43756 (%85/%176 count). 0 이면 None(43784)"}
+ ],
+ "writes": [
+  {"base": "sret Option<(u64,u64,i64)>", "offset": "0x0", "name": "태그", "value": "0(None: 43497 attack_effect None · 43826~43828 phi [1,%188]/[0,%192] 후보 없음) / 1(Some)", "note": "유일한 반환 쓰기 표면. define 속성 writeonly captures(none)"},
+  {"base": "sret Option<(u64,u64,i64)>", "offset": "0x8", "name": "(x,y,score) 24B", "value": "max_by_key 결과의 +8..+0x20 memcpy(m11.ll:43810) — Some 경로에서만", "note": "None 경로에서는 미기록(살아있지 않음)"},
+  {"base": "지역 bumpalo::Vec<(u64,u64,i64)> %16 (32B alloca)", "offset": "0x0..0x20", "name": "ptr=8(dangling) · +8 bump · +0x10 cap=0 · +0x18 len=0", "value": "Vec::new_in(data.context.pool) 초기화(43524~43530)", "note": "이후 push 는 push_candidate 안에서(콜리 부작용). 함수 끝에 drop_glue(43885, unwind 경로) / IntoIter drop(43816 · 후보 0개일 때) — bumpalo 라 메모리 해제는 없음"},
+  {"base": "지역 IntoIter<(i64,i64),16> %15 (272B alloca)", "offset": "0x10..0x110", "name": "dirs 16쌍 상수 채우기", "value": "(1000,0)(-1000,0)(0,1000)(0,-1000)(707,707)(707,-707)(-707,707)(-707,-707)(923,382)(923,-382)(-923,382)(-923,-382)(382,923)(382,-923)(-382,923)(-382,-923)", "note": "m11.ll:43590~43650. 배열 into_iter 의 alive 범위는 +0..0x10(SSA %146 로 접힘)"}
+ ],
+ "constants": [
+  {"value": -1, "src_line": 494, "meaning": "Option<Effect> 니치 None 센티널 — champ+0x4c0(casting 태그 i32) == -1 이면 attack_effect None → 즉시 None 반환(m11.ll:43422 · helper attack_range 355줄 `?`)"},
+  {"value": 100, "src_line": 356, "meaning": "Entity::radius() 인라인(entity.rs:1515) `radius*(radius_mult+100)/100`(43456·43458·43479·43481)"},
+  {"value": 69999, "src_line": 495, "meaning": "`attack_range > 69999`(= >= 70000 · m11.ll:43493 icmp ugt) → 장거리 분기(496). 70000 = 2.1875셀(셀 32000)"},
+  {"value": -14000, "src_line": 496, "meaning": "`attack_range.saturating_sub(14000)`(uint_macros 2472 · DI rhs=14000)가 `add %67, -14000` 로 접힘(43512 · %67>69999 이므로 포화 불필요) — 장거리 챔프의 선호 사거리 = 사거리 - 14000"},
+  {"value": 65, "src_line": 498, "meaning": "단거리 챔프 선호 사거리 = attack_range*65/100(43505 mul i32 · 43506 udiv 100). i32 로 trunc 되는 것은 <=69999 가 보장돼서"},
+  {"value": 35, "src_line": 502, "meaning": "첫 후보(champ 현재 위치)의 source_bonus(push_candidate 16번째 인자, 43538) — 제자리 유지 가산"},
+  {"value": 48000, "src_line": 505, "meaning": "`champ.distance(target) > attack_range + 48000`(43551~43552) 이면 링 후보(512~516) 생략. 48000 = 1.5셀"},
+  {"value": 1000, "src_line": 512, "meaning": "방향 벡터 스케일(dirs 성분 ±1000/±707/±923/±382 = cos/sin×1000, 16방향 22.5° 간격) · 513~514 `dx*preferred_range/1000`(43710·43714 sdiv)"},
+  {"value": 707, "src_line": 512, "meaning": "45° 방향 성분(cos45°×1000) — dirs[4..8]"},
+  {"value": 923, "src_line": 512, "meaning": "22.5° 방향 성분(cos22.5°×1000 ≈ 924 → 923 사용) — dirs[8..16]"},
+  {"value": 382, "src_line": 512, "meaning": "67.5° 방향 성분(sin22.5°×1000 ≈ 383 → 382 사용) — dirs[8..16]"},
+  {"value": 16, "src_line": 512, "meaning": "dirs 원소 수(IntoIter<_,16> · 43678 `icmp eq %146, 16` 루프 종료)"},
+  {"value": 0, "src_line": 516, "meaning": "링 후보의 source_bonus = 0(43878 마지막 인자) · 537 후보 없음 → None 태그 0(43826)"},
+  {"value": 7, "src_line": 523, "meaning": "격자 루프 `0..7` 상한(43733·43839 `icmp ult, 7`) — 7×7 셀"},
+  {"value": -3, "src_line": 524, "meaning": "xi = cx - 3 + dx · yi = cy - 3 + dy(43666~43667 add -3) — 중심 ±3셀"},
+  {"value": 29, "src_line": 527, "meaning": "`xi > 29 || yi > 29`(43747·43856) → 건너뜀 — 격자 30×30(0..=29). `(xi|yi) < 0`(43853~43854) 도 건너뜀"},
+  {"value": 32000, "src_line": 531, "meaning": "셀 크기(좌표 변환): x = xi*32000 + 16000(43749·43866)"},
+  {"value": 16000, "src_line": 531, "meaning": "셀 중심 오프셋(좌표 변환)(43750·43867)"},
+  {"value": 10, "src_line": 532, "meaning": "격자 후보의 source_bonus = 10(43869 마지막 인자)"},
+  {"value": 8, "src_line": 500, "meaning": "bumpalo Vec 빈 상태의 dangling ptr(= align, 43524 `inttoptr 8`) — 판정값 아님·라이브러리 상수"}
+ ],
+ "calls": [
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::push_candidate",
+  "game_core::simulation::entity::Entity::distance",
+  "game_core::simulation::game::Game::adjust_position",
+  "core::iter::adapters::map::Map::fold",
+  "bumpalo::collections::vec::IntoIter::drop",
+  "core::ptr::drop_glue",
+  "llvm.memset.p0.i64",
+  "llvm.memcpy.p0.p0.i64",
+  "llvm.assume"
+ ],
+ "logic": "fn choose_goal(&self, version, player, data, champ, target, positioning_score, line) -> Option<(u64,u64,i64)>   // lane_minion.rs:493\n// 494  (helper Self::attack_range(champ,target)->Option<u64>, lane_minion.rs:354~357 인라인)\nlet atk = champ.attack_effect.as_ref()?;                     // 355: +0x4c0 == -1 → return None\nattack_range = atk.range(champ)                              // 356: atk.range + champ.stat_buff_cached.range + (champ.level-1)*atk.growth_range (effect.rs:26 인라인)\n             + atk.range_adjust(champ, target)               //      계약만(gc)\n             + champ.radius() + target.radius();             //      entity.rs:1511~1515 인라인\n// 495~498\npreferred_range = if attack_range > 69999 { attack_range.saturating_sub(14000) }   // 496\n                  else { (attack_range as u32 * 65 / 100) as u64 };                  // 498\n// 500\nlet mut candidates: bumpalo::Vec<(u64,u64,i64)> = Vec::new_in(data.context.pool);\n// 502~503  후보 1: 현재 위치\nSelf::push_candidate(&mut candidates, version, player, data, champ, target.x, target.y, positioning_score,\n                     champ.x, champ.y, self.position_eval_purpose, attack_range, preferred_range, self.goal_score, line, /*source_bonus*/ 35);\n// 505~517  후보 2: 목표 주변 16방향 링(선호 사거리 반지름) — 목표가 사거리+1.5셀 안일 때만\nif champ.distance(target) <= attack_range + 48000 {          // 505 (ugt 이면 건너뜀)\n    for (dx,dy) in DIRS16 {                                   // 512 (1000,0)(-1000,0)(0,1000)(0,-1000)(±707,±707)(±923,±382)(±382,±923)\n        x = target.x + dx*preferred_range/1000;               // 513 (i64 sdiv)\n        y = target.y + dy*preferred_range/1000;               // 514\n        (x,y) = Game::adjust_position(data.context.map, data.context.setting, x, y);   // 515 계약만 → (u64,u64)\n        Self::push_candidate(…, x, y, …, /*source_bonus*/ 0); // 516\n    }\n}\n// 521~534  후보 3: positioning_score 중심 7×7 셀 격자\ncx = positioning_score.cx as i32; cy = positioning_score.cy as i32;   // 521~522\nfor dx in 0..7 { for dy in 0..7 {                            // 523~524\n    xi = cx - 3 + dx; yi = cy - 3 + dy;                       // 524~526\n    if xi < 0 || yi < 0 || xi > 29 || yi > 29 { continue }    // 527 (한 줄 안 순서 표기 불가·전부 순수)\n    x = xi*32000 + 16000; y = yi*32000 + 16000;               // 531 셀 중심\n    Self::push_candidate(…, x, y, …, /*source_bonus*/ 10);   // 532\n} }\n// 537~538\ncandidates.into_iter().max_by_key(|c| c.2)                  // 537: key 클로저 choose_goal::{closure#0} = 튜플 3번째(score) · fold 는 m12.ll:34778 별도 define\n// max_by 접기: compare(acc,new)==Greater 이면 acc 유지, 아니면(Less·Equal) new 채택(m12.ll fold %26 `sgt 0` select) ⟹ **동점이면 나중에 push 된 후보가 이긴다**(현재위치 < 링 < 격자 순으로 뒤가 우선)\n// 후보 0개(모두 push_candidate 에서 거절) → None\n\n※ 후보 채점(위치 점수·위험·source_bonus 합산·거절 조건)은 전부 push_candidate(m11.ll:44238~44467) 안 — 이 함수는 좌표 생성과 최댓값 선택만.\n※ 판 8 리턴주소 실측이 잡은 exe 0xe25450 은 이 함수가 아니라 push_candidate 다(note/unknown 첫 항목)."
+ ,
+ "knobs": [
+  {"what": "장거리 판정 임계", "where": "lane_minion.rs:495 (m11.ll:43493)", "value": 69999, "effect": "이 값 초과 사거리 챔프는 선호 사거리 = 사거리-14000(거의 최대 사거리 유지), 이하이면 65%. 내리면 더 많은 챔프가 '최대 사거리 근처' 포지셔닝"},
+  {"what": "장거리 선호 사거리 여유", "where": "lane_minion.rs:496 (m11.ll:43512 add -14000)", "value": 14000, "effect": "올리면 장거리 챔프가 목표에 더 가까이 서는 링 후보를 만든다(≈0.44셀 당 14000)"},
+  {"what": "단거리 선호 사거리 비율(%)", "where": "lane_minion.rs:498 (m11.ll:43505)", "value": 65, "effect": "올리면(예 80) 미니언에서 더 멀리, 내리면 더 붙어서 링 후보를 만든다"},
+  {"what": "현재 위치 유지 보너스", "where": "lane_minion.rs:502 (m11.ll:43538 마지막 인자)", "value": 35, "effect": "올리면 제자리에서 계속 치는 경향↑(이동 감소). 격자(10)·링(0)보다 커서 동점 규칙(뒤가 우선)을 이 가산이 상쇄"},
+  {"what": "링 후보 생성 거리 한계 여유", "where": "lane_minion.rs:505 (m11.ll:43551)", "value": 48000, "effect": "올리면 더 먼 목표에도 목표 주변 링 후보를 만든다(접근 포지셔닝↑)"},
+  {"what": "격자 후보 보너스", "where": "lane_minion.rs:532 (m11.ll:43869 마지막 인자)", "value": 10, "effect": "올리면 positioning_score 격자 셀(포지션 평가 중심 주변)이 링 후보보다 우대 → 링(목표 주변 정밀 좌표)보다 셀 중심 이동이 늘어난다"},
+  {"what": "격자 반경(±3 · 0..7)", "where": "lane_minion.rs:523~524 (m11.ll:43666~43667·43733)", "value": 7, "effect": "루프 상한 7 과 오프셋 -3 을 같이 바꿔야 한다. 넓히면 후보 수(최대 49→N²)·push_candidate 호출 수가 제곱으로 증가"}
+ ],
+ "unknown": [
+  "★exe 정체(지시 ⚠ 항목): 0xe25450(952B) 은 choose_goal 본체가 **아니다**. 근거 ①argscan 0xe25450 = 레지스터 4 + 스택 13 = **17 인자, i8 두 개가 12·16번째**(movzx byte) ↔ IR push_candidate 는 16 인자에 i8 이 11·15번째(%10 purpose · %14 line)로 위치 일치(exe 쪽 promotion 1개 추가로 +1 밀림) · choose_goal 은 10 인자(i8 는 3·10번째)라 불일치 ②fnprobe 0xe25450 의 호출자 = 0xe248f0(1,731B) 안 **3곳** ↔ IR choose_goal 이 push_candidate 를 **3회** invoke(43538·43869·43878) ③0xe248f0 의 호출자 2곳(0xe26c40·0xe2a830) ↔ IR choose_goal 호출 사이트 2곳(get_input m11.ll:46260 · lane_minion_position_action 54494) ④0xe248f0 상수 0x3e8(1000)·0x3e80(16000)·0x7d00(32000)·0xbb80(48000)·0x1116f(69999)·0x17e(382)·0x2c3(707)·0x39b(923) = choose_goal 상수 전부. ⟹ **0xe25450 = push_candidate**(추정 강 · Ghidra 미사용) · **0xe248f0 = choose_goal**(추정 강). '후보 클로저' 가설은 기각: max_by_key 의 key 클로저(choose_goal::{closure#0})는 별도 define 없이 fold(m12.ll:34778, 89줄)에 인라인돼 있고 fold 는 인자 4개라 17-인자 exe 와 무관. 검증 방법: 0xe25450 진입부 프로브의 리턴 주소가 0xe248f0 안 3곳인지 / 0xe248f0 에 판 프로브를 달아 get_input 경로에서 발화하는지",
+  "push_candidate(m11.ll:44238~44467) 본문은 이 명세 범위 밖 — 후보 채점식(position_score_at_position · is_enemy_well_danger · is_unnecessary_enemy_tower_position · is_near_line · lane_stance_risk · positioning_effective/skill_avoid_effective · source_bonus 합산 · 거절 조건)은 별도 명세 필요. 계약: (candidates:&mut bumpalo Vec<(u64,u64,i64)>(32B), version, player, data, champ, target.x:i64, target.y:i64, positioning_score, x, y, position_eval_purpose:i8(0..13), attack_range, preferred_range, target_score:i64, line:i8, source_bonus:i64(0..36)) -> () · Vec 에 push 하는 것이 유일한 출력",
+  "IR `&self` 가 ArgumentPromotion 으로 (goal_score i64 %1, position_eval_purpose i8 %2) 두 값으로 쪼개졌다 — 호출자 get_input(46257~46260 `self+32`·`self+120`) 으로 확인. 두 번째 호출자 lane_minion_position_action(54494) 은 `%14+16` 등 다른 지역 구조체에서 넘기며 미열람(범위 밖). exe 에서는 다르게 promotion 될 수 있어(0xe248f0 argscan 은 스택 인자 0·xmm0 읽음) sweep 편입 전 argscan 대조 필요",
+  "527 줄 `xi<0||yi<0||xi>29||yi>29` 의 한 줄 안 순서는 column 부재로 표기 불가(IR 은 (xi|yi)<0 · xi>29 · yi>29 를 or 로 합침) — 전부 순수 비교라 동작 무관",
+  "dirs 순서(1000,0)→(-1000,0)→(0,1000)→(0,-1000)→… 는 IR store 순서(43590~43650)에서 복원 — 동점 시 '뒤가 우선' 규칙 때문에 링 안에서는 마지막 방향(-382,-923) 쪽이 유리하나, 실제로 동점이 나는지는 push_candidate 채점(미열람)에 달림",
+  "콜리 계약만: Effect::range_adjust(&Effect,&Entity caster,&Entity target)->u64 · Entity::distance(&,&)->u64 · Game::adjust_position(&MapDef(28112B), &GameSetting(5432B), x:u64, y:u64)->(u64,u64)(m11.ll:60774 declare · define _gcbc g15.ll:72245) — 맵 경계/장애물 보정으로 추정(미열람)",
+  "bumpalo Vec 레이아웃(+0 ptr · +8 bump · +0x10 cap · +0x18 len)은 IR 사용 패턴(43524~43530 초기화 · 43754~43756 len 읽기)에서 읽은 것 — tcxdict 는 bumpalo 내부를 안 준다",
+  "`_docs\\game_ai.txt` 에 lane_minion/choose_goal 관련 개발자 주석 0건"
+ ]
+}

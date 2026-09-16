@@ -1,0 +1,100 @@
+{
+ "A": {
+  "dossier": "711091a0f6ae5be3",
+  "specs": [
+   "spec_249_base_battle_action.md"
+  ],
+  "spec_hashes": {
+   "spec_249_base_battle_action.md": "43b4526216acbf10"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "1dd1b66a85526b0d",
+  "built": "2026-09-16 14:55:51"
+ },
+ "B": {
+  "dossier": "4db7bfc605b94aef",
+  "specs": [
+   "spec_250_next_plan.md",
+   "spec_251_battle_action.md"
+  ],
+  "spec_hashes": {
+   "spec_250_next_plan.md": "ccc0ca28c8dd8b64",
+   "spec_251_battle_action.md": "d3ba7ba067979a94"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "1dd1b66a85526b0d",
+  "built": "2026-09-16 14:55:52"
+ },
+ "C": {
+  "dossier": "e51d9e78e93c3d11",
+  "specs": [
+   "spec_252_v16_knight_ult_zone_bonus.md",
+   "spec_253_LineSafeSubPlan__action_candidates.md",
+   "spec_254_noncombat_steroid_window.md"
+  ],
+  "spec_hashes": {
+   "spec_252_v16_knight_ult_zone_bonus.md": "8a64bc52fc37f59a",
+   "spec_253_LineSafeSubPlan__action_candidates.md": "9748dbffa5a57b7a",
+   "spec_254_noncombat_steroid_window.md": "b94bfdb767a012ba"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "1dd1b66a85526b0d",
+  "built": "2026-09-16 14:55:52"
+ },
+ "D": {
+  "dossier": "2def77903dcbea7e",
+  "specs": [
+   "spec_255_end_check.md",
+   "spec_256_LegacyPlanHandler__update_on_dead.md",
+   "spec_257_v30_wave_danger_chase_guard.md"
+  ],
+  "spec_hashes": {
+   "spec_255_end_check.md": "dff3f178bddc6719",
+   "spec_256_LegacyPlanHandler__update_on_dead.md": "94aaa0835af2fcc0",
+   "spec_257_v30_wave_danger_chase_guard.md": "159d3eae100cf8d8"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "1dd1b66a85526b0d",
+  "built": "2026-09-16 14:55:52"
+ },
+ "E": {
+  "dossier": "398defb0fadd63be",
+  "specs": [
+   "spec_258_SmallActionLaneMinionPosition__choose_goal.md",
+   "spec_259_v48_projectile_profile.md",
+   "spec_260_resolve_fight_stake_roster.md",
+   "spec_261_kite_reposition_point.md"
+  ],
+  "spec_hashes": {
+   "spec_258_SmallActionLaneMinionPosition__choose_goal.md": "a2ed259ed5bf54bb",
+   "spec_259_v48_projectile_profile.md": "65ed16df563aa205",
+   "spec_260_resolve_fight_stake_roster.md": "84c20d13be5ab942",
+   "spec_261_kite_reposition_point.md": "bc33556f72e8c5a5"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "1dd1b66a85526b0d",
+  "built": "2026-09-16 14:55:52"
+ },
+ "F": {
+  "dossier": "a07b14aa24ffde2f",
+  "specs": [
+   "spec_262_SmallActionLaneMinionPosition__target_score.md",
+   "spec_263_get_small_action_score_closure.md",
+   "spec_264_SmallActionLaneMinionPosition__push_candidate.md",
+   "spec_265_v54_aoe_ally_heal_value.md",
+   "spec_266_TeamPlan__can_near_enemies_range.md",
+   "spec_267_expected_dps.md"
+  ],
+  "spec_hashes": {
+   "spec_262_SmallActionLaneMinionPosition__target_score.md": "4beef5f98a1f4d4f",
+   "spec_263_get_small_action_score_closure.md": "c515ee98e7becab3",
+   "spec_264_SmallActionLaneMinionPosition__push_candidate.md": "6e5118ba195c304f",
+   "spec_265_v54_aoe_ally_heal_value.md": "10f6800b11c446ec",
+   "spec_266_TeamPlan__can_near_enemies_range.md": "f29098be2f848b33",
+   "spec_267_expected_dps.md": "b37d058468dcf2a8"
+  },
+  "mkdossier": "232c166a31001480",
+  "v3": "1dd1b66a85526b0d",
+  "built": "2026-09-16 14:55:52"
+ }
+}

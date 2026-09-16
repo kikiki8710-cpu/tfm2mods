@@ -1,0 +1,127 @@
+{
+ "name": "base_battle_action",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_action",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle.rs",
+ "src_line": 1305,
+ "ir_file": "m02.ll",
+ "ir_from": 66196,
+ "ir_to": 74096,
+ "aux": [],
+ "layer": "r18 지도 밖 판단 로직 · 배치 D(소스 1863~2039) — 분책 조각. 공통 머리는 배치 A 가 확정.",
+
+ "one_line": "(배치 D) 전투 기본 행동 후보의 꼬리 — skill2 후보 마지막 push 와 궁극기(Ult) 후보 3종(적 대상·아군 대상·자기 대상)을 candidates 에 push 하고 sret 로 반환",
+
+ "signature": {
+  "note": "★함수 머리·params 표면 확정은 배치 A 소관. 여기엔 배치 D 가 실제로 읽은 인자만 적는다(불일치 시 A 가 정본). define 줄(m02.ll:66196)의 실제 속성: %0 `dead_on_unwind noalias nonnull writable writeonly captures(none) dereferenceable(32)` · %2 `noalias nonnull readonly captures(address, read_provenance) dereferenceable(2528)` · %3 `noalias nonnull readonly captures(address, read_provenance) dereferenceable(24)` · %1/%4/%5 = i64(속성 없음). DISubprogram(m02.ll:154554) 인자 5개 = version(arg1)·_rnd(arg2 · &mut StdRng)·player(arg3)·data(arg4)·sub_goal(arg5 · &BattleSubPlanGoal) 인데 IR define 은 6개 — _rnd 는 ArgumentPromotion 으로 사라지고 sub_goal(16B enum) 이 (i64 tag, i64 payload) 두 스칼라로 쪼개졌다(argscan 스택 인자 참조 = 배치 A 확정 대상).",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo::collections::vec::Vec<'_, SmallActionPlay> (32B)", "role": "writeonly · 배치 D 의 유일한 반환 지점 %2850(L2038, m02.ll:72349) 에서 지역 candidates(%65) 32B 를 memcpy", "note": "레이아웃(tcxdict 정본) +0x0 buf.ptr · +0x8 buf.a(&Bump) · +0x10 buf.cap · +0x18 len — 4 필드 전부 live"},
+   {"i": 1, "name": "version", "type": "usize", "role": "IR 속성 없음 · 동작상 읽기만", "note": "배치 D 에선 L1949/L2009 effect_buff_target 의 첫 인자로만 전달(%73 스택 재로드 m02.ll:73031·73586). 분기 없음"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng (소스)", "role": "IR define 에 없음(ArgumentPromotion 으로 제거 = 함수 전체가 안 씀)", "note": "배치 D 범위 gen_range 호출 사이트 = 0 개"},
+   {"i": 3, "name": "player", "type": "&PlayerState (2528B)", "role": "readonly(define 속성)", "note": "배치 D 에선 L1926 is_dash_worth 의 2번째 인자로만 전달"},
+   {"i": 4, "name": "data", "type": "&OperationData (24B)", "role": "readonly(define 속성)", "note": "+0x0 cache(&AbstractGameWithCache · %82) → cache+0x0/+0x8 = game &dyn AbstractGame 팻포인터(data %2959 / vtable %2960) · +0x8 context(&GameContext · %102). SmallActionUlt/Skill2::new · is_dash_worth 에 그대로 전달"},
+   {"i": 5, "name": "sub_goal (tag)", "type": "i64 = BattleSubPlanGoal 판별자(+0x0 · Direct)", "role": "IR 속성 없음 · 동작상 읽기만", "note": "태그표(tcxdict --enum): 0 Trace·1 Protect·2 Kiting·3 KitingBack·4 RunAway·5 Assassin·6 AssassinReady·7 End. 배치 D 의 switch 2곳(L1887·L1915)"},
+   {"i": 5, "name": "sub_goal (payload)", "type": "i64 = focus(엔티티 id · variant 0/1/2/3/5/6 의 +0x8)", "role": "IR 속성 없음 · 동작상 읽기만", "note": "L1887 get_entity_by_id(focus) 인자. RunAway/End 에선 안 읽음"}
+  ],
+  "returns": "sret Vec<SmallActionPlay>(bumpalo · 32B). 원소 184B · 태그 = 원소+0xb1(1B · 니치: RunAway 3 … Skill 16 · Skill2 17 · Ult 18 · Stop 19 · AroundPosition 은 암묵). 배치 D 가 push 하는 variant: Skill2(17 · L1865) · Ult(18 · L1935/L2002/L2033). 두 variant 모두 페이로드 = 원소+0x0 의 24B 구조체(SmallActionSkill2/SmallActionUlt: +0x0 start_tick · +0x8 target(엔티티 id) · +0x10 is_act(bool)) — 생성자 sret 속성 `initializes((0, 17))` 이므로 **live 바이트 = 0x00~0x10(17B) + 0xb1(태그 1B)**, 나머지(0x11~0xb0 · 0xb2~0xb7)는 alloca 잔여(미기록·비교 대상 아님). 원소 복사는 memcpy 184B(m02.ll:72338·72983·73554) 또는 out-of-line push(L2033 · m02.ll:73850).",
+  "tls": "없음 — 배치 D 범위(m02.ll 71896~73855 의 해당 블록)에 `LocalKey`/`call_once`/fn-포인터 상수 경유 TLS 접점 0 건(grep `@anon` 결과 = .26 패닉 Location ×3 · .54 Entity-as-AbstractEntity vtable ×5 뿐)"
+ },
+
+ "reads": [
+  {"base": "Entity(champ %86 / e / x)", "offset": "0x0", "name": "team@tag", "note": "TeamType 판별자(8B · Direct · 0 Player/1 Neutral). `trunc i64→i1` 로 Player 여부 판정(is_visible_from 인라인 · entity.rs:1136 player_team). champ 가 Neutral 이면 가시성 검사 생략"},
+  {"base": "Entity(champ)", "offset": "0x8", "name": "team@Player.0", "note": "팀 인덱스(usize · <2 bounds check · %1458). visible_state 첨자"},
+  {"base": "Entity(e / x)", "offset": "0x38", "name": "visible_state[team]@tag", "note": "[VisibleState;2] · 원소 24B(+0x38 + 24*team · gepS) · 태그 0 = Visible 이어야 통과(entity.rs:1482~1483 is_visible_from → data.rs:122 is_visible)"},
+  {"base": "Entity(e)", "offset": "0x68", "name": "ty@tag", "note": "EntityType 판별자 · L1924 `== 13`(Champion)"},
+  {"base": "Entity(champ / e)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "사거리 합산항(effect.rs:26 Effect::range 인라인) · champ %2918 · e %3215"},
+  {"base": "Entity(champ / e / x)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "i32 · 0 이면 radius 그대로, 아니면 radius*(100+mult)/100 (entity.rs:1511~1515 Entity::radius 인라인)"},
+  {"base": "Entity(champ / e)", "offset": "0x4a0", "name": "attack_effect@Some.0.range", "note": "L1966/L2020 클로저 attack_range 항(%2941 · %3212)"},
+  {"base": "Entity(champ / e)", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range", "note": "×(level-1)"},
+  {"base": "Entity(champ / e)", "offset": "0x4c0", "name": "attack_effect@tag(casting@tag)", "note": "i32 == -1 이면 attack_effect None(니치). champ = %130(배치 A 계산 재사용) · e = %3203(L1965)"},
+  {"base": "Entity(champ)", "offset": "0x538", "name": "ult_effect@Some.0.ty (Arc<dyn EffectType> 팻포인터 +0x0 ptr · +0x8 vtable)", "note": "level>4 일 때만(배치 A %143=`level ugt 4` · entity.rs:1701) 실체, 아니면 상수 @anon…19(빈 Effect) — `%145 = select`. vtable+0x10 align 으로 ArcInner 데이터 오프셋 산출(sync.rs:2445)"},
+  {"base": "Entity(champ)", "offset": "0x548", "name": "ult_effect@Some.0.range", "note": "%2916(=%145+0x10 · m02.ll:72538). C3 경고 사유: 본문 gep 는 Entity 절대 오프셋이 아니라 select 된 Effect 포인터 %145 기준 +16 으로 접혀 있다"},
+  {"base": "Entity(champ)", "offset": "0x550", "name": "ult_effect@Some.0.growth_range", "note": "%2917(=%145+0x18 · 72539) ×(level-1)(%2919). C3 경고 사유 동일(%145 기준 +24)"},
+  {"base": "Entity(champ)", "offset": "0x560", "name": "ult_effect@Some.0.target@tag", "note": "%2915(=%145+0x28 · 72537) · CastingTarget::check 의 &self. C3 경고 사유 동일(%145 기준 +40)"},
+  {"base": "Entity(champ)", "offset": "0x568", "name": "ult_effect@tag(casting@tag)", "note": "배치 A 의 %148(`== -1` = 궁 없음/레벨 미달 · m02.ll:66550~66552 = %145+48) 을 L1870 에서 분기 조건으로 재사용. C3 경고 사유 동일(%145 기준 +48)"},
+  {"base": "Entity(champ)", "offset": "0x5a0", "name": "ult (Box<dyn Action> 팻포인터)", "note": "level>4 면 +0x5a0(1440) 아니면 +0x5b0(1456) empty — `select %143`(entity.rs:1677 Entity::ult 인라인 · L1871). Action vtable 슬롯 +0x68 as_any · +0xc0 can_activate · +0xc8 target_constraint"},
+  {"base": "Entity(champ)", "offset": "0x5b0", "name": "empty (Box<dyn Action>)", "note": "위 select 의 else 쪽"},
+  {"base": "Entity(e / champ)", "offset": "0x5c0", "name": "id", "note": "SmallActionSkill2/Ult::new 의 target 인자(L1865 e · L1935 e · L2002 e · L2033 champ)"},
+  {"base": "Entity(champ / e)", "offset": "0x5c8", "name": "level", "note": "champ %136(배치 A 로드 재사용) · e %3214 — growth_range*(level-1)"},
+  {"base": "Entity(champ / e / x)", "offset": "0x640", "name": "stat_cached.move_speed", "note": "champ %239(배치 A 로드) → L1894 추격 이속 · L1963/L2018 engage_extra(×60). e: L1894 saturating_sub 피감수 · L1963 engage_extra"},
+  {"base": "Entity(champ / e / x / focus)", "offset": "0x660", "name": "x", "note": "distance_sq(entity.rs:2158 → utils.rs:7~9 abs_diff²+abs_diff²)"},
+  {"base": "Entity(champ / e / x / focus)", "offset": "0x668", "name": "y", "note": "위와 같음"},
+  {"base": "Entity(champ / e / x)", "offset": "0x680", "name": "radius", "note": "Entity::radius 인라인(0x470 참조)"},
+  {"base": "OperationData(data %3)", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(%82)"},
+  {"base": "OperationData(data %3)", "offset": "0x8", "name": "context", "note": "&GameContext(%102) — effect_buff_target · expected_damage_target · expected_on_attack_damage 인자"},
+  {"base": "AbstractGameWithCache(%82)", "offset": "0x0", "name": "game(&dyn AbstractGame).data", "note": "%2959 등 — vtable 슬롯 +0x1f0 get_entity_by_id · target_constraint/can_activate 의 game 인자"},
+  {"base": "AbstractGameWithCache(%82)", "offset": "0x8", "name": "game(&dyn AbstractGame).vtable", "note": "%2632 = %82+8"},
+  {"base": "GamblerUltAction(다운캐스트 결과)", "offset": "0x10", "name": "charm_duration", "note": "L1872 `!= 0` → is_v16_gambler_cc_ult (dbg 는 DW_OP_not 1개 · 극성은 select 방향으로 확정)"},
+  {"base": "Option<BuffState>(buff · 스택 %14/%11 · effect_buff_target sret 288B)", "offset": "0x48", "name": "duration@tag (니치)", "note": "i32 == -1(0xFFFFFFFF) 이면 None — `!= -1` = buff.is_some() (L1954 · L2014)"},
+  {"base": "(SmallAction<&Entity>, &Entity) 튜플(near_enemies_with_action 원소 32B)", "offset": "0x0", "name": ".0 SmallAction@tag", "note": "L1894 `== 0`(RunAway) — 적이 도망 중이면 추격 이속 상대화"},
+  {"base": "(SmallAction<&Entity>, &Entity) 튜플", "offset": "0x18", "name": ".1 &Entity", "note": "e(L1874 루프) / x(L1966·L2020 any 클로저)"},
+  {"base": "bumpalo Vec near_enemies_with_action(%70) / near_allies(%72)", "offset": "0x0", "name": "buf.ptr", "note": "루프 시작 포인터"},
+  {"base": "bumpalo Vec near_enemies_with_action(%70) / near_allies(%72)", "offset": "0x18", "name": "len", "note": "루프 끝 = ptr + len*32(%70) / len*8(%72)"}
+ ],
+
+ "writes": [
+  {"base": "(sret %0) Vec<SmallActionPlay>", "offset": "0x0", "name": "buf.ptr·buf.a·buf.cap·len (32B 통째)", "value": "지역 candidates(%65) 32B memcpy", "note": "배치 D 의 반환 지점은 %2850(L2038 · m02.ll:72349) 하나. 도달 경로: L1870(궁 없음/can_ult 거짓) · L2005(자기 대상 조건 실패) · L2032(skip_self_buff 또는 can_activate 거짓) · L2033(push 후)"},
+  {"base": "candidates(지역 bumpalo Vec %65)", "offset": "0x18", "name": "len", "value": "len+1", "note": "push 4곳: L1865(m02.ll:72340) · L1935(72985) · L2002(73556) · L2033(out-of-line push · 73850)"},
+  {"base": "candidates(지역 %65)", "offset": "0x0 -> buf.ptr[len] (184B 원소)", "name": "원소 memcpy + 태그", "value": "Skill2: 페이로드 24B(SmallActionSkill2::new(data, e.id)) + 태그 17 @+0xb1 (L1865) / Ult: 페이로드 24B(SmallActionUlt::new(data, target.id)) + 태그 18 @+0xb1 (L1935 e · L2002 e(아군) · L2033 champ)", "note": "cap==len 이면 먼저 reserve_internal_or_panic(self, used_cap, 1, true)"},
+  {"base": "(참고) 스택 alloca 태그 바이트", "offset": "0xb1", "name": "SmallActionPlay 태그(177)", "value": "17 / 18", "note": "%2637(=%19+177) · %2924(=%16+177) · %2943(=%13+177) · %3577(=%10+177)"}
+ ],
+
+ "constants": [
+  {"value": 36000000, "src_line": 1888, "meaning": "6000² — focus_radius(제곱비교): sub_goal 의 focus 엔티티에서 6000 안에 있는 적만 궁 대상(비-갬블러 궁 또는 갬블러 궁 charm_duration==0). `%2910 = phi [%2908, 36000000]`"},
+  {"value": 8100000000, "src_line": 1888, "meaning": "90000² — 갬블러(GamblerUltAction) 궁이면서 charm_duration != 0(is_v16_gambler_cc_ult) 일 때의 focus_radius. select %2907(charm==0) ? 36000000 : 8100000000"},
+  {"value": 129962296932191015333459514643667840978, "src_line": 1871, "meaning": "TypeId(GamblerUltAction) 상수(i128) — ult_action.as_any().downcast_ref::<GamblerUltAction>() 인라인의 type_id 비교(m05.ll:54021 등 4곳도 같은 값 · 그쪽 dbg 변수명 gambler_ult)"},
+  {"value": 60, "src_line": 1963, "meaning": "engage_extra = move_speed*60 (틱 60 = 1초 이동분 · L1963 e · L1964 caster_extra %2940 · L2018 champ). 사거리 합산에 더해 「1초 안에 붙을 수 있는」 교전권 판정"},
+  {"value": 100, "src_line": 1900, "meaning": "Entity::radius 인라인(entity.rs:1515): radius*(100+radius_mult)/100. 판정 임계가 아니라 퍼센트 환산(L1900·1966~1970·1983·2021 반복)"},
+  {"value": 13, "src_line": 1924, "meaning": "EntityType 메모리태그 13 = Champion — 대시형 궁(can_move) 의 대상이 챔피언일 때만 is_dash_worth 검사"},
+  {"value": 0, "src_line": 1894, "meaning": "SmallAction<&Entity> 태그 0 = RunAway(적이 도망 중) — L1894 · 또한 L1872 charm_duration==0 · L1955/L2015 expected_on_attack_damage()==0(gate_applies) · L1917 expected_move_distance 첫 8B==0 · L1875 visible_state 태그 0=Visible 비교값"},
+  {"value": -1, "src_line": 1965, "meaning": "Option<Effect> 니치(casting@tag=-1 → None): champ.attack_effect(%130) · e.attack_effect(L1965) · champ.ult_effect(%148, L1870) / Option<BuffState> 니치(duration@tag=-1 → None · L1954/L2014) — 전부 「없음」 판정"},
+  {"value": 17, "src_line": 1865, "meaning": "SmallActionPlay 메모리태그 17 = Skill2 (store i8 17 @ 원소+0xb1)"},
+  {"value": 18, "src_line": 1935, "meaning": "SmallActionPlay 메모리태그 18 = Ult (L1935 · L2002 · L2033)"},
+  {"value": 3, "src_line": 1915, "meaning": "BattleSubPlanGoal 태그 3 = KitingBack — L1915 switch: 3·4 → L1917 이동형 궁 배제 검사. (qcspec 경고 사유: 본문의 `shl … 3` 은 Vec<&Entity> stride 8 접힘(drop 경로)이지 이 상수와 무관 — 여기 3 은 switch case 값)"},
+  {"value": 4, "src_line": 1887, "meaning": "BattleSubPlanGoal 태그 4 = RunAway — L1887 switch: 4·7 은 focus 없음(거리 제한 없이 통과) · L1915: 3·4 → L1917"},
+  {"value": 5, "src_line": 1915, "meaning": "BattleSubPlanGoal 태그 5 = Assassin — L1915 switch: 0(Trace)·5 → L1924 대시 검사 생략, 곧장 L1931 can_activate. (qcspec 경고 사유: 본문의 `shl … 5` 는 (SmallAction,&Entity) stride 32 접힘(near_enemies len*32)이지 이 상수와 무관 — 여기 5 는 switch case 값)"},
+  {"value": 7, "src_line": 1887, "meaning": "BattleSubPlanGoal 태그 7 = End — L1887 switch 에서 focus 없음"},
+  {"value": 2, "src_line": 1875, "meaning": "visible_state[team] 의 bounds check 상한(팀 2개) — 판정값 아님(panic_bounds_check 인자)"}
+ ],
+
+ "calls": [
+  "game_ai::small_action::cast::SmallActionSkill2::new",
+  "game_ai::small_action::cast::SmallActionUlt::new",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic",
+  "bumpalo::collections::vec::Vec::push",
+  "game_core::simulation::entity::Entity::can_ult",
+  "game_core::simulation::entity::Entity::block_move",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_ai::utils::is_dash_worth",
+  "game_ai::fight_check::effect_buff_target",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue",
+  "game_core::simulation::game::blackboard::SmallAction::drop",
+  "game_core::simulation::entity::Entity::drop"
+ ],
+
+ "logic": "// battle.rs:1863~2039 (배치 D)\n// 전제(배치 A~C 가 만든 값을 재사용 · 값 정의는 그쪽 명세): champ=%86(player 의 챔피언 &Entity) · candidates=%65(bumpalo Vec<SmallActionPlay>) · near_allies=%72(Vec<&Entity>) · near_enemies_with_action=%70(Vec<(SmallAction<&Entity>, &Entity)>) · move_speed=%239=champ.stat_cached.move_speed · max_tick=%97 · ult_effect=%145(level>4 ? &champ.ult_effect : 빈 Effect 상수) · ult_none=%148(ult_effect.casting@tag==-1) · champ_attack_none=%130 · game=(cache.game.data, cache.game.vtable) · ctx=data.context.\n// ★max_tick: 소스는 L1904·L1987 에 `let max_tick` 을 다시 선언하지만(DILocalVariable 11곳: 1361·1378·…·1904·1987) IR 은 전부 %97 하나로 CSE 됨 = `if sub_goal==KitingBack(3) { if version>1 && base_defense_focus(player,data) {30} else {0} } else {30}` (m02.ll:66406~66423 · 배치 A 범위 · 여기선 값만 씀).\n// 헬퍼 인라인 표기: dist_sq(a,b)=|ax-bx|²+|ay-by|²(entity.rs:2158→utils.rs:7~9) · radius(e)= e.radius_mult==0 ? e.radius : e.radius*(100+e.radius_mult)/100 (entity.rs:1511~1515) · eff_range(eff,caster)= eff.range + eff.growth_range*(caster.level-1) + caster.stat_buff_cached.range (effect.rs:26) · is_visible_from(t, viewer)= viewer.team 이 Neutral ? true : t.visible_state[viewer.team_idx]==Visible(0) (entity.rs:1482~1483 · data.rs:122).\n\n// ---- L1862~1865: 배치 C 의 L1838 루프(`for e in <리스트> { if !data.can_target(game, player, e) {continue} … }` · skill2 후보) 꼬리 — 블록 %2808 은 루트 L1862 로 시작해 배치 C 에 귀속되지만 L1863·L1864 IR 이 그 안에 있다.\nL1863: max_dist = (배치 C 부분합 %2810 = (move_speed*max_tick + skill2_base%237) + range_adjust(champ.skill2_effect, champ, e)) + radius(e)      // m02.ll:72251 (배치 D 귀속 IR 1줄)\nL1864: if dist_sq(e, champ) > max_dist*max_dist { continue → %2649 (배치 C 루프 헤더 L1838) }      // m02.ll:72280~72282\nL1865: candidates.push(SmallActionPlay::Skill2(SmallActionSkill2::new(data, e.id)))   // 태그 17 @+0xb1 · cap==len 이면 reserve_internal_or_panic(…,1,true) · memcpy 184B · len+=1 → %2649 (배치 C)\n\n// ---- L1870: 궁극기 게이트\nL1870: if ult_none(%148) { return candidates }          // %2647→%2850 (L2038 sret memcpy)\n       if !champ.can_ult() { return candidates }         // %2848/%2885 → %2850\n\n// ---- L1871~1872: 갬블러 궁 판정\nL1871: ult_action: &dyn Action = if champ.level>4 { &*champ.ult } else { &*champ.empty }   // select %143 ? +0x5a0 : +0x5b0 (entity.rs:1677 Entity::ult 인라인)\n       any = ult_action.as_any()(vtable+0x68) ; tid = any.type_id()(Any vtable+0x18 · sret 16B)\nL1872: is_v16_gambler_cc_ult = (tid == TypeId::<GamblerUltAction>) && (gambler_ult.charm_duration(+0x10) != 0)   // closure$23 인라인 · Option::is_some_and(option.rs:661)\nL1888(호이스팅): focus_radius = if is_v16_gambler_cc_ult { 8100000000 (90000²) } else { 36000000 (6000²) }   // %2910 phi: 비-갬블러 → 36000000 · 갬블러 → select(charm==0 ? 36000000 : 8100000000)\n\n// ---- L1874~1935: 적 대상 궁 후보 (for (a, e) in near_enemies_with_action.iter()  // a=SmallAction<&Entity>(원소+0x0) · e=&Entity(원소+0x18) · 원소 32B)\nL1875: if !e.is_visible_from(champ) { continue }                       // champ Neutral 이면 검사 생략(항상 통과)\nL1879: if !CastingTarget::check(&ult_effect.target, champ, e) { continue }\nL1883: if !ult_action.target_constraint(game, champ, e) { continue }    // Action vtable+0xc8 · (self, game.data, game.vtable, caster, target) -> bool\nL1887: match sub_goal { Trace|Protect|Kiting|KitingBack|Assassin|AssassinReady (0·1·2·3·5·6) => {\n           if let Some(focus) = game.get_entity_by_id(sub_goal.focus)(vtable+0x1f0) {\nL1889:         if !(dist_sq(e, focus) < focus_radius) { continue }      // `icmp ult %2992, %2910` — focus 에서 focus_radius(제곱) 미만이어야 통과 (경계 = 같으면 탈락)\n           } }\n         RunAway|End (4·7) => {} }\nL1894: move_speed_e = if a.tag == RunAway(0) && !e.block_move() { move_speed.saturating_sub(e.stat_cached.move_speed) } else { move_speed }   // 도망치는 적은 상대 속도로 추격 여력 계산 (block_move 면 적이 못 움직이니 내 이속 그대로)\nL1900: range = eff_range(ult_effect, champ) + range_adjust(ult_effect, champ, e) + radius(champ) + radius(e)\nL1901: dist_sq = dist_sq(e, champ)\nL1904: max_tick = %97 (위 ★)\nL1910: max_dist = range + move_speed_e * max_tick\nL1911: if dist_sq > max_dist*max_dist { continue }\nL1915: match sub_goal {\n         KitingBack|RunAway (3·4) => {\nL1917:       if ult_effect.ty.expected_move_on_hit()(EffectType vtable+0x68) { continue }\n             if ult_effect.ty.expected_move_distance()(vtable+0x58 · sret 24B) 의 첫 8B != 0 { continue }   // 이동을 유발하는 궁은 후퇴 중엔 배제\n             → L1924 로 }\n         Trace|Assassin (0·5) => → L1931 로 (대시 가치 검사 생략)\n         _ (1·2·6·7) => → L1924 로 }\nL1924: if ult_effect.ty.can_move()(vtable+0x120) && e.ty.tag == Champion(13) {\nL1925:     skill_damage = Effect::expected_damage_target(ult_effect, ctx, (champ as &dyn AbstractEntity), e)   // caster 팻포인터 = (champ, @anon…54) · target = e\nL1926:     if !is_dash_worth(data, player, champ, e, skill_damage) { continue } }\nL1931: if !ult_action.can_activate(game, champ)(Action vtable+0xc0) { continue }\nL1935: candidates.push(SmallActionPlay::Ult(SmallActionUlt::new(data, e.id)))   // 태그 18 · 인라인 push\n// 루프 끝 → L1938\n\n// ---- L1938~2002: 아군 대상 궁 후보 (for e in near_allies.iter()  // Vec<&Entity> · 원소 8B)\n// 루프 진입 전 호이스팅: caster_extra = move_speed*60 (%2940 · dbg L1964) · champ.attack_effect.range/growth 주소(%2941/%2942)\nL1939: if !CastingTarget::check(&ult_effect.target, champ, e) { continue }\nL1943: if !ult_action.target_constraint(game, champ, e) { continue }\nL1949: buff: Option<BuffState> = effect_buff_target(version, ult_effect, ctx, (champ as dyn), (champ as dyn))   // ⚠caster·target 둘 다 champ(e 아님) — IR m02.ll:73032 그대로\nL1950: is_etc_buff = ult_effect.ty.etc_buff()(vtable+0x90)\nL1954: if is_etc_buff || buff.is_some() { → L1963 }                      // `or i1`(비단락) · 소스 순서는 컬럼 부재로 불명, 의미상 무관\n       else {\nL1955:   gate_applies = (ult_effect.ty.expected_on_attack_damage(ctx, champ)(vtable+0xb0) == 0)\nL1956:   if gate_applies { → L1983 (교전권 검사 없이 사거리 검사로) } else { → L1963 } }\nL1963: engage_extra = e.stat_cached.move_speed * 60\nL1964: caster_extra = champ.stat_cached.move_speed * 60 (%2940)\nL1965: target_atk = e.attack_effect ; if None(casting@tag==-1) { continue }   // %3196→%3351→%3432\nL1966: has_enemy_in_attack_range = near_enemies_with_action.iter().any(|(_, x)| {   // 인라인 클로저(iterator.rs:331~332) · 빈 리스트면 false → continue\nL1967:     attack_range = eff_range(target_atk, e) + engage_extra + range_adjust(target_atk, e, x) + radius(e) + radius(x)\nL1968~1970: caster_range = (champ.attack_effect.map(|atk| eff_range(atk, champ) + range_adjust(atk, champ, x)).unwrap_or(0)) + caster_extra + radius(champ) + radius(x)\nL1971:     x.is_visible_from(champ) && ( dist_sq(x, e) <= attack_range²\nL1972:                                 || dist_sq(x, champ) <= caster_range² ) })   // 각각 `icmp ugt` 의 거짓 방향 = 통과\n       if !has_enemy_in_attack_range { continue }      // %3351(dbg line 1 아티팩트 · lifetime.end L1981) → %3432\nL1983: range = eff_range(ult_effect, champ) + range_adjust(ult_effect, champ, e) + radius(champ) + radius(e)\nL1984: dist_sq = dist_sq(e, champ)\nL1987: max_tick = %97\nL1993: max_dist = range + move_speed * max_tick        // %1461 = %239*%97 (호이스팅 · 적 루프와 달리 상대 속도 보정 없음)\nL1994: if dist_sq > max_dist*max_dist { continue }\nL1998: if !ult_action.can_activate(game, champ) { continue }\nL2002: candidates.push(SmallActionPlay::Ult(SmallActionUlt::new(data, e.id)))   // 태그 18\n// 루프 끝 → L2005\n\n// ---- L2005~2033: 자기 대상 궁 후보\nL2005: if !(CastingTarget::check(&ult_effect.target, champ, champ) && ult_action.target_constraint(game, champ, champ)) { return candidates }   // 각각 거짓이면 %2850\nL2007: skip_self_buff = false\nL2009: buff = effect_buff_target(version, ult_effect, ctx, (champ as dyn), (champ as dyn))\nL2010: is_etc_buff = ult_effect.ty.etc_buff()\nL2014: if is_etc_buff || buff.is_some() { → L2018 } else {\nL2015:   gate_applies = (ult_effect.ty.expected_on_attack_damage(ctx, champ) == 0)\nL2016:   if gate_applies { → L2032 } else { → L2018 } }\nL2018: engage_extra = move_speed * 60 (%2940 재사용)\nL2019: target_atk = champ.attack_effect ; if None(%130) { skip_self_buff = true → return candidates }\nL2020: has_enemy_in_attack_range = near_enemies_with_action.iter().any(|(_, x)| {   // 빈 리스트면 false\nL2021:     attack_range = eff_range(target_atk, champ) + engage_extra + range_adjust(target_atk, champ, x) + radius(champ) + radius(x)\nL2022:     x.is_visible_from(champ) && dist_sq(x, champ) <= attack_range² })\n       if !has_enemy_in_attack_range { skip_self_buff = true → return candidates }   // %3571 → %2850\nL2032: if !ult_action.can_activate(game, champ) { return candidates }     // %3478/%3572 → %2850\nL2033: candidates.push(SmallActionPlay::Ult(SmallActionUlt::new(data, champ.id)))   // 태그 18 · out-of-line Vec::push(m02.ll:73850)\nL2038: return candidates   // %2850: memcpy(sret, candidates, 32)\nL2039: 스코프 종료 — near_enemies_with_action(%70)·near_allies(%72)·enemy_towers(%68) 의 bumpalo Vec drop(원소 drop → 최상단 청크 반환 경로: footer+0x20 == ptr 이면 ptr += len*elem) · 언와인드 cleanuppad %116/%120/%178 는 candidates(%65)·%68·%70·%72 drop_glue.\n// 배치 D 의 gen_range 호출 사이트: 0 개(_rnd 는 IR define 에서 제거됨).",
+
+ "knobs": [
+  {"what": "focus_radius(기본) — sub_goal focus 로부터 궁 대상 허용 거리", "where": "battle.rs:1888", "value": 36000000, "effect": "6000² 제곱비교. 올리면 focus(추적/보호/카이팅 대상)에서 더 먼 적에게도 궁을 후보로 올린다 · 내리면 focus 근처 적에게만"},
+  {"what": "focus_radius(갬블러 CC 궁)", "where": "battle.rs:1888", "value": 8100000000, "effect": "90000². is_v16_gambler_cc_ult(GamblerUltAction && charm_duration!=0) 일 때 사실상 거리 제한 해제. 내리면 갬블러 궁도 focus 근처로 제한"},
+  {"what": "engage_extra 배수(교전권 = 1초 이동분)", "where": "battle.rs:1963 · 1964 · 2018", "value": 60, "effect": "아군/자기 대상 버프 궁의 「근처에 적이 있어야」 조건에서 사거리에 더하는 이속×틱. 올리면 더 멀리 있는 적도 교전 중으로 간주해 버프 궁이 더 자주 후보에 오른다"},
+  {"what": "max_tick(추격 허용 틱) — 궁 대상 max_dist 에 곱하는 틱", "where": "battle.rs:1904 · 1987 (IR 은 배치 A L1361 %97 로 CSE)", "value": 30, "effect": "KitingBack 이면서 (version<=1 또는 !base_defense_focus) 일 땐 0(제자리 사거리만). 올리면 더 먼 적/아군에게도 궁 후보 등록(이동 포함 사거리 확대)"},
+  {"what": "대시형 궁 가치 검사 대상 = 챔피언만", "where": "battle.rs:1924", "value": 13, "effect": "EntityType Champion 태그. 바꾸면 미니언/정글 대상 대시 궁도 is_dash_worth 를 거친다(현재는 비챔피언엔 검사 없이 통과)"}
+ ],
+
+ "unknown": [
+  "L1917 expected_move_distance(EffectType vtable+0x58) 의 sret 24B 타입 — 첫 8B(i64)==0 이면 통과만 확인. Option<(u64,u64)> 인지 (usize,…) 인지 tcxdict 로 미확인(vtable 슬롯은 divtable EffectType 일치율 94% 기준)",
+  "Action vtable 슬롯 이름(+0x68 as_any · +0xc0 can_activate · +0xc8 target_constraint)은 divtable `Action` 일치율 58% 의 두 정적 vtable(TargetProjectileAction/TargetAttackAction)에서 읽은 것 — 런타임 구현체는 불명이나 슬롯↔이름은 두 vtable 이 일치",
+  "L1954/L2014 `is_etc_buff || buff.is_some()` 의 소스 순서(컬럼 부재) — IR 은 `or i1`(비단락) 이라 순서 무관",
+  "L1889 비교가 소스에서 `<` 인지 `>=` 의 부정인지(표기 불가) — IR `icmp ult dist_sq, focus_radius` 참이면 통과로 동작 확정",
+  "L1949/L2009 effect_buff_target 에 아군 루프에서도 caster·target 이 둘 다 champ 인 이유(설계 의도) — IR 사실만 기록",
+  "블록 %2808(m02.ll:72247~72282) 은 루트 L1862 로 시작해 블록 단위론 배치 C 이지만 L1863(1줄)·L1864(21줄) IR 이 그 안에 있어 여기 logic 에 포함 — mergespec 후 C 와 중복 서술 가능(내용은 동일해야 함)",
+  "reach.txt(version=2·gamemode=0): 사장 블록 0 · 배치 D 범위에 NA 봉인 대상 없음",
+  "L1875 is_visible_from 의 정확한 소스 표기(메서드명은 DIScope 로 확정 · 인자 순서 (e, champ) 는 인라인 형태에서 추정 — champ.team 을 읽고 e.visible_state 를 첨자)"
+ ]
+}

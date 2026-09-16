@@ -1,0 +1,98 @@
+{
+ "name": "resolve_fight_stake_roster",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model26resolve_fight_stake_roster",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 645,
+ "ir_file": "m10.ll",
+ "ir_from": 47870,
+ "ir_to": 48401,
+ "aux": [
+  {"ir_file": "m10.ll", "ir_from": 56540, "ir_to": 56567, "what": "<&mut closure#0(fight_model.rs:656) as FnMut>::call_mut — remaining 필터 술어 `*bound && a.id != champ.id`"},
+  {"ir_file": "m01.ll", "ir_from": 27999, "ir_to": 28168, "what": "bumpalo Vec<&Entity>::from_iter_in<Map<Filter<slice::Iter<(&Entity,i64,bool)>, closure#0>, closure#1>> — remaining 수집(L655~656)"},
+  {"ir_file": "m12.ll", "ir_from": 25434, "ir_to": 25572, "what": "Map<slice::Iter<&Entity>, min_by_key::key<closure#2>>::fold<min_by::fold<compare>> — L666 가장 가까운 remaining 탐색(키 (dist², id) 튜플 비교)"}
+ ],
+ "exe_rva": "0xe0b030",
+ "one_line": "합류 편성(roster)으로 교전 저울 3회 — 절대 판정 / 묶인 아군만 남긴 포기 판정 / 포기 net 기준 차분 판정 → 차분을 채택하되 라인이 갈리면 rescue_ally(최근접 묶인 아군) 표시",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret) absolute→반환", "type": "FightPrediction 64B", "role": "`dead_on_unwind noalias writable sret([64 x i8]) captures(none) dereferenceable(64)` · ⚠`writeonly` 아님 — L664 에서 `absolute.line`(+0x38) 을 되읽는다(m10.ll:48195~48196). initializes 속성 없음. DI 이름 `absolute`(첫 resolve_fight_full 의 sret 으로 직접 씀 m10.ll:48003)"},
+   {"i": 1, "name": "version", "type": "usize", "role": "`noundef` · 본문 분기 없음 — resolve_fight_full ×3 에 그대로 전달"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "role": "`noalias readonly captures(none) dereferenceable(24)` · L648 data.context.pool(bump) 만 직접 읽고(m10.ll:47909~47911) 나머지는 콜리 전달"},
+   {"i": 3, "name": "champ", "type": "&Entity(1728B)", "role": "`noalias readonly captures(address, read_provenance) dereferenceable(1728)` · id(@0x5c0)·x/y(@0x660/0x668) 를 필터(L656)·최근접 키(L666)에서 읽음"},
+   {"i": 4, "name": "roster.data_ptr", "type": "&[(&Entity, i64, bool)] 팻포인터 data", "role": "`noalias nonnull readonly captures(address, read_provenance)` · 원소 24B: +0 &Entity(DI `a`) · +8 i64(도착 틱 → arrivals) · +16 bool(DI `bound`, 묶임 여부). tcx sig 확정 `&[(&Entity, i64, bool)]`"},
+   {"i": 4, "name": "roster.len", "type": "usize", "role": "`range(i64 0, 384307168202282326)` = 2^63/24 → stride 24 확정"},
+   {"i": 5, "name": "near_enemies.data_ptr", "type": "&[&Entity] data", "role": "`noalias nonnull readonly` · 본문에서 안 읽음 — 세 콜리에 그대로 전달"},
+   {"i": 5, "name": "near_enemies.len", "type": "usize", "role": "`range(i64 0, 1152921504606846976)` = 2^60 → stride 8"},
+   {"i": 6, "name": "committed_dir", "type": "i8", "role": "`noundef` · 절대·차분 호출엔 그대로, 포기 호출엔 0 고정(m10.ll:48127). 본문 분기 없음(값 의미는 콜리 소관 — _docs: 이탈 커밋 = -1)"},
+   {"i": 7, "name": "tower", "type": "Option<&Entity>", "role": "`noalias readonly dereferenceable_or_null(1728)` · null=None. 본문에서 안 읽음 — 세 콜리에 전달"},
+   {"i": 8, "name": "judge_accuracy", "type": "usize", "role": "`noundef` · 본문 분기 없음 — 세 콜리에 전달"}
+  ],
+  "returns": "sret FightPrediction 64B (tcxdict: focus_target Option<usize>@0x0 · soaker Option<usize>@0x10 · rescue_ally Option<usize>@0x20 · net_value i64@0x30 · line FightLine u8@0x38 · line_absolute FightLine u8@0x39 · 0x3a..0x40 패딩 6B). ★경로별 live: (a) remaining 비었음(L658) → 첫 resolve_fight_full(absolute) 이 채운 그대로 반환(rescue_ally·line_absolute 는 콜리가 쓴 값 — 콜리 계약 미독해) · (b) 그 외 → diff 64B memcpy(m10.ll:48211): +0x39 line_absolute = absolute.line 로 덮음(48195~48198) · 라인이 갈리면 +0x20 rescue_ally tag(1=Some/0=None)·+0x28 id 를 이 함수가 씀 — None 이면 +0x28 은 `phi undef`(m10.ll:48363·48367) = 미기록 · 라인이 같으면 rescue_ally 는 콜리 값 유지. Option<usize> 니치 없음(tag 0/1 · tcx). 패딩 6B 는 어느 경로도 안 씀(memcpy 로 diff 의 undef 가 복사됨)",
+  "tls": null
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "m10.ll:47909~47910 L648"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool (&bumpalo::Bump)", "note": "m10.ll:47911 — allies/arrivals/remaining 세 bumpalo Vec 의 할당자(DI `bump`)"},
+  {"base": "(&Entity,i64,bool)", "offset": "0x0", "name": "a: &Entity", "note": "m10.ll:47955 L651 allies.push(a) · aux m01.ll:28092 map 클로저 · aux m10.ll:56556 필터"},
+  {"base": "(&Entity,i64,bool)", "offset": "0x8", "name": "arrival tick i64", "note": "m10.ll:48025~48026 L652 arrivals.push"},
+  {"base": "(&Entity,i64,bool)", "offset": "0x10", "name": "bound: bool", "note": "aux m10.ll:56548~56551 필터 L656 첫 조건(false 면 id 비교 생략 — `&&` 단락)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id (usize)", "note": "aux m10.ll:56557~56561 필터 `a.id != champ.id` · m10.ll:48333~48334·48357~48358 L666 키/결과 id · aux m12.ll:25542~25543"},
+  {"base": "Entity", "offset": "0x660", "name": "x (u64)", "note": "m10.ll:48304~48305(a)·48312~48313(champ) L666 인라인 거리(entity.rs:2158 → |dx| 계산 3147:7) · aux m12.ll:25513~25522"},
+  {"base": "Entity", "offset": "0x668", "name": "y (u64)", "note": "m10.ll:48308~48317 · aux m12.ll:25517~25526"},
+  {"base": "FightPrediction(absolute, sret)", "offset": "0x38", "name": "line (FightLine u8)", "note": "m10.ll:48195~48196 L664 되읽기 → diff.line_absolute · L665 비교"},
+  {"base": "FightPrediction(diff, 로컬 %15)", "offset": "0x38", "name": "line", "note": "m10.ll:48203~48204 L665 `diff.line != absolute.line`(derive PartialEq 인라인 fight_model.rs:243)"},
+  {"base": "FightPrediction(abandon, 로컬 %16)", "offset": "0x30", "name": "net_value (i64)", "note": "m10.ll:48189~48190 L663 → 세 번째 resolve_fight_full 의 baseline 인자"},
+  {"base": "bumpalo Vec<&Entity>(remaining %18)", "offset": "0x18", "name": "len", "note": "m10.ll:48088~48090 L658 `len == 0` · 48237 L666 min_by_key 범위"}
+ ],
+
+ "writes": [
+  {"base": "sret", "offset": "0x0", "name": "FightPrediction 전체 64B", "value": "resolve_fight_full(absolute) 의 sret 직접 기록(L654) → remaining 있으면 diff 64B memcpy 로 덮음(L668)", "note": "m10.ll:48003 · 48211"},
+  {"base": "FightPrediction(diff %15)", "offset": "0x39", "name": "line_absolute", "value": "absolute.line", "note": "m10.ll:48197~48198 L664 — memcpy 로 sret +0x39 에 도달"},
+  {"base": "FightPrediction(diff %15)", "offset": "0x20", "name": "rescue_ally.tag", "value": "1(Some) | 0(None)", "note": "m10.ll:48362·48365 L666 — `diff.line != absolute.line` 일 때만. Some ⇔ remaining 비어있지 않고 min 존재(remaining.len>0 이 전제라 실제로 항상 Some — 48278 `len==0` 분기는 구조상만 live)"},
+  {"base": "FightPrediction(diff %15)", "offset": "0x28", "name": "rescue_ally.value", "value": "최근접 remaining 의 id | undef(None)", "note": "m10.ll:48363·48367"},
+  {"base": "stack", "offset": "0x0", "name": "allies: bumpalo Vec<&Entity>(32B %20) · arrivals: bumpalo Vec<i64>(32B %19) · remaining: bumpalo Vec<&Entity>(32B %18) · abandon(64B %16) · diff(64B %15)", "value": "L648~663 로컬", "note": "m10.ll:47914~47934(new_in: ptr=8(dangling) bump cap=0 len=0) · 48021~48024/48063~48066 push · 48081 from_iter_in. 함수 밖 &mut 인자 없음(전 인자 readonly). bump 할당은 pool 의 부작용(chunk 소비)"}
+ ],
+
+ "constants": [
+  {"value": 0, "src_line": 661, "meaning": "포기(abandon) 호출의 committed_dir=0(m10.ll:48127 i8 0) · arrivals 빈 슬라이스(len 0) · baseline 0 — 「묶인 아군만으로, 커밋 없이, 도착 없이」의 절대 판정. 같은 0 이 L654 절대 호출 baseline(48003 마지막 인자)과 L658 `remaining.len()==0`(48090) 에도"},
+  {"value": 1, "src_line": 666, "meaning": "rescue_ally = Some 태그(m10.ll:48362 phi) · bumpalo push additional=1(계측 아님·용량)"},
+  {"value": 8, "src_line": 648, "meaning": "`inttoptr (i64 8 to ptr)` = 빈 bumpalo Vec 의 dangling 포인터(align 8)(m10.ll:47914·47921) · L661 빈 arrivals 슬라이스 ptr(48127). 판정 아님"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::old::fight_model::resolve_fight_full",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "bumpalo::collections::vec::from_iter_in",
+  "core::iter::adapters::map::Map::fold",
+  "core::ptr::drop_glue",
+  "core::ops::drop::Drop::drop",
+  "llvm.memcpy.p0.p0.i64",
+  "llvm.memset.p0.i64"
+ ],
+
+ "callee_contracts": [
+  {"callee": "resolve_fight_full", "define": "m10.ll:39915 (internal fastcc · fight_model.rs:324)", "sig": "(sret FightPrediction 64B `writeonly` · version:usize · data:&OperationData(24) · champ:&Entity(1728) · near_allies:&[&Entity](ptr,len) · near_enemies:&[&Entity](ptr,len) · committed_dir:i8 · tower:Option<&Entity>(null 허용) · judge_accuracy:usize · arrivals:&[i64](ptr,len · DI `arrivals`) · baseline:i64(DI `baseline`))", "note": "호출 3회(계약만 · 자식 명세 별도): ①L654 absolute = (allies=roster 전원, arrivals=roster.1 전부, committed_dir 그대로, baseline 0) → sret 직접 ②L661 abandon = (allies=remaining, arrivals=[], committed_dir 0, baseline 0) ③L662~663 diff = (allies·arrivals ①과 동일, committed_dir 그대로, baseline = abandon.net_value). sret 에 initializes 속성 없음 → Option 필드 None 시 값 슬롯 live 여부는 콜리 명세 참조"},
+  {"callee": "bumpalo Vec::from_iter_in (aux m01.ll:27999)", "sig": "(sret Vec<&Entity> 32B, iter: Map<Filter<Iter<(&Entity,i64,bool)>,closure#0>,closure#1>{start,end,&champ}, bump)", "note": "remaining = roster.iter().filter(|t| t.2 && t.0.id != champ.id).map(|t| t.0)"},
+  {"callee": "Map<Iter<&Entity>,key>::fold (aux m12.ll:25434)", "sig": "(sret (u64,usize,ptr) 24B, iter{start,end,&champ}, init=(첫 원소 키))", "note": "min_by_key 나머지 원소 접기 — 키 = (dist²(a,champ), a.id) 튜플 Ord 비교 · `cmp ≤ Equal 이면 누적 유지`(m12.ll:25554~25555) = 동률 시 앞 원소"},
+  {"callee": "RawVec::reserve_internal_or_panic ×2", "sig": "(&mut Vec, used_cap, additional=1, exact=true)", "note": "push 의 용량 확장(m10.ll:47975·48046) — 부작용 = bump 청크 소비"}
+ ],
+
+ "logic": "// fight_model.rs:645~647  pub(crate) fn resolve_fight_stake_roster(version, data:&OperationData, champ:&Entity, roster:&[(&Entity /*a*/, i64 /*arrival*/, bool /*bound*/)], near_enemies:&[&Entity], committed_dir:i8, tower:Option<&Entity>, judge_accuracy:usize) -> FightPrediction\n// L648~649\nbump = data.context.pool\nallies:   bumpalo Vec<&Entity> = new_in(bump)\narrivals: bumpalo Vec<i64>     = new_in(bump)\n// L650~652  (편성 전원 → 절대 판정 입력)\nfor (a, arrival, _bound) in roster { allies.push(a); arrivals.push(arrival) }\n// L654  ① 절대 판정 — sret 에 직접\nabsolute = resolve_fight_full(version, data, champ, &allies, near_enemies, committed_dir, tower, judge_accuracy, &arrivals, baseline=0)\n// L655~656  묶인 아군(자기 제외)만\nremaining: bumpalo Vec<&Entity> = roster.iter().filter(|(a,_,bound)| *bound && a.id != champ.id).map(|(a,_,_)| *a).collect_in(bump)\n// L658\nif remaining.is_empty() { return absolute }          // 묶인 아군 없음 → 절대 판정 그대로(rescue_ally·line_absolute 는 콜리가 쓴 값)\n// L661  ② 포기 판정 — 묶인 아군만, 커밋 없음(dir 0), 도착 없음, baseline 0\nabandon = resolve_fight_full(version, data, champ, &remaining, near_enemies, 0, tower, judge_accuracy, &[], 0)\n// L662~663  ③ 차분 판정 — ①과 같은 입력에 baseline = abandon.net_value\ndiff = resolve_fight_full(version, data, champ, &allies, near_enemies, committed_dir, tower, judge_accuracy, &arrivals, abandon.net_value)\n// L664\ndiff.line_absolute = absolute.line\n// L665~666  라인이 갈렸으면(차분이 절대를 뒤집음) 근거 아군 = champ 에서 가장 가까운 remaining\nif diff.line != absolute.line {\n   diff.rescue_ally = remaining.iter().min_by_key(|a| ((a.x-champ.x)²+(a.y-champ.y)² /*u64 절대차 제곱합*/, a.id)).map(|a| a.id)   // remaining.len>0 이므로 항상 Some\n}\n// L668~669\nreturn diff   // (drops: remaining · arrivals · allies)\n\n// 분기 순서: remaining 비었나(L658) → 라인 갈림(L665). version/tower/judge_accuracy/near_enemies/committed_dir 은 이 함수에서 분기 없음.\n// rnd 인자 없음 · gen_range 0회. 세 콜리 호출 순서 = absolute → abandon → diff (모두 같은 data 로 — 콜리가 TLS/캐시를 쓰면 이 순서가 관측 순서).",
+
+ "knobs": [
+  {"what": "포기 판정의 committed_dir 고정값", "where": "fight_model.rs:661", "value": 0, "effect": "abandon 저울에 커밋 방향을 안 준다(=중립). 호출 인자 committed_dir 을 그대로 넘기면 「이탈 커밋 중 포기」가 절대 판정과 같은 편향을 받아 차분(baseline)이 줄어듦"},
+  {"what": "포기 판정의 arrivals", "where": "fight_model.rs:661", "value": "빈 슬라이스", "effect": "묶인 아군의 도착 틱을 0으로(=이미 도착) 보는 게 아니라 도착 정보를 아예 안 준다 — 콜리가 arrivals 부재를 어떻게 다루는지는 콜리 명세"},
+  {"what": "remaining 필터", "where": "fight_model.rs:656", "value": "bound && id != champ.id", "effect": "bound=false 인 편성원은 포기 판정에서 빠진다 → 그들만 있으면 remaining 비어 차분 없이 절대 판정 반환"},
+  {"what": "rescue_ally 선택 기준", "where": "fight_model.rs:666", "value": "min (dist², id)", "effect": "가장 가까운 묶인 아군(동률이면 id 작은 쪽). 소비자는 이 아군 방향일 때만 뒤집기를 채택(_docs) — 기준을 바꾸면 호응 면허 대상이 바뀜"}
+ ],
+
+ "unknown": [
+  "roster 튜플의 i64(+8)·bool(+16) 의 소스 필드명은 미확정 — DI 는 `a`(+0)·`bound`(+16) 만 남고 +8 은 이름 없음(m10.ll:48025). +8 은 resolve_fight_full 의 `arrivals` 인자로 가므로 「도착 틱」으로 읽었으나 단위(틱 절대/상대)는 콜리 명세 참조",
+  "resolve_fight_full 내부(net_value·line 산출, baseline 의 정확한 적용식, arrivals 빈 슬라이스 처리) — 계약만(자식 명세). 특히 sret 의 Option 필드 None 시 값 슬롯 live 여부·rescue_ally 를 콜리가 쓰는지 여부는 콜리 명세로",
+  "L666 min_by_key 의 `remaining.len()==0` 분기(m10.ll:48278→48281 None) 는 L658 게이트 때문에 실행상 도달 불가 — reach 는 상수 접기 아님으로 live 표기. rescue_ally 는 실제로 항상 Some",
+  "src_line: tcx 645~647(시그니처 3줄) · DISubprogram line 645 — 645 로 기록",
+  "committed_dir 의 값 의미(-1/0/1 등)는 이 함수에서 분기 없어 표기 불가(동작은 전달뿐) — _docs 「이탈 커밋(dir=-1)」만 참고"
+ ]
+}

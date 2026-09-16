@@ -1,0 +1,309 @@
+{
+ "name": "TeamPlan::can_near_enemies",
+ "sym": "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan16can_near_enemies",
+ "src": "game-ai\\src\\plan_legacy\\team_plan.rs",
+ "src_line": 444,
+ "ir_file": "m09.ll",
+ "ir_from": 25501,
+ "ir_to": 25651,
+ "aux": [
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 24551,
+   "ir_to": 24909,
+   "note": "bumpalo Vec<&Entity>::from_iter_in<FilterMap<Filter<Range<usize>, can_near_enemies::{closure#0}>, {closure#1}>> — filter 술어(team_plan.rs:459~478)가 통째로 인라인된 수집 루프. fnparts 가 can_near_enemies 소유로 잡은 조각"
+  },
+  {
+   "ir_file": "m09.ll",
+   "ir_from": 66072,
+   "ir_to": 66108,
+   "note": "filter_map 클로저 {closure#1}(team_plan.rs:480) 의 FnMut::call_mut 심 — data.cache.player_champion[1-player.team][x] 를 Option<&Entity>(null=None) 로 돌려준다"
+  }
+ ],
+ "layer": "team_plan 잎(r18 배치 Q) — 판 8 리턴 주소 실측 지도 밖 판단 로직. exe 0xdd9f30(745B) ↔ IR 143 ins(주 본체 m09.ll 25501~25651). reach(version=2·gamemode=0): 블록 7 · 살아있음 7 · 사장 0 · 접힌 분기 1(@entry %23=is_dm -> 0 = Moba 에선 is_dm 항상 false). ⚠exe 정체 의심은 unknown[0] 참조",
+ "one_line": "내 팀 시야에 안 보이는 적 챔피언 중 '내 챔피언 근처(350k)에 있을 수 있는' 것들을 판단력 기반 미시야 추정으로 골라 Vec<&Entity>로 반환",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "bumpalo::collections::vec::Vec<&Entity, &Bump> (32B) %0",
+    "note": "define 줄 속성: dead_on_unwind noalias writable sret([32 x i8]) captures(none) dereferenceable(32). 레이아웃(tcxdict 정본): +0x0 buf.ptr(nonnull) · +0x8 buf.a(&Bump=data.context.pool) · +0x10 buf.cap · +0x18 len"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&TeamPlan(1064B) %1",
+    "note": "define 줄 속성: nonnull align 8 (readonly 속성 없음 · 동작상 읽기만 — 클로저 env[40] 에 포인터를 담아 vision.* 3배열만 읽는다). 본체에서 쓰기 0"
+   },
+   {
+    "i": 2,
+    "name": "_version",
+    "type": "usize %2",
+    "note": "본문에서 %2 참조 0회 — 미사용(DI 이름 `_version`)"
+   },
+   {
+    "i": 3,
+    "name": "_rnd",
+    "type": "&mut StdRng(320B) %3",
+    "note": "define 줄 속성: noalias readnone align 16 captures(none) dereferenceable(320). 미사용 — gen_range 호출 사이트 0"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B) %4",
+    "note": "define 줄 속성: noalias readonly captures(address, read_provenance) dereferenceable(2528). +0x180 info.parameter(judgement_base 인자) · +0x928 info.id · +0x930 info.team · +0x9c0 info.position 태그(i32)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B) %5",
+    "note": "define 줄 속성: noalias readonly captures(address, read_provenance) dereferenceable(24). +0x0 cache(&AbstractGameWithCache) · +0x8 context(&GameContext) · +0x10 blackboard(&[Blackboard;2])"
+   },
+   {
+    "i": 6,
+    "name": "_debug",
+    "type": "&mut DebugFrameData(224B) %6",
+    "note": "define 줄 속성: noalias readnone align 8 captures(none) dereferenceable(224). 미사용(DI 이름 `_debug` · DI 타입 ref_mut$<game_core::simulation::game::frame::DebugFrameData>)"
+   }
+  ],
+  "returns": "sret Vec<&Entity,&Bump>(32B) — 전 32B 가 살아있는 바이트(패딩 없음): +0 ptr(빈 벡터면 dangling 8=align) · +8 &Bump · +16 cap · +24 len. 원소 = &Entity 8B(nonnull, 니치 없음 — 원소 안 live 8/8). 의미: '안 보이지만 내 챔피언 350k 반경 안에 있을 수 있다고 추정되는 적 챔피언' 목록(포지션 인덱스 0..5 순). 인지 공백(lapse) 중이면 빈 벡터(len=0,cap=0). 원소 순서 = 적 포지션 인덱스 오름차순",
+  "tls": null
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": "m09.ll:25522 (%15). 클로저 env[0]·env[96] 에도 담김"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext)",
+   "note": "m09.ll:25555 (%37) · 25569 (%47)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2] · 원소 744B)",
+   "note": "m09.ll:25599 (%62) → env[8]. 클로저에서 [1-team] 원소로 getelementptr(m01.ll:24816 · 구조체 stride 744B)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)",
+   "note": "m09.ll:25523 (%16) · m01.ll:24685 (%52)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "m09.ll:25525 (%18). 슬롯 +0x20 seed(25545) · +0x28 tick(25550) · +0x40 get_game_mode(25526) · +0xf8 is_visible(m01.ll:24734) — divtable AbstractGame 일치율 98%"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion [[Option<&Entity>;5];2] (gep 480)",
+   "note": "m09.ll:25593~25596 [team][position] = my_champ · m01.ll:24680~24683 [1-team][x] = e · m09.ll:66103~66106 (shim, filter_map 결과)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "m09.ll:25571 (빈 벡터 alloc) · 25642 (from_iter_in bump 인자)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "m09.ll:25557~25558"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second (gep 4856)",
+   "note": "m09.ll:25559~25560 → tps"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter (&AthleteParameter 744B)",
+   "note": "m09.ll:25541 → judgement_base(&param)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x928",
+   "name": "info.id (usize · observer_pid)",
+   "note": "m01.ll:24779~24780 → unseen_estimated_pos 2번째 인자"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team (usize)",
+   "note": "m09.ll:25563 (my_champ 인덱스·bounds<2) · m01.ll:24661 (1-team · is_visible 의 team 인자) · m09.ll:66082 (shim)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position 태그 (i32, zext nneg)",
+   "note": "m09.ll:25590~25592 → player_champion[team][position]"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id (gep 1472)",
+   "note": "m01.ll:24732~24733 → game.is_visible(team, e.id)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x (u64 · gep 1632)",
+   "note": "m01.ll:24781 (적 e 실제 x) · 24793 (내 champ x)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y (u64 · gep 1640)",
+   "note": "m01.ll:24783 (적 e 실제 y) · 24795 (내 champ y)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x280",
+   "name": "vision.mia_call_ticks[x] (gep 640 + 8*x)",
+   "note": "m01.ll:24809~24811 (DM 경로만)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x2a8",
+   "name": "vision.last_visible_ticks[x] (gep 680 + 8*x)",
+   "note": "m01.ll:24750~24752 (elapsed 계산) · 24806~24808 (DM 경로)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x2f8",
+   "name": "vision.last_visible_distance[x] (u64 · gep 760 + 8*x · 제곱거리)",
+   "note": "m01.ll:24824~24827 (DM) · 24831~24834 (비DM 최근가시)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "(sret)",
+   "offset": "0x0",
+   "name": "buf.ptr",
+   "value": "빈 벡터: inttoptr 8 (dangling) / 수집 시 bump 할당 ptr",
+   "note": "m09.ll:25573 (lapse 조기반환) · m01.ll:24560 + 24906 memcpy 32B"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x8",
+   "name": "buf.a (&Bump)",
+   "value": "data.context.pool",
+   "note": "m09.ll:25575 · m01.ll:24562"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x10",
+   "name": "buf.cap",
+   "value": "0 / reserve 후 cap",
+   "note": "m09.ll:25577 memset 16B(cap·len=0) · m01.ll:24574 memset · 24871 reserve_internal_or_panic"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "0 / push 마다 +1",
+   "note": "m01.ll:24889~24891"
+  },
+  {
+   "base": "(sret) buf.ptr[len]",
+   "offset": "0x0",
+   "name": "원소 &Entity (8B)",
+   "value": "필터 통과한 적 챔피언 &Entity",
+   "note": "m01.ll:24884~24888 store ptr %138"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 448,
+   "meaning": "GameMode 메모리태그 2 = DeathMatch(tcxdict --enum GameMode: Moba0/SingleLane1/DeathMatch2 · Direct). is_dm = get_game_mode().tag == 2. m09.ll:25530. ⚠reach(gamemode=0)에서 접혀 Moba 에선 항상 false"
+  },
+  {
+   "value": 5,
+   "src_line": 458,
+   "meaning": "(0..5) 포지션 인덱스 루프 상한(적 팀 5명). m09.ll:25637 store i64 5(Range.end) · m01.ll:24668 bounds 5"
+  },
+  {
+   "value": 3,
+   "src_line": 465,
+   "meaning": "elapsed > tps*3 (=3초) 이면 '오래 안 보임' → 판단력 추정 경로, 아니면 마지막 목격 거리 경로. m01.ll:24757 mul 3"
+  },
+  {
+   "value": 300000,
+   "src_line": 470,
+   "meaning": "추정 불능 경계 — unseen_error_radius(err) > 300000 이면 '어디 있는지 전혀 모름' → 제외. (_docs game_core.txt:163 '[judgement 미시야 추정] 추정 불능 경계'). m01.ll:24768"
+  },
+  {
+   "value": 350000,
+   "src_line": 475,
+   "meaning": "근접 반경 350k(≈10.9셀). distance(추정위치, 내 champ) > err + 350000 이면 제외. m01.ll:24801 add"
+  },
+  {
+   "value": 122500000001,
+   "src_line": 467,
+   "meaning": "350000² + 1 — last_visible_distance(제곱거리) < 350000²+1 (즉 <= 350000²) 이면 '마지막으로 봤을 때 근처' → 포함. 표기 불가(`<=350000²` vs `<350000²+1` 외연 동일). m01.ll:24827 (DM·L478) · 24834 (비DM·L467)"
+  }
+ ],
+ "calls": [
+  "game_ai::utils::player_awareness_lapse",
+  "game_core::simulation::state::player::AthleteParameter::judgement_base",
+  "core::panicking::panic_bounds_check",
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::simulation::ai_interface::unseen_error_radius",
+  "game_core::simulation::ai_interface::unseen_estimated_pos",
+  "game_core::utils::distance",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible_big_action",
+  "game_core::simulation::entity::Entity::reserve_internal_or_panic",
+  "core::ops::function::impls::FnMut::call_mut",
+  "llvm.usub.sat.i64",
+  "llvm.memset.p0.i64",
+  "llvm.memcpy.p0.p0.i64"
+ ],
+ "logic": "pub fn can_near_enemies(&self, _version, _rnd, player: &PlayerState, data: &OperationData, _debug) -> Vec<&Entity, &Bump>   [team_plan.rs:444~481]\n// _version·_rnd·_debug 미사용. self 는 vision 3배열만 읽음(쓰기 0).\n448: let is_dm = data.cache.game.get_game_mode().tag == 2;        // vtable +0x40 → {i64 tag, ptr} · 2 = DeathMatch. m09.ll:25522~25532\n450: if !is_dm && player_awareness_lapse(player, data) {            // 극성 = 분기: is_dm 이면 lapse 호출 자체를 건너뜀(25533). 25536~25537\n451:     return Vec::new_in(data.context.pool);                       // {ptr=8(dangling), bump, cap=0, len=0}. 25569~25577  ← '인지 공백 = 숨은 적 없음 취급'(_docs game_core.txt:175)\n453: let judgement_base = player.info.parameter.judgement_base();    // +0x180 → game_core (range 0..=100). 25541~25542\n454: let game_seed = game.seed();                                     // vtable +0x20. 25545~25547\n455: let tick = game.tick();                                          // vtable +0x28. 25550~25552\n456: let tps = data.context.setting.tick_per_second;                  // +0x8→+0x8→+0x12f8. 25555~25560\n457: let my_champ: Option<&Entity> = data.cache.player_champion[player.info.team][player.info.position as usize];   // team bounds<2(25565·panic 25585) · position i32 태그 zext. 25590~25597\n458: (0..5).filter(|&x| {                                             // ↓ aux m01.ll 24551~24909 에 인라인(수집 루프 24613~24847)\n459:     let Some(e) = data.cache.player_champion[1 - player.info.team][x] else { return false };   // 1-team bounds<2(24664·panic 24672) · x<5(24668·panic 24712) · null=None(24708)\n460:     if game.is_visible(player.info.team, e.id) { return false; }  // vtable +0xf8 · **보이는 적은 제외**(24736~24740: true → 제외). 결과 = '안 보이는 적' 만 남음\n463:     if !is_dm {                                                   // 24743~24745: is_dm=false → L464 경로, true → L477 경로\n464:         let elapsed = tick.saturating_sub(self.vision.last_visible_ticks[x]);   // usub.sat. 24748~24754\n465:         if elapsed > tps * 3 {                                    // 3초 넘게 못 봄. 24756~24759\n469:             let err = unseen_error_radius(judgement_base, elapsed, tps);   // game_core ai_interface.rs (_docs: 오차 = 40k + (3k + 57k·((100−j)/100)²)·경과초). 24762~24764\n470:             if err > 300000 { return false; }                     // 추정 불능. 24768~24769\n473:             let Some(champ) = my_champ else { return false; };    // 내 챔피언 없으면 제외. 24772~24774\n474:             let (ex, ey) = unseen_estimated_pos(game_seed, player.info.id, x, tick, tps, e.x, e.y, err);   // 인자 순서 = (game_seed, observer_pid, enemy_pos, tick, tps, actual_x, actual_y, error_radius). 24778~24790\n475:             return distance(ex, ey, champ.x, champ.y) <= err + 350000;   // IR: ugt(dist, err+350000) → 제외(24797~24803). 표기(<= vs <) 는 분기 방향으로 확정: dist > err+350000 이면 제외\n466~467:     } else { return self.vision.last_visible_distance[x] <= 350000²; }   // IR ult 122500000001. 24831~24835. 최근(≤3초) 목격 → 마지막 목격 거리로 판정\n476~477: } else {  // DeathMatch (reach gamemode=0 에선 도달 불가 = NA 봉인 · 서술만)\n477:         if self.vision.last_visible_ticks[x] > self.vision.mia_call_ticks[x]        // 24806~24813\n                && !data.blackboard[1 - player.info.team].is_recent_visible_big_action(game, player, e) { return false; }   // 적 팀 블랙보드(744B stride) · false 면 제외(24816~24821). last_visible<=mia_call 이면 호출 안 함\n478:         return self.vision.last_visible_distance[x] <= 350000²;   // 24824~24828\n     }\n480: }).filter_map(|x| data.cache.player_champion[1 - player.info.team][x])   // call_mut 심 m09.ll:66072~66108 (같은 bounds 2·5 재검사 · null=None 이면 미수집 24846)\n481: .collect_in(data.context.pool)   // from_iter_in: 원소마다 reserve_internal_or_panic(24871)+store(24888)+len++(24891) · 끝에 32B memcpy → sret(24906)\n\n요지(한 줄 판정식): result = { e ∈ 적 챔피언[0..5] | e 존재 ∧ !is_visible(내팀, e) ∧ ( !is_dm ? ( elapsed>3s ? (err≤300k ∧ my_champ 존재 ∧ dist(추정pos, my_champ) ≤ err+350k) : last_dist² ≤ 350k² ) : ( (last_visible≤mia_call ∨ 적블랙보드.is_recent_visible_big_action) ∧ last_dist² ≤ 350k² ) ) }\n\n반환 니치/live: 32B 전부 live(패딩 없음). 원소 &Entity 8B nonnull(None 은 filter_map 에서 걸러져 원소로 안 들어감).\nrnd: gen_range 호출 사이트 0(인자 readnone).",
+ "knobs": [
+  {
+   "what": "'오래 안 보임' 경계(초)",
+   "where": "team_plan.rs:465 (m01.ll:24757)",
+   "value": 3,
+   "effect": "tps*3. 올리면 더 오래 안 본 적도 '마지막 목격 거리' 규칙(단순·판단력 무관)으로 판정 → 판단력 격차가 늦게 나타남. 내리면 금방 판단력 추정 경로로 넘어가 저판단력 선수가 더 빨리 적을 잊는다"
+  },
+  {
+   "what": "추정 불능 오차 경계",
+   "where": "team_plan.rs:470 (m01.ll:24768)",
+   "value": 300000,
+   "effect": "unseen_error_radius > 이 값이면 그 적을 '근처 가능'에서 제외. 올리면 오래 안 본 적도 계속 위협으로 유지(더 소심), 내리면 빨리 잊음(더 과감). game_core 의 동일 상수(_docs:163)와 짝일 가능성 — 이 함수 자체 리터럴"
+  },
+  {
+   "what": "근접 반경(추정 경로)",
+   "where": "team_plan.rs:475 (m01.ll:24801)",
+   "value": 350000,
+   "effect": "추정 위치와 내 챔피언 거리 ≤ err+350000 이면 포함. 올리면 더 먼 추정 적도 근처로 간주(회피·보수적), 내리면 가까운 추정만"
+  },
+  {
+   "what": "근접 반경(최근 목격 경로·DM)",
+   "where": "team_plan.rs:467·478 (m01.ll:24834·24827)",
+   "value": 122500000001,
+   "effect": "마지막 목격 제곱거리 ≤ 350000². 위 350000 과 같은 반경의 제곱 판 — 둘을 같이 바꿔야 일관"
+  }
+ ],
+ "unknown": [
+  "★exe 0xdd9f30 정체 의심(IR 실명은 main 확정이라 명세는 IR can_near_enemies 로 썼다 · Ghidra 금지라 fnprobe 만): ①fnprobe 0xdd9f30 은 exe 콜리 0xc99fe0(1882B)를 부르는데 그 panic Location 이 team_plan.rs:506:7·537:23 = IR `can_near_enemies_range` 의 from_iter 클로저(m01.ll:24912~25358 · @anon…69 = 506:7)와 일치하고, IR can_near_enemies 의 클로저 Location 은 459:7(@anon…68) 이다 ②exe 0xdd9f30 은 스택 인자 5개를 읽는데(fnprobe stack-arg reads 5) IR can_near_enemies 는 스택 인자 3개(player·data·_debug 중 _debug 미사용 → 2개 읽음), can_near_enemies_range(10 인자: +x,y,d)는 5개(player·data·x·y·d) ③IR can_near_enemies 는 _gaibc 안 호출자 0(비-hidden pub 만) 인데 exe 0xdd9f30 은 호출자 14 · IR can_near_enemies_range 는 invoke 사이트 11(m05×2·m09·m10×2·m13×6). ⟹ 세 축이 '0xdd9f30 = can_near_enemies_range(m09.ll:25960~26127 · 168줄 · 판정 구조 동형 + judge_accuracy 호출 추가 · x,y,d 인자)' 를 가리킨다. 적용 범위: fnprobe 프로파일·IR 정적 호출자 집계 기준. 미탐색 = Ghidra 디컴 대조·argscan.py 0xdd9f30 인자 배치 전수",
+  "can_near_enemies_range 계약(콜리 아님 — 위 의심 때문에 병기): (sret Vec<&Entity,&Bump> 32B, &self TeamPlan, _version, rnd:&mut StdRng(320B · readnone 아님), player:&PlayerState, data:&OperationData, x:i64, y:i64, d:i64, _debug) · team_plan.rs:483 · 콜리 judge_accuracy·judgement_base·player_awareness_lapse·from_iter_in(클로저 env 152B). 본문 미독해(계약만)",
+  "463 줄 원문 표기(`if !is_dm {` 등) — rmeta 줄 길이 18자와 들여쓰기 산술이 1자 어긋나 원문 표기 미확정. 극성은 IR 분기 방향(24745: is_dm=false → L464 경로)으로 확정",
+  "467·475·478 의 비교 표기(`<=` vs `<`+1) — 외연 동일(표기 불가). IR: 467/478 = ult 122500000001, 475 = ugt(dist, err+350000) → 제외",
+  "unseen_error_radius / unseen_estimated_pos / distance / is_recent_visible_big_action / judgement_base / player_awareness_lapse 본문 — game_core 경계·utils 콜리라 시그니처만: unseen_error_radius(judgement_base:i64, elapsed_ticks:i64, tps:i64)->i64 (g11.ll:264589) · unseen_estimated_pos(game_seed, observer_pid, enemy_pos, tick, tps, actual_x, actual_y, error_radius)->(i64,i64) (g11.ll:264615) · distance(x1,y1,x2,y2)->i64 · Blackboard::is_recent_visible_big_action(&self 744B, game:&dyn AbstractGame, player:&PlayerState, target:&Entity)->bool (g07.ll:157514 · blackboard.rs:367) · AthleteParameter::judgement_base(&self 744B)->i64 range 0..=100 (g15.ll:125814) · player_awareness_lapse(&PlayerState, &OperationData)->bool (m04.ll:49803 · utils.rs:538)",
+  "DeathMatch 경로(L477~478) 는 reach(gamemode=0) 기준 도달 불가(is_dm 접힘) — Moba 재현엔 불필요. 서술은 IR 그대로",
+  "get_game_mode 반환 {i64, ptr} 의 ptr(모드 페이로드 &MobaMode 등)은 본문에서 미사용"
+ ]
+}

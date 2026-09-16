@@ -1,0 +1,74 @@
+{
+ "name": "kite_reposition_point",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle21kite_reposition_point",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle.rs",
+ "src_line": 1217,
+ "ir_file": "m02.ll",
+ "ir_from": 74099,
+ "ir_to": 74527,
+ "aux": [],
+ "layer": "sub_plan/battle · 카이팅 재배치 지점 계산(순수 계산 · internal fastcc · 호출자 1곳 = BattleSubPlan::action_candidates 안에 인라인된 base_positioning(battle.rs:196<536, m02.ll:29950))",
+ "one_line": "가장 가까운 적(nearest) 주위 16방향 × (attack_range−8000) 거리의 후보점 중 position risk 최소(동률이면 '적에서 멀어지는 방향' 정렬 최대)를 고르되, v48 캐스트 라인 위가 아닌 후보가 하나라도 있으면 그쪽 최선을 우선 반환",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize (i64 %0)", "note": "본문 분기 없음. position_score_at_position 의 1번째 인자로만 전달(m02.ll:74230·74362)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B) %1", "note": "define 줄 속성: readonly · captures(address, read_provenance). 본문 직접 필드 읽기 없음 — position_score_at_position·v48_on_cast_line 에 그대로 전달"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B) %2", "note": "define 줄 속성: readonly. +0x8 context(&GameContext) 만 읽음(m02.ll:74172) → context+0x20 map · +0x8 setting 을 adjust_position 인자로. 콜리 둘에도 그대로 전달"},
+   {"i": 4, "name": "parameter", "type": "&ScoreParameter(5384B) %3", "note": "define 줄 속성: readonly. +0x9f0 positioning_score(PositioningScoreData 2760B) 의 주소만 만들어(m02.ll:74176) position_score_at_position 4번째 인자로 전달. 다른 필드 읽기 없음"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B) %4", "note": "define 줄 속성: readonly · captures(none). 읽는 필드 = x(0x660)·y(0x668)·stat_buff_cached.radius_mult(0x470)·radius(0x680)"},
+   {"i": 6, "name": "nearest", "type": "&Entity → 스칼라 승격 i64 %5(=nearest.x, Entity+0x660) · i64 %6(=nearest.y, Entity+0x668)", "note": "DI arg 6 이름 nearest(!77530, battle.rs:1218). LTO ArgumentPromotion 으로 IR define 엔 &Entity 대신 x·y 두 i64 가 들어온다 — 호출자 m02.ll:29703/29707 `gep %688, 1632/1640` → 29948/29949 load → 29950 invoke 로 확인. exe 호출부 0xcbe020 도 `movups xmm0,[rbx+0x660]` → `[rsp+0x20]` 로 두 i64 를 스택에 놓는다(argscan --caller)"},
+   {"i": 7, "name": "attack_range", "type": "u64 (i64 %7)", "note": "dist = attack_range.saturating_sub(8000) (L1219, m02.ll:74117 usub.sat). 8000 미만이면 dist=0 → 모든 후보점이 nearest 위치(adjust_position 보정 후)가 된다"}
+  ],
+  "returns": "{i64,i64} = (u64,u64) (bx,by) — 두 워드 모두 live(니치·패딩 없음). best_clear 가 Some 이면 그 (px,py), 아니면 best 의 (px,py) (L1253 `%94 = trunc %120` 태그로 select, L1255 ret). best 는 방향 0 이 루프 밖으로 벗겨져 무조건 Some 이므로 반환은 항상 유효 좌표(unwrap 패닉 경로 없음 — 본문에 panic 호출 0)",
+  "tls": "없음 — 본문에 LocalKey/call_once fn-포인터 상수 참조 0. ⚠콜리 position_score_at_position → position_eval_at(exe 0xd84db0 · rvaname 인스턴스 = LocalKey<RefCell<…>> 즉 TLS 메모)이 TLS 를 소비/작성하지만 그것은 콜리 계약(이 함수 자신은 TLS 접점 없음)",
+  "exe": "0xcd5ee0 · 1,193B · 273 insn · .pdata 경계 일치. 인자 = 레지스터 4 + 스택 3([rsp+0x20]=nearest.x, [rsp+0x28]=nearest.y, [rsp+0x30]=attack_range) = 7 (IR define 8) → 레지스터 인자 중 하나가 exe 에서 소거됨(어느 것인지는 미확정, unknown 참조). 호출자 1곳(0xcbbdb0, 23,506B) ↔ IR 호출자 1곳 일치. exe 콜리 5 = memcpy(0x31a01a3)·adjust_position(0x18096a0, game.rs:795)·position_eval_at(0xd84db0 — IR 의 position_score_at_position 래퍼(m07.ll:34232~34265 · x/32000 을 29 로 클램프 후 ×32000+16000 셀중심 양자화)가 exe 에 인라인돼 그 안의 position_eval_at 이 직접 보임 · 그래서 exe 상수 0x7d00/0x3e80 이 IR 본문엔 없다)·v48_on_cast_line(0xcd0480 353B, battle.rs:1059 Location)·isqrt(0x12a06a0). cadcd0(492B·콜리 0)은 이 함수가 아니다(fp 오매칭, 지시문)"
+ },
+ "reads": [
+  {"base": "Entity(champ %4)", "offset": "0x660", "name": "x", "note": "L1227 bdx = champ.x − nearest.x (m02.ll:74119~74121)"},
+  {"base": "Entity(champ %4)", "offset": "0x668", "name": "y", "note": "L1228 bdy = champ.y − nearest.y (74124~74126)"},
+  {"base": "Entity(champ %4)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "i32. L1246 인라인 Entity::radius(entity.rs:1509, 본문 1512): mult==0 → radius 그대로, 아니면 radius*(100+mult)/100 (74177~74185·74263 select)"},
+  {"base": "Entity(champ %4)", "offset": "0x680", "name": "radius", "note": "usize. 위 radius() 의 밑값 → v48_on_cast_line 3번째 인자 champ_r (74264·74448)"},
+  {"base": "Entity(nearest)", "offset": "0x660", "name": "x → 승격 %5", "note": "호출자 base_positioning 이 load 해 i64 로 전달(m02.ll:29703·29948). 후보점 원점 · L1236 px = nearest.x + …"},
+  {"base": "Entity(nearest)", "offset": "0x668", "name": "y → 승격 %6", "note": "29707·29949. L1237 py = nearest.y + …"},
+  {"base": "OperationData(data %2)", "offset": "0x8", "name": "context", "note": "&GameContext (74172~74173)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → adjust_position 1번째 인자 (74174·74222·74354)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting → adjust_position 2번째 인자 (74175·74223·74355)"},
+  {"base": "ScoreParameter(parameter %3)", "offset": "0x9f0", "name": "positioning_score", "note": "PositioningScoreData(2760B) 의 주소만 취해 position_score_at_position 4번째 인자로 (74176)"},
+  {"base": "PositioningScore(sret 지역 %9, 56B)", "offset": "0x0", "name": "risk", "note": "i64. 콜리 sret 56B 중 이 8B 만 읽는다(74231·74363). tower_risk(0x8)·gain(0x10) 등 나머지 48B 는 미사용"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 8000, "src_line": 1219, "meaning": "dist = attack_range.saturating_sub(8000) — 후보점의 nearest 로부터의 거리(사거리에서 8000 안쪽). usub.sat 이라 8000 미만이면 0"},
+  {"value": 4000000, "src_line": 1229, "meaning": "= 2000². bdx²+bdy² < 4000000 (icmp slt, 부호 있음) 이면 nearest 와 사실상 겹친 것으로 보고 away 벡터를 (1,0) 으로 고정. 아니면 away=(bdx,bdy)"},
+  {"value": 1, "src_line": 1229, "meaning": "겹침 시 away_x=1 (select %23) / L1235 len=max(isqrt,1) 0-나눗셈 방지 바닥(smax 1)"},
+  {"value": 0, "src_line": 1229, "meaning": "겹침 시 away_y=0 (select %22)"},
+  {"value": 1000, "src_line": 1236, "meaning": "방향 0 벗김: 방향표 첫 원소 (dx,dy)=(1000,0) 이 상수 전파돼 `mul %11, 1000`(px) · L1241 `mul %23, 1000`(align). 방향표 원소 크기 = 1000(단위벡터×1000)"},
+  {"value": 1000000, "src_line": 1235, "meaning": "방향 0 의 dx²+dy² = 1000² 을 isqrt 에 상수로 전달(74212). 결과 1000"},
+  {"value": 16, "src_line": 1234, "meaning": "방향표 원소 수 16 (루프 종료 `icmp eq %67, 16` 74525; 스택 %10+16 에 256B memcpy = 16×{i64,i64}). 22.5° 간격 전방위"},
+  {"value": 100, "src_line": 1246, "meaning": "인라인 Entity::radius: radius*(100+radius_mult)/100 (%36 add 100 · %38 udiv 100) — 퍼센트 배율"},
+  {"value": 2, "src_line": 1239, "meaning": "position_score_at_position 의 purpose 인자 i8 2 = PositionEvalPurpose 메모리태그 2 = General(idx 0, 니치 niche_start=2 · tcxdict --enum)"}
+ ],
+ "calls": [
+  "game_core::utils::isqrt",
+  "game_core::simulation::game::Game::adjust_position",
+  "game_ai::position_eval::position_score_at_position",
+  "game_ai::plan_legacy::sub_plan::battle::v48_on_cast_line",
+  "llvm.usub.sat.i64",
+  "llvm.smax.i64",
+  "llvm.memcpy.p0.p0.i64"
+ ],
+ "logic": "// battle.rs:1217 kite_reposition_point(version, player, data, parameter, champ, nearest, attack_range) -> (u64,u64)\ndist = attack_range.saturating_sub(8000)                                   // L1219 (74117)\nbdx = champ.x − nearest.x ; bdy = champ.y − nearest.y                       // L1227~1228 (i64 wrapping sub)\n(away_x, away_y) = if bdx²+bdy² < 4000000 (=2000², 부호 있는 비교) { (1, 0) } else { (bdx, bdy) }   // L1229 (74132~74134)\nbest: Option<(px,py,risk,align)> = None ; best_clear: Option<(px,py,risk,align)> = None            // L1230 · L1233\nDIRS16 = 스택 복사된 방향표(m02.ll:275 @anon.…267, 256B) = [(1000,0),(924,383),(707,707),(383,924),(0,1000),(−383,924),(−707,707),(−924,383),(−1000,0),(−924,−383),(−707,−707),(−383,−924),(0,−1000),(383,−924),(707,−707),(924,−383)]  // 22.5° 단계, 크기 ≈1000\nfor (dx,dy) in DIRS16 {                                                    // L1234 (IR: 방향 0 은 루프 밖으로 벗겨짐 74212~74294, 방향 1..15 는 블록 %56 루프)\n  len = max(isqrt(dx²+dy²), 1)                                             // L1235 (isqrt → smax 1)\n  px = nearest.x + (dx*dist)/len ; py = nearest.y + (dy*dist)/len          // L1236~1237 (sdiv, 부호 있음)\n  (px,py) = Game::adjust_position(data.context.map, data.context.setting, px, py)   // L1238 — 맵 경계/이동가능 보정(콜리 계약)\n  risk = position_score_at_position(version, player, data, &parameter.positioning_score, px, py, General).risk   // L1239 (sret 56B 중 +0 만)\n  align = dx*away_x + dy*away_y                                            // L1241 (적에서 멀어지는 방향과의 내적 · i64)\n  better = best.is_none_or(|(_,_,r,a)| risk < r || (risk == r && align > a))     // L1242 (closure$0 인라인 · slt/sgt 부호 있음)\n  if better { best = Some((px,py,risk,align)) }                            // L1243\n  if !v48_on_cast_line(player, data, champ.radius(), px, py) {             // L1246 — champ.radius() = radius_mult==0 ? radius : radius*(100+radius_mult)/100 (entity.rs:1512 인라인)\n    better_c = best_clear.is_none_or(|(_,_,r,a)| risk < r || (risk == r && align > a))   // L1247 (closure$1)\n    if better_c { best_clear = Some((px,py,risk,align)) }                  // L1248\n  }\n}\n(bx,by) = best_clear.unwrap_or(best).(px,py)  // L1253 (best 는 방향 0 에서 무조건 Some 이므로 unwrap 실패 경로 없음)\nreturn (bx,by)                                                             // L1255\n// 극성 메모: 후보 우선순위 = ①캐스트 라인 밖(v48 false) ②risk 최소 ③align 최대(적에게서 멀어지는 방향). 방향 0 (dx=1000,dy=0) 이 첫 best 이므로 전 후보 risk·align 동률이면 (nearest.x+dist, nearest.y) 가 반환된다.\n// rnd(StdRng) 인자 없음 · gen_range 호출 0.",
+ "knobs": [
+  {"what": "카이팅 후보 반경 마진", "where": "battle.rs:1219 (m02.ll:74117)", "value": 8000, "effect": "dist = attack_range−8000. 올리면 nearest 에 더 가까운 지점(공격적)으로, 내리면 사거리 끝에 가까운 지점(안전)으로 재배치. attack_range 이상이면 dist=0 → nearest 위치 자체"},
+  {"what": "away 벡터 겹침 판정 반경²", "where": "battle.rs:1229 (74132)", "value": 4000000, "effect": "champ↔nearest 거리 2000 미만이면 '멀어지는 방향' 정렬이 +x 축으로 고정된다. 올리면 더 넓은 범위에서 정렬 기준이 무의미해짐"},
+  {"what": "방향 후보 수·간격", "where": "battle.rs:1234 방향표 = m02.ll:275 @anon.94acafa22d01e083ca1cc62f01598c8f.267 (256B 상수)", "value": 16, "effect": "16방향 22.5°. 표를 바꾸면 후보 위치가 바뀜(표 원소 크기 1000 은 len 으로 나눠져 정규화되므로 스케일 자체는 결과에 무관, 방향만 의미)"},
+  {"what": "position 평가 목적 태그", "where": "battle.rs:1239 (74230·74362 i8 2)", "value": 2, "effect": "PositionEvalPurpose::General. 다른 태그(Trace 7·Around 5 등)로 바꾸면 콜리 position_eval_at 의 목적별 가중이 달라진다(콜리 계약)"},
+  {"what": "v48 캐스트 라인 회피 반경", "where": "battle.rs:1246 (74263 champ.radius())", "value": "champ.radius×(100+radius_mult)/100", "effect": "v48_on_cast_line 에 넘기는 반경. 키우면 더 많은 후보가 '라인 위'로 판정돼 best_clear 후보가 줄고 best(라인 무시) 로 폴백하는 빈도가 는다"}
+ ],
+ "unknown": [
+  "exe ABI: exe 0xcd5ee0 는 인자 7(레지스터 rcx·rdx·r8·r9 + 스택 3 = nearest.x·nearest.y·attack_range) 인데 IR define 은 8 — version/player/data/parameter/champ 중 어느 하나가 exe 에서 소거됐는지(DeadArgElim/IPSCCP) 미확정. 호출부 0xcbe020 은 rcx=[rbp+0x538]·rdx=[rbp+0x620]·r8=[rbp+0x628]·r9=[rbp+0x588] 을 넘김. 확정하려면 ghidra-re 로 호출자 0xcbbdb0 의 4 레지스터 출처 대응(sweep 편입 전 필수, EXE_ABI 판정)",
+  "방향표 원소값(924·707·383)은 body 명령이 아니라 전역 상수 @anon.…267(m02.ll:275)에 있어 constants 에 넣지 않았다(C1 대조 불가) — knobs 에 위치·값 기재",
+  "adjust_position(map, setting, x, y) 의 보정 규칙(경계 클램프인지 이동가능 셀 스냅인지)은 game_core 콜리 계약(g15.ll:72245 define)이라 본 명세 범위 밖 — 반환 (x,y) 를 그대로 후보점으로 쓴다는 사실만 확정",
+  "L1229 의 `bdx²+bdy² < 4000000` 은 부호 있는 비교(slt)다 — u64 좌표차 제곱이 2^63 을 넘는 경우는 실전 좌표 범위(≤ 30셀×32000 ≈ 960000)에서 발생하지 않으므로 동작상 무해하나 소스가 i64 캐스팅인지 usize 인지는 표기 불가(외연 동일)"
+ ]
+}

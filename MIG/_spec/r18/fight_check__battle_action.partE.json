@@ -1,0 +1,137 @@
+{
+ "name": "battle_action",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_action",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 620,
+ "ir_file": "m15.ll",
+ "ir_from": 23700,
+ "ir_to": 25612,
+ "aux": [
+  {"ir_file": "m15.ll", "ir_from": 58121, "ir_to": 58174, "what": "closure0 call_mut 심 — near_allies 필터(L625): a.id != champ.id && distance_sq < 22500000000"},
+  {"ir_file": "m15.ll", "ir_from": 58177, "ir_to": 58225, "what": "closure s0_0 call_mut 심 — near_enemies 필터(L630): act.is_some() && c.is_some() && data.can_target(game, player, c)"},
+  {"ir_file": "m01.ll", "ir_from": 37609, "ir_to": 37785, "what": "bumpalo Vec<&Entity>::from_iter_in<Filter<FilterMap<Iter<Option<&Entity>>, iter_champions::closure0>, battle_action::closure0>> — near_allies 수집 본체(L624~625)"},
+  {"ir_file": "m01.ll", "ir_from": 46785, "ir_to": 46967, "what": "bumpalo Vec<(SmallAction<&Entity>, &Entity)>::from_iter_in<Map<Filter<Map<Enumerate<Iter>, s_0>, s0_0>, s1_0>> — near_enemies_with_action 수집 본체(L627~631) · s1_0(L631)=|(act,c)| (act.unwrap(), c.unwrap()) 인라인"},
+  {"ir_file": "m12.ll", "ir_from": 21412, "ir_to": 21579, "what": "Map<Enumerate<Iter<Option<&Entity>>>, s_0>::try_fold<find::check<s0_0>> — s_0(L629)=|(i,c)| (blackboard[1-player.team].small_actions[i], c) 인라인 + s0_0 심 호출"}
+ ],
+
+ "one_line": "자기 챔피언의 기본공격/스킬/스킬2 후보(SmallActionPlay Attack·Skill·Skill2)를 근처 적(가시·타겟가능·사거리+이동여유 이내)과 근처 아군(스킬 CastingTarget 통과·사거리+walk 여유 이내), 셀프버프(should_add_self_etc_buff_action)로 모아 bumpalo Vec 으로 돌려준다. 배치 E = 머리~Attack 루프~Skill 적/아군 루프(0~710); 스킬 셀프버프·Skill2 전 경로·반환은 배치 F(713~786).",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo::collections::vec::Vec<SmallActionPlay> (32B)", "role": "반환 슬롯 · IR 속성 sret([32 x i8]) writeonly captures(none) dereferenceable(32) · 배치 E 범위에서는 쓰지 않는다(지역 candidates %24 를 배치 F L786 에서 memcpy)", "mutability": "write-only(sret)"},
+   {"i": 1, "name": "_version", "type": "usize (i64)", "role": "AI 버전 게이트 — 본문 23701~25612 에서 사용 0회(grep) · 이름도 `_version`", "mutability": "값"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng", "role": "IR 속성 readnone align 16 captures(none) · 본문 사용 0회 · gen_range 호출 사이트 0개(순서 없음)", "mutability": "&mut 이나 미접촉 — writes 없음"},
+   {"i": 3, "name": "player", "type": "&PlayerState (2528B)", "role": "IR 속성 readonly dereferenceable(2528) · info.team(+0x930)·info.position@tag(+0x9c0) 읽기 · 클로저 s_0/s0_0 에 캡처 · is_dash_worth 에 전달", "mutability": "&"},
+   {"i": 4, "name": "data", "type": "&OperationData (24B: +0 cache &AbstractGameWithCache · +8 context &GameContext · +0x10 blackboard &[Blackboard;2])", "role": "IR 속성 readonly dereferenceable(24) · cache.player_champion · context.pool(bump) · blackboard[적팀].small_actions · SmallActionAttack/Skill::new(data,..) · is_dash_worth(data,..) · can_target(self=data,..)", "mutability": "&"},
+   {"i": 5, "name": "_end_delay", "type": "usize (i64)", "role": "본문 사용 0회(grep) · 이름도 `_end_delay`", "mutability": "값"}
+  ],
+  "self": "없음(자유 함수) — &mut self 없음 · initializes 속성 없음(sret 만)",
+  "return": "sret = bumpalo Vec<SmallActionPlay> 32B: +0x0 buf.ptr(빈 Vec 은 dangling 8) · +0x8 buf.a(&Bump = data.context.pool) · +0x10 cap · +0x18 len — 4 필드 전부 live, 패딩 0. 원소 184B(SmallActionPlay, 태그 +0xb1 1B 니치: Attack=15 · Skill=16 · Skill2=17 · 나머지 표는 tcxdict --enum). 배치 E 가 push 하는 variant: Attack(15)·Skill(16) — 페이로드 SmallActionAttack/SmallActionSkill 24B(+0 start_tick · +8 target(id) · +0x10 is_act 1B; new 의 initializes((0,17))) 를 alloca 로 받아 memcpy 24 → 태그 store → 원소 184B 통째 memcpy. ⟹ 원소 live 바이트 = +0x00..0x11 + +0xb1; +0x11..0xb1 와 +0xb2..0xb8 은 미기록(alloca 잔여 = undef 페이로드, sweep 대조 시 제외). 배치 F 가 Skill2(17) 원소를 같은 방식으로 추가하고 L786 에서 %24 → sret 32B memcpy.",
+  "tls": "없음 — 본문 23700~25612 에 LocalKey/call_once/llvm.threadlocal.address/__getit 참조 0건(grep) · reach 콜리 요약에도 TLS 접점 콜리 없음"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L622 team(0/1) · <2 bounds check · 클로저 s_0(aux m12) 도 1-team 계산에 읽음"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "L622 i32 zext → player_champion 행 인덱스(0..5)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L622 &AbstractGameWithCache · aux s0_0 에서 cache.game(dyn 팻포인터 +0/+8) 을 can_target 에 전달"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L625 &GameContext · expected_damage_target/expected_buff_deep 의 ctx 인자"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "L629 &[Blackboard;2] (클로저 s_0 캡처)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "L625 bump(&Bump) — 세 Vec 의 할당자"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "L622 [2][5] Option<&Entity>(행 stride 40) · null=None → unwrap 패닉. L625 자기 행 5칸 → iter_champions, L628 상대 행(1-team) 5칸"},
+  {"base": "Blackboard", "offset": "0x78", "name": "small_actions[i]", "note": "aux m12 L629 · 원소 24B Option<SmallAction<&Entity>> · blackboard[1-team] 의 i 번째(24B memcpy)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "L644/L669 champ.team: 0=Player(+0x8 idx) · 1=Neutral (is_visible_from 인라인)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "L644/L669 champ 팀 인덱스 t(<2 bounds check)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[t]@tag", "note": "L644/L669 적 e.visible_state[t] (stride 24) 태그 0=Visible 만 통과"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "L693 e.is_champion() ⇔ ==13(Champion)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "Effect::range(champ) 가산항 (L648/L683/L709 champ)"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "Entity::radius() 인라인: 0 이면 radius 그대로, 아니면 radius*(mult+100)/100 (champ·e·a 각각)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0 (Effect 56B)", "note": "L642~663 range_adjust(&attack,..) self"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect.range", "note": "L648"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "L648 ×(level-1)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (casting 니치)", "note": "L636 == -1 ⇔ attack None"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0 (Effect 56B) / ty.ptr", "note": "L667~714 range_adjust·expected_damage_target self · +0 Arc<dyn EffectType> 데이터 ptr(L693/L703)"},
+  {"base": "Entity", "offset": "0x4d0", "name": "skill_effect.ty vtable ptr", "note": "L693 슬롯 +0x120(can_move) · L703 슬롯 +0xa0(expected_buff_deep) · vtable+16 = align(ArcInner 데이터 오프셋 계산)"},
+  {"base": "Entity", "offset": "0x4d8", "name": "skill_effect.range", "note": "L683/L709"},
+  {"base": "Entity", "offset": "0x4e0", "name": "skill_effect.growth_range", "note": "L683/L709 ×(level-1)"},
+  {"base": "Entity", "offset": "0x4f0", "name": "skill_effect.target (CastingTarget 4B)", "note": "L673/L705 CastingTarget::check(&target, champ, e|a)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag (casting 니치)", "note": "L637 == -1 ⇔ skill None"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect@Some.0", "note": "L638 level>2 일 때만 참조(아니면 정적 NONE @anon.58) — 사용은 배치 F"},
+  {"base": "Entity", "offset": "0x530", "name": "skill2_effect@tag (casting 니치, %96+48)", "note": "L638 == -1 ⇔ skill2 None (정적 NONE 도 +0x30 = -1). ⚠C3 경고 사유: 본문엔 절대 1328 이 아니라 `select(level>2 ? champ+1280 : @anon.58)` 뒤 `gep 48` 로 나타난다(Entity+0x500+0x30) — 접힘 아님, 상대 gep"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "L663/L700 SmallActionAttack/Skill::new(data, e.id) · aux closure0 a.id != champ.id"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "L638 skill2 게이트(>2) · L648/683/709 growth_range×(level-1)"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "L640 champ move_speed · L653/L678 e.move_speed(RunAway 상대속도 차감)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(abs_diff²) L649/L684/L710 · aux closure0"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "distance_sq"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "Entity::radius() 인라인(champ·e·a)"},
+  {"base": "(SmallAction<&Entity>, &Entity) 원소(32B, near_enemies_with_action)", "offset": "0x0", "name": ".0 SmallAction@tag(i64)", "note": "L652/L677 ==0 ⇔ RunAway (derive PartialEq 판별자 비교, blackboard.rs:81)"},
+  {"base": "(SmallAction<&Entity>, &Entity) 원소(32B)", "offset": "0x18", "name": ".1 &Entity", "note": "L644/L669 e (stride 32)"},
+  {"base": "Option<BuffState>(288B, expected_buff_deep sret)", "offset": "0x48", "name": "@tag (i32 니치)", "note": "L703 == -1 ⇔ None → walk 30, Some → 90"},
+  {"base": "prof::ENABLED (static atomic u8)", "offset": "0x0", "name": "ENABLED", "note": "L621 monotonic load · 0 이면 ProfTimer None(계측 무시)"}
+ ],
+
+ "writes": [
+  {"base": "candidates (지역 %24, bumpalo Vec<SmallActionPlay> 32B → 배치 F 에서 sret 로 복사)", "offset": "0x0", "name": "buf.ptr", "value": "inttoptr 8 (dangling) → reserve 후 bump 힙 ptr", "note": "L634 Vec::new_in(bump) · push 시 len==cap 이면 reserve_internal_or_panic(used_cap, 1, true)"},
+  {"base": "candidates (지역 %24)", "offset": "0x8", "name": "buf.a", "value": "bump(= data.context.pool)", "note": "L634"},
+  {"base": "candidates (지역 %24)", "offset": "0x10", "name": "cap", "value": "0 (memset 16B) → reserve 가 갱신", "note": "L634"},
+  {"base": "candidates (지역 %24)", "offset": "0x18", "name": "len", "value": "0 → push 마다 +1 (L663 Attack · L700 Skill)", "note": "배치 E 의 push 2사이트(적 Attack · 적 Skill). 아군 Skill push(L718)·셀프 Skill(L722)·Skill2 전부(L759/777/781)는 배치 F"},
+  {"base": "candidates 원소(bump 힙, 184B)", "offset": "0xb1", "name": "SmallActionPlay@tag", "value": "15(Attack, L663) / 16(Skill, L700)", "note": "alloca %23/%21 에 24B 페이로드 memcpy + 태그 store 후 184B 통째 memcpy → 원소 +0x11..0xb1·+0xb2.. 는 undef"},
+  {"base": "candidates 원소", "offset": "0x0", "name": "payload SmallActionAttack/SmallActionSkill(+0 start_tick · +8 target=e.id · +0x10 is_act)", "value": "SmallActionAttack::new(data, e.id) / SmallActionSkill::new(data, e.id) 의 sret 24B(initializes((0,17)))", "note": "L663/L700"},
+  {"base": "_t (지역 %29, Option<ProfTimer> 24B)", "offset": "0x0", "name": "phase=71 · +8 Instant · +0x10 nanos(-1=None)", "value": "prof::start(71) — 계측", "note": "L621 · 판정 무관 · 배치 F L786 에서 drop(elapsed 기록)"}
+ ],
+
+ "constants": [
+  {"value": 71, "src_line": 621, "meaning": "ProfTimer phase 번호(prof::start(71)) — 계측 전용, 판정 무관"},
+  {"value": 2, "src_line": 622, "meaning": "팀 인덱스 상한(team<2, panic_bounds_check) · L644/L669 is_visible_from 의 t<2 · L638 skill2_effect(): level>2 이어야 skill2_effect 참조(아니면 정적 NONE). ※ level>2 vs level>=3 는 외연 동일 = 표기 불가"},
+  {"value": -1, "src_line": 636, "meaning": "Option<Effect> None 니치(casting@tag +0x30 == -1): attack(+0x4c0)·skill(+0x4f8)·skill2(+0x530) is_none 판정 · L703 Option<BuffState>@+0x48 == -1 ⇔ None(walk 30)"},
+  {"value": 0, "src_line": 644, "meaning": "VisibleState::Visible 태그(적이 내 팀에 보일 때만 통과) · L652/L677 SmallAction::RunAway 판별자 0 · radius_mult==0 이면 radius 무보정"},
+  {"value": 30, "src_line": 658, "meaning": "이동 여유 계수: max_dist = range + move_speed*30 (L658 Attack · L687 Skill) · L703 ally_buff_walk_allowance 의 버프 없음 쪽 walk=30 (max_dist 에 walk*move_speed 가산)"},
+  {"value": 90, "src_line": 703, "meaning": "ally_buff_walk_allowance: skill.ty.expected_buff_deep(ctx, champ).is_some() 이면 walk=90(아군 버프 스킬은 3배 멀리까지 걸어가 쓸 후보로)"},
+  {"value": 100, "src_line": 648, "meaning": "Entity::radius() 인라인(entity.rs:1511~1515): radius*(radius_mult+100)/100 (udiv) — 퍼센트 보정"},
+  {"value": 13, "src_line": 693, "meaning": "EntityType::Champion 태그(e.is_champion()) — can_move(대시류) 스킬은 적 챔피언에게만 is_dash_worth 검사"},
+  {"value": 15, "src_line": 663, "meaning": "SmallActionPlay::Attack 메모리 태그(+0xb1)"},
+  {"value": 16, "src_line": 700, "meaning": "SmallActionPlay::Skill 메모리 태그(+0xb1)"},
+  {"value": 22500000000, "src_line": 625, "meaning": "150000² — near_allies 반경(aux closure0 m15.ll:58168, icmp ult 즉 거리²<150000², 150000/32000≈4.69셀). 본체엔 없고 aux 심에 있음"},
+  {"value": 8, "src_line": 634, "meaning": "bumpalo Vec::new_in 의 빈 버퍼 dangling ptr(inttoptr 8 = align) — 판정값 아님, 초기화 표면 기록용"}
+ ],
+
+ "calls": [
+  "std::time::Instant::now",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::simulation::entity::Entity::can_attack",
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::entity::Entity::block_move",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_ai::small_action::cast::SmallActionAttack::new",
+  "game_ai::small_action::cast::SmallActionSkill::new",
+  "game_ai::utils::is_dash_worth",
+  "bumpalo::collections::vec::reserve_internal_or_panic",
+  "core::ptr::drop_glue",
+  "game_core::simulation::state::player::OperationData::can_target",
+  "game_core::simulation::iter_champions",
+  "core::iter::traits::iterator::Iterator::try_fold"
+ ],
+
+ "logic": "// fight_check.rs:0~710 (배치 E)\n// 호출 계약(콜리 요약): can_attack/can_skill/block_move(&Entity)->bool · Effect::range_adjust(&Effect, caster:&Entity, target:&Entity)->i64 · Effect::expected_damage_target(&Effect, ctx:&GameContext, caster:&dyn AbstractEntity(ptr,vtable @anon.56 88B), target:&Entity)->i64 · CastingTarget::check(&CastingTarget(4B), caster, target)->bool · SmallActionAttack/Skill::new(sret 24B initializes((0,17)), data:&OperationData, target_id:usize) · utils::is_dash_worth(data, player, champ, target, skill_damage:i64)->bool(m04.ll:48412, 내부 미독 — 시그니처만) · OperationData::can_target(&self, game:&dyn AbstractGame(ptr,vtable), player:&PlayerState, target:&Entity)->bool(g15.ll:66255) · EffectType vtable +0x120 can_move(&self)->bool · +0xa0 expected_buff_deep(sret Option<BuffState> 288B, &self, ctx:&GameContext, caster:&dyn AbstractEntity)\n\n[L621] _t = prof::start(71)   // prof::ENABLED(atomic u8, monotonic)==0 → None(nanos=-1) · 계측, 판정 무관\n[L622] team = player.info.team(+0x930);  if team>=2 → panic_bounds_check(team,2)\n       pos  = player.info.position@tag(+0x9c0, i32 zext)\n       champ = data.cache.player_champion[team][pos](cache+0x1e0 + team*40 + pos*8).unwrap()   // null → unwrap_failed(option.rs:1013) 패닉\n[L624~625] bump = data.context(+0x8).pool(+0x0)\n       near_allies: bumpalo Vec<&Entity> = cache.iter_champions(team)     // = player_champion[team][0..5].iter().filter_map(|o| *o)  (aux m01:37609)\n           .filter(closure0 |a| a.id(+0x5c0) != champ.id && a.distance_sq(champ) < 22500000000 /*150000²*/)   // aux m15:58121 · 자기 자신 제외\n           .collect_in(bump)\n[L627~631] enemy_row = player_champion[1 - team]\n       near_enemies_with_action: bumpalo Vec<(SmallAction<&Entity>, &Entity)> = enemy_row.iter().enumerate()\n           .map(s_0 |(i, c)| (data.blackboard(+0x10)[1 - player.info.team].small_actions[i] /*Blackboard+0x78 + i*24, 24B 복사*/, c))   // aux m12:21412 · 1-team<2, i<5 bounds check\n           .filter(s0_0 |(act, c)| act.is_some()(tag != -1) && c.is_some()(non-null) && data.can_target(cache.game, player, c))   // aux m15:58177\n           .map(s1_0 |(act, c)| (act.unwrap(), c.unwrap()))   // aux m01:46785 · unwrap 실패 = 패닉(fight_check.rs:631)\n           .collect_in(bump)   // 원소 32B: +0 SmallAction(24B) · +0x18 &Entity\n[L634] candidates = Vec::<SmallActionPlay>::new_in(bump)   // ptr=8(dangling) · a=bump · cap=0 · len=0\n[L636] attack: Option<&Effect> = champ.attack_effect(+0x490).as_ref()     // None ⇔ +0x4c0 == -1\n[L637] skill  = champ.skill_effect(+0x4c8).as_ref()                      // None ⇔ +0x4f8 == -1\n[L638] skill2 = champ.skill2_effect().as_ref()   // entity.rs:1693 인라인: if level(+0x5c8) > 2 { &self.skill2_effect(+0x500) } else { &NONE(@anon.58, +0x30=-1) } → None ⇔ (그 주소+0x30) == -1. 사용은 배치 F\n[L640] move_speed = champ.stat_cached.move_speed(+0x640)\n\n[L642] if attack.is_some() && champ.can_attack() {          // attack None 또는 can_attack false → [L667] 로\n[L643]   for (act, e) in near_enemies_with_action.iter() {\n[L644]     if !e.is_visible_from(champ) { continue }\n             // entity.rs:1482~1483 인라인: match champ.team(+0x0 tag) { Player(t=+0x8) => (t<2 else panic) e.visible_state[t](+0x38+t*24).tag == 0(Visible), Neutral(1) => true }\n[L648]     range = attack.range(champ) + attack.range_adjust(champ, e) + champ.radius() + e.radius()\n             // Effect::range(effect.rs:26) = range(+0x4a0) + growth_range(+0x4a8)*(champ.level-1) + champ.stat_buff_cached.range(+0x438)\n             // Entity::radius(entity.rs:1511~1515) = if stat_buff_cached.radius_mult(+0x470)==0 { radius(+0x680) } else { radius*(mult+100)/100 (udiv) }\n[L649]     dist_sq = e.distance_sq(champ) = |e.x-champ.x|² + |e.y-champ.y|²   (+0x660/+0x668 abs_diff)\n[L652~653] ms = if *act == SmallAction::RunAway(tag 0) && !e.block_move() { move_speed.saturating_sub(e.stat_cached.move_speed(+0x640)) } else { move_speed }   // 도망치는 적은 상대속도로\n[L658]     max_dist = range + ms*30\n[L659]     if dist_sq > max_dist*max_dist { continue }   // icmp ugt → 초과면 제외(경계 포함 통과)\n[L663]     candidates.push(SmallActionPlay::Attack(SmallActionAttack::new(data, e.id(+0x5c0))))   // 태그 15 @+0xb1 · len==cap 이면 reserve_internal_or_panic\n         }\n       }\n[L667] if skill.is_some() && champ.can_skill() {           // 아니면 → 배치 F(줄 726: skill2 블록)\n[L668]   for (act, e) in near_enemies_with_action.iter() {\n[L669]     if !e.is_visible_from(champ) { continue }   // L644 와 동일 인라인\n[L673]     if !skill.target(+0x4f0, CastingTarget).check(champ, e) { continue }\n[L677~678] ms = if *act == RunAway && !e.block_move() { move_speed.saturating_sub(e.move_speed) } else { move_speed }\n[L683]     range = skill.range(champ)(+0x4d8 + +0x4e0*(level-1) + +0x438) + skill.range_adjust(champ, e) + champ.radius() + e.radius()\n[L684]     dist_sq = e.distance_sq(champ)\n[L687]     max_dist = ms*30 + range\n[L688]     if dist_sq > max_dist*max_dist { continue }\n[L693]     if skill.ty.can_move()(vtable+0x120, Arc<dyn EffectType> deref) && e.is_champion()(ty@tag +0x68 == 13) {\n[L694]       skill_damage = skill.expected_damage_target(ctx=data.context, champ as &dyn AbstractEntity(@anon.56), e)\n[L695]       if !is_dash_worth(data, player, champ, e, skill_damage) { continue }\n           }   // can_move 거짓이거나 적이 챔피언이 아니면 검사 없이 push\n[L700]     candidates.push(SmallActionPlay::Skill(SmallActionSkill::new(data, e.id)))   // 태그 16\n         }\n[L703]   walk = ally_buff_walk_allowance(champ, skill, ctx)   // fight_check.rs:1183 인라인: if skill.ty.expected_buff_deep(ctx, champ as dyn).is_some()(sret+0x48 != -1) { 90 } else { 30 }\n         walk_ms = walk * move_speed   // 루프 밖 선계산(%405)\n[L704]   for a in near_allies.iter() {                    // 아군 루프: 가시성 검사 없음 · RunAway 보정 없음\n[L705]     if !skill.target.check(champ, a) { continue }\n[L709~713] max_dist = skill.range(champ) + walk_ms + skill.range_adjust(champ, a) + champ.radius() + a.radius()   // 마지막 가산(a.radius)은 소스 줄 713\n[L710]     dist_sq = a.distance_sq(champ)\n[L714]     if dist_sq > max_dist*max_dist { continue }\n           → 배치 F(줄 718: candidates.push(Skill(a.id)))\n         }\n         → 배치 F(줄 721~722: should_add_self_etc_buff_action → 셀프 Skill push)\n       }\n       → 배치 F(줄 726~786: skill2 적/아군/셀프 경로 · 반환 sret=candidates · near_allies/near_enemies drop · ProfTimer drop)\n\n// 클로저 환경 레이아웃(IR 로 확정, aux from_iter_in 이 56B 를 통째 복사): +0 Iter.ptr · +8 Iter.end · +0x10 enumerate.count(0) · +0x18 s_0{blackboard} · +0x20 s_0{player}(=%3) · +0x28 s0_0{data} · +0x30 s0_0{player} · s1_0 = ZST. s0_0 심이 env.0 을 can_target 의 self(dereferenceable(24)=OperationData)로 넘기므로 +0x28=data 확정.\n// rnd: gen_range 호출 0회(_rnd readnone).",
+
+ "knobs": [
+  {"what": "near_allies 반경(아군 스킬 후보 탐색 반경)", "where": "fight_check.rs:625 (aux m15.ll:58168, closure0)", "value": 22500000000, "effect": "올리면 더 먼 아군(150000=약 4.69셀 이상)까지 아군 대상 Skill/Skill2 후보에 들어간다 · 내리면 가까운 아군만"},
+  {"what": "적 대상 이동 여유 계수(max_dist = range + ms*30)", "where": "fight_check.rs:658 (Attack) · :687 (Skill) · 배치 F 의 Skill2 동형", "value": 30, "effect": "올리면 사거리 밖(30틱 이동 거리 이상)의 적도 Attack/Skill 후보로 넣는다(후속 평가가 걸러줘야 함) · 내리면 사거리 근처 적만"},
+  {"what": "아군 버프 스킬 도달 여유(walk)", "where": "fight_check.rs:1183 ally_buff_walk_allowance (703 에 인라인)", "value": 90, "effect": "expected_buff_deep 이 Some 인 스킬(버프류)에서 아군 후보 max_dist 에 walk*move_speed 가산. 90→ 낮추면 버프 스킬을 멀리 걸어가 쓰는 후보가 줄고, 30(비버프) 쪽을 올리면 비버프 아군 스킬도 멀리서 후보화"},
+  {"what": "RunAway 상대속도 차감", "where": "fight_check.rs:652~653 · 677~678", "value": 0, "effect": "적 blackboard small_action 이 RunAway(태그 0)이고 block_move 아님 → ms = 내 ms − 적 ms(saturating). 조건을 없애면 도망 적도 절대속도로 계산해 후보가 늘어난다"}
+ ],
+
+ "unknown": [
+  "level>2 vs level>=3 (entity.rs:1693 skill2_effect 게이트) — 외연 동일, 표기 불가",
+  "is_dash_worth(utils.rs:98, m04.ll:48412) 내부 판정 — 시그니처·반환 의미(bool=대시 스킬을 이 적에게 쓸 가치)만. 미독(후속 라운드)",
+  "OperationData::can_target(g15.ll:66255) 내부 — 미독(game_core 경계). 필터 s0_0 의 통과 조건으로만 기록",
+  "EffectType::can_move(vtable+0x120)/expected_buff_deep(+0xa0) 의 런타임 구현체 — divtable 은 슬롯 이름만(CombineEffect 판 기준 94% 일치) · 어느 impl 이 꽂히는지는 챔피언별 Arc 라 정적 확정 불가",
+  "player.info.position@tag(i32) → player_champion 열 인덱스(0..4) 의 variant 대응표는 이 함수엔 없음(값 그대로 인덱스)",
+  "Effect::range_adjust / expected_damage_target / CastingTarget::check 내부 — game_core 경계, 시그니처만",
+  "@anon.58 정적 NONE(Option<Effect>) 은 [48 x i8] undef + FF FF FF FF + undef — +0x30 태그 외 바이트는 undef 이므로 level<=2 경로에서 skill2 의 다른 필드를 읽는 코드가 있으면 UB 가능성(배치 F 범위에서 skill2 None 이면 안 읽으므로 실제로는 안전 — F 확인 필요)",
+  "ProfTimer(_t) phase 71 의 의미(어느 계측 버킷인지) — 계측 전용이라 미추적"
+ ]
+}

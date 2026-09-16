@@ -1,0 +1,77 @@
+{
+ "name": "v54_aoe_ally_heal_value",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value23v54_aoe_ally_heal_value",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 562,
+ "ir_file": "m10.ll",
+ "ir_from": 35859,
+ "ir_to": 36086,
+ "aux": [],
+ "layer": "buff_value 잎(r18 배치 L) — 지도 밖 판단 로직. exe 0xe02bc0(871B) ↔ IR 212 ins. reach: 블록 15 · 살아있음 15 · 사장 0(version=2·gamemode=0)",
+ "one_line": "광역 힐/실드 이펙트가 반경 안 근접 아군(제외 id 제외)에게 주는 기대 힐+실드 가치를 HP 가중 합산(i64)",
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize (i64 %0)", "note": "본문에서 %0 참조 0회 — 이 함수에서는 분기·전달 모두 없음(미사용)"},
+   {"i": 2, "name": "effect", "type": "&Effect(56B) %1", "note": "define 줄 속성: noalias readonly captures(address, read_provenance). +0 ty(Arc<dyn EffectType> 팻포인터: +0 ArcInner ptr · +8 vtable ptr)만 직접 읽고, expected_heal_target/expected_shield_target 에 self 로 전달"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B) %2", "note": "define 줄 속성: noalias readonly captures(address, read_provenance). +0 cache(&AbstractGameWithCache · 그 +0 = &dyn AbstractGame 팻포인터 %55/%56) · +8 context(&GameContext %40). possible_risk·champion_hp_value 에도 전달"},
+   {"i": 4, "name": "parameter", "type": "&ScoreParameter(5384B) %3", "note": "define 줄 속성: noalias readonly captures(address, read_provenance). +0x14b8 near_allies.buf.ptr · +0x14d0 near_allies.len 만 읽음(원소 ChampionScoreParameter 216B). champion_hp_value 에 전달"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B) %4", "note": "define 줄 속성: noalias readonly captures(address, read_provenance). 본문 필드 읽기 0 — 시전자(caster)로 expected_heal_target/expected_shield_target 의 3번째 인자(&dyn AbstractEntity · vtable @anon.ff23c5838f81fa2a3acb125bb4b6e568.29 = Entity as AbstractEntity)에 전달만"},
+   {"i": 6, "name": "anchor", "type": "&Entity(1728B) %5", "note": "define 줄 속성: noalias readonly captures(none). +0x660 x · +0x668 y 만 읽음 — 반경 판정의 중심점(이펙트 착지 기준 엔티티). DI 에 `other = %5` 도 있음(Entity::distance 류 인라인의 형식인자명)"},
+   {"i": 7, "name": "exclude_id", "type": "usize (i64 %6)", "note": "near_allies 원소의 +0x58 id 와 `icmp eq` — 같으면 그 아군을 건너뜀(571). 직접 대상(이미 별도 평가된 대상)의 id 로 추정 — 호출자 미열람(범위 밖)"},
+   {"i": 8, "name": "action", "type": "&Box<dyn Action>(16B 팻포인터) %7", "note": "define 줄 속성: noalias readonly captures(none) dereferenceable(16). +0 data_ptr(%41) · +8 vtable_ptr(%43). vtable +0x80 슬롯 = Action::duration(&self)->usize 를 1회 호출(582)"}
+  ],
+  "returns": "i64 — 반경 안 아군별 `hp_value * (heal+shield) / max(ally.hp,1)` 의 합. 0 = expected_ally_area_radius 가 None(566) / near_allies 비어 있음(570) / 모든 아군이 제외·미존재·반경 밖·heal+shield<=0. sret 아님(레지스터 반환)",
+  "tls": "TLS 접점 0 — 본문(35859~36086)에 `call_once`/`LocalKey`/`threadlocal`/fn-포인터 상수 참조 없음. 단 콜리 champion_hp_value 는 m00.ll:91035 에 `LocalKey<RefCell<HashMap>>::with` 클로저 define 이 있어 TLS 메모 소비자일 가능성 — 이 함수의 접점이 아니라 콜리 내부(범위 밖·계약만)"
+ },
+ "reads": [
+  {"base": "Effect", "offset": "0x0", "name": "ty.ptr (Arc<dyn EffectType> 데이터 포인터 → ArcInner)", "note": "m10.ll:35873. ArcInner 헤더 16B 뒤 round_up(16, vtable+16 align) 위치의 dyn 객체를 self 로 vtable 호출"},
+  {"base": "Effect", "offset": "0x8", "name": "ty.vtable", "note": "m10.ll:35875. vtable+16 = align(35877) · vtable+0xd0(208) = EffectType::expected_ally_area_radius(&self)->Option<u64>(35883~35884, divtable EffectType 0xd0 · 일치율 94%)"},
+  {"base": "ScoreParameter", "offset": "0x14b8", "name": "near_allies.buf.ptr", "note": "m10.ll:35895~35896 (gep 5304). 원소 ChampionScoreParameter 216B stride(35908 mul 216)"},
+  {"base": "ScoreParameter", "offset": "0x14d0", "name": "near_allies.len", "note": "m10.ll:35898~35899 (gep 5328). 0 이면 즉시 0 반환(35918)"},
+  {"base": "ChampionScoreParameter", "offset": "0x58", "name": "id", "note": "m10.ll:35947~35949 (gep 88). == exclude_id 이면 continue(571). get_entity_by_id 인자(574)"},
+  {"base": "ChampionScoreParameter", "offset": "0x70", "name": "applyed_damage", "note": "m10.ll:36026~36027 (gep 112). incoming 합산(583)"},
+  {"base": "ChampionScoreParameter", "offset": "0x88", "name": "risk_epic_damage", "note": "m10.ll:36029~36030 (gep 136). incoming 합산(583)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache (&AbstractGameWithCache)", "note": "m10.ll:35922. cache+0 = game(&dyn AbstractGame 팻포인터: 35953 data · 35954 vtable) → vtable+0x1f0(496) = AbstractGame::get_entity_by_id(game, id)->Option<&Entity>(null=None) (35955~35958, divtable AbstractGame 0x1f0 일치율 98%)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "m10.ll:35928~35929. expected_heal_target/expected_shield_target 2번째 인자"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult (i32)", "note": "ally. m10.ll:35965~35968. Entity::radius() 인라인(entity.rs:1511~1515): 0 이면 radius 그대로, 아니면 radius*(mult+100)/100"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "ally. m10.ll:35972~35973 / 35979~35980 (gep 1664). Entity::radius() 인라인"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "ally(35990~35991) 와 anchor(35924~35925). 거리 제곱 계산(578)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "ally(35994~35995) 와 anchor(35926~35927). 거리 제곱 계산(578)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "ally 현재 HP. m10.ll:36060~36061 (gep 1648). 분모 max(hp,1)(587) — 최대 HP 가 아니라 현재 HP"},
+  {"base": "Box<dyn Action>", "offset": "0x0", "name": "data_ptr", "note": "m10.ll:35930. vtable+0x80 슬롯 호출의 self"},
+  {"base": "Box<dyn Action>", "offset": "0x8", "name": "vtable_ptr", "note": "m10.ll:35932~35933 (+128 = Action::duration, divtable Action 0x80 · 일치율 58% — 두 vtable 전역(TargetProjectileAction/TargetAttackAction) 모두 슬롯 0x80 = duration 으로 일치)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 100, "src_line": 577, "meaning": "Entity::radius() 인라인(entity.rs:1515): radius*(radius_mult+100)/100 — 반경 배율 백분율 스케일. m10.ll:35981 add 100 · 35983 udiv 100"},
+  {"value": 30, "src_line": 582, "meaning": "possible_risk 의 창(틱) = action.duration() + 30 — 시전 시간에 30틱(=0.5초 @60tps, 추정: tps 는 이 함수에서 안 읽음) 여유를 더한 예상 피해 창. m10.ll:36024"},
+  {"value": 3, "src_line": 584, "meaning": "shield = min(incoming*3, expected_shield_target) — 실드 가치를 예상 피격(incoming)의 3배로 상한. m10.ll:36034 mul 3 · 36037 llvm.smin"},
+  {"value": 0, "src_line": 585, "meaning": "`icmp sgt (shield+heal), 0` — 힐+실드 기대량이 양수일 때만 가치 가산. m10.ll:36040"},
+  {"value": 1, "src_line": 587, "meaning": "분모 하한 max(ally.hp, 1) — 0 나눗셈 방지. m10.ll:36064 llvm.smax"},
+  {"value": -16, "src_line": 566, "meaning": "Arc<dyn EffectType> 데이터 오프셋 계산 `(align-1) & -16` +16 = round_up(16, align) — ArcInner 헤더 뒤 dyn 객체 위치(레이아웃 산술, 판정 상수 아님). m10.ll:35878~35881"},
+  {"value": 16, "src_line": 566, "meaning": "ArcInner 헤더 크기(strong+weak) / vtable+16 = align 필드 — 레이아웃 산술. m10.ll:35876·35881"}
+ ],
+ "calls": [
+  "game_core::simulation::effect::Effect::expected_heal_target",
+  "game_ai::score_parameter::ChampionScoreParameter::possible_risk",
+  "game_core::simulation::effect::Effect::expected_shield_target",
+  "game_ai::utils::champion_hp_value",
+  "llvm.smin.i64",
+  "llvm.smax.i64"
+ ],
+ "logic": "fn v54_aoe_ally_heal_value(version, effect, data, parameter, champ, anchor, exclude_id, action) -> i64  [buff_value.rs:562~591]\n// version(%0) 은 본문에서 미사용.\n566: let Some(radius) = effect.ty.expected_ally_area_radius() else { return 0 };   // vtable +0xd0 · Option<u64> = {i1 tag, i64}\n570: let mut v: i64 = 0;\n570: for ap in parameter.near_allies.iter() {                // ScoreParameter+0x14b8 ptr / +0x14d0 len · 216B stride · len==0 이면 return 0\n571:   if ap.id == exclude_id { continue; }                  // +0x58\n574:   let Some(ally) = data.cache.game.get_entity_by_id(ap.id) else { continue; };   // vtable +0x1f0 · null=None\n577:   let r = ally.radius() + radius;                       // Entity::radius 인라인: mult=ally+0x470(i32); mult==0 ? ally+0x680 : (ally+0x680 * (mult+100)) / 100  (udiv)\n578:   let dx = |ally.x - anchor.x|; let dy = |ally.y - anchor.y|;   // +0x660/+0x668, unsigned abs diff\n578:   if dx*dx + dy*dy > r*r { continue; }                  // icmp ugt (제곱 비교, 경계 포함 = 반경 안)\n581:   let heal = effect.expected_heal_target(data.context, champ as &dyn AbstractEntity, ally as &dyn AbstractEntity);   // usize\n582:   let incoming = ap.possible_risk(data, action.duration() + 30) + ap.applyed_damage + ap.risk_epic_damage;   // +0x70, +0x88 (583)\n584:   let shield = min(incoming * 3, effect.expected_shield_target(data.context, champ, ally));   // llvm.smin (signed)\n585:   if (heal + shield) as i64 > 0 {                        // icmp sgt\n586:     let hp_value = champion_hp_value(data, parameter, ap);   // i64\n587:     v += hp_value * (heal + shield) / max(ally.hp as i64, 1);   // sdiv · 분모 = 현재 HP (Entity+0x670)\n     }\n   }\n591: return v;\n\n분기 순서(IR 블록): %8 radius None→%125(0) / %24 len==0→%125(0) / %48 id==exclude→%123(continue) / %54 entity null→%123 / %75 dist²>r²→%123 / %95 heal+shield<=0→%112(v 유지) / %115 가산→%112. 루프 종료 = 원소 포인터(%50)==end(%30).\n부작용 0(writes 없음 · 인자 전부 readonly/captures(none)). rnd 인자 없음 · gen_range 0.",
+ "knobs": [
+  {"what": "possible_risk 예측 창 여유 틱", "where": "buff_value.rs:582 (m10.ll:36024)", "value": 30, "effect": "올리면 더 긴 창의 예상 피해가 incoming 에 잡혀 실드 상한(incoming*3)이 커진다 → 실드 이펙트의 광역 가치↑. 내리면 시전 직후 피해만 반영해 실드 가치가 보수적으로 줄어든다"},
+  {"what": "실드 가치 상한 배율(예상 피격 대비)", "where": "buff_value.rs:584 (m10.ll:36034)", "value": 3, "effect": "shield = min(incoming*3, expected_shield). 올리면 피해가 적은 아군에게도 실드 기대량이 거의 그대로 인정된다(실드 과대평가↑). 내리면(예: 1) 실제 예상 피격 이하로만 인정돼 실드 남발이 줄어든다"},
+  {"what": "가치 가산 게이트(힐+실드 > 0)", "where": "buff_value.rs:585 (m10.ll:36040)", "value": 0, "effect": "임계를 올리면 소량 힐/실드는 광역 가치에서 무시된다(후보 유지 조건이 엄격해짐)"},
+  {"what": "HP 분모 하한", "where": "buff_value.rs:587 (m10.ll:36064)", "value": 1, "effect": "hp=0 인 아군(사망 직전/사망)의 0 나눗셈 방지. 올리면 저체력 아군 가치 폭증이 완화된다(예: 100 이면 hp<100 은 동일 취급)"}
+ ],
+ "unknown": [
+  "exclude_id(%6) 가 호출자에서 정확히 무엇(직접 대상 id / 시전자 id)인지 — 호출자(buff_value 상위·battle 등)는 이 배치 범위 밖. IR 상 near_allies 원소 id 와의 등치 비교만 확정",
+  "possible_risk 3번째 인자(usize)의 소스 이름 — 콜리 m07.ll:7315 는 범위 밖(계약만: (&ChampionScoreParameter, &OperationData, usize) -> i64). 이 함수는 action.duration()+30 을 넘긴다",
+  "expected_ally_area_radius 의 런타임 구현체 — Arc<dyn EffectType> 이라 divtable 은 정적 vtable 전역 2개(DokkaebiUltExplosionEffect·CombineEffect)만 보여 준다. 슬롯 0xd0 = expected_ally_area_radius 는 두 전역 모두 일치(94%)·tcx 시그니처 `fn(&Self)->Option<u64>`(type.rs:334) 와 반환 {i64,i64}+trunc i1 이 정합",
+  "same-line 순서: 582 의 `possible_risk + applyed_damage + risk_epic_damage` 덧셈 순서는 IR(36028 possible_risk+applyed → 36031 +risk_epic) 기준이며 column 정보 없음 — 정수 덧셈이라 결과 동일(표기 불가·동작 확정)",
+  "30 틱이 tps 파생인지 리터럴인지 — 본문에 tps 읽기 없고 리터럴 30 이 직접 add 됨(m10.ll:36024) → 리터럴 확정. '0.5초' 환산만 추정(tps=60 가정)",
+  "expected_heal_target/expected_shield_target 내부(usize 반환 → i64 로 그대로 사용) — game_core effect.rs:109/114 · 계약만(범위 밖)"
+ ]
+}

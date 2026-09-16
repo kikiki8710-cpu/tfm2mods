@@ -1,0 +1,669 @@
+{
+ "name": "base_battle_action",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_action",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle.rs",
+ "src_line": 1305,
+ "ir_file": "m02.ll",
+ "ir_from": 66196,
+ "ir_to": 74096,
+ "aux": [
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 77019,
+   "ir_to": 77072,
+   "note": "closure$0(battle.rs:1316 near_allies 필터) call_mut 심 — 본체 인라인"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 77075,
+   "ir_to": 77139,
+   "note": "closure$2(battle.rs:1321 near_enemies_with_action 필터) call_mut 심 — can_target·is_enemy_well_danger"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 77142,
+   "ir_to": 77163,
+   "note": "closure$4(battle.rs:1329 enemy_towers 필터) call_mut 심(&&Entity)"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 77192,
+   "ir_to": 77216,
+   "note": "closure$4 call_mut 심(&mut env 변종)"
+  },
+  {
+   "ir_file": "m02.ll",
+   "ir_from": 77219,
+   "ir_to": 77246,
+   "note": "closure$4 call_mut 심(&mut &mut env 변종)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 22263,
+   "ir_to": 22430,
+   "note": "Map<Enumerate<Iter<Option<&Entity>>>,closure$1>::try_fold — closure$1(battle.rs:1321 블랙보드 small_actions 읽기) 인라인 + closure$2 심 호출"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 41528,
+   "ir_to": 41704,
+   "note": "bumpalo Vec<&Entity>::from_iter_in<Filter<FilterMap<..iter_champions..>,closure$0>> (1316 near_allies 수집 본체)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 47342,
+   "ir_to": 47524,
+   "note": "bumpalo Vec<(SmallAction,&Entity)>::from_iter_in<Map<Filter<Map<Enumerate..>>>> (1318~1325 near_enemies_with_action 수집 본체 · closure$3 unwrap 인라인 = unwrap_failed ×2)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 42815,
+   "ir_to": 43188,
+   "note": "bumpalo Vec<&Entity>::from_iter_in<Filter<Chain<Flatten<IntoIter<Option<&Entity>,6>>,Copied<Iter<&Entity>>>,closure$4>> (1328 enemy_towers 수집 본체)"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 34344,
+   "ir_to": 34396,
+   "note": "Copied<Iter<&Entity>>::try_fold<find::check<closure$4>> (enemy_towers 체인 후반 · closure$4 심 호출)"
+  }
+ ],
+ "one_line": "BattleSubPlan 기본 전투 후보 생성: 사거리(+이동 max_tick) 안 적 챔프·타워·본진공격 미니언에 Attack, 대상제약·대시가치·힐/실드/버프 조건 통과한 적/아군에 Skill·Skill2, 궁 후보 Ult 를 bumpalo Vec<SmallActionPlay> 로 반환 (배치 A = 1305~1511: 머리·Attack 3종·적 챔프 Skill·아군 Skill 전반부)",
+ "signature": {
+  "abi": "internal fastcc · void 반환 · sret %0 · exe 0xcd05f0 는 argscan 스택 인자 참조(외부 명세). DI 인자 5개(version,_rnd,player,data,sub_goal) 중 `_rnd` 는 IR 인자에 없고(DeadArgElim · #dbg_value(ptr poison, !71654) 1건 · m02.ll:66196~66320), `sub_goal: &BattleSubPlanGoal`(16B) 는 ArgumentPromotion 으로 값 2개(i64 %4 태그, i64 %5 focus)로 분해됐다.",
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "ptr → bumpalo::collections::vec::Vec<SmallActionPlay> (32B)",
+    "ir": "%0",
+    "role": "출력 전용 · IR 속성 `dead_on_unwind noalias noundef nonnull writable writeonly align 8 captures(none) dereferenceable(32)` · 함수 끝(m02.ll:72349 · battle.rs:2038 · 배치 D)에서 지역 `candidates`(%65) 를 memcpy 32B 로 1회 복사 — 그 전엔 %0 접근 0건(m02.ll 66196~74096 grep)"
+   },
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "ir": "i64 %1 (noundef)",
+    "role": "AI 버전 게이트. 배치 A 안 직접 분기 1곳: battle.rs:1313 `version > 1`(icmp ugt %1,1 · m02.ll:66414). 그 외 alloca %73 에 store(66296) 되어 closure$2 환경(+16) 으로 전달 → is_enemy_well_danger(version,..) 인자(aux m02.ll:77075~) · 1506 effect_buff_target 첫 인자(load %73 · m02.ll:68026)"
+   },
+   {
+    "i": 2,
+    "name": "_rnd",
+    "type": "&mut StdRng (DI !15700)",
+    "ir": "(없음)",
+    "role": "미사용 — IR 인자에서 제거됨(포이즌 dbg_value 1건). gen_range 호출 사이트 0건(m02.ll 66196~74096 에 rand 콜리 없음)"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "ir": "ptr %2",
+    "role": "IR 속성 `noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528)` — 읽기 전용. 읽는 필드 = info.team(0x930), info.position@tag(0x9c0). 클로저 환경(closure$1/$2 · effect_buff_target 등)에 포인터로 전달"
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData (24B = {cache:&AbstractGameWithCache +0, context:&GameContext +8, blackboard:&[Blackboard;2] +16})",
+    "ir": "ptr %3",
+    "role": "IR 속성 `readonly ... dereferenceable(24)` — 읽기 전용. cache→player_champion/others/game(vtable) · context→pool(bump)+expected_damage/buff 인자 · blackboard→closure$1"
+   },
+   {
+    "i": 5,
+    "name": "sub_goal",
+    "type": "&BattleSubPlanGoal (16B enum · 판별자 enum+0x0 8B Direct · Trace0/Protect1/Kiting2/KitingBack3/RunAway4/Assassin5/AssassinReady6/End7 · 페이로드 focus:usize enum+0x8)",
+    "ir": "i64 %4 = 태그, i64 %5 = focus",
+    "role": "값 전달(ArgumentPromotion). 배치 A 사용: 1312 `%4 == 3`(KitingBack), 1467 `switch %4 {3,4 → 1469 / 0,5 → 1483 / 그 외 → 1476}`. %5(focus) 는 배치 A 범위에서 참조 0건"
+   }
+  ],
+  "returns": "sret bumpalo Vec<SmallActionPlay> — 후보 목록(순서 = push 순서 = 이 명세 logic 의 발생 순서). 레이아웃(tcxdict): buf.ptr +0x0 / buf.a(&Bump) +0x8 / buf.cap +0x10 / len +0x18. 초기값(1331, m02.ll:66518~66526) = ptr 8(dangling) · a = data.context.pool · cap=len=0. 원소 SmallActionPlay 184B · 니치 태그 enum+0xb1(1B) · 배치 A 가 만드는 variant = Attack(태그 15) · Skill(태그 16). 원소 안 live 바이트(각 push 가 실제로 쓰는 것): [0x0,0x8) start_tick = game.tick()(AbstractGame vtable +0x28 · SmallAction*::new 내부 m07.ll:7129) · [0x8,0x10) target=entity id · [0x10] is_act=false(i8 0) · [0xb1] 태그. **[0x11,0xb1)·[0xb2,0xb8) 은 미기록**(24B new 결과를 alloca 에 memcpy 후 태그 1B store, 그 184B alloca 를 통째 memcpy — 나머지는 alloca 잔존값 = undef · sweep 비교 시 제외 대상).",
+  "return_live_table": {
+   "Attack(15)": "0x0~0x11 + 0xb1",
+   "Skill(16)": "0x0~0x11 + 0xb1",
+   "Skill2(17)": "배치 B/C 소관(같은 24B new 형태 · SmallActionSkill2::new)",
+   "Ult(18)": "배치 D 소관(SmallActionUlt::new)"
+  },
+  "tls": {
+   "name": null,
+   "role": "접점 없음",
+   "key": null,
+   "layout": null,
+   "invalidation": null,
+   "call_conditions": null,
+   "evidence": "m02.ll 66196~74096 에 LocalKey/call_once/__getit/llvm.threadlocal.address 0건. 본문이 참조하는 @anon 상수 8종(94aca…의 19·26·54·268~272)은 각각 None-Effect 상수(19)·panic Location(26,268~272)·`Entity as AbstractEntity` vtable(54) 이고 fn-포인터 TLS 키 상수는 없다. ⟹ 승계 메모의 `last_stand_flags LocalKey::with · v3_beyond_enemy_line · estimate_damage_to` 는 **이 define(m02.ll:66196) 에는 없다**(적용 범위: IR 본문 grep · 형제 death_battle m15 는 미확인)"
+  }
+ },
+ "reads": [
+  {
+   "base": "PlayerState(player)",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "1306 champ 인덱스 · bounds<2 (panic_bounds_check)"
+  },
+  {
+   "base": "PlayerState(player)",
+   "offset": "0x9c0",
+   "name": "info.position@tag (i32→zext)",
+   "note": "1306 player.rs:581 getter 인라인 · champ 인덱스"
+  },
+  {
+   "base": "OperationData(data)",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData(data)",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext · expected_damage_target/effect_buff_target/expected_heal/shield 인자"
+  },
+  {
+   "base": "OperationData(data)",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] · closure$1 환경(+24)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "1316/1331 bumpalo Vec 할당자"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "&dyn AbstractGame 팻포인터 앞 절반"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "뒤 절반 · 1413 슬롯 +0x1f0 get_entity_by_id(divtable) · 1442/1483/1499 Action 슬롯 인자"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5] Option<&Entity>",
+   "note": "1306 [team][pos] · 1316 [team] 슬라이스(5·stride 8=0x28) · 1319 [1-team] 슬라이스"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xf0",
+   "name": "others[2] Vec<&Entity>",
+   "note": "1509 others[1-team].iter() (원소 32B stride · +0 ptr · +0x18 len)"
+  },
+  {
+   "base": "Blackboard[1-team]",
+   "offset": "0x78",
+   "name": "small_actions[5] Option<SmallAction> (24B · 태그 +0 · -1=None)",
+   "note": "aux m12.ll:22263~ closure$1: enumerate idx i 로 [i] 읽어 (act, &Option<&Entity>) 쌍 생성 · bounds<5"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x0",
+   "name": "team@tag",
+   "note": "is_visible_from 인라인(1347/1418/1434/1508): 태그 하위비트 1(비-Player)이면 가시로 간주"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x8",
+   "name": "team.Player.0",
+   "note": "visible_state 인덱스 · bounds<2"
+  },
+  {
+   "base": "Entity(대상)",
+   "offset": "0x38",
+   "name": "visible_state[team]@tag",
+   "note": "== 0 이면 champ 팀에 가시(data.rs:122 is_visible) · [team] stride 8"
+  },
+  {
+   "base": "Entity(대상)",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "1390 ==3 Nexus · 1412 ==1 Minion · 1414 switch 3 Nexus/2 Tower · 1476 ==13 Champion"
+  },
+  {
+   "base": "Entity(미니언)",
+   "offset": "0x88",
+   "name": "ty.Minion.info.nearest_enemy@tag",
+   "note": "1413 Option<usize> is_some (Minion 0x70 + 0x18)"
+  },
+  {
+   "base": "Entity(미니언)",
+   "offset": "0x90",
+   "name": "ty.Minion.info.nearest_enemy.0",
+   "note": "1413 → get_entity_by_id 인자"
+  },
+  {
+   "base": "Entity(타워)",
+   "offset": "0x128",
+   "name": "ty.Tower.info.ty@tag (TowerType 1B)",
+   "note": "1414 is_twin_tower 인라인: (v-3) <u 2 ⟹ TwinA(3)|TwinB(4)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "Effect::range 인라인(1339~1341)"
+  },
+  {
+   "base": "Entity(any)",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "Entity::radius 인라인: 0 이면 radius 그대로"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x490",
+   "name": "attack_effect.Some.0 (Effect 56B 시작)",
+   "note": "range_adjust/expected_damage_target 첫 인자 %127"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "1339"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "1339 ×(level-1)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (니치 i32 · -1=None)",
+   "note": "1333 · %130"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4c8",
+   "name": "skill_effect.Some.0 (Effect)",
+   "note": "%134 · 1452 range_adjust · 1477 expected_damage_target · 1506 effect_buff_target"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4d0",
+   "name": "skill_effect.ty.vtable_ptr (Arc<dyn EffectType> 뒤 절반)",
+   "note": "1469/1476/1504/1505 슬롯 호출 · 데이터 = ArcInner 헤더 16B 뒤 align 정렬(`(align-1)&-16 + 16`)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4d8",
+   "name": "skill_effect.range",
+   "note": "1340"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4e0",
+   "name": "skill_effect.growth_range",
+   "note": "1340"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4f0",
+   "name": "skill_effect.target (CastingTarget)",
+   "note": "%600 · 1438/1495 CastingTarget::check 첫 인자"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag (-1=None)",
+   "note": "1334 · %133 · 1432 게이트"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x500",
+   "name": "skill2_effect.Some.0 (Effect)",
+   "note": "1335 level>2 일 때만, 아니면 @anon.19(None 상수)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x510",
+   "name": "skill2_effect.range",
+   "note": "1341 (%139+16) · (C3 경고 사유) 절대 오프셋 gep 가 아니라 `select(level>N, champ+0x500|0x538, @anon.19)` 결과 포인터에 +16/+24/+48 을 더하는 상대 gep 라 본문에 10진수 리터럴이 없다(m02.ll:66536~66552 · 66668~66672)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x518",
+   "name": "skill2_effect.growth_range",
+   "note": "1341 (%139+24) · (C3 경고 사유) 절대 오프셋 gep 가 아니라 `select(level>N, champ+0x500|0x538, @anon.19)` 결과 포인터에 +16/+24/+48 을 더하는 상대 gep 라 본문에 10진수 리터럴이 없다(m02.ll:66536~66552 · 66668~66672)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x530",
+   "name": "skill2_effect@tag",
+   "note": "1335 (%139+48) · %142 · 배치 B 1592 게이트에 씀 · (C3 경고 사유) 절대 오프셋 gep 가 아니라 `select(level>N, champ+0x500|0x538, @anon.19)` 결과 포인터에 +16/+24/+48 을 더하는 상대 gep 라 본문에 10진수 리터럴이 없다(m02.ll:66536~66552 · 66668~66672)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x538",
+   "name": "ult_effect.Some.0",
+   "note": "1336 level>4 일 때만"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x568",
+   "name": "ult_effect@tag",
+   "note": "1336 (%145+48) · %148 · 배치 D 소비 · (C3 경고 사유) 절대 오프셋 gep 가 아니라 `select(level>N, champ+0x500|0x538, @anon.19)` 결과 포인터에 +16/+24/+48 을 더하는 상대 gep 라 본문에 10진수 리터럴이 없다(m02.ll:66536~66552 · 66668~66672)"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x580",
+   "name": "skill.data_ptr (Arc<dyn Action> 앞 절반)",
+   "note": "%601 · 1442/1483/1499 self 인자"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x588",
+   "name": "skill.vtable_ptr",
+   "note": "%602 · 슬롯 +0xc8 / +0xc0"
+  },
+  {
+   "base": "Entity(any)",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "SmallActionAttack/Skill::new target 인자 · closure$0 id 비교"
+  },
+  {
+   "base": "Entity(champ)",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "1335 >2 · 1336 >4 · Effect::range (level-1)"
+  },
+  {
+   "base": "Entity(아군)",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "1511 hp_ratio 분모 · 0 이면 div_by_zero 패닉"
+  },
+  {
+   "base": "Entity(any)",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "1343 champ · 1356/1447 대상(RunAway 보정)"
+  },
+  {
+   "base": "Entity(any)",
+   "offset": "0x660",
+   "name": "x",
+   "note": "dist_sq"
+  },
+  {
+   "base": "Entity(any)",
+   "offset": "0x668",
+   "name": "y",
+   "note": "dist_sq"
+  },
+  {
+   "base": "Entity(any)",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "1396 타워 hp · 1511 아군 hp"
+  },
+  {
+   "base": "Entity(any)",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "Entity::radius 인라인"
+  },
+  {
+   "base": "Entity(타워)",
+   "offset": "0x6a0",
+   "name": "block_target_tick",
+   "note": "aux closure$4(1329): == 0"
+  },
+  {
+   "base": "Entity(타워)",
+   "offset": "0x6b9",
+   "name": "can_target (bool)",
+   "note": "aux closure$4(1329)"
+  },
+  {
+   "base": "vtable dyn AbstractGame",
+   "offset": "0x1f0",
+   "name": "get_entity_by_id (divtable)",
+   "note": "1413 · fn(game, id) -> Option<&Entity>(null=None)"
+  },
+  {
+   "base": "vtable dyn Action(champ.skill)",
+   "offset": "0xc8",
+   "name": "target_constraint (divtable 일치율 58% → 추정 · 인자 형태 (self,game.data,game.vt,caster,target)->bool 일치)",
+   "note": "1442/1499"
+  },
+  {
+   "base": "vtable dyn Action(champ.skill)",
+   "offset": "0xc0",
+   "name": "can_activate (divtable 58% → 추정 · (self,game.data,game.vt,caster)->bool)",
+   "note": "1483"
+  },
+  {
+   "base": "vtable dyn EffectType(skill_effect.ty)",
+   "offset": "0x68",
+   "name": "expected_move_on_hit (divtable 94%)",
+   "note": "1469 (self)->bool"
+  },
+  {
+   "base": "vtable dyn EffectType(skill_effect.ty)",
+   "offset": "0x58",
+   "name": "expected_move_distance (94%) -> Option<(usize,u64)> sret 24B · 태그 +0 · 0=None(tcx sig · 기본 impl store 0)",
+   "note": "1469"
+  },
+  {
+   "base": "vtable dyn EffectType(skill_effect.ty)",
+   "offset": "0x120",
+   "name": "can_move (94%)",
+   "note": "1476 (self)->bool"
+  },
+  {
+   "base": "vtable dyn EffectType(skill_effect.ty)",
+   "offset": "0x40",
+   "name": "expected_heal (94%) -> i64",
+   "note": "1504 (self,context,caster,&dyn target)"
+  },
+  {
+   "base": "vtable dyn EffectType(skill_effect.ty)",
+   "offset": "0x48",
+   "name": "expected_shield (94%) -> i64",
+   "note": "1505"
+  }
+ ],
+ "writes": [
+  {
+   "base": "sret Vec<SmallActionPlay>(%0)",
+   "offset": "0x0",
+   "name": "buf.ptr/buf.a/buf.cap/len (32B 전체)",
+   "value": "candidates(%65) memcpy 32B",
+   "note": "배치 D 범위(battle.rs:2038 · m02.ll:72349) — 배치 A 에는 %0 쓰기 없음. 여기 적는 것은 sret 표면 선언(배치 A 가 시그니처 담당)"
+  },
+  {
+   "base": "지역 candidates(%65) bumpalo Vec",
+   "offset": "0x0 -> ptr",
+   "name": "buf.ptr",
+   "value": "8(dangling) → reserve_internal_or_panic 후 bump 할당 포인터",
+   "note": "1331 초기화 m02.ll:66518"
+  },
+  {
+   "base": "지역 candidates(%65)",
+   "offset": "0x8",
+   "name": "buf.a",
+   "value": "data.context.pool",
+   "note": "m02.ll:66520"
+  },
+  {
+   "base": "지역 candidates(%65)",
+   "offset": "0x10",
+   "name": "buf.cap",
+   "value": "0 → reserve 가 갱신",
+   "note": "memset 16B m02.ll:66526 · push 때 len==cap 이면 reserve_internal_or_panic(vec,len,1,true)"
+  },
+  {
+   "base": "지역 candidates(%65)",
+   "offset": "0x18",
+   "name": "len",
+   "value": "+1 per push",
+   "note": "배치 A push 5곳: 1372·1391·1401·1428(Attack 15) · 1491(Skill 16). 원소 쓰기 = ptr[len] 에 184B memcpy(live = 0x0~0x11 + 0xb1)"
+  },
+  {
+   "base": "지역 version 슬롯(%73)",
+   "offset": "0x0",
+   "name": "version 복사",
+   "value": "%1",
+   "note": "m02.ll:66296 · &version 을 closure$2 환경에 넣기 위한 spill"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 1306,
+   "meaning": "player_champion 1차원 길이(팀 수) — bounds check. 같은 값이 1347/1418/1434/1508 visible_state bounds, 1414 Tower 태그, 1397 remain_attack 임계(>2)에도 등장"
+  },
+  {
+   "value": 30,
+   "src_line": 1312,
+   "meaning": "max_tick(kb_hold 파생) — 후보 사거리에 더하는 이동 예산 틱: max_dist = range + move_speed*30. KitingBack 이고 (version<=1 이거나 base_defense_focus 거짓) 이면 0"
+  },
+  {
+   "value": 1,
+   "src_line": 1313,
+   "meaning": "version > 1 게이트(KitingBack 일 때만 base_defense_focus 호출) · 1319 `1-team` 적 팀 · 1412 EntityType::Minion 태그"
+  },
+  {
+   "value": 3,
+   "src_line": 1312,
+   "meaning": "BattleSubPlanGoal::KitingBack 메모리태그(tcxdict --enum · Direct) · 1390/1414 EntityType::Nexus 태그 3 · 1467 switch case 3 · 1414 TowerType TwinA=3 (`add -3; icmp ult 2` = {3,4}) · (경고 사유) 본문의 `shl 3`(×8 stride) 과 무관 — 이 항목은 태그값 등재"
+  },
+  {
+   "value": -1,
+   "src_line": 1333,
+   "meaning": "Option<Effect> 니치 None 태그(i32 · attack/skill/skill2/ult_effect@tag == -1 ⟹ None) · 1507 buff+0x48 != -1 ⟹ has_buff · aux closure$2: small_actions 태그 -1 = None"
+  },
+  {
+   "value": 100,
+   "src_line": 1339,
+   "meaning": "Entity::radius(entity.rs:1511~1515) 퍼센트: radius*(100+radius_mult)/100 (udiv)"
+  },
+  {
+   "value": 15,
+   "src_line": 1372,
+   "meaning": "SmallActionPlay::Attack 메모리태그(니치 · idx12+3) — enum+0xb1 에 store i8 15 (1372·1391·1401·1428)"
+  },
+  {
+   "value": 16,
+   "src_line": 1491,
+   "meaning": "SmallActionPlay::Skill 메모리태그(idx13+3) — store i8 16"
+  },
+  {
+   "value": 0,
+   "src_line": 1355,
+   "meaning": "SmallAction::RunAway 태그(blackboard.rs:82 Direct 0) — 대상의 현재 행동이 도주면 move_speed 를 saturating_sub 로 보정(1355/1446) · 1467 switch case 0 = BattleSubPlanGoal::Trace · 1347 visible_state 태그 0 = 가시"
+  },
+  {
+   "value": 13,
+   "src_line": 1476,
+   "meaning": "EntityType::Champion 태그 — 대상이 챔피언일 때만 skill_damage/is_dash_worth 검사"
+  },
+  {
+   "value": 4,
+   "src_line": 1467,
+   "meaning": "BattleSubPlanGoal::RunAway 태그(switch case 4 → 1469 경로) · 1336 level>4 ⟹ ult 보유 · TowerType TwinB=4"
+  },
+  {
+   "value": 5,
+   "src_line": 1467,
+   "meaning": "BattleSubPlanGoal::Assassin 태그(case 5 → 1483 직행) · 1316/1319 슬라이스 길이 5 · aux closure$1 idx<5 · (경고 사유) 본문의 `shl 5`(×32 = (SmallAction,&Entity) 원소 stride, m02.ll:68048) 과 무관 — 이 항목은 태그값/길이 등재"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 1508,
+   "meaning": "120000^2 + 1 — 아군 근처 적(챔프 또는 others) 판정: dist_sq < 14400000001 ⟺ 거리 ≤ 120000 (=3.75셀·셀 32000) · 1508 적 챔프 / 1509 others 동일 임계"
+  },
+  {
+   "value": 22500000000,
+   "src_line": 1316,
+   "meaning": "150000^2 — near_allies 필터(aux closure$0 m02.ll:77019~): 자기 자신 제외 && dist_sq < 150000^2(strict · +1 없음). 등록 근거 = aux 범위"
+  },
+  {
+   "value": 40,
+   "src_line": 1316,
+   "meaning": "슬라이스 끝 = 시작 + 5*8 (stride 8 · Option<&Entity> 5개) — 임계 아님(수집 범위 표기용)"
+  },
+  {
+   "value": 480,
+   "src_line": 1306,
+   "meaning": "= 0x1e0 player_champion 오프셋(reads 참조) — gep 상수 그대로. 임계 아님"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::defense_nexus::base_defense_focus",
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::AbstractGameWithCache::iter_towers",
+  "game_core::AbstractGameWithCache::iter_minions",
+  "game_core::Entity::can_attack",
+  "game_core::Entity::can_skill",
+  "game_core::Entity::block_move",
+  "game_core::Effect::range_adjust",
+  "game_core::Effect::expected_damage_target",
+  "game_core::CastingTarget::check",
+  "game_ai::small_action::cast::SmallActionAttack::new",
+  "game_ai::small_action::cast::SmallActionSkill::new",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "game_ai::utils::is_dash_worth",
+  "game_ai::fight_check::effect_buff_target",
+  "core::iter::Iterator::next",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const_div_by_zero",
+  "core::ptr::drop_glue",
+  "core::ops::function::impls::call_mut",
+  "game_core::OperationData::can_target",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "core::iter::Iterator::try_fold"
+ ],
+ "logic": "// battle.rs:0~1511 (배치 A)\n// ─── 머리 (1305~1343) ───\n// 1306  team = player.info.team(0x930); pos = player.info.position(0x9c0)  [team<2 아니면 panic_bounds_check]\n//       champ = data.cache.player_champion[team][pos].unwrap()  [None ⟹ unwrap_failed]\n// 1312  kb_hold: bool = (sub_goal.tag == 3 KitingBack) && version > 1 && base_defense_focus(player, data)\n//       (IR phi %97 = max_tick: !KitingBack → 30 / KitingBack&&version<=1 → 0 / KitingBack&&version>1 → base_defense_focus ? 30 : 0)\n// 1361  max_tick = if KitingBack && !kb_hold { 0 } else { 30 }   // 위 phi 와 동치\n// 1316  near_allies: Vec<&Entity> = cache.player_champion[team].iter().filter_map(iter_champions closure: Some 만).filter(closure$0: a.id != champ.id && dist_sq(a,champ) < 150000²).collect_in(data.context.pool)\n// 1318~1325 near_enemies_with_action: Vec<(SmallAction,&Entity)> = cache.player_champion[1-team].iter().enumerate()\n//         .map(closure$1: |(i,e)| (data.blackboard[1-team].small_actions[i], e))          // Option<SmallAction> 24B · bounds i<5\n//         .filter(closure$2: act.is_some() && e.is_some() && data.can_target(cache.game, player, e) && !is_enemy_well_danger(version, player, e.x, e.y))\n//         .map(closure$3: (act.unwrap(), e.unwrap())).collect_in(pool)\n// 1328~1329 enemy_towers: Vec<&Entity> = cache.iter_towers(1-team)[Chain<Flatten<[Option<&Entity>;6]>, Copied<Iter<&Entity>>>].filter(closure$4: t.can_target(0x6b9) && t.block_target_tick(0x6a0) == 0).collect_in(pool)\n// 1331  candidates = Vec::new_in(pool)   // {ptr 8, a=pool, cap 0, len 0}\n// 1333  atk_eff  = champ.attack_effect()  (0x4c0 태그 != -1)\n// 1334  skl_eff  = champ.skill_effect()   (0x4f8 != -1)\n// 1335  skl2_eff = if champ.level > 2 { champ.skill2_effect() } else { None }  (0x500 / 0x530 != -1)\n// 1336  ult_eff  = if champ.level > 4 { champ.ult_effect() } else { None }     (0x538 / 0x568 != -1)  → 배치 D 소비\n// 1339~1341 atk_base/skill_base/skill2_base: Option<u64> = X_eff.map(closure$5/6/7: |e| e.range(champ))\n//       Effect::range(effect.rs:26) = e.range + e.growth_range*(champ.level-1) + champ.stat_buff_cached.range(0x438) + champ.radius()\n//       Entity::radius(entity.rs:1511~1515) = if radius_mult(0x470)==0 { radius(0x680) } else { radius*(100+radius_mult)/100 }\n// 1343  move_speed = champ.stat_cached.move_speed(0x640)\n// ─── Attack 후보 (1345~1428) ───\n// 1345  if atk_eff.is_some() && champ.can_attack() {\n// 1346    for (act, e) in near_enemies_with_action {\n// 1347      if !e.is_visible_from(champ) continue   // 인라인 entity.rs:1482: champ.team 태그 비트=1(비-Player) ⟹ true; 아니면 e.visible_state[champ.team.0](0x38) 태그==0\n// 1351      range = Effect::range_adjust(&atk_eff, champ, e) + atk_base + e.radius()\n// 1352      dist_sq = |e.x-champ.x|² + |e.y-champ.y|²\n// 1355      ms = if act == SmallAction::RunAway(0) && !e.block_move() { move_speed.saturating_sub(e.move_speed) } else { move_speed }   // 1356\n// 1367      max_dist = range + ms*max_tick\n// 1368      if dist_sq > max_dist² continue\n// 1372      candidates.push(SmallActionPlay::Attack(SmallActionAttack::new(data, e.id)))   // new = {start_tick: game.tick(), target, is_act:false}\n//         }\n// 1375    for t in enemy_towers {\n// 1376      base = range_adjust(&atk_eff, champ, t) + atk_base + move_speed*max_tick\n// 1383      max_dist = base + t.radius()\n// 1385      if dist_sq(t,champ) > max_dist² continue\n// 1390      if t.ty == Nexus(3) { 1391 push Attack(t.id) }\n// 1396      else { remain_attack = t.hp(0x670) / expected_damage_target(&atk_eff, data.context, champ, &t as &dyn AbstractEntity)   [0 이면 div_by_zero 패닉]\n// 1397             if remain_attack > 2 continue\n// 1401             push Attack(t.id) }\n//         }\n//       }\n// 1409  if atk_eff.is_some() && champ.can_attack() {      // 두 번째 독립 게이트(첫 블록에서 can_attack 거짓이면 여기서도 거짓 — 재호출)\n// 1411    for m in cache.iter_minions(1-team) {            // 56B 체인 이터레이터 · Copied<Iter>::next ×3 단\n// 1412      if m.ty != Minion(1) continue\n// 1413      let Some(eid) = m.ty.Minion.info.nearest_enemy else continue;  e = cache.game.get_entity_by_id(eid)  [vtable +0x1f0]\n// 1414      if !e.is_some_and(closure$9: e.team == Team::Player(team) && (e.ty == Nexus(3) || e.is_twin_tower()))  continue   // is_twin_tower(entity.rs:1313) = ty==Tower(2) && tower.ty(0x128) ∈ {TwinA 3, TwinB 4}\n// 1418      if !m.is_visible_from(champ) continue\n// 1422      max_dist = range_adjust(&atk_eff, champ, m) + atk_base + move_speed*max_tick    // 1423 + m.radius()\n// 1424      if dist_sq(m,champ) > max_dist² continue\n// 1428      push Attack(m.id)\n//         }\n//       }\n// ─── Skill 후보: 적 챔프 (1432~1491) ───\n// 1432  if skl_eff.is_some() && champ.can_skill() {     // skl_eff None 이면 → 배치 B(줄 1592) 로 점프(%592)\n// 1433    for (act, e) in near_enemies_with_action {\n// 1434      if !e.is_visible_from(champ) continue\n// 1438      if !CastingTarget::check(&skl_eff.target(0x4f0), champ, e) continue\n// 1442      if !champ.skill(0x580).target_constraint(cache.game, champ, e) continue     // dyn Action 슬롯 +0xc8 (divtable 58% · 추정)\n// 1446      ms = if act == RunAway && !e.block_move() { move_speed.saturating_sub(e.move_speed) } else { move_speed }   // 1447\n// 1452      range = range_adjust(&skl_eff, champ, e) + skill_base + e.radius()\n// 1462      max_dist = range + ms*max_tick\n// 1463      if dist_sq(e,champ) > max_dist² continue\n// 1467      match sub_goal.tag {\n//             3 KitingBack | 4 RunAway => {\n// 1469          if skl_eff.ty.expected_move_on_hit() continue            // EffectType +0x68\n//               if skl_eff.ty.expected_move_distance().is_some() continue // +0x58 · sret 24B 태그+0 != 0\n//               → 1476 으로 진행 }\n//             0 Trace | 5 Assassin => { → 1483 직행 }\n//             _ (Protect1/Kiting2/AssassinReady6/End7) => { → 1476 }\n//           }\n// 1476      if skl_eff.ty.can_move() [+0x120] && e.ty == Champion(13) {\n// 1477        skill_damage = expected_damage_target(&skl_eff, data.context, champ, &e as &dyn AbstractEntity)\n// 1478        if !is_dash_worth(data, player, champ, e, skill_damage) continue\n//           }\n// 1483      if !champ.skill.can_activate(cache.game, champ) continue     // dyn Action +0xc0 (58% · 추정)\n// 1491      push SmallActionPlay::Skill(SmallActionSkill::new(data, e.id))   // 태그 16\n//         }\n// ─── Skill 후보: 아군 (1494~1511, 배치 A 는 1511 까지) ───\n// 1494    for a in near_allies {\n// 1495      if !CastingTarget::check(&skl_eff.target, champ, a) continue\n// 1499      if !champ.skill.target_constraint(cache.game, champ, a) continue\n// 1504      has_heal   = skl_eff.ty.expected_heal(data.context, champ, &champ as &dyn)   != 0   // +0x40 · IR %808 = (==0), dbg DW_OP_not 1회 · 1513 분기 `br %808 → 1519(거짓) / 1513(참)` 로 극성 확정\n// 1505      has_shield = skl_eff.ty.expected_shield(data.context, champ, &champ as &dyn) != 0  // +0x48 · %821 동일 형태\n// 1506      buff(288B) = effect_buff_target(version, &skl_eff, data.context, champ, &champ dyn, champ, &champ dyn)\n// 1507      has_buff = buff+0x48 (i32) != -1\n// 1508      has_near_enemy = near_enemies_with_action.iter().any(closure$10: |(_,e)| e.is_visible_from(champ) && dist_sq(e, a) < 120000²+1)\n// 1509                    || cache.others[1-team].iter().any(closure$11: |o| dist_sq(o, a) < 120000²+1)\n// 1511      hp_ratio = a.hp(0x670) * 100 / a.stat_cached.hp(0x628)   [분모 0 ⟹ div_by_zero 패닉]\n//           → 배치 B(줄 1513): br has_heal ? %961(1513) : %958(1519)   // has_heal/has_shield/has_buff/has_near_enemy/hp_ratio 를 넘김; push 는 1562/1587(배치 B) · 루프 되돌이 %1154 → 1494\n//         }\n//       }\n// ─── 흐름 요약 ───  1432 게이트 거짓/1494 루프 종료 → 배치 B(1565·1592) · 모든 invoke unwind → %178(배치 D 2039 cleanup) · panic 경로 → %118 unreachable\n// gen_range: 0회(_rnd 미사용)",
+ "knobs": [
+  {
+   "what": "이동 예산 틱 max_tick",
+   "where": "battle.rs:1312 (phi %97 · m02.ll:66419/66423)",
+   "value": 30,
+   "effect": "올리면 사거리 밖(멀리) 적·타워·미니언까지 Attack/Skill 후보에 들어간다(내리면 사거리 안 대상만). KitingBack+kb_hold 거짓이면 0 으로 고정"
+  },
+  {
+   "what": "타워 공격 잔여타 임계",
+   "where": "battle.rs:1397",
+   "value": 2,
+   "effect": "비-넥서스 타워는 (hp / 평타 기대피해) ≤ 2 일 때만 후보. 올리면 체력 많은 타워도 때리기 시작"
+  },
+  {
+   "what": "아군 근처 적 판정 거리",
+   "where": "battle.rs:1508~1509",
+   "value": 14400000001,
+   "effect": "아군 반경 120000 안에 가시 적 챔프/others 가 있으면 has_near_enemy — 배치 B 의 힐/실드 분기 입력. 올리면 더 넓게 '위험'으로 본다"
+  },
+  {
+   "what": "near_allies 반경",
+   "where": "battle.rs:1316 (aux m02.ll:77019~)",
+   "value": 22500000000,
+   "effect": "champ 반경 150000 안 아군만 Skill 대상 후보. 올리면 먼 아군에게도 스킬 후보 생성"
+  },
+  {
+   "what": "skill2/ult 해금 레벨",
+   "where": "battle.rs:1335/1336",
+   "value": 2,
+   "effect": "level>2 ⟹ skill2, level>4 ⟹ ult 를 후보 계산에 포함(Entity 메서드 인라인 — 게임 규칙과 결합돼 있어 단독 조정 위험)"
+  }
+ ],
+ "unknown": [
+  "dyn Action 슬롯 +0xc8/+0xc0 의 이름(target_constraint/can_activate)은 divtable 일치율 58% 기반 추정 — 인자 형태(5/4 인자·bool 반환)는 IR 과 일치하나 이름 확정은 런타임 vtable 덤프 또는 _gcbc 정적 vtable 재대조 필요(적용 범위: divtable 정적 매칭)",
+  "1469 `expected_move_distance().is_some()` 의 태그 값 의미(0=None)는 tcx 시그니처 Option<(usize,u64)> 와 기본 impl `store i64 0` 로 추정 — 니치 없는 Direct 태그라면 0=None 이 맞으나 tcxdict --enum 으로 Option<(usize,u64)> 를 직접 조회하지 않았다",
+  "closure$1 이 읽는 Blackboard.small_actions 의 의미(적 챔프의 '현재 소행동')는 이름·타입(SmallAction)에서 온 해석 — 누가 쓰는지(작성자)는 미탐색",
+  "1409 두 번째 `can_attack()` 재호출이 첫 호출과 다른 값을 낼 수 있는지(부작용 여부)는 can_attack 본문 미확인(_gcbc) — IR 상 두 게이트는 독립 호출",
+  "승계 메모의 last_stand_flags LocalKey::with · v3_beyond_enemy_line · estimate_damage_to 는 이 define 에 없다(grep 0). 형제 death_battle(m15) 또는 다른 버전 잔재로 추정 — 적용 범위: m02.ll:66196~74096 본문",
+  "exe 0xcd05f0 의 실제 인자 배치(argscan 스택 인자)와 IR 6인자(sret,version,player,data,tag,focus) 대응은 미확인(IR 만 읽음) — sweep 편입 전 argscan.py 로 대조 필요",
+  "is_visible_from 인라인에서 champ.team 태그 하위비트가 1 인 케이스(Team 비-Player variant)의 실제 의미는 Team 열거형을 조회하지 않아 미확정 — IR 상 그 경로는 무조건 '가시'",
+  "1316 filter_map 의 iter_champions closure 본체(Option<&Entity> → &Entity 로 추정)는 m01.ll:41528~ 안에 인라인돼 개별 확인 안 함",
+  "constants 의 40/480 은 stride·오프셋이라 규격상 등재 대상이 아니나 C1 검증 겸 남겼다 — 병합 시 제거 가능"
+ ]
+}

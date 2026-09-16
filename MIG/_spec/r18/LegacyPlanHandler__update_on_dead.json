@@ -1,0 +1,517 @@
+{
+ "name": "LegacyPlanHandler::update_on_dead",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler14update_on_dead",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 635,
+ "ir_file": "m13.ll",
+ "ir_from": 10120,
+ "ir_to": 10671,
+ "aux": [
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 640,
+   "ir_to": 773,
+   "note": "Vec<(usize,Position,Chat)>::retain 의 closure$0 본체 — L655 received_chats.retain(|(tick,..)| *tick > game.tick())"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 776,
+   "ir_to": 909,
+   "note": "retain closure$s_0 — L662 misunderstood_received_chats.retain(같은 술어)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 2458,
+   "ir_to": 2591,
+   "note": "Vec<(usize,Chat)>::retain 의 closure$s0_0 — L677 chats_wait.retain(같은 술어 · 원소 32B)"
+  }
+ ],
+ "one_line": "사망 중 플랜 갱신 — 비수동 플랜을 passive_plan 으로 교체(교체 전 Battle 이면 ff/mf 계측 스냅샷)하고, 기한 지난 수신/대기 채팅을 처리·정리한 뒤 team_plan·GoalData 를 갱신",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut LegacyPlanHandler(6168B, ptr %0)",
+    "role": "dereferenceable(6168) · noalias · readonly/readnone/initializes 속성 없음(=&mut · 쓰기 표면은 writes 전수)",
+    "note": ""
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize(i64 %1)",
+    "role": "값 인자",
+    "note": "본문 분기 없음 — passive_plan / handle_chat / TeamPlan::update / GoalData::update 에 전달만"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B, ptr %2)",
+    "role": "dereferenceable(320) · noalias · readonly 없음(=&mut) · 본문 직접 접근 0",
+    "note": "gen_range 호출 사이트: 본문 0회. 콜리에 전달 순서 = passive_plan(L644, 비수동일 때만) → handle_chat(L659, 허용 채팅마다) → TeamPlan::update(L665) → GoalData::update(L667 · 콜리 define 은 rnd readnone = 소비 안 함 m09.ll:4395)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B, ptr %3)",
+    "role": "readonly · captures(address, read_provenance)",
+    "note": "본문 직접 읽기 0 — 콜리 전달만"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B, ptr %4)",
+    "role": "readonly · captures(address, read_provenance)",
+    "note": "+0x0 cache, +0x8 context 를 꺼내 sanitize_rule_scope/chat_allowed/retain 술어에 전달 · cache.game.tick() 호출"
+   },
+   {
+    "i": 6,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B, ptr %5)",
+    "role": "dereferenceable(224) · noalias · readonly 없음 · 본문 직접 접근 0",
+    "note": "passive_plan / handle_chat / TeamPlan::update / GoalData::update 에 전달만"
+   }
+  ],
+  "returns": "() — ret void(m13.ll:10633 · handler.rs:679). 부작용만 있는 함수(&mut self 갱신)"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache(m13.ll:10157)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext(m13.ll:10159) — sanitize_rule_scope·chat_allowed 인자"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "&dyn AbstractGame(m13.ll:10190)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "슬롯 0x28 = tick (divtable AbstractGame) — L643·L645·L651·L671 + retain 술어 3곳"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan@tag",
+   "note": "BigPlan 8B 니치 태그(niche_start=2 · DeathMatchBattle 은 untagged) — 논리 idx = tag>1 ? tag-2 : 4 (m13.ll:10167~10172 · types.rs:254 is_passive 인라인)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x638",
+   "name": "plan@PassiveJungle.0.team",
+   "note": "is_counter_jungle(passive_jungle.rs:104) = team != player_team (m13.ll:10182~10186)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x640",
+   "name": "plan@PassiveJungle.0.player_team",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6f7",
+   "name": "plan@Battle.0.entry_src",
+   "note": "ff_note_battle_swap(handler.rs:401~404) — Battle(태그 9) 일 때만"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x701",
+   "name": "plan@Battle.0.exit_sub",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6f9",
+   "name": "plan@Battle.0.ff_wave_obs_open",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x700",
+   "name": "plan@Battle.0.ff_exit1_cls",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fa",
+   "name": "plan@Battle.0.ff_wave_open_hp",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fb",
+   "name": "plan@Battle.0.ff_wave_open_pct",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fc",
+   "name": "plan@Battle.0.ff_wave_fire_hp",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fd",
+   "name": "plan@Battle.0.ff_wave_fire_pct",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fe",
+   "name": "plan@Battle.0.ff_wave_open_danger",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6ff",
+   "name": "plan@Battle.0.ff_wave_fire_danger",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6f3",
+   "name": "plan@Battle.0.dive_abort_src",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7f8",
+   "name": "received_chats(cap@+0x7f8 ptr@+0x800 len@+0x808)",
+   "note": "Vec<(usize,Position,Chat)> 원소 40B {tick i64, from i32, pad, Chat 24B@+16} — L650 순회(m13.ll:10303~10316)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7e0",
+   "name": "chats_wait(cap@+0x7e0 ptr@+0x7e8 len@+0x7f0)",
+   "note": "Vec<(usize,Chat)> 원소 32B {tick i64, Chat 24B@+8} — L670 순회(m13.ll:10534~10547)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1b8",
+   "name": "team_plan.chats(TeamPlan+0xc0)",
+   "note": "L666 drain(..) 원본(m13.ll:10513)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "(전달만)",
+   "note": "chat_allowed(&GameContext, &Chat) 인자 — 본문에서 필드 직접 읽기 없음"
+  }
+ ],
+ "writes": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1815",
+   "name": "v2_egowave",
+   "value": "0",
+   "note": "L639 무조건(m13.ll:10161~10162)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1800",
+   "name": "v2_obj_part@tag",
+   "value": "0 (=None)",
+   "note": "L640 무조건(m13.ll:10163~10164) · Option<u8> 2B 의 태그 바이트만 씀"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1600",
+   "name": "ff_battle_exit.0",
+   "value": "16 (src)",
+   "note": "L643 ff_note_battle_swap(tick,16) — 조건: !plan.is_passive() && plan 태그==9(Battle) (m13.ll:10215)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1601",
+   "name": "ff_battle_exit.1",
+   "value": "plan.Battle.entry_src(+0x6f7)",
+   "note": "m13.ll:10217"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15f8",
+   "name": "ff_battle_exit.2",
+   "value": "game.tick()",
+   "note": "m13.ll:10218"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1602",
+   "name": "ff_battle_exit.3",
+   "value": "plan.Battle.exit_sub(+0x701)",
+   "note": "m13.ll:10220"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1603",
+   "name": "ff_battle_exit.4",
+   "value": "plan.Battle.ff_wave_obs_open(+0x6f9)",
+   "note": "m13.ll:10222"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1608",
+   "name": "ff_battle_exit_latch.0",
+   "value": "plan.Battle.ff_exit1_cls(+0x700)",
+   "note": "L403 (m13.ll:10240)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1609",
+   "name": "ff_battle_exit_latch.1",
+   "value": "ff_wave_open_hp(+0x6fa)",
+   "note": "m13.ll:10242"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x160a",
+   "name": "ff_battle_exit_latch.2",
+   "value": "ff_wave_open_pct(+0x6fb)",
+   "note": "m13.ll:10244"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x160b",
+   "name": "ff_battle_exit_latch.3",
+   "value": "ff_wave_fire_hp(+0x6fc)",
+   "note": "m13.ll:10246"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x160c",
+   "name": "ff_battle_exit_latch.4",
+   "value": "ff_wave_fire_pct(+0x6fd)",
+   "note": "m13.ll:10248"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x160d",
+   "name": "ff_battle_exit_latch.5",
+   "value": "ff_wave_open_danger(+0x6fe)",
+   "note": "m13.ll:10250"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x160e",
+   "name": "ff_battle_exit_latch.6",
+   "value": "ff_wave_fire_danger(+0x6ff)",
+   "note": "m13.ll:10252"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x160f",
+   "name": "ff_battle_exit_latch.7",
+   "value": "dive_abort_src(+0x6f3)",
+   "note": "L404 (m13.ll:10254)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1610",
+   "name": "mf_swap.0",
+   "value": "24 (src)",
+   "note": "L645 mf_note_swap(tick,24 · handler.rs:410) — 조건: !plan.is_passive() (m13.ll:10277)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1618",
+   "name": "mf_swap.1",
+   "value": "game.tick() (L645 재호출값)",
+   "note": "m13.ll:10279"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan (BigPlan 384B 통째)",
+   "value": "passive_plan(version,rnd,player,data,debug).0",
+   "note": "L646 — 조건: !plan.is_passive(). 옛 plan 은 drop_glue(BigPlan)(m13.ll:10280) 후 memcpy 384B(m13.ll:10289). 반환 튜플 (BigPlan,u8) 392B 중 .1(u8 @+384) 은 읽지 않고 버림"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7f8",
+   "name": "received_chats",
+   "value": "retain(|(tick,_,_)| tick > game.tick()) → len(+0x808) 갱신·원소 memmove",
+   "note": "L655 (m13.ll:10359 · 술어 본체 m06.ll:684~688 `icmp ugt tick, game.tick()`)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7b0",
+   "name": "misunderstood_received_chats",
+   "value": "retain(같은 술어) → len(+0x7c0)",
+   "note": "L662 (m13.ll:10500 · m06.ll:820~821)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0xf8",
+   "name": "team_plan (1064B)",
+   "value": "TeamPlan::update 콜리 쓰기 표면(계약)",
+   "note": "L665 (m13.ll:10505)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1b8",
+   "name": "team_plan.chats",
+   "value": "drain(..) → len 0",
+   "note": "L666 (m13.ll:10514)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7c8",
+   "name": "chats",
+   "value": "extend(team_plan.chats.drain(..)) [L666] + push(chat) [L673 · grow_one 가능]",
+   "note": "cap@+0x7c8 ptr@+0x7d0 len@+0x7d8 (m13.ll:10518, 10603~10623)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x0",
+   "name": "data (GoalData 248B)",
+   "value": "GoalData::update 콜리 쓰기 표면(계약)",
+   "note": "L667 (m13.ll:10523)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7e0",
+   "name": "chats_wait",
+   "value": "retain(|(tick,_)| tick > game.tick()) → len(+0x7f0)",
+   "note": "L677 (m13.ll:10580 · m06.ll:2502~2503)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x0",
+   "name": "(self 전체 — sanitize_rule_scope ×3 / take_misunderstood_received_chat / handle_chat 콜리 쓰기 표면)",
+   "value": "계약",
+   "note": "L636·L668·L678 sanitize_rule_scope(&mut self,&cache,&ctx) · L658 take_misunderstood_received_chat(&mut self,tick,from,chat)->bool · L659 handle_chat(&mut self,version,rnd,player,data,from,chat,misunderstood,debug)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 6,
+   "src_line": 642,
+   "meaning": "`llvm.assume(tag != 6)` — BigPlan 니치 태그 6 은 미사용(2..=17 중 6 = 이론상 DeathMatchBattle 자리) · 판정 상수 아님(m13.ll:10168, 10200)"
+  },
+  {
+   "value": 4,
+   "src_line": 642,
+   "meaning": "태그 ≤1 이면 논리 idx 4(=DeathMatchBattle untagged) (select m13.ll:10172) — 임계 아님"
+  },
+  {
+   "value": 1,
+   "src_line": 642,
+   "meaning": "switch 논리 idx 1 = PassiveLine → 수동(교체 안 함) (m13.ll:10174)"
+  },
+  {
+   "value": 2,
+   "src_line": 642,
+   "meaning": "switch 논리 idx 2 = SinglePlanLine → 수동 / `tag-2` 니치 환산(m13.ll:10170)"
+  },
+  {
+   "value": 5,
+   "src_line": 642,
+   "meaning": "switch 논리 idx 5 = PassiveJungle → is_counter_jungle(team != player_team) 이면 비수동, 아니면 수동 (m13.ll:10176) · ⚠aux m06.ll:2556 의 `shl nsw %35, 5` 는 (usize,Chat) 원소 32B stride 접힘(memmove 바이트수 = remaining*32) 이지 이 5 와 무관",
+   "folded_from": 32
+  },
+  {
+   "value": 9,
+   "src_line": 643,
+   "meaning": "BigPlan 메모리태그 9 = Battle — ff_note_battle_swap 스냅샷 조건(m13.ll:10202)"
+  },
+  {
+   "value": 16,
+   "src_line": 643,
+   "meaning": "ff_battle_exit.0 = src 16 (사망 시 배틀 교체 출처 코드) (m13.ll:10215)"
+  },
+  {
+   "value": 24,
+   "src_line": 645,
+   "meaning": "mf_swap.0 = src 24 (사망 시 플랜 스왑 출처 코드) (m13.ll:10277)"
+  },
+  {
+   "value": 0,
+   "src_line": 639,
+   "meaning": "v2_egowave=0 · v2_obj_part=None(태그 0) · handled_chats Vec::new(cap/len 0) · 부정 없음"
+  },
+  {
+   "value": -1,
+   "src_line": 656,
+   "meaning": "IntoIter<(usize,Position,Chat)>::next 의 Option 니치 — Position(i32) == -1 이면 None 취급해 루프 종료(m13.ll:10480). 실제 원소는 0..5 범위(range(i32 0,5)) 라 실질 도달 불가"
+  },
+  {
+   "value": 384,
+   "src_line": 646,
+   "meaning": "BigPlan 크기 memcpy (m13.ll:10261, 10289) — 임계 아님"
+  },
+  {
+   "value": 40,
+   "src_line": 650,
+   "meaning": "(usize,Position,Chat) 원소 stride(m13.ll:10343) — 임계 아님"
+  },
+  {
+   "value": 32,
+   "src_line": 670,
+   "meaning": "(usize,Chat) 원소 stride(m13.ll:10568) — 임계 아님"
+  },
+  {
+   "value": 24,
+   "src_line": 652,
+   "meaning": "Chat 24B memcpy (m13.ll:10383·10487·10597·10621) — 리터럴 24 는 mf_swap src 와 공유"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::sanitize_rule_scope",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::passive_plan",
+  "core::ptr::drop_glue<game_ai::plan_legacy::types::BigPlan>",
+  "alloc::vec::Vec<(usize,Position,Chat)>::retain",
+  "alloc::vec::Vec<(usize,Chat)>::retain",
+  "game_ai::plan_legacy::rule_scope::chat_allowed",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::take_misunderstood_received_chat",
+  "game_ai::plan_legacy::handler::chat::LegacyPlanHandler::handle_chat",
+  "game_ai::plan_legacy::team_plan::TeamPlan::update",
+  "alloc::vec::Vec<Chat>::drain",
+  "alloc::vec::Vec<Chat>::extend_trusted",
+  "game_ai::goal_data::GoalData::update",
+  "alloc::raw_vec::RawVec::grow_one",
+  "alloc::vec::IntoIter<(usize,Position,Chat)>::drop",
+  "core::ptr::drop_glue<alloc::vec::Vec<(usize,Position,Chat)>>",
+  "llvm.memcpy.p0.p0.i64",
+  "llvm.assume"
+ ],
+ "logic": "fn update_on_dead(&mut self, version, rnd, player, data, debug)   // handler.rs:635~679\ncache = data.cache; ctx = data.context; game = cache.game\nL636: self.sanitize_rule_scope(cache, ctx)                                   // m13.ll:10160 (fastcc · 계약)\nL639: self.v2_egowave = 0                                                    // +0x1815\nL640: self.v2_obj_part = None                                                // +0x1800 태그 0\nL642: if !self.plan.is_passive() {   // is_passive(types.rs:254) = PassiveLine | SinglePlanLine | (PassiveJungle && !is_counter_jungle())\n        //   is_counter_jungle(passive_jungle.rs:104) = plan.team(+0x638) != plan.player_team(+0x640)\n        //   IR: idx = tag>1 ? tag-2 : 4 ; switch idx {1,2 → skip ; 5 → team==player_team ? skip : 교체 ; _ → 교체}   (m13.ll:10167~10187)\nL643:   tick = game.tick(); self.ff_note_battle_swap(tick, 16)   // handler.rs:401: if let BigPlan::Battle(b) = &self.plan(태그 9) {\n        //   ff_battle_exit = (16, b.entry_src, tick, b.exit_sub, b.ff_wave_obs_open);\n        //   ff_battle_exit_latch = (b.ff_exit1_cls, b.ff_wave_open_hp, b.ff_wave_open_pct, b.ff_wave_fire_hp, b.ff_wave_fire_pct, b.ff_wave_open_danger, b.ff_wave_fire_danger, b.dive_abort_src) }\nL644:   (new_plan, _u8) = self.passive_plan(version, rnd, player, data, debug)   // 392B sret · .1 은 버림 (m13.ll:10259~10261)\nL645:   self.mf_note_swap(game.tick(), 24)   // handler.rs:410: mf_swap = (24, tick) — tick 을 다시 vtable 호출(m13.ll:10264)\nL646:   self.plan = new_plan   // 옛 plan drop_glue(BigPlan) → memcpy 384B (unwind 시엔 새 plan 을 memcpy 후 전파 · m13.ll:10283~10286)\n      }\nL649: handled_chats: Vec<(usize,Position,Chat)> = Vec::new()\nL650: for (tick, from, chat) in self.received_chats.iter() {                 // 원소 40B\nL651:   if *tick > game.tick() { continue }    // 미래 채팅은 남김 (m13.ll:10368~10369)\nL652:   handled_chats.push((*tick, *from, chat.clone()))   // grow_one 가능\n      }\nL655: self.received_chats.retain(|(t,_,_)| *t > game.tick())   // aux m06.ll:640 — 처리분(tick ≤ now) 제거\nL656: for (tick, from, chat) in handled_chats {             // IntoIter · from==-1 이면 None 종료(니치 · 실질 불가)\nL657:   if rule_scope::chat_allowed(ctx, &chat) {\nL658:     misunderstood = self.take_misunderstood_received_chat(tick, from, chat.clone())   // fastcc → bool (계약)\nL659:     self.handle_chat(version, rnd, player, data, from, chat, misunderstood, debug)   // (계약)\n        } }\nL661: drop(handled_chats IntoIter)\nL662: self.misunderstood_received_chats.retain(|(t,_,_)| *t > game.tick())   // aux m06.ll:776\nL665: self.team_plan.update(version, rnd, player, data, debug)               // (계약 · &mut TeamPlan 1064B)\nL666: self.chats.extend(self.team_plan.chats.drain(..))                     // TeamPlan+0xc0 → self+0x1b8 비움, self.chats(+0x7c8) 에 붙임\nL667: self.data.update(version, rnd, player, data, debug)                   // GoalData::update(&mut self.data @+0x0) (계약 · rnd readnone)\nL668: self.sanitize_rule_scope(cache, ctx)\nL670: for (tick, chat) in self.chats_wait.iter() {                          // 원소 32B\nL671:   if *tick > game.tick() { continue }\nL672:   if rule_scope::chat_allowed(ctx, chat) {\nL673:     self.chats.push(chat.clone()) } }                                  // grow_one 가능\nL677: self.chats_wait.retain(|(t,_)| *t > game.tick())                      // aux m06.ll:2458\nL678: self.sanitize_rule_scope(cache, ctx)\nL679: return\n\n순서 고정(부작용 순): sanitize → 플래그 리셋 → [비수동] ff 스냅샷 → passive_plan → mf 스냅샷 → plan 교체 → received_chats 처리(handle_chat 순서 = 벡터 순서) → retain → misunderstood retain → TeamPlan::update → chats 병합 → GoalData::update → sanitize → chats_wait 처리 → retain → sanitize.\ngame.tick() 호출 횟수: 비수동이면 2 + 채팅 순회마다 1 + retain 술어마다 원소당 1 — 값은 같은 틱이라 동일(순수 조회).",
+ "knobs": [
+  {
+   "what": "사망 시 플랜 교체 대상 범위(is_passive 예외)",
+   "where": "types.rs:254~257 (handler.rs:642 인라인)",
+   "value": "PassiveLine · SinglePlanLine · PassiveJungle(비카운터정글) 은 유지",
+   "effect": "예외를 늘리면 사망 후에도 그 플랜이 유지되고, 줄이면 사망 즉시 passive_plan 으로 초기화된다"
+  },
+  {
+   "what": "ff_battle_exit src 코드",
+   "where": "handler.rs:643",
+   "value": 16,
+   "effect": "계측 라벨(사망 교체 출처) — 동작 영향 없음(mf/ff 계열은 관측 전용)"
+  },
+  {
+   "what": "mf_swap src 코드",
+   "where": "handler.rs:645",
+   "value": 24,
+   "effect": "계측 라벨 — 동작 영향 없음"
+  }
+ ],
+ "unknown": [
+  "passive_plan(m13.ll:6495 · internal fastcc · (sret (BigPlan,u8) 392B, &mut self, version, &mut rnd, &PlayerState, &OperationData, &mut debug)) 의 선택 로직과 .1(u8) 의 의미 — 계약만(이 배치 범위 밖). update_on_dead 는 .1 을 읽지 않는다",
+  "sanitize_rule_scope(m13.ll:11163 · fastcc · (&mut self, &AbstractGameWithCache, &GameContext)) 의 쓰기 표면 — 계약만. m06.ll 에 그 retain 클로저 4개(382·912·1480·2594)가 있어 chats/received_chats/misunderstood/chats_wait 를 rule_scope 로 걸러내는 것으로 보이나 본문 미독(미탐색)",
+  "take_misunderstood_received_chat(m13.ll:12482 · (&mut self, tick, from: Position i32 0..5, &Chat) -> bool) · handle_chat(m13.ll:29383 · (&mut self, version, rnd, player, data, from, &Chat, misunderstood: bool, debug)) · TeamPlan::update(m09.ll:38194) · GoalData::update(m09.ll:4395 · rnd readnone·데이터 &mut 248B) — 전부 계약만(원장 §1 자식 명세 존재)",
+  "L646 unwind 경로(m13.ll:10283~10286): drop_in_place(옛 plan) 이 unwind 하면 새 plan 을 memcpy 한 뒤 재전파 — 정상 경로엔 영향 없음",
+  "is_passive 의 `assume(tag != 6)`: 태그 6 이 어느 variant 에도 배정되지 않은 이유(DeathMatchBattle 이 untagged 라 자리만 비었는지)는 tcxdict --enum BigPlan 출력만으로 확정(니치 2..=17, idx4 는 암묵) — 판정엔 무관",
+  "rnd 소비: 본문 0회 확정. 콜리 passive_plan/handle_chat/TeamPlan::update 내부 gen_range 는 계약 밖(미탐색) — PRNG 비트동일 재현 시 이 세 콜리의 호출 순서(L644→L659×n→L665)가 곧 스트림 순서",
+  "constants 에 stride/크기 리터럴(384·40·32·24)을 실은 이유: 규격상 '적지 않는다' 대상이지만 24 가 mf_swap src 와 리터럴을 공유해 C1 대조 혼동을 막기 위해 meaning 으로 분리 명시"
+ ]
+}

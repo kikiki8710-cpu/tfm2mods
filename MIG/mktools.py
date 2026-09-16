@@ -25,6 +25,9 @@ DST = os.path.join(HERE, 'TOOLS.md')
 
 # 분류 = (제목, 한 줄 설명, [파일명...])  — 순서가 곧 문서 순서
 CAT = [
+ ('★간접 호출 실측 · 지도 밖 호출자 편입 (2026-09-16 신설)',
+  '진입부 프로브 스텁의 리턴 주소 히스토그램(probe.rs RETREC)으로 「누가 몇 번 불렀나」를 재고, 지도에 얹는다. 순서 = probe20 --map-all → 판 → retedges(→ retmerge) → fnmap_ret → fnmap_ext → fnmap_dead. 리플레이를 바꿔도 표본은 안 바뀐다(03 §45).',
+  ['retedges.py', 'retmerge.py', 'fnmap_ret.py', 'fnmap_ext.py', 'fnmap_dead.py', 'cmp_runs.py', 'upwalk.py', 'retrec_asm.py', 'extname.py', 'extid.py']),
  ('밴픽 IR 카탈로그 (별도 세션 09-14 · banpick 소스 define 전수)',
   'bpcatalog → bpdump(irann 방식 일괄 주석) → bpname(RVA 지문 실명).',
   ['bpcatalog.py', 'bpdump.py', 'bpname.py']),
@@ -97,7 +100,7 @@ CAT = [
    'ghidra_syms.py', 'ghidra_inject.py', 'ghidra_cycle.ps1']),
  ('마이그레이션 — 패치가 왔을 때',
   '진입점은 `run.py`. 상세 = `MODS\\MIGRATION.md`.',
-  ['run.py', 'mig_verify.py', 'repin.py', 'midpin.py', 'sitepin.py', 'fncheck.py',
+  ['run.py', 'mig_verify.py', 'repin.py', 'sitealign.py', 'midpin.py', 'sitepin.py', 'fncheck.py',
    'chain.py', 'offsets.py', 'env.py', 'posdiff.py', 'apply_manual.py',
    'bump_deps.py', 'aidiff.py']),
  ('재현·포팅 — judge 계층 만들 때',
