@@ -85,7 +85,7 @@ def main():
     def name_of(a):
         nm = fnmap_ret.EXTNAME.get(a)
         if a == ROOT: return nm or u"game_core 시뮬레이션 틱 루프", "re", u"AI 루트. 매 틱 에이전트마다 Agent::get_input 을 부른다(패닉 Location mode.rs:396/526/276 · 판 8 실측 1.64억회). 그 위는 엔진(여기서 멈춤)."
-        if nm and not nm.startswith(u"[추정]"): return nm, "re", u"rvaname 패닉 Location 지문으로 확정 · 판 8 리턴 주소 실측으로 편입(지도 밖 호출자)"
+        if nm and not nm.startswith(u"[추정]"): return nm, "re", u"실명 확정(근거 = 이름 괄호 안 · rvaname 지문 또는 ghidra 09-16) · 판 8 리턴 주소 실측으로 편입(지도 밖 호출자)"
         if nm: return nm[len(u"[추정] "):], "cg", u"지문 없음 — 판 8 실측 콜리 집합으로 추정한 이름(확정은 ghidra) · 지도 밖 호출자 편입"
         return None, None, u"지문 없는 소형 래퍼/디스패처 조각 — 판 8 리턴 주소 실측으로 편입(지도 밖 호출자) · 이름 미확정"
     new = []

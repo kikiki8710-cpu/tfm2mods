@@ -37,6 +37,35 @@ EXTNAME = {"1879080": u"game_core mode.rs 시뮬레이션 틱 루프(AI 루트 �
            "d70530": u"[추정] position_eval 공용 래퍼(count_in_range_fold·engage_requires_dive 호출)", "e0cf10": u"[추정] max_range_cached TLS 래퍼(1.44억회)",
            "ca89a0": u"[추정] SerpenStanceData::update_plan 클로저 호출부", "ca8f60": u"[추정] EpicStanceData::update_plan 클로저 호출부",
            "eb8b00": u"[추정] available_cc_in_window 래퍼", "e0d720": u"[추정] support_min_action_range 래퍼"}
+# ↓ ghidra-re 09-16 낮 · 23개 정체 판정(RE 2026-09-16_지도밖호출자23_ghidra정체판정_원문.md) — 위 [추정] 항목을 덮어쓴다(정정형)
+EXTNAME.update({
+    "e360e0": u"SubPlan::calculate_score_parameter_value 디스패처(JT 0x33e8954 · 17 arm · 인라인 14 · 단순 필드 산출 · ghidra 09-16)",
+    "df1f50": u"LineGankCoverPlan::next_plan(BigPlan::next_plan JT arm 9 · ghidra 09-16)",
+    "c88300": u"LocalKey::with<interaction_ctx 클로저>(InterActionCtx 메모 캐시 · action_score.rs:577 · ghidra 09-16)",
+    "e03360": u"buff_value::noncombat_steroid_window(ghidra 09-16 · ⚠지도 d75cb0 라벨과 충돌 · 확인 필요)",
+    "e0b030": u"[추정 강] fight_model::resolve_join_stake(sret 64 · resolve_fight_full ×3 · ghidra 09-16)",
+    "eb5dd0": u"fight_check::expected_dps(오프셋 6개 일치 · ghidra 09-16)",
+    "dd9f30": u"[추정] TeamPlan::can_near_enemies(can_near_enemies_range 위임 · ghidra 09-16)",
+    "e25030": u"[추정 강] SmallActionLaneMinionPosition::target_score(ghidra 09-16)",
+    "e2f4f0": u"buff_value_v54 내부 Filter/Map fold<min_by_key>(champion_hp_value 최소 선택 · ghidra 09-16)",
+    "e02bc0": u"buff_value::v54_aoe_ally_heal_value(ghidra 09-16)",
+    "eba320": u"[추정 강] fight_check::v48_projectile_profile(ExpectedGame 캐스트 시뮬 · JT 9 arm · ghidra 09-16 · ⚠지도 c875a0 라벨과 충돌)",
+    "cd5ee0": u"battle::kite_reposition_point(1,193B · ghidra 09-16 · ⚠지도 cadcd0 라벨과 충돌)",
+    "d70620": u"can_tower_focused 의 Chain<Chain<…>> fold 인스턴스(count · 판단은 클로저 e3b840 등 · ghidra 09-16)",
+    "e25450": u"[추정] SmallActionLaneMinionPosition::choose_goal 후보 클로저(push_candidate 경로 · can_tower_focused 캐시 래퍼 아님 · ghidra 09-16)",
+    "e0cf10": u"battle::max_range_cached 외곽(로스터 idx→TLS 키 · 폴백 e0e890 max_range · ghidra 09-16)",
+    "ca6700": u"LegacyPlanHandler::get_small_action 점수 합성 클로저(SubPlan::score 디스패처 e388c0 호출 · W[CATTBL]/1000 · ghidra 09-16)",
+    "e35bd0": u"SubPlan::action_candidates 디스패처(JT 0x33e8910 · 17 arm 전부 아웃라인 · ghidra 09-16)",
+    "caf2e0": u"BigPlan::update 디스패처(JT 0x33d75b8 · 실호출 9 · ghidra 09-16)",
+    "cafe10": u"BigPlan::next_plan 디스패처(JT 0x33d76ac · 실호출 3 · ghidra 09-16)",
+    "e49a50": u"LegacyPlanHandler::update_on_dead(update 아웃라인 조각 아님 · ghidra 09-16)",
+    "e9bf10": u"<AgentVerHamster as AiAgent>::upgrade_item vtable thunk(vtable 0x33ebba0 slot 16 · ghidra 09-16)",
+    "e9c610": u"<AgentVerHamster as AiAgent>::buy_item vtable thunk(slot 15 · ghidra 09-16)",
+    "e9bf40": u"<AgentVerHamster as AiAgent>::update_on_dead vtable thunk(slot 17 · ghidra 09-16)",
+    "e388c0": u"SubPlan::score JT 디스패처(ghidra 09-16 · r17 실증과 일치)",
+    "e0e890": u"battle::max_range(비캐시 본체 · ghidra 09-16)",
+    "e248f0": u"[추정] SmallActionLaneMinionPosition::choose_goal(ghidra 09-16)",
+})
 
 def main():
     av = sys.argv[1:]
