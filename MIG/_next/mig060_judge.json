@@ -4512,9 +4512,9 @@
   "name": "EpicStanceData::update_plan::{closure#3}",
   "src": "map",
   "old": "c9c160",
-  "new": "e07e10",
-  "how": "Location (파일,열) 일치 · 줄 델타 [137] · 후보 4 중 크기 최근접",
-  "conf": "C",
+  "new": "e080d0",
+  "how": "정정(r20 E ghidra: EpicStance 콜리) ← 구 e07e10 Location (파일,열) 일치 · 줄 델타 [137] · 후보 4 중 크기 최근접",
+  "conf": "B(ghidra)",
   "size": [
    259,
    259
@@ -4548,16 +4548,18 @@
    "imm": null,
    "disp": 208
   },
-  "verdict": "동일(skel)"
+  "verdict": "동일(skel)",
+  "new_was": "e07e10",
+  "verdict_was": "동일(skel)"
  },
  {
   "i": null,
   "name": "…::{closure#5}",
   "src": "map",
   "old": "c9c2c0",
-  "new": "e07f70",
-  "how": "Location (파일,열) 일치 · 줄 델타 [112] · 후보 4 중 크기 최근접",
-  "conf": "C",
+  "new": "e08230",
+  "how": "정정(r20 E ghidra: EpicStance 콜리) ← 구 e07f70 Location (파일,열) 일치 · 줄 델타 [112] · 후보 4 중 크기 최근접",
+  "conf": "B(ghidra)",
   "size": [
    264,
    264
@@ -4591,7 +4593,9 @@
    "imm": null,
    "disp": 208
   },
-  "verdict": "동일(skel)"
+  "verdict": "동일(skel)",
+  "new_was": "e07f70",
+  "verdict_was": "동일(skel)"
  },
  {
   "i": null,
@@ -25902,9 +25906,9 @@
   "name": "defensive_crisis",
   "src": "spec",
   "old": "e01c40",
-  "new": "fe7120",
-  "how": "Location (파일,열) 일치 · 줄 델타 [10] · 후보 23 중 크기 최근접",
-  "conf": "C",
+  "new": "e82c00",
+  "how": "정정(r20 B ghidra: fe7120 은 코드 참조 0 신규함수) ← 구 fe7120 Location (파일,열) 일치 · 줄 델타 [10] · 후보 23 중 크기 최근접",
+  "conf": "B(ghidra)",
   "size": [
    897,
    889
@@ -25978,7 +25982,9 @@
    "imm": null,
    "disp": null
   },
-  "verdict": "변경(크기 -8B · 즉치 −1/+12 · cos 0.954)"
+  "verdict": "변경(크기 -8B · 즉치 −1/+12 · cos 0.954)",
+  "new_was": "fe7120",
+  "verdict_was": "변경(크기 -8B · 즉치 −1/+12 · cos 0.954)"
  },
  {
   "i": 126,

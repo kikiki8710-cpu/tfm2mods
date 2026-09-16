@@ -112,8 +112,8 @@
 | `c9bc10` | `e07b80` | …::{closure#7} | map | B | 동일(skel) | 574→574 | 146→146 | 3→3 | 0/0 | 1/1 | 1→1 |  | Location (파일,열) 일치 · 줄 델타 [5] |
 | `c9bea0` | `e07e10` | SerpenStanceData::update_plan::{closure#3} | map | C | 동일(skel) | 259→259 | 78→78 | 3→3 | 0/0 | 1/1 | 1→1 |  | Location (파일,열) 일치 · 줄 델타 [5] · 후보 4 중 크기 최근접 |
 | `c9c000` | `e07f70` | …::{closure#5} | map | C | 동일(skel) | 264→264 | 79→79 | 3→3 | 0/0 | 1/1 | 1→1 |  | Location (파일,열) 일치 · 줄 델타 [-20] · 후보 4 중 크기 최근접 |
-| `c9c160` | `e07e10` | EpicStanceData::update_plan::{closure#3} | map | C | 동일(skel) | 259→259 | 78→78 | 3→3 | 0/0 | 1/1 | 1→1 |  | Location (파일,열) 일치 · 줄 델타 [137] · 후보 4 중 크기 최근접 |
-| `c9c2c0` | `e07f70` | …::{closure#5} | map | C | 동일(skel) | 264→264 | 79→79 | 3→3 | 0/0 | 1/1 | 1→1 |  | Location (파일,열) 일치 · 줄 델타 [112] · 후보 4 중 크기 최근접 |
+| `c9c160` | ~~`e07e10`~~→`e080d0` | EpicStanceData::update_plan::{closure#3} | map | B(ghidra) | 동일(skel) | | | | | | | | 정정(r20 E ghidra: EpicStance 콜리) ← 구 e07e10 Location (파일,열) 일치 · 줄 델타 [137] · 후보 4 중 크기 최근접 |
+| `c9c2c0` | ~~`e07f70`~~→`e08230` | …::{closure#5} | map | B(ghidra) | 동일(skel) | | | | | | | | 정정(r20 E ghidra: EpicStance 콜리) ← 구 e07f70 Location (파일,열) 일치 · 줄 델타 [112] · 후보 4 중 크기 최근접 |
 | `c9c590` | `e08ab0` | FUN_c9c590 | map | A | 동일(skel) | 420→420 | 111→111 | 4→4 | 0/0 | 1/1 | 1→1 |  | Location 정확 일치 |
 | `c9d740` | — | dm_ally_engaged | map | — | 미발견 | | | | | | | | Location 2 · skel/head/Jaccard 미일치 |
 | `c9d9d0` | — | SinglePlanBattle::update_v32 collect 인스턴스 | map | — | 미발견 | | | | | | | | Location 2 · skel/head/Jaccard 미일치 |
@@ -540,7 +540,7 @@
 | `dffa10` | `e80960` | buff_value_v54 | spec | B | 변경(크기 +110B · 즉치 −3/+3 · cos 1.000) | 6720→6830 | 1586→1616 | 17→18 | 3/3 | 20/20 | 1→1 | 0x2e8 0x320 0xfa0 → 0x350 0x5c8 0x1090 | Location (파일,열) 부분 일치 J=0.89(8/8) |
 | `e01450` | `e82410` | v55_mark_value | spec | B | 동일(skel) | 1394→1394 | 303→303 | 10→10 | 3/3 | 5/5 | 1→1 | 0x320 0x9c0 0xfa0 → 0x350 0xa90 0x1090 | Location (파일,열) 일치 · 줄 델타 [10, 29] |
 | `e019d0` | `e82990` | v55_seal_value | spec | B | 동일(skel) | 614→614 | 147→147 | 4→4 | 2/2 | 2/2 | 1→1 | 0x320 0xfa0 → 0x350 0x1090 | Location (파일,열) 일치 · 줄 델타 [29] |
-| `e01c40` | `fe7120` | defensive_crisis | spec | C | 변경(크기 -8B · 즉치 −1/+12 · cos 0.954) | 897→889 | 209→209 | 8→10 | 1/12 | 14/13 | 1→2 | 0xd8 → 0x16 0x23 0x28 0x46 | Location (파일,열) 일치 · 줄 델타 [10] · 후보 23 중 크기 최근접 |
+| `e01c40` | ~~`fe7120`~~→`e82c00` | defensive_crisis | spec | B(ghidra) | 변경(크기 -8B · 즉치 −1/+12 · cos 0.954) | | | | | | | | 정정(r20 B ghidra: fe7120 은 코드 참조 0 신규함수) ← 구 fe7120 Location (파일,열) 일치 · 줄 델타 [10] · 후보 23 중 크기 최근접 |
 | `e02020` | `e83000` | v55_banish_penalty | spec | B | 동일(skel) | 686→686 | 170→170 | 7→7 | 2/2 | 2/2 | 1→1 | 0x320 0xfa0 → 0x350 0x1090 | Location (파일,열) 일치 · 줄 델타 [10, 29] |
 | `e02540` | `e83520` | noncombat_steroid_value | spec | B | 동일(skel) | 1658→1658 | 410→410 | 4→4 | 2/2 | 2/2 | 1→1 | 0x320 0xfa0 → 0x350 0x1090 | Location (파일,열) 일치 · 줄 델타 [5, 10] |
 | `e02bc0` | `e83ba0` | v54_aoe_ally_heal_value | spec | C | 동일(skel) | 871→871 | 191→191 | 9→9 | 0/0 | 0/0 | 1→1 |  | skel 해시 일치 |
