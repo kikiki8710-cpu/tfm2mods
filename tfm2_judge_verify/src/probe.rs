@@ -55,6 +55,14 @@ use crate::{
 /// 재생성돼도 코드는 그대로 `PROBES20.len()` 으로 돈다. 여유를 크게 둔다.
 pub const CAP: usize = 320; // ★09-14 낮 192→320: r14 편입으로 진입부 175 > CS_SLOT0 160 → 13개(i167~179) 미측정(판 1 실측) // ★09-13 밤 128→192: r10 편입으로 진입부 96 = CS_SLOT0 상한 도달 // ★09-13 64→128: r7 잎 20 편입으로 진입부 35 가 CS_SLOT0(32)를 넘쳐 3개(i=37·38·AUX20) 미설치 — probe20.txt 경고로 적발
 
+/// ★리턴 주소 히스토그램(2026-09-16 · 간접 호출 실측): 스텁 +8 의 `lock inc` 뒤에 붙는 112B 조각.
+///   push rax,rcx,rdx,r8,r9 → r8=[rsp+0x28](리턴 주소) → rcx=(r8>>4)&15 → 스텁 +0x100 의 addr[16]/cnt[16](+0x180) 오픈어드레싱
+///   (cmpxchg 로 빈 칸 점유 · 최대 16 프로브 · 넘치면 +0x200 오버플로 카운터) → pop. 레지스터·스택 인자 무손상(EFLAGS 만).
+///   손 인코딩 = `scratchpad\retrec_asm.py`(capstone 검증). lea 는 코드가 스텁 +8 에서 시작한다는 가정(+0x100 − 0x2e = 0xd2).
+pub const RETREC: [u8; 112] = [0xf0, 0x48, 0xff, 0x05, 0xf0, 0xff, 0xff, 0xff, 0x50, 0x51, 0x52, 0x41, 0x50, 0x41, 0x51, 0x4c, 0x8b, 0x44, 0x24, 0x28, 0x4c, 0x89, 0xc1, 0x48, 0xc1, 0xe9, 0x04, 0x48, 0x83, 0xe1, 0x0f, 0x48, 0x8d, 0x15, 0xd2, 0x00, 0x00, 0x00, 0x45, 0x31, 0xc9, 0x48, 0x8b, 0x04, 0xca, 0x4c, 0x39, 0xc0, 0x74, 0x2e, 0x48, 0x85, 0xc0, 0x75, 0x0f, 0x31, 0xc0, 0xf0, 0x4c, 0x0f, 0xb1, 0x04, 0xca, 0x74, 0x1f, 0x4c, 0x39, 0xc0, 0x74, 0x1a, 0x48, 0xff, 0xc1, 0x48, 0x83, 0xe1, 0x0f, 0x41, 0xff, 0xc1, 0x41, 0x83, 0xf9, 0x10, 0x7c, 0xd3, 0xf0, 0x48, 0xff, 0x82, 0x00, 0x01, 0x00, 0x00, 0xeb, 0x09, 0xf0, 0x48, 0xff, 0x84, 0xca, 0x80, 0x00, 0x00, 0x00, 0x41, 0x59, 0x41, 0x58, 0x5a, 0x59, 0x58];
+pub const RETREC_TBL: usize = 0x100;   // addr[16] @+0x100 · cnt[16] @+0x180 · overflow @+0x200
+pub const STUB_SIZE: usize = 0x220;
+
 static mut SLOTS: [usize; CAP] = [0; CAP]; // 프로브 i 의 스텁 주소(= 카운터 주소). 0 = 미설치
 static mut FAILS: [&'static str; CAP] = [""; CAP]; // 미설치 사유
 static mut BASE: [u64; CAP] = [0; CAP]; // 직전 「판 종료」 시점 누적치(판별 델타 계산용)
@@ -179,14 +187,14 @@ unsafe fn install_one(mbase: usize, p: &P20) -> Result<usize, &'static str> {
     }
     const MEM_CR: u32 = 0x1000 | 0x2000; // MEM_COMMIT|MEM_RESERVE
     const RWX: u32 = 0x40; // PAGE_EXECUTE_READWRITE
-    let stub = stub_reg(VirtualAlloc(0, 128, MEM_CR, RWX), 128, p.rva);
+    let stub = stub_reg(VirtualAlloc(0, STUB_SIZE, MEM_CR, RWX), STUB_SIZE, p.rva);
     if stub == 0 {
         return Err(F_ALLOC);
     }
-    let mut s: Vec<u8> = Vec::with_capacity(64);
+    let mut s: Vec<u8> = Vec::with_capacity(RETREC_TBL);
     s.extend_from_slice(&0u64.to_le_bytes()); // +0  카운터
-    s.extend_from_slice(&[0xf0, 0x48, 0xff, 0x05, 0xf0, 0xff, 0xff, 0xff]); // +8  lock inc qword [rip-16]
-    s.extend_from_slice(&p.prolog[..len]); // +16 원본 프롤로그
+    s.extend_from_slice(&RETREC); // +8  lock inc + 리턴 주소 히스토그램(112B · 표는 +0x100)
+    s.extend_from_slice(&p.prolog[..len]); // +120 원본 프롤로그
     s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]); //     jmp [rip+0]
     s.extend_from_slice(&(fn_addr + len).to_le_bytes()); //     dq fn+len
     core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
@@ -630,6 +638,36 @@ pub unsafe fn report(header: &str) -> String {
         ));
     }
     s.push('\n');
+
+    // ── ★리턴 주소 히스토그램(간접 호출 실측 · 09-16) — 진입부 프로브만(호출부/sweep 대체 슬롯은 없음) ──
+    {
+        let mbase = exe_base();
+        s.push_str("--- 리턴 주소 히스토그램 = 「누가 불렀나」 실측(진입부 프로브 · 슬롯당 16칸 · 리턴 주소 = 호출 명령 다음 주소 · exe 안이면 rva · 밖이면 abs)\n");
+        s.push_str("     idx  rva        ret(rva|abs)      count      [overflow]\n");
+        for (i, p) in PROBES20.iter().take(n).enumerate() {
+            if SWEPT[i] || SLOTS[i] == 0 { continue; }
+            let base = SLOTS[i] + RETREC_TBL;
+            let ovf = core::ptr::read_volatile((base + 0x100) as *const u64);
+            let mut rows: Vec<(u64, u64)> = Vec::new();
+            for k in 0..16usize {
+                let a = core::ptr::read_volatile((base + k * 8) as *const u64);
+                let c = core::ptr::read_volatile((base + 0x80 + k * 8) as *const u64);
+                if a != 0 { rows.push((a, c)); }
+            }
+            if rows.is_empty() && ovf == 0 { continue; }
+            rows.sort_by(|x, y| y.1.cmp(&x.1));
+            for (a, c) in rows.iter() {
+                let au = *a as usize;
+                if mbase != 0 && au >= mbase && au < mbase + 0x4000000 {
+                    s.push_str(&format!("    RET {:>4}  {:#010x} rva {:#010x} {:>12}\n", p.idx, p.rva, au - mbase, c));
+                } else {
+                    s.push_str(&format!("    RET {:>4}  {:#010x} abs {:#x} {:>12}\n", p.idx, p.rva, au, c));
+                }
+            }
+            if ovf > 0 { s.push_str(&format!("    RET {:>4}  {:#010x} overflow {:>12}\n", p.idx, p.rva, ovf)); }
+        }
+        s.push('\n');
+    }
 
     // ── 미발화 = 1단계 핵심 산출물 ──
     s.push_str(&format!(

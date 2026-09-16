@@ -1,0 +1,37 @@
+■ 0x1879080  Location 23개: mode.rs:396:50 · mode.rs:526:39 · mode.rs:276:48
+   [클로저/인스턴스만]
+■ 0xe25450  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xc87850  Location 1개: defense_nexus.rs:170:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjINtNtNtNtBa  (m00.ll)
+■ 0xec9640  Location 4개: simulation.rs:1809:25 · simulation.rs:1810:28 · objective_helpers.rs:216:16
+   [확정]
+   본체 1/1  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers29find_wave_priority_clear_line  (m15.ll)
+   인스턴스 1  _RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterNtNtNtNtCs97f5S1u  (m11.ll)
+■ 0xeb82d0  Location 1개: fight_check.rs:962:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz  (m00.ll)
+■ 0xe9bf10  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xe9c610  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xe49a50  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xca6700  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xe7b9f0  Location 8개: lib.rs:1234:21 · lib.rs:1234:60 · lib.rs:1243:93
+   [확정]
+   본체 4/4  _RNvCshdEBA0ozCnw_7game_ai9end_check  (m14.ll)
+■ 0xcaf2e0  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xc986c0  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xe360e0  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xe35bd0  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xc93f60  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
+■ 0xc94140  Location 0개: 
+   지문 없음 → offscan.py(변위) 로
