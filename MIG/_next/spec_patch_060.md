@@ -10,7 +10,7 @@
 | BattleSubPlanGoal | 8→5: Trace 0 · Kiting 1 · KitingBack 2 · RunAway 3 · End 4(구 Protect1/Assassin5/AssassinReady6 제거) | `RE/2026-09-16_r19_실변경17_배치A_score계열6_디컴대조_원문.md` §2 |
 | SubPlan | 18: 14 AttackNexus 유지 · 17 ObjContest{slot@+8,poke@+0x10} 추가 · 태그 u8 idx+2 → u64 0x8000…+idx · Jungle(4) 니치 | `RE/2026-09-16_0.6.0_신규플랜RE_ObjContest_Dive_JoinTrait_특성_원문.md` · `RE/2026-09-17_r20_변경99_배치B_14_디컴대조_원문.md` §15 |
 | BigPlan | 16 불변 · 0.6.0 Battle(idx 7) 니치 dataful(태그 0/1) · 나머지 idx+2 · LPH 니치 기본 idx 4→7 | `RE/2026-09-17_r20_변경99_배치A_14_디컴대조_원문.md` §새 사실 · `RE/2026-09-16_r19_실변경17_배치C_판단함수5_디컴대조_원문.md` §5 |
-| Effect vtable | 신규 4(0x30 damage_vs_target·0x40·0x48·0x70) · 구 0x38~0x50 +0x18 · 구 ≥0x58 +0x20 | `RE/2026-09-16_0.6.0_estimate_damage_to_변경_디컴대조_원문.md`(정정 부기) · `RE/2026-09-16_r19_실변경17_배치A_score계열6_디컴대조_원문.md` §부수 |
+| Effect vtable | 신규 4(0x30 damage_vs_target·0x40 구간피해(ctx,caster,static,ticks)→(u64,u64)·0x48 지속틱·0x70) · 구 0x38~0x50 +0x18 · 구 ≥0x58 +0x20 | `RE/2026-09-16_0.6.0_estimate_damage_to_변경_디컴대조_원문.md`(정정 부기) · `RE/2026-09-16_r19_실변경17_배치A_score계열6_디컴대조_원문.md` §부수 |
 | PlayerState | +0xd0(0x928/0x930/0x9c0→0x9f8/0xa00/0xa90) · items +0x4a0→+0x510 · item_builds +0x4e8→+0x558 · gold +0x998→+0xa68 · +0x448→+0x478 · +0x450→+0x480 · +0x464→+0x49c · Box<dyn> +0x510→+0x580 · Strategy +0x4f8→+0x568 · 특성 +0x49d/+0x49e/+0x49f/+0x4a0 · +0x490 신규 | `RE/2026-09-17_r20_변경99_배치B_14_디컴대조_원문.md` §15 · `RE/2026-09-17_r20_변경99_배치E_14_디컴대조_원문.md` §새 사실 |
 | Blackboard(stride 0x2e8→0x5c8) | 소액션 레코드 +0x78→+0x1d0 · big_goal/in_battle +0xf8→+0x300 · last_seen +0x1e0→+0x3e8 · 신규 Vec +0x250/+0x258 · +0x4d8+i*8 tick · +0x260/+0x278 | `RE/2026-09-17_r20_변경99_배치A_14_디컴대조_원문.md` `RE/2026-09-17_r20_변경99_배치C_14_디컴대조_원문.md` `RE/2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` |
 | TeamPlan | objective +0x41f/0x420/0x421→+0xcd5/0xcd6/0xcd7 · serpen {phase +0x3e0, mode +0x3e4} · epic {+0x400, +0x404}(mode 2 = 레거시) · 게이트 +0xcc0/cc1/cc2/cc5/cc7 · 마스크 +0xca3/ca4/ca5 · camp_last_visible +0x80/88→+0xa0/a8 · chats +0xc0→+0x2e8 · ally_battle_stop +0x0→+0x20+i*0x10 · steal 블록 +0x2b8 · vision 0x230→0x520 | `RE/2026-09-17_r20_변경99_배치C_14_디컴대조_원문.md` `RE/2026-09-17_r20_변경99_배치D_14_디컴대조_원문.md` `RE/2026-09-17_r20_변경99_배치E_14_디컴대조_원문.md` |
@@ -18,7 +18,7 @@
 | BattlePlan(0x228) | +0x78 sub_goal · +0x98 · +0x1f8 with_dive · +0x204 screening · +0x205 gank_line · +0x207 dive_tower · +0x213 entry_src · +0x215 exit_src | `RE/2026-09-17_r20_변경99_배치D_14_디컴대조_원문.md` §새 구조체 |
 | AgentVerHamster | version +0x3608(구 +0x2910) · small_action 0x2a28 · +0x3601 태그 · +0x3638 · +0x36c2/3 · +0x29dd | `RE/2026-09-17_r20_변경99_배치C_14_디컴대조_원문.md` `RE/2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` |
 | 기타 | PlayerChampionCache 팀 530·포지션 106 qword · per-champ cache 0x320→0x350 · CombatParameter 신규 +0x14d8/+0x14f0 Vec<EnemyParam>(0xd8·+0x58 id) · ScoreParameter +0x1501 · map +0x38b8 region 격자 · Entity undying +0x488 · FightSituation 96B · estimate_damage_to 산식 동일+override 3 | `RE/2026-09-17_r20_변경99_배치D_14_디컴대조_원문.md` `RE/2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` `RE/2026-09-17_r20_변경99_배치E_14_디컴대조_원문.md` `RE/2026-09-16_0.6.0_estimate_damage_to_변경_디컴대조_원문.md` |
-| ABI | check_kill_die_tick eb82d0→eda920 (version,data,judger,focus,&enemy,&ally,bool×3,&Option) · defensive_crisis(+extra_tick) · resolve_join_stake(+committed,+horizon_sec) · resolve_fight_uncached/full(+bias) · wave_priority_clearer_position(+exclude_jungler) · buff_value_v54(+version,+champ_incoming) | `RE/2026-09-17_r20_변경99_배치A_14_디컴대조_원문.md` §ABI · `RE/2026-09-17_r20_변경99_배치E_14_디컴대조_원문.md` · `RE/2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` |
+| ABI | check_kill_die_tick eb82d0→eda920 (version,data,judger,focus,&enemy,&towers(★ally 아님·w1 정정),simple,ignore_nuke,no_noise,&Option<(x,y,t)>(v3 만)) · defensive_crisis(+extra_tick) · resolve_join_stake(+committed,+horizon_sec) · resolve_fight_uncached/full(+bias) · wave_priority_clearer_position(+exclude_jungler) · buff_value_v54(+version,+champ_incoming) | `RE/2026-09-17_r20_변경99_배치A_14_디컴대조_원문.md` §ABI · `RE/2026-09-17_r20_변경99_배치E_14_디컴대조_원문.md` · `RE/2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` |
 | ★version | `version>=3` 분기 전반 신설 · 값 = AgentVerHamster+0x3608 · **런타임 확인 전까지 v2/v3 경로 둘 다 명세에 적는다** | `RE/2026-09-17_r20_변경99_배치C_14_디컴대조_원문.md` 공통 발견 |
 
 ## B. 함수별 패치(변경 판정 42 · 한 줄 21 · 다건 16 · 전담 4 · 콜리 1)
@@ -70,4 +70,9 @@
 
 ## C. 동치 판정(오프셋·태그·슬롯·RVA 갱신만) = r19 16 + r20 38 → 목록 `r19_result.md` · `r20_result.md`(E/E+ 행) · 갱신 값은 A 절 표로 일괄.
 
-## D. 심층(티어1 15 + 이관 6 = 21) — 별도 라운드(r21~) 결과가 오면 여기 B 표에 행을 추가한다. 목록 = `r20_result.md` 말미.
+## D. 심층(티어1 15 + 이관 6 = 21) — r21 결과(RE `2026-09-17_r21_심층_w*_원문.md` 가 정본)
+
+| 구 | 신 | 함수 | 요지 | 정본 |
+|---|---|---|---|---|
+| `eba9b0` | `edb240` | check_kill_die_tick_uncached | v2 = 구 본체 + bool 게이트(simple/ignore_nuke/no_noise) · **v3 = 신규 타임라인 알고리즘**(arrival·궁 즉시분/지연분·pool=hp*tps·undying 하한 · tick 버킷 없음) · 캐시 +0x46..+0x4b | w1 §1 |
+| `e6b800` | `d72e70` | check_kill | v3 확장 후보 e0f970 · escape_possible eeb5b0 · (c1,c2,c3) 특성 · v3 *tps · v3 즉시수락 · lapse +0x49c/8번째 인자 | w1 §2 |
