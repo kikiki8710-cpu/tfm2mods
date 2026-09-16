@@ -75,4 +75,7 @@
 | 구 | 신 | 함수 | 요지 | 정본 |
 |---|---|---|---|---|
 | `eba9b0` | `edb240` | check_kill_die_tick_uncached | v2 = 구 본체 + bool 게이트(simple/ignore_nuke/no_noise) · **v3 = 신규 타임라인 알고리즘**(arrival·궁 즉시분/지연분·pool=hp*tps·undying 하한 · tick 버킷 없음) · 캐시 +0x46..+0x4b | w1 §1 |
+| `cc4260` | `eafb50` | JungleSubPlan::action_candidates | position_score 셀 중심 6인자(parameter 삭제) · v3 RunAway 조건(적 (12f0+32000)² 근접 ‖ e7f810) · v3 카정 move_action(격자 경로 ee0fe0/ee2310 · ecdb90 out_line 1 r16000) | w3 §1 |
+| `d2e500` | `fa3980` | PassiveJunglePlan::sub_plan | v3 undying → 매복블록 직행 · fb12a0 recall_need · **cj_ambush Some 이면 적 정글러 kill 시간 vs 내 이동+tps/2 → Jungle/Hide{bush,stealth,out_line 1}** | w3 §2 |
+| `d2f180` | `fa47a0` | PassiveJunglePlan::next_plan | v3 블록 A 매복 유지/해제 · 블록 B 매복 시도(fa2670) · cj_meet 플래그군 · lead_action = fa3350(갱 라인 선택) · v2 는 fa1010+f1dd50 게이트 | w3 §3~4 |
 | `e6b800` | `d72e70` | check_kill | v3 확장 후보 e0f970 · escape_possible eeb5b0 · (c1,c2,c3) 특성 · v3 *tps · v3 즉시수락 · lapse +0x49c/8번째 인자 | w1 §2 |
