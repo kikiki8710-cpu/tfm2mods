@@ -97,11 +97,11 @@ def main():
         rep(u".rel{display:grid; grid-template-columns:1fr 1fr; gap:0}", u".rel{display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0}\n@media (max-width:1100px){ .rel{grid-template-columns:1fr 1fr} }")
     # 판 태그·footer 수치는 매 실행 갱신(JS 는 1회 패치라 문자열만 치환)
     tag = (j.get("meta") or {}).get("tag") or u"판 ?"
-    h = re.sub(u"리턴 주소 · 판 ?\d+", u"리턴 주소 · " + tag, h)
-    h = re.sub(u"판 ?\d+ 에서 진입부 프로브 \d+곳이", u"%s 에서 진입부 프로브 %d곳이" % (tag, (j.get("meta") or {}).get("probes", 0)), h)
+    h = re.sub(u"리턴 주소 · 판 ?[\d+]+", u"리턴 주소 · " + tag, h)
+    h = re.sub(u"판 ?[\d+]+ 에서 진입부 프로브 \d+곳이", u"%s 에서 진입부 프로브 %d곳이" % (tag, (j.get("meta") or {}).get("probes", 0)), h)
     h = re.sub(u"슬롯당 16칸 히스토그램 · \d+행", u"슬롯당 16칸 히스토그램 · %d행" % (j.get("meta") or {}).get("rows", 0), h)
     h = re.sub(u"없던 간접 간선 \d+개와 지도 밖 호출자 \d+곳", u"없던 간접 간선 %d개와 지도 밖 호출자 %d곳" % (n_im, len(j["ext"])), h)
-    h = re.sub(u"실측 간접 호출\(리턴 주소 히스토그램 · 09-16 판 ?\d+\)", u"실측 간접 호출(리턴 주소 히스토그램 · 09-16 %s)" % tag, h)
+    h = re.sub(u"실측 간접 호출\(리턴 주소 히스토그램 · 09-16 판 ?[\d+]+\)", u"실측 간접 호출(리턴 주소 히스토그램 · 09-16 %s)" % tag, h)
     io.open(H, "w", encoding="utf-8").write(h)
     print(u"im 간선 %d · 실측 호출자 있는 노드 %d → %s" % (n_im, n_ic, H))
 
