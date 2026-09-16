@@ -9204,9 +9204,9 @@
   "name": "get_input",
   "src": "map",
   "old": "ce2df0",
-  "new": "e19550",
-  "how": "Location 정확 일치 · 후보 20 중 크기 최근접",
-  "conf": "A",
+  "new": "e1f610",
+  "how": "정정(r19 배치 B ghidra: AroundBush::get_input 의 콜리 = e1f610 모노모프) ← 구 e19550 Location 정확 일치 · 후보 20 중 크기 최근접",
+  "conf": "B(호출부·ghidra)",
   "size": [
    7793,
    7760
@@ -9271,7 +9271,9 @@
    "imm": -32,
    "disp": null
   },
-  "verdict": "변경(크기 -33B · 즉치 −1/+1 · cos 1.000)"
+  "verdict": "변경(콜리 실측 · 크기 차 · 내부 미대조)",
+  "new_was": "e19550",
+  "verdict_was": "변경(크기 -33B · 즉치 −1/+1 · cos 1.000)"
  },
  {
   "i": null,
@@ -9606,9 +9608,9 @@
   "name": "get_input",
   "src": "map",
   "old": "cecdd0",
-  "new": "e266e0",
-  "how": "Location 정확 일치 · 후보 10 중 크기 최근접",
-  "conf": "A",
+  "new": "e2d650",
+  "how": "정정(r19 배치 B ghidra: AroundBush::get_input 의 콜리 = e2d650 모노모프) ← 구 e266e0 Location 정확 일치 · 후보 10 중 크기 최근접",
+  "conf": "B(호출부·ghidra)",
   "size": [
    4027,
    4027
@@ -9682,7 +9684,9 @@
    "imm": null,
    "disp": null
   },
-  "verdict": "변경(크기 +0B · 즉치 −2/+1 · cos 0.998)"
+  "verdict": "변경(콜리 실측 · 크기 차 · 내부 미대조)",
+  "new_was": "e266e0",
+  "verdict_was": "변경(크기 +0B · 즉치 −2/+1 · cos 0.998)"
  },
  {
   "i": null,
