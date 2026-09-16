@@ -3,14 +3,14 @@
 | rva | 이름 | 단 | 근거 | 실측 호출수 | → 콜리(지도) | 정적 호출자(지도 안) |
 |---|---|---|---|---|---|---|
 | `d70620` | tower_discipline 공용 래퍼(aggro_damage·engage_requires_dive·survival_incoming 호출 · 9.9억회 · 지문 없음) | 1 | 추정/정적 | 1,997,255,248 | v3_pve_monster_aggro_damage · engage_requires_dive · v3_survival_incoming | can_tower_focused |
-| `d95d00` | game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) | 1 | 추정/정적 | 1,032,281,459 | cached_damage_against | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) · FUN_e0dfc0 · FUN_d19eb0 · FUN_d1a630 |
+| `d95d00` | game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) | 1 | 추정/정적 | 1,032,281,459 | cached_damage_against | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) · old::battle::v30_wave_danger_chase_guard · FUN_d19eb0 · FUN_d1a630 |
 | `1879080` | game_core mode.rs 시뮬레이션 틱 루프(AI 루트 · Agent::get_input 호출) | 1 | 확정 | 327,382,720 | AgentVerHamster::get_input · game_core simulation.rs(1603/1741/1542 · 57 Location · 시뮬 본체) |  |
 | `e25450` | can_tower_focused 캐시 래퍼(1.04억회) | 1 | 추정/정적 | 292,520,750 | can_tower_focused · position_eval_at | FUN_e248f0 |
 | `e0cf10` | max_range_cached TLS 래퍼(1.44억회) | 1 | 추정/정적 | 291,998,412 | LocalKey::with (max_range_cached TLS 메모 본체) | FUN_c9d5b0 · FUN_ca0a10 · FUN_ca4790 · FUN_d66a10 |
 | `c87850` | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | 1 | 확정 | 261,096,987 | base_attacking_minion_uncached · defense_nexus::nexus_last_stand_uncached · defense_nexus::nexus_final_stand_uncached | battle::base_battle_action(battle.rs:1306 · 본체 4/4) · FUN_d3c610 · FUN_d3c680 · BattleSubPlan::action_candidates |
-| `eb82d0` | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | 1 | 확정 | 173,533,035 | check_kill_die_tick · fight_check::check_kill_die_tick_uncached | FUN_e04c60 · FUN_e34d50 · FUN_e35160 · FUN_ebe380 |
+| `eb82d0` | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | 1 | 확정 | 173,533,035 | check_kill_die_tick · fight_check::check_kill_die_tick_uncached | FUN_e04c60 · FUN_e34d50 · FUN_e35160 · death_battle::dm_trade_lean |
 | `ca89a0` | SerpenStanceData::update_plan 클로저 호출부 | 1 | 추정/정적 | 149,991,310 | SerpenStanceData::update_plan::{closure#4} | SerpenStanceData::update_plan |
-| `d96190` | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) | 1 | 추정/정적 | 131,011,370 | estimate_damage_to · game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) | FUN_e0dfc0 · FUN_d96b10 |
+| `d96190` | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) | 1 | 추정/정적 | 131,011,370 | estimate_damage_to · game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) | FUN_d96b10 · old::battle::v30_wave_danger_chase_guard |
 | `ca8f60` | EpicStanceData::update_plan 클로저 호출부 | 1 | 추정/정적 | 125,177,970 | EpicStanceData::update_plan::{closure#4} | EpicStanceData::update_plan |
 | `eb8b00` | available_cc_in_window 래퍼 | 1 | 추정/정적 | 124,271,141 | available_cc_in_window | position_eval_at_uncached |
 | `e0d720` | support_min_action_range 래퍼 | 1 | 추정/정적 | 99,920,922 | support_min_action_range | with_runaway · with_runaway · with_runaway · FUN_d6bd40 |
@@ -55,7 +55,7 @@
 | `cafe10` | BigPlan::next_plan JT 디스패처(passive_jungle·line_ganker) | 1 | 추정/정적 | 4,315,170 | PassiveJunglePlan::next_plan · LineGankerPlan::next_plan · FUN_df1f50 | update |
 | `d84c60` | abstract_input::attack 래퍼(position_eval 근방) | 1 | 추정/정적 | 3,973,681 | abstract_input::attack | get_input |
 | `d2e3f0` | (미명명) | 1 | 미확정 | 3,949,695 | is_cleared · best_jungle_goal | BigPlan::update JT 디스패처(passive_line·battle·line_ganker update) |
-| `d37680` | (미명명) | 1 | 미확정 | 3,238,577 | can1v1win | FUN_d68090 · FUN_e03ed0 · calculate_interaction_action_score · battle_common::v16_gambler_ult_cc_bonus |
+| `d37680` | (미명명) | 1 | 미확정 | 3,238,577 | can1v1win | battle_common::v16_knight_ult_zone_bonus · FUN_e03ed0 · calculate_interaction_action_score · battle_common::v16_gambler_ult_cc_bonus |
 | `ec9d60` | (미명명) | 1 | 미확정 | 3,022,656 | v23_healthy_allies_near_point · v23_recent_visible_enemies_near_point | check_epic_giveup |
 | `dd7250` | (미명명) | 1 | 미확정 | 2,897,357 | v23_recent_visible_enemies_near_point · v23_objective_setup_pressure_line | is_end · is_end |
 | `d663f0` | simulation.rs:1905 래퍼 | 1 | 추정/정적 | 2,608,781 | FUN_c9c590 · FUN_ca33c0 | check_serpen_setup · v3_serpen_contest_clear_win · v3_epicops_defer_serpen |
@@ -110,29 +110,31 @@
 | `c98290` | (미명명) | 1 | 미확정 | 8,678 | score | EpicPokeSubPlan::action_candidates |
 | `c8b710` | (미명명) | 1 | 미확정 | 7,084 | clone | FUN_c5ded0 · FUN_c72c60 · get_input_cl |
 | `dfdd50` | (미명명) | 1 | 미확정 | 4,006 | base_sub_goal | try_engage · try_engage_dive |
-| `c9d5b0` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) |  |
-| `ca0a10` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) |  |
-| `ca4790` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) |  |
-| `d66a10` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) |  |
-| `d69690` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) |  |
-| `e04c60` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) · check_kill_die_tick LocalKey::with(DieTickCache 래퍼) |  |
-| `e0ad90` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) |  |
-| `e704b0` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) |  |
-| `ebe790` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) |  |
-| `e0dfc0` | (미명명) | 2 | 미확정 | 0 | game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) · simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) |  |
-| `d6fc40` | (미명명) | 2 | 미확정 | 0 | FUN_e25030 |  |
-| `d71230` | (미명명) | 2 | 미확정 | 0 | FUN_e25030 |  |
-| `d68090` | (미명명) | 2 | 미확정 | 0 | FUN_d37680 |  |
-| `e03ed0` | (미명명) | 2 | 미확정 | 0 | FUN_d37680 |  |
-| `e34a30` | (미명명) | 2 | 미확정 | 0 | FUN_eb5dd0 |  |
-| `ebe220` | (미명명) | 2 | 미확정 | 0 | FUN_eb5dd0 |  |
-| `d96b10` | (미명명) | 2 | 미확정 | 0 | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) |  |
-| `ca0d30` | (미명명) | 2 | 미확정 | 0 | line_defense.rs:125 클로저(max_range_nearly_can_use 호출) |  |
-| `e34d50` | (미명명) | 2 | 미확정 | 0 | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) |  |
-| `e35160` | (미명명) | 2 | 미확정 | 0 | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) |  |
-| `ebe380` | (미명명) | 2 | 미확정 | 0 | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) |  |
-| `e248f0` | (미명명) | 2 | 미확정 | 0 | can_tower_focused 캐시 래퍼(1.04억회) |  |
-| `d3c610` | (미명명) | 2 | 미확정 | 0 | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) |  |
-| `d3c680` | (미명명) | 2 | 미확정 | 0 | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) |  |
-| `e26230` | (미명명) | 2 | 미확정 | 0 | FUN_e26080 |  |
+| `c9d5b0` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) | BattleSubPlan::action_candidates |
+| `ca0a10` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) | death_battle::dm_trade_lean · action_candidates |
+| `ca4790` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) | FUN_e04c60 |
+| `d66a10` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) | FUN_d6a860 · battle_common::v17_runaway_counterattack_bonus |
+| `d69690` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) | BattleSubPlan::action_candidates · battle_common::v15_can_keep_support_pressure |
+| `e04c60` | (미명명) | 2 | 미확정 | 0 | FUN_ca4790 · max_range_cached TLS 래퍼(1.44억회) · check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | FUN_ca4900 · fight_participants · resolve_join_stake |
+| `e0ad90` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) | make_gank_battle · update_v32 · try_engage · try_engage_dive |
+| `e704b0` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) | handle_interact_battle |
+| `ebe790` | (미명명) | 2 | 미확정 | 0 | max_range_cached TLS 래퍼(1.44억회) | decide_deathmatch · update · action_candidates |
+| `d96b10` | (미명명) | 2 | 미확정 | 0 | simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) | old::battle::v30_wave_danger_chase_guard · passive_line::PassiveLinePlan::update · update · score_parameter::calculate_score_parameter |
+| `e0dfc0` | old::battle::v30_wave_danger_chase_guard | 2 | 확정 | 0 | game_ai simulation.rs:1848 캐시 래퍼(cached_damage_against 호출 5.2억회) · simulation.rs:1848/game.rs:210 래퍼(estimate_damage_to 호출) · FUN_d96b10 | update · update · update_v32 |
+| `d6fc40` | (미명명) | 2 | 미확정 | 0 | FUN_e25030 | lane_minion_position_action |
+| `d71230` | (미명명) | 2 | 미확정 | 0 | FUN_e25030 | lane_minion_position_action |
+| `d3c610` | (미명명) | 2 | 미확정 | 0 | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | update_v32 |
+| `d3c680` | (미명명) | 2 | 미확정 | 0 | last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자) | interaction_score · GoalData::update |
+| `d68090` | battle_common::v16_knight_ult_zone_bonus | 2 | 확정 | 0 | FUN_d37680 | battle::BattleSubPlan::score · score |
+| `e03ed0` | (미명명) | 2 | 미확정 | 0 | FUN_d37680 | calculate_interaction_action_score |
+| `e26230` | (미명명) | 2 | 미확정 | 0 | FUN_e26080 | lane_stance_risk |
+| `e248f0` | (미명명) | 2 | 미확정 | 0 | can_tower_focused 캐시 래퍼(1.04억회) | get_input · lane_minion_position_action |
 | `e9bf40` | (미명명) | 2 | 미확정 | 0 | LegacyPlanHandler::update 아웃라인 조각(GoalData::update·passive_plan·handle_chat 호출) |  |
+| `e34d50` | (미명명) | 2 | 미확정 | 0 | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | DefenseNexusSubPlan::action_candidates |
+| `e35160` | (미명명) | 2 | 미확정 | 0 | check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | update · update |
+| `ebe380` | death_battle::dm_trade_lean | 2 | 확정 | 0 | FUN_ca0a10 · check_kill_die_tick LocalKey::with(DieTickCache 래퍼) | decide_deathmatch |
+| `e34a30` | (미명명) | 2 | 미확정 | 0 | FUN_eb5dd0 | decide_deathmatch |
+| `ebe220` | (미명명) | 2 | 미확정 | 0 | FUN_eb5dd0 | new_filtered · get_input · get_input · build |
+| `ca0d30` | (미명명) | 2 | 미확정 | 0 | line_defense.rs:125 클로저(max_range_nearly_can_use 호출) | line_defense::LineDefenseSubPlan::unsafe_v19_non_champion_walkup |
+| `d6a860` | (미명명) | 3 | 미확정 | 0 | FUN_d66a10 | battle::BattleSubPlan::score · score |
+| `ca4900` | (미명명) | 3 | 미확정 | 0 | FUN_e04c60 | resolve_fight_stake |
