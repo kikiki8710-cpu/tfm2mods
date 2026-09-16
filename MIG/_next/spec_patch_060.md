@@ -66,6 +66,9 @@
 | `d5bbf0` | `f77820` | 181 | calculate_interaction_action_score | 전담 | v3 분기 5지점(도달가능 산식 · bb 슬롯 스캔 · +0x49c 게이트 8번째 인자 · 꼬리 집계) — 20KB | `2026-09-17_r20_변경99_배치B_14_디컴대조_원문.md` §11 |
 | `cce210` | `fd98c0` | 176 | SmallActionTrace::get_input | 전담 | v2 우물 회피/lethal PathFinder 정책(trace_avoid_well·_lethal) · self 레이아웃 변경 | `2026-09-17_r20_변경99_배치B_14_디컴대조_원문.md` §13 |
 | `defcd0` | `fd7f70` | 83 | EpicHuntAndPokePlan::sub_plan | 전담 | ObjContest 반환 · hp 51→50(v3) · tp 게이트 다수 | `2026-09-17_r20_변경99_배치B_14_디컴대조_원문.md` §14 |
+| `db90f0` | `faa440` | LineGanker::update | 저HP 취소 시 `+0xaf=1` · 부시 도착 `if +0x38==0 {+0x38=tick}` | `2026-09-17_r20_변경99_배치G_누락7_소폭오프셋만_디컴대조_원문.md` §3 |
+| `d9ac10` | `e85f00` | should_steal_now | `objective!=Morgard/Serpen` 4곳 → `not_morgard = 3e4!=2 || (404==2&&cd5!=0)` · `not_serpen = 3e4==2 && !(404==2&&cd5==1)` | `2026-09-17_r20_변경99_배치G_누락7_소폭오프셋만_디컴대조_원문.md` §4 |
+| `dd6b40` | `f0dc20` | v24_objective_setup_lane_pressure_ready | L13 take_setup_like 게이트 이중모드(dd5db0 L91 과 동일 패턴) | `2026-09-17_r20_변경99_배치G_누락7_소폭오프셋만_디컴대조_원문.md` §5 |
 | `cbbdb0` | `e9fe00` | 188 | BattleSubPlan::action_candidates | 콜리 | 본체 동치 · 콜리 resolve_fight_stake ee5e80(ee3c80 호출)·fight_participants·stake_roster 변경 | `2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` §14 |
 
 ## C. 동치 판정(오프셋·태그·슬롯·RVA 갱신만) = r19 16 + r20 38 → 목록 `r19_result.md` · `r20_result.md`(E/E+ 행) · 갱신 값은 A 절 표로 일괄.

@@ -127,3 +127,17 @@
 - `d2e500`→`fa3980` PassiveJunglePlan::sub_plan(이관 · v3 역정글 매복 Hide)
 - `df0e90`→`dcbe00` SerpenHuntAndPokePlan::sub_plan(이관 · ObjContest 반환 2·v3 귀환)
 - `de92d0`→`fb5ff0` epic_passive_plan(이관 · +0xcc7 전면 분기)
+
+## 배치 G(누락 7 · mig060 「소폭/오프셋만」 · 09-17)
+
+| 배치 | 구 | 신 | 함수 | 판정 | 요지 |
+|---|---|---|---|---|---|
+| G | `ccc010` | `e60420` | epic_hunt_and_battle::sub_plan | ✅동치 | SubPlan 인코딩만 |
+| G | `e83080` | `f66a30` | AttackNexusSubPlan::score | ✅동치 | arm 재배치 |
+| G | `cc9740` | `eabbb0` | EpicPokeSubPlan::action_candidates_old | ✅동치 | |
+| G | `db8ba0` | `fb9b70` | target_bush_v41 | ✅동치 | 시그니처 (line,player,data) · min(6) |
+| G | `db90f0` | `faa440` | LineGanker::update | ⚠변경·한 줄 | +0xaf 플래그 · +0x38 arrived_tick |
+| G | `d9ac10` | `e85f00` | should_steal_now | ⚠변경·한 줄 | 이중모드 술어 4곳 |
+| G | `dd6b40` | `f0dc20` | v24_objective_setup_lane_pressure_ready | ⚠변경·한 줄 | 이중모드 게이트 |
+
+회계 갱신: r20 = 91 대조 · 동치 42 · 변경 49 ⟹ 명세 유효 **177** · 재명세 **65**(심층 21 포함).
