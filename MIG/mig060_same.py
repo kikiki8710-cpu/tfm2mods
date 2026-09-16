@@ -19,12 +19,48 @@ import io, json, os, sys, struct, pickle, collections, difflib, re
 sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import mig060 as M
+NORM = False
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_OP_REG, X86_REG_RIP
 
 HERE = M.HERE
 RE_NUM = re.compile(r"0x[0-9a-fA-F]+|\b\d+\b")
 OKV = (u"동일", u"이동만", u"오프셋 이동", u"오프셋만")
 KNOWN = {(0x2e8, 0x5c8): "Blackboard stride", (0x9e0, 0xab0): "Player stride", (0x320, 0x350): "DieTick?", (0xfa0, 0x1090): "DieTick arr?", (0x148, 0x168): "0x148→0x168"}
+
+# ── --norm 정규화 표(0.5.8→0.6.0 · 확정 사실 · RE enum정체 / r19 배치 A·B·C) ──
+SAP_OLD = "RunAway Recall Around AroundHide AroundRegion AroundRunAway Positioning AroundPosition AroundPositionBush AroundBush LaneMinionPosition Trace Attack Skill Skill2 Ult Stop".split()
+SAP_NEW = [v for v in SAP_OLD if v != "AroundHide"]
+def sap_tag(names):   # 태그 바이트 +0xb1 → 변형 이름 (dataful AroundPosition = 0/1/2 · 나머지 3+idx · 구멍)
+    d = {0: "AroundPosition", 1: "AroundPosition", 2: "AroundPosition"}
+    for i, v in enumerate(names):
+        if v != "AroundPosition": d[3 + i] = v
+    return d
+SAP_TAG = (sap_tag(SAP_OLD), sap_tag(SAP_NEW))
+SAP_IDX = (dict(enumerate(SAP_OLD)), dict(enumerate(SAP_NEW)))
+SAP_DFLT = (SAP_OLD.index("AroundPosition"), SAP_NEW.index("AroundPosition"))       # switch 기본 인덱스 7→6
+GOAL = ({0: "Trace", 1: "Protect", 2: "Kiting", 3: "KitingBack", 4: "RunAway", 5: "Assassin", 6: "AssassinReady", 7: "End"},
+        {0: "Trace", 1: "Kiting", 2: "KitingBack", 3: "RunAway", 4: "End"})              # BattleSubPlanGoal 8→5
+ENUM_MAPS = [("SmallActionPlay 태그", SAP_TAG), ("SmallActionPlay idx", SAP_IDX), ("BattleSubPlanGoal", GOAL)]
+def vt_new(d):   # Effect vtable 슬롯: 신규 0x30·0x40·0x48·0x70 삽입
+    if d < 0x30: return d
+    if d <= 0x50: return d + 0x18
+    return d + 0x20
+OFFMAP = {0x928: 0x9f8, 0x930: 0xa00, 0x9c0: 0xa90,                                    # PlayerState +0xd0
+          0x2e8: 0x5c8, 0x1e0: 0x3e8, 0x508: 0x578, 0x4f8: 0x568,                       # Blackboard · 팀블록
+          0x1808: 0x24b5, 0x5e8: 0xf58, 0x706: 0x107b, 0x638: 0xfc0, 0x650: 0xfe3, 0x618: 0x100b}   # LegacyPlanHandler
+def enum_explains(o, n):
+    """즉치 (o,n) 이 어느 enum 재번호로 설명되나 → 표 이름 or None"""
+    for nm, (mo, mn) in ENUM_MAPS:
+        if o in mo and n in mn and mo[o] == mn[n]: return nm
+    if (o, n) == SAP_DFLT: return "SmallActionPlay 기본idx"
+    if (o, n) == (4, 7): return "BigPlan 니치 기본idx"                       # LegacyPlanHandler.plan 니치 호스트 idx 4→7(r19 배치 C)
+    if o < 0 and n < 0 and -o in SAP_IDX[0] and -n in SAP_IDX[1] and SAP_IDX[0][-o] == SAP_IDX[1][-n]: return "SmallActionPlay idx(부호)"   # add r,-idx
+    return None
+def mask_explains(o, n):
+    """비트마스크(idx 집합)가 같은 변형 집합이면 True — 0.6.0 은 AroundHide 제거로 idx 가 한 칸 당겨짐"""
+    so = set(SAP_IDX[0][i] for i in range(17) if o >> i & 1 and i in SAP_IDX[0]); sn = set(SAP_IDX[1][i] for i in range(16) if n >> i & 1 and i in SAP_IDX[1])
+    return bool(so) and so - {"AroundHide"} == sn
+INV = {"je": "jne", "jne": "je", "jb": "jae", "jae": "jb", "jbe": "ja", "ja": "jbe", "jl": "jge", "jge": "jl", "jle": "jg", "jg": "jle", "js": "jns", "jns": "js"}
 
 class X(M.Exe):
     def __init__(s, path, tag):
@@ -46,6 +82,7 @@ def regname(md, r): return md.reg_name(r)
 
 def main():
     allrows = "--all" in sys.argv
+    global NORM; NORM = "--norm" in sys.argv
     O = X(M.OLD, "old"); N = X(M.NEW, "new")
     FO = {(int(k, 16) if isinstance(k, str) else k): v for k, v in pickle.load(open(M.PKL["old"], "rb"))["idx"].items()}
     FN = {(int(k, 16) if isinstance(k, str) else k): v for k, v in pickle.load(open(M.PKL["new"], "rb"))["idx"].items()}
@@ -91,6 +128,9 @@ def main():
 
     OKG = (u"동일", u"이동만", u"오프셋", u"skel동일", u"Loc유사", u"소폭")
     targets = [r for r in J if "new" in r and r["verdict"].split("(")[0] in OKV and (allrows or r["src"] == "spec")]
+    if "--only" in sys.argv:
+        only = set(sys.argv[sys.argv.index("--only") + 1].lower().split(","))
+        targets = [r for r in J if "new" in r and r["old"] in only]
     if "--pair" in sys.argv:   # --pair OLD NEW : 등급 무관 한 짝만(변경 함수의 차이 내역 보기)
         po, pn = sys.argv[sys.argv.index("--pair") + 1].lower(), sys.argv[sys.argv.index("--pair") + 2].lower()
         base = JM.get(int(po, 16), {}); targets = [dict(base, old=po, new=pn, name=base.get("name", "FUN_" + po), src=base.get("src", "?"), verdict=base.get("verdict", u"?"))]
@@ -98,7 +138,7 @@ def main():
     out = []; mismatch = collections.Counter()
     for r in targets:
         a, b = int(r["old"], 16), int(r["new"], 16)
-        IO, IN = O.insns(a), N.insns(b)
+        IO, IN = O.insns(a), N.insns(b); norm_notes = []
         TO, TN = [tok(x) for x in IO], [tok(x) for x in IN]
         sm = difflib.SequenceMatcher(None, TO, TN, autojunk=False)
         pairs = []; struct_diff = []; moved = 0
@@ -122,13 +162,15 @@ def main():
                     nro += rest_o[i1:i2]; nrn += rest_n[j1:j2]
             rest_o, rest_n = nro, nrn
             if not got: break
+        if NORM and rest_o and rest_n and len(rest_o) == 1 and len(rest_n) == 2 and IO[rest_o[0]].mnemonic in INV and IN[rest_n[0]].mnemonic == INV[IO[rest_o[0]].mnemonic] and IN[rest_n[1]].mnemonic == "jmp":
+            norm_notes.append(u"분기 반전 %x" % IO[rest_o[0]].address); rest_o = rest_n = []
         if rest_o and rest_n:
             struct_diff.append(u"구 %d명령(%s…) / 신 %d명령(%s…) 짝 없음" % (len(rest_o), TO[rest_o[0]][:30], len(rest_n), TN[rest_n[0]][:30]))
         elif rest_o or rest_n:
             struct_diff.append(u"구 %d명령 / 신 %d명령 짝 없음" % (len(rest_o), len(rest_n)))
         pairs.sort(); amap = dict(pairs)
         addr_idx_o = {x.address: i for i, x in enumerate(IO)}; addr_idx_n = {x.address: i for i, x in enumerate(IN)}
-        imm_d = []; disp_d = []; data_d = []; lea_d = []; reg_d = []; br_d = []; callees = []; typeid_d = []; enum_d = []; loc_ok = 0; data_ok = 0; stack_d = 0; panic_re = 0
+        imm_d = []; disp_d = []; data_d = []; lea_d = []; reg_d = []; br_d = []; callees = []; typeid_d = []; enum_d = []; loc_ok = 0; data_ok = 0; stack_d = 0; panic_re = 0; vt_d = []
         for i, j in pairs:
             x, y = IO[i], IN[j]
             if len(x.operands) != len(y.operands): struct_diff.append(u"%x 피연산자 수" % x.address); continue
@@ -154,7 +196,12 @@ def main():
                                 else: br_d.append(u"%x → %x/%x" % (x.address, to, tn))
                         else:
                             callees.append((to, tn, callee_grade(to, tn)))
-                    elif oa.imm != ob.imm: imm_d.append((x.address, oa.imm, ob.imm))
+                    elif oa.imm != ob.imm:
+                        ex = enum_explains(oa.imm, ob.imm) if NORM else None
+                        if ex: norm_notes.append(u"%s %x→%x" % (ex, oa.imm, ob.imm))
+                        elif NORM and OFFMAP.get(oa.imm) == ob.imm: norm_notes.append(u"오프셋표 %x→%x" % (oa.imm, ob.imm))
+                        elif NORM and bin(oa.imm).count("1") >= 3 and mask_explains(oa.imm, ob.imm): norm_notes.append(u"SmallActionPlay 마스크 %x→%x" % (oa.imm, ob.imm))
+                        else: imm_d.append((x.address, oa.imm, ob.imm))
                 elif oa.type == X86_OP_MEM:
                     if oa.mem.base == X86_REG_RIP and ob.mem.base == X86_REG_RIP:
                         to = x.address + x.size + oa.mem.disp; tn = y.address + y.size + ob.mem.disp
@@ -181,7 +228,12 @@ def main():
                             # 경계 = 직전 6명령 안의 cmp r, imm(+1) — 구/신이 다르면 case 수 변경
                             def bound(L, i0):
                                 for d in range(1, 7):
-                                    if i0 - d >= 0 and L[i0 - d].mnemonic in ("cmp", "mov") and len(L[i0 - d].operands) == 2 and L[i0 - d].operands[1].type == X86_OP_IMM and 0 < L[i0 - d].operands[1].imm < 256 and L[i0 - d].operands[0].type == X86_OP_REG: return L[i0 - d].operands[1].imm + 1   # cmp r,N ; ja  또는  mov r,N ; cmovae(니치 enum 기본 인덱스)
+                                    z = L[i0 - d]
+                                    if i0 - d >= 0 and z.mnemonic in ("cmp", "mov") and len(z.operands) == 2 and z.operands[1].type == X86_OP_IMM and 0 < z.operands[1].imm < 256 and z.operands[0].type == X86_OP_REG:
+                                        nxt = L[i0 - d + 1].mnemonic if i0 - d + 1 < len(L) else ""
+                                        if z.mnemonic == "cmp" and nxt in ("jb", "jl", "jbe", "jle", "jae", "jge") and nxt in ("jb", "jl"): return None   # 하한 가드(cmp r,N ; jb default) 는 case 수가 아니다
+                                        if z.mnemonic == "mov": return None                                        # mov r,N ; cmovae = 니치 기본 인덱스(case 수 아님 · 전 항목 읽기)
+                                        return z.operands[1].imm + 1   # cmp r,N ; ja default
                                 return None
                             bo_, bn_ = bound(IO, i), bound(IN, j)
                             if bo_ and bn_ and bo_ != bn_:
@@ -192,7 +244,7 @@ def main():
                                     return t if f0 <= t < e0 else None
                                 found = None
                                 if bo_ == bn_ + 1:
-                                    for kdel in range(bo_):
+                                    for kdel in ([SAP_OLD.index("AroundHide")] if NORM and bo_ == 17 else range(bo_)):
                                         ok = True
                                         for ko in range(bo_):
                                             if ko == kdel: continue
@@ -278,6 +330,9 @@ def main():
                         if oa.mem.disp != ob.mem.disp:
                             rg = regname(O.md, oa.mem.base)
                             if rg in ("rsp", "rbp") and abs(oa.mem.disp) < 0x2000 and abs(ob.mem.disp) < 0x2000: stack_d += 1   # 스택 슬롯 재배치(의미 無)
+                            elif NORM and OFFMAP.get(oa.mem.disp) == ob.mem.disp: norm_notes.append(u"오프셋표 [%s+%x→%x]" % (rg, oa.mem.disp, ob.mem.disp))
+                            elif NORM and vt_new(oa.mem.disp) == ob.mem.disp and (x.mnemonic == "call" or (x.mnemonic == "mov" and any(IO[i + d].mnemonic == "call" and IO[i + d].operands and IO[i + d].operands[0].type == X86_OP_REG and IO[i + d].operands[0].reg == x.operands[0].reg for d in range(1, 5) if i + d < len(IO)))):
+                                vt_d.append(u"vt %x→%x" % (oa.mem.disp, ob.mem.disp))
                             else: disp_d.append((x.address, rg, oa.mem.disp, ob.mem.disp))
         # 델타 분석
         deltas = collections.Counter()
@@ -294,12 +349,15 @@ def main():
         small = [(hex(a_), o, n) for a_, o, n in imm_d if abs(o) < 0x100 and abs(n - o) <= 8]
         small += [(hex(a_), o, n) for a_, rg, o, n in disp_d if abs(o) < 0x40 and abs(n - o) <= 8 and rg in ("rsp", "rbp") and False]
         layout = [(o, n) for _, o, n in imm_d if (hex(0), o, n) not in small and abs(o) >= 0x100] + [(o, n) for _, _, o, n in disp_d]
-        if struct_diff or br_d: v = u"❌구조 변경"
+        if NORM and not struct_diff and not br_d and not data_d and not small and not imm_d and not disp_d and (norm_notes or vt_d):
+            v = u"✅동치(정규화: %s)" % u"·".join(sorted(set(z.split(" ")[0] for z in norm_notes + vt_d)))
+        elif struct_diff or br_d: v = u"⚠정렬 불가(미확정)"
         elif data_d: v = u"⚠데이터 변경"
         elif small: v = u"⚠소형 즉치 변경(%s)" % u"·".join(u"%x→%x" % (o, n) for _, o, n in small[:5])
         elif imm_d or disp_d: v = u"✅오프셋만(Δ%s)" % u"·".join(hex(d) for d, _ in deltas.most_common(5))
         elif [z for z in lea_d if u"Location" not in z]: v = u"⚠lea 데이터 차이(검토)"
         else: v = u"✅동일"
+        if NORM and (norm_notes or vt_d) and not v.startswith(u"✅동치(정규화"): v += u" · 정규화 %d" % (len(norm_notes) + len(vt_d))
         if moved: v += u" · 블록이동 %d" % moved
         if stack_d: v += u" · 스택슬롯 %d" % stack_d
         if panic_re: v += u" · 패닉스텁 재배열 %d" % panic_re
@@ -309,17 +367,17 @@ def main():
             if g.startswith(u"불일치") and not g.startswith(u"ptr:"): mismatch[(to, tn)] += 1
         if bad_callee: v += u" · 콜리 주의 %d" % len(bad_callee)
         row = dict(old=r["old"], new=r["new"], name=r["name"], src=r["src"], v0=r["verdict"].split("(")[0], strict=v, ninsn=[len(IO), len(IN)], aligned=len(pairs),
-                   struct_diff=struct_diff[:10], branch_diff=br_d[:10], imm=[(hex(a_), hex(o), hex(n)) for a_, o, n in imm_d[:20]], small=[(a_, hex(o), hex(n)) for a_, o, n in small], typeid=typeid_d[:5], moved=moved, stack=stack_d, enum=enum_d, disp=[(hex(a_), rg, hex(o), hex(n)) for a_, rg, o, n in disp_d[:20]],
+                   struct_diff=struct_diff[:10], branch_diff=br_d[:10], imm=[(hex(a_), hex(o), hex(n)) for a_, o, n in imm_d[:20]], small=[(a_, hex(o), hex(n)) for a_, o, n in small], typeid=typeid_d[:5], moved=moved, stack=stack_d, enum=enum_d, norm=norm_notes[:30], vt=vt_d[:20], disp=[(hex(a_), rg, hex(o), hex(n)) for a_, rg, o, n in disp_d[:20]],
                    data=data_d[:20], lea=lea_d[:10], reg=len(reg_d), loc_ok=loc_ok, data_ok=data_ok, deltas={hex(k): c for k, c in deltas.items()}, known=dict(known),
                    callees=len(callees), callee_grades=dict(cg), bad_callee=bad_callee[:12])
         out.append(row)
         print(u"%s→%s %-38s %-14s → %s" % (r["old"], r["new"], r["name"][:38], row["v0"], v))
-    json.dump(out, io.open(os.path.join(HERE, "_next", "mig060_same%s.json" % ("_all" if allrows else ("_pair" if "--pair" in sys.argv else ""))), "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+    json.dump(out, io.open(os.path.join(HERE, "_next", "mig060_same%s.json" % (("_all" if allrows else ("_pair" if "--pair" in sys.argv else "")) + ("_norm" if NORM else ""))), "w", encoding="utf-8"), ensure_ascii=False, indent=0)
     # 호출부 실측이 mig060 짝과 다른 콜리 = mig060 정정 후보(호출부 합의)
     fix = collections.defaultdict(collections.Counter)
     for (to, tn), c in mismatch.items(): fix[to][tn] += c
     fixes = [dict(old="%x" % to, was=JM[to]["new"], now="%x" % max(c, key=c.get), votes=dict((("%x" % k), v) for k, v in c.items()), name=JM[to]["name"]) for to, c in fix.items()]
-    json.dump(fixes, io.open(os.path.join(HERE, "_next", "mig060_same_fix%s.json" % ("_all" if allrows else ("_pair" if "--pair" in sys.argv else ""))), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(fixes, io.open(os.path.join(HERE, "_next", "mig060_same_fix%s.json" % (("_all" if allrows else ("_pair" if "--pair" in sys.argv else "")) + ("_norm" if NORM else ""))), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(u"mig060 짝 정정 후보(호출부 실측) %d: " % len(fixes) + u" · ".join(u"%s %s→%s" % (f["old"], f["was"], f["now"]) for f in fixes))
     C = collections.Counter(x["strict"].split(u" ·")[0].split("(")[0] for x in out)
     C2 = collections.Counter((u"콜리 주의" if x["bad_callee"] else u"콜리 전부 OK") for x in out)
@@ -332,7 +390,7 @@ def main():
         L.append(u"| `%s` | `%s` | %s | %s | **%s** | %d/%d | %d | %d | %d | %d | %d | %d(%s) | %s |" % (
             x["old"], x["new"], x["name"][:40], x["v0"], x["strict"], x["ninsn"][0], x["ninsn"][1], len(x["imm"]), len(x["disp"]), len(x["data"]), x["loc_ok"], x["data_ok"], x["callees"],
             u"·".join(u"%s%d" % (k[:8], c) for k, c in sorted(x["callee_grades"].items(), key=lambda kv: -kv[1])[:4]), ev[:300].replace("|", "¦")))
-    io.open(os.path.join(HERE, "_next", "mig060_same%s.md" % ("_all" if allrows else ("_pair" if "--pair" in sys.argv else ""))), "w", encoding="utf-8").write(u"\n".join(L))
+    io.open(os.path.join(HERE, "_next", "mig060_same%s.md" % (("_all" if allrows else ("_pair" if "--pair" in sys.argv else "")) + ("_norm" if NORM else ""))), "w", encoding="utf-8").write(u"\n".join(L))
     print(u"\n" + L[2])
 
 if __name__ == "__main__": main()

@@ -19,6 +19,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -57,6 +59,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -95,6 +99,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -133,6 +139,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -171,6 +179,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -209,6 +219,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -247,6 +259,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -288,6 +302,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -329,6 +345,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -367,6 +385,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -408,6 +428,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -435,7 +457,7 @@
 "name": "FUN_c654d0",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 콜리 주의 2",
 "ninsn": [
 913,
 915
@@ -451,6 +473,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -478,7 +502,7 @@
 "name": "FUN_c66620",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 콜리 주의 2",
 "ninsn": [
 913,
 915
@@ -494,6 +518,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -535,6 +561,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -576,6 +604,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -614,6 +644,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -655,6 +687,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -679,7 +713,7 @@
 "name": "FUN_c6bd50",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 41 · 스택슬롯 123 · 콜리 주의 3",
+"strict": "⚠정렬 불가(미확정) · 블록이동 41 · 스택슬롯 123 · 콜리 주의 3",
 "ninsn": [
 1042,
 1022
@@ -805,6 +839,8 @@
 "moved": 41,
 "stack": 123,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc6c6ec",
@@ -861,7 +897,7 @@
 "name": "21SmallActionAroundBush9g",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 7 · 스택슬롯 122 · 콜리 주의 4",
+"strict": "⚠정렬 불가(미확정) · 블록이동 7 · 스택슬롯 122 · 콜리 주의 4",
 "ninsn": [
 900,
 915
@@ -894,6 +930,8 @@
 "moved": 7,
 "stack": 122,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc6d927",
@@ -937,7 +975,7 @@
 "name": "21SmallActionAroundBush9",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 7 · 스택슬롯 122 · 콜리 주의 4",
+"strict": "⚠정렬 불가(미확정) · 블록이동 7 · 스택슬롯 122 · 콜리 주의 4",
 "ninsn": [
 900,
 915
@@ -970,6 +1008,8 @@
 "moved": 7,
 "stack": 122,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc6ea37",
@@ -1027,6 +1067,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1066,6 +1108,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1105,6 +1149,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1144,6 +1190,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1183,6 +1231,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1223,6 +1273,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1263,6 +1315,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1302,6 +1356,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1342,6 +1398,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1367,7 +1425,7 @@
 "name": "FUN_c766a0",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 콜리 주의 2",
 "ninsn": [
 719,
 722
@@ -1383,6 +1441,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1408,7 +1468,7 @@
 "name": "FUN_c773b0",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 콜리 주의 2",
 "ninsn": [
 722,
 726
@@ -1424,6 +1484,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1463,6 +1525,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1503,6 +1567,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1542,6 +1608,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1581,6 +1649,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc7d8ea",
@@ -1630,6 +1700,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1668,6 +1740,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1705,6 +1779,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1739,6 +1815,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1778,6 +1856,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1816,6 +1896,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1854,6 +1936,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1891,6 +1975,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1925,6 +2011,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1959,6 +2047,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -1993,6 +2083,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2027,6 +2119,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2066,6 +2160,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2105,6 +2201,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2145,6 +2243,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2185,6 +2285,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2224,6 +2326,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2250,7 +2354,7 @@
 "name": "FUN_c845f0",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 1 · 스택슬롯 1 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 1 · 스택슬롯 1 · 콜리 주의 2",
 "ninsn": [
 443,
 444
@@ -2266,6 +2370,8 @@
 "moved": 1,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc849b7",
@@ -2321,6 +2427,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2361,6 +2469,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2386,7 +2496,7 @@
 "name": "get_input_cl",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 8 · 스택슬롯 68 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 8 · 스택슬롯 68 · 콜리 주의 2",
 "ninsn": [
 529,
 521
@@ -2418,6 +2528,8 @@
 "moved": 8,
 "stack": 68,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc86479",
@@ -2451,7 +2563,7 @@
 "name": "FUN_c86a70",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 12 · 스택슬롯 66 · 패닉스텁 재배열 2 · 콜리 주의 3",
+"strict": "⚠정렬 불가(미확정) · 블록이동 12 · 스택슬롯 66 · 패닉스텁 재배열 2 · 콜리 주의 3",
 "ninsn": [
 437,
 440
@@ -2505,6 +2617,8 @@
 "moved": 12,
 "stack": 66,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc86af0",
@@ -2558,6 +2672,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc87451",
@@ -2604,6 +2720,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -2644,6 +2762,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc878bb",
@@ -2698,6 +2818,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -2747,6 +2869,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc883dd",
@@ -2831,6 +2955,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc895a8",
@@ -2898,6 +3024,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc89bef",
@@ -2967,6 +3095,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3002,6 +3132,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3036,6 +3168,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3071,6 +3205,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3106,6 +3242,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3141,6 +3279,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3175,6 +3315,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3214,6 +3356,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3254,6 +3398,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3294,6 +3440,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3320,7 +3468,7 @@
 "name": "FUN_c8dc90",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 5 · 스택슬롯 163 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 5 · 스택슬롯 163 · 콜리 주의 2",
 "ninsn": [
 1505,
 1509
@@ -3390,6 +3538,8 @@
 "moved": 5,
 "stack": 163,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc8de68",
@@ -3524,6 +3674,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3549,7 +3701,7 @@
 "name": "FUN_c8fac0",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 5 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 5 · 콜리 주의 2",
 "ninsn": [
 1405,
 1405
@@ -3784,6 +3936,8 @@
 "moved": 5,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc8fc91",
@@ -3900,6 +4054,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3939,6 +4095,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -3990,6 +4148,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -4031,6 +4191,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -4057,7 +4219,7 @@
 "name": "FUN_c94a00",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 5 · 스택슬롯 163 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 5 · 스택슬롯 163 · 콜리 주의 2",
 "ninsn": [
 1505,
 1509
@@ -4127,6 +4289,8 @@
 "moved": 5,
 "stack": 163,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc94bd8",
@@ -4268,6 +4432,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -4294,7 +4460,7 @@
 "name": "FUN_c96830",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 5 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 5 · 콜리 주의 2",
 "ninsn": [
 1405,
 1405
@@ -4529,6 +4695,8 @@
 "moved": 5,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc96a01",
@@ -4649,6 +4817,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -4689,6 +4859,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9873a",
@@ -4739,6 +4911,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc98b4b",
@@ -4816,6 +4990,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc98e6b",
@@ -4900,6 +5076,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9918b",
@@ -4971,6 +5149,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9ba09",
@@ -5044,6 +5224,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9bc8e",
@@ -5117,6 +5299,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9bef5",
@@ -5160,6 +5344,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9c05a",
@@ -5203,6 +5389,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9c1b5",
@@ -5246,6 +5434,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9c31a",
@@ -5289,6 +5479,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9c645",
@@ -5339,6 +5531,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9dd04",
@@ -5482,6 +5676,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9e204",
@@ -5625,6 +5821,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9e704",
@@ -5762,6 +5960,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9ebe0",
@@ -5805,6 +6005,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -5842,6 +6044,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -5877,6 +6081,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -5920,6 +6126,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xc9ff87",
@@ -5979,6 +6187,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6016,6 +6226,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6053,6 +6265,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6096,6 +6310,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca10b0",
@@ -6155,6 +6371,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6192,6 +6410,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6229,6 +6449,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6266,6 +6488,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6303,6 +6527,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6340,6 +6566,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6383,6 +6611,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca2080",
@@ -6448,6 +6678,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca22a0",
@@ -6513,6 +6745,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca2619",
@@ -6572,6 +6806,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -6608,6 +6844,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6645,6 +6883,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6682,6 +6922,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6725,6 +6967,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca3277",
@@ -6784,6 +7028,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6821,6 +7067,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6855,6 +7103,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -6896,6 +7146,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca4bc1",
@@ -6960,6 +7212,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca4d6e",
@@ -7038,6 +7292,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -7084,6 +7340,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca53ee",
@@ -7167,6 +7425,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca56b9",
@@ -7262,6 +7522,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca5a69",
@@ -7346,6 +7608,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -7383,6 +7647,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -7429,6 +7695,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca6149",
@@ -7518,6 +7786,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca7275",
@@ -7578,6 +7848,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -7615,6 +7887,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -7652,6 +7926,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -7689,6 +7965,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca8650",
@@ -7732,6 +8010,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -7767,6 +8047,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xca8b70",
@@ -7810,6 +8092,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -7851,6 +8135,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcadd9c",
@@ -7916,6 +8202,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcadf8c",
@@ -7975,6 +8263,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcae141",
@@ -8018,6 +8308,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcae2e1",
@@ -8061,6 +8353,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcae481",
@@ -8104,6 +8398,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcae621",
@@ -8147,6 +8443,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcae7c1",
@@ -8190,6 +8488,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcae961",
@@ -8233,6 +8533,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcaff3b",
@@ -8287,7 +8589,7 @@
 "name": "StealSubPlan::score",
 "src": "spec",
 "v0": "이동만",
-"strict": "⚠소형 즉치 변경(7→6) · switch case 제거 1",
+"strict": "⚠소형 즉치 변경(7→6)",
 "ninsn": [
 70,
 70
@@ -8312,15 +8614,15 @@
 "typeid": [],
 "moved": 0,
 "stack": 0,
-"enum": [
-"cbbd3b switch 8→7 case #0 제거 · 나머지 7 case 타깃 동일"
-],
+"enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
 "reg": 0,
 "loc_ok": 2,
-"data_ok": 0,
+"data_ok": 1,
 "deltas": {
 "-0x1": 1
 },
@@ -8337,7 +8639,7 @@
 "name": "BattleSubPlan::score",
 "src": "spec",
 "v0": "이동만",
-"strict": "⚠소형 즉치 변경(7→6·4→3·4→3·4→3·4→3) · 블록이동 200 · 스택슬롯 2 · 패닉스텁 재배열 3 · switch case 제거 1 · 콜리 주의 5",
+"strict": "⚠소형 즉치 변경(7→6·4→3·4→3·4→3·4→3) · 블록이동 200 · 스택슬롯 2 · 패닉스텁 재배열 3 · 콜리 주의 5",
 "ninsn": [
 948,
 948
@@ -8462,9 +8764,9 @@
 "typeid": [],
 "moved": 200,
 "stack": 2,
-"enum": [
-"cc3159 switch 8→7 case #2 제거 · 나머지 7 case 타깃 동일"
-],
+"enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcc30b4",
@@ -8541,7 +8843,7 @@
 ],
 "reg": 0,
 "loc_ok": 5,
-"data_ok": 3,
+"data_ok": 4,
 "deltas": {
 "-0x1": 11,
 "0xd0": 3,
@@ -8582,6 +8884,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcc5d00",
@@ -8622,7 +8926,7 @@
 "name": "RecallSubPlan::score",
 "src": "spec",
 "v0": "오프셋 이동",
-"strict": "❌구조 변경 · 블록이동 9 · 콜리 주의 1",
+"strict": "⚠정렬 불가(미확정) · 블록이동 9 · 콜리 주의 1",
 "ninsn": [
 101,
 108
@@ -8678,6 +8982,8 @@
 "moved": 9,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcc6032",
@@ -8738,7 +9044,7 @@
 "name": "EpicPokeSubPlan::score",
 "src": "spec",
 "v0": "오프셋 이동",
-"strict": "❌구조 변경 · 블록이동 5 · 콜리 주의 1",
+"strict": "⚠정렬 불가(미확정) · 블록이동 5 · 콜리 주의 1",
 "ninsn": [
 179,
 181
@@ -8748,7 +9054,6 @@
 "구 1명령(jmp|I…) / 신 3명령(lea|edx, [rcx - I]…) 짝 없음"
 ],
 "branch_diff": [
-"ccab51 switch case 수 8→7(정렬 실패)",
 "ccabab → ccabc3/ead095"
 ],
 "imm": [
@@ -8844,6 +9149,8 @@
 "moved": 5,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xccaa5f",
@@ -8862,7 +9169,7 @@
 "lea": [],
 "reg": 0,
 "loc_ok": 5,
-"data_ok": 0,
+"data_ok": 1,
 "deltas": {
 "-0x1": 2,
 "-0x1ffc9": 1,
@@ -8887,7 +9194,7 @@
 "name": "LineSafeSubPlan::action_candidates",
 "src": "spec",
 "v0": "오프셋 이동",
-"strict": "❌구조 변경 · 블록이동 45 · 스택슬롯 33 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 45 · 스택슬롯 33 · 콜리 주의 2",
 "ninsn": [
 675,
 685
@@ -8938,6 +9245,8 @@
 "moved": 45,
 "stack": 33,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xccad68",
@@ -8989,7 +9298,7 @@
 "name": "LineSafeSubPlan::score",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 16 · 패닉스텁 재배열 2 · switch case 제거 1 · 콜리 주의 3",
+"strict": "⚠정렬 불가(미확정) · 블록이동 16 · 패닉스텁 재배열 2 · 콜리 주의 3",
 "ninsn": [
 209,
 211
@@ -9040,9 +9349,9 @@
 "typeid": [],
 "moved": 16,
 "stack": 0,
-"enum": [
-"ccbc31 switch 8→7 case #2 제거 · 나머지 7 case 타깃 동일"
-],
+"enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xccbb96",
@@ -9112,7 +9421,7 @@
 ],
 "reg": 0,
 "loc_ok": 3,
-"data_ok": 1,
+"data_ok": 2,
 "deltas": {
 "-0x1": 1,
 "-0x10": 2,
@@ -9156,6 +9465,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xccbebc",
@@ -9207,6 +9518,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xccc26c",
@@ -9258,6 +9571,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcce0d0",
@@ -9293,7 +9608,7 @@
 "name": "serpen_action_score",
 "src": "spec",
 "v0": "오프셋 이동",
-"strict": "⚠소형 즉치 변경(7→6·f4→f5·f4→f5·f4→f5) · 블록이동 14 · switch case 제거 1 · 콜리 주의 1",
+"strict": "⚠소형 즉치 변경(7→6·f4→f5·f4→f5·f4→f5) · 블록이동 14 · 콜리 주의 1",
 "ninsn": [
 302,
 302
@@ -9358,9 +9673,9 @@
 "typeid": [],
 "moved": 14,
 "stack": 0,
-"enum": [
-"ccf719 switch 8→7 case #2 제거 · 나머지 7 case 타깃 동일"
-],
+"enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xccf693",
@@ -9395,7 +9710,7 @@
 ],
 "reg": 0,
 "loc_ok": 4,
-"data_ok": 1,
+"data_ok": 2,
 "deltas": {
 "-0x1": 1,
 "0x1": 3,
@@ -9445,6 +9760,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xccfef3",
@@ -9569,6 +9886,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcd04c0",
@@ -9616,6 +9935,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -9640,7 +9961,7 @@
 "name": "FUN_cd6940",
 "src": "map",
 "v0": "오프셋 이동",
-"strict": "❌구조 변경 · 블록이동 2 · 스택슬롯 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 2 · 스택슬롯 2",
 "ninsn": [
 641,
 643
@@ -9652,7 +9973,6 @@
 "cd6fcb 피연산자 형"
 ],
 "branch_diff": [
-"cd6a18 switch case 수 13→12(정렬 실패)",
 "cd6baa → cd6e1d/ebbf3d",
 "cd6c69 → cd6f68/ebc08e",
 "cd6d66 → cd6e1d/ebbf3d",
@@ -9717,6 +10037,8 @@
 "moved": 2,
 "stack": 2,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcd6995",
@@ -9789,7 +10111,7 @@
 "lea": [],
 "reg": 9,
 "loc_ok": 8,
-"data_ok": 2,
+"data_ok": 3,
 "deltas": {
 "0x1": 3,
 "-0x1": 2,
@@ -9830,6 +10152,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcd7387",
@@ -9895,6 +10219,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcd7593",
@@ -9937,7 +10263,7 @@
 "name": "get_input_cl",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 343 · 스택슬롯 72 · 콜리 주의 3",
+"strict": "⚠정렬 불가(미확정) · 블록이동 343 · 스택슬롯 72 · 콜리 주의 3",
 "ninsn": [
 1632,
 1625
@@ -9965,6 +10291,8 @@
 "moved": 343,
 "stack": 72,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcdb17a",
@@ -10028,6 +10356,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -10070,6 +10400,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -10115,6 +10447,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -10158,6 +10492,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -10199,6 +10535,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -10224,7 +10562,7 @@
 "name": "get_input_cl",
 "src": "map",
 "v0": "동일",
-"strict": "✅동일 · 콜리 주의 4",
+"strict": "✅동일 · 콜리 주의 3",
 "ninsn": [
 863,
 863
@@ -10238,6 +10576,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -10250,13 +10590,12 @@
 "callee_grades": {
 "skel동일": 11,
 "미지": 8,
-"불일치": 5,
-"동일": 1
+"동일": 5,
+"불일치": 1
 },
 "bad_callee": [
 "31a01af→381e0bf 미지",
 "c82590→daf230 불일치(mig060 는 daa460)",
-"cf5660→e42c80 불일치(mig060 는 e32380)",
 "de3430→fe2f90 미지"
 ]
 },
@@ -10266,7 +10605,7 @@
 "name": "get_input",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 28 · 스택슬롯 108 · 콜리 주의 3",
+"strict": "⚠정렬 불가(미확정) · 블록이동 28 · 스택슬롯 108 · 콜리 주의 3",
 "ninsn": [
 886,
 878
@@ -10296,6 +10635,8 @@
 "moved": 28,
 "stack": 108,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xce9fb5",
@@ -10372,6 +10713,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -10392,12 +10735,56 @@
 ]
 },
 {
+"old": "cebdd0",
+"new": "e2b6b0",
+"name": "get_input",
+"src": "map",
+"v0": "동일",
+"strict": "✅동일 · 콜리 주의 5",
+"ninsn": [
+886,
+886
+],
+"aligned": 886,
+"struct_diff": [],
+"branch_diff": [],
+"imm": [],
+"small": [],
+"typeid": [],
+"moved": 0,
+"stack": 0,
+"enum": [],
+"norm": [],
+"vt": [],
+"disp": [],
+"data": [],
+"lea": [],
+"reg": 0,
+"loc_ok": 7,
+"data_ok": 21,
+"deltas": {},
+"known": {},
+"callees": 25,
+"callee_grades": {
+"skel동일": 11,
+"미지": 8,
+"불일치": 6
+},
+"bad_callee": [
+"31a01af→381e0bf 미지",
+"c83df0→dad090 불일치(mig060 는 daa460)",
+"cfac80→e3b6e0 불일치(mig060 는 e32380)",
+"d1ac60→e5abd0 불일치(mig060 는 db4040)",
+"de3430→fe2f90 미지"
+]
+},
+{
 "old": "ceddd0",
 "new": "e266e0",
 "name": "get_input_cl",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 28 · 스택슬롯 100 · 콜리 주의 3",
+"strict": "⚠정렬 불가(미확정) · 블록이동 28 · 스택슬롯 100 · 콜리 주의 3",
 "ninsn": [
 886,
 878
@@ -10427,6 +10814,8 @@
 "moved": 28,
 "stack": 100,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcee2e6",
@@ -10478,6 +10867,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -10519,6 +10910,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -10545,38 +10938,26 @@
 },
 {
 "old": "cf5660",
-"new": "e32380",
+"new": "e42c80",
 "name": "FUN_cf5660",
 "src": "map",
-"v0": "이동만",
-"strict": "❌구조 변경 · 스택슬롯 4 · 콜리 주의 5",
+"v0": "동일",
+"strict": "⚠lea 데이터 차이(검토) · 콜리 주의 5",
 "ninsn": [
 1532,
-1533
+1532
 ],
-"aligned": 1531,
-"struct_diff": [
-"구 1명령(jne|I…) / 신 2명령(add|eax, -I…) 짝 없음"
-],
+"aligned": 1532,
+"struct_diff": [],
 "branch_diff": [],
-"imm": [
-[
-"0xcf6e8d",
-"0x1",
-"0x2"
-]
-],
-"small": [
-[
-"0xcf6e8d",
-"0x1",
-"0x2"
-]
-],
+"imm": [],
+"small": [],
 "typeid": [],
 "moved": 0,
-"stack": 4,
+"stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -10585,22 +10966,20 @@
 "reg": 0,
 "loc_ok": 5,
 "data_ok": 18,
-"deltas": {
-"0x1": 1
-},
+"deltas": {},
 "known": {},
 "callees": 25,
 "callee_grades": {
 "skel동일": 16,
-"동일": 3,
-"불일치": 3,
+"동일": 4,
+"불일치": 2,
 "미지": 3
 },
 "bad_callee": [
 "2a300→2a300 미지(pdata 밖 thunk)",
 "31a01af→381e0bf 미지",
-"d1a480→e59e60 불일치(mig060 는 e5b750)",
-"da7320→fc6370 불일치(mig060 는 fc53e0)",
+"c72c60→da5420 불일치(mig060 는 d98220)",
+"da7320→fcd5c0 불일치(mig060 는 fc53e0)",
 "de3430→fe2f90 미지"
 ]
 },
@@ -10610,7 +10989,7 @@
 "name": "get_input",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 10 · 스택슬롯 36 · 콜리 주의 5",
+"strict": "⚠정렬 불가(미확정) · 블록이동 10 · 스택슬롯 36 · 콜리 주의 5",
 "ninsn": [
 1534,
 1533
@@ -10642,6 +11021,8 @@
 "moved": 10,
 "stack": 36,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcf76cf",
@@ -10703,6 +11084,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -10732,7 +11115,7 @@
 "name": "FUN_cfac80",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 10 · 스택슬롯 36 · 콜리 주의 6",
+"strict": "⚠정렬 불가(미확정) · 블록이동 10 · 스택슬롯 36 · 콜리 주의 6",
 "ninsn": [
 1534,
 1533
@@ -10764,6 +11147,8 @@
 "moved": 10,
 "stack": 36,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcfb02f",
@@ -10812,7 +11197,7 @@
 "name": "get_input_cl",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 10 · 스택슬롯 36 · 콜리 주의 5",
+"strict": "⚠정렬 불가(미확정) · 블록이동 10 · 스택슬롯 36 · 콜리 주의 5",
 "ninsn": [
 1534,
 1533
@@ -10844,6 +11229,8 @@
 "moved": 10,
 "stack": 36,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xcfeb5f",
@@ -10905,6 +11292,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -10951,6 +11340,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -10983,7 +11374,7 @@
 "name": "FUN_d03df0",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 285 · 스택슬롯 209 · 콜리 주의 6",
+"strict": "⚠정렬 불가(미확정) · 블록이동 285 · 스택슬롯 209 · 콜리 주의 6",
 "ninsn": [
 1586,
 1585
@@ -11017,6 +11408,8 @@
 "moved": 285,
 "stack": 209,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd041d9",
@@ -11102,6 +11495,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -11117,6 +11512,50 @@
 "skel동일": 22,
 "동일": 5,
 "이동만": 1,
+"미지": 3
+},
+"bad_callee": [
+"2a300→2a300 미지(pdata 밖 thunk)",
+"31a01af→381e0bf 미지",
+"de3430→fe2f90 미지"
+]
+},
+{
+"old": "d07c10",
+"new": "e468f0",
+"name": "get_input_cl",
+"src": "map",
+"v0": "동일",
+"strict": "⚠lea 데이터 차이(검토) · 콜리 주의 3",
+"ninsn": [
+1586,
+1586
+],
+"aligned": 1586,
+"struct_diff": [],
+"branch_diff": [],
+"imm": [],
+"small": [],
+"typeid": [],
+"moved": 0,
+"stack": 0,
+"enum": [],
+"norm": [],
+"vt": [],
+"disp": [],
+"data": [],
+"lea": [
+"d08d60 lea 16B(접두 동일 0B) 101ad24001000000a060d14001000000 ≠ 9078e64001000000696e7465726e616c"
+],
+"reg": 0,
+"loc_ok": 5,
+"data_ok": 18,
+"deltas": {},
+"known": {},
+"callees": 31,
+"callee_grades": {
+"skel동일": 22,
+"동일": 6,
 "미지": 3
 },
 "bad_callee": [
@@ -11145,6 +11584,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -11172,19 +11613,17 @@
 },
 {
 "old": "d0bb40",
-"new": "e4cb60",
+"new": "e4eb00",
 "name": "get_input",
 "src": "map",
-"v0": "이동만",
-"strict": "❌구조 변경 · 콜리 주의 6",
+"v0": "동일",
+"strict": "⚠lea 데이터 차이(검토) · 콜리 주의 6",
 "ninsn": [
 1591,
 1591
 ],
-"aligned": 1589,
-"struct_diff": [
-"구 2명령(movups|xmm0, xmmword ptr [rcx …) / 신 2명령(mov|rax, qword ptr [rcx + I]…) 짝 없음"
-],
+"aligned": 1591,
+"struct_diff": [],
 "branch_diff": [],
 "imm": [],
 "small": [],
@@ -11192,6 +11631,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -11212,9 +11653,9 @@
 "bad_callee": [
 "2a300→2a300 미지(pdata 밖 thunk)",
 "31a01af→381e0bf 미지",
-"c74fa0→d9dfa0 불일치(mig060 는 d98220)",
-"d1ac60→e5a5a0 불일치(mig060 는 db4040)",
-"da8f50→fc82c0 불일치(mig060 는 fc53e0)",
+"c74fa0→d9eb20 불일치(mig060 는 d98220)",
+"d1ac60→e5abd0 불일치(mig060 는 db4040)",
+"da8f50→fc90c0 불일치(mig060 는 fc53e0)",
 "de3430→fe2f90 미지"
 ]
 },
@@ -11224,7 +11665,7 @@
 "name": "get_input",
 "src": "map",
 "v0": "이동만",
-"strict": "❌구조 변경 · 콜리 주의 6",
+"strict": "⚠정렬 불가(미확정) · 콜리 주의 6",
 "ninsn": [
 1591,
 1591
@@ -11240,6 +11681,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -11286,6 +11729,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -11328,6 +11773,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1a081",
@@ -11381,6 +11828,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -11416,6 +11865,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -11453,6 +11904,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1ab18",
@@ -11506,6 +11959,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -11541,6 +11996,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -11580,6 +12037,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1b3d5",
@@ -11633,6 +12092,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -11668,6 +12129,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -11705,6 +12168,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1be00",
@@ -11826,6 +12291,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1d68b",
@@ -11875,6 +12342,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1da09",
@@ -11930,6 +12399,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1dd13",
@@ -11993,6 +12464,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1e235",
@@ -12042,6 +12515,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1ead6",
@@ -12138,6 +12613,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1f376",
@@ -12187,6 +12664,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -12221,6 +12700,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1f8be",
@@ -12275,6 +12756,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd1fb57",
@@ -12325,6 +12808,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -12375,6 +12860,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd200c0",
@@ -12463,6 +12950,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd20311",
@@ -12529,6 +13018,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -12569,6 +13060,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd20c37",
@@ -12640,6 +13133,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -12686,6 +13181,8 @@
 "moved": 0,
 "stack": 4,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd25407",
@@ -12797,6 +13294,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd27f07",
@@ -12863,6 +13362,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd31f3b",
@@ -12942,6 +13443,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd344c8",
@@ -12985,6 +13488,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3477e",
@@ -13031,6 +13536,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd354d6",
@@ -13100,6 +13607,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd35946",
@@ -13157,6 +13666,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd35d26",
@@ -13217,6 +13728,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd360b6",
@@ -13274,6 +13787,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd364a6",
@@ -13319,6 +13834,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -13355,6 +13872,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd377e1",
@@ -13412,6 +13931,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -13452,6 +13973,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd399b2",
@@ -13531,6 +14054,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd39d71",
@@ -13708,6 +14233,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3a3b3",
@@ -13768,6 +14295,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -13811,6 +14340,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3c727",
@@ -13876,6 +14407,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3d05f",
@@ -13949,6 +14482,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3ddc7",
@@ -14009,6 +14544,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3e4cb",
@@ -14055,6 +14592,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3e673",
@@ -14184,6 +14723,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3faa3",
@@ -14243,6 +14784,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd3fe60",
@@ -14297,7 +14840,7 @@
 "name": "base_attacking_minion_uncached",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 27 · 스택슬롯 7 · 콜리 주의 1",
+"strict": "⚠정렬 불가(미확정) · 블록이동 27 · 스택슬롯 7 · 콜리 주의 1",
 "ninsn": [
 190,
 180
@@ -14330,6 +14873,8 @@
 "moved": 27,
 "stack": 7,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd405e6",
@@ -14397,6 +14942,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd408fa",
@@ -14462,6 +15009,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd4205b",
@@ -14527,6 +15076,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd47170",
@@ -14592,6 +15143,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -14630,6 +15183,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd476b1",
@@ -14673,6 +15228,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd51fb9",
@@ -14735,6 +15292,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -14769,6 +15328,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd5ba85",
@@ -14832,6 +15393,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd61372",
@@ -15010,6 +15573,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd62c98",
@@ -15111,6 +15676,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd66428",
@@ -15160,6 +15727,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd66633",
@@ -15209,6 +15778,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd67141",
@@ -15292,6 +15863,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd68138",
@@ -15460,6 +16033,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6913f",
@@ -15519,6 +16094,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6ac0a",
@@ -15618,6 +16195,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6b333",
@@ -15680,6 +16259,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6b46f",
@@ -15745,6 +16326,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6b56f",
@@ -15817,6 +16400,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6b7f3",
@@ -15879,6 +16464,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6b92f",
@@ -15944,6 +16531,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6ba2f",
@@ -16016,6 +16605,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6bc82",
@@ -16082,6 +16673,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6be0b",
@@ -16151,6 +16744,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6bf72",
@@ -16216,6 +16811,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6c054",
@@ -16300,6 +16897,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd6c304",
@@ -16353,6 +16952,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16387,6 +16988,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16425,6 +17028,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16463,6 +17068,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16501,6 +17108,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16539,6 +17148,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16577,6 +17188,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16615,6 +17228,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16649,6 +17264,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16686,6 +17303,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16726,6 +17345,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd75cc7",
@@ -16840,6 +17461,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16877,6 +17500,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -16914,6 +17539,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd7a6c7",
@@ -16957,6 +17584,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd7ac9a",
@@ -17006,6 +17635,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd8093a",
@@ -17065,6 +17696,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd8161c",
@@ -17224,6 +17857,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd8462a",
@@ -17274,6 +17909,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd8484a",
@@ -17324,6 +17961,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd84a7a",
@@ -17374,6 +18013,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd84cae",
@@ -17417,6 +18058,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd84e28",
@@ -17500,6 +18143,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd8ca96",
@@ -17627,6 +18272,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -17664,6 +18311,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -17701,6 +18350,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd965e8",
@@ -17754,6 +18405,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd9733c",
@@ -17806,6 +18459,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd9771b",
@@ -17856,6 +18511,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -17891,6 +18548,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd9843b",
@@ -17943,6 +18602,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd98770",
@@ -17996,6 +18657,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd98909",
@@ -18045,6 +18708,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd98b0a",
@@ -18098,6 +18763,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd99043",
@@ -18140,16 +18807,14 @@
 "name": "v30_line_champion_action_tower_aggro_risk",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 콜리 주의 2",
+"strict": "⚠소형 즉치 변경(7→6·c→b·-c→-b) · 콜리 주의 2",
 "ninsn": [
 168,
 168
 ],
 "aligned": 168,
 "struct_diff": [],
-"branch_diff": [
-"d9a048 switch case 수 13→12(정렬 실패)"
-],
+"branch_diff": [],
 "imm": [
 [
 "0xd9a02f",
@@ -18188,6 +18853,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd99ff1",
@@ -18206,7 +18873,7 @@
 "lea": [],
 "reg": 0,
 "loc_ok": 1,
-"data_ok": 3,
+"data_ok": 4,
 "deltas": {
 "-0x1": 2,
 "0x1": 1,
@@ -18244,6 +18911,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18278,6 +18947,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18316,6 +18987,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd9cbef",
@@ -18387,6 +19060,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd9dde6",
@@ -18483,6 +19158,8 @@
 "moved": 0,
 "stack": 2,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xd9f421",
@@ -18532,6 +19209,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18567,6 +19246,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18602,6 +19283,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18637,6 +19320,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18672,6 +19357,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18707,6 +19394,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18744,6 +19433,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18779,6 +19470,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18816,6 +19509,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18853,6 +19548,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18888,6 +19585,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18923,6 +19622,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -18960,6 +19661,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -18997,6 +19700,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19034,6 +19739,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19071,6 +19778,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19108,6 +19817,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19145,6 +19856,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19185,6 +19898,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19225,6 +19940,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19265,6 +19982,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19302,6 +20021,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19342,6 +20063,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19382,6 +20105,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19422,6 +20147,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19459,6 +20186,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19499,6 +20228,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19539,6 +20270,8 @@
 "moved": 0,
 "stack": 25,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -19579,6 +20312,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19614,6 +20349,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19649,6 +20386,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19684,6 +20423,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19719,6 +20460,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19754,6 +20497,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19791,6 +20536,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19826,6 +20573,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19863,6 +20612,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19900,6 +20651,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19935,6 +20688,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -19970,6 +20725,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20007,6 +20764,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20045,6 +20804,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20082,6 +20843,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20120,6 +20883,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20158,6 +20923,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20193,6 +20960,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20230,6 +20999,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdbbda2",
@@ -20289,6 +21060,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdbd13a",
@@ -20338,6 +21111,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdbf6b7",
@@ -20380,7 +21155,7 @@
 "name": "SmallActionAroundPosition::get_input",
 "src": "spec",
 "v0": "동일",
-"strict": "✅오프셋만(Δ0xd0) · 콜리 주의 4",
+"strict": "✅오프셋만(Δ0xd0) · 콜리 주의 1",
 "ninsn": [
 1239,
 1239
@@ -20394,6 +21169,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdc0842",
@@ -20425,16 +21202,12 @@
 "known": {},
 "callees": 34,
 "callee_grades": {
-"동일": 12,
+"동일": 15,
 "skel동일": 18,
-"불일치": 3,
 "변경": 1
 },
 "bad_callee": [
-"12857f0→1643790 변경",
-"cebdd0→e2b6b0 불일치(mig060 는 e266e0)",
-"d07c10→e468f0 불일치(mig060 는 e23740)",
-"d0bb40→e4eb00 불일치(mig060 는 e4cb60)"
+"12857f0→1643790 변경"
 ]
 },
 {
@@ -20443,7 +21216,7 @@
 "name": "around::SmallActionAroundBush::update_state",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 2 · 콜리 주의 1",
+"strict": "⚠정렬 불가(미확정) · 블록이동 2 · 콜리 주의 1",
 "ninsn": [
 122,
 123
@@ -20459,6 +21232,8 @@
 "moved": 2,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdc234e",
@@ -20512,6 +21287,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20550,6 +21327,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20575,7 +21354,7 @@
 "name": "SmallActionAroundBush::get_input",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 24 · 스택슬롯 41 · 콜리 주의 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 24 · 스택슬롯 41 · 콜리 주의 2",
 "ninsn": [
 372,
 373
@@ -20599,6 +21378,8 @@
 "moved": 24,
 "stack": 41,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdc29a1",
@@ -20654,12 +21435,12 @@
 "callees": 13,
 "callee_grades": {
 "동일": 2,
-"불일치": 2,
+"변경": 2,
 "skel동일": 9
 },
 "bad_callee": [
-"ce2df0→e1f610 불일치(mig060 는 e19550)",
-"cecdd0→e2d650 불일치(mig060 는 e266e0)"
+"ce2df0→e1f610 변경",
+"cecdd0→e2d650 변경"
 ]
 },
 {
@@ -20682,6 +21463,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20716,6 +21499,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20754,6 +21539,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -20795,6 +21582,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdc8b47",
@@ -20847,6 +21636,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdc8c79",
@@ -20890,6 +21681,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdc8d70",
@@ -20944,6 +21737,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdcc1bb",
@@ -21037,6 +21832,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdcd9d7",
@@ -21206,6 +22003,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdce55f",
@@ -21375,6 +22174,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdcebc7",
@@ -21427,6 +22228,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdd50ef",
@@ -21506,6 +22309,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdd52cb",
@@ -21620,6 +22425,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xde0361",
@@ -21663,6 +22470,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xde03a2",
@@ -21706,6 +22515,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xde042c",
@@ -21750,6 +22561,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xde3a01",
@@ -21808,6 +22621,8 @@
 "moved": 0,
 "stack": 2,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xde4d88",
@@ -21913,6 +22728,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -21958,6 +22775,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xde6da0",
@@ -22124,6 +22943,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdea447",
@@ -22186,6 +23007,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdea4d8",
@@ -22241,6 +23064,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdea861",
@@ -22296,6 +23121,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdeafab",
@@ -22339,6 +23166,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdeb14b",
@@ -22382,6 +23211,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -22416,6 +23247,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -22450,6 +23283,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -22490,6 +23325,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdeba98",
@@ -22549,6 +23386,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdec061",
@@ -22598,6 +23437,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdef0b7",
@@ -22712,6 +23553,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -22746,6 +23589,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xdfb229",
@@ -22824,6 +23669,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe014a6",
@@ -22925,6 +23772,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe01a11",
@@ -23001,6 +23850,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe02053",
@@ -23094,6 +23945,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe0258f",
@@ -23151,6 +24004,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe02bf6",
@@ -23218,6 +24073,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe04595",
@@ -23272,6 +24129,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe0bec7",
@@ -23332,6 +24191,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe0bf9f",
@@ -23388,6 +24249,8 @@
 "moved": 0,
 "stack": 1,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe0c325",
@@ -23447,6 +24310,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe0c5a8",
@@ -23515,6 +24380,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -23552,6 +24419,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -23592,6 +24461,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe0dbf5",
@@ -23639,7 +24510,7 @@
 "name": "v30_wave_danger_chase_guard",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경",
+"strict": "⚠정렬 불가(미확정)",
 "ninsn": [
 573,
 572
@@ -23697,6 +24568,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -23741,6 +24614,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe115d0",
@@ -23884,6 +24759,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe11cca",
@@ -23956,6 +24833,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe11f0d",
@@ -24021,6 +24900,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe120d0",
@@ -24092,6 +24973,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe122c2",
@@ -24170,6 +25053,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1257c",
@@ -24235,6 +25120,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1276f",
@@ -24300,6 +25187,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1dc44",
@@ -24347,6 +25236,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1e073",
@@ -24390,6 +25281,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1e3c3",
@@ -24433,6 +25326,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1e713",
@@ -24476,6 +25371,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1ed93",
@@ -24519,6 +25416,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1f0e3",
@@ -24562,6 +25461,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1f433",
@@ -24605,6 +25506,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe1f783",
@@ -24648,6 +25551,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe217c8",
@@ -24709,6 +25614,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe229e7",
@@ -24809,7 +25716,7 @@
 "name": "SmallActionPlay::evaluation_position",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 28",
+"strict": "⚠정렬 불가(미확정) · 블록이동 28",
 "ninsn": [
 164,
 164
@@ -24890,6 +25797,8 @@
 "moved": 28,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe23181",
@@ -24963,7 +25872,7 @@
 "name": "SmallActionPlay::get_input",
 "src": "spec",
 "v0": "오프셋 이동",
-"strict": "❌구조 변경 · 블록이동 33 · 콜리 주의 14",
+"strict": "⚠정렬 불가(미확정) · 블록이동 33 · 콜리 주의 14",
 "ninsn": [
 574,
 564
@@ -24973,7 +25882,7 @@
 "구 10명령 / 신 0명령 짝 없음"
 ],
 "branch_diff": [
-"e24386 switch case 수 8→7(정렬 실패)",
+"e24386 점프테이블 15/16 항목 불일치",
 "e243ce → e24660/e5e753",
 "e2459f → e2463b/e5e778"
 ],
@@ -25040,6 +25949,8 @@
 "moved": 33,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe23fcd",
@@ -25108,6 +26019,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe24993",
@@ -25152,6 +26065,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe254db",
@@ -25196,6 +26111,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe26107",
@@ -25240,6 +26157,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe266f0",
@@ -25293,6 +26212,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe269b0",
@@ -25335,7 +26256,7 @@
 "name": "SmallActionLaneMinionPosition::get_input",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 스택슬롯 10 · 콜리 주의 1",
+"strict": "⚠정렬 불가(미확정) · 스택슬롯 10 · 콜리 주의 1",
 "ninsn": [
 348,
 350
@@ -25354,6 +26275,8 @@
 "moved": 0,
 "stack": 10,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe26cab",
@@ -25408,6 +26331,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe27d82",
@@ -25454,6 +26379,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -25488,6 +26415,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -25514,7 +26443,7 @@
 "name": "line_action_economy_adjustment",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 1 · 콜리 주의 1",
+"strict": "⚠정렬 불가(미확정) · 블록이동 1 · 콜리 주의 1",
 "ninsn": [
 295,
 295
@@ -25522,7 +26451,6 @@
 "aligned": 295,
 "struct_diff": [],
 "branch_diff": [
-"e28487 switch case 수 13→12(정렬 실패)",
 "e28731 → e28738/e73938"
 ],
 "imm": [
@@ -25563,6 +26491,8 @@
 "moved": 1,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe28420",
@@ -25581,7 +26511,7 @@
 "lea": [],
 "reg": 0,
 "loc_ok": 2,
-"data_ok": 2,
+"data_ok": 3,
 "deltas": {
 "-0x1": 2,
 "0x1": 1,
@@ -25624,6 +26554,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe288dd",
@@ -25689,6 +26621,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe29540",
@@ -25771,6 +26705,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe2ac8c",
@@ -25856,6 +26792,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe2edae",
@@ -25909,6 +26847,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -25951,6 +26891,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe2f91a",
@@ -26010,6 +26952,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -26050,6 +26994,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe2fe31",
@@ -26115,6 +27061,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe2ffe3",
@@ -26180,6 +27128,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe30161",
@@ -26245,6 +27195,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe302f1",
@@ -26310,6 +27262,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe304ab",
@@ -26375,6 +27329,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe306fb",
@@ -26440,6 +27396,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe30993",
@@ -26505,6 +27463,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3173a",
@@ -26576,6 +27536,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe31a41",
@@ -26641,6 +27603,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe31b7a",
@@ -26706,6 +27670,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3208e",
@@ -26771,6 +27737,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3222e",
@@ -26836,6 +27804,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe323c1",
@@ -26901,6 +27871,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe32551",
@@ -26966,6 +27938,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe326e1",
@@ -27031,6 +28005,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe32871",
@@ -27096,6 +28072,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe32d41",
@@ -27161,6 +28139,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe32ecf",
@@ -27226,6 +28206,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3311a",
@@ -27297,6 +28279,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe333ce",
@@ -27356,6 +28340,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -27390,6 +28376,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -27424,6 +28412,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -27461,6 +28451,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -27513,6 +28505,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe33f67",
@@ -27591,6 +28585,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3417b",
@@ -27638,6 +28634,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe34784",
@@ -27689,6 +28687,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe35a9a",
@@ -27757,6 +28757,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe38ce3",
@@ -27848,6 +28850,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe39ad7",
@@ -27891,6 +28895,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe39c87",
@@ -27934,6 +28940,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe39e37",
@@ -27977,6 +28985,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3a167",
@@ -28020,6 +29030,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3a317",
@@ -28063,6 +29075,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3a4c7",
@@ -28106,6 +29120,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3a677",
@@ -28155,6 +29171,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3b039",
@@ -28226,6 +29244,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3b209",
@@ -28291,6 +29311,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -28325,6 +29347,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3b72c",
@@ -28368,6 +29392,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3b8dc",
@@ -28411,6 +29437,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3ba8c",
@@ -28454,6 +29482,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3bdcc",
@@ -28497,6 +29527,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3bf7c",
@@ -28540,6 +29572,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3c12c",
@@ -28583,6 +29617,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe3c2dc",
@@ -28638,6 +29674,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe4a7bf",
@@ -28745,6 +29783,8 @@
 "moved": 0,
 "stack": 22,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe4b7a6",
@@ -28825,6 +29865,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe4b8cd",
@@ -28880,6 +29922,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe595dd",
@@ -28987,6 +30031,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe6d039",
@@ -29061,6 +30107,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe6feca",
@@ -29132,6 +30180,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe7040a",
@@ -29191,6 +30241,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe70c8e",
@@ -29234,6 +30286,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe79df1",
@@ -29277,6 +30331,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe79f91",
@@ -29320,6 +30376,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe7a131",
@@ -29363,6 +30421,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe7a2d1",
@@ -29406,6 +30466,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe7a471",
@@ -29449,6 +30511,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe7a611",
@@ -29498,6 +30562,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe7b0dd",
@@ -29575,6 +30641,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe800ce",
@@ -29624,7 +30692,7 @@
 "name": "SerpenPokeSubPlan::score",
 "src": "spec",
 "v0": "오프셋 이동",
-"strict": "❌구조 변경 · 블록이동 8 · 콜리 주의 1",
+"strict": "⚠정렬 불가(미확정) · 블록이동 8 · 콜리 주의 1",
 "ninsn": [
 184,
 186
@@ -29634,7 +30702,6 @@
 "구 1명령(jmp|I…) / 신 3명령(lea|ecx, [rax - I]…) 짝 없음"
 ],
 "branch_diff": [
-"e814c3 switch case 수 8→7(정렬 실패)",
 "e81515 → e8156c/f64ecf",
 "e8157c → e81517/f64e75"
 ],
@@ -29731,6 +30798,8 @@
 "moved": 8,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe813df",
@@ -29749,7 +30818,7 @@
 "lea": [],
 "reg": 0,
 "loc_ok": 5,
-"data_ok": 0,
+"data_ok": 1,
 "deltas": {
 "-0x1": 2,
 "-0x1ffc9": 1,
@@ -29840,6 +30909,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe816e5",
@@ -29926,6 +30997,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe8a05f",
@@ -29955,7 +31028,7 @@
 "name": "LineDefenseSubPlan::score",
 "src": "spec",
 "v0": "이동만",
-"strict": "⚠소형 즉치 변경(7→6) · 블록이동 5 · 패닉스텁 재배열 2 · switch case 제거 1 · 콜리 주의 3",
+"strict": "⚠소형 즉치 변경(7→6) · 블록이동 5 · 패닉스텁 재배열 2 · 콜리 주의 3",
 "ninsn": [
 222,
 222
@@ -29995,9 +31068,9 @@
 "typeid": [],
 "moved": 5,
 "stack": 0,
-"enum": [
-"e8b330 switch 8→7 case #2 제거 · 나머지 7 case 타깃 동일"
-],
+"enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe8b28b",
@@ -30067,7 +31140,7 @@
 ],
 "reg": 0,
 "loc_ok": 3,
-"data_ok": 0,
+"data_ok": 1,
 "deltas": {
 "-0x1": 1,
 "-0x10": 2,
@@ -30111,6 +31184,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe8e17a",
@@ -30164,6 +31239,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe8f8e6",
@@ -30265,6 +31342,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xe8fc93",
@@ -30312,6 +31391,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -30346,6 +31427,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -30386,6 +31469,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xea0c63",
@@ -30452,6 +31537,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xea0e3a",
@@ -30511,6 +31598,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xea8d91",
@@ -30554,6 +31643,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xea8f31",
@@ -30597,6 +31688,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xea90d1",
@@ -30640,6 +31733,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xea9346",
@@ -30699,6 +31794,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xea9673",
@@ -30749,6 +31846,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -30769,7 +31868,7 @@
 "name": "LineWaitSubPlan::score",
 "src": "spec",
 "v0": "이동만",
-"strict": "❌구조 변경 · 블록이동 16 · 패닉스텁 재배열 2 · switch case 제거 1 · 콜리 주의 3",
+"strict": "⚠정렬 불가(미확정) · 블록이동 16 · 패닉스텁 재배열 2 · 콜리 주의 3",
 "ninsn": [
 209,
 211
@@ -30820,9 +31919,9 @@
 "typeid": [],
 "moved": 16,
 "stack": 0,
-"enum": [
-"eb5961 switch 8→7 case #2 제거 · 나머지 7 case 타깃 동일"
-],
+"enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xeb58c6",
@@ -30892,7 +31991,7 @@
 ],
 "reg": 0,
 "loc_ok": 3,
-"data_ok": 1,
+"data_ok": 2,
 "deltas": {
 "-0x1": 1,
 "-0x10": 2,
@@ -30936,6 +32035,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -31047,6 +32148,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xeb615a",
@@ -31221,6 +32324,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xeb7801",
@@ -31318,6 +32423,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -31391,6 +32498,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xeb8ba6",
@@ -31501,6 +32610,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xeb95cf",
@@ -31552,6 +32663,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [
@@ -31590,6 +32703,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xebbbb2",
@@ -31662,6 +32777,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xebc16d",
@@ -31772,6 +32889,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xebccb9",
@@ -31891,6 +33010,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xebd583",
@@ -31951,6 +33072,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xebf3c2",
@@ -32023,6 +33146,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec6bf0",
@@ -32066,6 +33191,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec7943",
@@ -32102,7 +33229,7 @@
 "name": "epic_action_score",
 "src": "spec",
 "v0": "오프셋 이동",
-"strict": "⚠소형 즉치 변경(7→6·f4→f5·f4→f5·f4→f5) · 블록이동 14 · switch case 제거 1 · 콜리 주의 1",
+"strict": "⚠소형 즉치 변경(7→6·f4→f5·f4→f5·f4→f5) · 블록이동 14 · 콜리 주의 1",
 "ninsn": [
 302,
 302
@@ -32167,9 +33294,9 @@
 "typeid": [],
 "moved": 14,
 "stack": 0,
-"enum": [
-"ec7d39 switch 8→7 case #2 제거 · 나머지 7 case 타깃 동일"
-],
+"enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec7cb3",
@@ -32204,7 +33331,7 @@
 ],
 "reg": 0,
 "loc_ok": 4,
-"data_ok": 1,
+"data_ok": 2,
 "deltas": {
 "-0x1": 1,
 "0x1": 3,
@@ -32274,6 +33401,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec831e",
@@ -32442,6 +33571,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -32476,6 +33607,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec9255",
@@ -32535,6 +33668,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec9411",
@@ -32584,6 +33719,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec96f4",
@@ -32631,6 +33768,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec9847",
@@ -32674,6 +33813,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xec9c3e",
@@ -32730,6 +33871,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -32764,6 +33907,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xeca29d",
@@ -32822,6 +33967,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xeca4d1",
@@ -32883,6 +34030,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xeca9bf",
@@ -32954,6 +34103,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xecacd0",
@@ -33061,6 +34212,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [],
 "data": [],
 "lea": [],
@@ -33096,6 +34249,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xecb477",
@@ -33128,7 +34283,7 @@
 "name": "FUN_ecb870",
 "src": "map",
 "v0": "오프셋 이동",
-"strict": "❌구조 변경 · 블록이동 2 · 스택슬롯 2",
+"strict": "⚠정렬 불가(미확정) · 블록이동 2 · 스택슬롯 2",
 "ninsn": [
 641,
 643
@@ -33140,7 +34295,6 @@
 "ecbefb 피연산자 형"
 ],
 "branch_diff": [
-"ecb948 switch case 수 13→12(정렬 실패)",
 "ecbada → ecbd4d/f8ad3d",
 "ecbb99 → ecbe98/f8ae8e",
 "ecbc96 → ecbd4d/f8ad3d",
@@ -33205,6 +34359,8 @@
 "moved": 2,
 "stack": 2,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xecb8c5",
@@ -33277,7 +34433,7 @@
 "lea": [],
 "reg": 9,
 "loc_ok": 8,
-"data_ok": 2,
+"data_ok": 3,
 "deltas": {
 "0x1": 3,
 "-0x1": 2,
@@ -33318,6 +34474,8 @@
 "moved": 0,
 "stack": 0,
 "enum": [],
+"norm": [],
+"vt": [],
 "disp": [
 [
 "0xecc2b7",

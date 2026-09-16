@@ -1,32 +1,5 @@
 [
  {
-  "old": "d70620",
-  "was": "e7c1e0",
-  "now": "e7c2d0",
-  "votes": {
-   "e7c2d0": 1
-  },
-  "name": "can_tower_focused 의 Chain<Chain<…>> fold 인스턴스(count · 판단은 클로저 e3b840 등 · ghidra 09-16)"
- },
- {
-  "old": "d70710",
-  "was": "e7c1e0",
-  "now": "e7c3c0",
-  "votes": {
-   "e7c3c0": 1
-  },
-  "name": "FUN_d70710"
- },
- {
-  "old": "d7a080",
-  "was": "e89d90",
-  "now": "e8a070",
-  "votes": {
-   "e8a070": 1
-  },
-  "name": "FUN_d7a080"
- },
- {
   "old": "d84800",
   "was": "ddd230",
   "now": "ddd690",
