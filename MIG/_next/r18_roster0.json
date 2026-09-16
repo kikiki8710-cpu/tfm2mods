@@ -1,0 +1,803 @@
+[
+ {
+  "rva": "cd05f0",
+  "ids": [
+   "base_battle_action"
+  ],
+  "memo": "battle.rs:1306",
+  "exe_size": 21149,
+  "syms": [
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_5slice4iter4IterINtNtB2d_6option6OptionBU_EENCNvMs3_BZ_NtBZ_21AbstractGameWithCache14iter_champions0ENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_action0EEB5r_",
+    "m01",
+    164
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_5slice4iter4IterINtNtB2d_6option6OptionBU_EENCNvMs3_BZ_NtBZ_21AbstractGameWithCache14iter_champions0ENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actionsl_0EEB5r_",
+    "m01",
+    164
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_5slice4iter4IterINtNtB2d_6option6OptionBU_EENCNvMs3_BZ_NtBZ_21AbstractGameWithCache14iter_champions0ENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_action0EEB5r_",
+    "m01",
+    164
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_5chain5ChainIB2Z_INtNtB29_7flatten7FlattenINtNtNtB2d_5array4iter8IntoIterINtNtB2d_6option6OptionBU_EKj6_EEINtNtB29_6copied6CopiedINtNtNtB2d_5slice4iter4IterBU_EEEINtB4l_8IntoIterBU_EENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actions2_0EEB6e_",
+    "m01",
+    342
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_5chain5ChainIB2Z_INtNtB29_7flatten7FlattenINtNtNtB2d_5array4iter8IntoIterINtNtB2d_6option6OptionBU_EKj6_EEINtNtB29_6copied6CopiedINtNtNtB2d_5slice4iter4IterBU_EEEINtB4l_8IntoIterBU_EENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actions2_0EEB6e_",
+    "m01",
+    342
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecTNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboard11SmallActionRNtNtB11_6entity6EntityEE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtNtB2P_6filter6FilterIB2L_INtNtB2P_9enumerate9EnumerateINtNtNtB2T_5slice4iter4IterINtNtB2T_6option6OptionB27_EEENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actions_0ENCB5q_s0_0ENCB5q_s1_0EEB5y_",
+    "m01",
+    170
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecTNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboard11SmallActionRNtNtB11_6entity6EntityEE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtNtB2P_6filter6FilterIB2L_INtNtB2P_9enumerate9EnumerateINtNtNtB2T_5slice4iter4IterINtNtB2T_6option6OptionB27_EEENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actions_0ENCB5q_s0_0ENCB5q_s1_0EEB5y_",
+    "m01",
+    167
+   ],
+   [
+    "_RINvXs2J_NtNtCsjihNppCmMEE_4core5slice4iterINtB7_4IterTNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboard11SmallActionRNtNtBX_6entity6EntityEENtNtNtNtBb_4iter6traits8iterator8Iterator3anyNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actionsk_0EB3k_",
+    "m02",
+    425
+   ],
+   [
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_action",
+    "m02",
+    7142
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_action0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+    "m02",
+    50
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actions0_0INtB7_5FnMutTRTINtNtBb_6option6OptionNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboard11SmallActionERIB2r_RNtNtB2S_6entity6EntityEEEE8call_mutBY_",
+    "m02",
+    59
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actions2_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+    "m02",
+    18
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actions2_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBZ_",
+    "m02",
+    21
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQQQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actions2_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutB10_",
+    "m02",
+    24
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2p_4find5checkB1s_QQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actions2_0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3J_",
+    "m11",
+    48
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2p_4find5checkB1s_QQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actions2_0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3J_",
+    "m11",
+    48
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_9enumerate9EnumerateINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actions_0ENtNtNtBa_6traits8iterator8Iterator8try_folduNCINvNvB4D_4find5checkTIB1Q_NtNtNtB2g_4game10blackboard11SmallActionERB1P_EQNCB3b_s0_0E0INtNtNtBc_3ops12control_flow11ControlFlowB5H_EEB3j_",
+    "m12",
+    155
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_9enumerate9EnumerateINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_actions_0ENtNtNtBa_6traits8iterator8Iterator8try_folduNCINvNvB4w_4find5checkTIB1Q_NtNtNtB2g_4game10blackboard11SmallActionERB1P_EQNCB3b_s0_0E0INtNtNtBc_3ops12control_flow11ControlFlowB5A_EEB3j_",
+    "m12",
+    155
+   ],
+   [
+    "_RINvXs2J_NtNtCsjihNppCmMEE_4core5slice4iterINtB7_4IterTNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboard11SmallActionRNtNtBX_6entity6EntityEENtNtNtNtBb_4iter6traits8iterator8Iterator3anyNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actionsj_0EB3k_",
+    "m15",
+    425
+   ],
+   [
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_action",
+    "m15",
+    8173
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_action0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+    "m15",
+    50
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actions0_0INtB7_5FnMutTRTINtNtBb_6option6OptionNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboard11SmallActionERIB2y_RNtNtB2Z_6entity6EntityEEEE8call_mutBY_",
+    "m15",
+    52
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actions2_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+    "m15",
+    18
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actionsl_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+    "m15",
+    13
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actions2_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBZ_",
+    "m15",
+    21
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQQQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12death_battle18base_battle_actions2_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutB10_",
+    "m15",
+    24
+   ]
+  ]
+ },
+ {
+  "rva": "eb6100",
+  "ids": [
+   "battle_action"
+  ],
+  "memo": "fight_check.rs:622",
+  "exe_size": 5068,
+  "syms": [
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_5slice4iter4IterINtNtB2d_6option6OptionBU_EENCNvMs3_BZ_NtBZ_21AbstractGameWithCache14iter_champions0ENCNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_action0EEB5n_",
+    "m01",
+    164
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecTNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboard11SmallActionRNtNtB11_6entity6EntityEE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtNtB2P_6filter6FilterIB2L_INtNtB2P_9enumerate9EnumerateINtNtNtB2T_5slice4iter4IterINtNtB2T_6option6OptionB27_EEENCNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_actions_0ENCB5q_s0_0ENCB5q_s1_0EEB5u_",
+    "m01",
+    167
+   ],
+   [
+    "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_action",
+    "m15",
+    1723
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_action0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBU_",
+    "m15",
+    50
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_actions0_0INtB7_5FnMutTRTINtNtBb_6option6OptionNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboard11SmallActionERIB22_RNtNtB2t_6entity6EntityEEEE8call_mutBU_",
+    "m15",
+    44
+   ]
+  ]
+ },
+ {
+  "rva": "df1f50",
+  "ids": [
+   "LineGankCoverPlan",
+   "next_plan"
+  ],
+  "memo": "",
+  "exe_size": 5418,
+  "syms": [
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtBT_17LineGankCoverPlan9next_plan0INtB7_5FnMutTRTjRINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEEE8call_mutB11_",
+    "m10",
+    64
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtBT_17LineGankCoverPlan9next_plans0_0INtB7_5FnMutTRTjRINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEEE8call_mutB11_",
+    "m10",
+    92
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtBT_17LineGankCoverPlan9next_plans3_0INtB7_5FnMutTRTjRINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEEE8call_mutB11_",
+    "m10",
+    117
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtBT_17LineGankCoverPlan9next_plans5_0INtB7_5FnMutTRTjRINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEEE8call_mutB11_",
+    "m10",
+    103
+   ]
+  ]
+ },
+ {
+  "rva": "d68090",
+  "ids": [
+   "v16_knight_ult_zone_bonus"
+  ],
+  "memo": "",
+  "exe_size": 4228,
+  "syms": [
+   [
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common25v16_knight_ult_zone_bonus",
+    "m05",
+    1828
+   ]
+  ]
+ },
+ {
+  "rva": "ccacf0",
+  "ids": [
+   "LineSafeSubPlan",
+   "action_candidates"
+  ],
+  "memo": "",
+  "exe_size": 3155,
+  "syms": []
+ },
+ {
+  "rva": "e03360",
+  "ids": [
+   "noncombat_steroid_window"
+  ],
+  "memo": "충돌 d75cb0",
+  "exe_size": 2922,
+  "syms": [
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainIBP_INtNtB7_6copied6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEB14_EB14_ENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2X_3any5checkB1Q_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB4a_",
+    "m06",
+    61
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainINtNtB7_7flatten7FlattenINtNtNtBb_5array4iter8IntoIterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEKj6_EEINtNtB7_6copied6CopiedINtNtNtBb_5slice4iter4IterB2e_EEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB49_3any5checkB2e_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows3_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB5m_",
+    "m06",
+    126
+   ],
+   [
+    "_RNCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows1_0B5_",
+    "m11",
+    642
+   ],
+   [
+    "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_window",
+    "m10",
+    945
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2p_3any5checkB1s_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows3_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB3C_",
+    "m11",
+    61
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2p_3any5checkB1s_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB3C_",
+    "m11",
+    61
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduQNCINvNvB2p_3any5checkB1s_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB3D_",
+    "m11",
+    40
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduQQNCINvNvB2p_3any5checkB1s_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB3E_",
+    "m11",
+    40
+   ]
+  ]
+ },
+ {
+  "rva": "e7b9f0",
+  "ids": [
+   "end_check"
+  ],
+  "memo": "",
+  "exe_size": 2859,
+  "syms": [
+   [
+    "_RNvCshdEBA0ozCnw_7game_ai9end_check",
+    "m14",
+    1384
+   ]
+  ]
+ },
+ {
+  "rva": "e49a50",
+  "ids": [
+   "update_on_dead"
+  ],
+  "memo": "",
+  "exe_size": 2734,
+  "syms": [
+   [
+    "_RINvMs_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecTjNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity8PositionNtNtNtBL_5state6player4ChatEE6retainNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2i_17LegacyPlanHandler14update_on_dead0EB2m_",
+    "m06",
+    121
+   ],
+   [
+    "_RINvMs_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecTjNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity8PositionNtNtNtBL_5state6player4ChatEE6retainNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2i_17LegacyPlanHandler14update_on_deads_0EB2m_",
+    "m06",
+    121
+   ],
+   [
+    "_RINvMs_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecTjNtNtNtNtCs97f5S1uJLkH_9game_core10simulation5state6player4ChatEE6retainNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB1V_17LegacyPlanHandler14update_on_deads0_0EB1Z_",
+    "m06",
+    121
+   ],
+   [
+    "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler14update_on_dead",
+    "m13",
+    501
+   ],
+   [
+    "_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster14update_on_dead",
+    "m14",
+    11
+   ]
+  ]
+ },
+ {
+  "rva": "e0b030",
+  "ids": [
+   "resolve_fight_stake_roster"
+  ],
+  "memo": "충돌",
+  "exe_size": 1445,
+  "syms": [
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtNtB29_6filter6FilterINtNtNtB2d_5slice4iter4IterTBU_xbEENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model26resolve_fight_stake_roster0ENCB3Q_s_0EEB3Y_",
+    "m01",
+    156
+   ],
+   [
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model26resolve_fight_stake_roster",
+    "m10",
+    486
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model26resolve_fight_stake_roster0INtB7_5FnMutTRRTRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityxbEEE8call_mutBY_",
+    "m10",
+    24
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyRB1n_TyjENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model26resolve_fight_stake_rosters0_0E0EB2q_4foldTB3j_B3e_ENCINvNvB2q_6min_by4foldB55_INvB2o_7compareB3e_B3j_EE0EB3x_",
+    "m12",
+    132
+   ]
+  ]
+ },
+ {
+  "rva": "eba320",
+  "ids": [
+   "v48_projectile_profile"
+  ],
+  "memo": "충돌 c875a0",
+  "exe_size": 1478,
+  "syms": [
+   [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0ozCnw_7game_ai11fight_check15V48ProfileCacheEE4withNCNvB1x_22v48_projectile_profile0INtNtBZ_6option6OptionIB34_TyyyEEEEB1z_",
+    "m00",
+    279
+   ],
+   [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0ozCnw_7game_ai11fight_check15V48ProfileCacheEE4withNCNvB1x_22v48_projectile_profiles0_0uEB1z_",
+    "m00",
+    195
+   ],
+   [
+    "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check22v48_projectile_profile",
+    "m15",
+    389
+   ]
+  ]
+ },
+ {
+  "rva": "cd5ee0",
+  "ids": [
+   "kite_reposition_point"
+  ],
+  "memo": "충돌 cadcd0",
+  "exe_size": 1193,
+  "syms": [
+   [
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle21kite_reposition_point",
+    "m02",
+    418
+   ]
+  ]
+ },
+ {
+  "rva": "e25030",
+  "ids": [
+   "target_score"
+  ],
+  "memo": "lane_minion",
+  "exe_size": 1045,
+  "syms": [
+   [
+    "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition12target_score",
+    "m11",
+    318
+   ]
+  ]
+ },
+ {
+  "rva": "ca6700",
+  "ids": [
+   "get_small_action"
+  ],
+  "memo": "클로저",
+  "exe_size": 1007,
+  "syms": [
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtNtB29_6filter6FilterINtNtNtB2d_5slice4iter4IterBU_ENCNvMNtNtNtBY_11plan_legacy7handler7auctionNtB3R_17LegacyPlanHandler16get_small_actionsg_0ENCB3M_sh_0EEBY_",
+    "m01",
+    163
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtNtB29_6filter6FilterINtNtNtB2d_5slice4iter4IterRTxBU_EENCNvMNtNtNtBY_11plan_legacy7handler7auctionNtB3V_17LegacyPlanHandler16get_small_actionsn_0ENCB3Q_so_0EEBY_",
+    "m01",
+    165
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtNtB29_6filter6FilterINtNtNtB2d_5slice4iter4IterRTxBU_EENCNvMNtNtNtBY_11plan_legacy7handler7auctionNtB3V_17LegacyPlanHandler16get_small_actionsr_0ENCB3Q_ss_0EEBY_",
+    "m01",
+    165
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtNtB29_6filter6FilterINtNtNtB2d_5slice4iter4IterTxBU_EENCNvMNtNtNtBY_11plan_legacy7handler7auctionNtB3U_17LegacyPlanHandler16get_small_actionse_0ENCB3P_sf_0EEBY_",
+    "m01",
+    164
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6cloned6ClonedINtNtB29_6filter6FilterINtNtNtB2d_5slice4iter4IterBU_ENCNvMNtNtNtBY_11plan_legacy7handler7auctionNtB3X_17LegacyPlanHandler16get_small_actions0_0EEEBY_",
+    "m01",
+    111
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtNtB2h_5slice4iter4IterBV_ENCNvMNtNtNtB11_11plan_legacy7handler7auctionNtB3E_17LegacyPlanHandler16get_small_actionsl_0EEB11_",
+    "m01",
+    142
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtNtB2h_5slice4iter4IterBV_ENCNvMNtNtNtB11_11plan_legacy7handler7auctionNtB3E_17LegacyPlanHandler16get_small_actionsp_0EEB11_",
+    "m01",
+    137
+   ],
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters3map3MapINtB3_8IntoIterBW_ENCNvMNtNtNtB10_11plan_legacy7handler7auctionNtB3l_17LegacyPlanHandler16get_small_actions1_0EEB10_",
+    "m01",
+    339
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainINtNtB7_7flatten7FlattenINtNtNtBb_5array4iter8IntoIterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEKj6_EEINtNtB7_6copied6CopiedINtNtNtBb_5slice4iter4IterB2e_EEENtNtNtB9_6traits8iterator8Iterator4foldTyB2e_ENCINvNtB7_6filter11filter_foldB2e_B4M_NCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtB5C_17LegacyPlanHandler16get_small_actions5_0NCINvNtB7_3map8map_foldB2e_B4M_B4M_NCINvNvB49_10min_by_key3keyB2e_yNCB5x_s6_0E0NCINvNvB49_6min_by4foldB4M_INvB7U_7compareB2e_yEE0E0E0EB5G_",
+    "m06",
+    238
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator4foldTyB1s_ENCINvNtB7_6filter11filter_foldB1s_B32_NCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtB3S_17LegacyPlanHandler16get_small_actions5_0NCINvNtB7_3map8map_foldB1s_B32_B32_NCINvNvB2p_10min_by_key3keyB1s_yNCB3N_s6_0E0NCINvNvB2p_6min_by4foldB32_INvB6a_7compareB1s_yEE0E0E0EB3W_",
+    "m11",
+    164
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2p_4find5checkB1s_QNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtB3F_17LegacyPlanHandler16get_small_actions5_0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3J_",
+    "m11",
+    48
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_5chain5ChainINtNtB8_7flatten7FlattenINtNtNtBc_5array4iter8IntoIterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEKj6_EEINtNtB8_6copied6CopiedINtNtNtBc_5slice4iter4IterB2R_EEENCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtB4T_17LegacyPlanHandler16get_small_actions5_0ENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyB2R_yNCB4O_s6_0E0EB6F_4foldTyB2R_ENCINvNvB6F_6min_by4foldB7U_INvB6D_7compareB2R_yEE0EB4X_",
+    "m12",
+    16
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEENCINvNvNtNtNtBa_6traits8iterator8Iterator10max_by_key3keyRB1n_xNCNvMNtNtNtB1u_11plan_legacy7handler7auctionNtB3v_17LegacyPlanHandler16get_small_actionsm_0E0EB2u_4foldTxB3i_ENCINvNvB2u_6max_by4foldB53_INvB2s_7compareB3i_xEE0EB1u_",
+    "m12",
+    98
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEENCINvNvNtNtNtBa_6traits8iterator8Iterator10max_by_key3keyRB1n_xNCNvMNtNtNtB1u_11plan_legacy7handler7auctionNtB3v_17LegacyPlanHandler16get_small_actionsq_0E0EB2u_4foldTxB3i_ENCINvNvB2u_6max_by4foldB53_INvB2s_7compareB3i_xEE0EB1u_",
+    "m12",
+    98
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEENCINvNvNtNtNtBa_6traits8iterator8Iterator10max_by_key3keyRB1n_xNCNvMNtNtNtB1t_11plan_legacy7handler7auctionNtB3u_17LegacyPlanHandler16get_small_actionsd_0E0EB2t_4foldTxB3h_ENCINvNvB2t_6max_by4foldB52_INvB2r_7compareB3h_xEE0EB1t_",
+    "m12",
+    96
+   ],
+   [
+    "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtB4_17LegacyPlanHandler16get_small_action",
+    "m13",
+    6294
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actions0_0INtB7_5FnMutTRRNtNtBZ_12small_action15SmallActionPlayEE8call_mutBZ_",
+    "m14",
+    133
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actions5_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBZ_",
+    "m14",
+    18
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actionsc_0INtB7_5FnMutTRRTxNtNtBZ_12small_action15SmallActionPlayEEE8call_mutBZ_",
+    "m14",
+    76
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actionse_0INtB7_5FnMutTRRTxNtNtBZ_12small_action15SmallActionPlayEEE8call_mutBZ_",
+    "m14",
+    11
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actionsg_0INtB7_5FnMutTRRNtNtBZ_12small_action15SmallActionPlayEE8call_mutBZ_",
+    "m14",
+    263
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actionsl_0INtB7_5FnMutTRRTxNtNtBZ_12small_action15SmallActionPlayEEE8call_mutBZ_",
+    "m14",
+    185
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actionsn_0INtB7_5FnMutTRRRTxNtNtBZ_12small_action15SmallActionPlayEEE8call_mutBZ_",
+    "m14",
+    12
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actionsp_0INtB7_5FnMutTRRTxNtNtBZ_12small_action15SmallActionPlayEEE8call_mutBZ_",
+    "m14",
+    20
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBV_17LegacyPlanHandler16get_small_actionsr_0INtB7_5FnMutTRRRTxNtNtBZ_12small_action15SmallActionPlayEEE8call_mutBZ_",
+    "m14",
+    12
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler7auctionNtBW_17LegacyPlanHandler16get_small_actions5_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutB10_",
+    "m14",
+    21
+   ],
+   [
+    "_RNvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6clonedINtB4_6ClonedINtNtB6_6filter6FilterINtNtNtBa_5slice4iter4IterNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayENCNvMNtNtNtB1R_11plan_legacy7handler7auctionNtB2Q_17LegacyPlanHandler16get_small_actions0_0EENtNtNtB8_6traits8iterator8Iterator4nextB1R_",
+    "m15",
+    65
+   ],
+   [
+    "_RNvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6clonedINtB4_6ClonedINtNtB6_6filter6FilterINtNtNtBa_5slice4iter4IterNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayENCNvMNtNtNtB1R_11plan_legacy7handler7auctionNtB2Q_17LegacyPlanHandler16get_small_actions0_0EENtNtNtB8_6traits8iterator8Iterator9size_hintB1R_",
+    "m15",
+    26
+   ],
+   [
+    "_RNvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6clonedINtB4_6ClonedINtNtB6_6filter6FilterINtNtNtBa_5slice4iter4IterTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEENCNvMNtNtNtB1T_11plan_legacy7handler7auctionNtB2T_17LegacyPlanHandler16get_small_actionsc_0EENtNtNtB8_6traits8iterator8Iterator4nextB1T_",
+    "m15",
+    76
+   ],
+   [
+    "_RNvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6clonedINtB4_6ClonedINtNtB6_6filter6FilterINtNtNtBa_5slice4iter4IterTxNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEENCNvMNtNtNtB1T_11plan_legacy7handler7auctionNtB2T_17LegacyPlanHandler16get_small_actionsc_0EENtNtNtB8_6traits8iterator8Iterator9size_hintB1T_",
+    "m15",
+    26
+   ]
+  ]
+ },
+ {
+  "rva": "e25450",
+  "ids": [
+   "choose_goal"
+  ],
+  "memo": "lane_minion 클로저",
+  "exe_size": 952,
+  "syms": [
+   [
+    "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition11choose_goal",
+    "m11",
+    475
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtCshWfHDMLkPaX_7bumpalo11collections3vec8IntoIterTyyxEENCINvNvNtNtNtBa_6traits8iterator8Iterator10max_by_key3keyB1Q_xNCNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB31_29SmallActionLaneMinionPosition11choose_goal0E0EB23_4foldTxB1Q_ENCINvNvB23_6max_by4foldB4T_INvB21_7compareB1Q_xEE0EB35_",
+    "m12",
+    80
+   ]
+  ]
+ },
+ {
+  "rva": "e02bc0",
+  "ids": [
+   "v54_aoe_ally_heal_value"
+  ],
+  "memo": "",
+  "exe_size": 871,
+  "syms": [
+   [
+    "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value23v54_aoe_ally_heal_value",
+    "m10",
+    212
+   ]
+  ]
+ },
+ {
+  "rva": "dd9f30",
+  "ids": [
+   "can_near_enemies"
+  ],
+  "memo": "",
+  "exe_size": 745,
+  "syms": [
+   [
+    "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan16can_near_enemies",
+    "m09",
+    143
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtBW_8TeamPlan16can_near_enemiess_0INtB7_5FnMutTjEE8call_mutB10_",
+    "m09",
+    31
+   ]
+  ]
+ },
+ {
+  "rva": "eb5dd0",
+  "ids": [
+   "expected_dps"
+  ],
+  "memo": "",
+  "exe_size": 742,
+  "syms": [
+   [
+    "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check12expected_dps",
+    "m15",
+    152
+   ]
+  ]
+ },
+ {
+  "rva": "e0dfc0",
+  "ids": [
+   "v30_wave_danger_chase_guard"
+  ],
+  "memo": "사본",
+  "exe_size": 2242,
+  "syms": [
+   [
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle27v30_wave_danger_chase_guard",
+    "m10",
+    504
+   ]
+  ]
+ },
+ {
+  "rva": "c875a0",
+  "ids": [
+   "v48_projectile_profile"
+  ],
+  "memo": "지도 fp",
+  "exe_size": 626,
+  "syms": [
+   [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0ozCnw_7game_ai11fight_check15V48ProfileCacheEE4withNCNvB1x_22v48_projectile_profile0INtNtBZ_6option6OptionIB34_TyyyEEEEB1z_",
+    "m00",
+    279
+   ],
+   [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0ozCnw_7game_ai11fight_check15V48ProfileCacheEE4withNCNvB1x_22v48_projectile_profiles0_0uEB1z_",
+    "m00",
+    195
+   ],
+   [
+    "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check22v48_projectile_profile",
+    "m15",
+    389
+   ]
+  ]
+ },
+ {
+  "rva": "cadcd0",
+  "ids": [
+   "kite_reposition_point"
+  ],
+  "memo": "지도 fp",
+  "exe_size": 492,
+  "syms": [
+   [
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle21kite_reposition_point",
+    "m02",
+    418
+   ]
+  ]
+ },
+ {
+  "rva": "d75cb0",
+  "ids": [
+   "noncombat_steroid_window"
+  ],
+  "memo": "지도",
+  "exe_size": 1166,
+  "syms": [
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainIBP_INtNtB7_6copied6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEB14_EB14_ENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2X_3any5checkB1Q_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB4a_",
+    "m06",
+    61
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainINtNtB7_7flatten7FlattenINtNtNtBb_5array4iter8IntoIterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEKj6_EEINtNtB7_6copied6CopiedINtNtNtBb_5slice4iter4IterB2e_EEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB49_3any5checkB2e_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows3_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB5m_",
+    "m06",
+    126
+   ],
+   [
+    "_RNCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows1_0B5_",
+    "m11",
+    642
+   ],
+   [
+    "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_window",
+    "m10",
+    945
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2p_3any5checkB1s_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows3_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB3C_",
+    "m11",
+    61
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2p_3any5checkB1s_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB3C_",
+    "m11",
+    61
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduQNCINvNvB2p_3any5checkB1s_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB3D_",
+    "m11",
+    40
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduQQNCINvNvB2p_3any5checkB1s_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB3E_",
+    "m11",
+    40
+   ]
+  ]
+ },
+ {
+  "rva": "e05e70",
+  "ids": [
+   "resolve_join_stake"
+  ],
+  "memo": "#54",
+  "exe_size": 3571,
+  "syms": [
+   [
+    "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_5slice4iter4IterINtNtB2d_6option6OptionBU_EENCNvMs3_BZ_NtBZ_21AbstractGameWithCache14iter_champions0ENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stake0EEB5r_",
+    "m01",
+    163
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainINtNtB7_7flatten7FlattenINtNtNtBb_5array4iter8IntoIterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEKj6_EEINtNtB7_6copied6CopiedINtNtNtBb_5slice4iter4IterB2e_EEENtNtNtB9_6traits8iterator8Iterator4foldTyB2e_ENCINvNtB7_6filter11filter_foldB2e_B4M_NCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stakes2_0NCINvNtB7_3map8map_foldB2e_B4M_B4M_NCINvNvB49_10min_by_key3keyB2e_yNCB5x_s3_0E0NCINvNvB49_6min_by4foldB4M_INvB7x_7compareB2e_yEE0E0E0EB5F_",
+    "m06",
+    238
+   ],
+   [
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stake",
+    "m10",
+    1230
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stake0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+    "m10",
+    103
+   ],
+   [
+    "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stakes2_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+    "m10",
+    18
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator4foldTyB1s_ENCINvNtB7_6filter11filter_foldB1s_B32_NCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stakes2_0NCINvNtB7_3map8map_foldB1s_B32_B32_NCINvNvB2p_10min_by_key3keyB1s_yNCB3N_s3_0E0NCINvNvB2p_6min_by4foldB32_INvB5N_7compareB1s_yEE0E0E0EB3V_",
+    "m11",
+    164
+   ],
+   [
+    "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2p_4find5checkB1s_QNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stakes2_0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3I_",
+    "m11",
+    48
+   ],
+   [
+    "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_5chain5ChainINtNtB8_7flatten7FlattenINtNtNtBc_5array4iter8IntoIterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEKj6_EEINtNtB8_6copied6CopiedINtNtNtBc_5slice4iter4IterB2R_EEENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stakes2_0ENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyB2R_yNCB4O_s3_0E0EB6i_4foldTyB2R_ENCINvNvB6i_6min_by4foldB7x_INvB6g_7compareB2R_yEE0EB4W_",
+    "m12",
+    16
+   ]
+  ]
+ }
+]

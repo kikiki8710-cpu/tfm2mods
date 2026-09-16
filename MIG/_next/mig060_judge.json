@@ -6339,8 +6339,11 @@
   "name": "get_small_action_score_closure",
   "src": "spec",
   "old": "ca6700",
-  "verdict": "미발견",
-  "how": "Location 0 · skel/head/Jaccard 미일치"
+  "verdict": "변경(r21 w11: v3 veto f71610 · 가중치표 재번호 동치)",
+  "how": "Location 0 · skel/head/Jaccard 미일치 · r21 w10/w11 본체 대조",
+  "verdict_was2": "미발견",
+  "new": "e13c10",
+  "conf": "A(디컴 대조)"
  },
  {
   "i": null,
@@ -8511,8 +8514,8 @@
   "src": "spec",
   "old": "cce210",
   "new": "fd98c0",
-  "how": "Location (파일,열) 일치 · 줄 델타 [70, 214]",
-  "conf": "B",
+  "how": "Location (파일,열) 일치 · 줄 델타 [70, 214] · r21 w10/w11 본체 대조",
+  "conf": "A(디컴 대조)",
   "size": [
    4742,
    5984
@@ -8588,7 +8591,8 @@
    "imm": null,
    "disp": null
   },
-  "verdict": "변경(크기 +1242B · 즉치 −2/+3 · cos 0.999)"
+  "verdict": "동치(r21 w10: 디버그 로그만 · 배치 B 「전담」 정정)",
+  "verdict_was2": "변경(크기 +1242B · 즉치 −2/+3 · cos 0.999)"
  },
  {
   "i": 148,
@@ -13941,11 +13945,12 @@
   "name": "best_jungle_goal",
   "src": "spec",
   "old": "d40b20",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r21 w3/w6: best_jungle_goal v3(ABI 변경 · 골격만 독해)) ← 구 미발견",
+  "verdict": "변경(r21 w11: v2 동치 · v3 3블록 · allow_invade 인자)",
+  "how": "정정(r21 w3/w6: best_jungle_goal v3(ABI 변경 · 골격만 독해)) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "fafe50",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 66,
@@ -21255,11 +21260,12 @@
   "name": "LineGankerPlan::make_gank_battle",
   "src": "spec",
   "old": "db8e60",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r21 w8: make_gank_battle(site 인자 추가 · 본체 미독)) ← 구 미발견",
+  "verdict": "변경·소(r21 w11: gank_open_site/line/snap 기록 · sub_goal 폐기 동치)",
+  "how": "정정(r21 w8: make_gank_battle(site 인자 추가 · 본체 미독)) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "fa9d60",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 14,
@@ -23209,11 +23215,12 @@
   "name": "TeamPlan::can_near_enemies_range",
   "src": "spec",
   "old": "dd9f30",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r20/r21 다수: can_near_enemies_range) ← 구 미발견",
+  "verdict": "동치(r21 w11: 본체 동치 · lapse 8번째 인자 · DM 경로만 cc1)",
+  "how": "정정(r20/r21 다수: can_near_enemies_range) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "f10c60",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 108,
@@ -23466,11 +23473,12 @@
   "name": "TeamPlan::update",
   "src": "spec",
   "old": "de0770",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r21 w4/w7: TeamPlan::update(+0xcc7 세팅 프롤로그 · 본체 미독)) ← 구 미발견",
+  "verdict": "변경(r21 w11: 레거시 본체 동치 · 감사 프롤로그 · finish_race 에필로그)",
+  "how": "정정(r21 w4/w7: TeamPlan::update(+0xcc7 세팅 프롤로그 · 본체 미독)) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "f18f90",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 76,
@@ -26432,11 +26440,12 @@
   "name": "resolve_fight_stake",
   "src": "spec",
   "old": "e06df0",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r20 F/r21 w2: resolve_fight_stake(ee3c80 신규 호출 · 본체 미독)) ← 구 미발견",
+  "verdict": "변경(r21 w11: bias · arrivals=ee3c80 포킹취약 6tps+1)",
+  "how": "정정(r20 F/r21 w2: resolve_fight_stake(ee3c80 신규 호출 · 본체 미독)) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "ee5e80",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 70,
@@ -26602,22 +26611,24 @@
   "name": "resolve_fight_stake_roster",
   "src": "spec",
   "old": "e0b030",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r20 F/r21 w2: stake_roster) ← 구 미발견",
+  "verdict": "변경·소(r21 w11: bias 인자)",
+  "how": "정정(r20 F/r21 w2: stake_roster) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "eebb40",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 48,
   "name": "v25_scoped_battle_objective",
   "src": "spec",
   "old": "e0b730",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r21 w2: v25_scoped_battle_objective(6-arg 동일)) ← 구 미발견",
+  "verdict": "변경·한 줄(r21 w11: phase {1,2}→{1,2,4})",
+  "how": "정정(r21 w2: v25_scoped_battle_objective(6-arg 동일)) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "eec620",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 28,
@@ -28393,11 +28404,12 @@
   "name": "SmallActionLaneMinionPosition::target_score",
   "src": "spec",
   "old": "e25030",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r20 C: target_score) ← 구 미발견",
+  "verdict": "동치(r21 w11: 인라인만)",
+  "how": "정정(r20 C: target_score) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "e93e00",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 264,
@@ -31725,8 +31737,11 @@
   "name": "LegacyPlanHandler::update_on_dead",
   "src": "spec",
   "old": "e49a50",
-  "verdict": "미발견",
-  "how": "Location 0 · skel/head/Jaccard 미일치"
+  "verdict": "변경(r21 w11: 프롤로그 씬 종료+lock · version 0x5e→실제 · +0x24d6 assign)",
+  "how": "Location 0 · skel/head/Jaccard 미일치 · r21 w10/w11 본체 대조",
+  "verdict_was2": "미발견",
+  "new": "d51a70",
+  "conf": "A(디컴 대조)"
  },
  {
   "i": 40,
@@ -31844,11 +31859,12 @@
   "name": "v2_apply_assign_commit",
   "src": "spec",
   "old": "e4b070",
-  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
-  "how": "정정(r21 w4: v2_apply_assign_commit) ← 구 미발견",
+  "verdict": "변경(r21 w11: obj_key 이중모드 · 헬퍼화 · 라인 래치 꼬리)",
+  "how": "정정(r21 w4: v2_apply_assign_commit) ← 구 미발견 · r21 w10/w11 본체 대조",
   "verdict_was": "미발견",
   "new": "d57b00",
-  "conf": "B(ghidra 콜리)"
+  "conf": "A(디컴 대조)",
+  "verdict_was2": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)"
  },
  {
   "i": 11,

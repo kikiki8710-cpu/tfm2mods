@@ -1,0 +1,145 @@
+push r15
+push r14
+push r13
+push r12
+push rsi
+push rdi
+push rbp
+push rbx
+sub rsp, 0xd8
+mov rbp, r9
+mov rbx, r8
+mov rdi, rdx
+mov r15, rcx
+mov rsi, qword ptr [STK]
+mov rcx, rdx
+mov rdx, r9
+mov r8, rsi
+call ADDR
+mov r14, rax
+mov rcx, qword ptr [STK]
+mov rdx, qword ptr [STK]
+mov r12, qword ptr [rsi + 0x660]
+mov r13, qword ptr [rsi + 0x668]
+mov r8, r12
+mov r9, r13
+call ADDR
+cmp rax, r14
+jbe ADDR
+mov qword ptr [STK], rax
+mov rsi, qword ptr [rsi + 0x640]
+mov qword ptr [STK], rsi
+mov rax, qword ptr [STK]
+mov qword ptr [STK], rax
+mov qword ptr [STK], rdi
+mov rax, qword ptr [rdi + 8]
+mov rax, qword ptr [rax + 8]
+mov rbp, qword ptr [rax + 0x12f8]
+mov rbx, qword ptr [rbx + 0xa00]
+xor edi, edi
+dec rbx
+mov r9d, 0xea600
+mov r8d, 0xea600
+cmove r8, rdi
+cmovne r9, rdi
+mov rcx, r12
+mov rdx, r13
+call ADDR
+mov rcx, rax
+sub rcx, 0x27100
+cmovb rcx, rdi
+lea r9, [rbp*2]
+cmp r15, 2
+cmovae rbp, r9
+imul rbp, rsi
+mov al, 1
+cmp rcx, rbp
+jbe ADDR
+mov r11, qword ptr [STK]
+mov rdx, r11
+sub rdx, rsi
+mov r10, qword ptr [STK]
+jbe ADDR
+xor r8d, r8d
+mov rax, qword ptr [STK]
+sub rax, r14
+cmovae r8, rax
+mov rax, rcx
+mul rdx
+jo ADDR
+mov rcx, rax
+mov rax, r8
+mul rsi
+jo ADDR
+mov rdx, rax
+mov al, 1
+cmp rcx, rdx
+jb ADDR
+add rsi, rsi
+lea rax, [rsi + rsi*4]
+lea rcx, [r11 + r11*8]
+cmp rax, rcx
+jae ADDR
+xor eax, eax
+add rsp, 0xd8
+pop rbx
+pop rbp
+pop rdi
+pop rsi
+pop r12
+pop r13
+pop r14
+pop r15
+ret 
+neg rbx
+mov qword ptr [STK], r9
+cmp rbx, 2
+jae ADDR
+mov rax, qword ptr [r10]
+mov rcx, qword ptr [rax + rbx*8 + 0x1a0]
+mov rdx, qword ptr [rax + rbx*8 + 0x1c0]
+mov r8, qword ptr [rax + rbx*8 + 0x180]
+mov r9, qword ptr [rax + rbx*8 + 0x190]
+mov r10, qword ptr [rax + rbx*8 + 0x1b0]
+mov r11, qword ptr [rax + rbx*8 + 0x1d0]
+shl rbx, 5
+mov rsi, qword ptr [rax + rbx + 0x130]
+mov rax, qword ptr [rax + rbx + 0x148]
+lea rax, [rsi + rax*8]
+mov qword ptr [STK], 0
+mov qword ptr [STK], 6
+mov qword ptr [STK], r8
+mov qword ptr [STK], rcx
+mov qword ptr [STK], rdx
+mov qword ptr [STK], r9
+mov qword ptr [STK], r10
+mov qword ptr [STK], r11
+mov qword ptr [STK], 0
+mov qword ptr [STK], 0
+mov qword ptr [STK], 1
+mov qword ptr [STK], rsi
+mov qword ptr [STK], rax
+mov rax, qword ptr [STK]
+mov qword ptr [STK], rax
+lea rax, [STK]
+mov qword ptr [STK], rax
+lea rax, [STK]
+mov qword ptr [STK], rax
+lea rcx, [STK]
+lea rdx, [STK]
+call ADDR
+jmp ADDR
+mov rcx, 0xffffffffffffffff
+mov rax, r8
+mul rsi
+jno ADDR
+mov rdx, 0xffffffffffffffff
+mov al, 1
+cmp rcx, rdx
+jae ADDR
+jmp ADDR
+lea r8, [rip+X]
+mov edx, 2
+mov rcx, rbx
+call ADDR
+ud2 

@@ -19,7 +19,7 @@ def parse_result(path, col):
     """r19_result / r20_result 표에서 구 RVA → 판정 문자열"""
     out = {}
     for line in io.open(path, encoding="utf-8"):
-        m = re.match(r"\|\s*(?:[A-F]\s*\|\s*)?`([0-9a-f]+)`\s*\|\s*`([0-9a-f]+)`\s*\|[^|]*\|\s*([^|]+)\|", line)
+        m = re.match(r"\|\s*(?:[A-G]\s*\|\s*)?`([0-9a-f]+)`\s*\|\s*`([0-9a-f]+)`\s*\|[^|]*\|\s*([^|]+)\|", line)
         if m: out[m.group(1)] = m.group(3).strip()
     return out
 R19 = parse_result(os.path.join(HERE, "_next", "r19_result.md"), 3)
@@ -30,17 +30,30 @@ for line in io.open(os.path.join(HERE, "_next", "spec_patch_060.md"), encoding="
     if m and m.group(1) not in PATCH: PATCH[m.group(1)] = dict(kind=m.group(5).strip(), note=m.group(6).strip(), ref=m.group(7).strip())
     m2 = re.match(r"\|\s*`([0-9a-f]+)`\s*\|\s*`([0-9a-f]+)`\s*\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|$", line.rstrip())
     if m2 and m2.group(1) not in PATCH: PATCH[m2.group(1)] = dict(kind=u"심층", note=m2.group(4).strip(), ref=m2.group(5).strip())
+# §D(심층 · r21) 행은 §B 보다 우선 — 본체 대조 결과가 정본
+DROWS = {}; inD = False
+for line in io.open(os.path.join(HERE, "_next", "spec_patch_060.md"), encoding="utf-8"):
+    if line.startswith(u"## D."): inD = True
+    elif line.startswith(u"## "): inD = False
+    if not inD: continue
+    m3 = re.match(r"\|\s*`([0-9a-f]+)`\s*\|\s*`([0-9a-f]+)`\s*\|\s*([^|]*)\|\s*(.*)\|\s*([^|]*)\|$", line.rstrip())
+    if m3: DROWS[m3.group(1)] = dict(kind=u"심층(r21)", note=m3.group(4).strip(), ref=m3.group(5).strip())
+for k, v in DROWS.items(): PATCH[k] = v
 TIER1 = set()
 for line in io.open(os.path.join(HERE, "_next", "r20_tier1.md"), encoding="utf-8"):
     m = re.search(r"`([0-9a-f]+)`→", line)
     if m: TIER1.add(m.group(1))
 def verdict_for(o):
+    if o in DROWS:
+        jv = (JM.get(o) or {}).get("verdict", u"")
+        if jv.startswith((u"동치", u"변경")) and u"r21" in jv: return jv
+        return u"변경·심층(r21 §D: %s)" % DROWS[o]["ref"]
     if o in R19: return (u"동치" if R19[o].startswith(u"동치") else u"변경") + u"(r19: %s)" % R19[o]
     if o in R20: return R20[o] + u"(r20)"
     j = JM.get(o)
-    if not j or "new" not in j: return u"미발견"
+    if not j or not j.get("new"): return u"소멸(0.6.0 에 없음)" if u"소멸" in (j or {}).get("verdict", u"") else u"미발견"
     v = j["verdict"].split("(")[0]
-    if v in (u"동일", u"이동만", u"오프셋 이동", u"오프셋만"): return u"동치(mig060_same 확정: %s)" % v
+    if v in (u"동일", u"이동만", u"오프셋 이동", u"오프셋만", u"오프셋만 변경"): return u"동치(mig060_same 확정: %s)" % v
     if o in TIER1: return u"심층(티어1)"
     return u"변경(mig060: %s)" % v
 out = []; C = collections.Counter()
@@ -51,9 +64,9 @@ for sp in D["specs"]:
     key = vd.split("(")[0]; C[key] += 1
     blk = dict(addr=j.get("new"), addr_058=o or None, verdict=vd, patch_kind=(p or {}).get("kind"), patch_note=(p or {}).get("note"), patch_ref=(p or {}).get("ref"),
                logic_060=None, common=u"spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-               version_gate=None, note=(j.get("how") or "")[:120])
+               version_gate=(u"v3 분기 있음(RE)" if re.search(u"v3|v≥3|version", ((p or {}).get("note") or u"")) else None), note=(j.get("how") or "")[:120])
     sp2 = dict(sp); sp2["v060"] = blk; out.append(sp2)
-D2 = dict(D); D2["specs"] = out; D2["meta_v060"] = dict(base="specs20_v3 (0.5.8)", made="2026-09-17", sources=["mig060_judge", "r19_result", "r20_result", "spec_patch_060"], note=u"logic_060 는 applyspec060 단계에서 채움 · 원본 logic 은 손대지 않음")
+D2 = dict(D); D2["specs"] = out; D2["meta_v060"] = dict(base="specs20_v3 (0.5.8)", made="2026-09-17", sources=["mig060_judge", "r19_result", "r20_result", "r21(spec_patch_060 §D)", "spec_patch_060"], note=u"logic_060 는 applyspec060 단계에서 채움 · 원본 logic 은 손대지 않음")
 json.dump(D2, io.open(os.path.join(HERE, "_spec", "specs20_v060.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 L = [u"# specs20_v060 요약(0.6.0 v060 블록) — %d specs" % len(out), u"", u"판정 분포: " + u" · ".join(u"%s %d" % kv for kv in C.most_common()), u"", u"| i | 구 | 신 | 함수 | 판정 | 패치 |", u"|---|---|---|---|---|---|"]
 for sp in out:

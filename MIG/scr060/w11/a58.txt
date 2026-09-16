@@ -1,0 +1,87 @@
+e25073: call 0x1412857f0 ; ->12857f0
+e2508b: cmp rcx, 1
+e250a6: je 0x140e250af
+e250ad: jmp 0x140e250b3 ; ->e250b3
+e250f1: call qword ptr [r9 + 0xe8]
+e2510f: je 0x140e25150
+e25135: je 0x140e25163
+e2514e: jmp 0x140e2516a ; ->e2516a
+e25161: jne 0x140e25137
+e2519a: mov qword ptr [rsp + 0x50], rdx
+e251a5: call 0x1412a07d0 ; ->12a07d0
+e251b4: cmp r10, 1
+e251c5: cmp eax, 2
+e251c8: mov r9d, 1
+e251ea: je 0x140e2521a
+e25203: je 0x140e25232
+e25213: jne 0x140e25245
+e25215: jmp 0x140e252fc ; ->e252fc
+e25230: jne 0x140e25205
+e2523f: je 0x140e252fc
+e2524c: call 0x140e273b0 ; ->e273b0
+e25254: je 0x140e252fc
+e25266: call 0x140e27600 ; ->e27600
+e25273: jle 0x140e252aa
+e25275: lea rcx, [rdx + 5]
+e25279: mov ebx, 0x8c
+e2527e: cmp rax, rcx
+e25281: jle 0x140e252cf
+e25287: cmp rax, rcx
+e2528a: jg 0x140e252aa
+e2529c: mov ebx, 0x46
+e252a1: cmp qword ptr [r14 + 0xb8], rbp
+e252a8: jbe 0x140e252cf
+e252bf: cmp qword ptr [r14 + 0xb8], rax
+e252c6: mov ebx, 0x19
+e252cf: add rdx, 5
+e252d3: cmp qword ptr [rsp + 0x48], rdx
+e252d8: jbe 0x140e2530e
+e252df: cmp rcx, 0x1a
+e252e3: jae 0x140e25322
+e252e5: add rbx, 0x32
+e252f1: cmp dword ptr [rdi + 0x68], 1
+e252f5: je 0x140e2533c
+e252f7: jmp 0x140e25398 ; ->e25398
+e25303: add rdx, 5
+e25307: cmp qword ptr [rsp + 0x48], rdx
+e2530c: ja 0x140e252da
+e2530e: add rbx, 0x5a
+e2531a: cmp dword ptr [rdi + 0x68], 1
+e2531e: je 0x140e2533c
+e25320: jmp 0x140e25398 ; ->e25398
+e25322: lea rax, [rbx + 0x19]
+e25326: cmp rcx, 0x33
+e25336: cmp dword ptr [rdi + 0x68], 1
+e2533a: jne 0x140e25398
+e2533c: cmp byte ptr [rdi + 0x88], 0
+e25343: je 0x140e25398
+e2535b: call qword ptr [rax + 0x1f0]
+e25364: je 0x140e25398
+e25369: cmp rcx, qword ptr [rsi]
+e2536c: jne 0x140e25398
+e25371: jne 0x140e2537d
+e25377: cmp rcx, qword ptr [rsi + 8]
+e2537b: jne 0x140e25398
+e25384: cmp ecx, 2
+e25387: jae 0x140e2538f
+e25389: add rbx, 0x50
+e2538d: jmp 0x140e25398 ; ->e25398
+e2538f: cmp eax, 1
+e25392: jne 0x140e25398
+e25394: add rbx, 0x19
+e253d1: lea rsi, [rbx + 0x14]
+e253d5: cmp rdx, r15
+e253e2: call 0x1412a07d0 ; ->12a07d0
+e25404: mov qword ptr [rsp + 0x68], 0xa
+e2541a: call 0x140d26030 ; ->d26030
+e25422: cmp rsi, 2
+e25426: mov edx, 1
+e2542f: mov eax, 1
+e2548d: cmp rdx, 0x1d
+e254a5: cmp rdx, 0x1d
+e254bf: cmp qword ptr [rax + rdx*8 + 0x78], 0
+e254c5: je 0x140e254db
+e254db: cmp qword ptr [r8 + 0x930], 1
+e254e3: jne 0x140e25525
+e254e5: cmp rdi, 0xfa01
+e254f6: cmp rdx, 0x27101

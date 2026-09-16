@@ -1,0 +1,72 @@
+e93e43: call 0x141643790 ; ->1643790
+e93e59: cmp rcx, 1
+e93e74: je 0x140e93e7d
+e93e7b: jmp 0x140e93e81 ; ->e93e81
+e93ebf: call qword ptr [r9 + 0x108]
+e93edd: je 0x140e93f1e
+e93f03: je 0x140e93f31
+e93f1c: jmp 0x140e93f38 ; ->e93f38
+e93f2f: jne 0x140e93f05
+e93f71: call 0x141660a00 ; ->1660a00
+e93f80: cmp r9, 1
+e93f91: cmp eax, 2
+e93f94: mov r10d, 1
+e93fb6: je 0x140e93fe3
+e93fcf: je 0x140e93ffb
+e93fdc: jne 0x140e9400c
+e93fde: jmp 0x140e940ac ; ->e940ac
+e93ff9: jne 0x140e93fd1
+e94006: je 0x140e940ac
+e94016: je 0x140e940ac
+e94023: cmp qword ptr [r9 + 0x90], r8
+e9402a: jne 0x140e940a2
+e9402f: je 0x140e94225
+e94050: cmp rdx, rcx
+e94053: jae 0x140e9423d
+e9405c: cmp r8, 5
+e94060: jae 0x140e942a9
+e9408b: sar rdx, 1
+e94097: jg 0x140e942fd
+e9409d: jmp 0x140e9433b ; ->e9433b
+e940a2: cmp rdx, 1
+e940a6: jne 0x140e94210
+e940ae: add r12, 5
+e940b2: cmp qword ptr [rsp + 0x48], r12
+e940b7: jbe 0x140e940db
+e940be: cmp rcx, 0x1a
+e940c2: jae 0x140e940ef
+e940c4: add rbx, 0x32
+e940d0: cmp dword ptr [rdi + 0x68], 1
+e940d4: je 0x140e94109
+e940d6: jmp 0x140e94165 ; ->e94165
+e940db: add rbx, 0x5a
+e940e7: cmp dword ptr [rdi + 0x68], 1
+e940eb: je 0x140e94109
+e940ed: jmp 0x140e94165 ; ->e94165
+e940ef: lea rax, [rbx + 0x19]
+e940f3: cmp rcx, 0x33
+e94103: cmp dword ptr [rdi + 0x68], 1
+e94107: jne 0x140e94165
+e94109: cmp byte ptr [rdi + 0x88], 0
+e94110: je 0x140e94165
+e94128: call qword ptr [rax + 0x1f0]
+e94131: je 0x140e94165
+e94136: cmp rcx, qword ptr [rsi]
+e9413e: jne 0x140e9416a
+e94143: jne 0x140e9414f
+e94149: cmp rcx, qword ptr [rsi + 8]
+e9414d: jne 0x140e9416a
+e94156: cmp ecx, 2
+e94159: jae 0x140e94274
+e9415f: add rbx, 0x50
+e94163: jmp 0x140e9416a ; ->e9416a
+e94199: lea rsi, [rbx + 0x14]
+e9419d: cmp rdx, rbp
+e941ad: call 0x141660a00 ; ->1660a00
+e941c6: mov qword ptr [rsp + 0x50], 0
+e941cf: mov qword ptr [rsp + 0x58], 0xa
+e941dd: lea rdx, [rsp + 0x50]
+e941e5: call 0x140dcb010 ; ->dcb010
+e941ed: cmp rsi, 2
+e941f1: mov edx, 1
+e941fa: mov eax, 1

@@ -7391,7 +7391,7 @@
    "v060": {
     "addr": "e60420",
     "addr_058": "ccc010",
-    "verdict": "변경(mig060: 소폭)",
+    "verdict": "✅동치(r20)",
     "patch_kind": null,
     "patch_note": null,
     "patch_ref": null,
@@ -14061,10 +14061,10 @@
    "v060": {
     "addr": "faa440",
     "addr_058": "db90f0",
-    "verdict": "변경(mig060: 소폭)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "⚠변경·한 줄(r20)",
+    "patch_kind": "심층",
+    "patch_note": "저HP 취소 시 `+0xaf=1` · 부시 도착 `if +0x38==0 {+0x38=tick}`",
+    "patch_ref": "`2026-09-17_r20_변경99_배치G_누락7_소폭오프셋만_디컴대조_원문.md` §3",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
@@ -18813,16 +18813,16 @@
    "base_round": "r4",
    "rounds": 4,
    "v060": {
-    "addr": null,
+    "addr": "fafe50",
     "addr_058": "d40b20",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경(r21 w11: v2 동치 · v3 3블록 · allow_invade 인자)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "7번째 인자 **allow_invade**(passive_plan: `tick>=LPH+0x20d8` · PassiveJungle: `tick>=self+0x78` · fa66b6: 1) · **v2 = 0.5.8 [807~835] 동치**(camps [0,1,3,2] · not_cleared e052c0/faf060 · min_by next_respawn/dist² · camp_pos TLS 메모이즈 1416a7af0) · **v3 3블록**: A 120000² 내 live 캠프(하드코딩 좌표 blue Rhino(752000,496000)/Mushroom(592000,176000)/Stump(448000,256000)/Bee(800000,351000) · red x↔y) min dist² · obj_soon 플래그(tutorial∈{0,5,7,8} · 30tps 이내 epic/serpen 리스폰) · B allow_invade 역정글(vt+0x108 byte+0x11 캠프 쌍 · faf2a0 · dbd370 · 적 정글러 리스폰 vs 도달 dbe860 — **미독**) · C′ vt+0x108 byte+0x11 로 not_cleared 필터({1,2}/{0,3} · 비면 폴백)",
+    "patch_ref": "w11 §B1",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
-    "note": "Location 4 · skel/head/Jaccard 미일치"
+    "version_gate": "v3 분기 있음(RE)",
+    "note": "정정(r21 w3/w6: best_jungle_goal v3(ABI 변경 · 골격만 독해)) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -27639,16 +27639,16 @@
     "no_map_reason": "addspec 등록 시 주소 미확정 — rvaverify/ghidra-re 확정 후 applypatch 로 채울 것"
    },
    "v060": {
-    "addr": null,
+    "addr": "ee5e80",
     "addr_058": "e06df0",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경(r21 w11: bias · arrivals=ee3c80 포킹취약 6tps+1)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "`bias = aggr?1 : def?-1 : 0` · **`arrivals[i] = ee3c80(version,ctx,near_allies[i],near_enemies) 포킹취약 ? 6tps+1 : 0`** → absolute/diff 에 (bias, &arrivals) · abandon 은 (0, &[]) · v<2 경로 bias 만 · L582/L587/L594~597 동일",
+    "patch_ref": "w11 §B5",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
-    "note": "Location 0 · skel/head/Jaccard 미일치"
+    "version_gate": "v3 분기 있음(RE)",
+    "note": "정정(r20 F/r21 w2: resolve_fight_stake(ee3c80 신규 호출 · 본체 미독)) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -36003,16 +36003,16 @@
    "base_round": "r8",
    "rounds": 1,
    "v060": {
-    "addr": null,
+    "addr": "eec620",
     "addr_058": "e0b730",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·한 줄(r21 w11: phase {1,2}→{1,2,4})",
+    "patch_kind": "심층(r21)",
+    "patch_note": "한 줄: phase 집합 `{1,2}` → **`{1,2,4}`**(마스크 0x16 · 4 = take_born/Hunt 계) · 거리식·camp_pos·반환 동일",
+    "patch_ref": "w11 §B7",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 0 · skel/head/Jaccard 미일치"
+    "note": "정정(r21 w2: v25_scoped_battle_objective(6-arg 동일)) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -41998,16 +41998,16 @@
    "base_round": "r8",
    "rounds": 1,
    "v060": {
-    "addr": null,
+    "addr": "f18f90",
     "addr_058": "de0770",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경(r21 w11: 레거시 본체 동치 · 감사 프롤로그 · finish_race 에필로그)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "**레거시 본체(f1a5a3~f1d3da) = 0.5.8 L295~L442 동치** · ★정정: **+0xcc7 세팅처 f0f080 은 별도 pre-update 함수(0xea4 · LPH::update 만 호출 · sanitize f105d0+f0e5f0+f10f70 래핑 · hunt_call_pending +0xc98 정리도 여기)** · f18f90 은 bb +0x250/+0xc98/+0x360 참조 없음 · 신규 프롤로그 5.6KB = v6 감사 텔레메트리(+0xa48~/+0xcc8~+0xccf/+0x330/+0x350 · f20f60/f21490 · 결정 영향 없음 **추정**) · **신규 에필로그 `+0x138..+0x158 = fe1ad0 finish_race(player,data)` 캐시**(end_check f28320 등 v3 소비)",
+    "patch_ref": "w11 §B4",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
-    "note": "Location 6 · skel/head/Jaccard 미일치"
+    "version_gate": "v3 분기 있음(RE)",
+    "note": "정정(r21 w4/w7: TeamPlan::update(+0xcc7 세팅 프롤로그 · 본체 미독)) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -46242,7 +46242,7 @@
    "v060": {
     "addr": "fb9b70",
     "addr_058": "db8ba0",
-    "verdict": "변경(mig060: 오프셋만 변경)",
+    "verdict": "✅동치(r20)",
     "patch_kind": null,
     "patch_note": null,
     "patch_ref": null,
@@ -49549,7 +49549,7 @@
    "v060": {
     "addr": "100b8d0",
     "addr_058": "de3d90",
-    "verdict": "변경(mig060: 오프셋만 변경)",
+    "verdict": "동치(mig060_same 확정: 오프셋만 변경)",
     "patch_kind": null,
     "patch_note": null,
     "patch_ref": null,
@@ -51475,10 +51475,10 @@
    "v060": {
     "addr": "f0dc20",
     "addr_058": "dd6b40",
-    "verdict": "변경(mig060: 소폭)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "⚠변경·한 줄(r20)",
+    "patch_kind": "심층",
+    "patch_note": "L13 take_setup_like 게이트 이중모드(dd5db0 L91 과 동일 패턴)",
+    "patch_ref": "`2026-09-17_r20_변경99_배치G_누락7_소폭오프셋만_디컴대조_원문.md` §5",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
@@ -53692,7 +53692,7 @@
     "patch_ref": "`2026-09-17_r20_변경99_배치D_14_디컴대조_원문.md` §10",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 일치 · 줄 델타 [211, 226]"
    }
   },
@@ -61519,7 +61519,7 @@
     "patch_ref": "`2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` §3",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.75(3/3)"
    }
   },
@@ -63377,10 +63377,10 @@
    "v060": {
     "addr": "fb5ff0",
     "addr_058": "de92d0",
-    "verdict": "❗대폭(티어1 이관)(r20)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w9 §3)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "serpen 동형 · cc0 대체 Setup = remain(epic +0x1b0) → `since=tick-tp.+0xa0` · top_lead(+0x23a0)<3 ? (since≤3tps ? f904b0 : F) : (since≤3tps ? mid_lead>2‖f904b0 : mid_lead>2 ? EHP : F) · F = f10c60(camp,150000).len()>2 · Split → PassiveLine{Bottom, mode 1} · CONTEST 치환: slot 1 · ca5/ca3 · +0x404/+0x403 · n=fbb470 · ETA +0x790 · **k-랭킹 없음** · phase 2: `ca3 비트 && dist²>220000² → EHP else None`",
+    "patch_ref": "w9 §3",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
@@ -64485,13 +64485,13 @@
    "v060": {
     "addr": "fd7f70",
     "addr_058": "defcd0",
-    "verdict": "⚠변경·부분규명(전담)(r20)",
-    "patch_kind": "전담",
-    "patch_note": "ObjContest 반환 · hp 51→50(v3) · tp 게이트 다수",
-    "patch_ref": "`2026-09-17_r20_변경99_배치B_14_디컴대조_원문.md` §14",
+    "verdict": "변경·심층(r21 §D: w9 §5)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "dcbe00 동형: slot 1 · ef7590(1) · C `3e4!=2 → Recall; 404==2 && cd5!=0 → Recall` · ca5 · `phase=(404==2)?cd6:+0x400` · ObjContest{1, poke: epic.hp<max} · Hunt Split && cc2==0 && f88b30(4) → LineDefense{Bottom} · v≤2 `min(gd.88,gd.98)>5tps` / v≥3 `!ef6da0(1)` · `!cc7 ‖ 404==2 ‖ 403&1 → EpicHunt{false} else ObjContest{1,true}` · D(hp<21·regions==7·200000²)/E(f0cfe0(4)·22500000001) 그대로",
+    "patch_ref": "w9 §5",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 일치 · 줄 델타 [0, 71]"
    }
   },
@@ -67412,13 +67412,13 @@
    "v060": {
     "addr": "d72e70",
     "addr_058": "e6b800",
-    "verdict": "심층(티어1)",
-    "patch_kind": "심층",
+    "verdict": "변경·심층(r21 §D: w1 §2)",
+    "patch_kind": "심층(r21)",
     "patch_note": "v3 확장 후보 e0f970 · escape_possible eeb5b0 · (c1,c2,c3) 특성 · v3 *tps · v3 즉시수락 · lapse +0x49c/8번째 인자",
     "patch_ref": "w1 §2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(14/14)"
    }
   },
@@ -68456,16 +68456,16 @@
    "base_round": "r10",
    "rounds": 1,
    "v060": {
-    "addr": null,
+    "addr": "d57b00",
     "addr_058": "e4b070",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경(r21 w11: obj_key 이중모드 · 헬퍼화 · 라인 래치 꼬리)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "필드 v2_obj_part +0x24a2/+0x24a3 · v2_assign +0x24a6/+0x24a7 · [L525] mf2_obj_key 이중모드(`3e4!=2 → 0x50+3e0` · `404!=2 → 0x60+400` · 둘 다 None → +0xdcd objective) · [L531] restore_safe d56570 3-arg · [L553] csrc 19 = `+0x24d6 ? (d753e0 && d750f0==Some(me)) : d75840(..,+0x24d5)` · [L554] csrc 17 = d756b0 · **신규 꼬리(+0x24d6)**: s∈{13,15} && PassiveLine && +0x120==0 → 래치 +0x24e3/+0x24e4(0xff→line · 무효→line · ≠line → plan=PassiveLine{latch}) · s==29 → +0x24e5=line · [L564] 그대로 · 헬퍼 5 본체 미대조",
+    "patch_ref": "w11 §B9",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 2 · skel/head/Jaccard 미일치"
+    "note": "정정(r21 w4: v2_apply_assign_commit) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -71420,13 +71420,13 @@
    "v060": {
     "addr": "fa3980",
     "addr_058": "d2e500",
-    "verdict": "❗대폭(티어1 이관)(r20)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w3 §2)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "v3 undying → 매복블록 직행 · fb12a0 recall_need · **cj_ambush Some 이면 적 정글러 kill 시간 vs 내 이동+tps/2 → Jungle/Hide{bush,stealth,out_line 1}**",
+    "patch_ref": "w3 §2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.75(6/7)"
    }
   },
@@ -72500,7 +72500,7 @@
     "patch_ref": "`2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` §7",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(7/7)"
    }
   },
@@ -75557,13 +75557,13 @@
    "v060": {
     "addr": "1011d20",
     "addr_058": "d65620",
-    "verdict": "❗대폭(티어1 이관)(r20)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w9 §2)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "진입 match 에 `phase>2 && cc7 → CONTEST` · `phase==2 && cc7 → CONTEST` 추가 · **cc0(v≥2) 면 구 Setup/Flexible/Gather L429~L496 전체 사장** → `dist(anchor‖champ,camp)/ms + 2tps < remain(serpen 리스폰 +0x1e0) ? None : SHP` · Split → PassiveLine{Top, mode +0x120=1} · CONTEST = v3 블록(ca4 비트 · contest_eligible ef5f20 · contest_can_hold ef6da0 · hp<50/phase 3/건강 아군 n>2(10167f0) → ActiveRecall(recall_fits_window ef57f0, c38++) 또는 None) + 공통(phase 2: ca2 비트 && dist²≥220000² · else tick+이동+2tps ≥ +0x788) → 정글 즉시 SHP · k=clamp(efb690(5,12tps),2,4) · e89b70 (eta,pos) 랭킹 내 index ≤ k → SHP",
+    "patch_ref": "w9 §2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.67(4/5)"
    }
   },
@@ -76581,13 +76581,13 @@
    "v060": {
     "addr": "dcbe00",
     "addr_058": "df0e90",
-    "verdict": "❗대폭(티어1 이관)(r20)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w9 §4)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "B v≥3: `serpen.hp==max && (can_upgrade ‖ (in_heal && hp<max))`(hp_ratio<51 삭제) → `!cc7 ‖ !finish_before_enemy(ef7590,0) ? Recall : {c30++; 계속}` · C: `3e4==2 && !(404==2 && cd5==1) → Recall` · v≥3 `cc7 && bt(ca4,pos) → {c38++; Recall}` · `phase=(3e4==2)?cd6:+0x3e0` · **`cc7 && phase==2 → ObjContest{0, poke: serpen.hp<max}`** · Hunt: Split && cc2==0 && f88b30(5) → LineDefense{Aggr,Top,Push} · v≤2 `cc7 && hp<50 && min(gd.c0,gd.d0)>5tps → Recall` / v≥3 `cc7 && !ef6da0(0) && min>5tps → Recall` · `!cc7 ‖ 3e4==2 ‖ 3e3&1 → SerpenHunt{false} else ObjContest{0,true}` · D/E 그대로",
+    "patch_ref": "w9 §4",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 일치 · 줄 델타 [0, 64]"
    }
   },
@@ -78295,10 +78295,10 @@
    "v060": {
     "addr": "e85f00",
     "addr_058": "d9ac10",
-    "verdict": "변경(mig060: 소폭)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "⚠변경·한 줄(r20)",
+    "patch_kind": "",
+    "patch_note": "(404==2&&cd5!=0)` · `not_serpen = 3e4==2 && !(404==2&&cd5==1)`",
+    "patch_ref": "`2026-09-17_r20_변경99_배치G_누락7_소폭오프셋만_디컴대조_원문.md` §4",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
@@ -82253,13 +82253,13 @@
    "v060": {
     "addr": "dd8e70",
     "addr_058": "dfb840",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w2 §1)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "본체 동치(재번호·이중모드) · Defense 넥서스 거리 End 는 v<3 만 · battle_recency End 사장 · **v3 에필로그 REBAR**(이탈 4초 내 Trace 복귀 억제 · engage_stamp +0x20d)",
+    "patch_ref": "w2 §1",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(5/5)"
    }
   },
@@ -86486,13 +86486,13 @@
    "v060": {
     "addr": "d5b980",
     "addr_058": "e59b20",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w7 §3)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "Battle/Dive/Help 처리 → d5d700 아웃라인(5.2KB · 미독) · 종류별 무시 게이트 LPH +0x24b8~+0x24d4 · Press 조건 교체 · HideLine v3 사전검증+d56740 · Repair v3 undying",
+    "patch_ref": "w7 §3",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.67(12/17)"
    }
   },
@@ -88157,13 +88157,13 @@
    "v060": {
     "addr": "d38180",
     "addr_058": "e46bc0",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w6 §1)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "반환 (BigPlan 0x228,code) · objective JT 재배치 · 에고웨이브 `roam>49 skip`·p=(500-10r)(10e)/1000 · PressTower roaming≥40 · ComebackPick 정글 LineGanker(+0x24c5/ff0c10/f1dd50) · 웨이브우선 재작성(f18b10·6b/6c) · legacy_objective 인라인 · ⑧ cc7==0 폐기 · **⑧′ ambient(fb8cc0 · 코드 29)** · ⑩ 정글 +0x1ed0==2?fafe50:PassiveLine(+0x1ed1) · ⑪ Repair v3 undying · **⑪′ cc2 플래너 d56ac0(32/33/34)** · ⑫ +0x24d6 B′(d753e0&&d750f0) · **후처리 E**(Support +0x24b6 · 라이너 +0x24d5 내 라인 복귀 18 · 코드 30/31) · ⚠+0x24d5 = Support 슬롯 제외",
+    "patch_ref": "w6 §1",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.57(8/8)"
    }
   },
@@ -92396,13 +92396,13 @@
    "v060": {
     "addr": "f024d0",
     "addr_058": "dcee40",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w7 §2)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "v3 chat 억제 · armed 시 압박탑 생략·L910 직행 · **V6 commit 블록**(gather/cut/take · open_scene · deadline/quorum) · 1005~1094 v≥2 삭제 · efdf40 · 미독 f02ef6..f04f8f",
+    "patch_ref": "w7 §2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.72(42/42)"
    }
   },
@@ -95900,13 +95900,13 @@
    "v060": {
     "addr": "f10f70",
     "addr_058": "dda220",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w7 §1)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "armed 면 v27 discipline **비활성** · V6 track 종료 감시 · 목표 사망(v3 nexus_basis) · **V6 pre-pass**(lock 해제 · enemy_gather_since · pred_dpt/n · window_intent 0..3) · **V6KILL**(레거시 objective 우선) · gank preprocess v3 LineGanker 조건 · 귀환 억제(bb call-vec kind1 · v3 undying · finish_race) · phase switch(양 씬 None 일 때만) · **씬 핸들러 I/J**(Assemble 2↔Hunt 3↔take_born 4 · hopeless/conceded/deadline) · Repair v3 v4_repair_low · phase 핸들러 표 12 · eff930 M728 Hunt 교체",
+    "patch_ref": "w7 §1",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "수동: team_plan.rs Location 45→31 · J 0.29 · cos 0.998 · 24.7KB→30.9KB"
    }
   },
@@ -98489,13 +98489,13 @@
    "v060": {
     "addr": "dcce40",
     "addr_058": "df36e0",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w2 §0·§2)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "신규 구역 8: 플립플롭 계측/브레이커(exit 12) · TANKAVAIL(die_avail) · TWBIN(bb 공유 스탬프 · exit 15) · 솔로듀얼(7/9) · 추격진척(7/10) · TBFLEE(16) · JOINGATE(13) · line 히스테리시스 · dd82a0→Kiting · team_dive 게이트 · v3 latch · **BattlePlan 0.6.0 필드표**",
+    "patch_ref": "w2 §0·§2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.80(8/8)"
    }
   },
@@ -101381,13 +101381,13 @@
    "v060": {
     "addr": "d606b0",
     "addr_058": "e5d5d0",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w5 §4)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "신규 프롤로그(flee_latch/latch_v3 · pending tower_binary +0x1ef8 동기·유효성·다이브 콜 · one_shot d601f0) · §C 합류 대폭(gank=bb Vec · joiner(FightJoiner/합류창/정글) · range 450000/250000 · 트리거 1→2→3 · v3 게이트 A/bb · commit=line≠Disengage · reject 기록) · §A aggr=+0x230≥70‖특성 · 유효 objective 인라인 · §D isolated/chased · solokill Gank 조건 삭제",
+    "patch_ref": "w5 §4",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.78(21/21)"
    }
   },
@@ -107127,13 +107127,13 @@
    "v060": {
     "addr": "d3d210",
     "addr_058": "e4c5c0",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w4 §3~§5)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "호출자 = 래퍼 d5a940 · 구 본체 오프셋만(egowave 상수 스케일 1건) · 신규 17.5KB 목표 오케스트레이션: v3 위치 링 · 앵커/이름 계산 · armed 플래그군 · bb Vec +0x250 레코드 → 채팅(0xf)/넥서스방어(objective=2+ForcePassive)/kind4(objective=4) · ObjContest 표결(tp 모드/ETA +0x778~) · 강제 플랜 배정(7KB 미독) · 강제 LineGanker(4.6KB 미독) · 서포터 라인슬롯 · v3 정글 귀환 상태기 · 리콜커밋 +0x24aa/+0x24ac → 강제 ActiveRecall · Battle 이탈 +0x2060/68/70=(target,tick,**bp.exit_src**) · 미독 6 구역 → r22",
+    "patch_ref": "w4 §3~§5",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "수동: handler.rs Location 19→55 · J 0.35 · cos 0.999 · 42KB→77KB(AI 루트 update 대폭 확장)"
    }
   },
@@ -120993,7 +120993,7 @@
     "patch_ref": "`2026-09-17_r20_변경99_배치D_14_디컴대조_원문.md` §8",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.89(8/8)"
    }
   },
@@ -134360,16 +134360,16 @@
    "base_round": "r14",
    "rounds": 1,
    "v060": {
-    "addr": null,
+    "addr": "fa9d60",
     "addr_058": "db8e60",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·소(r21 w11: gank_open_site/line/snap 기록 · sub_goal 폐기 동치)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "소변경: site 인자 → `bp.+0x214 gank_open_site=site` · `bp.+0x205 gank_line=self.line(+0xab)` · **`bp.+0x40 gank_open_snap=Some{MIN,MIN, arrived_tick==0?-1:sat(tick−arrived), 0x0e,0xff,0xff}`**(소비처 미확인) · sub_goal 폐기 `{3,4,7}`→`≥2`(동치) · eeb5b0 = open_chase_race_hopeless(e0ad90 동일 · w1 「escape_possible」 라벨 = 이 함수) · debug 로그 2(sure_kill = site∈{2,6})",
+    "patch_ref": "w11 §B2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 1 · skel/head/Jaccard 미일치"
+    "note": "정정(r21 w8: make_gank_battle(site 인자 추가 · 본체 미독)) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -147998,14 +147998,14 @@
    "v060": {
     "addr": null,
     "addr_058": "dc6ec0",
-    "verdict": "미발견",
+    "verdict": "소멸(0.6.0 에 없음)",
     "patch_kind": null,
     "patch_note": null,
     "patch_ref": null,
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 6 · skel/head/Jaccard 미일치"
+    "note": "정정(r21/enum정체: AroundHide 소멸 — 0.6.0 에 없음) ← 구 미발견"
    }
   },
   {
@@ -149299,7 +149299,7 @@
    "v060": {
     "addr": "eabbb0",
     "addr_058": "cc9740",
-    "verdict": "변경(mig060: 소폭)",
+    "verdict": "✅동치(r20)",
     "patch_kind": null,
     "patch_note": null,
     "patch_ref": null,
@@ -151841,14 +151841,14 @@
    "v060": {
     "addr": "fd98c0",
     "addr_058": "cce210",
-    "verdict": "⚠변경·부분규명(전담)(r20)",
-    "patch_kind": "전담",
-    "patch_note": "v2 우물 회피/lethal PathFinder 정책(trace_avoid_well·_lethal) · self 레이아웃 변경",
-    "patch_ref": "`2026-09-17_r20_변경99_배치B_14_디컴대조_원문.md` §13",
+    "verdict": "동치(r21 w10: 디버그 로그만 · 배치 B 「전담」 정정)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "**로직 동치** — self 레이아웃 동일(+0x10 PathFinder 인라인 · +0x60~+0x95) · 우물 회피/lethal 정책은 0.5.8 에 이미 존재 · +1242B = 디버그 로그 3곳(ctx+0x3b) ⟹ r20 「전담」 정정",
+    "patch_ref": "w10 §4",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [70, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [70, 214] · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -163091,13 +163091,13 @@
    "v060": {
     "addr": "f77820",
     "addr_058": "d5bbf0",
-    "verdict": "⚠변경·부분규명(전담)(r20)",
-    "patch_kind": "전담",
-    "patch_note": "v3 분기 5지점(도달가능 산식 · bb 슬롯 스캔 · +0x49c 게이트 8번째 인자 · 꼬리 집계) — 20KB",
-    "patch_ref": "`2026-09-17_r20_변경99_배치B_14_디컴대조_원문.md` §11",
+    "verdict": "변경·심층(r21 §D: w10 §3)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "5지점: **§C projected_minion_damage(v2/v3 공통)** `adj = stance==0?0 : (hp≤stance ‖ dmg%≥50 ‖ (hp%<66&&dmg%≥30) ‖ (hp%<41&&dmg%≥18) ‖ (hp%<26&&dmg%≥10)) ? stance : 0; pmd = adj.sat_sub(current/2)` · **§E lapse_core 8번째 인자** `1000+min(judgement,100)²/20` · **§H/§I expected_shield 유지 v3** `applyed>0 ‖ epic_tank ‖ 적 소액션 tag 6..=9 가 t 조준(f5d740)`(possible 항 삭제) · defensive_crisis 6번째 인자 §H walk_ticks=`(dist−cast_range)/max(ms,1)` / §I 0 · **§H/§I 꼬리 v3** `total −= vt[0x70](ctx,champ,t)*hp_value/max(t.hp,1)` · §A/B/D/F/G 그대로(db0160 3-bool 캐시 동구조)",
+    "patch_ref": "w10 §3",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(17/17)"
    }
   },
@@ -168246,7 +168246,7 @@
     "patch_ref": "",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(15/15)"
    }
   },
@@ -170693,13 +170693,13 @@
    "v060": {
     "addr": "f749a0",
     "addr_058": "d59940",
-    "verdict": "❗대폭(티어1 이관)(r20)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w10 §1)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "인자 11→10(`_debug` 삭제) · **v3 적 챔피언 조기 반환**(Champion arm · pos≠Jungle · near_enemies(+0x14d8/+0x14f0 · 0xd8B) 에 t 있으면 `hv_t*(value + risk_damage/2 + possible_risk(dur+30)/4 + risk_possible_tower)/max(t.hp,1) + bonus − hv_me*(possible_risk(me)+risk+tower)/max(champ.hp,1)` 반환 · 없으면 공통 경로) · **특성 flag(v2/v3 공통)**: `Aggr(+0x49d) → (flag,def)=(true,false)` · else `(Def ‖ pos≠Jungle, Def)` → L147 `flag ? (def ? urg+multi+5 : urg+multi) : urg+3+multi` · L168/L378/L345 `flag&&!def → (gen<err?10:-9999)` · L359 `def → (gen<err?-9999:25)` · 미니언 분기 전부 그대로 · 콜리 ff1fc0 possible_risk · db0400 hp_value 캐시(본체 de5780) · d72be0 · Action vt +0x80 duration",
+    "patch_ref": "w10 §1",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(18/18)"
    }
   },
@@ -178624,10 +178624,10 @@
    "v060": {
     "addr": "e96780",
     "addr_058": "cb03b0",
-    "verdict": "❗대폭(티어1 이관)(r20)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w10 §2)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "인자 9→8(debug 삭제 · rs:52~53 로그 제거) · **rs:65~75 재작성 = SerpenCheck 동일 패턴**: `!move_check → enemy_side ? set : Stump 4.9e9 이내 ? (!tp.cc0 ? set : (Morgard 220000² 내 hp≥50 아군 ≥ REQ[tutorial]([3,2,1,2,1,3,1,3,3]) ‖ hp≥40 앵커(dist+BIAS[60000,0,40000,60000,20000] 최소·동점 앞)==나 ? set : mc_now=false)) : mc_now=false` · Trace 태그 0xe→0xd · position_score 셀 중심은 0.5.8 부터(동치) · rs:77~103 그대로",
+    "patch_ref": "w10 §2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
@@ -181063,13 +181063,13 @@
    "v060": {
     "addr": "eafb50",
     "addr_058": "cc4260",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w3 §1)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "position_score 셀 중심 6인자(parameter 삭제) · v3 RunAway 조건(적 (12f0+32000)² 근접 ‖ e7f810) · v3 카정 move_action(격자 경로 ee0fe0/ee2310 · ecdb90 out_line 1 r16000)",
+    "patch_ref": "w3 §1",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.77(10/10)"
    }
   },
@@ -182847,13 +182847,13 @@
    "v060": {
     "addr": "f356b0",
     "addr_058": "cb7540",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w8 §B)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "L34/L107 `!(v3 && stealth)` 게이트 · **stealth 이동 블록**(region==bush → check_move · ee0dd0 경로 → AroundPosition::new_ex(out_line 1,r16000) · 폴백 ee1820 · Stop 0x12) · 후보 비면 Stop · direct/ambush_cell 미소비 · 생성자 = PassiveJungle 매복 1곳(구 캠프접근 사장 추정)",
+    "patch_ref": "w8 §B",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(15/15)"
    }
   },
@@ -201825,13 +201825,13 @@
    "v060": {
     "addr": "faa7c0",
     "addr_058": "db9430",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w8 §A)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "3분기(open/**response**(BattlePlan 프로브 → screened 폐기 · BattleHelp)/None) · L117 내 라인 존 적 제외(lane_zone 19903f0 · own_line +0xac · exposed +0xa7 — LPH [TRAIT_ROAM] 강제 생성만 세팅) · arrived_tick · make_gank_battle fa9d60 **site 인자(1~7)** · version 분기 0",
+    "patch_ref": "w8 §A",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.92(12/12)"
    }
   },
@@ -204024,13 +204024,13 @@
    "v060": {
     "addr": "fa47a0",
     "addr_058": "d2f180",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w3 §3~4)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "v3 블록 A 매복 유지/해제 · 블록 B 매복 시도(fa2670) · cj_meet 플래그군 · lead_action = fa3350(갱 라인 선택) · v2 는 fa1010+f1dd50 게이트",
+    "patch_ref": "w3 §3~4",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.62(18/22)"
    }
   },
@@ -211759,13 +211759,13 @@
    "v060": {
     "addr": "d6c2b0",
     "addr_058": "e65b10",
-    "verdict": "심층(티어1)",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·심층(r21 §D: w6 §2)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "본체 동치 + **v3 아군 대상 궁**(eff.vt[0xc0] info · defensive_crisis(ally) → Ult{ally} 99999) + 계측 + TBPICK 로그 삭제 · 재번호(Ult 17 · 갈래 B {2,3,6,7,8,9}) · sub_plan +0x13a0 · +0xde0 · +0x24d3 · +0x14c8",
+    "patch_ref": "w6 §2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(10/10)"
    }
   },
@@ -215345,7 +215345,7 @@
     "patch_ref": "`2026-09-17_r20_변경99_배치C_14_디컴대조_원문.md` §4",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=1.00(15/15)"
    }
   },
@@ -219328,7 +219328,7 @@
     "patch_ref": "`2026-09-17_r20_변경99_배치F_14_디컴대조_원문.md` §12",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "수동: lib.rs Location 2→4(889/914 → 1273/1323 · +384) · cos 1.000 · 7.9KB→9.4KB"
    }
   },
@@ -222693,13 +222693,13 @@
    "v060": {
     "addr": "edb240",
     "addr_058": "eba9b0",
-    "verdict": "심층(티어1)",
-    "patch_kind": "심층",
+    "verdict": "변경·심층(r21 §D: w1 §1)",
+    "patch_kind": "심층(r21)",
     "patch_note": "v2 = 구 본체 + bool 게이트(simple/ignore_nuke/no_noise) · **v3 = 신규 타임라인 알고리즘**(arrival·궁 즉시분/지연분·pool=hp*tps·undying 하한 · tick 버킷 없음) · 캐시 +0x46..+0x4b",
     "patch_ref": "w1 §1",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
+    "version_gate": "v3 분기 있음(RE)",
     "note": "Location (파일,열) 부분 일치 J=0.52(14/14)"
    }
   },
@@ -245808,7 +245808,7 @@
    "v060": {
     "addr": "f66a30",
     "addr_058": "e83080",
-    "verdict": "변경(mig060: 소폭)",
+    "verdict": "✅동치(r20)",
     "patch_kind": null,
     "patch_note": null,
     "patch_ref": null,
@@ -266720,16 +266720,16 @@
    "base_round": "r18",
    "rounds": 1,
    "v060": {
-    "addr": null,
+    "addr": "d51a70",
     "addr_058": "e49a50",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경(r21 w11: 프롤로그 씬 종료+lock · version 0x5e→실제 · +0x24d6 assign)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "AgentVerHamster vt 0x143a86c20 슬롯 +0x88 f4d170 경유 · **0.5.8 은 version 인자 상수 0x5e(94) · 0.6.0 은 실제 version(+0x3608)**(명세에 「구=94 고정」 주석) · 신규 프롤로그: `cc5 && serpen.take_born!=2 → take_born=2; c68++; v4_serpen_lock=Some{tick, f1e3c0(..,5), why:2}` · morgard 동형(cc6/+0x404/f1e3c0(..,4)/+0xf0) · 비패시브 분기 Battle 판정 `tag<2`(니치) · `bp.+0xd0!=2 → self+0x1ef8..+0x1f10 = plan+0x1010..+0x1028`(pending tower_binary) · `+0x24d6 → d57b00 v2_apply_assign_commit` · Vec +0x1200/+0x1188/+0x1198/+0x11e8 · 나머지 동치",
+    "patch_ref": "w11 §A1",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
-    "note": "Location 0 · skel/head/Jaccard 미일치"
+    "version_gate": "v3 분기 있음(RE)",
+    "note": "Location 0 · skel/head/Jaccard 미일치 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -269797,16 +269797,16 @@
    "base_round": "r18",
    "rounds": 1,
    "v060": {
-    "addr": null,
+    "addr": "eebb40",
     "addr_058": "e0b030",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경·소(r21 w11: bias 인자)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "소변경: 인자 +player/+debug · 동일 bias → absolute/diff · abandon 0 · L648~669 동치",
+    "patch_ref": "w11 §B6",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 0 · skel/head/Jaccard 미일치"
+    "note": "정정(r20 F/r21 w2: stake_roster) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -271211,16 +271211,16 @@
    "base_round": "r18",
    "rounds": 1,
    "v060": {
-    "addr": null,
+    "addr": "e93e00",
     "addr_058": "e25030",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "동치(r21 w11: 인라인만)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "**동치**(상수 140/70/25/50/25/90/80/25/20/−3000 전부 · find/hp_at_tick 인라인 · vt +0xe8→+0x108)",
+    "patch_ref": "w11 §B8",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 0 · skel/head/Jaccard 미일치"
+    "note": "정정(r20 C: target_score) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -272008,16 +272008,16 @@
     "note_name_orig": "get_small_action 점수 합성 클로저 (LegacyPlanHandler::get_small_action::{closure#3} · Vec<(i64,SmallActionPlay),&Bump>::from_iter_in<Map<IntoIter<SmallActionPlay>, closure#3>> 인스턴스)"
    },
    "v060": {
-    "addr": null,
+    "addr": "e13c10",
     "addr_058": "ca6700",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "변경(r21 w11: v3 veto f71610 · 가중치표 재번호 동치)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "d6c2b0 d6d916 호출(Ghidra xref 누락) · `map(|c| (score(c),c)).collect()` · 가중치표 tag3..9 `[0,0,2,3,0,1,3]`(AroundHide 제거 · 동치) · **v3 veto** `f71610(version,player,data,&cand,env[0x218],env[8]) → score=-9_999_999`(`[TBEVAL]` · v<3 false · DM false · 대상 있는 play(Trace13/Attack14/Skill15/Skill2 16/Ult17) · 대상≠나 · 대상 hp≠0 · 나 undying==0 · !e74a50 · 본체 f717c0~f71f4c 미독) · env 7→8",
+    "patch_ref": "w11 §A2",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
-    "version_gate": null,
-    "note": "Location 0 · skel/head/Jaccard 미일치"
+    "version_gate": "v3 분기 있음(RE)",
+    "note": "Location 0 · skel/head/Jaccard 미일치 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -274810,16 +274810,16 @@
    "base_round": "r18",
    "rounds": 1,
    "v060": {
-    "addr": null,
+    "addr": "f10c60",
     "addr_058": "dd9f30",
-    "verdict": "미발견",
-    "patch_kind": null,
-    "patch_note": null,
-    "patch_ref": null,
+    "verdict": "동치(r21 w11: 본체 동치 · lapse 8번째 인자 · DM 경로만 cc1)",
+    "patch_kind": "심층(r21)",
+    "patch_note": "**본체 동치** · judge_accuracy 인라인 동일식 · +0x49c 게이트는 0.5.8 에도 있음 · lapse 1417d68b0 8번째 인자 `1000+min(+0x490,100)²/20` · 반환 (bool,bool) al|dl · 클로저 e066b0 비DM 완전 동일 · DM 경로만 `cc1 → mia_ref=max(mia, bb[my].+0x500+i*8)`",
+    "patch_ref": "w11 §B3",
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 0 · skel/head/Jaccard 미일치"
+    "note": "정정(r20/r21 다수: can_near_enemies_range) ← 구 미발견 · r21 w10/w11 본체 대조"
    }
   },
   {
@@ -275321,6 +275321,7 @@
    "mig060_judge",
    "r19_result",
    "r20_result",
+   "r21(spec_patch_060 §D)",
    "spec_patch_060"
   ],
   "note": "logic_060 는 applyspec060 단계에서 채움 · 원본 logic 은 손대지 않음"

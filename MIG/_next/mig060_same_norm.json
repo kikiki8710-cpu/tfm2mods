@@ -1,142 +1,134 @@
 [
 {
-"old": "cc3080",
-"new": "ea6f40",
-"name": "BattleSubPlan::score",
+"old": "cc9740",
+"new": "eabbb0",
+"name": "EpicPokeSubPlan::action_candidates_old",
 "src": "spec",
-"v0": "이동만",
-"strict": "✅오프셋만(Δ0x20) · 정규화 21 · 블록이동 200 · 스택슬롯 2 · 패닉스텁 재배열 3 · 콜리 주의 5",
+"v0": "소폭",
+"strict": "⚠정렬 불가(미확정) · 정규화 6 · 스택슬롯 70 · 콜리 주의 4",
 "ninsn": [
-948,
-948
+950,
+966
 ],
-"aligned": 948,
-"struct_diff": [],
-"branch_diff": [],
+"aligned": 935,
+"struct_diff": [
+"구 15명령(cmove|r8, rcx…) / 신 31명령(cmove|rdx, rcx…) 짝 없음"
+],
+"branch_diff": [
+"cc9d4f → cca6aa/eacb7b"
+],
 "imm": [],
 "small": [],
 "typeid": [],
-"moved": 200,
-"stack": 2,
+"moved": 0,
+"stack": 70,
 "enum": [],
 "norm": [
-"오프셋표 [r12+930→a00]",
-"오프셋표 [r12+9c0→a90]",
+"오프셋표 [r8+930→a00]",
+"오프셋표 [r8+9c0→a90]",
 "SmallActionPlay 태그 7→6",
-"SmallActionPlay idx 4→3",
-"SmallActionPlay idx 4→3",
-"SmallActionPlay idx 4→3",
-"SmallActionPlay idx 4→3",
-"SmallActionPlay idx 4→3",
-"SmallActionPlay 태그 e→d",
-"오프셋표 [rax+928→9f8]",
-"SmallActionPlay idx 4→3",
-"SmallActionPlay idx 4→3",
-"SmallActionPlay idx 4→3",
-"SmallActionPlay idx 4→3"
+"SmallActionPlay 태그 7→6",
+"SmallActionPlay 태그 7→6"
 ],
 "vt": [
-"vt 60→80",
-"vt 60→80",
-"vt 88→a8",
-"vt 88→a8",
-"vt 60→80",
-"vt 88→a8",
-"vt 88→a8"
+"vt e8→108"
 ],
-"disp": [
-[
-"0xcc4032",
-"rcx",
-"0xa0",
-"0xc0"
-]
-],
+"disp": [],
 "data": [],
-"lea": [
-"cc41a4 Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\battle.rs', 738, 40) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\battle.rs', 707, 43)",
-"cc41b2 Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\battle.rs', 654, 42) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\battle.rs', 749, 40)",
-"cc41c0 Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\battle.rs', 696, 43) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\battle.rs', 665, 42)"
-],
-"reg": 0,
-"loc_ok": 5,
-"data_ok": 4,
-"deltas": {
-"0x20": 1
-},
+"lea": [],
+"reg": 1,
+"loc_ok": 8,
+"data_ok": 2,
+"deltas": {},
 "known": {},
-"callees": 48,
+"callees": 29,
 "callee_grades": {
-"변경": 16,
-"skel동일": 21,
-"동일": 11
+"동일": 5,
+"skel동일": 15,
+"미지": 8,
+"변경": 1
 },
 "bad_callee": [
 "12857f0→1643790 변경",
-"d57540→f72620 변경",
-"d59940→f749a0 변경",
-"d676c0→fe3fd0 변경",
-"d69f80→fe6840 변경"
+"31a01a3→381e0b3 미지",
+"cada80→e920f0 미지(+2B)",
+"cb0310→e966a0 미지(-2B)"
 ]
 },
 {
-"old": "cc5fc0",
-"new": "ea8450",
-"name": "RecallSubPlan::score",
+"old": "ccc010",
+"new": "e60420",
+"name": "sub_plan",
 "src": "spec",
-"v0": "오프셋 이동",
-"strict": "⚠정렬 불가(미확정) · 정규화 7 · 블록이동 9 · 콜리 주의 1",
+"v0": "소폭",
+"strict": "⚠정렬 불가(미확정) · 정규화 4 · 블록이동 3 · 스택슬롯 8 · 콜리 주의 1",
 "ninsn": [
-101,
-108
+143,
+146
 ],
-"aligned": 101,
+"aligned": 121,
 "struct_diff": [
-"구 0명령 / 신 7명령 짝 없음"
+"구 22명령(test|r15, r15…) / 신 25명령(mov|rdi, qword ptr [r14 + I]…) 짝 없음"
 ],
 "branch_diff": [
-"cc6027 → cc6127/ea850f",
-"cc60d6 → cc611a/ea8519"
+"ccc0fa → ccc0ff/e6050c",
+"ccc127 → ccc155/e6056d",
+"ccc131 → ccc155/e6056d",
+"ccc1a7 → ccc208/e60629",
+"ccc1af → ccc208/e60629",
+"ccc1b7 → ccc208/e60629",
+"ccc1df → ccc1ff/e6061a",
+"ccc1e4 → ccc1ff/e6061a",
+"ccc1fd → ccc208/e6062e"
 ],
-"imm": [
-[
-"0xcc601f",
-"0x1ffdc",
-"0x13"
-]
-],
+"imm": [],
 "small": [],
 "typeid": [],
-"moved": 9,
-"stack": 0,
+"moved": 3,
+"stack": 8,
 "enum": [],
 "norm": [
-"SmallActionPlay 태그 7→6",
-"오프셋표 [rdi+930→a00]",
-"오프셋표 [rdi+9c0→a90]",
-"SmallActionPlay 태그 b→a",
-"SmallActionPlay 태그 d→c"
+"오프셋표 [rbx+930→a00]",
+"오프셋표 [rbx+9c0→a90]",
+"SmallActionPlay 태그 1→0",
+"SmallActionPlay 태그 0→1"
 ],
-"vt": [
-"vt 80→a0",
-"vt 80→a0"
-],
+"vt": [],
 "disp": [
 [
-"0xcc6091",
-"rdx",
-"-0xf",
-"-0xe"
+"0xccc066",
+"r14",
+"0x628",
+"0x670"
+],
+[
+"0xccc1ea",
+"rax",
+"0x8",
+"0x20"
+],
+[
+"0xccc1ee",
+"rax",
+"0x10",
+"0x28"
+],
+[
+"0xccc1f4",
+"rax",
+"0x12",
+"0x2c"
 ]
 ],
 "data": [],
 "lea": [],
-"reg": 0,
+"reg": 17,
 "loc_ok": 4,
-"data_ok": 1,
+"data_ok": 0,
 "deltas": {
-"-0x1ffc9": 1,
-"0x1": 1
+"0x48": 1,
+"0x18": 2,
+"0x1a": 1
 },
 "known": {},
 "callees": 5,
@@ -145,862 +137,406 @@
 "skel동일": 4
 },
 "bad_callee": [
-"d57540→f72620 변경"
+"e7a8c0→f27140 변경"
 ]
 },
 {
-"old": "ccaa10",
-"new": "eacee0",
-"name": "EpicPokeSubPlan::score",
+"old": "d9ac10",
+"new": "e85f00",
+"name": "steal::should_steal_now",
 "src": "spec",
-"v0": "오프셋 이동",
-"strict": "⚠정렬 불가(미확정) · 정규화 4 · 블록이동 5 · 콜리 주의 1",
+"v0": "소폭",
+"strict": "⚠정렬 불가(미확정) · 정규화 4 · 패닉스텁 재배열 2",
 "ninsn": [
-179,
-181
+945,
+961
 ],
-"aligned": 178,
+"aligned": 945,
 "struct_diff": [
-"구 1명령(jmp|I…) / 신 3명령(lea|edx, [rcx - I]…) 짝 없음"
+"구 0명령 / 신 16명령 짝 없음"
 ],
-"branch_diff": [
-"ccabab → ccabc3/ead095"
-],
-"imm": [
-[
-"0xccaba3",
-"0x1ffdc",
-"0x13"
-],
-[
-"0xccac0e",
-"0x18",
-"0x10"
-],
-[
-"0xccac13",
-"0x10",
-"0x8"
-],
-[
-"0xccac1a",
-"0x20",
-"0x18"
-],
-[
-"0xccac1f",
-"0x18",
-"0x10"
-],
-[
-"0xccac26",
-"0x38",
-"0x20"
-],
-[
-"0xccac2b",
-"0x30",
-"0x18"
-],
-[
-"0xccac32",
-"0x10",
-"0x38"
-],
-[
-"0xccac37",
-"0x8",
-"0x30"
-]
-],
-"small": [
-[
-"0xccac0e",
-"0x18",
-"0x10"
-],
-[
-"0xccac13",
-"0x10",
-"0x8"
-],
-[
-"0xccac1a",
-"0x20",
-"0x18"
-],
-[
-"0xccac1f",
-"0x18",
-"0x10"
-]
-],
-"typeid": [],
-"moved": 5,
-"stack": 0,
-"enum": [],
-"norm": [
-"오프셋표 [rdi+930→a00]",
-"오프셋표 [rdi+9c0→a90]",
-"SmallActionPlay 태그 7→6",
-"SmallActionPlay 태그 7→6"
-],
-"vt": [],
-"disp": [],
-"data": [],
-"lea": [],
-"reg": 0,
-"loc_ok": 5,
-"data_ok": 1,
-"deltas": {
-"-0x1ffc9": 1,
-"-0x8": 4,
-"-0x18": 2,
-"0x28": 2
-},
-"known": {},
-"callees": 6,
-"callee_grades": {
-"변경": 1,
-"skel동일": 5
-},
-"bad_callee": [
-"d57540→f72620 변경"
-]
-},
-{
-"old": "ccacf0",
-"new": "f39240",
-"name": "LineSafeSubPlan::action_candidates",
-"src": "spec",
-"v0": "오프셋 이동",
-"strict": "⚠정렬 불가(미확정) · 정규화 6 · 블록이동 45 · 스택슬롯 33 · 콜리 주의 2",
-"ninsn": [
-675,
-685
-],
-"aligned": 670,
-"struct_diff": [
-"구 5명령(xor|edx, edx…) / 신 15명령(mov|rsi, qword ptr [rbp - I]…) 짝 없음",
-"ccb421 피연산자 수",
-"ccb740 피연산자 형",
-"ccb746 피연산자 형"
-],
-"branch_diff": [
-"ccb3b0 → ccb46a/f396b5",
-"ccb45f → ccb527/f39614",
-"ccb4ed → ccb067/f39a82",
-"ccb6ee → ccb6f8/f395cd"
-],
+"branch_diff": [],
 "imm": [],
 "small": [],
 "typeid": [],
-"moved": 45,
-"stack": 33,
-"enum": [],
-"norm": [
-"오프셋표 [r10+930→a00]",
-"오프셋표 2e8→5c8",
-"오프셋표 [rax+9c0→a90]",
-"SmallActionPlay 태그 f→e",
-"SmallActionPlay 태그 f→e"
-],
-"vt": [
-"vt e8→108"
-],
-"disp": [],
-"data": [],
-"lea": [],
-"reg": 4,
-"loc_ok": 5,
-"data_ok": 10,
-"deltas": {},
-"known": {},
-"callees": 27,
-"callee_grades": {
-"skel동일": 12,
-"미지": 9,
-"동일": 6
-},
-"bad_callee": [
-"31a01a3→381e0b3 미지",
-"cada80→f26680 미지(+2B)"
-]
-},
-{
-"old": "ccbb10",
-"new": "f3a070",
-"name": "LineSafeSubPlan::score",
-"src": "spec",
-"v0": "이동만",
-"strict": "⚠정렬 불가(미확정) · 정규화 3 · 블록이동 16 · 패닉스텁 재배열 2 · 콜리 주의 3",
-"ninsn": [
-209,
-211
-],
-"aligned": 206,
-"struct_diff": [
-"구 3명령(mov|r8, qword ptr [rsp + I]…) / 신 5명령(mov|rsi, qword ptr [rsp + I]…) 짝 없음"
-],
-"branch_diff": [
-"ccbc7a → ccbd16/f3a3a3",
-"ccbc9c → ccbc41/f3a3af",
-"ccbcea → ccbc41/f3a3af",
-"ccbcff → ccbe5c/f3a3af",
-"ccbd11 → ccbc48/f3a3b1",
-"ccbd1b → ccbc43/f3a3b1",
-"ccbe57 → ccbc43/f3a3b1",
-"ccbe5e → ccbc48/f3a3b1"
-],
-"imm": [
-[
-"0xccbd6a",
-"0x590",
-"0x580"
-],
-[
-"0xccbdb2",
-"0x570",
-"0x590"
-],
-[
-"0xccbdf3",
-"0x580",
-"0x570"
-]
-],
-"small": [],
-"typeid": [],
-"moved": 16,
+"moved": 0,
 "stack": 0,
 "enum": [],
 "norm": [
-"오프셋표 [r14+930→a00]",
-"오프셋표 [r14+9c0→a90]",
-"SmallActionPlay 태그 7→6"
+"오프셋표 [rdx+9c0→a90]",
+"오프셋표 [rdx+930→a00]",
+"SmallActionPlay 태그 0→2",
+"SmallActionPlay 태그 1→2"
 ],
 "vt": [],
 "disp": [
 [
-"0xccbd4e",
-"r13",
-"0x530",
-"0x4f8"
+"0xd9ac7f",
+"rbx",
+"0x1ba",
+"0x472"
 ],
 [
-"0xccbd5c",
-"r13",
-"0x500",
-"0x4c8"
+"0xd9acc3",
+"rbx",
+"0x220",
+"0x510"
 ],
 [
-"0xccbd96",
-"r13",
-"0x4c0",
+"0xd9ad33",
+"rbx",
+"0x1b9",
+"0x471"
+],
+[
+"0xd9ae1b",
+"rbx",
+"0x230",
+"0x520"
+],
+[
+"0xd9ae22",
+"rbx",
+"0x238",
+"0x528"
+],
+[
+"0xd9ae39",
+"rbx",
+"0x2a8",
+"0x598"
+],
+[
+"0xd9af16",
+"rbx",
+"0x240",
 "0x530"
 ],
 [
-"0xccbda4",
-"r13",
-"0x490",
-"0x500"
+"0xd9af1d",
+"rbx",
+"0x248",
+"0x538"
 ],
 [
-"0xccbdab",
-"r13",
-"0x3fc",
-"0x400"
+"0xd9af34",
+"rbx",
+"0x2b0",
+"0x5a0"
 ],
 [
-"0xccbdd7",
-"r13",
-"0x4f8",
-"0x4c0"
+"0xd9b021",
+"rbx",
+"0x250",
+"0x540"
 ],
 [
-"0xccbde5",
-"r13",
-"0x4c8",
-"0x490"
+"0xd9b028",
+"rbx",
+"0x258",
+"0x548"
 ],
 [
-"0xccbdec",
-"r13",
-"0x400",
-"0x3fc"
-]
-],
-"data": [],
-"lea": [
-"ccbe7f Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\line_safe.rs', 119, 55) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\line_safe.rs', 129, 54)",
-"ccbe8d Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\line_safe.rs', 127, 54) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\line_safe.rs', 121, 55)"
-],
-"reg": 0,
-"loc_ok": 3,
-"data_ok": 2,
-"deltas": {
-"-0x10": 2,
-"0x20": 1,
-"-0x38": 4,
-"0x70": 2,
-"0x4": 1,
-"-0x4": 1
-},
-"known": {},
-"callees": 9,
-"callee_grades": {
-"변경": 3,
-"이동만": 1,
-"skel동일": 5
-},
-"bad_callee": [
-"d57540→f72620 변경",
-"d59940→f749a0 변경",
-"e29b40→100c2f0 변경"
-]
-},
-{
-"old": "d405d0",
-"new": "e78a10",
-"name": "base_attacking_minion_uncached",
-"src": "spec",
-"v0": "이동만",
-"strict": "⚠정렬 불가(미확정) · 정규화 2 · 블록이동 27 · 스택슬롯 7 · 콜리 주의 1",
-"ninsn": [
-190,
-180
-],
-"aligned": 100,
-"struct_diff": [
-"구 90명령(mov|rax, rcx…) / 신 80명령(mov|r9, rcx…) 짝 없음"
-],
-"branch_diff": [
-"d40695 → d40704/e78b0b",
-"d4069d → d406a7/e78cf3",
-"d406a5 → d40704/e78b97",
-"d406b3 → d406a0/e78b40",
-"d406bd → d406a0/e78b80",
-"d406cd → d406f7/e78b40",
-"d406e3 → d406a0/e78bb0",
-"d406f5 → d406e0/e78b45",
-"d40707 → d40781/e78c06",
-"d40714 → d40725/e78c8b"
-],
-"imm": [
-[
-"0xd406ea",
-"0x8",
-"0x130"
-]
-],
-"small": [],
-"typeid": [],
-"moved": 27,
-"stack": 7,
-"enum": [],
-"norm": [
-"오프셋표 [rcx+930→a00]",
-"오프셋표 [rax+9c0→a90]"
-],
-"vt": [],
-"disp": [
-[
-"0xd40733",
-"r8",
-"0x88",
-"0x68"
+"0xd9b03f",
+"rbx",
+"0x2b8",
+"0x5a8"
 ],
 [
-"0xd4080a",
-"r8",
-"0x660",
-"0x668"
+"0xd9b12c",
+"rbx",
+"0x260",
+"0x550"
+],
+[
+"0xd9b133",
+"rbx",
+"0x268",
+"0x558"
+],
+[
+"0xd9b14a",
+"rbx",
+"0x2c0",
+"0x5b0"
+],
+[
+"0xd9b231",
+"rbx",
+"0x270",
+"0x560"
+],
+[
+"0xd9b238",
+"rbx",
+"0x278",
+"0x568"
+],
+[
+"0xd9b247",
+"rbx",
+"0x2c8",
+"0x5b8"
+],
+[
+"0xd9b40e",
+"rbx",
+"0x230",
+"0x520"
+],
+[
+"0xd9b415",
+"rbx",
+"0x238",
+"0x528"
 ]
 ],
 "data": [],
 "lea": [],
-"reg": 22,
-"loc_ok": 1,
+"reg": 0,
+"loc_ok": 7,
 "data_ok": 0,
 "deltas": {
-"0x128": 1,
-"-0x20": 1,
-"0x8": 1
+"0x2b8": 2,
+"0x2f0": 31,
+"-0x3b": 2,
+"0x20": 4,
+"0x8b6": 2
 },
 "known": {},
-"callees": 2,
+"callees": 19,
 "callee_grades": {
-"미지": 1,
-"skel동일": 1
-},
-"bad_callee": [
-"d702b0→e7c120 미지(-455B)"
-]
-},
-{
-"old": "d99f60",
-"new": "100b2b0",
-"name": "v30_line_champion_action_tower_aggro_risk",
-"src": "spec",
-"v0": "이동만",
-"strict": "✅동치(정규화: SmallActionPlay·오프셋표) · 콜리 주의 2",
-"ninsn": [
-168,
-168
-],
-"aligned": 168,
-"struct_diff": [],
-"branch_diff": [],
-"imm": [],
-"small": [],
-"typeid": [],
-"moved": 0,
-"stack": 0,
-"enum": [],
-"norm": [
-"오프셋표 [r14+930→a00]",
-"오프셋표 [r14+9c0→a90]",
-"SmallActionPlay 태그 7→6",
-"SmallActionPlay 태그 c→b",
-"SmallActionPlay idx(부호) -c→-b"
-],
-"vt": [],
-"disp": [],
-"data": [],
-"lea": [],
-"reg": 0,
-"loc_ok": 1,
-"data_ok": 4,
-"deltas": {},
-"known": {},
-"callees": 7,
-"callee_grades": {
-"skel동일": 5,
-"변경": 1,
-"미지": 1
-},
-"bad_callee": [
-"12857f0→1643790 변경",
-"d74bd0→e7f5b0 미지(-453B)"
-]
-},
-{
-"old": "dc2330",
-"new": "ecfdd0",
-"name": "around::SmallActionAroundBush::update_state",
-"src": "spec",
-"v0": "이동만",
-"strict": "✅동치(정규화: 분기·오프셋표) · 블록이동 2 · 콜리 주의 1",
-"ninsn": [
-122,
-123
-],
-"aligned": 121,
-"struct_diff": [],
-"branch_diff": [],
-"imm": [],
-"small": [],
-"typeid": [],
-"moved": 2,
-"stack": 0,
-"enum": [],
-"norm": [
-"분기 반전 dc24c0",
-"오프셋표 [r8+930→a00]",
-"오프셋표 [r8+9c0→a90]"
-],
-"vt": [],
-"disp": [],
-"data": [],
-"lea": [],
-"reg": 0,
-"loc_ok": 3,
-"data_ok": 2,
-"deltas": {},
-"known": {},
-"callees": 7,
-"callee_grades": {
-"미지": 1,
-"동일": 1,
-"skel동일": 5
-},
-"bad_callee": [
-"31a01a3→381e0b3 미지"
-]
-},
-{
-"old": "dc2960",
-"new": "ed0400",
-"name": "SmallActionAroundBush::get_input",
-"src": "spec",
-"v0": "이동만",
-"strict": "⚠정렬 불가(미확정) · 정규화 2 · 블록이동 24 · 스택슬롯 41 · 콜리 주의 2",
-"ninsn": [
-372,
-373
-],
-"aligned": 312,
-"struct_diff": [
-"구 60명령(mov|r15, qword ptr [rbp + I]…) / 신 61명령(mov|r8, qword ptr [rbp + I]…) 짝 없음",
-"dc2a53 피연산자 형",
-"dc2b4d IAT ('kernel32.dll', 'HeapFree')≠('kernel32.dll', 'GetProcessHeap')",
-"dc2cca 피연산자 형"
-],
-"branch_diff": [
-"dc2a6d → dc2be5/ed05a2",
-"dc2be3 → dc2bfe/ed06de",
-"dc2db9 → dc2d86/ed0818",
-"dc2dc7 → dc2dd6/ed0868"
-],
-"imm": [],
-"small": [],
-"typeid": [],
-"moved": 24,
-"stack": 41,
-"enum": [],
-"norm": [
-"오프셋표 [r13+930→a00]",
-"오프셋표 [r13+9c0→a90]"
-],
-"vt": [],
-"disp": [
-[
-"0xdc29f4",
-"r12",
-"0x18",
-"0x50"
-],
-[
-"0xdc2b33",
-"r12",
-"0x50",
-"0x58"
-],
-[
-"0xdc2bbd",
-"r12",
-"0x18",
-"0x50"
-],
-[
-"0xdc2bc2",
-"r12",
-"0x20",
-"0x18"
-]
-],
-"data": [],
-"lea": [
-"dc2edf lea 16B(접두 동일 13B) 08726567696f6e3a20c0000000000000 ≠ 08726567696f6e3a20c0000000580fa8"
-],
-"reg": 28,
-"loc_ok": 4,
-"data_ok": 3,
-"deltas": {
-"0x38": 2,
-"0x8": 1,
-"-0x8": 1
-},
-"known": {},
-"callees": 13,
-"callee_grades": {
-"동일": 2,
-"변경": 2,
-"skel동일": 9
-},
-"bad_callee": [
-"ce2df0→e1f610 변경",
-"cecdd0→e2d650 변경"
-]
-},
-{
-"old": "e0dfc0",
-"new": "dea9b0",
-"name": "v30_wave_danger_chase_guard",
-"src": "spec",
-"v0": "이동만",
-"strict": "⚠정렬 불가(미확정) · 정규화 4",
-"ninsn": [
-573,
-572
-],
-"aligned": 571,
-"struct_diff": [
-"구 2명령(movzx|eax, byte ptr [rsp + I]…) / 신 1명령(movzx|r13d, byte ptr [rsp + I]…) 짝 없음"
-],
-"branch_diff": [],
-"imm": [],
-"small": [],
-"typeid": [],
-"moved": 0,
-"stack": 0,
-"enum": [],
-"norm": [
-"SmallActionPlay idx 4→3",
-"SmallActionPlay idx 4→3",
-"BattleSubPlanGoal 3→2",
-"BattleSubPlanGoal 7→4"
-],
-"vt": [],
-"disp": [],
-"data": [],
-"lea": [],
-"reg": 0,
-"loc_ok": 2,
-"data_ok": 0,
-"deltas": {},
-"known": {},
-"callees": 15,
-"callee_grades": {
-"skel동일": 11,
-"동일": 4
+"skel동일": 17,
+"동일": 2
 },
 "bad_callee": []
 },
 {
-"old": "e23170",
-"new": "e5d4e0",
-"name": "SmallActionPlay::evaluation_position",
+"old": "db8ba0",
+"new": "fb9b70",
+"name": "target_bush_v41",
 "src": "spec",
-"v0": "이동만",
-"strict": "⚠정렬 불가(미확정) · 정규화 7 · 블록이동 28",
+"v0": "오프셋만 변경",
+"strict": "⚠정렬 불가(미확정) · 블록이동 13 · 스택슬롯 3",
 "ninsn": [
-164,
-164
+121,
+101
 ],
-"aligned": 164,
-"struct_diff": [],
+"aligned": 75,
+"struct_diff": [
+"구 46명령(test|cl, cl…) / 신 26명령(mov|eax, ecx…) 짝 없음",
+"db8bc2 피연산자 형",
+"db8c1d scale"
+],
 "branch_diff": [
-"e231dc switch case 수 17→16(정렬 실패)",
-"e2322e → e2341d/e5d652",
-"e23262 → e232a8/e5d770",
-"e2339e → e233f4/e5d799"
+"db8ba6 → db8c6e/fb9c31",
+"db8bb2 → db8cd7/fb9c96",
+"db8c71 → db8d40/fb9cfb",
+"db8cd2 → db8d8d/fb9d8b",
+"db8cda → db8da0/fb9d44",
+"db8d3b → db8e1b/fb9d8b"
 ],
 "imm": [
 [
-"0xe23211",
+"0xdb8c62",
+"0x7",
+"0x2"
+],
+[
+"0xdb8cc8",
+"0x7",
+"0x1"
+],
+[
+"0xdb8d31",
+"0x7",
+"0x1"
+],
+[
+"0xdb8d40",
+"0x10",
+"0x15"
+],
+[
+"0xdb8d49",
+"0x6",
+"0x14"
+],
+[
+"0xdb8d52",
 "0x3",
-"0x5"
+"0xf"
 ],
 [
-"0xe23258",
-"0x58",
-"0x20"
+"0xdb8d5b",
+"0x3",
+"0xf"
 ],
 [
-"0xe2325d",
-"0x50",
-"0x18"
+"0xdb8d64",
+"0x3",
+"0xf"
 ],
 [
-"0xe2329e",
-"0x20",
-"0x58"
+"0xdb8d6d",
+"0x2",
+"0x9"
 ],
 [
-"0xe232a3",
-"0x18",
-"0x50"
+"0xdb8d76",
+"0x2",
+"0x7"
 ],
 [
-"0xe233a7",
-"0x5",
+"0xdb8d94",
+"0x7",
+"0x2"
+],
+[
+"0xdb8da0",
+"0x15",
+"0x10"
+],
+[
+"0xdb8da9",
+"0x14",
+"0x6"
+],
+[
+"0xdb8db2",
+"0xf",
 "0x3"
+],
+[
+"0xdb8dbb",
+"0xf",
+"0x3"
+],
+[
+"0xdb8dc4",
+"0xf",
+"0x3"
+],
+[
+"0xdb8dcd",
+"0x9",
+"0x2"
+],
+[
+"0xdb8dd6",
+"0x7",
+"0x2"
 ]
 ],
 "small": [
 [
-"0xe23211",
-"0x3",
-"0x5"
+"0xdb8c62",
+"0x7",
+"0x2"
 ],
 [
-"0xe233a7",
-"0x5",
-"0x3"
+"0xdb8cc8",
+"0x7",
+"0x1"
+],
+[
+"0xdb8d31",
+"0x7",
+"0x1"
+],
+[
+"0xdb8d40",
+"0x10",
+"0x15"
+],
+[
+"0xdb8d6d",
+"0x2",
+"0x9"
+],
+[
+"0xdb8d76",
+"0x2",
+"0x7"
+],
+[
+"0xdb8d94",
+"0x7",
+"0x2"
+],
+[
+"0xdb8da0",
+"0x15",
+"0x10"
+],
+[
+"0xdb8dcd",
+"0x9",
+"0x2"
+],
+[
+"0xdb8dd6",
+"0x7",
+"0x2"
 ]
 ],
 "typeid": [],
-"moved": 28,
-"stack": 0,
+"moved": 13,
+"stack": 3,
 "enum": [],
-"norm": [
-"오프셋표 [r9+930→a00]",
-"오프셋표 [r9+9c0→a90]",
-"SmallActionPlay 태그 7→6",
-"SmallActionPlay 태그 10→f"
-],
-"vt": [
-"vt 68→88",
-"vt 68→88",
-"vt 60→80"
-],
+"norm": [],
+"vt": [],
 "disp": [
 [
-"0xe2320a",
-"r15",
-"0x500",
-"0x538"
-],
-[
-"0xe233a0",
-"r15",
-"0x538",
-"0x500"
+"0xdb8c1d",
+"r8",
+"0xb",
+"0x4"
 ]
 ],
 "data": [],
-"lea": [],
-"reg": 0,
-"loc_ok": 1,
-"data_ok": 2,
+"lea": [
+"db8c5b Location ('game-ai\\\\src\\\\plan_legacy\\\\old\\\\line_gank\\\\ganker.rs', 337, 9) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\old\\\\line_gank\\\\ganker.rs', 885, 22)",
+"db8d8d Location ('game-ai\\\\src\\\\plan_legacy\\\\old\\\\line_gank\\\\ganker.rs', 319, 9) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\old\\\\line_gank\\\\ganker.rs', 912, 22)"
+],
+"reg": 15,
+"loc_ok": 2,
+"data_ok": 0,
 "deltas": {
-"0x2": 1,
-"-0x38": 3,
-"0x38": 3,
-"-0x2": 1
+"-0x5": 4,
+"-0x6": 2,
+"0x5": 2,
+"0xe": 1,
+"0xc": 3,
+"0x7": 1,
+"-0xe": 1,
+"-0xc": 3,
+"-0x7": 2
 },
 "known": {},
-"callees": 3,
+"callees": 4,
 "callee_grades": {
-"동일": 1,
-"Loc유사": 1,
-"skel동일": 1
+"skel동일": 4
 },
 "bad_callee": []
 },
 {
-"old": "e23fa0",
-"new": "e5e0e0",
-"name": "SmallActionPlay::get_input",
+"old": "db90f0",
+"new": "faa440",
+"name": "update",
 "src": "spec",
-"v0": "오프셋 이동",
-"strict": "⚠정렬 불가(미확정) · 정규화 8 · 블록이동 33 · 콜리 주의 14",
+"v0": "소폭",
+"strict": "⚠정렬 불가(미확정) · 정규화 2 · 블록이동 1 · 패닉스텁 재배열 2",
 "ninsn": [
-574,
-564
+200,
+216
 ],
-"aligned": 564,
+"aligned": 193,
 "struct_diff": [
-"구 10명령 / 신 0명령 짝 없음"
+"구 7명령(lea|rdx, [r11 + rdx*I]…) / 신 23명령(lea|rdx, [r9 + rdx*I]…) 짝 없음"
 ],
 "branch_diff": [
-"e24386 점프테이블 15/16 항목 불일치",
-"e243ce → e24660/e5e753",
-"e2459f → e2463b/e5e778"
-],
-"imm": [],
-"small": [],
-"typeid": [],
-"moved": 33,
-"stack": 0,
-"enum": [],
-"norm": [
-"오프셋표 [rax+930→a00]",
-"오프셋표 [rax+9c0→a90]",
-"SmallActionPlay 태그 7→6",
-"SmallActionPlay 태그 10→f",
-"SmallActionPlay 태그 7→6",
-"SmallActionPlay 태그 7→6",
-"SmallActionPlay 태그 b→a",
-"SmallActionPlay 마스크 fcf→7e7"
-],
-"vt": [],
-"disp": [],
-"data": [],
-"lea": [],
-"reg": 0,
-"loc_ok": 1,
-"data_ok": 8,
-"deltas": {},
-"known": {},
-"callees": 26,
-"callee_grades": {
-"skel동일": 10,
-"변경": 1,
-"불일치": 12,
-"콜리 변경?": 1,
-"동일": 2
-},
-"bad_callee": [
-"cce210→ec3060 불일치(mig060 는 fd98c0)",
-"d845e0→ed4350 불일치(mig060 는 ddd010)",
-"d84800→ddd690 불일치(mig060 는 ddd230)",
-"d84a30→eccaf0 불일치(mig060 는 ddd460)",
-"d84c60→e95f70 불일치(mig060 는 ddd690)",
-"db6ff0→ddd460 불일치(mig060 는 ec3060)",
-"db6ff0→fdb210 불일치(mig060 는 ec3060)",
-"dbbd60→ddd010 불일치(mig060 는 ed4350)",
-"dbd260→fd98c0 불일치(mig060 는 fdb210)",
-"dc2070→ed0400 불일치(mig060 는 ecfa40)",
-"dc2960→ecfa40 불일치(mig060 는 ed0400)",
-"dc3240→fddcd0 변경"
-]
-},
-{
-"old": "e26c40",
-"new": "e95f70",
-"name": "SmallActionLaneMinionPosition::get_input",
-"src": "spec",
-"v0": "이동만",
-"strict": "⚠정렬 불가(미확정) · 정규화 2 · 스택슬롯 10 · 콜리 주의 1",
-"ninsn": [
-348,
-350
-],
-"aligned": 348,
-"struct_diff": [
-"구 0명령 / 신 2명령 짝 없음"
-],
-"branch_diff": [
-"e27293 → e27102/e96432",
-"e272da → e27102/e96432"
-],
-"imm": [],
-"small": [],
-"typeid": [],
-"moved": 0,
-"stack": 10,
-"enum": [],
-"norm": [
-"오프셋표 [r9+930→a00]",
-"오프셋표 [r9+9c0→a90]"
-],
-"vt": [],
-"disp": [],
-"data": [],
-"lea": [],
-"reg": 0,
-"loc_ok": 2,
-"data_ok": 5,
-"deltas": {},
-"known": {},
-"callees": 12,
-"callee_grades": {
-"동일": 7,
-"이동만": 1,
-"변경": 1,
-"skel동일": 3
-},
-"bad_callee": [
-"dc3240→fddcd0 변경"
-]
-},
-{
-"old": "e28410",
-"new": "e73610",
-"name": "line_action_economy_adjustment",
-"src": "spec",
-"v0": "이동만",
-"strict": "⚠정렬 불가(미확정) · 정규화 5 · 블록이동 1 · 콜리 주의 1",
-"ninsn": [
-295,
-295
-],
-"aligned": 295,
-"struct_diff": [],
-"branch_diff": [
-"e28731 → e28738/e73938"
+"db93ac → db9181/faa4e6"
 ],
 "imm": [],
 "small": [],
@@ -1009,328 +545,208 @@
 "stack": 0,
 "enum": [],
 "norm": [
-"오프셋표 [rdx+930→a00]",
-"오프셋표 [rdx+9c0→a90]",
-"SmallActionPlay 태그 7→6",
-"SmallActionPlay 태그 c→b",
-"SmallActionPlay idx(부호) -c→-b"
+"오프셋표 [r9+930→a00]",
+"오프셋표 [r9+9c0→a90]"
 ],
 "vt": [],
-"disp": [],
+"disp": [
+[
+"0xdb9188",
+"rsi",
+"0x29",
+"0xad"
+],
+[
+"0xdb919c",
+"rsi",
+"0x28",
+"0xab"
+]
+],
 "data": [],
 "lea": [],
-"reg": 0,
-"loc_ok": 2,
-"data_ok": 3,
-"deltas": {},
-"known": {},
-"callees": 9,
-"callee_grades": {
-"skel동일": 4,
-"동일": 4,
-"미지": 1
+"reg": 54,
+"loc_ok": 5,
+"data_ok": 2,
+"deltas": {
+"0x84": 1,
+"0x83": 1
 },
-"bad_callee": [
-"e27f50→e72ed0 미지(+641B)"
-]
+"known": {},
+"callees": 8,
+"callee_grades": {
+"skel동일": 8
+},
+"bad_callee": []
 },
 {
-"old": "e4a780",
-"new": "d55830",
-"name": "v3_assign_anchor",
+"old": "dd6b40",
+"new": "f0dc20",
+"name": "v24_objective_setup_lane_pressure_ready",
 "src": "spec",
-"v0": "이동만",
-"strict": "✅동치(정규화: BigPlan·오프셋표)",
+"v0": "소폭",
+"strict": "⚠정렬 불가(미확정) · 정규화 3 · 블록이동 3 · 콜리 주의 1",
 "ninsn": [
-139,
-139
+426,
+445
 ],
-"aligned": 139,
-"struct_diff": [],
-"branch_diff": [],
+"aligned": 414,
+"struct_diff": [
+"구 12명령(mov|rdi, r9…) / 신 31명령(mov|rdx, r9…) 짝 없음"
+],
+"branch_diff": [
+"dd6b76 → dd6b8f/f0de0f",
+"dd6b88 → dd6b9f/f0dccb",
+"dd6cdb → dd6ce2/f0e10b"
+],
 "imm": [],
 "small": [],
 "typeid": [],
-"moved": 0,
+"moved": 3,
 "stack": 0,
 "enum": [],
 "norm": [
-"오프셋표 [rdx+1808→24b5]",
-"오프셋표 [rdx+5e8→f58]",
-"BigPlan 니치 기본idx 4→7",
-"오프셋표 [rdx+638→fc0]",
-"오프셋표 [rdx+650→fe3]",
-"오프셋표 [rdx+706→107b]",
-"오프셋표 [rdx+618→100b]"
+"오프셋표 [rsi+930→a00]",
+"오프셋표 [rsi+9c0→a90]",
+"오프셋표 [rsi+9c0→a90]"
 ],
 "vt": [],
 "disp": [],
 "data": [],
 "lea": [
-"e4a881 lea 포인터쌍 fn:pdata밖·fn:skel동일"
+"dd6c12 lea 포인터쌍 fn:pdata밖·fn:skel동일"
 ],
 "reg": 0,
-"loc_ok": 1,
-"data_ok": 1,
+"loc_ok": 2,
+"data_ok": 7,
 "deltas": {},
 "known": {},
-"callees": 2,
+"callees": 16,
 "callee_grades": {
-"skel동일": 2
+"동일": 5,
+"skel동일": 9,
+"미지": 2
 },
-"bad_callee": []
+"bad_callee": [
+"decc00→f238f0 미지(pdata 밖 thunk)"
+]
 },
 {
-"old": "e81390",
-"new": "f64d30",
-"name": "SerpenPokeSubPlan::score",
+"old": "de3d90",
+"new": "100b8d0",
+"name": "check_epic_kill_time_with_hp",
 "src": "spec",
-"v0": "오프셋 이동",
-"strict": "⚠정렬 불가(미확정) · 정규화 4 · 블록이동 8 · 콜리 주의 1",
+"v0": "오프셋만 변경",
+"strict": "⚠정렬 불가(미확정) · 블록이동 54 · 콜리 주의 1",
 "ninsn": [
-184,
-186
+211,
+188
 ],
-"aligned": 183,
+"aligned": 170,
 "struct_diff": [
-"구 1명령(jmp|I…) / 신 3명령(lea|ecx, [rax - I]…) 짝 없음"
+"구 41명령(test|r8, r8…) / 신 18명령(mov|r13, qword ptr [rdx + I]…) 짝 없음"
 ],
 "branch_diff": [
-"e81515 → e8156c/f64ecf",
-"e8157c → e81517/f64e75"
+"de3da3 → de406b/100bb67",
+"de3dca → de4061/100bb6a",
+"de3f90 → de3dc0/100b909",
+"de3fa7 → de3dc0/100b909",
+"de4049 → de4061/100b906"
 ],
-"imm": [
-[
-"0xe8150d",
-"0x1ffdc",
-"0x13"
-],
-[
-"0xe8158b",
-"0x18",
-"0x10"
-],
-[
-"0xe81590",
-"0x10",
-"0x8"
-],
-[
-"0xe8159b",
-"0x20",
-"0x18"
-],
-[
-"0xe815a0",
-"0x18",
-"0x10"
-],
-[
-"0xe815ab",
-"0x38",
-"0x20"
-],
-[
-"0xe815b0",
-"0x30",
-"0x18"
-],
-[
-"0xe815bb",
-"0x10",
-"0x38"
-],
-[
-"0xe815c0",
-"0x8",
-"0x30"
-]
-],
-"small": [
-[
-"0xe8158b",
-"0x18",
-"0x10"
-],
-[
-"0xe81590",
-"0x10",
-"0x8"
-],
-[
-"0xe8159b",
-"0x20",
-"0x18"
-],
-[
-"0xe815a0",
-"0x18",
-"0x10"
-]
-],
+"imm": [],
+"small": [],
 "typeid": [],
-"moved": 8,
+"moved": 54,
 "stack": 0,
 "enum": [],
-"norm": [
-"오프셋표 [rbx+930→a00]",
-"오프셋표 [rbx+9c0→a90]",
-"SmallActionPlay 태그 7→6",
-"SmallActionPlay 태그 7→6"
-],
+"norm": [],
 "vt": [],
 "disp": [],
 "data": [],
 "lea": [],
-"reg": 0,
-"loc_ok": 5,
+"reg": 44,
+"loc_ok": 1,
 "data_ok": 1,
-"deltas": {
-"-0x1ffc9": 1,
-"-0x8": 4,
-"-0x18": 2,
-"0x28": 2
-},
+"deltas": {},
 "known": {},
-"callees": 6,
+"callees": 9,
 "callee_grades": {
-"변경": 1,
-"skel동일": 5
+"skel동일": 6,
+"변경": 3
 },
 "bad_callee": [
-"d57540→f72620 변경"
+"12857f0→1643790 변경"
 ]
 },
 {
-"old": "eb5840",
-"new": "eae650",
-"name": "LineWaitSubPlan::score",
+"old": "e83080",
+"new": "f66a30",
+"name": "AttackNexusSubPlan::score",
 "src": "spec",
-"v0": "이동만",
-"strict": "⚠정렬 불가(미확정) · 정규화 3 · 블록이동 16 · 패닉스텁 재배열 2 · 콜리 주의 3",
+"v0": "소폭",
+"strict": "⚠정렬 불가(미확정) · 정규화 3 · 블록이동 14 · 스택슬롯 5 · 패닉스텁 재배열 2 · 콜리 주의 2",
 "ninsn": [
-209,
-211
+175,
+168
 ],
-"aligned": 206,
+"aligned": 157,
 "struct_diff": [
-"구 3명령(mov|r8, qword ptr [rsp + I]…) / 신 5명령(mov|rsi, qword ptr [rsp + I]…) 짝 없음"
+"구 18명령(mov|r15, r8…) / 신 11명령(mov|rax, qword ptr [rsp + I]…) 짝 없음",
+"e830e2 피연산자 형",
+"e830f2 피연산자 형",
+"e83256 피연산자 형",
+"e8325e 피연산자 형"
 ],
 "branch_diff": [
-"eb59aa → eb5a46/eae983",
-"eb59cc → eb5971/eae98f",
-"eb5a1a → eb5971/eae98f",
-"eb5a2f → eb5b8c/eae98f",
-"eb5a41 → eb5978/eae991",
-"eb5a4b → eb5973/eae991",
-"eb5b87 → eb5973/eae991",
-"eb5b8e → eb5978/eae991"
+"e831d0 → e832c8/f66bcc"
 ],
 "imm": [
 [
-"0xeb5a9a",
+"0xe831c9",
 "0x590",
 "0x580"
-],
-[
-"0xeb5ae2",
-"0x570",
-"0x590"
-],
-[
-"0xeb5b23",
-"0x580",
-"0x570"
 ]
 ],
 "small": [],
 "typeid": [],
-"moved": 16,
-"stack": 0,
+"moved": 14,
+"stack": 5,
 "enum": [],
 "norm": [
-"오프셋표 [r14+930→a00]",
-"오프셋표 [r14+9c0→a90]",
+"오프셋표 [r12+930→a00]",
+"오프셋표 [r12+9c0→a90]",
 "SmallActionPlay 태그 7→6"
 ],
 "vt": [],
 "disp": [
 [
-"0xeb5a7e",
-"r13",
-"0x530",
-"0x4f8"
-],
-[
-"0xeb5a8c",
-"r13",
+"0xe831bb",
+"r9",
 "0x500",
 "0x4c8"
-],
-[
-"0xeb5ac6",
-"r13",
-"0x4c0",
-"0x530"
-],
-[
-"0xeb5ad4",
-"r13",
-"0x490",
-"0x500"
-],
-[
-"0xeb5adb",
-"r13",
-"0x3fc",
-"0x400"
-],
-[
-"0xeb5b07",
-"r13",
-"0x4f8",
-"0x4c0"
-],
-[
-"0xeb5b15",
-"r13",
-"0x4c8",
-"0x490"
-],
-[
-"0xeb5b1c",
-"r13",
-"0x400",
-"0x3fc"
 ]
 ],
 "data": [],
 "lea": [
-"eb5baf Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\line_wait.rs', 174, 55) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\line_wait.rs', 184, 54)",
-"eb5bbd Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\line_wait.rs', 182, 54) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\line_wait.rs', 176, 55)"
+"e8335b Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\attack_nexus.rs', 170, 55) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\attack_nexus.rs', 184, 54)",
+"e83369 Location ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\attack_nexus.rs', 184, 54) ≠ ('game-ai\\\\src\\\\plan_legacy\\\\sub_plan\\\\attack_nexus.rs', 170, 55)"
 ],
-"reg": 0,
+"reg": 16,
 "loc_ok": 3,
-"data_ok": 2,
+"data_ok": 1,
 "deltas": {
-"-0x10": 2,
-"0x20": 1,
-"-0x38": 4,
-"0x70": 2,
-"0x4": 1,
-"-0x4": 1
+"-0x10": 1,
+"-0x38": 1
 },
 "known": {},
-"callees": 9,
+"callees": 8,
 "callee_grades": {
 "변경": 3,
-"이동만": 1,
 "skel동일": 5
 },
 "bad_callee": [
 "d57540→f72620 변경",
-"d59940→f749a0 변경",
-"e29b40→100c2f0 변경"
+"d59940→f749a0 변경"
 ]
 }
 ]
