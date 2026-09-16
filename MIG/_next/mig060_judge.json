@@ -13941,8 +13941,11 @@
   "name": "best_jungle_goal",
   "src": "spec",
   "old": "d40b20",
-  "verdict": "미발견",
-  "how": "Location 4 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r21 w3/w6: best_jungle_goal v3(ABI 변경 · 골격만 독해)) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "fafe50",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 66,
@@ -21252,8 +21255,11 @@
   "name": "LineGankerPlan::make_gank_battle",
   "src": "spec",
   "old": "db8e60",
-  "verdict": "미발견",
-  "how": "Location 1 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r21 w8: make_gank_battle(site 인자 추가 · 본체 미독)) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "fa9d60",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 14,
@@ -21988,8 +21994,9 @@
   "name": "SmallActionAroundHide::get_input",
   "src": "spec",
   "old": "dc6ec0",
-  "verdict": "미발견",
-  "how": "Location 6 · skel/head/Jaccard 미일치"
+  "verdict": "소멸(0.6.0 에 없음)",
+  "how": "정정(r21/enum정체: AroundHide 소멸 — 0.6.0 에 없음) ← 구 미발견",
+  "verdict_was": "미발견"
  },
  {
   "i": null,
@@ -23202,8 +23209,11 @@
   "name": "TeamPlan::can_near_enemies_range",
   "src": "spec",
   "old": "dd9f30",
-  "verdict": "미발견",
-  "how": "Location 0 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r20/r21 다수: can_near_enemies_range) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "f10c60",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 108,
@@ -23456,8 +23466,11 @@
   "name": "TeamPlan::update",
   "src": "spec",
   "old": "de0770",
-  "verdict": "미발견",
-  "how": "Location 6 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r21 w4/w7: TeamPlan::update(+0xcc7 세팅 프롤로그 · 본체 미독)) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "f18f90",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 76,
@@ -26419,8 +26432,11 @@
   "name": "resolve_fight_stake",
   "src": "spec",
   "old": "e06df0",
-  "verdict": "미발견",
-  "how": "Location 0 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r20 F/r21 w2: resolve_fight_stake(ee3c80 신규 호출 · 본체 미독)) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "ee5e80",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 70,
@@ -26586,16 +26602,22 @@
   "name": "resolve_fight_stake_roster",
   "src": "spec",
   "old": "e0b030",
-  "verdict": "미발견",
-  "how": "Location 0 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r20 F/r21 w2: stake_roster) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "eebb40",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 48,
   "name": "v25_scoped_battle_objective",
   "src": "spec",
   "old": "e0b730",
-  "verdict": "미발견",
-  "how": "Location 0 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r21 w2: v25_scoped_battle_objective(6-arg 동일)) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "eec620",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 28,
@@ -28371,8 +28393,11 @@
   "name": "SmallActionLaneMinionPosition::target_score",
   "src": "spec",
   "old": "e25030",
-  "verdict": "미발견",
-  "how": "Location 0 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r20 C: target_score) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "e93e00",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 264,
@@ -31819,8 +31844,11 @@
   "name": "v2_apply_assign_commit",
   "src": "spec",
   "old": "e4b070",
-  "verdict": "미발견",
-  "how": "Location 2 · skel/head/Jaccard 미일치"
+  "verdict": "변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)",
+  "how": "정정(r21 w4: v2_apply_assign_commit) ← 구 미발견",
+  "verdict_was": "미발견",
+  "new": "d57b00",
+  "conf": "B(ghidra 콜리)"
  },
  {
   "i": 11,

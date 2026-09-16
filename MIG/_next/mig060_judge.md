@@ -308,7 +308,7 @@
 | `d3fe50` | `e78290` | nexus_final_stand_uncached | spec | A | 동일(skel) | 1906→1906 | 444→444 | 6→6 | 0/0 | 1/1 | 1→1 |  | Location 정확 일치 |
 | `d405d0` | `e78a10` | base_attacking_minion_uncached | spec | A | 이동만 | 774→780 | 190→180 | 2→2 | 0/0 | 2/2 | 3→3 |  | Location 정확 일치 |
 | `d408e0` | `faf060` | is_cleared | spec | B | 동일(skel) | 564→564 | 135→135 | 9→9 | 0/0 | 3/2 | 3→5 |  | Location (파일,열) 일치 · 줄 델타 [0, 1086] |
-| `d40b20` | — | best_jungle_goal | spec | — | 미발견 | | | | | | | | Location 4 · skel/head/Jaccard 미일치 |
+| `d40b20` | `fafe50` | best_jungle_goal | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r21 w3/w6: best_jungle_goal v3(ABI 변경 · 골격만 독해)) ← 구 미발견 |
 | `d40f10` | `fb1510` | evaluate_gank_opportunity_with_score | spec | B | 변경(크기 -156B · 즉치 −3/+2 · cos 0.999) | 1615→1459 | 412→368 | 10→9 | 3/2 | 5/4 | 3→4 | 0x19 0xd8 0x3e8 → 0x25 0xe8 | Location (파일,열) 부분 일치 J=0.80(4/5) |
 | `d41600` | `dec130` | line_backfight_support_focus::{closure#3}::{ | map | C | 변경(크기 +218B · 즉치 −2/+8 · cos 0.996) | 881→1099 | 213→258 | 10→12 | 2/8 | 6/8 | 2→2 | 0x38 0x2e8 → 0x14 0x18 0x58 0x1d0 | head 해시 일치(후보 1) |
 | `d41980` | `fa1ec0` | FUN_d41980 | map | B | 변경(크기 -25B · 즉치 −2/+2 · cos 1.000) | 1464→1439 | 364→362 | 6→6 | 2/2 | 4/3 | 1→3 | 0x118 0x2e8 → 0x108 0x5c8 | Location (파일,열) 일치 · 줄 델타 [10, 258] |
@@ -459,7 +459,7 @@
 | `db6850` | `f911a0` | FUN_db6850 | map | A | 동일(skel) | 1770→1770 | 454→454 | 15→15 | 0/0 | 0/0 | 1→1 |  | Location 정확 일치 |
 | `db6ff0` | `ec3060` | SmallActionAround::get_input | spec | B | 변경(크기 +16B · 즉치 −1/+1 · cos 1.000) | 6900→6916 | 1400→1396 | 66→66 | 1/1 | 3/5 | 1→1 | 0x2e8 → 0x5c8 | Location (파일,열) 일치 · 줄 델타 [-1, 0] |
 | `db8ba0` | `fb9b70` | target_bush_v41 | spec | B | 오프셋만 변경(구조체 이동 · 즉치 동일) | 698→597 | 121→101 | 7→4 | 0/0 | 3/5 | 2→3 |  | Location (파일,열) 부분 일치 J=0.57(4/7) |
-| `db8e60` | — | LineGankerPlan::make_gank_battle | spec | — | 미발견 | | | | | | | | Location 1 · skel/head/Jaccard 미일치 |
+| `db8e60` | `fa9d60` | LineGankerPlan::make_gank_battle | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r21 w8: make_gank_battle(site 인자 추가 · 본체 미독)) ← 구 미발견 |
 | `db90f0` | `faa440` | update | spec | B | 소폭(+60B · 즉치 ⊆) | 825→885 | 200→216 | 8→9 | 0/2 | 4/5 | 1→1 |  → 0xad 0xaf | Location (파일,열) 일치 · 줄 델타 [407, 552] |
 | `db9430` | `faa7c0` | LineGankerPlan::next_plan | spec | B | 변경(크기 +4551B · 즉치 −3/+5 · cos 0.999) | 9919→14470 | 2031→2940 | 84→120 | 3/5 | 20/20 | 1→1 | 0x118 0x2e8 0x3a8 → 0x27 0xff 0x228 0x5c8 | Location (파일,열) 부분 일치 J=0.92(12/12) |
 | `dbbd60` | `ed4350` | SmallActionAroundRegion::get_input | spec | C | 동일(skel) | 4947→4947 | 1030→1030 | 35→35 | 0/0 | 3/3 | 1→1 |  | skel 해시 일치 |
@@ -473,7 +473,7 @@
 | `dc27a0` | `ed0240` | SmallActionAroundBush::new_with_out_line | spec | B | 동일(skel) | 376→376 | 95→95 | 9→9 | 0/0 | 1/1 | 1→1 |  | Location (파일,열) 일치 · 줄 델타 [-178] |
 | `dc2960` | `ed0400` | SmallActionAroundBush::get_input | spec | B | 이동만 | 1804→1780 | 372→373 | 16→20 | 0/0 | 7/4 | 1→1 |  | Location (파일,열) 일치 · 줄 델타 [-178, -169] |
 | `dc3240` | `fddcd0` | SmallActionRunAway::get_input | spec | B | 변경(크기 +54B · 즉치 −1/+1 · cos 1.000) | 14264→14318 | 2954→2963 | 92→92 | 1/1 | 7/7 | 4→4 | 0x2e8 → 0x5c8 | Location (파일,열) 일치 · 줄 델타 [-1, 0] |
-| `dc6ec0` | — | SmallActionAroundHide::get_input | spec | — | 미발견 | | | | | | | | Location 6 · skel/head/Jaccard 미일치 |
+| `dc6ec0` | — | SmallActionAroundHide::get_input | spec | — | ~~미발견~~→**소멸(0.6.0 에 없음)** | | | | | | | | 정정(r21/enum정체: AroundHide 소멸 — 0.6.0 에 없음) ← 구 미발견 |
 | `dc7e60` | `db4a40` | FUN_dc7e60 | map | A | 동일(skel) | 549→549 | 153→153 | 1→1 | 0/0 | 0/0 | 5→12 |  | Location 정확 일치 · 후보 3 중 크기 최근접 |
 | `dc8090` | `fae370` | FUN_dc8090 | map | A | 동일(skel) | 938→938 | 202→202 | 9→9 | 0/0 | 0/0 | 27→29 |  | Location 정확 일치 |
 | `dc8550` | `ee0960` | around::check_cell | spec | B | 동일(skel) | 1126→1126 | 256→256 | 14→14 | 0/0 | 0/0 | 17→17 |  | Location (파일,열) 일치 · 줄 델타 [0, 45] |
@@ -495,12 +495,12 @@
 | `dd7250` | `f0e390` | FUN_dd7250 | ext | C | 변경(크기 +92B · 즉치 −1/+1 · cos 0.966 · 호출자 경유) | 351→443 | 96→114 | 4→4 | 1/1 | 0/0 | 2→2 | 0x70 → 0x68 | 호출자 그래프(공유 호출자 2 · cos 0.966 · J 0.50 · 크기비 0.79) |
 | `dd73b0` | `ff2450` | SerpenStanceData::update_plan | spec | B | 변경(크기 +161B · 즉치 −2/+1 · cos 1.000) | 6536→6697 | 1478→1517 | 45→45 | 2/1 | 4/4 | 1→1 | 0x30 0x2e8 → 0x5c8 | Location (파일,열) 부분 일치 J=1.00(8/8) |
 | `dd90c0` | `f0e5f0` | TeamPlan::update_steal | spec | B | 변경(크기 +91B · 즉치 −2/+4 · cos 1.000) | 2601→2692 | 578→595 | 34→35 | 2/4 | 20/20 | 1→1 | 0x190 0x198 → 0x448 0x450 0x458 0x460 | Location (파일,열) 일치 · 줄 델타 [1273] |
-| `dd9f30` | — | TeamPlan::can_near_enemies_range | spec | — | 미발견 | | | | | | | | Location 0 · skel/head/Jaccard 미일치 |
+| `dd9f30` | `f10c60` | TeamPlan::can_near_enemies_range | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r20/r21 다수: can_near_enemies_range) ← 구 미발견 |
 | `dda220` | `f10f70` | TeamPlan::update_objective_after_steal | spec | C(수동) | 변경(크기 +6197B · 즉치 −30/+14 · cos 0.998) | 24674→30871 | 5330→6315 | 315→285 | 20/14 | 20/20 | 1→1 | 0x12 0x13 0x15 0x16 → 0x31 0x50 0x63 0x21c | 수동: team_plan.rs Location 45→31 · J 0.29 · cos 0.998 · 24.7KB→30.9KB |
 | `de0340` | `f18a80` | FUN_de0340 | ext | C | 동일(skel) | 66→66 | 19→19 | 1→1 | 0/0 | 1/1 | 1→3 |  | skel 해시 일치 |
 | `de0390` | `f18ad0` | FUN_de0390 | ext | C | 동일(skel) | 51→51 | 16→16 | 1→1 | 0/0 | 1/1 | 1→1 |  | skel 해시 일치 |
 | `de03d0` | `f18bf0` | should_keep_object_for_contested_wave_priori | spec | B | 동일(skel) | 917→917 | 262→262 | 4→4 | 0/0 | 1/1 | 4→5 |  | Location (파일,열) 일치 · 줄 델타 [10, 912] |
-| `de0770` | — | TeamPlan::update | spec | — | 미발견 | | | | | | | | Location 6 · skel/head/Jaccard 미일치 |
+| `de0770` | `f18f90` | TeamPlan::update | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r21 w4/w7: TeamPlan::update(+0xcc7 세팅 프롤로그 · 본체 미독)) ← 구 미발견 |
 | `de1ee0` | `ff4940` | EpicStanceData::update_plan | spec | B | 변경(크기 +114B · 즉치 −1/+1 · cos 0.999) | 4642→4756 | 1073→1108 | 28→28 | 1/1 | 3/3 | 1→1 | 0x1a8 → 0x1b8 | Location (파일,열) 부분 일치 J=1.00(7/7) |
 | `de3630` | `100bb90` | get_die_tick_player | spec | B | 동일(skel) | 1786→1786 | 410→410 | 17→17 | 0/0 | 0/0 | 2→3 |  | Location (파일,열) 일치 · 줄 델타 [11] |
 | `de3d90` | `100b8d0` | check_epic_kill_time_with_hp | spec | B | 오프셋만 변경(구조체 이동 · 즉치 동일) | 802→700 | 211→188 | 9→9 | 0/0 | 1/1 | 2→6 |  | Location (파일,열) 일치 · 줄 델타 [12] |
@@ -549,11 +549,11 @@
 | `e04f50` | `ee3e40` | fight_participants | spec | C | 변경(크기 +226B · 즉치 −2/+2 · cos 0.999 · 호출자 경유) | 1170→1396 | 273→327 | 8→12 | 2/2 | 0/0 | 2→2 | 0xc8 0x2e8 → 0xe8 0x5c8 | 호출자 그래프(공유 호출자 2 · cos 0.999 · J 0.50 · 크기비 0.84) |
 | `e05450` | `ee4420` | resolve_fight_full | map | C | 변경(크기 +47B · 즉치 −2/+2 · cos 0.997) | 2450→2497 | 538→544 | 13→13 | 2/2 | 13/17 | 6→6 | 0xb8 0x358 → 0xc0 0x378 | Location (파일,열) 일치 · 줄 델타 [-51, 0] · 후보 2 중 크기 최근접 |
 | `e05e70` | `ee4e70` | resolve_join_stake | spec | B | 변경(크기 +150B · 즉치 −2/+2 · cos 1.000) | 3571→3721 | 742→770 | 18→20 | 2/2 | 8/14 | 2→3 | 0x288 0x2e8 → 0x298 0x5c8 | Location (파일,열) 부분 일치 J=0.75(3/3) |
-| `e06df0` | — | resolve_fight_stake | spec | — | 미발견 | | | | | | | | Location 0 · skel/head/Jaccard 미일치 |
+| `e06df0` | `ee5e80` | resolve_fight_stake | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r20 F/r21 w2: resolve_fight_stake(ee3c80 신규 호출 · 본체 미독)) ← 구 미발견 |
 | `e07430` | `ee6d40` | tower_dive_is_viable | spec | B | 변경(크기 +1316B · 즉치 −1/+6 · cos 0.999) | 2848→4164 | 596→835 | 20→38 | 1/6 | 8/20 | 4→4 | 0x1f8 → 0x27 0x238 0x384 0x5c0 | Location (파일,열) 일치 · 줄 델타 [211, 226] |
 | `e083c0` | `ee8450` | resolve_fight_uncached | spec | B | 변경(크기 +1934B · 즉치 −1/+1 · cos 0.999) | 8841→10775 | 1891→2299 | 38→37 | 1/1 | 16/20 | 1→1 | 0x278 → 0x308 | Location (파일,열) 부분 일치 J=0.58(19/27) |
-| `e0b030` | — | resolve_fight_stake_roster | spec | — | 미발견 | | | | | | | | Location 0 · skel/head/Jaccard 미일치 |
-| `e0b730` | — | v25_scoped_battle_objective | spec | — | 미발견 | | | | | | | | Location 0 · skel/head/Jaccard 미일치 |
+| `e0b030` | `eebb40` | resolve_fight_stake_roster | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r20 F/r21 w2: stake_roster) ← 구 미발견 |
+| `e0b730` | `eec620` | v25_scoped_battle_objective | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r21 w2: v25_scoped_battle_objective(6-arg 동일)) ← 구 미발견 |
 | `e0bd60` | `eecc90` | v21_should_defer_support_target | spec | B | 동일(skel) | 516→516 | 142→142 | 5→5 | 1/1 | 3/3 | 3→3 | 0x2e8 → 0x5c8 | Location (파일,열) 일치 · 줄 델타 [239] |
 | `e0bf70` | `eecea0` | is_unreasonable_tower_dive_enemy | spec | B | 동일(skel) | 915→915 | 221→221 | 9→9 | 0/0 | 3/3 | 12→8 |  | Location (파일,열) 일치 · 줄 델타 [10, 143] |
 | `e0c310` | `eed240` | v22_visible_enemy_is_runaway_threat | spec | C | 동일(skel) | 468→468 | 120→120 | 5→5 | 1/1 | 3/3 | 3→5 | 0x2e8 → 0x5c8 | Location (파일,열) 일치 · 줄 델타 [239] · 후보 3 중 크기 최근접 |
@@ -590,7 +590,7 @@
 | `e23750` | `e5da70` | cast::SmallActionUlt::is_end | spec | B | 변경(크기 -479B · 즉치 −2/+1 · cos 0.998) | 2118→1639 | 484→379 | 43→35 | 2/1 | 5/3 | 1→1 | 0x38 0x767932b1 → 0x30 | Location (파일,열) 부분 일치 J=0.83(19/23) |
 | `e23fa0` | `e5e0e0` | SmallActionPlay::get_input | spec | B | 오프셋 이동(Δimm -0x7e8 · Δdisp 0xd0) | 2318→2278 | 574→564 | 27→26 | 1/1 | 2/2 | 8→8 | 0xfcf → 0x7e7 | Location (파일,열) 일치 · 줄 델타 [-1] |
 | `e248f0` | `e936c0` | SmallActionLaneMinionPosition::choose_goal | spec | C | 동일(skel) | 1731→1731 | 328→328 | 6→6 | 0/0 | 0/0 | 2→2 |  | skel 해시 일치 |
-| `e25030` | — | SmallActionLaneMinionPosition::target_score | spec | — | 미발견 | | | | | | | | Location 0 · skel/head/Jaccard 미일치 |
+| `e25030` | `e93e00` | SmallActionLaneMinionPosition::target_score | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r20 C: target_score) ← 구 미발견 |
 | `e25450` | `e944e0` | SmallActionLaneMinionPosition::push_candidat | spec | C | 동일(skel) | 952→952 | 224→224 | 7→7 | 0/0 | 1/1 | 1→1 |  | skel 해시 일치 |
 | `e26080` | `e95110` | FUN_e26080 | ext | C | 동일(skel) | 418→418 | 108→108 | 4→4 | 0/0 | 1/1 | 1→1 |  | skel 해시 일치 |
 | `e266e0` | `e95770` | SmallActionLaneMinionPosition::has_current_e | spec | C | 동일(skel) | 692→692 | 179→179 | 10→10 | 0/0 | 2/2 | 2→2 |  | Location (파일,열) 일치 · 줄 델타 [3, 214] · 후보 3 중 크기 최근접 |
@@ -666,7 +666,7 @@
 | `e49a50` | — | LegacyPlanHandler::update_on_dead | spec | — | 미발견 | | | | | | | | Location 0 · skel/head/Jaccard 미일치 |
 | `e4a780` | `d55830` | v3_assign_anchor | spec | B | 이동만 | 583→583 | 139→139 | 2→2 | 0/0 | 6/6 | 1→1 |  | Location (파일,열) 일치 · 줄 델타 [3034] |
 | `e4aec0` | `d56570` | v2_obj_restore_safe | spec | C | 변경(크기 +30B · 즉치 −1/+1 · cos 0.999) | 432→462 | 100→100 | 3→3 | 1/1 | 5/8 | 2→2 | 0xd0 → 0x108 | Location (파일,열) 일치 · 줄 델타 [522] · 후보 3 중 크기 최근접 |
-| `e4b070` | — | v2_apply_assign_commit | spec | — | 미발견 | | | | | | | | Location 2 · skel/head/Jaccard 미일치 |
+| `e4b070` | `d57b00` | v2_apply_assign_commit | spec | B(ghidra 콜리) | ~~미발견~~→**변경?(RE 콜리 실측으로 짝 확정 · 본체 대조 대기)** | | | | | | | | 정정(r21 w4: v2_apply_assign_commit) ← 구 미발견 |
 | `e4b5d0` | `d582a0` | v3_fall_back_to_passive | spec | C | 동일(skel) | 672→672 | 156→156 | 11→11 | 3/3 | 15/15 | 1→1 | 0x180 0x378 0x768 → 0x228 0x4c8 0x13a0 | skel 해시 일치 |
 | `e4b8c0` | `d59280` | LegacyPlanHandler::take_misunderstood_receiv | spec | C | 동일(skel) | 352→352 | 97→97 | 0→0 | 0/0 | 2/2 | 2→2 |  | skel 해시 일치 |
 | `e4c5c0` | `d3d210` | LegacyPlanHandler::update | spec | C(수동) | 변경(크기 +35049B · 즉치 −13/+53 · cos 0.999) | 42054→77103 | 8407→15063 | 401→668 | 13/20 | 20/20 | 1→1 | 0x6f 0xb1 0x118 0x180 → 0x11 0x12 0x13 0x15 | 수동: handler.rs Location 19→55 · J 0.35 · cos 0.999 · 42KB→77KB(AI 루트 update 대폭 확장) |
