@@ -1,0 +1,1096 @@
+[
+ {
+  "old": "da2000",
+  "was": "fbed20",
+  "now": "fc0810",
+  "votes": {
+   "fc0810": 4
+  },
+  "name": "FUN_da2000"
+ },
+ {
+  "old": "db0380",
+  "was": "fce460",
+  "now": "fd0960",
+  "votes": {
+   "fd0960": 2
+  },
+  "name": "FUN_db0380"
+ },
+ {
+  "old": "da2950",
+  "was": "fbf860",
+  "now": "fc0c40",
+  "votes": {
+   "fc0c40": 4
+  },
+  "name": "FUN_da2950"
+ },
+ {
+  "old": "db1110",
+  "was": "fcf390",
+  "now": "fd0fc0",
+  "votes": {
+   "fd0fc0": 2
+  },
+  "name": "FUN_db1110"
+ },
+ {
+  "old": "db1760",
+  "was": "fcdcc0",
+  "now": "fd1dd0",
+  "votes": {
+   "fd1dd0": 2
+  },
+  "name": "21SmallActionAroundBush9g"
+ },
+ {
+  "old": "da3320",
+  "was": "fbed20",
+  "now": "fc1c50",
+  "votes": {
+   "fc1c50": 4
+  },
+  "name": "FUN_da3320"
+ },
+ {
+  "old": "db1ee0",
+  "was": "fce460",
+  "now": "fd2580",
+  "votes": {
+   "fd2580": 2
+  },
+  "name": "FUN_db1ee0"
+ },
+ {
+  "old": "da41c0",
+  "was": "fbf860",
+  "now": "fbfc80",
+  "votes": {
+   "fbfc80": 2
+  },
+  "name": "FUN_da41c0"
+ },
+ {
+  "old": "db33e0",
+  "was": "fcf390",
+  "now": "fcf9e0",
+  "votes": {
+   "fcf9e0": 1
+  },
+  "name": "FUN_db33e0"
+ },
+ {
+  "old": "db3a30",
+  "was": "fcdcc0",
+  "now": "fd1dd0",
+  "votes": {
+   "fd1dd0": 2
+  },
+  "name": "FUN_db3a30"
+ },
+ {
+  "old": "c8b710",
+  "was": "db4880",
+  "now": "db3870",
+  "votes": {
+   "db3870": 4
+  },
+  "name": "FUN_c8b710"
+ },
+ {
+  "old": "c8b8d0",
+  "was": "db3b30",
+  "now": "db3870",
+  "votes": {
+   "db3870": 4
+  },
+  "name": "FUN_c8b8d0"
+ },
+ {
+  "old": "c8bde0",
+  "was": "db4040",
+  "now": "db3870",
+  "votes": {
+   "db3870": 4
+  },
+  "name": "get_input_cl"
+ },
+ {
+  "old": "c8c0e0",
+  "was": "db4340",
+  "now": "db3870",
+  "votes": {
+   "db3870": 4
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "ecb870",
+  "was": "f8a860",
+  "now": "ebba60",
+  "votes": {
+   "ebba60": 1
+  },
+  "name": "FUN_ecb870"
+ },
+ {
+  "old": "cd7660",
+  "was": "ebc790",
+  "now": "f89e80",
+  "votes": {
+   "f89e80": 1
+  },
+  "name": "FUN_cd7660"
+ },
+ {
+  "old": "ec7c90",
+  "was": "f860e0",
+  "now": "eb4320",
+  "votes": {
+   "eb4320": 2
+  },
+  "name": "epic_action_score"
+ },
+ {
+  "old": "ccaa10",
+  "was": "eacee0",
+  "now": "f64d30",
+  "votes": {
+   "f64d30": 2
+  },
+  "name": "EpicPokeSubPlan::score"
+ },
+ {
+  "old": "e10da0",
+  "was": "137cbc0",
+  "now": "fba0b0",
+  "votes": {
+   "fba0b0": 1
+  },
+  "name": "dive_chase_catchable"
+ },
+ {
+  "old": "d41fe0",
+  "was": "fba750",
+  "now": "d78cb0",
+  "votes": {
+   "d78cb0": 1
+  },
+  "name": "FUN_d41fe0"
+ },
+ {
+  "old": "e3b1f0",
+  "was": "dc3a60",
+  "now": "d78cb0",
+  "votes": {
+   "d78cb0": 1
+  },
+  "name": "FUN_e3b1f0"
+ },
+ {
+  "old": "cd7370",
+  "was": "ebc4a0",
+  "now": "d78cb0",
+  "votes": {
+   "d78cb0": 1
+  },
+  "name": "FUN_cd7370"
+ },
+ {
+  "old": "cd74c0",
+  "was": "ebc5f0",
+  "now": "fb9dd0",
+  "votes": {
+   "fb9dd0": 1
+  },
+  "name": "with_runaway"
+ },
+ {
+  "old": "ecc2a0",
+  "was": "f8b2a0",
+  "now": "d78cb0",
+  "votes": {
+   "d78cb0": 1
+  },
+  "name": "FUN_ecc2a0"
+ },
+ {
+  "old": "e11290",
+  "was": "deceb0",
+  "now": "fb9dd0",
+  "votes": {
+   "fb9dd0": 1
+  },
+  "name": "FUN_e11290"
+ },
+ {
+  "old": "e11710",
+  "was": "dec870",
+  "now": "fb9dd0",
+  "votes": {
+   "fb9dd0": 1
+  },
+  "name": "max_range_cached"
+ },
+ {
+  "old": "e119e0",
+  "was": "dec870",
+  "now": "fb9dd0",
+  "votes": {
+   "fb9dd0": 1
+  },
+  "name": "v30_wave_danger_chase_guard"
+ },
+ {
+  "old": "e11cb0",
+  "was": "ded1f0",
+  "now": "fba0b0",
+  "votes": {
+   "fba0b0": 1
+  },
+  "name": "FUN_e11cb0"
+ },
+ {
+  "old": "e11e90",
+  "was": "e8b5b0",
+  "now": "d78cb0",
+  "votes": {
+   "d78cb0": 1
+  },
+  "name": "v57_summon_command_score"
+ },
+ {
+  "old": "e12050",
+  "was": "eef420",
+  "now": "d78cb0",
+  "votes": {
+   "d78cb0": 1
+  },
+  "name": "resolve_join_stake::{{closure}}#0"
+ },
+ {
+  "old": "e12220",
+  "was": "eef9f0",
+  "now": "fba0b0",
+  "votes": {
+   "fba0b0": 1
+  },
+  "name": "open_chase_race_hopeless"
+ },
+ {
+  "old": "e12500",
+  "was": "eef8e0",
+  "now": "fb9dd0",
+  "votes": {
+   "fb9dd0": 1
+  },
+  "name": "can_enemy_hit_objective"
+ },
+ {
+  "old": "d6bec0",
+  "was": "1015ef0",
+  "now": "fb9dd0",
+  "votes": {
+   "fb9dd0": 1
+  },
+  "name": "is_skip_serpen"
+ },
+ {
+  "old": "dc8b20",
+  "was": "fbab90",
+  "now": "fba870",
+  "votes": {
+   "fba870": 1
+  },
+  "name": "FUN_dc8b20"
+ },
+ {
+  "old": "dc8c40",
+  "was": "fbacb0",
+  "now": "fba990",
+  "votes": {
+   "fba990": 1
+  },
+  "name": "FUN_dc8c40"
+ },
+ {
+  "old": "dc8d50",
+  "was": "fbadc0",
+  "now": "fbaaa0",
+  "votes": {
+   "fbaaa0": 1
+  },
+  "name": "FUN_dc8d50"
+ },
+ {
+  "old": "e0d720",
+  "was": "de9900",
+  "now": "dea110",
+  "votes": {
+   "dea110": 8
+  },
+  "name": "support_min_action_range 래퍼"
+ },
+ {
+  "old": "da7320",
+  "was": "fc53e0",
+  "now": "fcd5c0",
+  "votes": {
+   "fcd5c0": 1,
+   "fc6370": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "c72c60",
+  "was": "d98220",
+  "now": "da5420",
+  "votes": {
+   "da5420": 1
+  },
+  "name": "FUN_c72c60"
+ },
+ {
+  "old": "cf1bb0",
+  "was": "e3f200",
+  "now": "e30560",
+  "votes": {
+   "e30560": 4
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "cf5660",
+  "was": "e32380",
+  "now": "e42c80",
+  "votes": {
+   "e42c80": 4
+  },
+  "name": "FUN_cf5660"
+ },
+ {
+  "old": "c82590",
+  "was": "daa460",
+  "now": "daf230",
+  "votes": {
+   "daf230": 1
+  },
+  "name": "get_input_cl"
+ },
+ {
+  "old": "d1a630",
+  "was": "e5a5a0",
+  "now": "e59e60",
+  "votes": {
+   "e59e60": 3
+  },
+  "name": "FUN_d1a630"
+ },
+ {
+  "old": "d1b150",
+  "was": "e5b0c0",
+  "now": "e59e60",
+  "votes": {
+   "e59e60": 3,
+   "e5a5a0": 2
+  },
+  "name": "FUN_d1b150"
+ },
+ {
+  "old": "d00470",
+  "was": "e32380",
+  "now": "e34040",
+  "votes": {
+   "e34040": 4
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "da6250",
+  "was": "fc53e0",
+  "now": "fc6370",
+  "votes": {
+   "fc6370": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "d1a480",
+  "was": "e5b750",
+  "now": "e59e60",
+  "votes": {
+   "e59e60": 2
+  },
+  "name": "FUN_d1a480"
+ },
+ {
+  "old": "da8120",
+  "was": "fc53e0",
+  "now": "fc6370",
+  "votes": {
+   "fc6370": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "da9650",
+  "was": "fc53e0",
+  "now": "fc6370",
+  "votes": {
+   "fc6370": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "c75b20",
+  "was": "d9f6a0",
+  "now": "d98220",
+  "votes": {
+   "d98220": 1
+  },
+  "name": "FUN_c75b20"
+ },
+ {
+  "old": "d1ac60",
+  "was": "db4040",
+  "now": "e59e60",
+  "votes": {
+   "e59e60": 2,
+   "e5a5a0": 2
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "dabac0",
+  "was": "fc53e0",
+  "now": "fc6370",
+  "votes": {
+   "fc6370": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "dac1c0",
+  "was": "fc53e0",
+  "now": "fc6370",
+  "votes": {
+   "fc6370": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "c79c30",
+  "was": "d99f60",
+  "now": "d98220",
+  "votes": {
+   "d98220": 1
+  },
+  "name": "FUN_c79c30"
+ },
+ {
+  "old": "d1b7e0",
+  "was": "e5a430",
+  "now": "e59e60",
+  "votes": {
+   "e59e60": 2
+  },
+  "name": "FUN_d1b7e0"
+ },
+ {
+  "old": "dac8c0",
+  "was": "fc53e0",
+  "now": "fc6370",
+  "votes": {
+   "fc6370": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "c7ad50",
+  "was": "d99f60",
+  "now": "d98220",
+  "votes": {
+   "d98220": 1
+  },
+  "name": "FUN_c7ad50"
+ },
+ {
+  "old": "d1b950",
+  "was": "e5a250",
+  "now": "e59e60",
+  "votes": {
+   "e59e60": 2
+  },
+  "name": "FUN_d1b950"
+ },
+ {
+  "old": "c7be70",
+  "was": "da0ff0",
+  "now": "d974a0",
+  "votes": {
+   "d974a0": 1
+  },
+  "name": "FUN_c7be70"
+ },
+ {
+  "old": "da7a20",
+  "was": "fc53e0",
+  "now": "fc82c0",
+  "votes": {
+   "fc82c0": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "c737e0",
+  "was": "d98220",
+  "now": "d9dfa0",
+  "votes": {
+   "d9dfa0": 1
+  },
+  "name": "FUN_c737e0"
+ },
+ {
+  "old": "da8f50",
+  "was": "fc53e0",
+  "now": "fc82c0",
+  "votes": {
+   "fc82c0": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "c74fa0",
+  "was": "d98220",
+  "now": "d9dfa0",
+  "votes": {
+   "d9dfa0": 1
+  },
+  "name": "FUN_c74fa0"
+ },
+ {
+  "old": "daabf0",
+  "was": "fc53e0",
+  "now": "fc82c0",
+  "votes": {
+   "fc82c0": 1
+  },
+  "name": "shared_free_dist"
+ },
+ {
+  "old": "c780e0",
+  "was": "d98220",
+  "now": "d9dfa0",
+  "votes": {
+   "d9dfa0": 1
+  },
+  "name": "FUN_c780e0"
+ },
+ {
+  "old": "d1fc00",
+  "was": "db4a40",
+  "now": "e62e10",
+  "votes": {
+   "e62e10": 6
+  },
+  "name": "is_enemy_danger_cell"
+ },
+ {
+  "old": "ca33c0",
+  "was": "e0ba20",
+  "now": "e10690",
+  "votes": {
+   "e10690": 1
+  },
+  "name": "FUN_ca33c0"
+ },
+ {
+  "old": "e3b840",
+  "was": "dc40b0",
+  "now": "dc3f00",
+  "votes": {
+   "dc3f00": 1
+  },
+  "name": "v3_pve_monster_aggro_damage"
+ },
+ {
+  "old": "e39bf0",
+  "was": "dc22a0",
+  "now": "dc20f0",
+  "votes": {
+   "dc20f0": 1
+  },
+  "name": "engage_requires_dive"
+ },
+ {
+  "old": "e1e350",
+  "was": "e6c710",
+  "now": "e6c3c0",
+  "votes": {
+   "e6c3c0": 1
+  },
+  "name": "v3_survival_incoming"
+ },
+ {
+  "old": "e3b9f0",
+  "was": "dc4260",
+  "now": "dc3f00",
+  "votes": {
+   "dc3f00": 1
+  },
+  "name": "v30_line_action_stance"
+ },
+ {
+  "old": "e39da0",
+  "was": "dc2450",
+  "now": "dc20f0",
+  "votes": {
+   "dc20f0": 1
+  },
+  "name": "engage_requires_dive"
+ },
+ {
+  "old": "e1e6a0",
+  "was": "e6ca60",
+  "now": "e6c3c0",
+  "votes": {
+   "e6c3c0": 1
+  },
+  "name": "v3_survival_incoming"
+ },
+ {
+  "old": "e3bd30",
+  "was": "dc45a0",
+  "now": "dc3f00",
+  "votes": {
+   "dc3f00": 1
+  },
+  "name": "FUN_e3bd30"
+ },
+ {
+  "old": "e3a0d0",
+  "was": "dc2780",
+  "now": "dc20f0",
+  "votes": {
+   "dc20f0": 1
+  },
+  "name": "engage_requires_dive"
+ },
+ {
+  "old": "e1ed20",
+  "was": "e6d0e0",
+  "now": "e6c3c0",
+  "votes": {
+   "e6c3c0": 1
+  },
+  "name": "v3_survival_incoming"
+ },
+ {
+  "old": "e3bee0",
+  "was": "dc4750",
+  "now": "dc3f00",
+  "votes": {
+   "dc3f00": 1
+  },
+  "name": "FUN_e3bee0"
+ },
+ {
+  "old": "e3a280",
+  "was": "dc2930",
+  "now": "dc20f0",
+  "votes": {
+   "dc20f0": 1
+  },
+  "name": "engage_requires_dive"
+ },
+ {
+  "old": "e1f070",
+  "was": "e6d430",
+  "now": "e6c3c0",
+  "votes": {
+   "e6c3c0": 1
+  },
+  "name": "v3_survival_incoming"
+ },
+ {
+  "old": "e3c090",
+  "was": "dc4900",
+  "now": "dc3f00",
+  "votes": {
+   "dc3f00": 1
+  },
+  "name": "FUN_e3c090"
+ },
+ {
+  "old": "e3a430",
+  "was": "dc2ae0",
+  "now": "dc20f0",
+  "votes": {
+   "dc20f0": 1
+  },
+  "name": "engage_requires_dive"
+ },
+ {
+  "old": "e1f3c0",
+  "was": "e6d780",
+  "now": "e6c3c0",
+  "votes": {
+   "e6c3c0": 1
+  },
+  "name": "v3_survival_incoming"
+ },
+ {
+  "old": "e3c240",
+  "was": "dc4900",
+  "now": "dc3f00",
+  "votes": {
+   "dc3f00": 1
+  },
+  "name": "FUN_e3c240"
+ },
+ {
+  "old": "e3a5e0",
+  "was": "dc2ae0",
+  "now": "dc20f0",
+  "votes": {
+   "dc20f0": 1
+  },
+  "name": "engage_requires_dive"
+ },
+ {
+  "old": "e1f710",
+  "was": "e6d780",
+  "now": "e6c3c0",
+  "votes": {
+   "e6c3c0": 1
+  },
+  "name": "v3_survival_incoming"
+ },
+ {
+  "old": "d70620",
+  "was": "e7c1e0",
+  "now": "e7c2d0",
+  "votes": {
+   "e7c2d0": 1
+  },
+  "name": "can_tower_focused 의 Chain<Chain<…>> fold 인스턴스(count · 판단은 클로저 e3b840 등 · ghidra 09-16)"
+ },
+ {
+  "old": "d70710",
+  "was": "e7c1e0",
+  "now": "e7c3c0",
+  "votes": {
+   "e7c3c0": 1
+  },
+  "name": "FUN_d70710"
+ },
+ {
+  "old": "db5310",
+  "was": "fd5fa0",
+  "now": "fd5a20",
+  "votes": {
+   "fd5a20": 4
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "db5a10",
+  "was": "fd66a0",
+  "now": "fd5d80",
+  "votes": {
+   "fd5d80": 2,
+   "fd5a20": 2
+  },
+  "name": "FUN_db5a10"
+ },
+ {
+  "old": "db5da0",
+  "was": "fd6a40",
+  "now": "fd5a20",
+  "votes": {
+   "fd5a20": 4
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "db50d0",
+  "was": "fd7060",
+  "now": "fd5a20",
+  "votes": {
+   "fd5a20": 1
+  },
+  "name": "FUN_db50d0"
+ },
+ {
+  "old": "c5ded0",
+  "was": "d962e0",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "FUN_c5ded0"
+ },
+ {
+  "old": "c5f090",
+  "was": "d89610",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "FUN_c5f090"
+ },
+ {
+  "old": "c606c0",
+  "was": "d89610",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "FUN_c606c0"
+ },
+ {
+  "old": "c62d50",
+  "was": "d8c270",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "get_input_cl"
+ },
+ {
+  "old": "c64110",
+  "was": "d8c270",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "get_input_cl"
+ },
+ {
+  "old": "c67770",
+  "was": "d91df0",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "FUN_c67770"
+ },
+ {
+  "old": "c69a60",
+  "was": "d91df0",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "FUN_c69a60"
+ },
+ {
+  "old": "db63c0",
+  "was": "fd5d80",
+  "now": "fd5a20",
+  "votes": {
+   "fd5a20": 1
+  },
+  "name": "FUN_db63c0"
+ },
+ {
+  "old": "c6aad0",
+  "was": "d85fc0",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "18SmallActionRunAway9ge"
+ },
+ {
+  "old": "db65e0",
+  "was": "fd5d80",
+  "now": "fd5a20",
+  "votes": {
+   "fd5a20": 1
+  },
+  "name": "FUN_db65e0"
+ },
+ {
+  "old": "c6bd50",
+  "was": "d87240",
+  "now": "d82620",
+  "votes": {
+   "d82620": 1
+  },
+  "name": "FUN_c6bd50"
+ },
+ {
+  "old": "dc7e60",
+  "was": "db4a40",
+  "now": "fe2d60",
+  "votes": {
+   "fe2d60": 6
+  },
+  "name": "FUN_dc7e60"
+ },
+ {
+  "old": "d0bb40",
+  "was": "e4cb60",
+  "now": "e4eb00",
+  "votes": {
+   "e4eb00": 1
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "d07c10",
+  "was": "e23740",
+  "now": "e468f0",
+  "votes": {
+   "e468f0": 1
+  },
+  "name": "get_input_cl"
+ },
+ {
+  "old": "cebdd0",
+  "was": "e266e0",
+  "now": "e2b6b0",
+  "votes": {
+   "e2b6b0": 1
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "d7a080",
+  "was": "e89d90",
+  "now": "e8a070",
+  "votes": {
+   "e8a070": 1
+  },
+  "name": "FUN_d7a080"
+ },
+ {
+  "old": "ce2df0",
+  "was": "e19550",
+  "now": "e1f610",
+  "votes": {
+   "e1f610": 1
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "cecdd0",
+  "was": "e266e0",
+  "now": "e2d650",
+  "votes": {
+   "e2d650": 1
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "c80f80",
+  "was": "da9650",
+  "now": "da90a0",
+  "votes": {
+   "da90a0": 1
+  },
+  "name": "support_min_action_range"
+ },
+ {
+  "old": "d84800",
+  "was": "ddd230",
+  "now": "ddd690",
+  "votes": {
+   "ddd690": 1
+  },
+  "name": "SmallActionSkill2::get_input"
+ },
+ {
+  "old": "cce210",
+  "was": "fd98c0",
+  "now": "ec3060",
+  "votes": {
+   "ec3060": 1
+  },
+  "name": "SmallActionTrace::get_input"
+ },
+ {
+  "old": "dbbd60",
+  "was": "ed4350",
+  "now": "ddd010",
+  "votes": {
+   "ddd010": 1
+  },
+  "name": "SmallActionAroundRegion::get_input"
+ },
+ {
+  "old": "d84c60",
+  "was": "ddd690",
+  "now": "e95f70",
+  "votes": {
+   "e95f70": 1
+  },
+  "name": "abstract_input::attack 래퍼(position_eval 근방)"
+ },
+ {
+  "old": "dc2960",
+  "was": "ed0400",
+  "now": "ecfa40",
+  "votes": {
+   "ecfa40": 1
+  },
+  "name": "SmallActionAroundBush::get_input"
+ },
+ {
+  "old": "db6ff0",
+  "was": "ec3060",
+  "now": "fdb210",
+  "votes": {
+   "fdb210": 1,
+   "ddd460": 1
+  },
+  "name": "SmallActionAround::get_input"
+ },
+ {
+  "old": "d84a30",
+  "was": "ddd460",
+  "now": "eccaf0",
+  "votes": {
+   "eccaf0": 1
+  },
+  "name": "SmallActionUlt::get_input"
+ },
+ {
+  "old": "dbd260",
+  "was": "fdb210",
+  "now": "fd98c0",
+  "votes": {
+   "fd98c0": 1
+  },
+  "name": "SmallActionRecall::get_input"
+ },
+ {
+  "old": "d845e0",
+  "was": "ddd010",
+  "now": "ed4350",
+  "votes": {
+   "ed4350": 1
+  },
+  "name": "SmallActionSkill::get_input"
+ },
+ {
+  "old": "e26c40",
+  "was": "e95f70",
+  "now": "ec3060",
+  "votes": {
+   "ec3060": 1
+  },
+  "name": "SmallActionLaneMinionPosition::get_input"
+ },
+ {
+  "old": "dc2070",
+  "was": "ecfa40",
+  "now": "ed0400",
+  "votes": {
+   "ed0400": 1
+  },
+  "name": "SmallActionAroundPositionBush::get_input"
+ }
+]

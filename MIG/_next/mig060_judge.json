@@ -9556,16 +9556,16 @@
   "name": "get_input",
   "src": "map",
   "old": "cebdd0",
-  "new": "e266e0",
-  "how": "Location 정확 일치 · 후보 10 중 크기 최근접",
-  "conf": "A",
+  "new": "e2b6b0",
+  "how": "정정(mig060_same 호출부 실측 · skel 동일·크기 동일) ← 구 e266e0 Location 정확 일치 · 후보 10 중 크기 최근접",
+  "conf": "B(호출부)",
   "size": [
    4027,
    4027
   ],
   "ninsn": [
    886,
-   878
+   886
   ],
   "ncall": [
    24,
@@ -9597,7 +9597,9 @@
    "imm": null,
    "disp": null
   },
-  "verdict": "변경(크기 +0B · 즉치 −1/+0 · cos 1.000)"
+  "verdict": "동일(skel)",
+  "new_was": "e266e0",
+  "verdict_was": "변경(크기 +0B · 즉치 −1/+0 · cos 1.000)"
  },
  {
   "i": null,
@@ -10004,16 +10006,16 @@
   "name": "FUN_cf5660",
   "src": "map",
   "old": "cf5660",
-  "new": "e32380",
-  "how": "Location 정확 일치 · 후보 20 중 크기 최근접",
-  "conf": "A",
+  "new": "e42c80",
+  "how": "정정(mig060_same 호출부 실측 · skel 동일·크기 동일) ← 구 e32380 Location 정확 일치 · 후보 20 중 크기 최근접",
+  "conf": "B(호출부)",
   "size": [
    6982,
    6982
   ],
   "ninsn": [
    1532,
-   1533
+   1532
   ],
   "ncall": [
    27,
@@ -10042,7 +10044,9 @@
    "imm": null,
    "disp": null
   },
-  "verdict": "이동만"
+  "verdict": "동일(skel)",
+  "new_was": "e32380",
+  "verdict_was": "이동만"
  },
  {
   "i": null,
@@ -10486,16 +10490,16 @@
   "name": "get_input_cl",
   "src": "map",
   "old": "d07c10",
-  "new": "e23740",
-  "how": "Location 정확 일치 · 후보 20 중 크기 최근접",
-  "conf": "A",
+  "new": "e468f0",
+  "how": "정정(mig060_same 호출부 실측 · skel 동일·크기 동일) ← 구 e23740 Location 정확 일치 · 후보 20 중 크기 최근접",
+  "conf": "B(호출부)",
   "size": [
    7540,
    7540
   ],
   "ninsn": [
    1586,
-   1587
+   1586
   ],
   "ncall": [
    33,
@@ -10554,7 +10558,9 @@
    "imm": 32,
    "disp": null
   },
-  "verdict": "변경(크기 +0B · 즉치 −1/+1 · cos 1.000)"
+  "verdict": "동일(skel)",
+  "new_was": "e23740",
+  "verdict_was": "변경(크기 +0B · 즉치 −1/+1 · cos 1.000)"
  },
  {
   "i": null,
@@ -10606,9 +10612,9 @@
   "name": "get_input",
   "src": "map",
   "old": "d0bb40",
-  "new": "e4cb60",
-  "how": "Location 정확 일치 · 후보 20 중 크기 최근접",
-  "conf": "A",
+  "new": "e4eb00",
+  "how": "정정(mig060_same 호출부 실측 · skel 동일·크기 동일) ← 구 e4cb60 Location 정확 일치 · 후보 20 중 크기 최근접",
+  "conf": "B(호출부)",
   "size": [
    7564,
    7564
@@ -10644,7 +10650,9 @@
    "imm": null,
    "disp": null
   },
-  "verdict": "이동만"
+  "verdict": "동일(skel)",
+  "new_was": "e4cb60",
+  "verdict_was": "이동만"
  },
  {
   "i": null,

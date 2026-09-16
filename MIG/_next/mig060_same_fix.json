@@ -1,0 +1,174 @@
+[
+ {
+  "old": "d70620",
+  "was": "e7c1e0",
+  "now": "e7c2d0",
+  "votes": {
+   "e7c2d0": 1
+  },
+  "name": "can_tower_focused 의 Chain<Chain<…>> fold 인스턴스(count · 판단은 클로저 e3b840 등 · ghidra 09-16)"
+ },
+ {
+  "old": "d70710",
+  "was": "e7c1e0",
+  "now": "e7c3c0",
+  "votes": {
+   "e7c3c0": 1
+  },
+  "name": "FUN_d70710"
+ },
+ {
+  "old": "d0bb40",
+  "was": "e4cb60",
+  "now": "e4eb00",
+  "votes": {
+   "e4eb00": 1
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "d07c10",
+  "was": "e23740",
+  "now": "e468f0",
+  "votes": {
+   "e468f0": 1
+  },
+  "name": "get_input_cl"
+ },
+ {
+  "old": "cebdd0",
+  "was": "e266e0",
+  "now": "e2b6b0",
+  "votes": {
+   "e2b6b0": 1
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "d7a080",
+  "was": "e89d90",
+  "now": "e8a070",
+  "votes": {
+   "e8a070": 1
+  },
+  "name": "FUN_d7a080"
+ },
+ {
+  "old": "ce2df0",
+  "was": "e19550",
+  "now": "e1f610",
+  "votes": {
+   "e1f610": 1
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "cecdd0",
+  "was": "e266e0",
+  "now": "e2d650",
+  "votes": {
+   "e2d650": 1
+  },
+  "name": "get_input"
+ },
+ {
+  "old": "d84800",
+  "was": "ddd230",
+  "now": "ddd690",
+  "votes": {
+   "ddd690": 1
+  },
+  "name": "SmallActionSkill2::get_input"
+ },
+ {
+  "old": "cce210",
+  "was": "fd98c0",
+  "now": "ec3060",
+  "votes": {
+   "ec3060": 1
+  },
+  "name": "SmallActionTrace::get_input"
+ },
+ {
+  "old": "dbbd60",
+  "was": "ed4350",
+  "now": "ddd010",
+  "votes": {
+   "ddd010": 1
+  },
+  "name": "SmallActionAroundRegion::get_input"
+ },
+ {
+  "old": "d84c60",
+  "was": "ddd690",
+  "now": "e95f70",
+  "votes": {
+   "e95f70": 1
+  },
+  "name": "abstract_input::attack 래퍼(position_eval 근방)"
+ },
+ {
+  "old": "dc2960",
+  "was": "ed0400",
+  "now": "ecfa40",
+  "votes": {
+   "ecfa40": 1
+  },
+  "name": "SmallActionAroundBush::get_input"
+ },
+ {
+  "old": "db6ff0",
+  "was": "ec3060",
+  "now": "fdb210",
+  "votes": {
+   "fdb210": 1,
+   "ddd460": 1
+  },
+  "name": "SmallActionAround::get_input"
+ },
+ {
+  "old": "d84a30",
+  "was": "ddd460",
+  "now": "eccaf0",
+  "votes": {
+   "eccaf0": 1
+  },
+  "name": "SmallActionUlt::get_input"
+ },
+ {
+  "old": "dbd260",
+  "was": "fdb210",
+  "now": "fd98c0",
+  "votes": {
+   "fd98c0": 1
+  },
+  "name": "SmallActionRecall::get_input"
+ },
+ {
+  "old": "d845e0",
+  "was": "ddd010",
+  "now": "ed4350",
+  "votes": {
+   "ed4350": 1
+  },
+  "name": "SmallActionSkill::get_input"
+ },
+ {
+  "old": "e26c40",
+  "was": "e95f70",
+  "now": "ec3060",
+  "votes": {
+   "ec3060": 1
+  },
+  "name": "SmallActionLaneMinionPosition::get_input"
+ },
+ {
+  "old": "dc2070",
+  "was": "ecfa40",
+  "now": "ed0400",
+  "votes": {
+   "ed0400": 1
+  },
+  "name": "SmallActionAroundPositionBush::get_input"
+ }
+]
