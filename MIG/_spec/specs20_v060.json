@@ -1726,7 +1726,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -2219,7 +2220,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [43]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [43]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -4574,7 +4583,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -5787,7 +5797,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "호출자 그래프(공유 호출자 1 · cos 0.999 · J 0.50 · 크기비 1.00)"
+    "note": "호출자 그래프(공유 호출자 1 · cos 0.999 · J 0.50 · 크기비 1.00)",
+    "callee_changed": null
    }
   },
   {
@@ -6582,7 +6593,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "ca0240",
+      "new": "e0cb10",
+      "name": "FUN_ca0240",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "eb82d0",
+      "new": "eda920",
+      "name": "check_kill_die_tick LocalKey::with(DieTickCache 래퍼)",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -7398,7 +7423,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -8798,7 +8824,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [328]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [328]",
+    "callee_changed": null
    }
   },
   {
@@ -9499,7 +9526,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10] · 후보 23 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10] · 후보 23 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -10787,7 +10815,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": [
+     {
+      "old": "caf9f0",
+      "new": "ec2b40",
+      "name": "BigPlan::sub_plan (host)",
+      "verdict": "변경?"
+     },
+     {
+      "old": "e46bc0",
+      "new": "d38180",
+      "name": "passive_plan",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -12231,7 +12273,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": [
+     {
+      "old": "e59b20",
+      "new": "d5b980",
+      "name": "handle_chat_inner",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -13101,7 +13151,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]",
+    "callee_changed": null
    }
   },
   {
@@ -15061,7 +15112,27 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10] · 후보 12 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10] · 후보 12 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "d52030",
+      "new": "f9bfe0",
+      "name": "update",
+      "verdict": "변경?"
+     },
+     {
+      "old": "d60920",
+      "new": "fae830",
+      "name": "single_tower_dive_is_viable",
+      "verdict": "변경?"
+     },
+     {
+      "old": "dff080",
+      "new": "ddd7e0",
+      "name": "base_sub_goal",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -15901,7 +15972,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -19725,7 +19797,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [8, 17]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [8, 17]",
+    "callee_changed": null
    }
   },
   {
@@ -20385,7 +20458,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [441]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [441]",
+    "callee_changed": [
+     {
+      "old": "105fae0",
+      "new": "16a8100",
+      "name": "?",
+      "verdict": "미지"
+     }
+    ]
    }
   },
   {
@@ -21008,7 +21089,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "d70620",
+      "new": "e7c2d0",
+      "name": "can_tower_focused 의 Chain<Chain<…>> fold 인스턴스(count · 판단은 클로저 e3b840 등 · ghidra 09-16)",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -22112,7 +22201,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10] · 후보 3 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -22712,7 +22802,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [239] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [239] · 후보 3 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -23148,7 +23239,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -23671,7 +23763,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -24266,7 +24359,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [239]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [239]",
+    "callee_changed": null
    }
   },
   {
@@ -24730,7 +24824,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10] · 후보 3 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -25068,7 +25163,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -25488,7 +25584,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [125]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [125]",
+    "callee_changed": null
    }
   },
   {
@@ -25922,7 +26019,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [1, 27]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [1, 27]",
+    "callee_changed": null
    }
   },
   {
@@ -26734,7 +26832,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [522] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [522] · 후보 3 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "eb82d0",
+      "new": "eda920",
+      "name": "check_kill_die_tick LocalKey::with(DieTickCache 래퍼)",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -27178,7 +27284,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -28409,7 +28516,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [27, 3660]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [27, 3660]",
+    "callee_changed": null
    }
   },
   {
@@ -29298,7 +29406,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -29868,7 +29977,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -30296,7 +30406,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]",
+    "callee_changed": null
    }
   },
   {
@@ -31008,7 +31119,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [3034]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [3034]",
+    "callee_changed": null
    }
   },
   {
@@ -32020,7 +32132,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치 · 후보 3 중 크기 최근접"
+    "note": "skel 해시 일치 · 후보 3 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -32506,7 +32619,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치 · 후보 3 중 크기 최근접"
+    "note": "skel 해시 일치 · 후보 3 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -33121,7 +33235,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -33810,7 +33925,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 2]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 2]",
+    "callee_changed": null
    }
   },
   {
@@ -34495,7 +34611,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -35596,7 +35713,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 125]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 125]",
+    "callee_changed": null
    }
   },
   {
@@ -37796,7 +37914,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 부분 일치 J=1.00(6/6)"
+    "note": "Location (파일,열) 부분 일치 J=1.00(6/6)",
+    "callee_changed": null
    }
   },
   {
@@ -38597,7 +38716,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 2055]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 2055]",
+    "callee_changed": null
    }
   },
   {
@@ -39086,7 +39206,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10] · 후보 3 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -40084,7 +40205,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]",
+    "callee_changed": null
    }
   },
   {
@@ -43171,7 +43293,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [3]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [3]",
+    "callee_changed": null
    }
   },
   {
@@ -45798,7 +45921,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [117]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [117]",
+    "callee_changed": null
    }
   },
   {
@@ -46249,7 +46373,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 부분 일치 J=0.57(4/7)"
+    "note": "Location (파일,열) 부분 일치 J=0.57(4/7)",
+    "callee_changed": null
    }
   },
   {
@@ -46826,7 +46951,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 143]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 143]",
+    "callee_changed": null
    }
   },
   {
@@ -47159,7 +47285,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [7]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [7]",
+    "callee_changed": null
    }
   },
   {
@@ -47401,7 +47528,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치 · 후보 2 중 크기 최근접"
+    "note": "Location 정확 일치 · 후보 2 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -47962,7 +48090,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -48693,7 +48822,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 912]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 912]",
+    "callee_changed": null
    }
   },
   {
@@ -49148,7 +49278,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -49556,7 +49687,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [12]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [12]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -57581,7 +57720,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 부분 일치 J=1.00(8/8)"
+    "note": "Location (파일,열) 부분 일치 J=1.00(8/8)",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -58562,7 +58709,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 부분 일치 J=1.00(7/7)"
+    "note": "Location (파일,열) 부분 일치 J=1.00(7/7)",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "de3d90",
+      "new": "137cbc0",
+      "name": "check_epic_kill_time_with_hp",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -59273,7 +59434,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -59986,7 +60148,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -60539,7 +60709,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [214, 652]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [214, 652]",
+    "callee_changed": null
    }
   },
   {
@@ -62403,7 +62574,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10]",
+    "callee_changed": null
    }
   },
   {
@@ -64992,7 +65164,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -65406,7 +65586,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [328]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [328]",
+    "callee_changed": null
    }
   },
   {
@@ -70418,7 +70599,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [27, 51]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [27, 51]",
+    "callee_changed": [
+     {
+      "old": "d666c0",
+      "new": "1012f30",
+      "name": "v3_serpen_contest_clear_win",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -73883,7 +74072,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [1, 10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [1, 10]",
+    "callee_changed": null
    }
   },
   {
@@ -74769,7 +74959,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -77611,7 +77802,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -79888,7 +80087,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [1273]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [1273]",
+    "callee_changed": null
    }
   },
   {
@@ -80536,7 +80736,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "d41600",
+      "new": "dec130",
+      "name": "line_backfight_support_focus::{closure#3}::{closure#1}::call_mut",
+      "verdict": "변경?"
+     },
+     {
+      "old": "e2e560",
+      "new": "db6630",
+      "name": "line_backfight_support_focus min_by_key 폴드",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -84049,7 +84263,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [33]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [33]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -89712,7 +89934,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [8, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [8, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -107686,7 +107909,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [8]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [8]",
+    "callee_changed": null
    }
   },
   {
@@ -108099,7 +108323,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [152] · 후보 7 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [152] · 후보 7 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -108983,7 +109208,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -109442,7 +109668,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 1086]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 1086]",
+    "callee_changed": null
    }
   },
   {
@@ -109890,7 +110117,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "d70710",
+      "new": "e7c3c0",
+      "name": "FUN_d70710",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -110042,7 +110277,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -110425,7 +110661,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -111013,7 +111250,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -111281,7 +111519,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -112239,7 +112478,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -112651,7 +112891,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -113438,7 +113679,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -113907,7 +114149,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [29]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [29]",
+    "callee_changed": [
+     {
+      "old": "ded690",
+      "new": "e7abf0",
+      "name": "?",
+      "verdict": "미지"
+     }
+    ]
    }
   },
   {
@@ -114556,7 +114806,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [38, 214] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [38, 214] · 후보 3 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -115084,7 +115335,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 29]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 29]",
+    "callee_changed": null
    }
   },
   {
@@ -116286,7 +116538,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -117180,7 +117433,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [70, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [70, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -117763,7 +118017,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -118422,7 +118677,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 29]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 29]",
+    "callee_changed": [
+     {
+      "old": "ded690",
+      "new": "e7abf0",
+      "name": "?",
+      "verdict": "미지"
+     }
+    ]
    }
   },
   {
@@ -119157,7 +119420,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [5, 10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [5, 10]",
+    "callee_changed": null
    }
   },
   {
@@ -119603,7 +119867,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [8]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [8]",
+    "callee_changed": null
    }
   },
   {
@@ -121406,7 +121671,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 45]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 45]",
+    "callee_changed": null
    }
   },
   {
@@ -121886,7 +122152,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [174] · 후보 7 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [174] · 후보 7 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -122219,7 +122493,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -122622,7 +122897,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-9]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-9]",
+    "callee_changed": null
    }
   },
   {
@@ -123365,7 +123641,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -124104,7 +124381,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -124581,7 +124859,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-178]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-178]",
+    "callee_changed": null
    }
   },
   {
@@ -125566,7 +125845,75 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-1]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-1]",
+    "callee_changed": [
+     {
+      "old": "cce210",
+      "new": "ec3060",
+      "name": "SmallActionTrace::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d845e0",
+      "new": "ed4350",
+      "name": "SmallActionSkill::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d84800",
+      "new": "ddd690",
+      "name": "SmallActionSkill2::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d84a30",
+      "new": "eccaf0",
+      "name": "SmallActionUlt::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d84c60",
+      "new": "e95f70",
+      "name": "abstract_input::attack 래퍼(position_eval 근방)",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "db6ff0",
+      "new": "ddd460",
+      "name": "SmallActionAround::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "db6ff0",
+      "new": "fdb210",
+      "name": "SmallActionAround::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "dbbd60",
+      "new": "ddd010",
+      "name": "SmallActionAroundRegion::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "dbd260",
+      "new": "fd98c0",
+      "name": "SmallActionRecall::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "dc2070",
+      "new": "ed0400",
+      "name": "SmallActionAroundPositionBush::get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "dc2960",
+      "new": "ecfa40",
+      "name": "SmallActionAroundBush::get_input",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -126091,7 +126438,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-1]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-1]",
+    "callee_changed": null
    }
   },
   {
@@ -127008,7 +127356,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [79]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [79]",
+    "callee_changed": [
+     {
+      "old": "d59940",
+      "new": "f749a0",
+      "name": "calculate_action_score",
+      "verdict": "변경"
+     },
+     {
+      "old": "e29b40",
+      "new": "100c2f0",
+      "name": "action_eval::evaluate_action",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -127649,7 +128011,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [3, 214] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [3, 214] · 후보 3 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -128271,7 +128634,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-3]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-3]",
+    "callee_changed": null
    }
   },
   {
@@ -128754,7 +129118,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-178]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-178]",
+    "callee_changed": [
+     {
+      "old": "d7a080",
+      "new": "e8a070",
+      "name": "FUN_d7a080",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -129441,7 +129813,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -130239,7 +130612,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [8]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [8]",
+    "callee_changed": null
    }
   },
   {
@@ -131037,7 +131411,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10]",
+    "callee_changed": null
    }
   },
   {
@@ -131764,7 +132139,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [65] · 후보 7 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [65] · 후보 7 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "d96d00",
+      "new": "1008030",
+      "name": "tower_discipline.rs:533 LocalKey::with 캐시 래퍼",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -132283,7 +132672,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -132624,7 +133014,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -133178,7 +133576,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -133721,7 +134120,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -135252,7 +135652,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [17, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [17, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -136408,7 +136809,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [3, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [3, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -137416,7 +137818,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [328] · 후보 2 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [328] · 후보 2 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -138213,7 +138616,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [11]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [11]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -138826,7 +139237,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -139478,7 +139890,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [29]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [29]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "ded690",
+      "new": "e7abf0",
+      "name": "?",
+      "verdict": "미지"
+     }
+    ]
    }
   },
   {
@@ -140135,7 +140561,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214] · 후보 2 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214] · 후보 2 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -140849,7 +141276,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-40, 214] · 후보 2 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-40, 214] · 후보 2 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -142409,7 +142837,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [2, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [2, 214]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -143274,7 +143710,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [5, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [5, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -144574,7 +145011,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [8]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [8]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -145160,7 +145605,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -145952,7 +146405,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -146850,7 +147311,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -149306,7 +149768,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -150554,7 +151024,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -151848,7 +152326,51 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [70, 214] · r21 w10/w11 본체 대조"
+    "note": "Location (파일,열) 일치 · 줄 델타 [70, 214] · r21 w10/w11 본체 대조",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "cefd50",
+      "new": "381ebcf",
+      "name": "FUN_cefd50",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d11bc0",
+      "new": "e48880",
+      "name": "get_input",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d13b30",
+      "new": "e4abd0",
+      "name": "get_input_cl",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d1d9c0",
+      "new": "1643790",
+      "name": "new_tower_avoid_v3",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d1d9c0",
+      "new": "e60c80",
+      "name": "new_tower_avoid_v3",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d1dc60",
+      "new": "33a50",
+      "name": "new_unnecessary_tower_avoid",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -152965,7 +153487,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -154287,7 +154817,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -155916,7 +156454,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-1, 0]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-1, 0]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -164978,7 +165524,27 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-1, 0]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-1, 0]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "ceddd0",
+      "new": "e2e5a0",
+      "name": "get_input_cl",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d0dae0",
+      "new": "e50aa0",
+      "name": "get_input",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -166650,7 +167216,27 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [194, 197]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [194, 197]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "d5bbf0",
+      "new": "f77820",
+      "name": "calculate_interaction_action_score",
+      "verdict": "변경"
+     },
+     {
+      "old": "eb82d0",
+      "new": "eda920",
+      "name": "check_kill_die_tick LocalKey::with(DieTickCache 래퍼)",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -169369,7 +169955,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": [
+     {
+      "old": "12a0c80",
+      "new": "1660f50",
+      "name": "?",
+      "verdict": "미지"
+     }
+    ]
    }
   },
   {
@@ -171424,7 +172018,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "d851d0",
+      "new": "ff62e0",
+      "name": "position_eval_at_uncached",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -174585,7 +175187,27 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 부분 일치 J=0.95(18/18)"
+    "note": "Location (파일,열) 부분 일치 J=0.95(18/18)",
+    "callee_changed": [
+     {
+      "old": "12a07d0",
+      "new": "db1eb0",
+      "name": "?",
+      "verdict": "미지"
+     },
+     {
+      "old": "c89a90",
+      "new": "e0daa0",
+      "name": "v48_cast_beams (LocalKey::with 클로저)",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "c993e0",
+      "new": "e060b0",
+      "name": "update_v32",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -176200,7 +176822,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "eb82d0",
+      "new": "eda920",
+      "name": "check_kill_die_tick LocalKey::with(DieTickCache 래퍼)",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -177494,7 +178130,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -184175,7 +184812,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]",
+    "callee_changed": null
    }
   },
   {
@@ -188272,7 +188910,27 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "head 해시 일치(후보 1)"
+    "note": "head 해시 일치(후보 1)",
+    "callee_changed": [
+     {
+      "old": "c91770",
+      "new": "dfddb0",
+      "name": "FUN_c91770",
+      "verdict": "변경?"
+     },
+     {
+      "old": "d73c30",
+      "new": "e706b0",
+      "name": "FUN_d73c30",
+      "verdict": "변경?"
+     },
+     {
+      "old": "d96d00",
+      "new": "1008030",
+      "name": "tower_discipline.rs:533 LocalKey::with 캐시 래퍼",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -197646,7 +198304,39 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "head 해시 일치(후보 1)"
+    "note": "head 해시 일치(후보 1)",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "c8d570",
+      "new": "df9db0",
+      "name": "FUN_c8d570",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "c96830",
+      "new": "e03070",
+      "name": "FUN_c96830",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "c98290",
+      "new": "e04ad0",
+      "name": "FUN_c98290",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "eb82d0",
+      "new": "eda920",
+      "name": "check_kill_die_tick LocalKey::with(DieTickCache 래퍼)",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -199711,7 +200401,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "head 해시 일치(후보 1)"
+    "note": "head 해시 일치(후보 1)",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "eb82d0",
+      "new": "eda920",
+      "name": "check_kill_die_tick LocalKey::with(DieTickCache 래퍼)",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -200398,7 +201102,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -208291,7 +208996,39 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [23, 24]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [23, 24]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "d70900",
+      "new": "e7c5b0",
+      "name": "FUN_d70900",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d709f0",
+      "new": "e7c6a0",
+      "name": "FUN_d709f0",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d70ae0",
+      "new": "e7c790",
+      "name": "FUN_d70ae0",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "d70bd0",
+      "new": "e7c880",
+      "name": "FUN_d70bd0",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -220368,7 +221105,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [8]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [8]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -221575,7 +222320,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -224228,7 +224974,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [369]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [369]",
+    "callee_changed": [
+     {
+      "old": "e65b10",
+      "new": "d6c2b0",
+      "name": "LegacyPlanHandler::get_small_action",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -226954,7 +227708,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [11]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [11]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "d59940",
+      "new": "f749a0",
+      "name": "calculate_action_score",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -227848,7 +228616,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 27]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 27]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "d433f0",
+      "new": "fd47a0",
+      "name": "?",
+      "verdict": "미지"
+     }
+    ]
    }
   },
   {
@@ -229461,7 +230243,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "eb82d0",
+      "new": "eda920",
+      "name": "check_kill_die_tick LocalKey::with(DieTickCache 래퍼)",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -230204,7 +231000,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 301] · 후보 2 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 301] · 후보 2 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "d433f0",
+      "new": "fd47a0",
+      "name": "?",
+      "verdict": "미지"
+     }
+    ]
    }
   },
   {
@@ -232730,7 +233540,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-9]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-9]",
+    "callee_changed": [
+     {
+      "old": "d74400",
+      "new": "e70d80",
+      "name": "max_poke_range",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -233799,7 +234617,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [97]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [97]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -234575,7 +235401,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [8]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [8]",
+    "callee_changed": null
    }
   },
   {
@@ -234890,7 +235717,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -235939,7 +236767,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "d59940",
+      "new": "f749a0",
+      "name": "calculate_action_score",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -236964,7 +237800,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 27] · 후보 2 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 27] · 후보 2 중 크기 최근접",
+    "callee_changed": null
    }
   },
   {
@@ -238980,7 +239817,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [442]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [442]",
+    "callee_changed": null
    }
   },
   {
@@ -239655,7 +240493,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-163] · 후보 7 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-163] · 후보 7 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     },
+     {
+      "old": "d96d00",
+      "new": "1008030",
+      "name": "tower_discipline.rs:533 LocalKey::with 캐시 래퍼",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -240527,7 +241379,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [1063]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [1063]",
+    "callee_changed": null
    }
   },
   {
@@ -241433,7 +242286,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [369]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [369]",
+    "callee_changed": null
    }
   },
   {
@@ -242240,7 +243094,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [2]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [2]",
+    "callee_changed": [
+     {
+      "old": "d59940",
+      "new": "f749a0",
+      "name": "calculate_action_score",
+      "verdict": "변경"
+     },
+     {
+      "old": "e29b40",
+      "new": "100c2f0",
+      "name": "action_eval::evaluate_action",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -243061,7 +243929,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [2]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [2]",
+    "callee_changed": [
+     {
+      "old": "d59940",
+      "new": "f749a0",
+      "name": "calculate_action_score",
+      "verdict": "변경"
+     },
+     {
+      "old": "e29b40",
+      "new": "100c2f0",
+      "name": "action_eval::evaluate_action",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -243974,7 +244856,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -244367,7 +245257,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -245152,7 +246043,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [156]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [156]",
+    "callee_changed": null
    }
   },
   {
@@ -245815,7 +246707,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "d59940",
+      "new": "f749a0",
+      "name": "calculate_action_score",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -246284,7 +247184,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [27]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [27]",
+    "callee_changed": null
    }
   },
   {
@@ -246799,7 +247700,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -247507,7 +248409,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -248098,7 +249001,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [-169, -167]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [-169, -167]",
+    "callee_changed": null
    }
   },
   {
@@ -249205,7 +250109,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -249810,7 +250715,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": null
    }
   },
   {
@@ -250429,7 +251335,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [87, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [87, 214]",
+    "callee_changed": null
    }
   },
   {
@@ -250950,7 +251857,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [30]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [30]",
+    "callee_changed": null
    }
   },
   {
@@ -251952,7 +252860,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [421] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [421] · 후보 3 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "e8fd70",
+      "new": "f3d660",
+      "name": "AgentVerHamster::item_v26",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -253517,7 +254433,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [438] · 후보 3 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [438] · 후보 3 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "e7b640",
+      "new": "f27ea0",
+      "name": "buy_item",
+      "verdict": "변경"
+     },
+     {
+      "old": "e8fd70",
+      "new": "f3d660",
+      "name": "AgentVerHamster::item_v26",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -254057,7 +254987,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 부분 일치 J=0.83(19/23)"
+    "note": "Location (파일,열) 부분 일치 J=0.83(19/23)",
+    "callee_changed": [
+     {
+      "old": "e266e0",
+      "new": "e95dc0",
+      "name": "SmallActionLaneMinionPosition::has_current_explicit_minion_action",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -257777,7 +258715,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "head 해시 일치(후보 1)"
+    "note": "head 해시 일치(후보 1)",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -259231,7 +260177,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location 정확 일치"
+    "note": "Location 정확 일치",
+    "callee_changed": [
+     {
+      "old": "dfb5d0",
+      "new": "dd8b60",
+      "name": "FUN_dfb5d0",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -261207,7 +262161,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 214]",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -262416,7 +263378,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10, 27]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10, 27]",
+    "callee_changed": null
    }
   },
   {
@@ -263703,7 +264666,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [0, 10]",
+    "callee_changed": null
    }
   },
   {
@@ -264398,7 +265362,21 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [10] · 후보 23 중 크기 최근접"
+    "note": "Location (파일,열) 일치 · 줄 델타 [10] · 후보 23 중 크기 최근접",
+    "callee_changed": [
+     {
+      "old": "d75cb0",
+      "new": "e7ff60",
+      "name": "noncombat_steroid_window::{클로저}(추정)",
+      "verdict": "콜리 짝 불일치"
+     },
+     {
+      "old": "def0a0",
+      "new": "e7ff60",
+      "name": "noncombat_steroid_window_cl",
+      "verdict": "콜리 짝 불일치"
+     }
+    ]
    }
   },
   {
@@ -267546,7 +268524,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "Location (파일,열) 일치 · 줄 델타 [214, 1155]"
+    "note": "Location (파일,열) 일치 · 줄 델타 [214, 1155]",
+    "callee_changed": null
    }
   },
   {
@@ -268388,7 +269367,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -269301,7 +270281,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -270243,7 +271224,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -271220,7 +272202,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "정정(r20 C: target_score) ← 구 미발견 · r21 w10/w11 본체 대조"
+    "note": "정정(r20 C: target_score) ← 구 미발견 · r21 w10/w11 본체 대조",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   },
   {
@@ -272983,7 +273973,8 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": null
    }
   },
   {
@@ -273591,7 +274582,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": [
+     {
+      "old": "ded690",
+      "new": "e7abf0",
+      "name": "?",
+      "verdict": "미지"
+     }
+    ]
    }
   },
   {
@@ -274819,7 +275818,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "정정(r20/r21 다수: can_near_enemies_range) ← 구 미발견 · r21 w10/w11 본체 대조"
+    "note": "정정(r20/r21 다수: can_near_enemies_range) ← 구 미발견 · r21 w10/w11 본체 대조",
+    "callee_changed": [
+     {
+      "old": "c99fe0",
+      "new": "e066b0",
+      "name": "TeamPlan::can_near_enemies_range",
+      "verdict": "변경?"
+     }
+    ]
    }
   },
   {
@@ -275310,7 +276317,15 @@
     "logic_060": null,
     "common": "spec_patch_060.md §A 표 적용(PlayerState +0xd0 · Blackboard 0x5c8 · 태그 SmallActionPlay/BattleSubPlanGoal/SubPlan · Effect vt · TeamPlan/LPH/BattlePlan 오프셋)",
     "version_gate": null,
-    "note": "skel 해시 일치"
+    "note": "skel 해시 일치",
+    "callee_changed": [
+     {
+      "old": "12857f0",
+      "new": "1643790",
+      "name": "estimate_damage_to",
+      "verdict": "변경"
+     }
+    ]
    }
   }
  ],
