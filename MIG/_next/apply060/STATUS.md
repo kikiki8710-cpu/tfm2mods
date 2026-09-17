@@ -1,6 +1,6 @@
 # apply060 STATUS — logic_060 병합 현황
 
-병합 24 · 형식 오류 0 · 미작성(변경 중) 49
+병합 26 · 형식 오류 0 · 미작성(변경 중) 47
 
 | 구 | 신 | 함수 | confidence | logic_060 길이 |
 |---|---|---|---|---|
@@ -16,7 +16,9 @@
 | `de0770` | `f18f90` | TeamPlan::update | A(레거시 본체·에필로그) / C(프롤로그 감사 블록 — 요약만). | 9368 |
 | `dff080` | `ddd7e0` | base_sub_goal | A — 함수 전체를 0.6.0 디컴으로 대조했고 변경점이 꼬리 한 블록에 국한. | 3081 |
 | `dffa10` | `e80960` | buff_value_v54 | A(§9)/B(전체) — 변경 항목은 asm 수준 확정. 본문 나머지는 동치 판정 인용. | 10085 |
+| `e05e70` | `ee4e70` | resolve_join_stake | A(변경 4건 · ABI) / B(콜리 내부 동치 인용). | 5740 |
 | `e06df0` | `ee5e80` | resolve_fight_stake | A — 본체 전 분기·오프셋 디컴 확인. ee3c80 내부 산식만 B. | 4091 |
+| `e07430` | `ee6d40` | tower_dive_is_viable | A — 변경점 2건(클로저·pen) 과 흐름 전부 디컴 확인. | 5882 |
 | `e0b030` | `eebb40` | resolve_fight_stake_roster | A — 전 분기 디컴 확인. | 2586 |
 | `e0b730` | `eec620` | v25_scoped_battle_objective | A — 전 분기 디컴 확인. | 1998 |
 | `e29b40` | `100c2f0` | action_eval::evaluate_action | A(게이트·선택·reach·th) / B(감쇠식 세부·합산 순서) — 핵심 상수·오프셋은 디컴 확인, 산식  | 6607 |
@@ -26,7 +28,7 @@
 | `e5d300` | `d5ff20` | try_engage_dive | A — 변경점 5줄 전부 디컴에서 직접 확인. 남은 불확실은 screening 플래그의 콜리 내부 의미(이  | 2678 |
 | `e8d6f0` | `f3adb0` | AgentVerHamster::update_state | B — 본 함수의 변경점 3건은 전부 디컴 확인. 단 d52c00 이 LPH 판단 상태를 바꾸는지 미확정이라 | 6312 |
 | `e8fd70` | `f3d660` | AgentVerHamster::item_v26 | A — 변경 한 줄(임계)과 오프셋 전부 디컴 확인. | 2666 |
-| `e900b0` | `f3da50` | get_input | ? | 4872 |
+| `e900b0` | `f3da50` | get_input | A(v3 폴백·prelude·+0x5f0·오프셋 표) / B(StayEvent·freeze 세부 = 0.5. | 20661 |
 | `ec9de0` | `f88880` | wave_priority_clearer_position | A — 본체·클로저 둘 다 디컴 대조. | 2121 |
 
 ## 미작성(변경 판정인데 logic_060 없음)
@@ -36,11 +38,9 @@
 - `db90f0` update (⚠변경·한 줄(r20))
 - `e7b640` buy_item (⚠변경·한 줄(r20))
 - `e04f50` fight_participants (⚠변경·다건(r20))
-- `e05e70` resolve_join_stake (⚠변경·다건(r20))
 - `d2c5d0` PassiveLinePlan::sub_plan (⚠변경·다건(r20))
 - `d40f10` evaluate_gank_opportunity_with_score (⚠변경·한 줄(r20))
 - `dd6b40` v24_objective_setup_lane_pressure_ready (⚠변경·한 줄(r20))
-- `e07430` tower_dive_is_viable (⚠변경·다건(r20))
 - `e7acd0` should_recall_to_shop (⚠변경·한 줄(r20))
 - `df0a90` SerpenHuntAndPokePlan::is_end (⚠변경·다건(r20))
 - `dccc60` GoalData::update (⚠변경·한 줄(r20))
