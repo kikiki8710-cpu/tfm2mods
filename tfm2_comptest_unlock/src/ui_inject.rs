@@ -33,11 +33,11 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 //   ('asset/base/ui/layout/{main,strategy,training,banpick}' lea 직후 call 이 만장일치로 수렴).
 //   ⛔자동매칭 표의 "확정 0x91ab0" 은 **오답**(clone family 형제 혼동) — 0.5.3 은 진입 24B 가 449개
 //   함수와 동일해 바이트로 형제를 못 가른다. 결정적 지문 = 콜러 수(0.5.2 507 ↔ 0.5.3 511 vs 오답 2).
-const LOADER_RVA: usize = 0x2ea830; // 0.5.6 재핀        // ★0.5.5(구0.5.4=0x2e35d0) 문자열-xref 31표(§7.5)·프롤로그 바이트동일·함수경계 유효 // 0.5.4(구0.5.3=0x2e1550)
-const PARSER_RVA: usize = 0x1ab140; // 0.5.6 재핀        // ★0.5.5(구0.5.4=0x1a3ce0) skeleton UNIQUE·크기 2192B 동일 // 0.5.4(구0.5.3=0x1a6530) 3인자 계약·노드 stride 0x90 유지
+const LOADER_RVA: usize = 0x336a80; // 0.5.6 재핀        // ★0.5.5(구0.5.4=0x2e35d0) 문자열-xref 31표(§7.5)·프롤로그 바이트동일·함수경계 유효 // 0.5.4(구0.5.3=0x2e1550)
+const PARSER_RVA: usize = 0x197b10; // 0.5.6 재핀        // ★0.5.5(구0.5.4=0x1a3ce0) skeleton UNIQUE·크기 2192B 동일 // 0.5.4(구0.5.3=0x1a6530) 3인자 계약·노드 stride 0x90 유지
 // 0.5.3: __rust_alloc 이 align별 심 + impl 로 분해 ⟹ impl 직접호출 **3인자**가 전 모드 정본.
 //   (rcx 무시, rdx=flags(0), r8=size) -> rax, 실패 시 0. ⛔align8 심은 OOM 시 abort 라 미채택.
-const ALLOC_RVA: usize = 0x2b1b410; // 0.5.6 재핀        // ★0.5.5(구0.5.4=0x29bb920) skeleton UNIQUE·60B 동일 // 0.5.4(구0.5.3=0x28f7df0) HeapAlloc 래퍼
+const ALLOC_RVA: usize = 0x2f380b0; // 0.5.6 재핀        // ★0.5.5(구0.5.4=0x29bb920) skeleton UNIQUE·60B 동일 // 0.5.4(구0.5.3=0x28f7df0) HeapAlloc 래퍼
 const NT_SIZE: usize = 0x90;               // NodeTemplate 크기 — 0.5.2 struct 오프셋 불변(CASE-불변)이라 유지
 
 const PATH_TRAIN: &[u8] = b"asset/base/ui/layout/training";
@@ -288,28 +288,38 @@ unsafe fn inject_comptest(r: usize) -> bool {
 }
 
 fn loader_body(path: *const u8, len: usize, r: usize) {
+    // ★0.6.0 stable: 템플릿 주입은 하지 않는다(노드는 ensure_spawned 가 런타임 스폰). 진단 카운터만.
     if path.is_null() || r <= 0x10000 || len >= 200 { return; }
     let s = unsafe { core::slice::from_raw_parts(path, len) };
     LOADER_CALLS.fetch_add(1, Ordering::Relaxed);
-    if s.windows(8).any(|w| w == b"training") {
-        TRAIN_SEEN.fetch_add(1, Ordering::Relaxed);
-        if let Ok(txt) = core::str::from_utf8(s) {
-            let mut g = SEEN_PATHS.lock().unwrap_or_else(|e| e.into_inner());
-            if g.len() < 40 && !g.iter().any(|p| p == txt) { g.push(txt.to_string()); }
-        }
-    }
     if s == PATH_TRAIN { PATH_HIT.fetch_add(1, Ordering::Relaxed); }
-    if s == PATH_TRAIN && r != LAST_TRAIN.load(Ordering::Relaxed) {
-        let ok = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe { inject_comptest(r) }))
-            .unwrap_or(false);
-        // ★킬스코어 오버레이도 같은 레이아웃에 주입(실패해도 기존 기능엔 영향 없음)
-        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe { inject_killscore(r) }));
-        if ok { LAST_TRAIN.store(r, Ordering::Relaxed); }
-    }
 }
 
-/// ★게임 에셋 매니저(로더 1번 인자). 팝업 refresh `0x2306000(assets, node)`의 a1이 바로 이것이다
-///   — 모드 `Assets`(post_update 인자)와는 **다른 물건**이라 여기서 캐시해야 한다.
+/// ★0.6.0 stable: comp_test 팝업 경로 아래에 모드 노드(킬스코어 라벨·범위 토글·승패 라벨·runs 피커)를 스폰(없을 때만).
+///   조각 문자열은 클래식 주입 조각 그대로(루트 id 에 `#` 없음 = ui_spawn_source 규약과 동일).
+pub fn ensure_spawned(ctx: &mut mod_api_stable::StableClient<'_>, popup: &str) {
+    let marker = format!("{}.{}", popup, KS_MSG_ID);
+    if ctx.ui_exists(&marker) { return; }
+    let mut n = 0usize;
+    let mut frags: Vec<String> = Vec::new();
+    frags.push(ct_label(KS_MSG_ID, 150, 20));
+    for i in 0..KS_MAX { let (x, y) = ks_pos(i); frags.push(ct_label_at(&ks_id(i), x, y, 800, 17)); }
+    frags.push(ct_scope_toggle());
+    frags.push(ct_label_align(WL_BL_ID, 300, 59, 255, 19, "Right"));
+    frags.push(ct_label_align(WL_BN_ID, 560, 59, 55, 19, "Right"));
+    frags.push(ct_label_align(WL_C_ID, 620, 59, 40, 19, "Center"));
+    frags.push(ct_label_align(WL_RN_ID, 665, 59, 55, 19, "Left"));
+    frags.push(ct_label_align(WL_RL_ID, 725, 59, 255, 19, "Left"));
+    frags.push(ct_runs_picker(0, 955, 498));
+    frags.push(ct_runs_picker(1, 957, 654));
+    for f in &frags { if ctx.ui_spawn_source(popup, f) { n += 1; } }
+    KS_INJECTED.store(n, Ordering::Relaxed);
+    INJECTED.store(n, Ordering::Relaxed);
+    crate::uk::index_rebuild(ctx, popup);
+    crate::log(&format!("[uinj] comp_test_popup 스폰 {}/{} @{}
+", n, frags.len(), popup));
+}
+
 pub static ASSETS: AtomicUsize = AtomicUsize::new(0);
 
 extern "win64" fn detour(am: usize, path: *const u8, len: usize) -> usize {

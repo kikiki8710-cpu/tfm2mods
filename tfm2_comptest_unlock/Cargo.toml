@@ -1,0 +1,21 @@
+[package]
+name = "tfm2_comptest_unlock"
+version = "0.6.0"
+edition = "2021"
+
+# 0.6.0+: stable ABI shell (mod-api-stable). classic 0.5.8 source = src\tfm2_comptest_unlock.rs.bak_20260917_pre060
+# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py tfm2_comptest_unlock --ver 0.6.0
+
+[lib]
+name = "tfm2_comptest_unlock"
+path = "src/tfm2_comptest_unlock.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
