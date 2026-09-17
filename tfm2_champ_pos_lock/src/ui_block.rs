@@ -35,6 +35,11 @@ pub static BAN_CNT_SEEN: AtomicUsize = AtomicUsize::new(0);
 #[derive(Default)]
 struct PickState { slot_champ: HashMap<(bool, usize), String>, known: Vec<(bool, String)> }
 static PICK_STATE: Mutex<Option<PickState>> = Mutex::new(None);
+// ★성능(2026-09-17): 카드 전수 스캔(카드당 ui_visible 4회)은 내 픽 차례이거나 done 슬롯이 바뀐 직후·120프레임마다만. 그 외엔 캐시.
+static SCAN_CACHE: Mutex<Option<(HashSet<String>, Vec<(bool, String)>, usize)>> = Mutex::new(None); // (taken, picked, ban_n)
+static LAST_DONE: Mutex<Vec<(bool, usize)>> = Mutex::new(Vec::new());
+static DONE_CHANGED_AT: AtomicU64 = AtomicU64::new(0);
+const TICK_EVERY: u64 = 4;
 
 pub fn reset() {
     MY_SIDE.store(-1, Ordering::Relaxed);
@@ -56,6 +61,7 @@ pub fn tick(ctx: &mut StableClient<'_>) {
         return;
     }
     let f = crate::FRAME.load(Ordering::Relaxed);
+    if f % TICK_EVERY != 0 { return; }
     // ── 내 진영(30프레임마다 재확인)
     if MY_SIDE.load(Ordering::Relaxed) < 0 || f.saturating_sub(SIDE_CHECK_AT.load(Ordering::Relaxed)) > 30 {
         SIDE_CHECK_AT.store(f, Ordering::Relaxed);
@@ -67,27 +73,44 @@ pub fn tick(ctx: &mut StableClient<'_>) {
             if MY_SIDE.swap(side, Ordering::Relaxed) != side { config::llog(&format!("side: 내 팀 '{}' → {} (blue='{}' red='{}')", name, side, b, r)); }
         } }
     }
-    // ── 카드 상태 수집
-    let cards: Vec<String> = ctx.ui_child_names(CARDS);
-    let mut taken: HashSet<String> = HashSet::new();
-    let mut picked: Vec<(bool, String)> = Vec::new(); // (blue?, id)
-    let mut ban_n = 0usize;
-    for id in &cards {
-        let cp = format!("{}.{}", CARDS, id);
-        let lower = id.to_ascii_lowercase();
-        if vis(ctx, &format!("{}.ban", cp)) { taken.insert(lower.clone()); ban_n += 1; }
-        if vis(ctx, &format!("{}.fearless_icon", cp)) { taken.insert(lower.clone()); }
-        if vis(ctx, &format!("{}.blue", cp)) { taken.insert(lower.clone()); picked.push((true, lower.clone())); }
-        if vis(ctx, &format!("{}.red", cp)) { taken.insert(lower.clone()); picked.push((false, lower.clone())); }
-    }
-    // 밴 수 관측(양팀 밴 완료 후 = 밴 수/2). 픽 단계에서만 신뢰.
-    // ── 픽 슬롯 ↔ 챔피언 짝짓기
+    // ── 픽 슬롯 done 집합(싼 신호 10회) — 바뀐 직후에만 카드 전수 스캔
     let mut done_now: Vec<(bool, usize)> = Vec::new();
-    let mut done_name: HashMap<(bool, usize), String> = HashMap::new();
     for side in [true, false] { for n in 0..5 {
         let slot = format!("main.{}_picks.pick_slot_{}", side_name(side), n);
-        if vis(ctx, &format!("{}.done", slot)) { done_now.push((side, n)); if let Some(nm) = ctx.ui_text(&format!("{}.done.name", slot)) { done_name.insert((side, n), nm); } }
+        if vis(ctx, &format!("{}.done", slot)) { done_now.push((side, n)); }
     } }
+    { let mut ld = LAST_DONE.lock().unwrap_or_else(|e| e.into_inner()); if *ld != done_now { *ld = done_now.clone(); DONE_CHANGED_AT.store(f, Ordering::Relaxed); } }
+    // ── 턴 판정(싼 신호)
+    let pick_turn_side: Option<bool> = {
+        let b = (0..5).any(|n| vis(ctx, &format!("main.blue_picks.pick_slot_{}.in_turn", n)));
+        let r = (0..5).any(|n| vis(ctx, &format!("main.red_picks.pick_slot_{}.in_turn", n)));
+        match (b, r) { (true, false) => Some(true), (false, true) => Some(false), _ => None }
+    };
+    let ban_turn = pick_turn_side.is_none() && ["blue", "red"].iter().any(|s| { let bans = format!("main.bottom.{}_side.bans", s); ctx.ui_child_names(&bans).iter().any(|c| vis(ctx, &format!("{}.{}.in_turn", bans, c))) });
+    let my_side = MY_SIDE.load(Ordering::Relaxed);
+    let my_turn = my_side >= 0 && pick_turn_side.map(|b| (b && my_side == 0) || (!b && my_side == 1)).unwrap_or(false);
+    let recently_changed = f.saturating_sub(DONE_CHANGED_AT.load(Ordering::Relaxed)) <= 24;
+    let need_scan = (my_turn && !ban_turn) || recently_changed || f % 120 == 0 || SCAN_CACHE.lock().unwrap_or_else(|e| e.into_inner()).is_none();
+    // ── 카드 상태 수집(필요할 때만 전수 스캔, 아니면 캐시)
+    let cards: Vec<String> = if need_scan { ctx.ui_child_names(CARDS) } else { Vec::new() };
+    let (taken, picked, ban_n): (HashSet<String>, Vec<(bool, String)>, usize) = if need_scan {
+        let mut taken: HashSet<String> = HashSet::new();
+        let mut picked: Vec<(bool, String)> = Vec::new();
+        let mut ban_n = 0usize;
+        for id in &cards {
+            let cp = format!("{}.{}", CARDS, id);
+            let lower = id.to_ascii_lowercase();
+            if vis(ctx, &format!("{}.ban", cp)) { taken.insert(lower.clone()); ban_n += 1; }
+            if vis(ctx, &format!("{}.fearless_icon", cp)) { taken.insert(lower.clone()); }
+            if vis(ctx, &format!("{}.blue", cp)) { taken.insert(lower.clone()); picked.push((true, lower.clone())); }
+            if vis(ctx, &format!("{}.red", cp)) { taken.insert(lower.clone()); picked.push((false, lower.clone())); }
+        }
+        *SCAN_CACHE.lock().unwrap_or_else(|e| e.into_inner()) = Some((taken.clone(), picked.clone(), ban_n));
+        (taken, picked, ban_n)
+    } else { SCAN_CACHE.lock().unwrap_or_else(|e| e.into_inner()).clone().unwrap_or_default() };
+    // ── 픽 슬롯 ↔ 챔피언 짝짓기(선수명은 짝짓기 변화 때만 읽음)
+    let mut done_name: HashMap<(bool, usize), String> = HashMap::new();
+    if recently_changed { for &(side, n) in &done_now { if let Some(nm) = ctx.ui_text(&format!("main.{}_picks.pick_slot_{}.done.name", side_name(side), n)) { done_name.insert((side, n), nm); } } }
     {
         let mut g = PICK_STATE.lock().unwrap_or_else(|e| e.into_inner());
         let st = g.get_or_insert_with(PickState::default);
@@ -100,16 +123,7 @@ pub fn tick(ctx: &mut StableClient<'_>) {
             for (k, id) in new_slots.iter().zip(new_champs.drain(..)) { st.slot_champ.insert(*k, id.clone()); st.known.push((side, id)); }
         }
     }
-    // ── 턴 판정
-    let pick_turn_side: Option<bool> = {
-        let b = (0..5).any(|n| vis(ctx, &format!("main.blue_picks.pick_slot_{}.in_turn", n)));
-        let r = (0..5).any(|n| vis(ctx, &format!("main.red_picks.pick_slot_{}.in_turn", n)));
-        match (b, r) { (true, false) => Some(true), (false, true) => Some(false), _ => None }
-    };
-    let ban_turn = ["blue", "red"].iter().any(|s| { let bans = format!("main.bottom.{}_side.bans", s); ctx.ui_child_names(&bans).iter().any(|c| vis(ctx, &format!("{}.{}.in_turn", bans, c))) });
-    if pick_turn_side.is_some() && !ban_turn { let per = ban_n / 2; if per <= 5 && BAN_CNT_SEEN.swap(per + 1, Ordering::Relaxed) != per + 1 { let (st, cb) = config::cur_rule(); if cb != Some(per) { config::set_rule(st, Some(per)); config::dlog(&format!("밴카드 관측: {}장/팀 (구 {:?})", per, cb)); } } }
-    let my_side = MY_SIDE.load(Ordering::Relaxed);
-    let my_turn = my_side >= 0 && pick_turn_side.map(|b| (b && my_side == 0) || (!b && my_side == 1)).unwrap_or(false);
+    if pick_turn_side.is_some() && !ban_turn && need_scan { let per = ban_n / 2; if per <= 5 && BAN_CNT_SEEN.swap(per + 1, Ordering::Relaxed) != per + 1 { let (st, cb) = config::cur_rule(); if cb != Some(per) { config::set_rule(st, Some(per)); config::dlog(&format!("밴카드 관측: {}장/팀 (구 {:?})", per, cb)); } } }
     MY_PICK_TURN.store(my_turn, Ordering::Relaxed);
     // ── 스왑 확정 게이트
     if vis(ctx, "main.swap") { swap_gate(ctx, my_side); } else { SWAP_SIG.store(u64::MAX, Ordering::Relaxed); }
@@ -146,6 +160,7 @@ pub fn tick(ctx: &mut StableClient<'_>) {
     // ── 오버레이 반영(변화가 있을 때만)
     let changed = { let g = BLOCKED.lock().unwrap_or_else(|e| e.into_inner()); g.as_ref() != Some(&block) };
     if changed {
+        let cards: Vec<String> = if cards.is_empty() { ctx.ui_child_names(CARDS) } else { cards.clone() };
         let mut ov = OVERLAYS.lock().unwrap_or_else(|e| e.into_inner());
         let spawned = ov.get_or_insert_with(HashSet::new);
         for id in &cards {

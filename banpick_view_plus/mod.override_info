@@ -1,0 +1,18 @@
+{
+  "asset/base/ui/layout/banpick/layout": {
+    "remapping": "asset/banpick_view_plus/ui/layout/banpick/layout",
+    "type": "override"
+  },
+  "asset/base/ui/layout/banpick/blue_pick_slot": {
+    "remapping": "asset/banpick_view_plus/ui/layout/banpick/blue_pick_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/banpick/red_pick_slot": {
+    "remapping": "asset/banpick_view_plus/ui/layout/banpick/red_pick_slot",
+    "type": "override"
+  },
+  "asset/base/text/ui": {
+    "remapping": "asset/banpick_view_plus/text/bvp",
+    "type": "merge"
+  }
+}

@@ -1,0 +1,20 @@
+[package]
+name = "banpick_view_plus"
+version = "0.6.0"
+edition = "2021"
+
+# 0.6.0+: stable ABI port (mod-api-stable). classic source = tfm2-mods-main\banpick_view_plus (daram2).
+# banpick screen overhaul: .ui overrides (3-way merged onto 0.6.0) + stable runtime (assets from mod folder, UI overlay drawing).
+# build: cargo build --release
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+serde_json = "1"
+
+[workspace]
+
+[profile.release]
+opt-level = 1
