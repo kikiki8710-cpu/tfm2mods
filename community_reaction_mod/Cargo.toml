@@ -1,0 +1,21 @@
+[package]
+name = "community_reaction_mod"
+version = "0.6.0"
+edition = "2021"
+
+# 0.6.0+: stable ABI port (mod-api-stable). classic source = C:\tfm2mods\community_reaction_mod_classic_058 (rustc direct build, no Cargo).
+# client: 4s send_command("crm_export") + gallery open once per save load + StableMatchHook highlight collection
+# server: handle_command → record_get_json(Match/MatchReplay/LeagueCompetition/TournamentCompetition/League/Tournament) → latest_match.js
+# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py community_reaction_mod --ver 0.6.0
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+serde_json = "1"
+
+[workspace]
+
+[profile.release]
+opt-level = 1

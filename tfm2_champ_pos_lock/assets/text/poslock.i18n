@@ -43,7 +43,9 @@
       "warn_shared": "⚠ {count} overlapping positions share a champion pool - {want} needed in total (currently {have})",
       "count_label_pool": "Selected: {n}  (pool {pool} = {n} named + unassigned)",
       "warn_subset": "⚠ With this position on, positions {lines} would share only {have} champions but need {need} ({more} more) - this position is treated as unrestricted",
-      "warn_others": "⚠ Other positions below minimum (treated as unrestricted): {list}"
+      "warn_others": "⚠ Other positions below minimum (treated as unrestricted): {list}",
+      "block_msg": "{name}: no position left for this champion",
+      "block_msg_pos": "{name}: {pos} is already covered"
     }
   },
   "ko": {
@@ -90,7 +92,9 @@
       "warn_shared": "⚠ 겹친 {count}개 포지션이 챔프풀 공유 - 합쳐서 최소 {want}개 필요 (현재 {have})",
       "count_label_pool": "현재 선택 수: {n}  (판정 풀 {pool} = 지정 {n} + 미지정)",
       "warn_subset": "⚠ 이 포지션을 켜면 {lines}의 공유 후보가 {have}개로 필요 {need}개에 못 미칩니다 ({more}개 더 필요) - 이 포지션은 제한 없음 취급",
-      "warn_others": "⚠ 다른 포지션 최소 미달(제한 없음 취급): {list}"
+      "warn_others": "⚠ 다른 포지션 최소 미달(제한 없음 취급): {list}",
+      "block_msg": "{name}: 이 챔피언이 갈 포지션이 남아 있지 않습니다",
+      "block_msg_pos": "{name}: {pos} 자리는 이미 채워졌습니다"
     }
   }
 }

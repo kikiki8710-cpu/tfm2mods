@@ -1,0 +1,19 @@
+[package]
+name = "tfm2_champ_pos_lock"
+version = "0.7.0"
+edition = "2021"
+
+# 0.7.0 = 0.6.0 stable ABI redesign (2026-09-17). classic 0.5.8 source = _classic_058\src (detour-based).
+# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py tfm2_champ_pos_lock --ver 0.7.0
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false

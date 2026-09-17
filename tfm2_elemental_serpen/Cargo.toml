@@ -1,12 +1,19 @@
 [package]
 name = "tfm2_elemental_serpen"
-version = "0.1.0"
+version = "0.6.0"
 edition = "2021"
+
+# 0.6.0+: stable ABI shell (mod-api-stable). classic 0.5.8 source = _bak/lib.rs.20260917_pre_stable
+# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py tfm2_elemental_serpen --ver 0.6.0
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-# mod-api 는 빌드 시 SDK/업로더가 주입 — 여기 추가하지 말 것.
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
 
 [workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false

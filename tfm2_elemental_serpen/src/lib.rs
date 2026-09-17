@@ -15,10 +15,15 @@
 //!   공유상태 Atomic + 로그 Mutex poison-safe. item_editor 검증본 이식.
 //! ===========================================================================
 #![allow(unused_imports, unused_variables)]
-use mod_api::*;
-// 공용 UI 모듈(복사 금지, #[path] import 규약). find()로 "game_time" 노드 존재 = 경기 화면 판정에 사용.
-#[path = "C:/tfm2mods/ui_kit/ui_kit.rs"]
-mod ui_kit;
+//! ★0.6.0 stable ABI 껍데기(2026-09-17): 클래식 SDK 부재 → `mod_api` 의존(Scene/GameUI/Node/ClientDatabase)을 stable API 로 교체.
+//!   · UI = ui_kit_stable(경로 기반 id 인덱스, ui_node_rect/ui_set_properties) · 커서 = uk::cursor_ui()
+//!   · ClientDatabase = client_db_stable(ctx raw → [[state+0x68]+0x38]+0x18, 0.6.0 RE 오프셋)
+//!   · 훅/RVA/엔티티 오프셋은 그대로(0.6.0 재핀 완료 19/19). 클래식 판 백업 = _bak/lib.rs.20260917_pre_stable
+use mod_api_stable::{declare_stable_mod, LogLevel, SceneKindV1, StableClient, StableExtension, StableHost, StableMod, StableServerCtx, StableServerExtension};
+#[path = r"C:\tfm2mods\ui_kit\ui_kit_stable.rs"]
+mod uk;
+#[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
+mod cdb;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicPtr, AtomicU32, AtomicU64, AtomicUsize, Ordering};
@@ -31,7 +36,7 @@ const MOD_ID: &str = "tfm2_elemental_serpen";
 // ── 세르펜 per-tick 핸들러 (0.5.0_3, RVA = abs − 0x140000000) ──
 //   FUN_1422bdda0. 프롤로그 12B(PUSH 8개)=온전한 경계, relocatable OK, 재진입=+0xc(SUB RSP).
 //   시그니처 = extern "win64" fn(rcx,rdx,r8,r9,a5,a6) → void. rcx≠엔티티(world/sim 핸들).
-const SERPEN_RVA: usize = 0x1444860; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x1328950 → 신 0x16be600 (kind6). 확정 = 함수+0x73 `cmp [rax+0x68],6`(신 동일) + 단일콜러 clone컨테이너 0x114c2a0(kind4/5/6 3연속 콜사이트) + head-unique. (구0.5.4=0x1328950/구0.5.3=0x1535810) ★clone 함정: kind5 후보=0x16b7e70(+0x7a cmp,5).
+const SERPEN_RVA: usize = 0x13d5390; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x1328950 → 신 0x16be600 (kind6). 확정 = 함수+0x73 `cmp [rax+0x68],6`(신 동일) + 단일콜러 clone컨테이너 0x114c2a0(kind4/5/6 3연속 콜사이트) + head-unique. (구0.5.4=0x1328950/구0.5.3=0x1535810) ★clone 함정: kind5 후보=0x16b7e70(+0x7a cmp,5).
 // ★0.5.3 확증: 프롤로그 12B 바이트 완전동일 + 함수 +77 명령이 `mov rax,[rbx+0x1c8]`(0.5.2는 +0x1b8)로
 //   1:1 대응, 간접 call 19건의 함수내 오프셋이 +1098까지 완전일치. 크기 3863→3938.
 // ★0.5.2 kind6 확증: 스켈레톤 L1 UNIQUE(크기 0xf17 동일, 전 mem-disp/imm 일치) + 함수 내 상대오프셋
@@ -396,18 +401,18 @@ const CHAMP_KIND: u64 = 0xd;
 const W_CHAMP_DENSE: usize = 0x738;     // 0.5.5: 구 0x720 → 신 0x738 (+0x18). ptr / +8 len (stride 0x6c0). 챔프루프 `mov rcx,[rdx+0x738]` 직접.
 const W_CHAMP_SLOTS: usize = 0x750;     // 0.5.5: 구 0x738 → 신 0x750 (+0x18). ptr / +8 len (stride 0x10). MOBATICK 0x750/0x758 정렬.
 const W_PLAYER_DENSE: usize = 0x858;    // 0.5.5: 구 0x840 → 신 0x858 (+0x18). ptr / +8 len (stride 0x9e0). 플레이어루프 `mov rax,[rbx+0x858]` 직접.
-const P_TEAM: usize = 0x930;            // 0.5.5: 구 0x810 → 신 0x930 (+0x120). player struct 대폭 성장. 플레이어루프 `mov rcx,[rax+r8+0x930]; cmp rcx,2` 직접 1:1.
-const P_CHAMP_TAG: usize = 0x9c8;       // 0.5.5: 구 0x8a8 → 신 0x9c8 (+0x120). Option tag(0=챔피언 없음). 앵커쌍 5/6 확인.
-const P_CHAMP_KEY: usize = 0x9d0;       // 0.5.5: 구 0x8b0 → 신 0x9d0 (+0x120). champion slotmap key.
+const P_TEAM: usize = 0xa00;            // ★0.6.0: Player ≥0x928 대역 Δ+0xd0 (MOBATICK 0x930(7)→0xa00(7)·DMGB 동일). ~~0.5.8=0x930~~ // 0.5.5: 구 0x810 → 신 0x930 (+0x120). player struct 대폭 성장. 플레이어루프 `mov rcx,[rax+r8+0x930]; cmp rcx,2` 직접 1:1.
+const P_CHAMP_TAG: usize = 0xa98;       // ★0.6.0: Δ+0xd0 (MOBATICK 플레이어루프 정렬 0x9c8→0xa98). ~~0.5.8=0x9c8~~ // 0.5.5: 구 0x8a8 → 신 0x9c8 (+0x120). Option tag(0=챔피언 없음). 앵커쌍 5/6 확인.
+const P_CHAMP_KEY: usize = 0xaa0;       // ★0.6.0: Δ+0xd0 (MOBATICK 0x9d0(7)→0xaa0(6)). ~~0.5.8=0x9d0~~ // 0.5.5: 구 0x8b0 → 신 0x9d0 (+0x120). champion slotmap key.
 const CHAMP_STRIDE: usize = 0x6c0; // 0.5.5: 구 0x6a8 → 신 0x6c0 (+0x18). MOBATICK 챔프루프 `imul rax,rax,0x6c0` 직접.
-const PLAYER_STRIDE: usize = 0x9e0; // 0.5.5: 구 0x8c0 → 신 0x9e0 (+0x120). MOBATICK 플레이어루프 `imul rdx,rcx,0x9e0` 직접(1:1).
+const PLAYER_STRIDE: usize = 0xab0; // ★0.6.0: MOBATICK `imul ..,0xab0` 39곳(구 0x9e0 41곳) — Player 구조체 +0xd0(2026-09-16 fieldmap). ~~0.5.8=0x9e0~~ // 0.5.5: 구 0x8c0 → 신 0x9e0 (+0x120). MOBATICK 플레이어루프 `imul rdx,rcx,0x9e0` 직접(1:1).
 // 0.5.4 (구0.5.3=0x8d0) MobaMode::tick — 매 틱 호출(rcx=World). 프롤로그 12B 순수 push(그 뒤 mov eax,imm 5B까지 17B 안전,
 //   단 그 다음 `call __chkstk`는 상대콜이라 스틸 금지) → 12B 스틸.
 // ★0.5.3 확정(2026-07-29, 독립 2방법 일치): ①문자열 `"game_core::simulation::game"` 를 LEA하는 함수가
 //   두 exe 각각 **유일**(0.5.2=0x230c290 / 0.5.3=0xeeeac0) ②콜그래프 전파투표 43표(2위 21)
 //   ③provider 오프셋 교차검증 — 이 후보만 0xed2x/0xed3x/0xed5x 대역을 참조(다른 후보는 0건).
 //   프롤로그 12B 바이트 동일(chkstk imm만 0x19c8→0x1b08). 크기 48761→42668.
-const MOBATICK_RVA: usize = 0x1851f60; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x13ee0a0 → 신 0x14f7e40. 투표 35표(2위 22)+head-unique+문자열 `game_core::simulation::game` xref. 본문 41740→51450(+23%). (구0.5.3=0xeeeac0)
+const MOBATICK_RVA: usize = 0x1724be0; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x13ee0a0 → 신 0x14f7e40. 투표 35표(2위 22)+head-unique+문자열 `game_core::simulation::game` xref. 본문 41740→51450(+23%). (구0.5.3=0xeeeac0)
 const MOBATICK_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 const KILLS_BLUE_OFF: usize = 0xef60;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d8e 위치대조). ~~0.5.7=0xef28~~  // 0.5.5: 구 0xedc0 → 신 0xef28 (+0x168). serpen_count[0]
 const KILLS_RED_OFF: usize = 0xef68;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d95 위치대조). ~~0.5.7=0xef30~~   // 0.5.5: 구 0xedc8 → 신 0xef30 (+0x168). serpen_count[1]
@@ -481,7 +486,7 @@ static MAIN_TID: AtomicU32 = AtomicU32::new(0);
 //   라이브(관전) sim 전용 스레드 스폰 클로저: 0x473040(lineup)/0x4724a0(variant). rcx=env.
 //   env+0x10=ArcInner(Arc<RwLock<Game>>), Game=inner+0x20, provider=*(Game+0x1660).
 //   세르펜 detour rcx(=provider) == LIVE_PROVIDER면 관전 경기 → CURRENT_ATTR 세팅.
-const SPAWN_HOOKS: [usize; 2] = [0xb1db20, 0xb1cf10]; // 0.5.5: 구 0xb31bb0/0xb30f90 → 신 0xb34440/0xb33820. skel-unique·프롤로그 14B 동일. (구0.5.3=0xabdf60/0xabd340)
+const SPAWN_HOOKS: [usize; 2] = [0xac36f0, 0xac2ae0]; // 0.5.5: 구 0xb31bb0/0xb30f90 → 신 0xb34440/0xb33820. skel-unique·프롤로그 14B 동일. (구0.5.3=0xabdf60/0xabd340)
 const SPAWN_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 static LIVE_PROVIDER: AtomicUsize = AtomicUsize::new(0);
 // ★★★재생할 경기를 "고르는 지점" = Game 런처 0x20588a0 (2026-07-17 RE, 유저 착안).
@@ -493,7 +498,7 @@ static LIVE_PROVIDER: AtomicUsize = AtomicUsize::new(0);
 // ★0.5.3 확정(2026-07-29, 독립 2방법 일치): 씬빌더(0x74d510→0x997740)에서 **정확히 2회** +
 //   리플레이핸들러(0x1554930→0x229a410)에서 **1회** 불리는 타깃이 0.5.3 전체에서 0xeb8810 **유일**.
 //   ghidra 별도 검증도 동일(콜사이트 총 9곳 = 0.5.2와 동수·동성격). 프롤로그 12B 바이트 동일.
-const LAUNCHER_RVA: usize = 0x1810d20; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x13b53d0 → 신 0x14ac3e0. 투표 15표(2위 9)+콜사이트 9/9 컨테이너 지문 완전대응+head-unique+Game band[0x1dc0~] 36/36 동일. (구0.5.3=0xeb8810)
+const LAUNCHER_RVA: usize = 0x16d9180; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x13b53d0 → 신 0x14ac3e0. 투표 15표(2위 9)+콜사이트 9/9 컨테이너 지문 완전대응+head-unique+Game band[0x1dc0~] 36/36 동일. (구0.5.3=0xeb8810)
 const LAUNCHER_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 // ★RET_A/B 재도출 방식 주의(0.5.2): 컨테이너 0x722ca0→0x74d510 은 본문이 84명령어 줄어(14769→14685)
 //   **단순 컨테이너+오프셋 델타도, 콜 서수(ordinal) 매핑도 둘 다 오답**을 낸다(각각 0x759d72 / 0x759fc1).
@@ -502,14 +507,14 @@ const LAUNCHER_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0
 // ★0.5.3 재도출(2026-07-29): 위 확정 런처의 xref 콜사이트를 씬빌더 본문에서 직접 열거해 얻음
 //   (컨테이너+오프셋 델타나 콜 서수 매핑을 쓰지 말 것 — 0.5.2 때 둘 다 오답이었다).
 //   자기일치 확인: 세 사이트의 E8 타깃이 전부 LAUNCHER_RVA(0xeb8810)로 재계산됨.
-const LAUNCHER_RET_A: usize = 0x893c41; // ★0.5.8 재핀(2026-09-04): 구 0x893cb9 는 **콜사이트가 아니었다**(그 앞이 call 아님).
+const LAUNCHER_RET_A: usize = 0x828678; // ★0.6.0 재핀(2026-09-16): 런처(0x16d9180) 콜사이트 전수 9/9 대응, 씬빌더 0x887980→0x81ba60 첫 콜사이트 0x828673+5. 0.5.8=0x893c41. // ★0.5.8 재핀(2026-09-04): 구 0x893cb9 는 **콜사이트가 아니었다**(그 앞이 call 아님).
                                         // 콜사이트 0x893c3c, 오너 씬빌더 0x887980 +0xc2bc (0.5.5 기록 +0xc154 대응). // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x9e2079 → 신 0x763329. 콜사이트 0x763324+5 (씬빌더 0x7571d0 +0xc154, 구와 동일 오프셋·크기 91975). (구0.5.3=0x9a3287)
-const LAUNCHER_RET_B: usize = 0x898be9; // ★0.5.8 재핀(2026-09-04): 구 0x898c0b 틀림. 콜사이트 0x898be4,
+const LAUNCHER_RET_B: usize = 0x82d737; // ★0.6.0 재핀(2026-09-16): 같은 씬빌더 두 번째 콜사이트 0x82d732+5. 0.5.8=0x898be9. // ★0.5.8 재핀(2026-09-04): 구 0x898c0b 틀림. 콜사이트 0x898be4,
                                         // 오너 씬빌더 0x887980 +0x11264 (0.5.5 기록 +0x110c6 대응). 런타임 retaddr 실측치와 일치. // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x9e6feb → 신 0x76829b. 콜사이트 0x768296+5 (씬빌더 0x7571d0 +0x110c6, 동일). (구0.5.3=0x9a7b03)
 // ★리플레이(다시보기) 진입 경로 C — pause 메뉴 replay_match_slot 매치런치 핸들러(entry 0x1554930)의
 //   런처 콜사이트 0x1555210 + 5(E8 rel32) = retaddr. 이 게이트로 리플레이도 화면 경기 seed를 확정한다.
 //   (ghidra-re 2026-07-26: World 생성은 런처 0x1d96870을 반드시 경유·간접호출 전무 → 콜사이트+5=retaddr)
-const LAUNCHER_RET_C: usize = 0x1c50714; // ★0.5.8 재핀(2026-09-04): 구 0x1c50704 틀림. 콜사이트 0x1c5070f,
+const LAUNCHER_RET_C: usize = 0x2000bf4; // ★0.6.0 재핀(2026-09-16): 리플레이핸들러 0x1c4fd80→0x20002e0(콜리 사영 11/15·소거법) 콜사이트 0x2000bef+5. 0.5.8=0x1c50714. // ★0.5.8 재핀(2026-09-04): 구 0x1c50704 틀림. 콜사이트 0x1c5070f,
                                          // 오너 리플레이핸들러 0x1c4fd80 +0x98f (0.5.5 기록 +0x97f 대응). // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x1d147e4 → 신 0x1da7d54. 리플레이 = 콜사이트 0x1da7d4f+5 (핸들러 0x1da73d0 +0x97f, 크기 5272 동일). (구0.5.3=0x229ad94)
 // ★comp_test(조합테스트) 다시보기 경로 D — comp_test는 정규 리플레이 핸들러(0x1d13e60)를 타지 않고
 //   전용 재생 빌더 0x2323aa0(training_ui.rs, CompTestHistoryEntry의 seed로 재시뮬)을 탄다.
@@ -517,7 +522,7 @@ const LAUNCHER_RET_C: usize = 0x1c50714; // ★0.5.8 재핀(2026-09-04): 구 0x1
 //   (ghidra-re 2026-08-08: 런처 콜사이트 exe 바이트스캔 전수 9건 중 유일한 comp_test 화면 재생 경로.
 //    ⚠0x235c382는 comp_test 백그라운드 sim 본체 추정 = 화이트리스트 금지.
 //    전문 = REPORT\tfm2_elemental_serpen\RE\2026-08-08_comptest-다시보기-런처콜사이트.md)
-const LAUNCHER_RET_D: usize = 0x23aafce; // ★0.5.8 검증(2026-09-04): **불변**. 콜사이트 0x23aafc9, comp_test 재생빌더 0x23aaa70 +0x559 완전일치. // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x2323ffe → 신 0x1aa88ce. comp_test 다시보기 = 콜사이트 0x1aa88c9+5 (재생 빌더 0x1aa8370 +0x559, 구 크기 3085→3078 동일오프셋).
+const LAUNCHER_RET_D: usize = 0x1c6b0ee; // ★0.5.8 검증(2026-09-04): **불변**. 콜사이트 0x23aafc9, comp_test 재생빌더 0x23aaa70 +0x559 완전일치. // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x2323ffe → 신 0x1aa88ce. comp_test 다시보기 = 콜사이트 0x1aa88c9+5 (재생 빌더 0x1aa8370 +0x559, 구 크기 3085→3078 동일오프셋).
 static RENDER_SEED: AtomicU64 = AtomicU64::new(0);   // ★화면 경기 seed (이게 정답 게이트)
 static LAUNCH_N: AtomicU64 = AtomicU64::new(0);      // 런처 총 발화수
 static LAUNCH_HIT: AtomicU64 = AtomicU64::new(0);    // 그중 화면 경기(retaddr 일치)
@@ -552,7 +557,7 @@ static LOG_N: AtomicU64 = AtomicU64::new(0); // detour 로그 총량 제한(다�
 //   tag표: 3=Main 4=Lineup 5=StadiumEntrance 6=MatchResult 7=LockerRoom 9=Prologue …
 //   (구 "InGame==9"는 Prologue 분기를 오독한 것. 실측 tag=7=LockerRoom = 경기 끝난 뒤라 정상이었음.)
 //   ⚠mod_api의 `Scene::InGame`은 별개 enum(세션 진행중) — 경기 화면 여부가 아니다.
-const LIVE_PLAYED_OFF: usize = 0x1598; // db+0x1598 = enum payload 무관필드(쓰레기, 진단용)
+const LIVE_PLAYED_OFF: usize = 0x15c8; // ★0.6.0 = 0x15c8 (구 0x1598, +0x30; RE 2026-09-17). 라이브 played_tick(진단용)
 // ★★현재 재생 tick 정본(2026-07-18 seek 역추적 RE 확정):
 //   ClientScene::Game payload(db+0x1340) 안에 활성 재생뷰 view#2가 임베드(payload+0x13d8=db+0x2718).
 //   그 view.played_tick(+0x258) = **db+0x2970** — seek/앞뒤가 전진시키는 정밀 tick. seconds=+0x258/tickrate=db+0x2968.
@@ -567,10 +572,10 @@ const LIVE_PLAYED_OFF: usize = 0x1598; // db+0x1598 = enum payload 무관필드(
 //   ⬜단 EV_PTR_OFF(0x1678)만 사용처 5개로 표본이 얇고 +0x10:5 vs +0:4 로 근소 — 읽기전용이고
 //     불변식(0 ≤ played ≤ events.len)으로 자기검증되므로 틀려도 조용히 미채택. 인게임서 재생커서 동기가
 //     안 맞으면 여기부터 의심할 것.
-const VIEW2_TICK_OFF: usize = 0x1630;
-const EV_PTR_OFF: usize = 0x1678;      // events Vec ptr (cap@0x1670 / len@0x1680)
-const EV_LEN_OFF: usize = 0x1680;
-const SCENE_TAG_OFF: usize = 0x1338;   // u32. <3 → InGame
+const VIEW2_TICK_OFF: usize = 0x1660; // ★0.6.0 **추정**(구 0x1630: GameClient 시작 +0x28 이동·내부 +8 = +0x30). 라벨 ±90틱 대조로만 채택 → 틀려도 조용히 미채택
+const EV_PTR_OFF: usize = 0x16a8;      // ★0.6.0 (구 0x1678, +0x30). events Vec ptr (cap@0x16a0 / len@0x16b0)
+const EV_LEN_OFF: usize = 0x16b0;      // ★0.6.0 (구 0x1680, +0x30)
+const SCENE_TAG_OFF: usize = 0x1360;   // ★0.6.0 (구 0x1338, +0x28). u64, InGame = 0xb (cdb::SCENE_TAG_INGAME)
 static PLAYED_TICK: AtomicU64 = AtomicU64::new(0);
 static PLAYED_SRC: AtomicU64 = AtomicU64::new(0); // 0=미확보 1=SDK game_view 2=raw(라이브)
 static SCENE_TAG: AtomicU64 = AtomicU64::new(0xffff);
@@ -616,15 +621,15 @@ static TIP_NODE_LIVE: AtomicBool = AtomicBool::new(false); // 주입된 serpen_t
 //   재도출한 **0x2e1550**(0.5.3에서 30-copy 군집의 그 copy). 0.5.2에 같은 방법을 돌리면 0x5ac950 이
 //   그대로 재현되어(ingame 13회·main 17회) 방법 자체가 검증됨. 콜러 사상 투표도 독립적으로 193/194 로 동일 결론.
 //   ⇒ 자동매칭 값을 그냥 썼으면 **엉뚱한 copy를 훅해 UI 주입이 조용히 미발화**했을 것(소스가 경고한 그 함정).
-const UILOADER_RVA: usize = 0x2ea830; // 0.5.6 재핀(구값→신값)  // 0.5.5: 구 0x2e35d0 → 신 0x2e42d0. 제네릭 asset-get(main/ingame). 문자열-xref(layout/main·ingame). ⚠item_tactics 등과 공유 → 체이닝 필수. (구0.5.3=0x2e1550)
-const UIPARSER_RVA: usize = 0x1ab140; // 0.5.6 재핀(구값→신값)  // 0.5.5: 구 0x1a3ce0 → 신 0x1a3e70. skel-unique. .ui 텍스트 → NodeTemplate. (구0.5.3=0x1a6530)
+const UILOADER_RVA: usize = 0x336a80; // 0.5.6 재핀(구값→신값)  // 0.5.5: 구 0x2e35d0 → 신 0x2e42d0. 제네릭 asset-get(main/ingame). 문자열-xref(layout/main·ingame). ⚠item_tactics 등과 공유 → 체이닝 필수. (구0.5.3=0x2e1550)
+const UIPARSER_RVA: usize = 0x197b10; // 0.5.6 재핀(구값→신값)  // 0.5.5: 구 0x1a3ce0 → 신 0x1a3e70. skel-unique. .ui 텍스트 → NodeTemplate. (구0.5.3=0x1a6530)
 // ★★0.5.3: 2인자 alloc(size, align) shim 이 **LTO 인라인으로 소멸**했다(0.5.2 0x25c4d30 의 어떤 부분열도
 //   0.5.3 이미지에 0회 등장 / 실할당자 참조 함수가 5개 → 10,644개로 폭증 = 호출처마다 인라인).
 //   ⇒ shim 이 align<=0x10 에서 tail-jmp 하던 **실할당자를 직접 호출**한다(의미 완전 동일).
 //   실할당자 = GetProcessHeap() → HeapAlloc(rcx=heap, rdx=flags, r8=size) thunk.
 //   0.5.2 0x25d9640 과 **바이트 동일**(rip-rel 델타만 차이)이고 HeapAlloc IAT 참조 유일 코드라 오인 불가.
 //   ⚠인자 3개다 — 2인자 그대로 두면 rdx=8=HEAP_ZERO_MEMORY·r8=미초기화가 되어 랜덤 크래시.
-const UIALLOC_RVA: usize = 0x2b1b410; // 0.5.6 재핀(구값→신값)  // 0.5.5: 구 0x29bb920 → 신 0x2a9bf30. skel-unique. 실할당자 직접 호출(rcx무시, rdx=flags, r8=size). (구0.5.3=0x28f7df0)
+const UIALLOC_RVA: usize = 0x2f380b0; // 0.5.6 재핀(구값→신값)  // 0.5.5: 구 0x29bb920 → 신 0x2a9bf30. skel-unique. 실할당자 직접 호출(rcx무시, rdx=flags, r8=size). (구0.5.3=0x28f7df0)
 const NT_SIZE: usize = 0x90;
 // ★장로 버프 표시 — 게임의 `#blue_morgard_buff:color`(ingame.ui:187)를 그대로 베낌.
 //   원본: x:380 y:9 210x32 / visible:false / ignore_event:true / back_color #1f2230 / color #4a4c56
@@ -637,6 +642,7 @@ const NT_SIZE: usize = 0x90;
 //   현행: blue x=538 / red x=-548, width=77, 텍스트만 "장로 1:30".
 const ELDER_BUFF_FRAG_BLUE: &str = "blue_elder_buff:color {\nx: 538px;\ny: 9px;\nwidth: 77px;\nheight: 32px;\nvisible: false;\nignore_event: true;\nback_color: #1f2230ff;\ncolor: #ffc84aff;\nrounding: Uniform {\nrounding: 8;\n}\n\n#text:label {\n@\"asset/base/style/main#bold_label\";\nx: 6px;\ny: 1px;\nwidth: 66px;\nheight: 30px;\nsize: 16;\nalign_y: Center;\nfit_width: true;\n}\n}";
 const ELDER_BUFF_FRAG_RED: &str = "red_elder_buff:color {\nx: -548px;\ny: 9px;\nanchor_x: 1;\npivot_x: 1;\nwidth: 77px;\nheight: 32px;\nvisible: false;\nignore_event: true;\nback_color: #1f2230ff;\ncolor: #ffc84aff;\nrounding: Uniform {\nrounding: 8;\n}\n\n#text:label {\n@\"asset/base/style/main#bold_label\";\nx: 6px;\ny: 1px;\nwidth: 66px;\nheight: 30px;\nsize: 16;\nalign_y: Center;\nfit_width: true;\n}\n}";
+const USE_UILOADER_HOOK: bool = false; // 0.6.0 stable: false(스폰 API 사용). NodeTemplate 0x90 오프셋·UILOADER/UIPARSER/UIALLOC RVA 는 이 경로에서만 쓰임.
 static UI_BASE: AtomicUsize = AtomicUsize::new(0);
 static UILOADER_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static UIINJ_INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -918,9 +924,9 @@ fn launcher_install_tick() {
 //   을 갱신. game_time 라벨이 읽는 그 값. ClientData의 game_view 3개(활성 1 + 유휴 2)가 각각 렌더되는데,
 //   활성(화면) 뷰의 +0x258이 진짜 화면 tick. 유휴 뷰는 tick이 ~6/18로 작다 → 프레임 최대값이 활성 뷰.
 //   (2026-07-18: 고정 오프셋 뷰 3개 전부 유휴/리플레이라 실패 → 렌더 시점에만 활성 뷰를 알 수 있음.)
-const RENDER_STEP_RVA: usize = 0x95cb80; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0xaa06c0 → 신 0x964350. skel-unique·프롤로그 14B 동일·VIEW_TICK_REL(+0x258) 6/6 불변. (구0.5.3=0x960df0)
+const RENDER_STEP_RVA: usize = 0xc6d500; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0xaa06c0 → 신 0x964350. skel-unique·프롤로그 14B 동일·VIEW_TICK_REL(+0x258) 6/6 불변. (구0.5.3=0x960df0)
 const RENDER_STEP_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
-const VIEW_TICK_REL: usize = 0x258; // game_view.played_tick
+const VIEW_TICK_REL: usize = 0x260; // ★0.6.0: RENDER_STEP `[r15+0x258]` 6/6 → `[r15+0x260]` 6/6 (game_view 구조체 +8 · 2026-09-16 fieldmap). ~~0.5.5~0.5.8=0x258~~ // game_view.played_tick
 static RENDER_TICK: AtomicU64 = AtomicU64::new(0); // 프레임 내 최대 뷰 tick(= 활성 뷰). post_update가 swap(0)로 소비.
 static RENDER_STEP_INSTALLED: AtomicBool = AtomicBool::new(false);
 static RENDER_HOOK_N: AtomicU64 = AtomicU64::new(0);
@@ -945,7 +951,7 @@ fn install_render_step_hook() {
 }
 // runner_ctor FUN_1419c9470(0x19c9470): 화면 경기(관전+직접플레이) sim Game 생성 시만 발화(배경 리그 제외).
 //   rcx=out슬롯=sim Game. provider=*(Game+0x1660). item_tactics 검증 지점.
-const RUNNER_CTOR_RVA: usize = 0x18129a0; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x13b7050 → 신 0x14ae060. 투표 12표(2위 9)+콜사이트 6/6 컨테이너 지문 완전대응+head-unique·프롤로그 14B 동일. (구0.5.3=0xeba490)
+const RUNNER_CTOR_RVA: usize = 0x16dae50; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x13b7050 → 신 0x14ae060. 투표 12표(2위 9)+콜사이트 6/6 컨테이너 지문 완전대응+head-unique·프롤로그 14B 동일. (구0.5.3=0xeba490)
 const RUNNER_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 static RCTOR_N: AtomicU64 = AtomicU64::new(0);
 
@@ -1940,10 +1946,10 @@ static CFG_EXECUTE: AtomicBool = AtomicBool::new(true);
 //   A ABI(9인자): rcx=대상엔티티, rdx=tick, r8=공격자정보{id@+0, disc@+8(MAX=없음/홀수=팀무효),
 //     team:u32@+0x10}, r9d=타입(0물리/1마법/3실드무시/4DoT/5존), p5(2=평타), ★p6=최종데미지(u64),
 //     p7=실드무시, p8=크리, p9=이벤트싱크. B ABI(12인자): rcx=PRNG, rdx=ctx, r8=World, r9=싱글턴, ...
-const DMGA_RVA: usize = 0x129d360; // 0.5.6 재핀(구값→신값)   // 0.5.5: 구 0x10670a0 → 신 0x11596a0. 최종 HP 감산 어플라이어. 콜사이트 소형컨테이너 3/5(263/+0xfd·360/+0xfa·360/+0x151) 지문일치+엔티티 필드 5개 +0x18 명령 완전대응(0x5a8→0x5c0·0x658→0x670·0x670→0x688 등)·프롤로그 12B 동일. 본문 811→1175. (구0.5.3=0xfdbbb0)
+const DMGA_RVA: usize = 0x165ba30; // 0.5.6 재핀(구값→신값)   // 0.5.5: 구 0x10670a0 → 신 0x11596a0. 최종 HP 감산 어플라이어. 콜사이트 소형컨테이너 3/5(263/+0xfd·360/+0xfa·360/+0x151) 지문일치+엔티티 필드 5개 +0x18 명령 완전대응(0x5a8→0x5c0·0x658→0x670·0x670→0x688 등)·프롤로그 12B 동일. 본문 811→1175. (구0.5.3=0xfdbbb0)
                                      //   판정: L1=0.9945·L2/L3 UNIQUE·크기 0x32b 동일·프롤로그 동일(imm 극소변경만).
 const DMGA_PROLOGUE: [u8; 12] = [0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53];
-const DMGB_RVA: usize = 0x1833db0; // 0.5.6 재핀(구값→신값)   // 0.5.5: 구 0x14eaef0 → 신 0x14d6400. 딜 파이프라인(r8=World) TLS world 캡처. 투표 20표+콜러 지문 18/20 완전일치·프롤로그 12B 동일. (구0.5.3=0x12c3bb0)
+const DMGB_RVA: usize = 0x151cd00; // 0.5.6 재핀(구값→신값)   // 0.5.5: 구 0x14eaef0 → 신 0x14d6400. 딜 파이프라인(r8=World) TLS world 캡처. 투표 20표+콜러 지문 18/20 완전일치·프롤로그 12B 동일. (구0.5.3=0x12c3bb0)
 const DMGB_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 // 실드 = Vec (2026-07-18 완전해부 RE 확정): +0x268=요소버퍼 ptr(빈 Vec=dangling 8),
 //   +0x270=len, 요소 stride 0x28, 실드량=요소+0x18(u64). A가 HP보다 먼저 흡수(제자리 차감).
@@ -2019,7 +2025,7 @@ unsafe fn exec_amp(tgt: u64, ainfo: u64, dmg: u64) -> Option<u64> {
     //   (klen, tick/30초버킷)을 키로 팀별 활성여부를 캐시한다. 버프 길이가 분 단위라 1초 해상도면 충분.
     let bucket = cur_tick / 30;
     let eslot = ((w >> 4) & (KC_SLOTS - 1)) as usize;
-    let ekey = klen ^ (bucket << 20) ^ 0xb9293;
+    let ekey = klen ^ (bucket << 20) ^ 0xbadb3;
     let active = if EA_KEY[eslot].load(Ordering::Relaxed) == ekey
         && EA_ADDR[eslot].load(Ordering::Relaxed) == w as u64 {
         EA_MASK[eslot].load(Ordering::Relaxed) & (1 << team) != 0
@@ -2135,7 +2141,7 @@ extern "win64" fn dmgb_detour(a1: u64, a2: u64, a3: u64, a4: u64, a5: u64, a6: u
 //   **ABI·시맨틱 불변**: rcx=out String(→rsi), rdx=엔티티, 반환 rax=rsi=out. 진입/복귀열 동일.
 //   바닐라 베이스키 "asset/base/aseprite_resources/ingame/serpen" = 0.5.2에서도 **43자·3회 등장**
 //   ⇒ 제자리 치환(키 ≤43자) 제약 그대로 유효.
-const KEYRES_RVA: usize = 0x2060eb0; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x218be90 → 신 0x1be3ad0. skel-unique·프롤로그 14B 완전동일(KEYRES_PROLOGUE 무수정). (구0.5.3=0x1b0aba0)
+const KEYRES_RVA: usize = 0x206a9e0; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x218be90 → 신 0x1be3ad0. skel-unique·프롤로그 14B 완전동일(KEYRES_PROLOGUE 무수정). (구0.5.3=0x1b0aba0)
 const KEYRES_PROLOGUE: [u8; 12] = [0x55, 0x56, 0x57, 0x48, 0x83, 0xEC, 0x60, 0x48, 0x8D, 0x6C, 0x24, 0x60];
 const VAN_BASE_KEY: &[u8] = b"asset/base/aseprite_resources/ingame/serpen";
 static KEYRES_TRAMP: AtomicUsize = AtomicUsize::new(0);
@@ -2539,7 +2545,8 @@ fn ensure_setup() {
         unsafe { install_tramp12(KEYRES_RVA, &KEYRES_PROLOGUE, keyres_detour as usize,
                                  &KEYRES_TRAMP, "생산자seam(키리졸버)"); }
     }
-    install_uiloader_hook();     // ⑦ 툴팁/장로버프 패널 가산주입
+    // ⑦ 장로버프 패널: ★0.6.0 stable = 로더 훅 대신 `ui_spawn_source` 로 경기 화면에 직접 스폰(update_elder_buff_ui). 훅 경로는 보존만.
+    if USE_UILOADER_HOOK { install_uiloader_hook(); }
     install_arg_str_hook();      // ⑧ 세르펜 카운터 툴팁에 속성별 처치 스택 주입(arg_str seam)
 }
 static DB_PROBE_LOGGED: AtomicBool = AtomicBool::new(false);
@@ -2555,27 +2562,25 @@ static LIVE_SEED: AtomicU64 = AtomicU64::new(0);
 //   후보 A: *(db+0x1340)+0x1950 / 후보 B: *(db+0x1af08). Game+0x1660=provider, +0xeab8=seed.
 //   seed가 우리 WORLDS(사이드테이블)에 있으면 그 provider = 화면 경기 → LIVE_PROVIDER.
 // db+off의 u64를 Game 후보로 보고 → +0x1dc0=provider → +SEED_OFF=seed 가 살아있는 경기 seed면 그 provider.
-unsafe fn capture_live_from_db(scene: &Scene, in_match: bool) {
-    let Scene::InGame { data } = scene else { DB_INGAME.store(false, Ordering::Relaxed); return; };
+unsafe fn capture_live_from_db(ctx: &StableClient<'_>, in_match: bool) {
+    // ★0.6.0 stable: db = cdb::client_db(ctx) (RE 경로 + player_team_id 자가검증). 앱 씬이 InGame 이 아니면 None.
+    let Some(dbp) = cdb::client_db(ctx) else { DB_INGAME.store(false, Ordering::Relaxed); return; };
     DB_INGAME.store(true, Ordering::Relaxed);
-    let db = data.db();
-    let dbp = &*db as *const ClientDatabase as usize;
     DB_PTR.store(dbp, Ordering::Relaxed);
-    // ★재생 커서 읽기 (Spectator_Chat 방식): 리플레이/다시보기는 SDK game_view, 라이브는 raw.
-    //   ⚠라이브 raw는 frames(events)가 준비되기 전엔 played가 쓰레기값(포인터 등)이라 반드시 검증.
-    // ⚠PLAYED_TICK은 여기서 세팅하지 않는다 — db+0x1598은 실측상 sim_tick보다 앞서 나와(비율 1.03)
-    //   재생 커서가 아니었고, 그걸로 필터하니 미래 처치가 안 걸러졌다(일시정지 중 2→3).
-    //   재생 커서 정본 = post_update의 game_time 라벨("06:42" → 초×30). 여기 값은 진단용만.
-    if let Some(gv) = db.game_view.as_ref() {
-        PLAYED_TICK.store(gv.client.view.played_tick as u64, Ordering::Relaxed); // 리플레이 경로(SDK)
-        PLAYED_SRC.store(1, Ordering::Relaxed);
+    // ★재생 커서 읽기: 리플레이/다시보기 = db.game_view(Some) 의 played_tick, 라이브 = InGame 씬 raw.
+    //   ⚠라이브 raw는 frames(events)가 준비되기 전엔 played가 쓰레기값이라 반드시 검증.
+    //   ⚠PLAYED_TICK 정본 = post_update 의 game_time 라벨 / 렌더스텝 훅. 여기 값은 진단·정밀 후보만.
+    let gv = safe_read_u64(dbp + cdb::OFF_GAME_VIEW).unwrap_or(u64::MAX);
+    if gv != u64::MAX {
+        if let Some(pt) = safe_read_u64(dbp + cdb::OFF_REPLAY_PLAYED) {
+            PLAYED_TICK.store(pt, Ordering::Relaxed); // 리플레이 경로(구 SDK game_view.client.view.played_tick)
+            PLAYED_SRC.store(1, Ordering::Relaxed);
+        }
     } else {
-        let tag = safe_read_i32(dbp + SCENE_TAG_OFF).unwrap_or(-1) as u32;
-        SCENE_TAG.store(tag as u64, Ordering::Relaxed);
-        // ★tag 전이 기록: variant 표가 rmeta 선언순 추정이라, 실제 화면 전환과 대조해 InGame tag를 확정한다.
-        //   (경기 진입/이탈 시 어떤 값으로 바뀌는지 보면 됨)
-        let prev = LAST_SCENE_TAG.swap(tag as u64, Ordering::Relaxed);
-        if prev != tag as u64 {
+        let tag = safe_read_u64(dbp + SCENE_TAG_OFF).unwrap_or(u64::MAX);
+        SCENE_TAG.store(tag, Ordering::Relaxed);
+        let prev = LAST_SCENE_TAG.swap(tag, Ordering::Relaxed);
+        if prev != tag {
             let n = TAG_LOG_N.fetch_add(1, Ordering::Relaxed);
             if n < 30 {
                 let pl = safe_read_u64(dbp + LIVE_PLAYED_OFF).unwrap_or(u64::MAX);
@@ -2586,41 +2591,28 @@ unsafe fn capture_live_from_db(scene: &Scene, in_match: bool) {
                     now_ms(), prev as i64, tag as i64, pl as i64, el, ep, ok));
             }
         }
-        // ★경기 화면 판정 = UI에 "game_time" 노드 존재 (Spectator_Chat 검증 방식 — 라이브/리플레이 모두 통과).
-        //   scene tag 해석은 폐기: rmeta 추정표가 실측 전이(3→4→5→6→9)와 안 맞고, 패턴 스캔은 오탐 21개.
-        //   game_time이 있으면 scene payload가 InGame이므로 Spectator_Chat 고정 오프셋이 유효하다.
-        if in_match {
+        // ★경기 화면 판정 = UI에 "game_time" 노드 존재(라이브/리플레이 공통). 0.6.0 InGame 태그 = 0xb 교차 확인.
+        if in_match && tag == cdb::SCENE_TAG_INGAME {
             let evlen = safe_read_u64(dbp + EV_LEN_OFF).unwrap_or(0);
             EV_PTR.store(safe_read_u64(dbp + EV_PTR_OFF).unwrap_or(0), Ordering::Relaxed);
             EV_LEN.store(evlen, Ordering::Relaxed);
             DB_PLAYED_RAW.store(safe_read_u64(dbp + LIVE_PLAYED_OFF).unwrap_or(u64::MAX), Ordering::Relaxed);
-            // ★db+0x1630(라이브 활성뷰 view#2 커서) 후보. **game_time 라벨(정답)과 대조**해 근접(±90틱=3초)
-            //   & events.len 이하면 정밀 tick으로 채택(초 단위 라벨보다 정밀). 불일치=유휴뷰 → 라벨 유지.
+            // ★라이브 정밀 커서 후보(VIEW2_TICK_OFF, 0.6.0 값은 추정) — game_time 라벨(정답)과 ±90틱 근접 & events.len 이하일 때만 채택.
             let t1630 = safe_read_u64(dbp + VIEW2_TICK_OFF).unwrap_or(u64::MAX);
             VIEW_TICK_DIAG.store(t1630, Ordering::Relaxed);
-            let gt = PLAYED_TICK.load(Ordering::Relaxed); // post_update가 이미 세팅한 game_time 값
+            let gt = PLAYED_TICK.load(Ordering::Relaxed);
             if gt > 0 && t1630 < 10_000_000 && (evlen == 0 || t1630 <= evlen + 600)
                 && (t1630 as i64 - gt as i64).abs() < 90 {
                 PLAYED_TICK.store(t1630, Ordering::Relaxed);
-                PLAYED_SRC.store(7, Ordering::Relaxed); // 7 = db+0x1630(라이브 정밀커서, 라벨 검증됨)
+                PLAYED_SRC.store(7, Ordering::Relaxed);
                 if !DB_PROBE_LOGGED.swap(true, Ordering::Relaxed) {
-                    log_push(format!("[{}ms] ★★라이브 정밀커서 확정: db+0x1630={} (game_time≈{} events.len={})",
-                        now_ms(), t1630, gt, evlen));
+                    log_push(format!("[{}ms] ★★라이브 정밀커서 확정: db+{:#x}={} (game_time≈{} events.len={})",
+                        now_ms(), VIEW2_TICK_OFF, t1630, gt, evlen));
                 }
             }
         }
     }
-    // ★★화면 경기 = db 3-deref 정석 (2026-07-17 RE). db 128KB 스캔은 폐기 —
-    //   VEH 폴트 25만의 주범이었고 매칭이 0~3개로 요동쳤다. 구 "후보 A"는 베이스(db+0x1340)가
-    //   정답이었고 내부 오프셋만 틀렸다(+0x1950 → 실제 +0x1dc0).
-    //   db+0x1340 = ClientScene payload = *mut Game → +0x1dc0 = provider(= 세르펜 detour rcx) → +0xeab8 = seed.
-    //   ⚠payload는 scene 태그가 경기 화면일 때만 유효 → in_match(game_time 노드) 게이트 병행 필수.
-    //   ⚠캐시 금지(경기 전환 시 stale) → 매 프레임 새로 읽는다. 3-deref라 비용 무시 가능.
-    // ⚠db → provider 링크는 **존재하지 않음**이 확정됐다(2026-07-17 RE): GameView(scene payload)는
-    //   순수 이벤트-리플레이 렌더 상태이고 World/Game 핸들을 갖지 않는다(Default derive 전수 열거로 확인).
-    //   db+0x1340이 0인 것도 정상 — 그건 Game 포인터가 아니라 **인라인 payload의 첫 8바이트**다
-    //   (Spectator_Chat 산식 scene+8+0x258 = db+0x1598 이 실측 일치하는 것이 근거).
-    //   ⇒ 화면 경기 식별은 **런처 훅(cap_launcher)** 이 담당한다. 여기선 재생 커서만 읽는다.
+    // ⚠db → provider 링크는 존재하지 않음(2026-07-17 RE) ⇒ 화면 경기 식별은 런처 훅(cap_launcher) 담당. 여기선 재생 커서만.
 }
 // ★처치 이력을 메인 스레드에서도 동기화 — 세르펜이 죽으면 세르펜 detour가 더 이상 오지 않아
 //   마지막 처치가 영영 누락된다(실측: 화염 처치가 집계에 안 잡힘). 화면 경기 provider에서 직접 읽는다.
@@ -2692,7 +2684,7 @@ fn build_tooltip_text(team: u64) -> String {
 //   ②"Stats" 를 LEA한 직후 호출하는 지점이 두 exe 각각 1곳뿐인데 그 콜 타깃이 0x1228a90.
 //   진입 15B가 0.5.2와 바이트 동일(push×6=8B + sub rsp,0x88=7B) ⇒ 아래 15B 재배치 로직 무수정.
 //   ⚠쌍둥이 후보 0x1e7610(engine_ui)·0x1a2ed40(effect view)은 오답 — 훅해도 조용히 미발화.
-const ARG_STR_RVA: usize = 0x2207e90; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x16a31e0 → 신 0x12e74f0. skel-MULTI 2클론(둘 다 size359) 중 콜러수로 판별(0x12e74f0=186콜러 ≈구 183 / 오답 0x1e9350=2콜러). 투표 121표. 프롤로그 15B 동일. (구0.5.3=0x1228a90)
+const ARG_STR_RVA: usize = 0x19a26d0; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x16a31e0 → 신 0x12e74f0. skel-MULTI 2클론(둘 다 size359) 중 콜러수로 판별(0x12e74f0=186콜러 ≈구 183 / 오답 0x1e9350=2콜러). 투표 121표. 프롤로그 15B 동일. (구0.5.3=0x1228a90)
 static ARG_STR_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static ARG_STR_HOOKED: AtomicBool = AtomicBool::new(false);
 static CFG_TOOLTIP: AtomicBool = AtomicBool::new(true); // 툴팁 스택 표시 = 항상 on(복구)
@@ -2755,16 +2747,14 @@ fn install_arg_str_hook() {
 // 세르펜 카운터 호버 판정 + 툴팁 본문 갱신 (post_update = 메인 스레드)
 // UI 트리에서 세르펜/스탯 관련 노드 id를 훑는다 — ghidra가 준 "header.blue_stat.serpen"이
 //   실제 트리에 없어서(노드=없음) 진짜 id를 찾아야 함. 1회만.
-fn dump_node_ids(n: &Node, out: &mut Vec<String>, hit: &mut Vec<String>) {
-    let id = n.id.as_str();
-    if !id.is_empty() {
-        out.push(id.to_string()); // 전체(개수 파악용)
-        if id.contains("serpen") || id.contains("stat") || id.contains("header")
-            || id.contains("morgard") || id.contains("tooltip") || id.contains("game_time") {
-            hit.push(id.to_string()); // 관심 노드
-        }
+fn dump_node_ids(ctx: &StableClient<'_>, path: &str, depth: usize, out: &mut Vec<String>, hit: &mut Vec<String>) {
+    if depth > 6 { return; }
+    for c in ctx.ui_child_names(path) {
+        let full = format!("{}.{}", path, c);
+        out.push(c.clone());
+        if c.contains("serpen") || c.contains("stat") || c.contains("header") || c.contains("morgard") || c.contains("tooltip") || c.contains("game_time") { hit.push(c.clone()); }
+        dump_node_ids(ctx, &full, depth + 1, out, hit);
     }
-    for c in n.child.iter() { dump_node_ids(c, out, hit); }
 }
 // ★툴팁 v3 본체 — 게임 툴팁은 read-only 관찰만(호버 감지용), 표시는 우리 소유 serpen_tip 라벨에.
 //   양팀을 함께 표시하므로 "(N 스택)" 팀 대조의 모호성(양팀 동수)도 없다.
@@ -2797,37 +2787,28 @@ fn parse_stacks(s: &str) -> Option<u32> {
     let j = rest.find("스택")?;
     rest[..j].trim().parse::<u32>().ok()
 }
-fn update_tooltip(ui: &GameUI) {
+fn update_tooltip(ctx: &mut StableClient<'_>) {
     if !NODE_DUMP_DONE.swap(true, Ordering::Relaxed) {
         let (mut all, mut hit) = (Vec::new(), Vec::new());
-        dump_node_ids(&ui.root, &mut all, &mut hit);
+        dump_node_ids(ctx, UI_ROOT, 0, &mut all, &mut hit);
         hit.sort(); hit.dedup();
         log_push(format!("[{}ms] ◆UI 노드 총 {}개 | 관심노드 {}개: {}", now_ms(), all.len(), hit.len(),
             if hit.is_empty() { "없음".into() } else { hit.join(" | ") }));
     }
-    // ★호버 감지 = 커서가 세르펜 카운터 rect 안인지 (게임 툴팁 유무 무관 = 리플레이 호환).
-    //   rect: blue=[633,11,36,28] red=[1251,11,36,28]. cursor_to_game()=레터박스 보정 1920x1080.
-    let hit_rect = |id: &str| -> bool {
-        let Some(n) = ui_kit::find(&ui.root, id).and_then(|t| ui_kit::find(t, "serpen")) else { return false };
-        let p = n as *const _ as usize;
-        let rd = |o: usize| unsafe { safe_read_i32(p + o) }.map(|v| f32::from_bits(v as u32)).unwrap_or(0.0);
-        let (x, y, w, h) = (rd(0x240), rd(0x244), rd(0x248), rd(0x24c));
-        if w <= 0.0 || h <= 0.0 { return false; }
-        let (mx, my) = ui_kit::cursor_to_game();
-        mx >= x && mx <= x + w && my >= y && my <= y + h
+    // ★호버 감지 = 커서가 세르펜 카운터 rect 안인지 (게임 툴팁 유무 무관 = 리플레이 호환). rect = ui_node_rect(1920×1080 공간).
+    let hit_rect = |ctx: &StableClient<'_>, id: &str| -> bool {
+        let Some(r) = ctx.ui_node_rect(&format!("{}.{}.serpen", UI_ROOT, id)) else { return false };
+        uk::cursor_in(r)
     };
-    let by_rect: i32 = if hit_rect("blue_stat") { 0 } else if hit_rect("red_stat") { 1 } else { -1 };
+    let by_rect: i32 = if hit_rect(ctx, "blue_stat") { 0 } else if hit_rect(ctx, "red_stat") { 1 } else { -1 };
     // 게임 툴팁 텍스트(팀 판정 폴백·라이브 호환용, read-only). 리플레이선 보통 빈 문자열.
-    let game_tip = ui_kit::find(&ui.root, "tooltip").and_then(|t| ui_kit::find(t, "text"))
-        .and_then(|n| ui_kit::label_get(n)).unwrap_or_default();
+    let game_tip = uk::find_or_rebuild(ctx, "tooltip", UI_ROOT).and_then(|p| ctx.ui_text(&format!("{}.text", p))).unwrap_or_default();
     if CFG_PROBE_LOG.load(Ordering::Relaxed) { *GAME_TIP_TEXT.lock().unwrap_or_else(|e| e.into_inner()) = game_tip.clone(); }
-    // 호버 = 커서 rect(리플레이/라이브 공통) 또는 게임 툴팁 세르펜 키워드(폴백)
     let hovering = by_rect >= 0 || game_tip.contains("세르펜") || game_tip.to_lowercase().contains("serpen")
         || game_tip.contains("누적 효과");
     if !hovering { HOVER_TEAM.store(-1, Ordering::Relaxed); return; }
     TIP_SEEN.fetch_add(1, Ordering::Relaxed);
     let (kb, kr) = kill_counts();
-    // 팀: 1순위=커서 rect / 폴백=게임 "(N스택)"↔집계 대조 / 동수·모호=양팀 표시
     let team: i32 = if by_rect >= 0 { by_rect } else {
         match parse_stacks(&game_tip) {
             Some(n) if n == kb && n != kr => 0,
@@ -2863,7 +2844,7 @@ fn update_tooltip(ui: &GameUI) {
 // ─────────────────────────────────────────────────────────────
 // ★장로 버프 표시 갱신 (모르가드 버프와 같은 형식). 잔여시간은 **played_tick 기준** = 화면과 동기.
 //   sim은 앞서 달리므로 sim tick으로 계산하면 화면보다 빨리 닳는다.
-fn update_elder_buff_ui(ui: &mut GameUI) {
+fn update_elder_buff_ui(ctx: &mut StableClient<'_>) {
     let played = PLAYED_TICK.load(Ordering::Relaxed);
     let ls = LIVE_SEED.load(Ordering::Relaxed);
     let dur = EXEC_DURATION.load(Ordering::Relaxed);
@@ -2875,8 +2856,8 @@ fn update_elder_buff_ui(ui: &mut GameUI) {
     // 화면 세르펜 카운트 읽기(자식 value 라벨 우선, 없으면 노드 라벨). 숫자만 추출.
     let read_cnt = |team: usize| -> Option<u64> {
         let id = if team == 0 { "blue_stat" } else { "red_stat" };
-        let n = ui_kit::find(&ui.root, id).and_then(|s| ui_kit::find(s, "serpen"))?;
-        let txt = ui_kit::find(n, "value").and_then(ui_kit::label_get).or_else(|| ui_kit::label_get(n))?;
+        let p = format!("{}.{}.serpen", UI_ROOT, id);
+        let txt = ctx.ui_text(&format!("{}.value", p)).or_else(|| ctx.ui_text(&p))?;
         let d: String = txt.chars().filter(|c| c.is_ascii_digit()).collect();
         d.parse::<u64>().ok()
     };
@@ -2981,18 +2962,29 @@ fn update_elder_buff_ui(ui: &mut GameUI) {
     ELDER_LEFT_B.store(left[0], Ordering::Relaxed); // 진단: probe_flush가 표시
     ELDER_LEFT_R.store(left[1], Ordering::Relaxed);
     // 폭 90px + 아이콘 → "장로 1:30" (모르가드 버프와 같은 형식)
+    // ★0.6.0 stable: 장로 버프 노드는 경기 화면(ingame)에 직접 스폰(경기마다 트리가 재생성되므로 없을 때마다). 조각 = 클래식 주입 조각 그대로.
+    for (id, frag) in [("blue_elder_buff", ELDER_BUFF_FRAG_BLUE), ("red_elder_buff", ELDER_BUFF_FRAG_RED)] {
+        let path = format!("{}.{}", UI_ROOT, id);
+        if !ctx.ui_exists(&path) {
+            let ok = ctx.ui_spawn_source(UI_ROOT, frag);
+            let n = ELDER_SPAWN_N.fetch_add(1, Ordering::Relaxed);
+            if n < 8 || !ok { log_push(format!("[{}ms] ◆장로버프 노드 스폰 {} ok={} exists={}", now_ms(), id, ok, ctx.ui_exists(&path))); }
+        }
+    }
     for (team, id) in [(0usize, "blue_elder_buff"), (1usize, "red_elder_buff")] {
-        let Some(n) = ui_kit::find_mut(&mut ui.root, id) else {
-            ELDER_NODE_MISS.fetch_add(1, Ordering::Relaxed); continue };
-        if left[team] == 0 { ui_kit::set_visible(n, false); continue; }
+        // 노드 = 위에서 스폰한 blue/red_elder_buff (경로 = ingame.<id>; 없으면 인덱스 폴백)
+        let path = if ctx.ui_exists(&format!("{}.{}", UI_ROOT, id)) { format!("{}.{}", UI_ROOT, id) } else { match uk::find_or_rebuild(ctx, id, UI_ROOT) { Some(p) => p, None => { ELDER_NODE_MISS.fetch_add(1, Ordering::Relaxed); continue } } };
+        if left[team] == 0 { uk::set_props_if_changed(ctx, &path, "visible", "false"); continue; }
         let secs = left[team] / 30; // sim 30틱 = 1초
         let txt = if dur == 0 { tr("ui.elder") } else { format!("{} {}:{:02}", tr("ui.elder"), secs / 60, secs % 60) };
-        if let Some(t) = ui_kit::find_mut(n, "text") { ui_kit::label_set(t, &txt); }
-        if let Some(n2) = ui_kit::find_mut(&mut ui.root, id) { ui_kit::set_visible(n2, true); }
+        let tp = format!("{}.text", path);
+        if ctx.ui_text(&tp).as_deref() != Some(txt.as_str()) { ctx.ui_set_text(&tp, &txt); }
+        uk::set_props_if_changed(ctx, &path, "visible", "true");
         ELDER_UI_N.fetch_add(1, Ordering::Relaxed);
     }
 }
 static ELDER_UI_N: AtomicU64 = AtomicU64::new(0);
+static ELDER_SPAWN_N: AtomicU64 = AtomicU64::new(0); // 진단: 장로버프 노드 스폰 시도 수
 static ELDER_LEFT_B: AtomicU64 = AtomicU64::new(0); // 진단: 마지막 산출 잔여틱(블루)
 static ELDER_LEFT_R: AtomicU64 = AtomicU64::new(0); // 진단: 마지막 산출 잔여틱(레드)
 static ELDER_NODE_MISS: AtomicU64 = AtomicU64::new(0); // 진단: elder_buff 노드 미발견 횟수
@@ -3043,59 +3035,51 @@ static MORGARD_NUDGE_N: AtomicU64 = AtomicU64::new(0); // 진단: 세팅 성공 
 static MORGARD_SET: [AtomicBool; 2] = [const { AtomicBool::new(false) }; 2];
 static MORGARD_X0: [AtomicU32; 2] = [const { AtomicU32::new(0) }; 2];
 static MORGARD_W0: [AtomicU32; 2] = [const { AtomicU32::new(0) }; 2];
-fn nudge_morgard(ui: &mut GameUI) {
-    for (i, id, dx, dw) in [(0usize, "red_morgard_buff", MORGARD_DX, MORGARD_DW),
-                            (1usize, "blue_morgard_buff", BLUE_MORGARD_DX, BLUE_MORGARD_DW)] {
-        let Some(n) = ui_kit::find_mut(&mut ui.root, id) else { continue };
-        let (x0, w0) = if !MORGARD_SET[i].swap(true, Ordering::Relaxed) {
-            let cx = ui_kit::node_layout_read(n, ui_kit::NODE_LF_X);
-            let cw = ui_kit::node_layout_read(n, ui_kit::NODE_LF_W);
-            MORGARD_X0[i].store(cx.to_bits(), Ordering::Relaxed);
-            MORGARD_W0[i].store(cw.to_bits(), Ordering::Relaxed);
-            log_push(format!("[{}ms] {} 원본 x={} w={} → x{} w{}", now_ms(), id, cx, cw, cx + dx, cw + dw));
-            (cx, cw)
-        } else {
-            (f32::from_bits(MORGARD_X0[i].load(Ordering::Relaxed)), f32::from_bits(MORGARD_W0[i].load(Ordering::Relaxed)))
-        };
-        ui_kit::node_layout_write_all(n, ui_kit::NODE_LF_X, x0 + dx);
-        ui_kit::node_layout_write_all(n, ui_kit::NODE_LF_W, w0 + dw);
-        MORGARD_NUDGE_N.fetch_add(1, Ordering::Relaxed);
+fn nudge_morgard(ctx: &mut StableClient<'_>) {
+    // ★0.6.0 stable: 레이아웃 원본값은 번들 ingame.ui 에서 확정(blue x 380px w 210px / red x -400px anchor_x 1 w 210px)
+    //   → `ui_set_properties` 로 목표값 세팅(uk::set_props_if_changed 가 같은 값 재적용을 걸러 파서 비용 0).
+    for (i, id, x0, w0, dx, dw) in [(0usize, "red_morgard_buff", -400.0f32, 210.0f32, MORGARD_DX, MORGARD_DW),
+                                    (1usize, "blue_morgard_buff", 380.0, 210.0, BLUE_MORGARD_DX, BLUE_MORGARD_DW)] {
+        let path = format!("{}.{}", UI_ROOT, id);
+        if !ctx.ui_exists(&path) { continue; }
+        if !MORGARD_SET[i].swap(true, Ordering::Relaxed) {
+            MORGARD_X0[i].store(x0.to_bits(), Ordering::Relaxed);
+            MORGARD_W0[i].store(w0.to_bits(), Ordering::Relaxed);
+            log_push(format!("[{}ms] {} 원본 x={} w={} → x{} w{}", now_ms(), id, x0, w0, x0 + dx, w0 + dw));
+        }
+        let a = uk::set_props_if_changed(ctx, &path, "x", &format!("{}px", x0 + dx));
+        let b = uk::set_props_if_changed(ctx, &path, "width", &format!("{}px", w0 + dw));
+        if a || b { MORGARD_NUDGE_N.fetch_add(1, Ordering::Relaxed); }
     }
 }
 static PLAYED_RESOLVED: AtomicU64 = AtomicU64::new(0); // 0=미시도 1=조회성공 2=구간없음
 struct ElementalSerpenExt;
-impl ModExtension for ElementalSerpenExt {
-    fn on_init(&self, _scene: &mut Scene, _ui: &mut GameUI, _assets: &mut Assets) {
+const UI_ROOT: &str = "ingame"; // 경기 화면 루트 경로(0.6.0 stable; Spectator_Chat 과 동일)
+impl StableExtension for ElementalSerpenExt {
+    fn on_init(&self, _ctx: &mut StableClient<'_>) {
         ensure_setup();
         probe_flush();
     }
-    fn post_update(&self, scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
+    fn post_update(&self, ctx: &mut StableClient<'_>, _dt: u64) {
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         ensure_setup();
         launcher_install_tick(); // ★0.5.6 런처 지연 설치(외부훅 위 체인) — 설치 확정 후 no-op
-        // ★경기 화면 판정(Spectator_Chat 검증): game_time 노드가 있어야 scene payload가 InGame이다.
-        //   ★같은 노드의 텍스트("06:42")가 곧 재생 시각 → 재생 커서(tick)로 쓴다. db+0x1598보다 확실.
-        let gt_node = ui_kit::find(&ui.root, "game_time");
-        let in_match = gt_node.is_some();
+        uk::frame_begin();
+        // ★경기 화면 판정 = ingame 루트 + game_time 노드 존재. 같은 노드 자식 `value` 텍스트("06:42") = 재생 커서(폴백).
+        let in_match = ctx.scene_kind() == Some(SceneKindV1::InGame) && ctx.ui_exists(UI_ROOT) && ctx.ui_visible(UI_ROOT) != Some(false)
+            && uk::find_or_rebuild(ctx, "game_time", UI_ROOT).is_some();
         let was_in = IN_MATCH.swap(in_match, Ordering::Relaxed);
-        // ◆진단(07-24 제보): 세트 경계 타임스탬프 — 이 시점에 ls/카운터가 갱신됐는지(stale인지) 대조.
-        //   세트 진입인데 "★★재생경기 선택 포착" 로그가 안 따라오면 = 런처 미커버 경로 확정.
         if was_in != in_match && CFG_PROBE_LOG.load(Ordering::Relaxed) {
             log_push(format!("[{}ms] ◆경기화면 {} ls={:#x} 카운터B/R={}/{} played={}",
                 now_ms(), if in_match { "진입" } else { "이탈" }, LIVE_SEED.load(Ordering::Relaxed),
                 SERPEN_CNT_ONSCREEN[0].load(Ordering::Relaxed), SERPEN_CNT_ONSCREEN[1].load(Ordering::Relaxed),
                 PLAYED_TICK.load(Ordering::Relaxed)));
         }
-        // ★★재생 커서 정본 = game_time 라벨 (2026-07-18 서브트리 덤프로 확정):
-        //   시각 문자열은 game_time **노드 자체가 아니라 자식 `value`**에 있다("12:34"). 그래서 그동안
-        //   game_time.label이 ""로 읽혀 실패했다. 이게 화면에 실제 보이는 시계 = 진짜 재생 커서.
-        //   db+0x1598/db+0xBA0 논쟁을 우회 — 화면 라벨이 곧 유저가 보는 시각(초×30=tick).
-        // 1순위 재생 커서 = 렌더 스텝 훅이 캡처한 활성 뷰 tick(정밀). game_time 라벨 = 폴백(초 단위).
-        let gt_tick = gt_node.and_then(|gt| ui_kit::find(gt, "value").and_then(ui_kit::label_get)
-            .or_else(|| ui_kit::label_get(gt))).as_deref().and_then(parse_game_time);
+        if !in_match && was_in { uk::index_clear(); }
+        let gt_text = if in_match { uk::find(ctx, "game_time").and_then(|p| ctx.ui_text(&format!("{}.value", p)).or_else(|| ctx.ui_text(&p))) } else { None };
+        let gt_tick = gt_text.as_deref().and_then(parse_game_time);
         if let Some(t) = gt_tick {
-            if let Ok(mut g) = GAME_TIME_TEXT.lock() {
-                *g = gt_node.and_then(|gt| ui_kit::find(gt, "value").and_then(ui_kit::label_get)).unwrap_or_default();
-            }
+            if let Ok(mut g) = GAME_TIME_TEXT.lock() { *g = gt_text.clone().unwrap_or_default(); }
             PLAYED_TICK.store(t, Ordering::Relaxed);   // 폴백 먼저 세팅
             PLAYED_SRC.store(6, Ordering::Relaxed);
         }
@@ -3109,44 +3093,38 @@ impl ModExtension for ElementalSerpenExt {
                     now_ms(), rt, gt_tick, evl, RENDER_HOOK_N.load(Ordering::Relaxed)));
             }
         }
-        // 화면(LIVE) 경기 provider/seed 폴백 캡처 (주 경로 = launcher 훅, 이건 db 스캔 보완)
-        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe { capture_live_from_db(scene, in_match); }));
-        // 처치 이력 정본 = track_kills(mobatick post-tick, 카운터 델타) — 킬메시지와 록스텝 보장.
+        // 화면(LIVE) 경기 재생 커서 폴백 캡처 (주 경로 = launcher 훅/렌더스텝 훅)
+        unsafe { capture_live_from_db(ctx, in_match); }
         let mod_active = CFG_ELEMENTAL.load(Ordering::Relaxed) || CFG_ELDER.load(Ordering::Relaxed);
         resolve_render_fp(); // 화면 세트 fp — 미확정이면 프레임마다 재시도(확정 후 no-op)
-        if in_match && mod_active { update_tooltip(ui); } else { HOVER_TEAM.store(-1, Ordering::Relaxed); }
-        if in_match { update_elder_buff_ui(ui); } // 색 결정(화면 카운터) + 장로 버프 표시
-        if in_match { nudge_morgard(ui); }        // 레드 모르가드 버프 오른쪽 5px
-        // ★진단 flush는 배포본에서 제거(2026-07-29). probe_flush 호출부 = on_init 한 곳뿐이라
-        //   **프로세스당 1회**만 기록된다(실측).
-        // ★★08-12 정정: 그 "1회" 규칙이 이번 0.5.5 인게임 결함 오진의 직접 원인이었다 —
-        //   게임을 껐다 켜면 부팅+1초 스냅샷(전부 0)이 직전 세션 기록을 덮어써서,
-        //   "훅 발화 전부 0"이라는 가짜 증거를 만들었다. ⟹ **경기화면 진입/이탈 전이 시에만**
-        //   flush 를 추가한다(세션당 수 회 · 프레임당 비용 0 — 매초 flush 방식은 되살리지 않음).
-        if was_in != in_match {
-            probe_flush();
-        }
+        if in_match && mod_active { update_tooltip(ctx); } else { HOVER_TEAM.store(-1, Ordering::Relaxed); }
+        if in_match { update_elder_buff_ui(ctx); } // 색 결정(화면 카운터) + 장로 버프 표시
+        if in_match { nudge_morgard(ctx); }        // 모르가드 버프 폭/위치 조정
+        if was_in != in_match { probe_flush(); }
+        }));
     }
 }
 
 // 서버(경기 sim) 확장: 스폰 클로저가 서버 컨텍스트에서 발화하므로 여기서도 스폰훅 설치.
 struct SerpenServerExt;
-impl ModServerExtension for SerpenServerExt {
-    fn on_server_start(&self, _ctx: &mut ServerModContext) {
+impl StableServerExtension for SerpenServerExt {
+    fn on_server_start(&self, _ctx: &mut StableServerCtx<'_>) {
         seh_install();
         load_cfg();
         install_spawn_hooks(); // 서버 컨텍스트에서도 provider 캡처 스폰훅 설치
     }
 }
 
-fn init(ctx: &GameCtx) -> ModRegistration {
-    SAVED_GAMECTX.store(ctx as *const GameCtx as usize, Ordering::Relaxed);
+fn init(host: &StableHost) -> StableMod {
+    host.log(LogLevel::Info, "tfm2_elemental_serpen (stable 0.6.0)");
+    let v = host.game_version();
     // ★모드 로드 시점(관전 진입 전)에 훅 설치 — 스폰 클로저를 놓치지 않게. (post_update는 늦음)
     ensure_setup();
-    let mut reg = ModRegistration::new(MOD_ID);
-    reg.set_extension(ElementalSerpenExt);
-    reg.set_server_extension(SerpenServerExt);
-    reg
+    log_push(format!("[{}ms] INIT game {}.{}.{} host_abi={}", now_ms(), v.major, v.minor, v.patch, host.abi_level()));
+    let mut d = StableMod::new(MOD_ID);
+    d.set_extension(ElementalSerpenExt);
+    d.set_server_extension(SerpenServerExt);
+    d
 }
 
-declare_mod!(init);
+declare_stable_mod!(init);

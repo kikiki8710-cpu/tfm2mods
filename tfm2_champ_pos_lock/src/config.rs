@@ -783,10 +783,9 @@ const DEFAULT_CFG: &str = "\
     # Log the final line-up of every match to champ_pos_lock_lineups.txt.\r\n\
     #   For bug reports; keep it off normally.\r\n\
     log_lineups=0\r\n\
-    # Rewrite the position assignment (swap order) so every champion ends up in a\r\n\
-    #   position you allowed. This is what fixes the OPPONENT and every AI team's\r\n\
-    #   line-up - turning it off leaves their assignment untouched (and stops the\r\n\
-    #   'assignment' lines in the line-up log). 1 = on, 0 = off.\r\n\
+    # (v0.7.0 / game 0.6.0) swap_force has NO effect any more: the server-side swap\r\n\
+    #   order rewrite was not ported to the stable ABI. AI position assignment is only\r\n\
+    #   nudged through ai_assign_mask. Kept for compatibility.\r\n\
     swap_force=1\r\n\
 ";
 
