@@ -1,0 +1,20 @@
+[package]
+name = "tfm2_judge_verify060"
+version = "0.1.0"
+edition = "2021"
+
+# 0.6.0 judge 검증 하네스 — stable 껍데기(클래식 SDK 없음) + 네이티브 캡처 detour.
+# 1단계 = 진입부 프로브(발화수 · 콜러 리턴 RVA) · 표 = src/probe_tbl.rs(MIG\mkprobe060.py 자동 생성).
+# 2단계(sweep · game==mine) 는 재현체(Rust 직접 구현) 가 생기면 같은 껍데기에 얹는다.
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
