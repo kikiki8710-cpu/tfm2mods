@@ -19,9 +19,9 @@
 | 13 | 격자 경로탐색 `ee0fe0`/`ee2310`/`ee0dd0` | Hide stealth 이동·카정 move | 호출 계약만 | w1/w8 |
 | 14 | best_jungle_goal `fafe50` v3 블록 B | `faf2a0`(faf2a0~fafb13) · `dbd370` · `dbe860` · game vt+0x108 구조체 정체 · fb0a3f 이후 꼬리 | 역정글 후보 세부 | w11 |
 | 15 | position_eval_at_uncached `ff62e0` | 종반 신규 항(중심점 이격) 상수 | 부분 | r20 C |
-| 16 | `f71610` TBEVAL veto | 본체 `f717c0~f71f4c` · `e74a50` 정체 | get_small_action score 클로저의 v3 veto 산식 | w11 |
+| ~~16~~ | ✅ r22 a 에서 닫힘(TurnBack veto · e74a50 = nexus_final_stand 메모 · pos_ring LPH+0x458) · 잔여 = can_* 세부(IR) · +0x46c 추정 | | | r22 a |
 | ~~17~~ | ✅ r22 c 에서 닫힘(d75840 은 v3 dead · d750f0/d75780 신규 · +0x24d6 세팅처 LPH::update) | | | r22 c |
-| 18 | TeamPlan pre-update `f0f080` | 본체(0xea4) · hunt_call_pending +0xc98 정리 로직 | +0xcc7 세팅 진입부만 독해 | w9/w11 |
+| ~~18~~ | ✅ r22 b 에서 닫힘(hunt_call_pending 소비 · V6 sync-IN/OUT 0x158B · sanitize f105d0) · 잔여 = bb+0x78 리셋 시점·17d40b0 순서(런타임) | | | r22 b |
 | 19 | TeamPlan::update `f18f90` 감사 프롤로그 | `f20f60`/`f21490` 카운터(+0xcc8~+0xccf) 가 결정 경로에서 읽히는지 | 「영향 없음」 은 추정 | w11 |
 | 20 | `100bb90` expected_die_tick_at | cache+0xf0 리스트 · e14420 3능력 arrival 산식 cc 항 | 구조만 | w9 |
 
