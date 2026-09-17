@@ -60,21 +60,32 @@ struct Cfg { show_panel: bool, name_color: bool, red_noflip: bool, show_bg: bool
 static CFG: Mutex<Cfg> = Mutex::new(Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false });
 fn cfg() -> Cfg { *CFG.lock().unwrap_or_else(|e| e.into_inner()) }
 fn cfg_mut(f: impl FnOnce(&mut Cfg)) { let mut g = CFG.lock().unwrap_or_else(|e| e.into_inner()); f(&mut g); let c = *g; drop(g); save_cfg(&c); }
+/// ★설정 저장소 = 원작과 같은 공용 파일 `<게임>\ModData\config.txt`(키: show_panel/banpick_name_color/banpick_red_noflip/banpick_show_bg/banpick_hero_bg).
+///   2026-09-17: 모드 폴더 자체 cfg 를 쓰다 보니 원작에서 꺼 두었던 배경 옵션이 켜진 채 남았다(유저 제보) → 원작 파일을 정본으로.
+///   다른 뷰플러스 모드 키는 건드리지 않는다(있는 줄은 값만 교체, 없는 키만 끝에 추가).
+fn shared_cfg_path() -> Option<String> { exe_dir().map(|d| format!(r"{}\ModData\config.txt", d)) }
+fn cfg_apply_line(c: &mut Cfg, l: &str) {
+    let Some((k, v)) = l.split_once('=') else { return };
+    let b = matches!(v.trim().to_ascii_lowercase().as_str(), "true" | "1" | "on" | "yes");
+    match k.trim() { "show_panel" => c.show_panel = b, "banpick_name_color" => c.name_color = b, "banpick_red_noflip" => c.red_noflip = b, "banpick_show_bg" => c.show_bg = b, "banpick_hero_bg" => c.hero_bg = b, _ => {} }
+}
 fn load_cfg() -> Cfg {
     let mut c = Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false };
-    if let Some(t) = mod_dir().and_then(|d| std::fs::read_to_string(format!(r"{}\banpick_view_plus.cfg", d)).ok()) {
-        for l in t.lines() {
-            let Some((k, v)) = l.split_once('=') else { continue };
-            let b = matches!(v.trim().to_ascii_lowercase().as_str(), "true" | "1" | "on" | "yes");
-            match k.trim() { "show_panel" => c.show_panel = b, "banpick_name_color" => c.name_color = b, "banpick_red_noflip" => c.red_noflip = b, "banpick_show_bg" => c.show_bg = b, "banpick_hero_bg" => c.hero_bg = b, _ => {} }
-        }
-    }
+    if let Some(t) = shared_cfg_path().and_then(|p| std::fs::read_to_string(p).ok()) { for l in t.lines() { cfg_apply_line(&mut c, l); } }
     c
 }
 fn save_cfg(c: &Cfg) {
-    if let Some(d) = mod_dir() {
-        let _ = std::fs::write(format!(r"{}\banpick_view_plus.cfg", d), format!("show_panel={}\nbanpick_name_color={}\nbanpick_red_noflip={}\nbanpick_show_bg={}\nbanpick_hero_bg={}\n", c.show_panel, c.name_color, c.red_noflip, c.show_bg, c.hero_bg));
+    let Some(p) = shared_cfg_path() else { return };
+    let mut lines: Vec<String> = std::fs::read_to_string(&p).map(|t| t.lines().map(|l| l.to_string()).collect()).unwrap_or_default();
+    let pairs = [("show_panel", c.show_panel), ("banpick_name_color", c.name_color), ("banpick_red_noflip", c.red_noflip), ("banpick_show_bg", c.show_bg), ("banpick_hero_bg", c.hero_bg)];
+    for (k, v) in pairs {
+        let line = format!("{} = {}", k, v);
+        match lines.iter_mut().find(|l| l.split_once('=').map(|(a, _)| a.trim() == k).unwrap_or(false)) { Some(l) => *l = line, None => lines.push(line) }
     }
+    if let Some(d) = std::path::Path::new(&p).parent() { let _ = std::fs::create_dir_all(d); }
+    let _ = std::fs::write(&p, lines.join("
+") + "
+");
 }
 /// base("bg"/챔프id/question_blue…) → "pack/stem"
 static SPLASH_SEL: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);

@@ -1,0 +1,10 @@
+{
+  "asset/base/ui/layout/banpick/blue_pick_slot": {
+    "remapping": "asset/tfm2_banpick_illust/ui/layout/banpick/blue_pick_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/banpick/red_pick_slot": {
+    "remapping": "asset/tfm2_banpick_illust/ui/layout/banpick/red_pick_slot",
+    "type": "override"
+  }
+}

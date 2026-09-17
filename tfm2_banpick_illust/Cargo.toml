@@ -1,0 +1,19 @@
+[package]
+name = "tfm2_banpick_illust"
+version = "1.4.0"
+edition = "2021"
+
+# 1.4.0 = 0.6.0 stable ABI shell, showcase only (2026-09-17). classic 1.3.3 = _classic_058\src (rustc direct build).
+# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py tfm2_banpick_illust --ver 1.4.0
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
