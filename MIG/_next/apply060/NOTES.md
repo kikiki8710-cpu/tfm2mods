@@ -50,3 +50,12 @@
 - GoalData::update: nexus_final_stand/base_defense_focus 는 양버전 캐시 헬퍼 db0160 비트(0x100 / 0x1|0x10000) — 재현 시 반환 레이아웃 확정 필요.
 - fight_participants: `+0xcc1==1`(상시) 분기에서 구 ally_battle_stop_tick 검사 생략(사장) · ally_is_bound ee3000 debug 인자 제거.
 - buy_item: `len>2 continue` 삭제 → 활성보유 `>3 → None` 선검사 · should_recall_to_shop `>2→>3` · 카운트 헬퍼 16f2f40.
+
+## batch_06(09-17 12:3x · 9 · A 5 · A- 3 · B+ 1)
+- PassiveLine::update 신규 래치 3(배치 C 누락): `+0x116 gank_lowhp_said` · `+0x11a cancel_low_hp_sent`(v3) · `+0x11c hide_line_too_sent`(v3 · 0xff None) — L269 Cancel 채팅 skip/L299 HideLineToo skip/갱크 없음 exit 리셋.
+- ★정정 bb 팀 콜 Vec 항목 조건: `kind(+0x46)==1 && members(+0x40)[my_pos]!=0`(RE 「+0x40!=0」 오기 · L232·L254).
+- ★정정 1416fbbc0 호출부 비교: `heal_die_gain(:624) < out[0](best_diff_bound)`(RE 「elapsed*60/tps」 라벨 오기) · +0x31d=Aggr · +0x31e=Def · +0xb0=aggr(+0x230).
+- f904b0 정체 확정: 적 챔프 중 (visible ‖ last_seen+120≥tick) && dist²(e,camp)<150000²+1.
+- passive_plan Setup travel = /max(ms,1) · Split 사장 경로 PassiveLine +0x120=1 = v4_split.
+- hunt_and_poke: v3 는 hp_ratio<51 안 읽음 · strategy 인라인 = `is_solorank ? player+0x568 : game.strategy(team)`.
+- PassiveJungle Hide 페이로드: +8 ambush_cell None · +0x20 self+0x48 bush region · +0x28=0x01000000(stealth 1) · +0x2c=1 out_line.
