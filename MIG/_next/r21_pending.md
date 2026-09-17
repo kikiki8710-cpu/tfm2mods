@@ -42,3 +42,6 @@ LPH::update `d3d210` 6 구역(A-1~4) · BattlePlan::update_v32 7(e11a60·decd30�
 ## D. 1단계 실측(09-17 저녁) 이후
 - 발화 238 / 미발화 22(배경 sim 5분 + 실경기 Bo3 즉시결과 3세트 모두 0) → 22 = 사장 경로 · 재현 실효 238(`probe060_result.md` · `probe060_delta_match.md`).
 - 게임 필요 잔여: 튜토리얼/데스매치/솔로랭크 씬에서 22 재확인(선택) · region 2·7 · 감사 카운터/gank_open_snap 소비 · ckdt Option Some(실경기 Bo3 에서도 미측정 — ver_probe 를 같이 켜면 됨).
+
+## E. dead22 정적 추적(09-17 저녁 · r23 a/b/c · `dead22_060.md`)
+- A 15 · A− 3 · B 4. 남은 게임 필요: **데스매치 1판**(eed490 tag 6 경로) · **EpicPoke 프로브 3점**(fd8570 E 절 진입 · fd85d6 태그 생성 · d5c7c2 챗 0x22 수신) · A− 3 의 vote 바이트(+0x48 · agent+0x12fe · f4d55d) 원천 추적(정적 · r24 후보).
