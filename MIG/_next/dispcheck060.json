@@ -2979,28 +2979,28 @@
     "r12",
     "0x18",
     "0x50",
-    "AroundBush(r19 로직 변경 · 검사 제외)"
+    "⚠짝 오배열(AroundBush 삽입 블록 · self 레이아웃 불변 · apply060 batch_09)"
    ],
    [
     "0xdc2b33",
     "r12",
     "0x50",
     "0x58",
-    "AroundBush(r19 로직 변경 · 검사 제외)"
+    "⚠짝 오배열(AroundBush 삽입 블록 · self 레이아웃 불변 · apply060 batch_09)"
    ],
    [
     "0xdc2bbd",
     "r12",
     "0x18",
     "0x50",
-    "AroundBush(r19 로직 변경 · 검사 제외)"
+    "⚠짝 오배열(AroundBush 삽입 블록 · self 레이아웃 불변 · apply060 batch_09)"
    ],
    [
     "0xdc2bc2",
     "r12",
     "0x20",
     "0x18",
-    "AroundBush(r19 로직 변경 · 검사 제외)"
+    "⚠짝 오배열(AroundBush 삽입 블록 · self 레이아웃 불변 · apply060 batch_09)"
    ]
   ]
  },

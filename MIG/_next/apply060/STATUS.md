@@ -1,10 +1,11 @@
 # apply060 STATUS — logic_060 병합 현황
 
-병합 56 · 형식 오류 0 · 미작성(변경 중) 17
+병합 59 · 형식 오류 0 · 미작성(변경 중) 14
 
 | 구 | 신 | 함수 | confidence | logic_060 길이 |
 |---|---|---|---|---|
 | `ca6700` | `e13c10` | get_small_action_score_closure | A(클로저 본체) / B(f71610 요약 — r22 a 의존). | 4893 |
+| `cb03b0` | `e96780` | EpicCheckSubPlan::action_candidates | A — 변경 구역(rs:65~75) 상수·표·분기 전부 디컴 확인. rs:90~103 은 RE 판정 의존(구 | 8366 |
 | `cb1ce0` | `e986c0` | SerpenHuntSubPlan::action_candidates | A(신규 게이트) / B(나머지 = RE 동치 추정 + 태그·슬롯 기계 치환 · 미확인 오프셋 5종). | 28933 |
 | `d26900` | `ec4c20` | PassiveLinePlan::v46_stage1 | A — 변경 지점·시그니처·오프셋 전부 디컴/호출부 대조. 특성 플래그 정체만 미상. | 6972 |
 | `d28800` | `ec7180` | PassiveLinePlan::update | B+ — 변경 5건(undying · Gank 게이트 ×2 · 특성 bound · 배치 J 래치 3) 은 a | 25175 |
@@ -14,6 +15,7 @@
 | `d40b20` | `fafe50` | best_jungle_goal | B — 게이트·A·C′·레거시·B 골격은 디컴/디스어셈 확인, B 세부(faf2a0 산식·좌표 방향)는 r2 | 9848 |
 | `d40f10` | `fb1510` | evaluate_gank_opportunity_with_score | A — 본체·헬퍼 전문 디컴 대조. 유일한 「변경」 주장(/10→/20)이 반증돼 실질 동치(헬퍼 아웃라인+ | 3525 |
 | `d59940` | `f749a0` | calculate_action_score | A — 변경 5지점 + 신규 조기반환 전부 디컴에서 확인. de5780/ff1fc0 내부만 RE 의존. | 9447 |
+| `d5bbf0` | `f77820` | calculate_interaction_action_score | A(§C·§E·§I 꼬리·f5d740) / B(§H expected_shield 인라인·vt+0x70 의미) | 21350 |
 | `d639f0` | `1010060` | check_serpen_giveup | A — 변경 한 줄(판정식)을 디스어셈 수준으로 확인, 나머지 본문은 디컴에서 상수·구조 일치 확인. | 4312 |
 | `d65620` | `1011d20` | serpen_passive_plan | A — 디컴이 RE w9 §2 등가 Rust 와 일치. | 4899 |
 | `d851d0` | `ff62e0` | position_eval_at_uncached | B — 신규 항은 디컴으로 정정·확정했으나 6000명령 본체의 줄단위 대조는 미완(RE §5 「부분」 판정  | 34039 |
@@ -22,6 +24,7 @@
 | `db90f0` | `faa440` | update | A — 소형 함수 전문 디컴이 RE 배치 G §3 과 줄 단위로 일치. | 3873 |
 | `dbd260` | `fdb210` | SmallActionRecall::get_input | A(v3 블록) / B(나머지 본체 = 0.5.8 명세 + RE 동치 판정 의존). | 13321 |
 | `dc2070` | `ecfa40` | SmallActionAroundPositionBush::get_input | A — 본체·헬퍼·클로저 판정 지점 모두 대조. | 2955 |
+| `dc2960` | `ed0400` | SmallActionAroundBush::get_input | A — 본체 전문 디컴 대조 · 변경 블록 바이트/문자열 실측 · self 레이아웃 불변을 양 버전 디컴으로 | 3069 |
 | `dccc60` | `ff11f0` | GoalData::update | A — 신규 블록 전문 디컴 · 나머지 양버전 대조. | 3988 |
 | `dce220` | `ef4690` | v3_epicops_buff_window | A — 신설 블록 전체를 명령 단위로 옮겼고 신규 콜리 2개(f1e3c0·efa190)의 출력 계약을 디컴으 | 5323 |
 | `dd5db0` | `f0cfe0` | TeamPlan::v24_objective_setup_should_check_camp | A — 변경 1건(L91) 디컴 확인 · 본문 동치 양 버전 디컴 대조. | 4654 |
@@ -71,9 +74,6 @@
 - `df36e0` BattlePlan::update_v32 (변경·심층(r21 §D: w2 §0·§2))
 - `e5d5d0` LegacyPlanHandler::handle_interact_battle (변경·심층(r21 §D: w5 §4))
 - `e4c5c0` LegacyPlanHandler::update (변경·심층(r21 §D: w4 §3~§5))
-- `dc2960` SmallActionAroundBush::get_input (변경(r19: ★로직 변경: path_finder 이름)
-- `d5bbf0` calculate_interaction_action_score (변경·심층(r21 §D: w10 §3))
-- `cb03b0` EpicCheckSubPlan::action_candidates (변경·심층(r21 §D: w10 §2))
 - `cc4260` JungleSubPlan::action_candidates (변경·심층(r21 §D: w3 §1))
 - `cb7540` HideSubPlan::action_candidates (변경·심층(r21 §D: w8 §B))
 - `db9430` LineGankerPlan::next_plan (변경·심층(r21 §D: w8 §A))

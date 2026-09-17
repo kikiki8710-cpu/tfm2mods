@@ -59,3 +59,6 @@
 - passive_plan Setup travel = /max(ms,1) · Split 사장 경로 PassiveLine +0x120=1 = v4_split.
 - hunt_and_poke: v3 는 hp_ratio<51 안 읽음 · strategy 인라인 = `is_solorank ? player+0x568 : game.strategy(team)`.
 - PassiveJungle Hide 페이로드: +8 ambush_cell None · +0x20 self+0x48 bush region · +0x28=0x01000000(stealth 1) · +0x2c=1 out_line.
+
+## batch_09(09-17 12:4x · 1 · A)
+- AroundBush::get_input: 로직 변경 1건 그대로(name≠"around_bush"(len 11) 면 HeapFree +0x50/+0x58 · 태그 +0x6d=2 → new_target · rnd 소비 달라짐) · **self 레이아웃 불변**(dispcheck 의 0x18→0x50/0x20→0x18/0x50→0x58 은 삽입 블록에 의한 오배열 → dispcheck 규칙 라벨 정정) · 오프셋 변경은 PlayerState 만 · version 분기 없음 · 콜리 e609e0/e1f610/e2d650(모노모프)/e5bb90.
