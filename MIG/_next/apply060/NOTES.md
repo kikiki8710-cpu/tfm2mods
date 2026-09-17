@@ -31,3 +31,13 @@
 - efb5b0: slot1 = camp_pos(2)·camp_pos(4) 중점 · slot0 = camp_pos(0)·camp_pos(5) 중점 · side=!is_blue. camp_pos bool 은 일관되게 `team != 0`.
 - check_serpen_giveup 판단페널티 인라인 `(424 − min(9J,300))/125` = 0.5.8 식 등가.
 - 미확인: parameter.positioning_score 0.6.0 위치 · PlayerState+0x180 parameter · +0x490 스탯 이름 · bb+0x4d8/agent+0x3698 틱 기록처.
+
+## batch_04(09-17 11:5x · 9 · A 7 · A/B 1 · B 1)
+- ★정정 PassiveLinePlan::sub_plan 갱크 게이트(L863): `rec.map_or(false, |r| r.line==line) || (cd5==8 && cd6==line)`(OR) — 배치 E §10 의 unwrap_or_else 표기 오기(레코드 line 불일치면 레거시 검사로).
+- ecb2b0 Recall 순서: `minion_diff>2 && !f1f8d0 → Recall else LineWait` · 타워 경로 `ty==2 && +0x88!=0 && !f1f8d0 && (!aggr || !ec6dc0) → Recall`.
+- f0cfe0 healthy_side 술어 실체 = `hp%≥40 && (!(x>192000 && h−y<x && h−y<w−192000) || |x−(h−y)|<64000)`(양 버전 동일).
+- fd7b40: 배치 B §10 「+0x3e4=Epic 모드」 추정 폐기(씬 니치).
+- ed3dd0: aggr=1 이어도 f71fc0 호출(카운터) · 판정은 `!aggr && def` 한정.
+- e82c00 eda920 인자 `(version,data,tp,target,clone,&opts{8,game,0,0},0,0,0,&None)` · 슬롯 명명 skill/skill2/ult(배치 B 「attack/skill/skill2」 오기).
+- f28320 strategy 조회 인라인 = `is_solorank(vt 0xe8) ? player.+0x568 : game.strategy(team)(vt 0x108)` · game_finish +0x57d.
+- 미확인: f10c60·19903f0·ee0800·fe1ad0·f27910·f0e390·ef36b0·f892d0·f88690 내부 · ee8450 틱 루프 명령 대조 · bias 실호출값.
