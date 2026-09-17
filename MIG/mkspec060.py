@@ -24,20 +24,30 @@ def parse_result(path, col):
     return out
 R19 = parse_result(os.path.join(HERE, "_next", "r19_result.md"), 3)
 R20 = parse_result(os.path.join(HERE, "_next", "r20_result.md"), 4)
+def cells(line):
+    """표 행을 셀로 분리 — 백틱 안의 `|`(예: `a || b`) 는 구분자로 보지 않는다"""
+    out, cur, tick = [], [], False
+    for ch in line.rstrip("\n"):
+        if ch == "`": tick = not tick
+        if ch == "|" and not tick: out.append("".join(cur)); cur = []
+        else: cur.append(ch)
+    out.append("".join(cur))
+    return [c.strip() for c in out[1:-1]] if len(out) >= 3 else None
 PATCH = {}
 for line in io.open(os.path.join(HERE, "_next", "spec_patch_060.md"), encoding="utf-8"):
-    m = re.match(r"\|\s*`([0-9a-f]+)`\s*\|\s*`([0-9a-f?]+)`\s*\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|", line)
-    if m and m.group(1) not in PATCH: PATCH[m.group(1)] = dict(kind=m.group(5).strip(), note=m.group(6).strip(), ref=m.group(7).strip())
-    m2 = re.match(r"\|\s*`([0-9a-f]+)`\s*\|\s*`([0-9a-f]+)`\s*\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|$", line.rstrip())
-    if m2 and m2.group(1) not in PATCH: PATCH[m2.group(1)] = dict(kind=u"심층", note=m2.group(4).strip(), ref=m2.group(5).strip())
+    c = cells(line)
+    if not c or not re.match(r"^`[0-9a-f]+`$", c[0]) or not re.match(r"^`[0-9a-f?]+`$", c[1] if len(c) > 1 else ""): continue
+    old = c[0].strip("`")
+    if len(c) >= 7 and old not in PATCH: PATCH[old] = dict(kind=c[4], note=c[5], ref=c[6])          # §B: 구|신|i|함수|종류|요지|정본
+    elif len(c) == 5 and old not in PATCH: PATCH[old] = dict(kind=u"심층", note=c[3], ref=c[4])     # §D: 구|신|함수|요지|정본
 # §D(심층 · r21) 행은 §B 보다 우선 — 본체 대조 결과가 정본
 DROWS = {}; inD = False
 for line in io.open(os.path.join(HERE, "_next", "spec_patch_060.md"), encoding="utf-8"):
     if line.startswith(u"## D."): inD = True
     elif line.startswith(u"## "): inD = False
     if not inD: continue
-    m3 = re.match(r"\|\s*`([0-9a-f]+)`\s*\|\s*`([0-9a-f]+)`\s*\|\s*([^|]*)\|\s*(.*)\|\s*([^|]*)\|$", line.rstrip())
-    if m3: DROWS[m3.group(1)] = dict(kind=u"심층(r21)", note=m3.group(4).strip(), ref=m3.group(5).strip())
+    c = cells(line)
+    if c and len(c) == 5 and re.match(r"^`[0-9a-f]+`$", c[0]) and re.match(r"^`[0-9a-f]+`$", c[1]): DROWS[c[0].strip("`")] = dict(kind=u"심층(r21)", note=c[3], ref=c[4])
 for k, v in DROWS.items(): PATCH[k] = v
 TIER1 = set()
 for line in io.open(os.path.join(HERE, "_next", "r20_tier1.md"), encoding="utf-8"):

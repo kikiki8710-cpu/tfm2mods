@@ -76,8 +76,8 @@
 | 69 | `e5d300` | `d5ff20` | try_engage_dive | ⚠변경·한 줄(r20) | 한 줄 · `plan.screening=true; update; screening=false; if sub_goal>= |
 | 70 | `e07430` | `ee6d40` | tower_dive_is_viable | ⚠변경·다건(r20) | 다건 · v3 near_enemies 클로저 e0fc40(대상 기준 150000·최근가시) · pen=(900-9J) |
 | 71 | `e7acd0` | `f27590` | should_recall_to_shop | ⚠변경·한 줄(r20) | 한 줄 · `if active_cnt > 3 && item_list[next].tier()==0 { return fal |
-| 72 | `df0a90` | `dcb890` | SerpenHuntAndPokePlan::is_end | ⚠변경·다건(r20) | 다건 · 진입: `tp.3e4==2 → (tp.404!=2 |
-| 73 | `ec9de0` | `f88880` | wave_priority_clearer_position | ⚠변경·한 줄(r20) | 한 줄 · 4번째 인자 exclude_jungler: `pick(excl).or_else( |
+| 72 | `df0a90` | `dcb890` | SerpenHuntAndPokePlan::is_end | ⚠변경·다건(r20) | 다건 · 진입: `tp.3e4==2 → (tp.404!=2 || tp.cd5!=1) → true` · setup_li |
+| 73 | `ec9de0` | `f88880` | wave_priority_clearer_position | ⚠변경·한 줄(r20) | 한 줄 · 4번째 인자 exclude_jungler: `pick(excl).or_else(|| pick(false))` |
 | 74 | `dccc60` | `ff11f0` | GoalData::update | ⚠변경·한 줄(r20) | 한 줄 · goal_data.rs:27 앞 `if v>=3 && champ.undying { remain=max(und |
 | 75 | `dd73b0` | `ff2450` | SerpenStanceData::update_plan | ✅동치(r20) |  |
 | 76 | `de1ee0` | `ff4940` | EpicStanceData::update_plan | ✅동치(r20) |  |
@@ -103,7 +103,7 @@
 | 96 | `d65620` | `1011d20` | serpen_passive_plan | 변경·심층(r21 §D: w9 §2) | 심층(r21) · 진입 match 에 `phase>2 && cc7 → CONTEST` · `phase==2 && cc7 → C |
 | 97 | `df0e90` | `dcbe00` | SerpenHuntAndPokePlan::sub_plan | 변경·심층(r21 §D: w9 §4) | 심층(r21) · B v≥3: `serpen.hp==max && (can_upgrade ‖ (in_heal && hp<max) |
 | 98 | `d9bce0` | `e87300` | steal::evaluate_steal_for_target | 동치(mig060_same 확정: 동일) |  |
-| 99 | `d9ac10` | `e85f00` | steal::should_steal_now | ⚠변경·한 줄(r20) |  · (404==2&&cd5!=0)` · `not_serpen = 3e4==2 && !(404==2&&cd5==1 |
+| 99 | `d9ac10` | `e85f00` | steal::should_steal_now | ⚠변경·한 줄(r20) | 심층 · `objective!=Morgard/Serpen` 4곳 → `not_morgard = 3e4!=2 || (4 |
 | 100 | `dd90c0` | `f0e5f0` | TeamPlan::update_steal | ✅동치(+필드/게이트/텔레메트리)(r20) |  |
 | 101 | `d3a3a0` | `de6a80` | line_backfight_support_focus | 동치(mig060_same 확정: 동일) |  |
 | 102 | `dfb840` | `dd8e70` | BattlePlan::update | 변경·심층(r21 §D: w2 §1) | 심층(r21) · 본체 동치(재번호·이중모드) · Defense 넥서스 거리 End 는 v<3 만 · battle_recenc |
@@ -161,7 +161,7 @@
 | 154 | `d84a30` | `ddd460` | SmallActionUlt::get_input | 동치(mig060_same 확정: 동일) |  |
 | 155 | `db8e60` | `fa9d60` | LineGankerPlan::make_gank_battle | 변경·소(r21 w11: gank_open_site/line/snap 기록 · sub_go | 심층(r21) · 소변경: site 인자 → `bp.+0x214 gank_open_site=site` · `bp.+0x205  |
 | 156 | `dd5270` | `f0c4a0` | v27_objective_discipline_action | 동치(mig060_same 확정: 동일) |  |
-| 157 | `dc2070` | `ecfa40` | SmallActionAroundPositionBush::get_input | ⚠변경·다건(r20) | 다건 · PathVerdict: `ok && ((region==2&&flag2) |
+| 157 | `dc2070` | `ecfa40` | SmallActionAroundPositionBush::get_input | ⚠변경·다건(r20) | 다건 · PathVerdict: `ok && ((region==2&&flag2)||(region==7&&flag7)) |
 | 158 | `e2ac00` | `eb3980` | line_minion_action_candidates | 동치(mig060_same 확정: 동일) |  |
 | 159 | `eb77a0` | `ed79a0` | battle_ally_action | 동치(mig060_same 확정: 동일) |  |
 | 160 | `de3630` | `100bb90` | get_die_tick_player | 동치(mig060_same 확정: 동일) |  |
@@ -172,7 +172,7 @@
 | 165 | `e29b40` | `100c2f0` | action_eval::evaluate_action | ⚠변경·다건(r20) | 다건 · score += aggressive_gain(aggr: 최근접 적 피해×hp_value/hp · reach+ |
 | 166 | `d3ab40` | `de7220` | utils::can1v1win | 동치(mig060_same 확정: 동일) |  |
 | 167 | `e26c40` | `e95f70` | SmallActionLaneMinionPosition::get_input | 동치(r19: 동치) |  |
-| 168 | `dc2960` | `ed0400` | SmallActionAroundBush::get_input | 변경(r19: ★로직 변경: path_finder 이름≠around_bush 면 폐기·재생 | 한 줄 · `if self.path_finder.as_ref().is_some_and( |
+| 168 | `dc2960` | `ed0400` | SmallActionAroundBush::get_input | 변경(r19: ★로직 변경: path_finder 이름≠around_bush 면 폐기·재생 | 한 줄 · `if self.path_finder.as_ref().is_some_and(|pf| pf.name != "a |
 | 169 | `ccfbc0` | `eb4880` | calculate_serpen_action_score | 동치(mig060_same 확정: 동일) |  |
 | 170 | `ec81e0` | `f86640` | calculate_epic_action_score | 동치(mig060_same 확정: 동일) |  |
 | 171 | `e288c0` | `e73ac0` | line_projected_punish_damage_at | 동치(mig060_same 확정: 동일) |  |
@@ -188,7 +188,7 @@
 | 181 | `d5bbf0` | `f77820` | calculate_interaction_action_score | 변경·심층(r21 §D: w10 §3) | 심층(r21) · 5지점: **§C projected_minion_damage(v2/v3 공통)** `adj = stance= |
 | 182 | `dc3240` | `fddcd0` | SmallActionRunAway::get_input | ✅동치(r20) |  |
 | 183 | `d57540` | `f72620` | interaction_score | ✅동치(r20) |  |
-| 184 | `dbd260` | `fdb210` | SmallActionRecall::get_input | ⚠변경·한 줄(r20) | 한 줄 · v3: 최근가시 적 250000 내 `r1=ckdt(true,false,false)==0 |
+| 184 | `dbd260` | `fdb210` | SmallActionRecall::get_input | ⚠변경·한 줄(r20) | 한 줄 · v3: 최근가시 적 250000 내 `r1=ckdt(true,false,false)==0 || r2=ckdt |
 | 185 | `d31f20` | `dde530` | get_input_target | 동치(mig060_same 확정: 동일) |  |
 | 186 | `d59940` | `f749a0` | calculate_action_score | 변경·심층(r21 §D: w10 §1) | 심층(r21) · 인자 11→10(`_debug` 삭제) · **v3 적 챔피언 조기 반환**(Champion arm · po |
 | 187 | `d84db0` | `ff5ec0` | position_eval_at | 동치(mig060_same 확정: 동일) |  |
