@@ -1,0 +1,20 @@
+[package]
+name = "tfm2_ver_probe"
+version = "0.1.0"
+edition = "2021"
+
+# diagnostic stable-shell mod (0.6.0): installs 2 capture detours (TeamPlan pre-update f0f080 · check_kill_die_tick eda920)
+# and logs the runtime `version` value + ObjContest scene/armed flags + Option<(x,y,t)> Some callers.
+# temporary — remove from mods\ after r21 pending B-1/B-2/B-5 are answered.
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
