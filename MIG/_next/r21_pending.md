@@ -17,7 +17,7 @@
 | 11 | phase 핸들러 `efeeb0`/`f00450`/`f00e80`/`f01380`/`f082d0` | 12 핸들러 중 5 | 표만 | w7 |
 | 12 | `ef7680` contest_member_tick | allow 플래그 X(rbp+0x228) 정체 | 마스크 관리 본체는 w9 에서 독해 | w9 |
 | 13 | 격자 경로탐색 `ee0fe0`/`ee2310`/`ee0dd0` | Hide stealth 이동·카정 move | 호출 계약만 | w1/w8 |
-| 14 | best_jungle_goal `fafe50` v3 블록 B | `faf2a0`(faf2a0~fafb13) · `dbd370` · `dbe860` · game vt+0x108 구조체 정체 · fb0a3f 이후 꼬리 | 역정글 후보 세부 | w11 |
+| ~~14~~ | ✅ r22 d 에서 닫힘(faf2a0 can_invade_camp · vt+0x108 = Strategy · skip_race 정정 · 좌표 팀1 방향 · 반환 (camp,owner)) · 잔여 = ee2310 격자 경로 본체(is_some 만 소비 · A-13 과 합침) | | | r22 d |
 | 15 | position_eval_at_uncached `ff62e0` | 종반 신규 항(중심점 이격) 상수 | 부분 | r20 C |
 | ~~16~~ | ✅ r22 a 에서 닫힘(TurnBack veto · e74a50 = nexus_final_stand 메모 · pos_ring LPH+0x458) · 잔여 = can_* 세부(IR) · +0x46c 추정 | | | r22 a |
 | ~~17~~ | ✅ r22 c 에서 닫힘(d75840 은 v3 dead · d750f0/d75780 신규 · +0x24d6 세팅처 LPH::update) | | | r22 c |
