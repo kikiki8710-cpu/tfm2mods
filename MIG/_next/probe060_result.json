@@ -1,0 +1,3474 @@
+[
+ {
+  "idx": 6,
+  "rva": "e60420",
+  "name": "sub_plan",
+  "spec_i": 7,
+  "verdict": "✅동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 9,
+  "rva": "eed490",
+  "name": "should_end_object_finish_kill_priority_battle",
+  "spec_i": 10,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 13,
+  "rva": "d5ebb0",
+  "name": "single_try_engage",
+  "spec_i": 15,
+  "verdict": "✅동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 28,
+  "rva": "1012e50",
+  "name": "serpen_giveup_chat_reason",
+  "spec_i": 32,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 41,
+  "rva": "ef4ab0",
+  "name": "TeamPlan::handle_epic_line_change",
+  "spec_i": 47,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 44,
+  "rva": "fb49b0",
+  "name": "check_epic_giveup",
+  "spec_i": 50,
+  "verdict": "✅동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 47,
+  "rva": "fb34e0",
+  "name": "check_epic_setup",
+  "spec_i": 53,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 51,
+  "rva": "ef3da0",
+  "name": "handle_press_epic",
+  "spec_i": 57,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 55,
+  "rva": "e85d70",
+  "name": "bush_distance_sq",
+  "spec_i": 61,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 75,
+  "rva": "fb1b70",
+  "name": "check_epic_hunt",
+  "spec_i": 81,
+  "verdict": "✅동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 79,
+  "rva": "ede160",
+  "name": "should_disengage_object_hunt",
+  "spec_i": 85,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 87,
+  "rva": "1010060",
+  "name": "check_serpen_giveup",
+  "spec_i": 93,
+  "verdict": "⚠변경·한 줄",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 89,
+  "rva": "100f210",
+  "name": "check_serpen_setup",
+  "spec_i": 95,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 92,
+  "rva": "e87300",
+  "name": "steal::evaluate_steal_for_target",
+  "spec_i": 98,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 131,
+  "rva": "eacee0",
+  "name": "EpicPokeSubPlan::score",
+  "spec_i": 138,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 165,
+  "rva": "eccaf0",
+  "name": "SmallActionPositioning::get_input",
+  "spec_i": 172,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 166,
+  "rva": "eabbb0",
+  "name": "EpicPokeSubPlan::action_candidates_old",
+  "spec_i": 174,
+  "verdict": "✅동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 169,
+  "rva": "ed4350",
+  "name": "SmallActionAroundRegion::get_input",
+  "spec_i": 177,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 191,
+  "rva": "ea8610",
+  "name": "EpicPokeSubPlan::action_candidates",
+  "spec_i": 199,
+  "verdict": "✅동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 202,
+  "rva": "e5eb00",
+  "name": "StealSubPlan::action_candidates",
+  "spec_i": 210,
+  "verdict": "✅동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 234,
+  "rva": "e601b0",
+  "name": "StealSubPlan::score",
+  "spec_i": 242,
+  "verdict": "동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 242,
+  "rva": "fa8570",
+  "name": "next_plan",
+  "spec_i": 250,
+  "verdict": "✅동치",
+  "hits": 0,
+  "rets": [],
+  "ovf": false
+ },
+ {
+  "idx": 63,
+  "rva": "d5ff20",
+  "name": "try_engage_dive",
+  "spec_i": 69,
+  "verdict": "⚠변경·한 줄",
+  "hits": 142,
+  "rets": [
+   "d676b8",
+   "d6b5e2",
+   "d68456"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 167,
+  "rva": "f63a10",
+  "name": "SerpenPokeSubPlan::action_candidates_old",
+  "spec_i": 175,
+  "verdict": "동치",
+  "hits": 365,
+  "rets": [
+   "f6052a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 192,
+  "rva": "f60480",
+  "name": "SerpenPokeSubPlan::action_candidates",
+  "spec_i": 200,
+  "verdict": "✅동치",
+  "hits": 365,
+  "rets": [
+   "ed0f37"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 183,
+  "rva": "e96780",
+  "name": "EpicCheckSubPlan::action_candidates",
+  "spec_i": 191,
+  "verdict": "변경·심층",
+  "hits": 402,
+  "rets": [
+   "ed0fb4"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 184,
+  "rva": "e9de70",
+  "name": "SerpenCheckSubPlan::action_candidates",
+  "spec_i": 192,
+  "verdict": "⚠변경·다건",
+  "hits": 609,
+  "rets": [
+   "ed0d1e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 83,
+  "rva": "f0cfe0",
+  "name": "TeamPlan::v24_objective_setup_should_check_camp",
+  "spec_i": 89,
+  "verdict": "⚠변경·한 줄",
+  "hits": 707,
+  "rets": [
+   "dccd1c"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 132,
+  "rva": "f64d30",
+  "name": "SerpenPokeSubPlan::score",
+  "spec_i": 139,
+  "verdict": "동치",
+  "hits": 751,
+  "rets": [
+   "f629ea",
+   "ed3f11",
+   "dfdcc7",
+   "f62a7d"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 88,
+  "rva": "100d990",
+  "name": "check_serpen_hunt",
+  "spec_i": 94,
+  "verdict": "동치",
+  "hits": 1667,
+  "rets": [
+   "eff5bb"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 29,
+  "rva": "d56570",
+  "name": "v2_obj_restore_safe",
+  "spec_i": 33,
+  "verdict": "✅동치",
+  "hits": 1989,
+  "rets": [
+   "d3a61c",
+   "d3a9f3",
+   "d57c5b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 61,
+  "rva": "f0dc20",
+  "name": "v24_objective_setup_lane_pressure_ready",
+  "spec_i": 67,
+  "verdict": "⚠변경·한 줄",
+  "hits": 2160,
+  "rets": [
+   "eff53c",
+   "100eaa3"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 220,
+  "rva": "dc0040",
+  "name": "TeamPlan::handle_nexus_attack",
+  "spec_i": 228,
+  "verdict": "동치",
+  "hits": 3070,
+  "rets": [
+   "efde99"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 148,
+  "rva": "fa9d60",
+  "name": "LineGankerPlan::make_gank_battle",
+  "spec_i": 155,
+  "verdict": "변경·소",
+  "hits": 3363,
+  "rets": [
+   "fac14d",
+   "fad94c",
+   "fadb37",
+   "fad8d2",
+   "fadecc",
+   "fad741"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 46,
+  "rva": "f88d60",
+  "name": "v25_objective_far_split_pressure",
+  "spec_i": 52,
+  "verdict": "동치",
+  "hits": 3843,
+  "rets": [
+   "f88ccb"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 10,
+  "rva": "d582a0",
+  "name": "v3_fall_back_to_passive",
+  "spec_i": 11,
+  "verdict": "동치",
+  "hits": 4990,
+  "rets": [
+   "f3dede"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 110,
+  "rva": "1009a90",
+  "name": "can_tower_focused_when_attack",
+  "spec_i": 116,
+  "verdict": "동치",
+  "hits": 5460,
+  "rets": [
+   "f43165",
+   "f66441"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 159,
+  "rva": "de7220",
+  "name": "utils::can1v1win",
+  "spec_i": 166,
+  "verdict": "동치",
+  "hits": 6955,
+  "rets": [
+   "f384e6",
+   "f388ca"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 139,
+  "rva": "ed0240",
+  "name": "SmallActionAroundBush::new_with_out_line",
+  "spec_i": 146,
+  "verdict": "동치",
+  "hits": 8029,
+  "rets": [
+   "f3699c"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 23,
+  "rva": "f892d0",
+  "name": "v23_objective_setup_pressure_line",
+  "spec_i": 26,
+  "verdict": "동치",
+  "hits": 9939,
+  "rets": [
+   "d39944",
+   "fb8f30",
+   "fb8e37",
+   "f0d0ab",
+   "f0e52a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 4,
+  "rva": "d5aff0",
+  "name": "v50_fold_dive_episode",
+  "spec_i": 5,
+  "verdict": "✅동치",
+  "hits": 10969,
+  "rets": [
+   "d4a52c",
+   "d4f237"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 251,
+  "rva": "eda1a0",
+  "name": "v48_projectile_profile",
+  "spec_i": 259,
+  "verdict": "동치",
+  "hits": 11124,
+  "rets": [
+   "db2206"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 72,
+  "rva": "e76100",
+  "name": "objective_defense_role",
+  "spec_i": 78,
+  "verdict": "동치",
+  "hits": 17560,
+  "rets": [
+   "effbb3",
+   "eff027"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 133,
+  "rva": "ecfff0",
+  "name": "SmallActionAroundBush::new_with_target",
+  "spec_i": 140,
+  "verdict": "동치",
+  "hits": 18474,
+  "rets": [
+   "f368b6"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 76,
+  "rva": "fb5ff0",
+  "name": "epic_passive_plan",
+  "spec_i": 82,
+  "verdict": "변경·심층",
+  "hits": 20271,
+  "rets": [
+   "d3a75b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 5,
+  "rva": "d6bf10",
+  "name": "v2_response_retreat_stance",
+  "spec_i": 6,
+  "verdict": "✅동치",
+  "hits": 26553,
+  "rets": [
+   "d6664a",
+   "d65c82"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 57,
+  "rva": "f18bf0",
+  "name": "should_keep_object_for_contested_wave_priority",
+  "spec_i": 63,
+  "verdict": "동치",
+  "hits": 28774,
+  "rets": [
+   "f18be6",
+   "eff575"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 182,
+  "rva": "f65030",
+  "name": "AttackNexusSubPlan::action_candidates",
+  "spec_i": 190,
+  "verdict": "동치",
+  "hits": 29359,
+  "rets": [
+   "ed0cf3"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 58,
+  "rva": "f88b30",
+  "name": "v25_objective_splitter_can_stay",
+  "spec_i": 64,
+  "verdict": "동치",
+  "hits": 39169,
+  "rets": [
+   "dcc471",
+   "fd868a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 60,
+  "rva": "fb1510",
+  "name": "evaluate_gank_opportunity_with_score",
+  "spec_i": 66,
+  "verdict": "✅동치",
+  "hits": 41468,
+  "rets": [
+   "fa359d",
+   "d46bf5",
+   "d5cf93",
+   "d44b6c"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 2,
+  "rva": "e82c00",
+  "name": "defensive_crisis",
+  "spec_i": 3,
+  "verdict": "⚠변경·한 줄",
+  "hits": 43350,
+  "rets": [
+   "f7aa67",
+   "f7aec0",
+   "f7c2ca",
+   "d6d030"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 231,
+  "rva": "ecfdd0",
+  "name": "around::SmallActionAroundBush::update_state",
+  "spec_i": 239,
+  "verdict": "동치",
+  "hits": 50445,
+  "rets": [
+   "f3b26c"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 161,
+  "rva": "ed0400",
+  "name": "SmallActionAroundBush::get_input",
+  "spec_i": 168,
+  "verdict": "변경",
+  "hits": 50446,
+  "rets": [
+   "e5e752"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 78,
+  "rva": "ed8f40",
+  "name": "battle_check_with_list",
+  "spec_i": 84,
+  "verdict": "동치",
+  "hits": 52038,
+  "rets": [
+   "f04448"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 187,
+  "rva": "ead1c0",
+  "name": "LineWaitSubPlan::action_candidates",
+  "spec_i": 195,
+  "verdict": "✅동치",
+  "hits": 55372,
+  "rets": [
+   "ed0db2"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 245,
+  "rva": "f39240",
+  "name": "LineSafeSubPlan::action_candidates",
+  "spec_i": 253,
+  "verdict": "동치",
+  "hits": 61326,
+  "rets": [
+   "ed0e3c"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 253,
+  "rva": "ebab70",
+  "name": "kite_reposition_point",
+  "spec_i": 261,
+  "verdict": "동치",
+  "hits": 67727,
+  "rets": [
+   "ea1e5a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 0,
+  "rva": "de1ad0",
+  "name": "ult",
+  "spec_i": 0,
+  "verdict": "동치",
+  "hits": 68881,
+  "rets": [
+   "ddd60e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 186,
+  "rva": "f356b0",
+  "name": "HideSubPlan::action_candidates",
+  "spec_i": 194,
+  "verdict": "변경·심층",
+  "hits": 75203,
+  "rets": [
+   "ed0e1b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 147,
+  "rva": "ddd460",
+  "name": "SmallActionUlt::get_input",
+  "spec_i": 154,
+  "verdict": "동치",
+  "hits": 79209,
+  "rets": [
+   "e5e525"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 8,
+  "rva": "edfb50",
+  "name": "check_favorable_engage_formation",
+  "spec_i": 9,
+  "verdict": "동치",
+  "hits": 89869,
+  "rets": [
+   "d638a1",
+   "d68bc6",
+   "d629e1",
+   "d675f0",
+   "d69872",
+   "d683cd"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 227,
+  "rva": "f66a30",
+  "name": "AttackNexusSubPlan::score",
+  "spec_i": 235,
+  "verdict": "✅동치",
+  "hits": 100064,
+  "rets": [
+   "ed4139"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 124,
+  "rva": "e83520",
+  "name": "noncombat_steroid_value",
+  "spec_i": 131,
+  "verdict": "동치",
+  "hits": 102259,
+  "rets": [
+   "f7bd13",
+   "f7b6f8"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 90,
+  "rva": "1011d20",
+  "name": "serpen_passive_plan",
+  "spec_i": 96,
+  "verdict": "변경·심층",
+  "hits": 111139,
+  "rets": [
+   "d3a3c1"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 74,
+  "rva": "d5f3c0",
+  "name": "try_engage",
+  "spec_i": 80,
+  "verdict": "⚠변경·다건",
+  "hits": 111568,
+  "rets": [
+   "d6b026",
+   "d68c20",
+   "d63908",
+   "d639e1",
+   "d62beb",
+   "d62c71"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 150,
+  "rva": "ecfa40",
+  "name": "SmallActionAroundPositionBush::get_input",
+  "spec_i": 157,
+  "verdict": "⚠변경·다건",
+  "hits": 126773,
+  "rets": [
+   "e5e65c"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 162,
+  "rva": "eb4880",
+  "name": "calculate_serpen_action_score",
+  "spec_i": 169,
+  "verdict": "동치",
+  "hits": 136678,
+  "rets": [
+   "eb46ff"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 115,
+  "rva": "de0a80",
+  "name": "convert_to_move_action_target",
+  "spec_i": 122,
+  "verdict": "동치",
+  "hits": 137005,
+  "rets": [
+   "e5c627",
+   "e5ca85",
+   "e5cfb6"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 163,
+  "rva": "f86640",
+  "name": "calculate_epic_action_score",
+  "spec_i": 170,
+  "verdict": "동치",
+  "hits": 138950,
+  "rets": [
+   "f864bf"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 12,
+  "rva": "faa440",
+  "name": "update",
+  "spec_i": 14,
+  "verdict": "⚠변경·한 줄",
+  "hits": 142219,
+  "rets": [
+   "ec25ee"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 194,
+  "rva": "faa7c0",
+  "name": "LineGankerPlan::next_plan",
+  "spec_i": 202,
+  "verdict": "변경·심층",
+  "hits": 143562,
+  "rets": [
+   "ec3055"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 223,
+  "rva": "eae650",
+  "name": "LineWaitSubPlan::score",
+  "spec_i": 231,
+  "verdict": "동치",
+  "hits": 158986,
+  "rets": [
+   "ed3f71"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 222,
+  "rva": "f3a070",
+  "name": "LineSafeSubPlan::score",
+  "spec_i": 230,
+  "verdict": "동치",
+  "hits": 174397,
+  "rets": [
+   "ed40d9"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 153,
+  "rva": "100bb90",
+  "name": "get_die_tick_player",
+  "spec_i": 160,
+  "verdict": "동치",
+  "hits": 181286,
+  "rets": [
+   "fad2fd",
+   "fad33b",
+   "ef7130"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 207,
+  "rva": "fe3fd0",
+  "name": "v16_gambler_ult_cc_bonus",
+  "spec_i": 215,
+  "verdict": "✅동치",
+  "hits": 195088,
+  "rets": [
+   "ea7dfd"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 244,
+  "rva": "fe4950",
+  "name": "v16_knight_ult_zone_bonus",
+  "spec_i": 252,
+  "verdict": "동치",
+  "hits": 195088,
+  "rets": [
+   "ea7e2f"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 212,
+  "rva": "ec62f0",
+  "name": "PassiveLinePlan::v46_stage2",
+  "spec_i": 220,
+  "verdict": "동치",
+  "hits": 195273,
+  "rets": [
+   "ec929f",
+   "ec9c10"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 190,
+  "rva": "f6bda0",
+  "name": "EpicHuntSubPlan::action_candidates",
+  "spec_i": 198,
+  "verdict": "⚠변경·한 줄",
+  "hits": 201020,
+  "rets": [
+   "ed0d91"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 189,
+  "rva": "e986c0",
+  "name": "SerpenHuntSubPlan::action_candidates",
+  "spec_i": 197,
+  "verdict": "⚠변경·한 줄",
+  "hits": 207396,
+  "rets": [
+   "ed0d66"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 181,
+  "rva": "f40930",
+  "name": "DefenseNexusSubPlan::action_candidates",
+  "spec_i": 189,
+  "verdict": "✅동치",
+  "hits": 234144,
+  "rets": [
+   "ed0dd8"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 160,
+  "rva": "e95f70",
+  "name": "SmallActionLaneMinionPosition::get_input",
+  "spec_i": 167,
+  "verdict": "동치",
+  "hits": 267427,
+  "rets": [
+   "e5e5cf"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 145,
+  "rva": "e733f0",
+  "name": "line_champion_trade_allowance",
+  "spec_i": 152,
+  "verdict": "동치",
+  "hits": 271128,
+  "rets": [
+   "e73a26"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 52,
+  "rva": "fb9b70",
+  "name": "target_bush_v41",
+  "spec_i": 58,
+  "verdict": "✅동치",
+  "hits": 284976,
+  "rets": [
+   "ec2ee4",
+   "facc5d",
+   "d5d018"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 62,
+  "rva": "ddd7e0",
+  "name": "base_sub_goal",
+  "spec_i": 68,
+  "verdict": "⚠변경·한 줄",
+  "hits": 301142,
+  "rets": [
+   "dd8bea",
+   "ddca7a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 33,
+  "rva": "e759a0",
+  "name": "i_am_chosen_defender",
+  "spec_i": 37,
+  "verdict": "✅동치",
+  "hits": 346813,
+  "rets": [
+   "f02665",
+   "d41502",
+   "e764f5",
+   "efeb32",
+   "f0155e",
+   "f01f31",
+   "f08477",
+   "e76248"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 32,
+  "rva": "d75ad0",
+  "name": "calculate_nexus_defense_count",
+  "spec_i": 36,
+  "verdict": "동치",
+  "hits": 348470,
+  "rets": [
+   "f02648",
+   "d414d5",
+   "effb9d",
+   "efeb15",
+   "f01541",
+   "f01f14",
+   "eff011",
+   "f0845a"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 157,
+  "rva": "de26b0",
+  "name": "abstract_input::skill2",
+  "spec_i": 164,
+  "verdict": "동치",
+  "hits": 368298,
+  "rets": [
+   "ddd3de"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 1,
+  "rva": "f776b0",
+  "name": "calculate_jungle_action_score",
+  "spec_i": 1,
+  "verdict": "동치",
+  "hits": 375828,
+  "rets": [
+   "eb2c09",
+   "eb2b32"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 146,
+  "rva": "ddd230",
+  "name": "SmallActionSkill2::get_input",
+  "spec_i": 153,
+  "verdict": "동치",
+  "hits": 395084,
+  "rets": [
+   "e5e6d9"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 129,
+  "rva": "f89c30",
+  "name": "v23_should_break_objective_hunt_anchor",
+  "spec_i": 136,
+  "verdict": "동치",
+  "hits": 407736,
+  "rets": [
+   "e9a2e2",
+   "e9b01f",
+   "f6d981",
+   "f6e6cf"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 149,
+  "rva": "f0c4a0",
+  "name": "v27_objective_discipline_action",
+  "spec_i": 156,
+  "verdict": "동치",
+  "hits": 408302,
+  "rets": [
+   "e989a1",
+   "f6c0cb",
+   "f604e6"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 142,
+  "rva": "f860e0",
+  "name": "epic_action_score",
+  "spec_i": 149,
+  "verdict": "동치",
+  "hits": 427791,
+  "rets": [
+   "e02f93",
+   "ed41fa",
+   "f70195",
+   "f70218",
+   "e02f03"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 71,
+  "rva": "e71d40",
+  "name": "DefenseNexusPlan::sub_plan",
+  "spec_i": 77,
+  "verdict": "✅동치",
+  "hits": 431709,
+  "rets": [
+   "ec2da3"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 7,
+  "rva": "fd7b40",
+  "name": "is_end",
+  "spec_i": 8,
+  "verdict": "⚠변경·한 줄",
+  "hits": 434556,
+  "rets": [
+   "ec2349"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 66,
+  "rva": "dcb890",
+  "name": "SerpenHuntAndPokePlan::is_end",
+  "spec_i": 72,
+  "verdict": "⚠변경·다건",
+  "hits": 439361,
+  "rets": [
+   "ec2313"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 77,
+  "rva": "fd7f70",
+  "name": "EpicHuntAndPokePlan::sub_plan",
+  "spec_i": 83,
+  "verdict": "변경·심층",
+  "hits": 440171,
+  "rets": [
+   "ec2ed0"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 141,
+  "rva": "eb4320",
+  "name": "serpen_action_score",
+  "spec_i": 148,
+  "verdict": "동치",
+  "hits": 444459,
+  "rets": [
+   "ed3eb5",
+   "e9cb15",
+   "dfc023",
+   "dfbf93",
+   "e9cb98"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 143,
+  "rva": "100a380",
+  "name": "v22_lane_tower_pressure_attack_allowed",
+  "spec_i": 150,
+  "verdict": "동치",
+  "hits": 455994,
+  "rets": [
+   "e60f48",
+   "f31790",
+   "eadf04",
+   "f39cde"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 91,
+  "rva": "dcbe00",
+  "name": "SerpenHuntAndPokePlan::sub_plan",
+  "spec_i": 97,
+  "verdict": "변경·심층",
+  "hits": 457599,
+  "rets": [
+   "ec2d0d"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 156,
+  "rva": "de1f40",
+  "name": "abstract_input::skill",
+  "spec_i": 163,
+  "verdict": "동치",
+  "hits": 476994,
+  "rets": [
+   "ddd1ae"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 24,
+  "rva": "e77ec0",
+  "name": "nexus_under_direct_attack",
+  "spec_i": 27,
+  "verdict": "동치",
+  "hits": 484915,
+  "rets": [
+   "e724c7",
+   "e7613e",
+   "e72455",
+   "f415e1",
+   "ff1450",
+   "fdeb02"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 11,
+  "rva": "d5b410",
+  "name": "handle_chat",
+  "spec_i": 12,
+  "verdict": "동치",
+  "hits": 626511,
+  "rets": [
+   "d45641",
+   "d520e2"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 38,
+  "rva": "d59280",
+  "name": "LegacyPlanHandler::take_misunderstood_received_chat",
+  "spec_i": 44,
+  "verdict": "동치",
+  "hits": 626511,
+  "rets": [
+   "d455e4",
+   "d5208a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 98,
+  "rva": "d5b980",
+  "name": "handle_chat_inner",
+  "spec_i": 104,
+  "verdict": "변경·심층",
+  "hits": 626511,
+  "rets": [
+   "d45641",
+   "d520e2"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 144,
+  "rva": "ddd010",
+  "name": "SmallActionSkill::get_input",
+  "spec_i": 151,
+  "verdict": "동치",
+  "hits": 645768,
+  "rets": [
+   "e5e5a2"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 15,
+  "rva": "ef4690",
+  "name": "v3_epicops_buff_window",
+  "spec_i": 18,
+  "verdict": "⚠변경·다건",
+  "hits": 697381,
+  "rets": [
+   "f060b7"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 219,
+  "rva": "1009e10",
+  "name": "v47_tower_focus_position_dangerous",
+  "spec_i": 227,
+  "verdict": "동치",
+  "hits": 737810,
+  "rets": [
+   "f34495"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 21,
+  "rva": "f882e0",
+  "name": "v23_healthy_allies_near_point",
+  "spec_i": 24,
+  "verdict": "동치",
+  "hits": 750220,
+  "rets": [
+   "f89cb2",
+   "f89d1a",
+   "f87dbf",
+   "f88cf7",
+   "f89e20"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 26,
+  "rva": "f895f0",
+  "name": "v23_recent_visible_enemies_near_point",
+  "spec_i": 29,
+  "verdict": "동치",
+  "hits": 751522,
+  "rets": [
+   "f89cd8",
+   "f89d40",
+   "f87de5",
+   "f0e4af",
+   "f88d1d",
+   "f89e46",
+   "f0ddbc"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 43,
+  "rva": "ee4e70",
+  "name": "resolve_join_stake",
+  "spec_i": 49,
+  "verdict": "⚠변경·다건",
+  "hits": 782701,
+  "rets": [
+   "d5dbbd",
+   "d3811e",
+   "dd0f02"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 246,
+  "rva": "e84340",
+  "name": "noncombat_steroid_window",
+  "spec_i": 254,
+  "verdict": "✅동치",
+  "hits": 802105,
+  "rets": [
+   "f7bc81",
+   "f7b641"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 233,
+  "rva": "ea8130",
+  "name": "RecallSubPlan::action_candidates",
+  "spec_i": 241,
+  "verdict": "동치",
+  "hits": 802688,
+  "rets": [
+   "ed0df5"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 230,
+  "rva": "100b570",
+  "name": "v22_current_line_non_champion_action_tower_risk",
+  "spec_i": 238,
+  "verdict": "✅동치",
+  "hits": 829995,
+  "rets": [
+   "f3421e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 215,
+  "rva": "f43b10",
+  "name": "DefenseNexusSubPlan::score",
+  "spec_i": 223,
+  "verdict": "✅동치",
+  "hits": 871409,
+  "rets": [
+   "ed3e83"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 229,
+  "rva": "ea8450",
+  "name": "RecallSubPlan::score",
+  "spec_i": 237,
+  "verdict": "동치",
+  "hits": 898062,
+  "rets": [
+   "ed3fd1"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 64,
+  "rva": "ee6d40",
+  "name": "tower_dive_is_viable",
+  "spec_i": 70,
+  "verdict": "⚠변경·다건",
+  "hits": 900618,
+  "rets": [
+   "dcf89a",
+   "d61c8e",
+   "dd5983",
+   "d5dd31",
+   "dd2928",
+   "d617bb",
+   "d5f75a",
+   "d5e411"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 185,
+  "rva": "eafb50",
+  "name": "JungleSubPlan::action_candidates",
+  "spec_i": 193,
+  "verdict": "변경·심층",
+  "hits": 957993,
+  "rets": [
+   "ed0d3b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 126,
+  "rva": "e80960",
+  "name": "buff_value_v54",
+  "spec_i": 133,
+  "verdict": "⚠변경·다건",
+  "hits": 970252,
+  "rets": [
+   "f7af38",
+   "f7ab15"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 31,
+  "rva": "ee5e80",
+  "name": "resolve_fight_stake",
+  "spec_i": 35,
+  "verdict": "변경",
+  "hits": 1032768,
+  "rets": [
+   "dd1e3d",
+   "ee7be4",
+   "ea4474"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 130,
+  "rva": "eb5140",
+  "name": "v48_on_cast_line",
+  "spec_i": 137,
+  "verdict": "동치",
+  "hits": 1094557,
+  "rets": [
+   "ebad4d",
+   "ebaf8a",
+   "ea5785",
+   "ea4bff",
+   "ea5484"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 112,
+  "rva": "de8f80",
+  "name": "check_nontarget",
+  "spec_i": 119,
+  "verdict": "동치",
+  "hits": 1117529,
+  "rets": [
+   "ddd17a",
+   "ddd3aa",
+   "ddd5da"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 97,
+  "rva": "ffdda0",
+  "name": "position_risk_all_zero_near",
+  "spec_i": 103,
+  "verdict": "동치",
+  "hits": 1154472,
+  "rets": [
+   "ddb4cf"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 257,
+  "rva": "e83ba0",
+  "name": "v54_aoe_ally_heal_value",
+  "spec_i": 265,
+  "verdict": "동치",
+  "hits": 1177818,
+  "rets": [
+   "f7c38f",
+   "f7bf4f"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 236,
+  "rva": "fdb0e0",
+  "name": "move_actions::SmallActionRecall::is_end",
+  "spec_i": 244,
+  "verdict": "동치",
+  "hits": 1178407,
+  "rets": [
+   "e5dc9a",
+   "e5dc9a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 228,
+  "rva": "fe59e0",
+  "name": "v15_can_keep_support_pressure",
+  "spec_i": 236,
+  "verdict": "동치",
+  "hits": 1227431,
+  "rets": [
+   "ea70a3",
+   "ea62f0"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 67,
+  "rva": "f88880",
+  "name": "wave_priority_clearer_position",
+  "spec_i": 73,
+  "verdict": "⚠변경·한 줄",
+  "hits": 1280509,
+  "rets": [
+   "d39c44",
+   "d39be6",
+   "d3996a",
+   "fb993c",
+   "d397ff"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 113,
+  "rva": "e73260",
+  "name": "line_recall_pressure_penalty",
+  "spec_i": 120,
+  "verdict": "동치",
+  "hits": 1317642,
+  "rets": [
+   "e73a06"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 25,
+  "rva": "eecc90",
+  "name": "v21_should_defer_support_target",
+  "spec_i": 28,
+  "verdict": "동치",
+  "hits": 1370104,
+  "rets": [
+   "dcf225"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 217,
+  "rva": "f3d660",
+  "name": "AgentVerHamster::item_v26",
+  "spec_i": 225,
+  "verdict": "⚠변경·한 줄",
+  "hits": 1426049,
+  "rets": [
+   "f3d5f6",
+   "f3ba6c"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 84,
+  "rva": "f87600",
+  "name": "v3_epicops_defer_serpen",
+  "spec_i": 90,
+  "verdict": "✅동치",
+  "hits": 1461957,
+  "rets": [
+   "f12384",
+   "efc653",
+   "f02ceb"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 176,
+  "rva": "fdb210",
+  "name": "SmallActionRecall::get_input",
+  "spec_i": 184,
+  "verdict": "⚠변경·한 줄",
+  "hits": 1472347,
+  "rets": [
+   "e5e689",
+   "e5e689"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 56,
+  "rva": "f87c30",
+  "name": "v23_enemy_object_pressure",
+  "spec_i": 62,
+  "verdict": "동치",
+  "hits": 1584265,
+  "rets": [
+   "d39920",
+   "fb8e17",
+   "fb8f10",
+   "f89d94"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 208,
+  "rva": "f33fa0",
+  "name": "unsafe_v19_non_champion_walkup",
+  "spec_i": 216,
+  "verdict": "✅동치",
+  "hits": 1586447,
+  "rets": [
+   "e00eea",
+   "e00e3a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 193,
+  "rva": "de2320",
+  "name": "abstract_input::attack",
+  "spec_i": 201,
+  "verdict": "동치",
+  "hits": 1591744,
+  "rets": [
+   "ddd7bd"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 118,
+  "rva": "e95a30",
+  "name": "SmallActionLaneMinionPosition::should_suppress_direct_minion_attack",
+  "spec_i": 125,
+  "verdict": "동치",
+  "hits": 1648873,
+  "rets": [
+   "eb3e64"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 195,
+  "rva": "fa47a0",
+  "name": "PassiveJunglePlan::next_plan",
+  "spec_i": 203,
+  "verdict": "변경·심층",
+  "hits": 1712340,
+  "rets": [
+   "ec302e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 85,
+  "rva": "fa3980",
+  "name": "PassiveJunglePlan::sub_plan",
+  "spec_i": 91,
+  "verdict": "변경·심층",
+  "hits": 1714507,
+  "rets": [
+   "ec2ea9"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 122,
+  "rva": "edf1b0",
+  "name": "should_add_self_etc_buff_action",
+  "spec_i": 129,
+  "verdict": "동치",
+  "hits": 1772098,
+  "rets": [
+   "ed6e02",
+   "ed7df7",
+   "ed7508",
+   "ed81bf"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 27,
+  "rva": "fb78b0",
+  "name": "v3_epic_formation_role",
+  "spec_i": 31,
+  "verdict": "동치",
+  "hits": 1772579,
+  "rets": [
+   "ef48d5",
+   "fb753d",
+   "d6697a",
+   "ef48ff",
+   "ef492f",
+   "ef495b",
+   "ef4987"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 16,
+  "rva": "fafe50",
+  "name": "best_jungle_goal",
+  "spec_i": 19,
+  "verdict": "변경",
+  "hits": 1801897,
+  "rets": [
+   "d3b345",
+   "fa3203",
+   "fa5bb2",
+   "fa66bb",
+   "d3c6be",
+   "fa4a45"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 100,
+  "rva": "f09860",
+  "name": "TeamPlan::v25_objective_posture",
+  "spec_i": 106,
+  "verdict": "✅동치",
+  "hits": 1807184,
+  "rets": [
+   "d65604",
+   "e99a8a",
+   "e9e514",
+   "f6d1ba",
+   "d63d41",
+   "e96c03"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 17,
+  "rva": "f0c310",
+  "name": "v27_active_objective_discipline",
+  "spec_i": 20,
+  "verdict": "동치",
+  "hits": 1813680,
+  "rets": [
+   "d6568f",
+   "f0c4e7"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 250,
+  "rva": "e936c0",
+  "name": "SmallActionLaneMinionPosition::choose_goal",
+  "spec_i": 258,
+  "verdict": "동치",
+  "hits": 1917557,
+  "rets": [
+   "eb387c",
+   "e9614d"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 30,
+  "rva": "e768f0",
+  "name": "has_line_defense_threat",
+  "spec_i": 34,
+  "verdict": "동치",
+  "hits": 1974432,
+  "rets": [
+   "e755e1"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 226,
+  "rva": "eb28e0",
+  "name": "JungleSubPlan::score",
+  "spec_i": 234,
+  "verdict": "✅동치",
+  "hits": 2013322,
+  "rets": [
+   "ed3ee3"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 170,
+  "rva": "ece1d0",
+  "name": "SmallActionAroundPosition::get_input",
+  "spec_i": 178,
+  "verdict": "동치",
+  "hits": 2064308,
+  "rets": [
+   "e5e6fe"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 137,
+  "rva": "e95770",
+  "name": "SmallActionLaneMinionPosition::has_current_explicit_minion_action",
+  "spec_i": 144,
+  "verdict": "동치",
+  "hits": 2184758,
+  "rets": [
+   "eb37c8",
+   "e95edf"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 174,
+  "rva": "fddcd0",
+  "name": "SmallActionRunAway::get_input",
+  "spec_i": 182,
+  "verdict": "✅동치",
+  "hits": 2210354,
+  "rets": [
+   "e5e4fd",
+   "fdaec9",
+   "ec46b9",
+   "e965c0"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 117,
+  "rva": "e82990",
+  "name": "v55_seal_value",
+  "spec_i": 124,
+  "verdict": "동치",
+  "hits": 2216240,
+  "rets": [
+   "f7bb74"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 119,
+  "rva": "e83000",
+  "name": "v55_banish_penalty",
+  "spec_i": 126,
+  "verdict": "동치",
+  "hits": 2216240,
+  "rets": [
+   "f7bba9"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 123,
+  "rva": "e82410",
+  "name": "v55_mark_value",
+  "spec_i": 130,
+  "verdict": "동치",
+  "hits": 2216240,
+  "rets": [
+   "f7bb56"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 216,
+  "rva": "fe3970",
+  "name": "v21_defensive_cc_score",
+  "spec_i": 224,
+  "verdict": "동치",
+  "hits": 2264574,
+  "rets": [
+   "fe7990",
+   "fe78a4",
+   "ea7a64",
+   "ea7317",
+   "fe7abd",
+   "ea7d11"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 121,
+  "rva": "fe16c0",
+  "name": "SmallActionTrace::expected_goal_position",
+  "spec_i": 128,
+  "verdict": "동치",
+  "hits": 2338594,
+  "rets": [
+   "e5d621"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 209,
+  "rva": "fe6840",
+  "name": "v17_runaway_counterattack_bonus",
+  "spec_i": 217,
+  "verdict": "✅동치",
+  "hits": 2344405,
+  "rets": [
+   "ea759a",
+   "ea7b75",
+   "ea7c35",
+   "ea7e6f"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 177,
+  "rva": "dde530",
+  "name": "get_input_target",
+  "spec_i": 185,
+  "verdict": "동치",
+  "hits": 2459257,
+  "rets": [
+   "de2037",
+   "de2417",
+   "de27ad",
+   "de1cac"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 235,
+  "rva": "fd9770",
+  "name": "trace::SmallActionTrace::is_end",
+  "spec_i": 243,
+  "verdict": "동치",
+  "hits": 2518853,
+  "rets": [
+   "f3b38f"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 168,
+  "rva": "fd98c0",
+  "name": "SmallActionTrace::get_input",
+  "spec_i": 176,
+  "verdict": "동치",
+  "hits": 2563843,
+  "rets": [
+   "e5e728"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 180,
+  "rva": "e9fe00",
+  "name": "BattleSubPlan::action_candidates",
+  "spec_i": 188,
+  "verdict": "✅동치",
+  "hits": 2745865,
+  "rets": [
+   "ed0e96"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 211,
+  "rva": "ea6240",
+  "name": "BattleSubPlan::calculate_score_parameter_value",
+  "spec_i": 219,
+  "verdict": "✅동치",
+  "hits": 2749441,
+  "rets": [
+   "ed3197"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 164,
+  "rva": "e73ac0",
+  "name": "line_projected_punish_damage_at",
+  "spec_i": 171,
+  "verdict": "동치",
+  "hits": 3049660,
+  "rets": [
+   "e73983"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 86,
+  "rva": "eed7f0",
+  "name": "v46_flee_gate_check",
+  "spec_i": 92,
+  "verdict": "⚠변경·다건",
+  "hits": 3059610,
+  "rets": [
+   "eca67d",
+   "dcc3eb"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 205,
+  "rva": "ec4c20",
+  "name": "PassiveLinePlan::v46_stage1",
+  "spec_i": 213,
+  "verdict": "⚠변경·한 줄",
+  "hits": 3117998,
+  "rets": [
+   "ec924d",
+   "ec9bcd",
+   "ec90c1"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 36,
+  "rva": "ee3e40",
+  "name": "fight_participants",
+  "spec_i": 41,
+  "verdict": "⚠변경·다건",
+  "hits": 3242383,
+  "rets": [
+   "dd1c73",
+   "ea49a5",
+   "dd130a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 252,
+  "rva": "eebb40",
+  "name": "resolve_fight_stake_roster",
+  "spec_i": 260,
+  "verdict": "변경·소",
+  "hits": 3242383,
+  "rets": [
+   "dd1d36",
+   "ea4a4d",
+   "dd13b8"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 80,
+  "rva": "ed5720",
+  "name": "FightSituation::build",
+  "spec_i": 86,
+  "verdict": "⚠변경·다건",
+  "hits": 3421523,
+  "rets": [
+   "dd47e3"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 93,
+  "rva": "e85f00",
+  "name": "steal::should_steal_now",
+  "spec_i": 99,
+  "verdict": "⚠변경·한 줄",
+  "hits": 3450310,
+  "rets": [
+   "f0e666"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 249,
+  "rva": "dea9b0",
+  "name": "v30_wave_danger_chase_guard",
+  "spec_i": 257,
+  "verdict": "동치",
+  "hits": 3451929,
+  "rets": [
+   "dd44d8"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 14,
+  "rva": "dea490",
+  "name": "max_range_nearly_can_use",
+  "spec_i": 16,
+  "verdict": "동치",
+  "hits": 3478351,
+  "rets": [
+   "f30558",
+   "f50baf",
+   "f307ea",
+   "e9a83e",
+   "e9bd63",
+   "e9a96e",
+   "f6deee",
+   "f6f3e1"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 224,
+  "rva": "100b2b0",
+  "name": "v30_line_champion_action_tower_aggro_risk",
+  "spec_i": 232,
+  "verdict": "동치",
+  "hits": 3870412,
+  "rets": [
+   "e008aa",
+   "e0083a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 152,
+  "rva": "ed79a0",
+  "name": "battle_ally_action",
+  "spec_i": 159,
+  "verdict": "동치",
+  "hits": 4463520,
+  "rets": [
+   "f2e566"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 188,
+  "rva": "f2caf0",
+  "name": "LineDefenseSubPlan::action_candidates",
+  "spec_i": 196,
+  "verdict": "✅동치",
+  "hits": 4463520,
+  "rets": [
+   "ed0c50"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 232,
+  "rva": "f34d10",
+  "name": "LineDefenseSubPlan::calculate_score_parameter_value",
+  "spec_i": 240,
+  "verdict": "⚠변경·한 줄",
+  "hits": 4464374,
+  "rets": [
+   "ed1102"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 151,
+  "rva": "eb3980",
+  "name": "line_minion_action_candidates",
+  "spec_i": 158,
+  "verdict": "동치",
+  "hits": 4502366,
+  "rets": [
+   "f3982f",
+   "f2ddba",
+   "ead97b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 22,
+  "rva": "eed240",
+  "name": "v22_visible_enemy_is_runaway_threat",
+  "spec_i": 25,
+  "verdict": "동치",
+  "hits": 4715853,
+  "rets": [
+   "ddb859",
+   "ddb88c",
+   "ddb8bf",
+   "ddb8ee",
+   "ddb960",
+   "ddb9aa",
+   "ddb9f4",
+   "ddba3e"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 116,
+  "rva": "ede720",
+  "name": "attack_structure_skill_action",
+  "spec_i": 123,
+  "verdict": "동치",
+  "hits": 4755365,
+  "rets": [
+   "f39dc7",
+   "f2e4cf",
+   "eadffd",
+   "f43289",
+   "f66688"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 241,
+  "rva": "eb52b0",
+  "name": "base_battle_action",
+  "spec_i": 249,
+  "verdict": "✅동치",
+  "hits": 4802680,
+  "rets": [
+   "ea1011",
+   "ea2b5b",
+   "ea14fe",
+   "ea158f",
+   "ea3bc7"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 103,
+  "rva": "dcce40",
+  "name": "BattlePlan::update_v32",
+  "spec_i": 109,
+  "verdict": "변경·심층",
+  "hits": 4880263,
+  "rets": [
+   "ddbd40"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 42,
+  "rva": "eec620",
+  "name": "v25_scoped_battle_objective",
+  "spec_i": 48,
+  "verdict": "변경·한 줄",
+  "hits": 5000385,
+  "rets": [
+   "dd8ff5"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 96,
+  "rva": "dd8e70",
+  "name": "BattlePlan::update",
+  "spec_i": 102,
+  "verdict": "변경·심층",
+  "hits": 5000385,
+  "rets": [
+   "d5faeb",
+   "d5fb97",
+   "ec254f",
+   "d666b1",
+   "d667b8",
+   "d5e480",
+   "d64d05",
+   "fa9f51"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 206,
+  "rva": "ea6f40",
+  "name": "BattleSubPlan::score",
+  "spec_i": 214,
+  "verdict": "동치",
+  "hits": 5003144,
+  "rets": [
+   "ed410b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 140,
+  "rva": "e73610",
+  "name": "line_action_economy_adjustment",
+  "spec_i": 147,
+  "verdict": "동치",
+  "hits": 5189387,
+  "rets": [
+   "f3a179",
+   "f353e8",
+   "eae759"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 37,
+  "rva": "dd87b0",
+  "name": "SinglePlanBattle::with_runaway",
+  "spec_i": 42,
+  "verdict": "동치",
+  "hits": 5250006,
+  "rets": [
+   "dd60c1",
+   "dd0206",
+   "dd6d5c",
+   "dd591c",
+   "dd4318"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 254,
+  "rva": "e93e00",
+  "name": "SmallActionLaneMinionPosition::target_score",
+  "spec_i": 262,
+  "verdict": "동치",
+  "hits": 5446107,
+  "rets": [
+   "e7cfe2",
+   "e6bea9",
+   "e6c042"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 171,
+  "rva": "ec3060",
+  "name": "SmallActionAround::get_input",
+  "spec_i": 179,
+  "verdict": "✅동치",
+  "hits": 6493533,
+  "rets": [
+   "e5e5fc"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 178,
+  "rva": "f749a0",
+  "name": "calculate_action_score",
+  "spec_i": 186,
+  "verdict": "변경·심층",
+  "hits": 6622319,
+  "rets": [
+   "f3a38b",
+   "f3561a",
+   "eae96b",
+   "ea7541",
+   "ea795d",
+   "ea7213",
+   "ea77c4",
+   "f43e7c"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 154,
+  "rva": "eb3470",
+  "name": "lane_minion_position_action",
+  "spec_i": 161,
+  "verdict": "✅동치",
+  "hits": 6727611,
+  "rets": [
+   "f2d746",
+   "f316c2"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 95,
+  "rva": "de6a80",
+  "name": "line_backfight_support_focus",
+  "spec_i": 101,
+  "verdict": "동치",
+  "hits": 6967603,
+  "rets": [
+   "d4915b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 198,
+  "rva": "ec7180",
+  "name": "PassiveLinePlan::update",
+  "spec_i": 206,
+  "verdict": "⚠변경·다건",
+  "hits": 6967603,
+  "rets": [
+   "ec25cc"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 243,
+  "rva": "ed6300",
+  "name": "battle_action",
+  "spec_i": 251,
+  "verdict": "동치",
+  "hits": 6979934,
+  "rets": [
+   "f397f1",
+   "f2dd67",
+   "eb0223",
+   "ead93c",
+   "ea8266",
+   "f321cd",
+   "f38666",
+   "e98cd5"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 108,
+  "rva": "ed8550",
+  "name": "attack_summon_action",
+  "spec_i": 114,
+  "verdict": "동치",
+  "hits": 6997686,
+  "rets": [
+   "f3985f",
+   "f2de33",
+   "eb0259",
+   "ead9b1",
+   "ea82ee",
+   "f373cf",
+   "e98d0b",
+   "e9f2d4"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 155,
+  "rva": "e85460",
+  "name": "v57_summon_command_score",
+  "spec_i": 162,
+  "verdict": "동치",
+  "hits": 7384249,
+  "rets": [
+   "f77a08"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 173,
+  "rva": "f77820",
+  "name": "calculate_interaction_action_score",
+  "spec_i": 181,
+  "verdict": "변경·심층",
+  "hits": 7384249,
+  "rets": [
+   "f72fe8",
+   "f72dcb"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 199,
+  "rva": "ee8450",
+  "name": "resolve_fight_uncached",
+  "spec_i": 207,
+  "verdict": "⚠변경·한 줄",
+  "hits": 7880582,
+  "rets": [
+   "ee4c8f"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 109,
+  "rva": "faf060",
+  "name": "is_cleared",
+  "spec_i": 115,
+  "verdict": "동치",
+  "hits": 8006125,
+  "rets": [
+   "fa68a2",
+   "e05361",
+   "fa2c5b",
+   "fa33b9",
+   "fa3417"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 20,
+  "rva": "f27ea0",
+  "name": "buy_item",
+  "spec_i": 23,
+  "verdict": "⚠변경·한 줄",
+  "hits": 8024858,
+  "rets": [
+   "f27757",
+   "f27757",
+   "f3d635",
+   "ec73e7",
+   "fa68da",
+   "f04b6c",
+   "f3e667"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 50,
+  "rva": "ecb2b0",
+  "name": "PassiveLinePlan::sub_plan",
+  "spec_i": 56,
+  "verdict": "⚠변경·다건",
+  "hits": 8367523,
+  "rets": [
+   "ec2d7e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 82,
+  "rva": "d57b00",
+  "name": "v2_apply_assign_commit",
+  "spec_i": 88,
+  "verdict": "변경",
+  "hits": 8498785,
+  "rets": [
+   "d4a0c9",
+   "d47a9c",
+   "d472c4",
+   "d51da3"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 18,
+  "rva": "f27140",
+  "name": "upgrade_item",
+  "spec_i": 21,
+  "verdict": "✅동치",
+  "hits": 8919401,
+  "rets": [
+   "f3bab7",
+   "f2777b",
+   "ec741d",
+   "fa6904",
+   "f04bba",
+   "dcc008",
+   "fd80d1",
+   "f3e72b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 135,
+  "rva": "e64920",
+  "name": "path_needs_tower_escape",
+  "spec_i": 142,
+  "verdict": "동치",
+  "hits": 9118876,
+  "rets": [
+   "ec45f1",
+   "fdaa70",
+   "e964f8"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 120,
+  "rva": "de7980",
+  "name": "is_safe_recall",
+  "spec_i": 127,
+  "verdict": "동치",
+  "hits": 9691771,
+  "rets": [
+   "ec4723",
+   "ecf7b3",
+   "e965fa",
+   "fdb8b2"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 39,
+  "rva": "de2a90",
+  "name": "can_recall",
+  "spec_i": 45,
+  "verdict": "동치",
+  "hits": 9841748,
+  "rets": [
+   "f2768b",
+   "f2768b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 45,
+  "rva": "f1fce0",
+  "name": "check_press_tower_opportunity",
+  "spec_i": 51,
+  "verdict": "동치",
+  "hits": 9843145,
+  "rets": [
+   "f061eb",
+   "f02ddf",
+   "d427af",
+   "f08a7e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 255,
+  "rva": "e13c10",
+  "name": "get_small_action_score_closure",
+  "spec_i": 263,
+  "verdict": "변경",
+  "hits": 9921437,
+  "rets": [
+   "d6d91b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 196,
+  "rva": "1000320",
+  "name": "calculate_score_parameter",
+  "spec_i": 204,
+  "verdict": "✅동치",
+  "hits": 9928627,
+  "rets": [
+   "d6c37c"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 197,
+  "rva": "d6c2b0",
+  "name": "LegacyPlanHandler::get_small_action",
+  "spec_i": 205,
+  "verdict": "변경·심층",
+  "hits": 9928627,
+  "rets": [
+   "f3c24d"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 201,
+  "rva": "de3e80",
+  "name": "build_minion_wave_snapshot",
+  "spec_i": 209,
+  "verdict": "동치",
+  "hits": 9928627,
+  "rets": [
+   "d6c4f7"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 204,
+  "rva": "f3bde0",
+  "name": "AgentVerHamster::update_small_action",
+  "spec_i": 212,
+  "verdict": "✅동치",
+  "hits": 9928627,
+  "rets": [
+   "f3de0b",
+   "f3b538",
+   "f3df03"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 127,
+  "rva": "ee0960",
+  "name": "around::check_cell",
+  "spec_i": 134,
+  "verdict": "동치",
+  "hits": 10932200,
+  "rets": [
+   "fd6839",
+   "e5ad4c",
+   "fcabec",
+   "e20d26",
+   "e2104f",
+   "e2d984",
+   "d8cc2a",
+   "db41bc"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 65,
+  "rva": "f27590",
+  "name": "should_recall_to_shop",
+  "spec_i": 71,
+  "verdict": "⚠변경·한 줄",
+  "hits": 11037256,
+  "rets": [
+   "f181e7",
+   "f181e7"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 125,
+  "rva": "de5780",
+  "name": "champion_hp_value_uncached",
+  "spec_i": 132,
+  "verdict": "동치",
+  "hits": 11161027,
+  "rets": [
+   "db05c2"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 54,
+  "rva": "1009560",
+  "name": "can_trace_without_tower",
+  "spec_i": 60,
+  "verdict": "동치",
+  "hits": 11205247,
+  "rets": [
+   "eecfdc",
+   "ea7478"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 107,
+  "rva": "1008a40",
+  "name": "v3_deadly_edge_cells",
+  "spec_i": 113,
+  "verdict": "동치",
+  "hits": 11397027,
+  "rets": [
+   "ec3889",
+   "ecf037",
+   "fe0b7e",
+   "fd9e70",
+   "fda673",
+   "fdd322"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 81,
+  "rva": "d72e70",
+  "name": "check_kill",
+  "spec_i": 87,
+  "verdict": "변경·심층",
+  "hits": 11850893,
+  "rets": [
+   "d6a332",
+   "fadaa5"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 101,
+  "rva": "f024d0",
+  "name": "TeamPlan::handle_none_or_gank_objective",
+  "spec_i": 107,
+  "verdict": "변경·심층",
+  "hits": 11968876,
+  "rets": [
+   "f13cf4"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 136,
+  "rva": "f352d0",
+  "name": "LineDefenseSubPlan::score",
+  "spec_i": 143,
+  "verdict": "동치",
+  "hits": 12034988,
+  "rets": [
+   "f3262e",
+   "ed40a7",
+   "e00bba",
+   "f326cb",
+   "e00c37"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 158,
+  "rva": "100c2f0",
+  "name": "action_eval::evaluate_action",
+  "spec_i": 165,
+  "verdict": "⚠변경·다건",
+  "hits": 12368371,
+  "rets": [
+   "f3a0e8",
+   "f3534d",
+   "eae6c8"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 138,
+  "rva": "e5d4e0",
+  "name": "SmallActionPlay::evaluation_position",
+  "spec_i": 145,
+  "verdict": "동치",
+  "hits": 12860864,
+  "rets": [
+   "100c433",
+   "f7360c",
+   "f72ebb"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 218,
+  "rva": "f27910",
+  "name": "build_game_finish_check_state",
+  "spec_i": 226,
+  "verdict": "동치",
+  "hits": 13945355,
+  "rets": [
+   "f2856e",
+   "f28a16"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 238,
+  "rva": "ed3dd0",
+  "name": "SerpenCheckSubPlan::score",
+  "spec_i": 246,
+  "verdict": "⚠변경·다건",
+  "hits": 14967363,
+  "rets": [
+   "e13e9a",
+   "d6ee36"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 175,
+  "rva": "f72620",
+  "name": "interaction_score",
+  "spec_i": 183,
+  "verdict": "✅동치",
+  "hits": 15143636,
+  "rets": [
+   "f3a159",
+   "eb2a90",
+   "f353c3",
+   "eae739",
+   "ea6ffd",
+   "ea8497",
+   "ed3e51",
+   "eb43ae"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 99,
+  "rva": "d38180",
+  "name": "passive_plan",
+  "spec_i": 105,
+  "verdict": "변경·심층",
+  "hits": 15510841,
+  "rets": [
+   "d4a053",
+   "d473a0",
+   "d47269",
+   "d4add6",
+   "d51d45",
+   "d422c9",
+   "d58384",
+   "d42aff"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 40,
+  "rva": "e74b40",
+  "name": "need_defense_nexus",
+  "spec_i": 46,
+  "verdict": "동치",
+  "hits": 15898050,
+  "rets": [
+   "f02623",
+   "efeff3",
+   "f0843c",
+   "efe1b0",
+   "eff8dd",
+   "f01523",
+   "efeaf7",
+   "effb7f"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 73,
+  "rva": "dc1c10",
+  "name": "engage::can_battle_triggered_filtered",
+  "spec_i": 79,
+  "verdict": "동치",
+  "hits": 16274834,
+  "rets": [
+   "d659c3",
+   "d659c3",
+   "d449d1"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 104,
+  "rva": "d606b0",
+  "name": "LegacyPlanHandler::handle_interact_battle",
+  "spec_i": 110,
+  "verdict": "변경·심층",
+  "hits": 16723577,
+  "rets": [
+   "d46e55",
+   "d46e55"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 114,
+  "rva": "de0d60",
+  "name": "safe_move_avoiding_enemy_well",
+  "spec_i": 121,
+  "verdict": "동치",
+  "hits": 16832003,
+  "rets": [
+   "e5e7bb",
+   "de22d9",
+   "de266c",
+   "ddd1e1",
+   "de2a4c",
+   "ddd411",
+   "de1f06",
+   "ddd641"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 240,
+  "rva": "e5da70",
+  "name": "cast::SmallActionUlt::is_end",
+  "spec_i": 248,
+  "verdict": "✅동치",
+  "hits": 16942158,
+  "rets": [
+   "f3b38f"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 94,
+  "rva": "f0e5f0",
+  "name": "TeamPlan::update_steal",
+  "spec_i": 100,
+  "verdict": "✅동치",
+  "hits": 17134522,
+  "rets": [
+   "f0fb77",
+   "f0fb77"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 102,
+  "rva": "f10f70",
+  "name": "TeamPlan::update_objective_after_steal",
+  "spec_i": 108,
+  "verdict": "변경·심층",
+  "hits": 17134522,
+  "rets": [
+   "f0fba1"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 105,
+  "rva": "d3d210",
+  "name": "LegacyPlanHandler::update",
+  "spec_i": 111,
+  "verdict": "변경·심층",
+  "hits": 17134522,
+  "rets": [
+   "d5a987"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 210,
+  "rva": "f3adb0",
+  "name": "AgentVerHamster::update_state",
+  "spec_i": 218,
+  "verdict": "⚠변경·다건",
+  "hits": 17134522,
+  "rets": [
+   "f3dbb9"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 221,
+  "rva": "f3d140",
+  "name": "AgentVerHamster::count_nearby_enemies",
+  "spec_i": 229,
+  "verdict": "동치",
+  "hits": 17162079,
+  "rets": [
+   "f3b476",
+   "f3b476",
+   "f3cd79"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 134,
+  "rva": "e5e0e0",
+  "name": "SmallActionPlay::get_input",
+  "spec_i": 141,
+  "verdict": "동치",
+  "hits": 17914768,
+  "rets": [
+   "f3ddc2",
+   "f3de56",
+   "f32aaa",
+   "e9ce89",
+   "f3df4e",
+   "f70509",
+   "f3e121",
+   "f62d69"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 248,
+  "rva": "d51a70",
+  "name": "LegacyPlanHandler::update_on_dead",
+  "spec_i": 256,
+  "verdict": "변경",
+  "hits": 18636597,
+  "rets": [
+   "f4d1c8"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 258,
+  "rva": "f10c60",
+  "name": "TeamPlan::can_near_enemies_range",
+  "spec_i": 266,
+  "verdict": "동치",
+  "hits": 19758927,
+  "rets": [
+   "ecc11f",
+   "d6a5f2",
+   "dcd584",
+   "dcd6c3",
+   "d664a0",
+   "d6309c",
+   "d686ab",
+   "f04532"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 239,
+  "rva": "f3d570",
+  "name": "AgentVerHamster::buy_item",
+  "spec_i": 247,
+  "verdict": "동치",
+  "hits": 21769945,
+  "rets": [
+   "f4ddd3"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 237,
+  "rva": "f3b9e0",
+  "name": "AgentVerHamster::upgrade_item",
+  "spec_i": 245,
+  "verdict": "동치",
+  "hits": 21866203,
+  "rets": [
+   "f4d08a"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 34,
+  "rva": "1009c20",
+  "name": "can_tower_focused_when_battle",
+  "spec_i": 38,
+  "verdict": "동치",
+  "hits": 23476604,
+  "rets": [
+   "eecfa8"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 53,
+  "rva": "eecea0",
+  "name": "is_unreasonable_tower_dive_enemy",
+  "spec_i": 59,
+  "verdict": "동치",
+  "hits": 23736770,
+  "rets": [
+   "dec6ef",
+   "dd1b38",
+   "dd2c06",
+   "d5d797",
+   "dc1f49",
+   "dce838",
+   "dcf2e2",
+   "ebc75f"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 49,
+  "rva": "feefc0",
+  "name": "EntityPositioningCache::new",
+  "spec_i": 55,
+  "verdict": "동치",
+  "hits": 26018945,
+  "rets": [
+   "da8596",
+   "ffe0e5"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 213,
+  "rva": "de6280",
+  "name": "precompute_champion_powers",
+  "spec_i": 221,
+  "verdict": "동치",
+  "hits": 29467578,
+  "rets": [
+   "1000c62",
+   "100107f",
+   "10013c0"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 35,
+  "rva": "f87ea0",
+  "name": "is_wave_priority_start_line",
+  "spec_i": 39,
+  "verdict": "동치",
+  "hits": 31548309,
+  "rets": [
+   "f88189",
+   "e6bca7"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 48,
+  "rva": "f18f90",
+  "name": "TeamPlan::update",
+  "spec_i": 54,
+  "verdict": "변경",
+  "hits": 35771119,
+  "rets": [
+   "d3e3cb",
+   "d521c5"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 68,
+  "rva": "ff11f0",
+  "name": "GoalData::update",
+  "spec_i": 74,
+  "verdict": "⚠변경·한 줄",
+  "hits": 35771119,
+  "rets": [
+   "d3e52c",
+   "d5227e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 69,
+  "rva": "ff2450",
+  "name": "SerpenStanceData::update_plan",
+  "spec_i": 75,
+  "verdict": "✅동치",
+  "hits": 35771119,
+  "rets": [
+   "ff18e6"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 70,
+  "rva": "ff4940",
+  "name": "EpicStanceData::update_plan",
+  "spec_i": 76,
+  "verdict": "✅동치",
+  "hits": 35771119,
+  "rets": [
+   "ff18c1"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 214,
+  "rva": "e76aa0",
+  "name": "nexus_last_stand_uncached",
+  "spec_i": 222,
+  "verdict": "동치",
+  "hits": 35771119,
+  "rets": [
+   "db030e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 225,
+  "rva": "e78290",
+  "name": "nexus_final_stand_uncached",
+  "spec_i": 233,
+  "verdict": "동치",
+  "hits": 35771119,
+  "rets": [
+   "db031d"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 3,
+  "rva": "e753e0",
+  "name": "handle_line_defense",
+  "spec_i": 4,
+  "verdict": "동치",
+  "hits": 35856003,
+  "rets": [
+   "f02768",
+   "f02827",
+   "f0290b"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 111,
+  "rva": "e78a10",
+  "name": "base_attacking_minion_uncached",
+  "spec_i": 118,
+  "verdict": "동치",
+  "hits": 38131879,
+  "rets": [
+   "db032c",
+   "e77e8a",
+   "f40b19"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 247,
+  "rva": "f28320",
+  "name": "end_check",
+  "spec_i": 255,
+  "verdict": "⚠변경·한 줄",
+  "hits": 42268443,
+  "rets": [
+   "efdd47",
+   "efec03"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 59,
+  "rva": "100b8d0",
+  "name": "check_epic_kill_time_with_hp",
+  "spec_i": 65,
+  "verdict": "동치",
+  "hits": 43340526,
+  "rets": [
+   "ff261c",
+   "ff2890",
+   "ff2b2a",
+   "f12719",
+   "ef5df4",
+   "efca2b",
+   "f11d8a",
+   "ef9f43"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 106,
+  "rva": "de6080",
+  "name": "nontarget_windup_perceived",
+  "spec_i": 112,
+  "verdict": "동치",
+  "hits": 69567134,
+  "rets": [
+   "f2cd5b",
+   "f2f5db",
+   "eafd6b",
+   "ea0054",
+   "ea0244",
+   "e997bb",
+   "f5f258",
+   "e9e24b"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 172,
+  "rva": "ff62e0",
+  "name": "position_eval_at_uncached",
+  "spec_i": 180,
+  "verdict": "⚠변경·부분규명",
+  "hits": 71268050,
+  "rets": [
+   "ff606d"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 203,
+  "rva": "edb240",
+  "name": "fight_check::check_kill_die_tick_uncached",
+  "spec_i": 211,
+  "verdict": "변경·심층",
+  "hits": 86652691,
+  "rets": [
+   "edaf52",
+   "edaa6e"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 256,
+  "rva": "e944e0",
+  "name": "SmallActionLaneMinionPosition::push_candidate",
+  "spec_i": 264,
+  "verdict": "동치",
+  "hits": 115734111,
+  "rets": [
+   "e938fa",
+   "e93d5d",
+   "e93a56"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 200,
+  "rva": "f3da50",
+  "name": "get_input",
+  "spec_i": 208,
+  "verdict": "⚠변경·한 줄",
+  "hits": 122293503,
+  "rets": [
+   "174f9d2"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 179,
+  "rva": "ff5ec0",
+  "name": "position_eval_at",
+  "spec_i": 187,
+  "verdict": "동치",
+  "hits": 139519479,
+  "rets": [
+   "f2d04d",
+   "100c470",
+   "f7363e",
+   "f2f928",
+   "eaffe1",
+   "ec3faf",
+   "ec494a",
+   "ec4a15"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 19,
+  "rva": "1008640",
+  "name": "can_tower_focused",
+  "spec_i": 22,
+  "verdict": "동치",
+  "hits": 155389358,
+  "rets": [
+   "e6478f",
+   "e73e1d",
+   "e95904",
+   "e9463c",
+   "e95286",
+   "e64b78",
+   "e64c21",
+   "1009732"
+  ],
+  "ovf": true
+ },
+ {
+  "idx": 128,
+  "rva": "1009770",
+  "name": "v3_lethal_tower_position",
+  "spec_i": 135,
+  "verdict": "동치",
+  "hits": 173675858,
+  "rets": [
+   "ec3dd9",
+   "ece71e",
+   "fdfd41"
+  ],
+  "ovf": false
+ },
+ {
+  "idx": 259,
+  "rva": "ed5fd0",
+  "name": "expected_dps",
+  "spec_i": 267,
+  "verdict": "동치",
+  "hits": 296688772,
+  "rets": [
+   "fe2913",
+   "ee0826",
+   "eebaa3",
+   "ee92b3"
+  ],
+  "ovf": false
+ }
+]

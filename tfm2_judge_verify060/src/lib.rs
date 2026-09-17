@@ -10,6 +10,7 @@
 //! ★2단계(sweep · game==mine) 는 재현체(명세에서 직접 쓴 Rust) 가 생기면 `cap_fn` 자리에 「원본 실행 → 내 재현 실행 → 비교」
 //!   를 얹는다(0.5.8 sweep20.rs 의 SRET_LIVE/ARG_SNAP 기구 이식 대상 · 이 파일 범위 밖).
 //! ⚠ 프로브와 sweep 은 같은 진입부를 패치하므로 한 함수에 동시에 걸 수 없다(0.5.8 과 동일 원칙).
+//! ⚠ 진입 트램폴린은 rax 를 클로버한다(함수 진입 시 rax 는 살아있지 않다는 전제 · 0.5.8 과 동일) — 복귀 점프는 `jmp [rip+0]` 로 rax 보존.
 use mod_api_stable::{declare_stable_mod, LogLevel, StableClient, StableExtension, StableHost, StableMod};
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::Mutex;
@@ -85,8 +86,9 @@ unsafe fn install(p: &Probe, stub: usize) -> usize {
     s.extend_from_slice(&[0x48, 0x89, 0xdc]);       // mov rsp, rbx
     s.extend_from_slice(&[0x59, 0x5a, 0x41, 0x58, 0x41, 0x59, 0x41, 0x5a, 0x41, 0x5b, 0x5b, 0x5f, 0x5e, 0x41, 0x5c]); // pop 역순
     s.extend_from_slice(p.orig);
-    s.extend_from_slice(&[0x48, 0xb8]); s.extend_from_slice(&(fn_addr + n).to_le_bytes()); // movabs rax, fn+n
-    s.extend_from_slice(&[0xff, 0xe0]);             // jmp rax
+    // ★복귀 점프는 rax 를 건드리면 안 된다 — orig 가 `mov rax,[r8+0xa00]` 처럼 rax 를 쓰는 함수(f34d10 등)가 있어
+    //   `movabs rax; jmp rax` 로 돌아가면 그 값이 깨진다(09-17 이분으로 적발 · 타이틀 배경 sim 이 죽고 GL 스핀).
+    s.extend_from_slice(&[0xff, 0x25, 0, 0, 0, 0]); s.extend_from_slice(&(fn_addr + n).to_le_bytes()); // jmp qword [rip+0]; dq fn+n
     core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
     let mut patch = vec![0x90u8; n];
     patch[0] = 0x48; patch[1] = 0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10] = 0xff; patch[11] = 0xe0;
