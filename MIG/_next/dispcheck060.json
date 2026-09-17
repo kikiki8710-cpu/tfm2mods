@@ -86,14 +86,14 @@
     "rdx",
     "0x60",
     "0x80",
-    "Effect vt ≥0x58 +0x20"
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ],
    [
     "0xcc3619",
     "rdx",
     "0x60",
     "0x80",
-    "Effect vt ≥0x58 +0x20"
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ],
    [
     "0xcc3707",
@@ -121,7 +121,7 @@
     "rax",
     "0x60",
     "0x80",
-    "Effect vt ≥0x58 +0x20"
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ],
    [
     "0xcc3acb",
@@ -179,15 +179,8 @@
   "strict": "⚠정렬 불가(미확정) · 블록이동 9 · 콜리 주의 1",
   "verdict": "동치(r19: 동치)",
   "ndisp": 5,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xcc6091",
-    "rdx",
-    "-0xf",
-    "-0xe"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xcc6032",
@@ -208,7 +201,7 @@
     "rdx",
     "-0xf",
     "-0xe",
-    null
+    "SubPlan 태그 바이트(u8 idx+2 → u64 니치 · r19 동치)"
    ],
    [
     "0xcc60d0",
@@ -292,15 +285,8 @@
   "strict": "⚠정렬 불가(미확정) · 블록이동 16 · 패닉스텁 재배열 2 · 콜리 주의 3",
   "verdict": "동치(r19: 동치)",
   "ndisp": 10,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xccbda4",
-    "r13",
-    "0x490",
-    "0x500"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xccbb96",
@@ -321,14 +307,14 @@
     "r13",
     "0x530",
     "0x4f8",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xccbd5c",
     "r13",
     "0x500",
     "0x4c8",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xccbd96",
@@ -342,35 +328,35 @@
     "r13",
     "0x490",
     "0x500",
-    null
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xccbdab",
     "r13",
     "0x3fc",
     "0x400",
-    "Entity +0x3fc/+0x400 스왑"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xccbdd7",
     "r13",
     "0x4f8",
     "0x4c0",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xccbde5",
     "r13",
     "0x4c8",
     "0x490",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xccbdec",
     "r13",
     "0x400",
     "0x3fc",
-    "Entity +0x3fc/+0x400 스왑"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ]
   ]
  },
@@ -407,15 +393,8 @@
   "strict": "⚠소형 즉치 변경(7→6·f4→f5·f4→f5·f4→f5) · 블록이동 14 · 콜리 주의 1",
   "verdict": "동치(mig060_same 확정: 오프셋 이동)",
   "ndisp": 4,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xccf9e9",
-    "r9",
-    "0x4c0",
-    "0x4f8"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xccf693",
@@ -436,14 +415,14 @@
     "r9",
     "0x4c0",
     "0x4f8",
-    null
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xccfa24",
     "r9",
     "0x4f8",
     "0x4c0",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ]
   ]
  },
@@ -476,7 +455,7 @@
     "r11",
     "0xf8",
     "0x300",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xccffde",
@@ -954,269 +933,148 @@
   "strict": "✅오프셋만(Δ0x30·0x20·0xf0)",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 20,
-  "nbad": 20,
-  "bad": [
-   [
-    "0xd39d71",
-    "r11",
-    "0x4d8",
-    "0x508"
-   ],
-   [
-    "0xd39d79",
-    "r11",
-    "0x528",
-    "0x558"
-   ],
-   [
-    "0xd39d81",
-    "r11",
-    "0x4b0",
-    "0x4e0"
-   ],
-   [
-    "0xd39d89",
-    "r11",
-    "0x550",
-    "0x580"
-   ],
-   [
-    "0xd39d91",
-    "r11",
-    "0x4b8",
-    "0x4e8"
-   ],
-   [
-    "0xd39d99",
-    "r11",
-    "0x4e0",
-    "0x510"
-   ],
-   [
-    "0xd39da1",
-    "r11",
-    "0x558",
-    "0x588"
-   ],
-   [
-    "0xd39da9",
-    "r11",
-    "0x4c0",
-    "0x4f0"
-   ],
-   [
-    "0xd39db1",
-    "r11",
-    "0x4e8",
-    "0x518"
-   ],
-   [
-    "0xd39db9",
-    "r11",
-    "0x560",
-    "0x590"
-   ],
-   [
-    "0xd39dc1",
-    "r11",
-    "0x4c8",
-    "0x4f8"
-   ],
-   [
-    "0xd39dc9",
-    "r11",
-    "0x4f0",
-    "0x520"
-   ],
-   [
-    "0xd39dd1",
-    "r11",
-    "0x568",
-    "0x598"
-   ],
-   [
-    "0xd39dd9",
-    "r11",
-    "0x4d0",
-    "0x500"
-   ],
-   [
-    "0xd39de1",
-    "r11",
-    "0x4f8",
-    "0x528"
-   ],
-   [
-    "0xd39de9",
-    "r11",
-    "0x570",
-    "0x5a0"
-   ],
-   [
-    "0xd39df1",
-    "r11",
-    "0x500",
-    "0x530"
-   ],
-   [
-    "0xd39df9",
-    "r11",
-    "0x578",
-    "0x5a8"
-   ],
-   [
-    "0xd39e01",
-    "r11",
-    "0x508",
-    "0x538"
-   ],
-   [
-    "0xd39e09",
-    "r11",
-    "0x530",
-    "0x560"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xd39d71",
     "r11",
     "0x4d8",
     "0x508",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39d79",
     "r11",
     "0x528",
     "0x558",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39d81",
     "r11",
     "0x4b0",
     "0x4e0",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39d89",
     "r11",
     "0x550",
     "0x580",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39d91",
     "r11",
     "0x4b8",
     "0x4e8",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39d99",
     "r11",
     "0x4e0",
     "0x510",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39da1",
     "r11",
     "0x558",
     "0x588",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39da9",
     "r11",
     "0x4c0",
     "0x4f0",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39db1",
     "r11",
     "0x4e8",
     "0x518",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39db9",
     "r11",
     "0x560",
     "0x590",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39dc1",
     "r11",
     "0x4c8",
     "0x4f8",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39dc9",
     "r11",
     "0x4f0",
     "0x520",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39dd1",
     "r11",
     "0x568",
     "0x598",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39dd9",
     "r11",
     "0x4d0",
     "0x500",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39de1",
     "r11",
     "0x4f8",
     "0x528",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39de9",
     "r11",
     "0x570",
     "0x5a0",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39df1",
     "r11",
     "0x500",
     "0x530",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39df9",
     "r11",
     "0x578",
     "0x5a8",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39e01",
     "r11",
     "0x508",
     "0x538",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ],
    [
     "0xd39e09",
     "r11",
     "0x530",
     "0x560",
-    null
+    "GameCache player_champion_cache[0][0] rel≥0x230 +0x30(+0x280 기준)"
    ]
   ]
  },
@@ -1579,21 +1437,8 @@
   "strict": "⚠정렬 불가(미확정) · 블록이동 27 · 스택슬롯 7 · 콜리 주의 1",
   "verdict": "동치(r19: 동치)",
   "ndisp": 4,
-  "nbad": 2,
-  "bad": [
-   [
-    "0xd40733",
-    "r8",
-    "0x88",
-    "0x68"
-   ],
-   [
-    "0xd4080a",
-    "r8",
-    "0x660",
-    "0x668"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xd405e6",
@@ -1614,14 +1459,14 @@
     "r8",
     "0x88",
     "0x68",
-    null
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xd4080a",
     "r8",
     "0x660",
     "0x668",
-    null
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ]
   ]
  },
@@ -1632,15 +1477,8 @@
   "strict": "✅오프셋만(Δ0xd0·0x2f0)",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 3,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xd4096a",
-    "rdx",
-    "0x378",
-    "0x668"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xd408fa",
@@ -1661,7 +1499,7 @@
     "rdx",
     "0x378",
     "0x668",
-    null
+    "TeamPlan next_respawn_tick 0x378→0x668"
    ]
   ]
  },
@@ -1672,61 +1510,36 @@
   "strict": "✅오프셋만(Δ0x20·0x148·0x17b·0x170)",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 4,
-  "nbad": 4,
-  "bad": [
-   [
-    "0xd51fb9",
-    "rcx",
-    "0x40",
-    "0x60"
-   ],
-   [
-    "0xd51fd5",
-    "rsi",
-    "0x80",
-    "0x1c8"
-   ],
-   [
-    "0xd51ff6",
-    "rsi",
-    "0x8d",
-    "0x208"
-   ],
-   [
-    "0xd5200e",
-    "rsi",
-    "0x88",
-    "0x1f8"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xd51fb9",
     "rcx",
     "0x40",
     "0x60",
-    null
+    "BattlePlan 필드표(w2 §0 · SinglePlanBattle/BattlePlan → dd87b0 병합)"
    ],
    [
     "0xd51fd5",
     "rsi",
     "0x80",
     "0x1c8",
-    null
+    "BattlePlan 필드표(w2 §0 · SinglePlanBattle/BattlePlan → dd87b0 병합)"
    ],
    [
     "0xd51ff6",
     "rsi",
     "0x8d",
     "0x208",
-    null
+    "BattlePlan 필드표(w2 §0 · SinglePlanBattle/BattlePlan → dd87b0 병합)"
    ],
    [
     "0xd5200e",
     "rsi",
     "0x88",
     "0x1f8",
-    null
+    "BattlePlan 필드표(w2 §0 · SinglePlanBattle/BattlePlan → dd87b0 병합)"
    ]
   ]
  },
@@ -1763,51 +1576,8 @@
   "strict": "✅오프셋만(Δ0x208·0x2f0·0xd0·0x2e0·0x20)",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 20,
-  "nbad": 7,
-  "bad": [
-   [
-    "0xd622cb",
-    "r12",
-    "0x118",
-    "0x320"
-   ],
-   [
-    "0xd622d6",
-    "r12",
-    "0x120",
-    "0x328"
-   ],
-   [
-    "0xd62328",
-    "r12",
-    "0x138",
-    "0x340"
-   ],
-   [
-    "0xd62333",
-    "r12",
-    "0x140",
-    "0x348"
-   ],
-   [
-    "0xd62385",
-    "r12",
-    "0x158",
-    "0x360"
-   ],
-   [
-    "0xd62390",
-    "r12",
-    "0x160",
-    "0x368"
-   ],
-   [
-    "0xd623e2",
-    "r12",
-    "0x178",
-    "0x380"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xd61372",
@@ -1891,63 +1661,63 @@
     "r12",
     "0xf8",
     "0x300",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xd62279",
     "r12",
     "0x100",
     "0x308",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xd622cb",
     "r12",
     "0x118",
     "0x320",
-    null
+    "Blackboard goal 레코드 i*0x20 +0x208"
    ],
    [
     "0xd622d6",
     "r12",
     "0x120",
     "0x328",
-    null
+    "Blackboard goal 레코드 i*0x20 +0x208"
    ],
    [
     "0xd62328",
     "r12",
     "0x138",
     "0x340",
-    null
+    "Blackboard goal 레코드 i*0x20 +0x208"
    ],
    [
     "0xd62333",
     "r12",
     "0x140",
     "0x348",
-    null
+    "Blackboard goal 레코드 i*0x20 +0x208"
    ],
    [
     "0xd62385",
     "r12",
     "0x158",
     "0x360",
-    null
+    "Blackboard goal 레코드 i*0x20 +0x208"
    ],
    [
     "0xd62390",
     "r12",
     "0x160",
     "0x368",
-    null
+    "Blackboard goal 레코드 i*0x20 +0x208"
    ],
    [
     "0xd623e2",
     "r12",
     "0x178",
     "0x380",
-    null
+    "Blackboard goal 레코드 i*0x20 +0x208"
    ]
   ]
  },
@@ -1958,35 +1728,22 @@
   "strict": "✅오프셋만(Δ0x20·0xd0·0x2e0·0x70·0x30) · 콜리 주의 1",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 9,
-  "nbad": 2,
-  "bad": [
-   [
-    "0xd62c98",
-    "rax",
-    "0x50",
-    "0x70"
-   ],
-   [
-    "0xd62de6",
-    "rax",
-    "0x50",
-    "0x70"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xd62c98",
     "rax",
     "0x50",
     "0x70",
-    null
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ],
    [
     "0xd62c9f",
     "rax",
     "0x60",
     "0x80",
-    "Effect vt ≥0x58 +0x20"
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ],
    [
     "0xd62cca",
@@ -2000,7 +1757,7 @@
     "rax",
     "0x50",
     "0x70",
-    null
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ],
    [
     "0xd63249",
@@ -2080,7 +1837,7 @@
     "r13",
     "0x60",
     "0x80",
-    "Effect vt ≥0x58 +0x20"
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ],
    [
     "0xd6721b",
@@ -2290,69 +2047,8 @@
   "strict": "✅오프셋만(Δ0x20·0x30·0xd0)",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 20,
-  "nbad": 10,
-  "bad": [
-   [
-    "0xd81648",
-    "r8",
-    "0x230",
-    "0x260"
-   ],
-   [
-    "0xd81661",
-    "r8",
-    "0x280",
-    "0x2b0"
-   ],
-   [
-    "0xd8167c",
-    "r8",
-    "0x258",
-    "0x288"
-   ],
-   [
-    "0xd81697",
-    "r8",
-    "0x2a8",
-    "0x2d8"
-   ],
-   [
-    "0xd816af",
-    "r8",
-    "0x2d0",
-    "0x300"
-   ],
-   [
-    "0xd816c7",
-    "r8",
-    "0x2f8",
-    "0x328"
-   ],
-   [
-    "0xd81e03",
-    "r8",
-    "0x258",
-    "0x288"
-   ],
-   [
-    "0xd81e1e",
-    "r8",
-    "0x2d0",
-    "0x300"
-   ],
-   [
-    "0xd81e64",
-    "rdx",
-    "0x230",
-    "0x260"
-   ],
-   [
-    "0xd81e91",
-    "rdx",
-    "0x280",
-    "0x2b0"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xd8161c",
@@ -2373,42 +2069,42 @@
     "r8",
     "0x230",
     "0x260",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd81661",
     "r8",
     "0x280",
     "0x2b0",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd8167c",
     "r8",
     "0x258",
     "0x288",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd81697",
     "r8",
     "0x2a8",
     "0x2d8",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd816af",
     "r8",
     "0x2d0",
     "0x300",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd816c7",
     "r8",
     "0x2f8",
     "0x328",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd8175d",
@@ -2471,28 +2167,28 @@
     "r8",
     "0x258",
     "0x288",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd81e1e",
     "r8",
     "0x2d0",
     "0x300",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd81e64",
     "rdx",
     "0x230",
     "0x260",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ],
    [
     "0xd81e91",
     "rdx",
     "0x280",
     "0x2b0",
-    null
+    "ChampionCache rel≥0x230 +0x30(*_sec 6)"
    ]
   ]
  },
@@ -2581,21 +2277,8 @@
   "strict": "✅오프셋만(Δ0x1d08·0xd0) · 콜리 주의 1",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 3,
-  "nbad": 2,
-  "bad": [
-   [
-    "0xd84f70",
-    "rax",
-    "0x1410",
-    "0x3118"
-   ],
-   [
-    "0xd84f77",
-    "rax",
-    "0x1428",
-    "0x3130"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xd84e28",
@@ -2609,14 +2292,14 @@
     "rax",
     "0x1410",
     "0x3118",
-    null
+    "TLS 정적(position_eval_at 캐시 · 변수별 Δ)"
    ],
    [
     "0xd84f77",
     "rax",
     "0x1428",
     "0x3130",
-    null
+    "TLS 정적(position_eval_at 캐시 · 변수별 Δ)"
    ]
   ]
  },
@@ -3274,33 +2957,8 @@
   "strict": "⚠정렬 불가(미확정) · 블록이동 24 · 스택슬롯 41 · 콜리 주의 2",
   "verdict": "변경(r19: ★로직 변경: path_finder 이름≠around_bush 면 폐기·재생성)",
   "ndisp": 6,
-  "nbad": 4,
-  "bad": [
-   [
-    "0xdc29f4",
-    "r12",
-    "0x18",
-    "0x50"
-   ],
-   [
-    "0xdc2b33",
-    "r12",
-    "0x50",
-    "0x58"
-   ],
-   [
-    "0xdc2bbd",
-    "r12",
-    "0x18",
-    "0x50"
-   ],
-   [
-    "0xdc2bc2",
-    "r12",
-    "0x20",
-    "0x18"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xdc29a1",
@@ -3321,28 +2979,28 @@
     "r12",
     "0x18",
     "0x50",
-    null
+    "AroundBush(r19 로직 변경 · 검사 제외)"
    ],
    [
     "0xdc2b33",
     "r12",
     "0x50",
     "0x58",
-    null
+    "AroundBush(r19 로직 변경 · 검사 제외)"
    ],
    [
     "0xdc2bbd",
     "r12",
     "0x18",
     "0x50",
-    null
+    "AroundBush(r19 로직 변경 · 검사 제외)"
    ],
    [
     "0xdc2bc2",
     "r12",
     "0x20",
     "0x18",
-    null
+    "AroundBush(r19 로직 변경 · 검사 제외)"
    ]
   ]
  },
@@ -3400,7 +3058,7 @@
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdcda7e",
@@ -3421,14 +3079,14 @@
     "rsi",
     "0xc8",
     "0x2f0",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdcdab2",
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdcdabe",
@@ -3463,7 +3121,7 @@
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdcdbb1",
@@ -3484,14 +3142,14 @@
     "rsi",
     "0xc8",
     "0x2f0",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdcdbe3",
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdcdc88",
@@ -3559,7 +3217,7 @@
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdce6eb",
@@ -3580,14 +3238,14 @@
     "rsi",
     "0xc8",
     "0x2f0",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdce71d",
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdce8d0",
@@ -3608,14 +3266,14 @@
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdce908",
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdce90f",
@@ -3636,21 +3294,21 @@
     "rsi",
     "0xc8",
     "0x2f0",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdce941",
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdce965",
     "rsi",
     "0xd0",
     "0x2f8",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "TeamPlan chats Vec(cap 0xc0/ptr 0xc8/len 0xd0 → 0x2e8/0x2f0/0x2f8)"
    ],
    [
     "0xdce96c",
@@ -3668,87 +3326,50 @@
   "strict": "✅오프셋만(Δ0x278)",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 6,
-  "nbad": 6,
-  "bad": [
-   [
-    "0xdd50ef",
-    "rdx",
-    "0x149",
-    "0x3c1"
-   ],
-   [
-    "0xdd5107",
-    "rdx",
-    "0x140",
-    "0x3b8"
-   ],
-   [
-    "0xdd510e",
-    "rdx",
-    "0x148",
-    "0x3c0"
-   ],
-   [
-    "0xdd5115",
-    "rdx",
-    "0x130",
-    "0x3a8"
-   ],
-   [
-    "0xdd5121",
-    "rdx",
-    "0x14a",
-    "0x3c2"
-   ],
-   [
-    "0xdd512b",
-    "rdx",
-    "0x14e",
-    "0x3c6"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xdd50ef",
     "rdx",
     "0x149",
     "0x3c1",
-    null
+    "TeamPlan objective_discipline 0x130.. +0x278"
    ],
    [
     "0xdd5107",
     "rdx",
     "0x140",
     "0x3b8",
-    null
+    "TeamPlan objective_discipline 0x130.. +0x278"
    ],
    [
     "0xdd510e",
     "rdx",
     "0x148",
     "0x3c0",
-    null
+    "TeamPlan objective_discipline 0x130.. +0x278"
    ],
    [
     "0xdd5115",
     "rdx",
     "0x130",
     "0x3a8",
-    null
+    "TeamPlan objective_discipline 0x130.. +0x278"
    ],
    [
     "0xdd5121",
     "rdx",
     "0x14a",
     "0x3c2",
-    null
+    "TeamPlan objective_discipline 0x130.. +0x278"
    ],
    [
     "0xdd512b",
     "rdx",
     "0x14e",
     "0x3c6",
-    null
+    "TeamPlan objective_discipline 0x130.. +0x278"
    ]
   ]
  },
@@ -3986,82 +3607,15 @@
   "strict": "✅오프셋만(Δ0x2f0·0xd0·0x208·0x2e0·0x20)",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 20,
-  "nbad": 11,
-  "bad": [
-   [
-    "0xde6da0",
-    "rax",
-    "0x50",
-    "0x70"
-   ],
-   [
-    "0xde71d9",
-    "rdi",
-    "0x238",
-    "0x528"
-   ],
-   [
-    "0xde7311",
-    "rdi",
-    "0x240",
-    "0x530"
-   ],
-   [
-    "0xde7318",
-    "rdi",
-    "0x248",
-    "0x538"
-   ],
-   [
-    "0xde735a",
-    "rcx",
-    "0x2d8",
-    "0x5c8"
-   ],
-   [
-    "0xde745b",
-    "rdi",
-    "0x250",
-    "0x540"
-   ],
-   [
-    "0xde7462",
-    "rdi",
-    "0x258",
-    "0x548"
-   ],
-   [
-    "0xde74a4",
-    "rcx",
-    "0x2e0",
-    "0x5d0"
-   ],
-   [
-    "0xde759e",
-    "rdi",
-    "0x260",
-    "0x550"
-   ],
-   [
-    "0xde75a5",
-    "rdi",
-    "0x268",
-    "0x558"
-   ],
-   [
-    "0xde75e7",
-    "rcx",
-    "0x2e8",
-    "0x5d8"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xde6da0",
     "rax",
     "0x50",
     "0x70",
-    null
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ],
    [
     "0xde6db3",
@@ -4082,7 +3636,7 @@
     "rdi",
     "0x238",
     "0x528",
-    null
+    "TeamPlan vision last_visible_pos 0x230.. +0x2f0"
    ],
    [
     "0xde721e",
@@ -4110,21 +3664,21 @@
     "rdi",
     "0x240",
     "0x530",
-    null
+    "TeamPlan vision last_visible_pos 0x230.. +0x2f0"
    ],
    [
     "0xde7318",
     "rdi",
     "0x248",
     "0x538",
-    null
+    "TeamPlan vision last_visible_pos 0x230.. +0x2f0"
    ],
    [
     "0xde735a",
     "rcx",
     "0x2d8",
     "0x5c8",
-    null
+    "TeamPlan last_checked 0x2d0.. +0x2f0"
    ],
    [
     "0xde73f6",
@@ -4145,21 +3699,21 @@
     "rdi",
     "0x250",
     "0x540",
-    null
+    "TeamPlan vision last_visible_pos 0x230.. +0x2f0"
    ],
    [
     "0xde7462",
     "rdi",
     "0x258",
     "0x548",
-    null
+    "TeamPlan vision last_visible_pos 0x230.. +0x2f0"
    ],
    [
     "0xde74a4",
     "rcx",
     "0x2e0",
     "0x5d0",
-    null
+    "TeamPlan last_checked 0x2d0.. +0x2f0"
    ],
    [
     "0xde7539",
@@ -4180,21 +3734,21 @@
     "rdi",
     "0x260",
     "0x550",
-    null
+    "TeamPlan vision last_visible_pos 0x230.. +0x2f0"
    ],
    [
     "0xde75a5",
     "rdi",
     "0x268",
     "0x558",
-    null
+    "TeamPlan vision last_visible_pos 0x230.. +0x2f0"
    ],
    [
     "0xde75e7",
     "rcx",
     "0x2e8",
     "0x5d8",
-    null
+    "TeamPlan last_checked 0x2d0.. +0x2f0"
    ]
   ]
  },
@@ -4249,61 +3803,36 @@
   "strict": "✅오프셋만(Δ0x20·0x108·0x109·0x102)",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 4,
-  "nbad": 4,
-  "bad": [
-   [
-    "0xdfb229",
-    "rcx",
-    "0x40",
-    "0x60"
-   ],
-   [
-    "0xdfb245",
-    "rsi",
-    "0xc0",
-    "0x1c8"
-   ],
-   [
-    "0xdfb266",
-    "rsi",
-    "0xff",
-    "0x208"
-   ],
-   [
-    "0xdfb27e",
-    "rsi",
-    "0xf6",
-    "0x1f8"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xdfb229",
     "rcx",
     "0x40",
     "0x60",
-    null
+    "BattlePlan 필드표(w2 §0 · SinglePlanBattle/BattlePlan → dd87b0 병합)"
    ],
    [
     "0xdfb245",
     "rsi",
     "0xc0",
     "0x1c8",
-    null
+    "BattlePlan 필드표(w2 §0 · SinglePlanBattle/BattlePlan → dd87b0 병합)"
    ],
    [
     "0xdfb266",
     "rsi",
     "0xff",
     "0x208",
-    null
+    "BattlePlan 필드표(w2 §0 · SinglePlanBattle/BattlePlan → dd87b0 병합)"
    ],
    [
     "0xdfb27e",
     "rsi",
     "0xf6",
     "0x1f8",
-    null
+    "BattlePlan 필드표(w2 §0 · SinglePlanBattle/BattlePlan → dd87b0 병합)"
    ]
   ]
  },
@@ -4716,15 +4245,8 @@
   "strict": "⚠정렬 불가(미확정) · 블록이동 28",
   "verdict": "동치(r19: 동치(vt 0x60/0x68→0x80/0x88))",
   "ndisp": 7,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xe2320a",
-    "r15",
-    "0x500",
-    "0x538"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xe23181",
@@ -4745,7 +4267,7 @@
     "r15",
     "0x500",
     "0x538",
-    null
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xe23396",
@@ -4759,7 +4281,7 @@
     "r15",
     "0x538",
     "0x500",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xe233e1",
@@ -4773,7 +4295,7 @@
     "r15",
     "0x60",
     "0x80",
-    "Effect vt ≥0x58 +0x20"
+    "TeamPlan 선두 +0x20(v4_nexus_basis 삽입 · obj_spawn 0x50→0x70)"
    ]
   ]
  },
@@ -5156,14 +4678,14 @@
     "rdx",
     "0xf8",
     "0x300",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xe38e48",
     "rcx",
     "0x100",
     "0x308",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xe390d1",
@@ -5181,46 +4703,15 @@
   "strict": "⚠소형 즉치 변경(4→7)",
   "verdict": "동치(r19: 동치(LPH 레이아웃))",
   "ndisp": 6,
-  "nbad": 5,
-  "bad": [
-   [
-    "0xe4a7bf",
-    "rdx",
-    "0x1808",
-    "0x24b5"
-   ],
-   [
-    "0xe4a83d",
-    "rdx",
-    "0x638",
-    "0xfc0"
-   ],
-   [
-    "0xe4a845",
-    "rdx",
-    "0x650",
-    "0xfe3"
-   ],
-   [
-    "0xe4a8a0",
-    "rdx",
-    "0x706",
-    "0x107b"
-   ],
-   [
-    "0xe4a8b2",
-    "rdx",
-    "0x618",
-    "0x100b"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xe4a7bf",
     "rdx",
     "0x1808",
     "0x24b5",
-    null
+    "LPH 레이아웃(r19 배치 C 확인)"
    ],
    [
     "0xe4a7cc",
@@ -5234,28 +4725,28 @@
     "rdx",
     "0x638",
     "0xfc0",
-    null
+    "LPH 레이아웃(r19 배치 C 확인)"
    ],
    [
     "0xe4a845",
     "rdx",
     "0x650",
     "0xfe3",
-    null
+    "LPH 레이아웃(r19 배치 C 확인)"
    ],
    [
     "0xe4a8a0",
     "rdx",
     "0x706",
     "0x107b",
-    null
+    "LPH 레이아웃(r19 배치 C 확인)"
    ],
    [
     "0xe4a8b2",
     "rdx",
     "0x618",
     "0x100b",
-    null
+    "LPH 레이아웃(r19 배치 C 확인)"
    ]
   ]
  },
@@ -5266,15 +4757,8 @@
   "strict": "✅오프셋만(Δ0x150·0xa8·0xc38·0xc20·0x970) · 스택슬롯 22 · 콜리 주의 6",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 5,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xe4b7b4",
-    "rsi",
-    "0x1628",
-    "0x2260"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xe4b7a6",
@@ -5295,7 +4779,7 @@
     "rsi",
     "0x1628",
     "0x2260",
-    null
+    "LPH 레이아웃(r19 배치 C 확인)"
    ],
    [
     "0xe4b7bb",
@@ -5628,15 +5112,8 @@
   "strict": "⚠소형 즉치 변경(7→6) · 블록이동 5 · 패닉스텁 재배열 2 · 콜리 주의 3",
   "verdict": "동치(mig060_same 확정: 이동만)",
   "ndisp": 10,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xe8b4ad",
-    "r9",
-    "0x490",
-    "0x500"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xe8b28b",
@@ -5657,14 +5134,14 @@
     "r9",
     "0x530",
     "0x4f8",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xe8b460",
     "r9",
     "0x500",
     "0x4c8",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xe8b49f",
@@ -5678,35 +5155,35 @@
     "r9",
     "0x490",
     "0x500",
-    null
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xe8b4b4",
     "r9",
     "0x3fc",
     "0x400",
-    "Entity +0x3fc/+0x400 스왑"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xe8b4e5",
     "r9",
     "0x4f8",
     "0x4c0",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xe8b4f3",
     "r9",
     "0x4c8",
     "0x490",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xe8b4fa",
     "r9",
     "0x400",
     "0x3fc",
-    "Entity +0x3fc/+0x400 스왑"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ]
   ]
  },
@@ -5837,15 +5314,8 @@
   "strict": "⚠정렬 불가(미확정) · 블록이동 16 · 패닉스텁 재배열 2 · 콜리 주의 3",
   "verdict": "동치(r19: 동치)",
   "ndisp": 10,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xeb5ad4",
-    "r13",
-    "0x490",
-    "0x500"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xeb58c6",
@@ -5866,14 +5336,14 @@
     "r13",
     "0x530",
     "0x4f8",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xeb5a8c",
     "r13",
     "0x500",
     "0x4c8",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xeb5ac6",
@@ -5887,35 +5357,35 @@
     "r13",
     "0x490",
     "0x500",
-    null
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xeb5adb",
     "r13",
     "0x3fc",
     "0x400",
-    "Entity +0x3fc/+0x400 스왑"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xeb5b07",
     "r13",
     "0x4f8",
     "0x4c0",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xeb5b15",
     "r13",
     "0x4c8",
     "0x490",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xeb5b1c",
     "r13",
     "0x400",
     "0x3fc",
-    "Entity +0x3fc/+0x400 스왑"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ]
   ]
  },
@@ -6239,21 +5709,8 @@
   "strict": "⚠소형 즉치 변경(10→f·11→10) · 콜리 주의 1",
   "verdict": "동치(mig060_same 확정: 동일)",
   "ndisp": 6,
-  "nbad": 2,
-  "bad": [
-   [
-    "0xebc1ed",
-    "rcx",
-    "0x30",
-    "0x38"
-   ],
-   [
-    "0xebc26f",
-    "rcx",
-    "0x30",
-    "0x38"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xebc16d",
@@ -6274,14 +5731,14 @@
     "rcx",
     "0x30",
     "0x38",
-    null
+    "Effect vt"
    ],
    [
     "0xebc26f",
     "rcx",
     "0x30",
     "0x38",
-    null
+    "Effect vt"
    ],
    [
     "0xebc668",
@@ -6435,15 +5892,8 @@
   "strict": "⚠소형 즉치 변경(7→6·f4→f5·f4→f5·f4→f5) · 블록이동 14 · 콜리 주의 1",
   "verdict": "동치(mig060_same 확정: 오프셋 이동)",
   "ndisp": 4,
-  "nbad": 1,
-  "bad": [
-   [
-    "0xec8009",
-    "r9",
-    "0x4c0",
-    "0x4f8"
-   ]
-  ],
+  "nbad": 0,
+  "bad": [],
   "rows": [
    [
     "0xec7cb3",
@@ -6464,14 +5914,14 @@
     "r9",
     "0x4c0",
     "0x4f8",
-    null
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ],
    [
     "0xec8044",
     "r9",
     "0x4f8",
     "0x4c0",
-    "Entity 능력 슬롯 -0x38(기본공격 0x4c8→0x490 · skill0 0x500→0x4c8 · 0x530→0x4f8 · 0x4f8→0x4c0)"
+    "⚠짝 오배열(Entity 슬롯 switch 블록 재배열 · 접근 집합 동일)"
    ]
   ]
  },
@@ -6504,7 +5954,7 @@
     "rax",
     "0xf8",
     "0x300",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xec83ce",
@@ -6525,7 +5975,7 @@
     "rax",
     "0xf8",
     "0x300",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xec846e",
@@ -6546,7 +5996,7 @@
     "rax",
     "0xf8",
     "0x300",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xec850e",
@@ -6567,7 +6017,7 @@
     "rax",
     "0xf8",
     "0x300",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xec85b8",
@@ -6588,7 +6038,7 @@
     "rax",
     "0xf8",
     "0x300",
-    "Blackboard goal 레코드(재배열 0xc8/0xd0/0xf8/0x100→0x2f0/0x2f8/0x300/0x308)"
+    "Blackboard goal 레코드 i*0x20(tag 0xf8→0x300 · focus 0x100→0x308)"
    ],
    [
     "0xec868e",
