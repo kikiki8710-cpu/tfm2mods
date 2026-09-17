@@ -38,3 +38,7 @@
 
 ## C. apply060(09-17 11:4x) 이후 ★미독 잔여(logic_060 안 `★미독:` 표기 · r23 후보)
 LPH::update `d3d210` 6 구역(A-1~4) · BattlePlan::update_v32 7(e11a60·decd30·dcb320·ee3770·tp 위치이력·P15/P16) · passive_plan 9(ff0c10·f1dd50·f18bf0·fb8da0·d56ac0(사장)·efc410·d754d0·fb78b0·코드30/31) · handle_chat d5d700(A-8) · f024d0 f02ef6..f04f8f(A-5) · 격자 경로 ee0fe0/ee2310/ee0dd0/ee1820(A-13) · phase 핸들러 5(A-11) · ef7680/efa880/efd2f0 · d52c00 TRAIT_AUD(11KB · 판단 재소비 여부) · HideLine v3 콜리 4(fb9b70/d35630/d37d10/d37c50) · window_intent cache 카운터 · counter_jungle_route 생성처 · LPH::update backfight 콜리 짝(eecea0 vs eeb400) · 에고웨이브 스케일(passive_plan vs LPH::update) 상수 스팟체크.
+
+## D. 1단계 실측(09-17 저녁) 이후
+- 발화 238 / 미발화 22(배경 sim 5분 + 실경기 Bo3 즉시결과 3세트 모두 0) → 22 = 사장 경로 · 재현 실효 238(`probe060_result.md` · `probe060_delta_match.md`).
+- 게임 필요 잔여: 튜토리얼/데스매치/솔로랭크 씬에서 22 재확인(선택) · region 2·7 · 감사 카운터/gank_open_snap 소비 · ckdt Option Some(실경기 Bo3 에서도 미측정 — ver_probe 를 같이 켜면 됨).
