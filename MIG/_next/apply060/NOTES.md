@@ -41,3 +41,12 @@
 - e82c00 eda920 인자 `(version,data,tp,target,clone,&opts{8,game,0,0},0,0,0,&None)` · 슬롯 명명 skill/skill2/ult(배치 B 「attack/skill/skill2」 오기).
 - f28320 strategy 조회 인라인 = `is_solorank(vt 0xe8) ? player.+0x568 : game.strategy(team)(vt 0x108)` · game_finish +0x57d.
 - 미확인: f10c60·19903f0·ee0800·fe1ad0·f27910·f0e390·ef36b0·f892d0·f88690 내부 · ee8450 틱 루프 명령 대조 · bias 실호출값.
+
+## batch_05(09-17 12:1x · 9 · A 7 · B+ 1 · B 1)
+- ★정정 evaluate_gank_opportunity_with_score fb1510: 「노이즈 폭 /10→/20」 은 오판(0.5.8 도 /20) — 변경은 노이즈 헬퍼 de2fa0 아웃라인뿐 · RNG 소비 동일 ⟹ **판정 「동치(오프셋·헬퍼만)」 로 정정**(r20 A · §B 행).
+- ★정정 position_eval_at_uncached 신규 항(ffd219~ffd46d): 중심점 나누는 수 = n(n+1 아님) · 순회 = near_allies · 비교 `ally.stat_cached.hp > my.stat_cached.hp` · ×2 조건 = `my_role(+0x20)==4` · 가산 대상 = score.risk(+0x6f0) · 위치 1127~1134 사이 · 「부호 재작성 1항」 미해석.
+- v46_stage1: my_tower 는 양버전 (x,y) 좌표 · 0.6.0 `env::var("V46_TRACE")` 트레이스(판정 무관).
+- SerpenCheck: L48 좌표 양버전 셀 중심 · L64~65 posture 디버그 로그 삭제 · Trace 태그 0xe→0xd.
+- GoalData::update: nexus_final_stand/base_defense_focus 는 양버전 캐시 헬퍼 db0160 비트(0x100 / 0x1|0x10000) — 재현 시 반환 레이아웃 확정 필요.
+- fight_participants: `+0xcc1==1`(상시) 분기에서 구 ally_battle_stop_tick 검사 생략(사장) · ally_is_bound ee3000 debug 인자 제거.
+- buy_item: `len>2 continue` 삭제 → 활성보유 `>3 → None` 선검사 · should_recall_to_shop `>2→>3` · 카운트 헬퍼 16f2f40.
