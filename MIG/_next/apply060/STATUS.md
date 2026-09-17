@@ -1,6 +1,6 @@
 # apply060 STATUS — logic_060 병합 현황
 
-병합 70 · 형식 오류 0 · 미작성(변경 중) 3
+병합 73 · 형식 오류 0 · 미작성(변경 중) 0
 
 | 구 | 신 | 함수 | confidence | logic_060 길이 |
 |---|---|---|---|---|
@@ -25,6 +25,7 @@
 | `d9ac10` | `e85f00` | steal::should_steal_now | A — 양 버전 전문 디컴 대조, 차이 = 4 술어뿐. | 4606 |
 | `db8e60` | `fa9d60` | LineGankerPlan::make_gank_battle | A — 전 분기 디컴 확인. | 3000 |
 | `db90f0` | `faa440` | update | A — 소형 함수 전문 디컴이 RE 배치 G §3 과 줄 단위로 일치. | 3873 |
+| `db9430` | `faa7c0` | LineGankerPlan::next_plan | A — 3분기·필터·site·arrived_tick 전부 asm 직독 확정 · version 분기 없음. 유 | 8779 |
 | `dbd260` | `fdb210` | SmallActionRecall::get_input | A(v3 블록) / B(나머지 본체 = 0.5.8 명세 + RE 동치 판정 의존). | 13321 |
 | `dc2070` | `ecfa40` | SmallActionAroundPositionBush::get_input | A — 본체·헬퍼·클로저 판정 지점 모두 대조. | 2955 |
 | `dc2960` | `ed0400` | SmallActionAroundBush::get_input | A — 본체 전문 디컴 대조 · 변경 블록 바이트/문자열 실측 · self 레이아웃 불변을 양 버전 디컴으로 | 3069 |
@@ -58,9 +59,11 @@
 | `e46bc0` | `d38180` | passive_plan | B — 단계 구조·조건·상수·콜리는 확정(asm 직독 근거), 신규 헬퍼 5~6 개 본문이 미독이라 ⑤/⑥/ | 17450 |
 | `e49a50` | `d51a70` | LegacyPlanHandler::update_on_dead | A — 본체 전 구간 디컴+디스어셈 대조. | 5661 |
 | `e4b070` | `d57b00` | v2_apply_assign_commit | A — 본체 전량 디스어셈 대조 · 헬퍼는 r22 c 의존(B). | 6495 |
+| `e4c5c0` | `d3d210` | LegacyPlanHandler::update | C — 구 본체는 동치이나 Δ+35KB 중 ≈17.5KB 신규 오케스트레이션의 절반(강제 플랜 배정 7KB  | 25163 |
 | `e59b20` | `d5b980` | handle_chat_inner | B — 57종 분기·게이트·오프셋은 asm 으로 확인. Battle 3종은 d5d700 미독(0.5.8 본문 | 12424 |
 | `e5ca10` | `d5f3c0` | try_engage | A(본체) / B(ee8090·필드 의미) — 본체는 디스어셈까지 전량 대조, 신규 필드의 의미는 미상. | 5306 |
 | `e5d300` | `d5ff20` | try_engage_dive | A — 변경점 5줄 전부 디컴에서 직접 확인. 남은 불확실은 screening 플래그의 콜리 내부 의미(이  | 2678 |
+| `e5d5d0` | `d606b0` | LegacyPlanHandler::handle_interact_battle | B — 프롤로그·§C·§D 의 신규 조건은 asm 근거로 확정이나 §E/F/H 는 미정독(동치 추정) · 신 | 26432 |
 | `e65b10` | `d6c2b0` | LegacyPlanHandler::get_small_action | A — 본체 동치 + 신규 v3 블록이 asm 직독으로 확정. 잔여 미확인은 계측 필드 오프셋·vt 0xc0 | 15135 |
 | `e6b800` | `d72e70` | check_kill | A — 본체 디컴 전량 대조로 분기·상수·오프셋 전부 확인. 신규 콜리 3종(eeb5b0·de9900·e0f | 8357 |
 | `e7acd0` | `f27590` | should_recall_to_shop | A — 변경 한 줄 양버전 디컴 대조. | 3098 |
@@ -74,9 +77,3 @@
 | `eaeda0` | `f6bda0` | EpicHuntSubPlan::action_candidates | A(신설 분기) / B(나머지 = RE 동치 판정 + §A 규칙 기계 치환 · 미확인 오프셋 2종). | 29345 |
 | `eba9b0` | `edb240` | fight_check::check_kill_die_tick_uncached | A — 신규 v3 알고리즘 전문이 RE w1 등가 Rust 로 확정돼 있고 핵심(시드·캐시 필드·pool·브 | 9331 |
 | `ec9de0` | `f88880` | wave_priority_clearer_position | A — 본체·클로저 둘 다 디컴 대조. | 2121 |
-
-## 미작성(변경 판정인데 logic_060 없음)
-
-- `e5d5d0` LegacyPlanHandler::handle_interact_battle (변경·심층(r21 §D: w5 §4))
-- `e4c5c0` LegacyPlanHandler::update (변경·심층(r21 §D: w4 §3~§5))
-- `db9430` LineGankerPlan::next_plan (변경·심층(r21 §D: w8 §A))

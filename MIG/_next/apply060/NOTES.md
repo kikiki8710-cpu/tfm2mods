@@ -72,3 +72,11 @@
 - 「★사장(armed 상시 1)」 표기 도입: f10f70 v27 discipline · f024d0 !armed 가지 · eff930 GIVEUP 경로.
 - 미독 잔여: d5d700 · f024d0 f02ef6..f04f8f · ee0fe0/ee2310 · fa3350 · 블록 A/C′ · phase 핸들러 5 · ef7680/efa880/efd2f0 · window_intent cache 카운터(+0x478/+0x23a0/+0x23b0) · counter_jungle_route(+0x18) 생성처.
 - 도구: 본문에 `ri` 등 PowerShell alias 토큰이 있으면 샌드박스 차단 → 에이전트가 `rinfo` 로 치환(logic 텍스트 검토 시 참고).
+
+## batch_08(09-17 13:4x · 8(+1) · A 4 · B 4 · C 1)
+- 신규 확정 오프셋: get_small_action `judge_noise_plan = LPH+0xe20(Some)/+0xe28(disc)` · `judge_noise_ratio = LPH+0x2428..+0x2480 [i64;11]` · `disc = plan.tag≥2 ? tag−2 : 7`(Battle 니치→7) · score 클로저 env = {&sub_plan(+0x13a0), &pos_ring(+0x458), &version, …, debug}.
+- 에고웨이브 스케일: passive_plan ③ `(500−10r)(10e)/1000` vs LPH::update egowave_check `(500−r10)·e10/500`(w4 표기 · asm 재대조 안 됨) → 재현 전 d40486~ 상수 스팟체크 권장.
+- LPH::update L1124 backfight 콜리 짝: w4 「e0bf70→eecea0 is_ignored」 vs w2 「eecea0 = is_unreasonable_tower_dive_enemy · eeb400 = is_ignored_battle_enemy」 → ★확인 필요.
+- update_v32 ★미독 7(e11a60·decd30·dcb320·ee3770·tp 위치이력·P15/P16 결합식) · passive_plan ★미독 9(ff0c10·f1dd50·f18bf0·fb8da0·d56ac0·efc410·d754d0·fb78b0·코드30/31) · LPH::update ★미독 11(6 구역).
+- 런타임 실측 반영 표기: extra=None · cc2=0 · cc7=1 · +0x24d5/+0x24d6=1 → 사장/상시.
+- 계측 필드 0.6.0 오프셋 미확인(재현 무영향): v48/v3_cand_src/… · PlayerState statistics · order_ratio.
