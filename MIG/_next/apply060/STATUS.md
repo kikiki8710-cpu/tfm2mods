@@ -1,6 +1,6 @@
 # apply060 STATUS — logic_060 병합 현황
 
-병합 26 · 형식 오류 0 · 미작성(변경 중) 47
+병합 27 · 형식 오류 0 · 미작성(변경 중) 46
 
 | 구 | 신 | 함수 | confidence | logic_060 길이 |
 |---|---|---|---|---|
@@ -29,6 +29,7 @@
 | `e8d6f0` | `f3adb0` | AgentVerHamster::update_state | B — 본 함수의 변경점 3건은 전부 디컴 확인. 단 d52c00 이 LPH 판단 상태를 바꾸는지 미확정이라 | 6312 |
 | `e8fd70` | `f3d660` | AgentVerHamster::item_v26 | A — 변경 한 줄(임계)과 오프셋 전부 디컴 확인. | 2666 |
 | `e900b0` | `f3da50` | get_input | A(v3 폴백·prelude·+0x5f0·오프셋 표) / B(StayEvent·freeze 세부 = 0.5. | 20661 |
+| `eaeda0` | `f6bda0` | EpicHuntSubPlan::action_candidates | A(신설 분기) / B(나머지 = RE 동치 판정 + §A 규칙 기계 치환 · 미확인 오프셋 2종). | 29345 |
 | `ec9de0` | `f88880` | wave_priority_clearer_position | A — 본체·클로저 둘 다 디컴 대조. | 2121 |
 
 ## 미작성(변경 판정인데 logic_060 없음)
@@ -69,7 +70,6 @@
 - `e8b5e0` SerpenCheckSubPlan::action_candidates (⚠변경·다건(r20))
 - `cc4260` JungleSubPlan::action_candidates (변경·심층(r21 §D: w3 §1))
 - `cb7540` HideSubPlan::action_candidates (변경·심층(r21 §D: w8 §B))
-- `eaeda0` EpicHuntSubPlan::action_candidates (⚠변경·한 줄(r20))
 - `db9430` LineGankerPlan::next_plan (변경·심층(r21 §D: w8 §A))
 - `d2f180` PassiveJunglePlan::next_plan (변경·심층(r21 §D: w3 §3~4))
 - `e65b10` LegacyPlanHandler::get_small_action (변경·심층(r21 §D: w6 §2))

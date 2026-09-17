@@ -21,3 +21,13 @@
 - 입력 지연: `gen_range((400+3*(100-min(a,100)))..=(1200-4*min(a,100)))/100` a=player+0x200 인라인(로직 변경 아님 추정).
 - 미확인 오프셋(0.5.8 값 유지): SerpenHunt MobaMode live_list +0x1d0/+0x1d8 · cache.jungles +0xd0/others +0xf0 · PlayerState.parameter +0x180 · ObjectivePosture · debug.infos +0xa0 · evaluate_action lane_anchor_gain 본체.
 - 도구: heredoc 8KB 초과 시 EOF 실패 → 청크 append(검사 통과).
+
+## batch_03(09-17 11:3x · 9 · A 6 · A/B 2 · B 1)
+- v3_epicops_buff_window exe ABI = 6인자(self,version,player,data,goal_data,plan) — 0.5.8 도 rnd 소거(명세 sig 7 은 IR 기준).
+- f1e3c0 의미 확정: (dead_allies, camp 240000² 내 최근가시 적 수, obj hp%(없으면 100)) = v4_serpen_lock{tick,dead_allies,near_enemies,obj_hp_pct} 와 일치 · 계약 유지 판정이면 채팅/objective 변경 없이 즉시 true.
+- buff_value_v54 §9: `window = min(dur_sec,6)` · `window*epic_incoming < max(recv.hp,1) → return 0`(즉시 반환 · 클램프 안 거침).
+- update_state d52c00(TRAIT_AUD) 은 LPH +0xea8..+0xf42 · +0x11c0/+0x11d8 · +0x20a0..+0x20b0 · +0x23d0 · +0x24a8/9 · +0x24ea/b 를 씀 — 감사 전용인지 재소비되는지 미확정(11KB · 별도 명세 후보).
+- position_score_at_position ff5ec0 = 7인자(sret,version,player,data,x,y,purpose) · positioning_score 포인터 없음(TLS 캐시) · 콜러 3곳 좌표를 `min(v/32000,29)*32000+16000` 셀 중심으로 스냅.
+- efb5b0: slot1 = camp_pos(2)·camp_pos(4) 중점 · slot0 = camp_pos(0)·camp_pos(5) 중점 · side=!is_blue. camp_pos bool 은 일관되게 `team != 0`.
+- check_serpen_giveup 판단페널티 인라인 `(424 − min(9J,300))/125` = 0.5.8 식 등가.
+- 미확인: parameter.positioning_score 0.6.0 위치 · PlayerState+0x180 parameter · +0x490 스탯 이름 · bb+0x4d8/agent+0x3698 틱 기록처.
