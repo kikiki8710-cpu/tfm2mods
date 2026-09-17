@@ -13958,7 +13958,7 @@
   "src": "spec",
   "old": "d40f10",
   "new": "fb1510",
-  "how": "Location (파일,열) 부분 일치 J=0.80(4/5)",
+  "how": "Location (파일,열) 부분 일치 J=0.80(4/5) · apply060 정정",
   "conf": "B",
   "size": [
    1615,
@@ -14007,7 +14007,8 @@
    "imm": null,
    "disp": null
   },
-  "verdict": "변경(크기 -156B · 즉치 −3/+2 · cos 0.999)"
+  "verdict": "동치(apply060 b05: 노이즈 헬퍼 아웃라인만 · /20 양버전 동일)",
+  "verdict_was3": "변경(크기 -156B · 즉치 −3/+2 · cos 0.999)"
  },
  {
   "i": null,

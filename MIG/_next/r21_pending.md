@@ -35,3 +35,6 @@
 | 4 | sweep(실측 game==mine 비트동일) 전 함수 | 재명세는 정적 · 최종 심판은 런타임 | 기존 sweep 하네스 0.6.0 재빌드 후(동치 192 부터) |
 | ~~5~~ | ✅ 실발생: serpen 213k 틱(phase 2/3) · morgard 191k 틱 · +0xcc7=1 상시 | +0xcc7==(v≥2) 는 정적 확정이나 씬 진입 조건은 런타임 값 의존 | TeamPlan +0x3c8/+0x3e8 로그 |
 | 6 | TeamPlan v6 감사 카운터 소비 여부(A-19) · BattlePlan +0x40 gank_open_snap 소비처 | 정적 xref 로 소비처 미발견 | 쓰기 감시 훅 |
+
+## C. apply060(09-17 13:4x) 이후 ★미독 잔여(logic_060 안 `★미독:` 표기 · r23 후보)
+LPH::update `d3d210` 6 구역(A-1~4) · BattlePlan::update_v32 7(e11a60·decd30·dcb320·ee3770·tp 위치이력·P15/P16) · passive_plan 9(ff0c10·f1dd50·f18bf0·fb8da0·d56ac0(사장)·efc410·d754d0·fb78b0·코드30/31) · handle_chat d5d700(A-8) · f024d0 f02ef6..f04f8f(A-5) · 격자 경로 ee0fe0/ee2310/ee0dd0/ee1820(A-13) · phase 핸들러 5(A-11) · ef7680/efa880/efd2f0 · d52c00 TRAIT_AUD(11KB · 판단 재소비 여부) · HideLine v3 콜리 4(fb9b70/d35630/d37d10/d37c50) · window_intent cache 카운터 · counter_jungle_route 생성처 · LPH::update backfight 콜리 짝(eecea0 vs eeb400) · 에고웨이브 스케일(passive_plan vs LPH::update) 상수 스팟체크.

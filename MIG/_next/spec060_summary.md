@@ -1,6 +1,6 @@
 # specs20_v060 요약(0.6.0 v060 블록) — 268 specs
 
-판정 분포: 동치 150 · ✅동치 42 · ⚠변경·한 줄 23 · 변경·심층 23 · ⚠변경·다건 16 · 변경 7 · exe 없음 2 · 변경·소 2 · 변경·한 줄 1 · 소멸 1 · ⚠변경·부분규명 1
+판정 분포: 동치 150 · ✅동치 43 · 변경·심층 23 · ⚠변경·한 줄 22 · ⚠변경·다건 16 · 변경 7 · exe 없음 2 · 변경·소 2 · 변경·한 줄 1 · 소멸 1 · ⚠변경·부분규명 1
 
 | i | 구 | 신 | 함수 | 판정 | 패치 |
 |---|---|---|---|---|---|
@@ -23,7 +23,7 @@
 | 16 | `e0daa0` | `dea490` | max_range_nearly_can_use | 동치(mig060_same 확정: 동일) |  |
 | 17 | `None` | `None` | new | exe 없음 |  |
 | 18 | `dce220` | `ef4690` | v3_epicops_buff_window | ⚠변경·다건(r20) | 다건 · [2] 세르펜 징벌: cc5==0 이면 구 · else 계약 레코드(+0xc0/d0/d8/e0 · f1e3c |
-| 19 | `d40b20` | `fafe50` | best_jungle_goal | 변경(r21 w11: v2 동치 · v3 3블록 · allow_invade 인자) | 심층(r21) · 7번째 인자 **allow_invade**(passive_plan: `tick>=LPH+0x20d8` · P |
+| 19 | `d40b20` | `fafe50` | best_jungle_goal | 변경(r21 w11: v2 동치 · v3 3블록 · allow_invade 인자) | 심층(r21) · **반환 = (camp:u8, owner_team)**(블록 B → 1−team) · 게이트: `in_set |
 | 20 | `dd50e0` | `f0c310` | v27_active_objective_discipline | 동치(mig060_same 확정: 동일) |  |
 | 21 | `e7a8c0` | `f27140` | upgrade_item | ✅동치(r20) |  |
 | 22 | `d97300` | `1008640` | can_tower_focused | 동치(mig060_same 확정: 동일) |  |
@@ -70,7 +70,7 @@
 | 63 | `de03d0` | `f18bf0` | should_keep_object_for_contested_wave_pr | 동치(mig060_same 확정: 동일) |  |
 | 64 | `eca200` | `f88b30` | v25_objective_splitter_can_stay | 동치(mig060_same 확정: 동일) |  |
 | 65 | `de3d90` | `100b8d0` | check_epic_kill_time_with_hp | 동치(mig060_same 확정: 오프셋만 변경) |  |
-| 66 | `d40f10` | `fb1510` | evaluate_gank_opportunity_with_score | ⚠변경·한 줄(r20) | 한 줄 · 노이즈 폭 `k=(1000-judge)/10` → `/20` (헬퍼 de2fa0 · RNG 마스크 달라짐) |
+| 66 | `d40f10` | `fb1510` | evaluate_gank_opportunity_with_score | ✅동치(r20) | ~~한 줄~~→**동치(apply060 b05 정정: 0.5.8 도 /20 · 변경은 노이즈 헬퍼 de2fa0 아웃라인뿐 · RNG 소비 동일)** · 노이즈 폭 `k=(1000-judge)/10` → `/20` (헬퍼 de2fa0 · RNG 마스크 달라짐) |
 | 67 | `dd6b40` | `f0dc20` | v24_objective_setup_lane_pressure_ready | ⚠변경·한 줄(r20) | 심층 · L13 take_setup_like 게이트 이중모드(dd5db0 L91 과 동일 패턴) |
 | 68 | `dff080` | `ddd7e0` | base_sub_goal | ⚠변경·한 줄(r20) | 한 줄 · `Some(_) => if v>=3 && Response && ally_within_120000 { Kiti |
 | 69 | `e5d300` | `d5ff20` | try_engage_dive | ⚠변경·한 줄(r20) | 한 줄 · `plan.screening=true; update; screening=false; if sub_goal>= |

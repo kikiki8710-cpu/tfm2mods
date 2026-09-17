@@ -11,7 +11,7 @@
 | A | `dd90c0` | `f0e5f0` | TeamPlan::update_steal | ✅동치(+필드/게이트/텔레메트리) | TeamPlan 오프셋·죽은 호출 1 |
 | A | `e03360` | `e84340` | noncombat_steroid_window | ✅동치 |  |
 | A | `e23750` | `e5da70` | cast::SmallActionUlt::is_end | ✅동치 | Ult arm |
-| A | `d40f10` | `fb1510` | evaluate_gank_opportunity_with_score | ⚠변경·한 줄 | 노이즈 폭 /10→/20 |
+| A | `d40f10` | `fb1510` | evaluate_gank_opportunity_with_score | ✅동치 | ~~노이즈 폭 /10→/20~~ → 0.5.8 도 /20(apply060 b05 정정 · 헬퍼 아웃라인만) |
 | A | `e7b640` | `f27ea0` | buy_item | ⚠변경·한 줄 | 활성템 보유 >3 게이트 |
 | A | `d26900` | `ec4c20` | PassiveLinePlan::v46_stage1 | ⚠변경·한 줄 | 특성 +0x49d/+0x49e 로 (c,b,a′) |
 | A | `df0a90` | `dcb890` | SerpenHuntAndPokePlan::is_end | ⚠변경·다건 | TeamPlan 이중모드 게이트 |
