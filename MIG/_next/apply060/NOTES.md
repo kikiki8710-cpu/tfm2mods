@@ -62,3 +62,13 @@
 
 ## batch_09(09-17 12:4x · 1 · A)
 - AroundBush::get_input: 로직 변경 1건 그대로(name≠"around_bush"(len 11) 면 HeapFree +0x50/+0x58 · 태그 +0x6d=2 → new_target · rnd 소비 달라짐) · **self 레이아웃 불변**(dispcheck 의 0x18→0x50/0x20→0x18/0x50→0x58 은 삽입 블록에 의한 오배열 → dispcheck 규칙 라벨 정정) · 오프셋 변경은 PlayerState 만 · version 분기 없음 · 콜리 e609e0/e1f610/e2d650(모노모프)/e5bb90.
+
+## batch_07(09-17 13:1x · 9 · A 3 · A/B 2 · B 4)
+- 0.5.8 명세 정정: check_kill L2462~2463 「타워 attack_cooltime 0 → div0 패닉」 오기(양버전 `max(cool*100/max(as+100,1),3)`) · L2509 lapse 게이트 `+0x464!=0` 는 0.5.8 에도 있었음(명세 누락) → 0.6.0 `+0x49c==1`.
+- handle_chat_inner HideLine v3 추가 단계: d35630→d37d10 사전검증 뒤 발신자 Bottom/Support(from>2) 면 파트너 슬롯(4/3) 존재 시 d37c50 재검증 + LineGanker line 을 d37c50 출력(+0x6df)으로 재지정 · 파트너 None 이면 무시 · 콜리 4종 정체 미확정.
+- ComebackPick Jungle 가지 `f1dd50(3, player, data, &team_plan, line)` 게이트 신설(w7 미기재 · 첫 인자 상수 3).
+- calculate_action_score v≥2 롤 = 결정적 splitmix(seed = judger.id<<8 ^ (t.id<<0x14|0x5a3e) ^ game seed ^ (tick/(6·tps))<<0x28) — 0.5.8 동일 구조.
+- EpicCheck 는 version 분기 없음(+0xcc0 게이트 · 상시 1).
+- 「★사장(armed 상시 1)」 표기 도입: f10f70 v27 discipline · f024d0 !armed 가지 · eff930 GIVEUP 경로.
+- 미독 잔여: d5d700 · f024d0 f02ef6..f04f8f · ee0fe0/ee2310 · fa3350 · 블록 A/C′ · phase 핸들러 5 · ef7680/efa880/efd2f0 · window_intent cache 카운터(+0x478/+0x23a0/+0x23b0) · counter_jungle_route(+0x18) 생성처.
+- 도구: 본문에 `ri` 등 PowerShell alias 토큰이 있으면 샌드박스 차단 → 에이전트가 `rinfo` 로 치환(logic 텍스트 검토 시 참고).
