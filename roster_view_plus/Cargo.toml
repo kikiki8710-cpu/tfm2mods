@@ -1,0 +1,19 @@
+[package]
+name = "roster_view_plus"
+version = "0.6.0"
+edition = "2021"
+
+# 0.6.0+: stable ABI port (mod-api-stable + ui_kit_stable). classic source = tfm2-mods-main\roster_view_plus (daram2).
+# no .ui overrides any more - header/value columns are spawned at runtime with ui_spawn_source.
+# build: cargo build --release
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1

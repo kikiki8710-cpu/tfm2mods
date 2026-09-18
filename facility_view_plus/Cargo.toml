@@ -1,0 +1,20 @@
+[package]
+name = "facility_view_plus"
+version = "0.6.0"
+edition = "2021"
+
+# 0.6.0+: stable ABI port (mod-api-stable). classic source = tfm2-mods-main\facility_view_plus (daram2).
+# 0.6.0 merchandise = athlete x product_type records; bulk production is done server-side via team_set_json.
+# build: cargo build --release
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+serde_json = "1"
+
+[workspace]
+
+[profile.release]
+opt-level = 1
