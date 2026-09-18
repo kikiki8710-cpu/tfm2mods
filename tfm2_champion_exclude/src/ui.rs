@@ -3,7 +3,7 @@
 //! · 행 = `<contents>.champ_excl_row` — 게임플레이 탭 행(`difficulty`) 가시성을 따라감.
 //! · 팝업 = 옵션 루트(contents 의 조부모)에 `champ_excl_popup` 스폰(★z 속성 없음 — 0.6.0 은 z 가 자식 렌더를 죽임). 셀 120.
 //! · 클릭 = 경로에 1회 등록(영구). 클릭 콜백엔 ctx 가 없어 상태만 바꾸고 다음 프레임 tick 이 반영.
-use crate::{cands, uk, I18N};
+use crate::{cands, dd, uk, I18N};
 use mod_api_stable::StableClient;
 use std::collections::HashSet;
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
@@ -128,12 +128,13 @@ pub fn tick(ctx: &mut StableClient<'_>, contents: &str) {
     let pop = if root.is_empty() { "champ_excl_popup".to_string() } else { format!("{}.champ_excl_popup", root) };
     if !ctx.ui_exists(&pop) {
         if !POPUP_OPEN.load(Ordering::Relaxed) { return; }
-        let ok = ctx.ui_spawn_source(&root, POPUP_UI);
+        let ok = ctx.ui_spawn_source(&root, &popup_source());
         crate::log(&format!("popup spawn {} ok={}", pop, ok));
         if !ok || !ctx.ui_exists(&pop) { POPUP_OPEN.store(false, Ordering::Relaxed); return; }
         uk::index_clear();
         GRID_SIG.store(u64::MAX, Ordering::Relaxed);
         *TAB_PAINT.lock().unwrap_or_else(|e| e.into_inner()) = None; DD_OPEN.store(false, Ordering::Relaxed);
+        dd::reset_cache();
         register_popup_clicks(ctx, &pop);
     }
     let open = POPUP_OPEN.load(Ordering::Relaxed);
@@ -201,10 +202,21 @@ fn save_selection() {
     *crate::PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()) = Some(out);
 }
 
+/// 팝업 .ui 의 `<<CLASS_DD>>`/`<<CLASS_LIST>>` 를 게임 dropdown 규격 소스로 치환(단일 정본 = ui_kit\dropdown_stable).
+fn popup_source() -> String {
+    let items: Vec<(&str, String)> = CLASS_IDS.iter().map(|k| (*k, format!("{}{}", I18N, k))).collect();
+    let items_ref: Vec<(&str, &str)> = items.iter().map(|(a, b)| (*a, b.as_str())).collect();
+    POPUP_UI.replace("<<CLASS_DD>>", &dd::button_source("class_dd", 0, 0, 150, 40, &format!("{}class_all", I18N), 16))
+        .replace("<<CLASS_LIST>>", &dd::list_source("class_list", 32, 81 + 40 + dd::LIST_GAP as i32, 150, 40, 16, &items_ref))
+}
+
 fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
     let Some(c) = cands() else { return };
     let selected: HashSet<String> = SEL.lock().unwrap_or_else(|e| e.into_inner()).clone().unwrap_or_default();
     let class_sel = CLASS_SEL.load(Ordering::Relaxed);
+    // ★09-18 v2(매프레임 — sig 조기반환 전): 게임 dropdown 규격 재현(공용 ui_kit\dropdown_stable) — 바깥 클릭 닫힘·hover·체크.
+    let edge = dd::click_edge();
+    dd::tick(ctx, &format!("{}.filter_bar.class_dd", pop), &format!("{}.class_list", pop), &CLASS_IDS, &DD_OPEN, class_sel, &format!("{}{}", I18N, CLASS_IDS[class_sel]), edge);
     let search = SEARCH_TXT.lock().unwrap_or_else(|e| e.into_inner()).clone();
     let visible: Vec<String> = c.ids.iter().filter(|id| {
         if class_sel > 0 && c.cats.get(*id).copied() != Some((class_sel - 1) as u8) { return false; }
@@ -214,11 +226,6 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
     let sig = { use std::hash::{Hash, Hasher}; let mut h = std::collections::hash_map::DefaultHasher::new(); (SEL_VER.load(Ordering::Relaxed), c.sig, &visible, class_sel, &search, crate::has_save_setting(), DD_OPEN.load(Ordering::Relaxed)).hash(&mut h); h.finish() };
     if GRID_SIG.swap(sig, Ordering::Relaxed) == sig { return; }
     *VISIBLE.lock().unwrap_or_else(|e| e.into_inner()) = visible.clone();
-    let dd_open = DD_OPEN.load(Ordering::Relaxed);
-    let lst = format!("{}.class_list", pop);
-    if ctx.ui_visible(&lst) != Some(dd_open) { ctx.ui_set_visible(&lst, dd_open); }
-    for (i, t) in CLASS_IDS.iter().enumerate() { paint_tab(ctx, &format!("{}.{}", lst, t), i == class_sel); }
-    set_label(ctx, &format!("{}.filter_bar.class_dd.label", pop), &format!("{}{}", I18N, CLASS_IDS[class_sel]));
     let right = format!("{}.right", pop);
     set_label(ctx, &format!("{}.cnt_total_v", right), &c.ids.len().to_string());
     set_label(ctx, &format!("{}.cnt_sel_v", right), &selected.len().to_string());

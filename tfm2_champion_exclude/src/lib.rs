@@ -26,6 +26,8 @@ pub mod ui;
 pub mod uk;
 #[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
 pub mod cdb;
+#[path = r"C:\tfm2mods\ui_kit\dropdown_stable.rs"]
+pub mod dd;
 
 pub const MOD_ID: &str = "tfm2_champion_exclude";
 pub const VERSION: &str = "0.6.0";
