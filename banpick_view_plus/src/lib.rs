@@ -17,6 +17,8 @@ use serde_json::Value;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
+#[path = r"C:\tfm2mods\ui_kit\draft_scene_stable.rs"]
+mod draft_scene;
 
 const MOD_ID: &str = "banpick_view_plus";
 const DBG: bool = true;
@@ -134,6 +136,12 @@ fn cards_cached(ctx: &StableClient<'_>, f: u64) -> Vec<String> {
 #[derive(Default)]
 struct PickState { slot_champ: HashMap<(bool, usize), String>, known: Vec<(bool, String)> }
 static PICK_STATE: Mutex<Option<PickState>> = Mutex::new(None);
+/// ★09-18 스왑 추적(유저 제보 "스왑해도 이미지 안 바뀜"): 0.6.0 스왑 표 행(swap_slot_n)의 이름/포지션 텍스트는 stable API 로 못 읽는다(runner None).
+///   대신 행 클릭을 등록해 게임의 스왑 조작(행 A 선택 → 행 B 클릭 = A↔B 챔피언 교환 / 같은 행 재클릭 = 선택 해제)을 그대로 따라간다.
+///   행 k ↔ 픽 슬롯 = 같은 팀 pick_slot_n 을 y 오름차순으로 정렬한 k 번째(둘 다 라인업 순서 = 탑→서폿). ⚠코치 위임·상대 AI 스왑은 클릭이 없어 추적 불가(한계).
+static SWAP_SEL: Mutex<[Option<usize>; 2]> = Mutex::new([None, None]);
+static SWAP_ACTIVE: AtomicBool = AtomicBool::new(false);
+static SWAP_LAST_CLICK: Mutex<Option<(u64, String)>> = Mutex::new(None);
 static NAME_MAP: Mutex<Option<HashMap<String, String>>> = Mutex::new(None); // 표시명 → id
 static AXES: Mutex<Option<HashMap<String, [f32; 8]>>> = Mutex::new(None);
 static NAME_COLOR: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
@@ -401,6 +409,20 @@ impl StableExtension for Ext {
                 for team in ["blue", "red"] { for n in 0..5 { let tag: String = format!("illust:{}:{}", team, n); let p = format!("main.{}_picks.pick_slot_{}.done.bp_illust_cycle", team, n); let t2 = tag.clone(); ctx.ui_register_click(&p, "", move |_| push_click(&t2)); let _ = tag; } }
                 log("클릭 핸들러 등록");
             }
+            if let Some(msg) = draft_scene::install_once() { log(&msg); }
+            draft_scene::tick();
+            // ── 스왑 표 행 클릭 등록(스왑 화면 진입마다 — 표는 매 스왑 재스폰되므로 경로 등록이 남아 있어도 다시 건다; 같은 프레임 중복은 처리부에서 무시)
+            {
+                let swap_vis = ctx.ui_visible("main.swap").unwrap_or(false);
+                if swap_vis && !SWAP_ACTIVE.swap(true, Ordering::Relaxed) {
+                    let mut ok = 0;
+                    for team in ["blue", "red"] { for n in 0..5 { let tag: String = format!("swap:{}:{}", team, n); let p = format!("main.swap.{}_table.swap_slot_{}", team, n); if ctx.ui_exists(&p) { let t2 = tag.clone(); if ctx.ui_register_click(&p, "", move |_| push_click(&t2)) { ok += 1; } } } }
+                    *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = [None, None];
+                    log(&format!("스왑 화면 진입: 행 클릭 등록 {}/10", ok));
+                } else if !swap_vis && SWAP_ACTIVE.swap(false, Ordering::Relaxed) {
+                    *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = [None, None];
+                }
+            }
             // ── 클릭 처리
             let clicks: Vec<String> = std::mem::take(&mut *PENDING_CLICKS.lock().unwrap_or_else(|e| e.into_inner()));
             for c in clicks {
@@ -416,6 +438,32 @@ impl StableExtension for Ext {
                     s if s.starts_with("illust:") => {
                         let parts: Vec<&str> = s.split(':').collect();
                         if parts.len() == 3 { let is_blue = parts[1] == "blue"; if let Ok(n) = parts[2].parse::<usize>() { if let Some(id) = SLOT_CHAMP.lock().unwrap_or_else(|e| e.into_inner()).as_ref().and_then(|m| m.get(&(is_blue, n)).cloned()) { cycle_illust(&id); } } }
+                    }
+                    s if s.starts_with("swap:") => {
+                        // 같은 프레임 중복 발화(재등록 누적) 무시
+                        { let mut lc = SWAP_LAST_CLICK.lock().unwrap_or_else(|e| e.into_inner()); if lc.as_ref().map(|(ff, t)| *ff == f && t == s).unwrap_or(false) { continue; } *lc = Some((f, s.to_string())); }
+                        let parts: Vec<&str> = s.split(':').collect();
+                        if parts.len() == 3 { if let Ok(n) = parts[2].parse::<usize>() {
+                            let is_blue = parts[1] == "blue"; let si = if is_blue { 0 } else { 1 };
+                            let mut sel = SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner());
+                            match sel[si] {
+                                Some(a) if a == n => { sel[si] = None; }
+                                Some(a) => {
+                                    sel[si] = None;
+                                    let team = parts[1];
+                                    let mut order: Vec<(usize, f32)> = (0..5).filter_map(|k| ctx.ui_node_rect(&format!("main.{}_picks.pick_slot_{}", team, k)).map(|r| (k, r.1))).collect();
+                                    order.sort_by(|x, y| x.1.partial_cmp(&y.1).unwrap_or(std::cmp::Ordering::Equal));
+                                    if let (Some(&(ka, _)), Some(&(kb, _))) = (order.get(a), order.get(n)) {
+                                        let mut g = PICK_STATE.lock().unwrap_or_else(|e| e.into_inner());
+                                        if let Some(st) = g.as_mut() {
+                                            let va = st.slot_champ.get(&(is_blue, ka)).cloned(); let vb = st.slot_champ.get(&(is_blue, kb)).cloned();
+                                            match (va, vb) { (Some(va), Some(vb)) => { st.slot_champ.insert((is_blue, ka), vb.clone()); st.slot_champ.insert((is_blue, kb), va.clone()); log(&format!("스왑 추적 {}: 행{}↔행{} = 슬롯{}({})↔슬롯{}({})", team, a, n, ka, va, kb, vb)); } _ => log(&format!("스왑 추적 {}: 슬롯 {}/{} 챔피언 미확정 — 건너뜀", team, ka, kb)) }
+                                        }
+                                    }
+                                }
+                                None => { sel[si] = Some(n); }
+                            }
+                        } }
                     }
                     _ => {}
                 }
@@ -490,6 +538,23 @@ impl StableExtension for Ext {
                     new_slots.sort();
                     for (k, id) in new_slots.iter().zip(new_champs.drain(..)) { st.slot_champ.insert(*k, id.clone()); st.known.push((side, id)); log(&format!("슬롯 매칭 {:?} ← {}", k, st.slot_champ[k])); }
                 }
+                // ★09-18 RE: 스왑 단계(phase 7)부터는 씬 raw order(포지션 p → 픽 인덱스)가 정답 — 유저 클릭·코치 위임·상대 AI 스왑 전부 반영.
+                //   y 순 p 번째 픽 슬롯 ← pick[order[p]]. raw 를 못 읽으면(훅 미설치) 클릭 추적(swap:) 결과가 남는다.
+                if let Some(raw) = draft_scene::read().filter(|r| r.phase >= draft_scene::PHASE_SWAP) {
+                    for side in [true, false] {
+                        let lineup = raw.lineup(if side { 0 } else { 1 });
+                        if lineup.is_empty() { continue; }
+                        let mut order: Vec<(usize, f32)> = slot_rects.iter().filter(|((b, _), _)| *b == side).map(|((_, n), r)| (*n, r.1)).collect();
+                        order.sort_by(|x, y| x.1.partial_cmp(&y.1).unwrap_or(std::cmp::Ordering::Equal));
+                        for (p, c) in lineup.iter().enumerate() {
+                            if let (Some(c), Some(&(n, _))) = (c, order.get(p)) {
+                                if st.slot_champ.contains_key(&(side, n)) && st.slot_champ.get(&(side, n)) != Some(c) { log(&format!("스왑 raw: {} 슬롯{} {} → {}", if side { "blue" } else { "red" }, n, st.slot_champ[&(side, n)], c)); }
+                                if st.slot_champ.contains_key(&(side, n)) { st.slot_champ.insert((side, n), c.clone()); }
+                            }
+                        }
+                    }
+                    if f % 600 == 0 { log(&format!("스왑 raw: phase={} orderA={:?} orderB={:?}", raw.phase, raw.order_a, raw.order_b)); }
+                }
                 for (k, v) in &st.slot_champ { slots.insert(*k, v.clone()); }
                 if f % 600 == 0 { log(&format!("flagged={:?} done={:?} slots={:?}", flagged, done_now, st.slot_champ)); }
             }
@@ -547,7 +612,8 @@ impl StableExtension for Ext {
                 let id = slots.get(&(*is_blue, *n)).cloned().unwrap_or_default();
                 let key = chosen_key(&il, &id);
                 let sp = format!("{}.done.bp_splash", slot);
-                match &key { Some(k) => { want_splash.insert(sp.clone(), format!("{}|{}", k, !*is_blue && !c.red_noflip)); } None => {} }
+                // ★09-17(유저 제보): 레드 대기 슬롯의 "?" 플레이스홀더까지 좌우반전되던 것 → 챔피언 일러만 반전, question_* 은 반전 안 함.
+                match &key { Some(k) => { want_splash.insert(sp.clone(), format!("{}|{}", k, !*is_blue && !c.red_noflip && !id.starts_with("question"))); } None => {} }
                 let hovered = cur.map(|p| inside(*r, p)).unwrap_or(false);
                 let gi = if *is_blue { *n } else { 5 + *n };
                 if hovered { grace[gi] = f + 10; }
@@ -622,6 +688,7 @@ impl StableExtension for Ext {
     }
 }
 fn deactivate() {
+    SWAP_ACTIVE.store(false, Ordering::Relaxed);
     if ACTIVE.swap(false, Ordering::Relaxed) { SETTINGS_OPEN.store(false, Ordering::Relaxed); *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER_BG_KEY.lock().unwrap_or_else(|e| e.into_inner()) = None; }
 }
 /// 원작 draw_radar_octagon 재현(UI 맵 드로잉). 카드 오른쪽/왼쪽 옆에 그린다(게임 자체 포지션 툴팁은 카드 위·아래).
