@@ -30,6 +30,8 @@ pub mod uk;
 pub mod cdb;
 #[path = r"C:\tfm2mods\ui_kit\draft_scene_stable.rs"]
 pub mod draft_scene;
+#[path = r"C:\tfm2mods\ui_kit\dropdown_stable.rs"]
+pub mod dd;
 
 pub const MOD_ID: &str = "tfm2_champ_pos_lock";
 pub const VERSION: &str = "0.7.0";

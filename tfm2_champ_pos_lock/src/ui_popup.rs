@@ -4,7 +4,7 @@
 //! · 아이콘 = `ui_set_champion_icon`(공식 렌더 — 클래식 icon_data.rs 번들 UV 로더 불요).
 //! · 클래스 필터 = 드롭다운 대신 선택탭 6개(stable 엔 드롭다운 옵션 주입 API 없음).
 //! · 클릭 = 경로에 1회 등록(영구) — 팝업이 재스폰돼도 같은 경로면 유지.
-use crate::{config, i18n, uk};
+use crate::{config, dd, i18n, uk};
 use mod_api_stable::StableClient;
 use std::collections::HashSet;
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
@@ -107,12 +107,13 @@ pub fn tick(ctx: &mut StableClient<'_>, contents: &str) {
     let pop = if root.is_empty() { "pos_lock_popup".to_string() } else { format!("{}.pos_lock_popup", root) };
     if !ctx.ui_exists(&pop) {
         if !POPUP_OPEN.load(Ordering::Relaxed) { return; } // 열 때만 스폰(시작 로딩 경합 회피)
-        let ok = ctx.ui_spawn_source(&root, POPUP_UI);
+        let ok = ctx.ui_spawn_source(&root, &popup_source());
         config::dlog(&format!("팝업 스폰 {} ok={}", pop, ok));
         if !ok || !ctx.ui_exists(&pop) { POPUP_OPEN.store(false, Ordering::Relaxed); return; }
         uk::index_clear();
         GRID_SIG.store(u64::MAX, Ordering::Relaxed);
         *TAB_PAINT.lock().unwrap_or_else(|e| e.into_inner()) = None; DD_OPEN.store(false, Ordering::Relaxed);
+        dd::reset_cache();
         register_popup_clicks(ctx, &pop);
     }
     *POPUP_PATH.lock().unwrap_or_else(|e| e.into_inner()) = Some(pop.clone());
@@ -153,11 +154,22 @@ fn register_popup_clicks(ctx: &mut StableClient<'_>, pop: &str) {
 
 fn set_label(ctx: &mut StableClient<'_>, path: &str, s: &str) { if ctx.ui_text(path).as_deref() != Some(s) { ctx.ui_set_text(path, s); } }
 
+/// 팝업 .ui 의 `<<CLASS_DD>>`/`<<CLASS_LIST>>` 를 게임 dropdown 규격 소스로 치환(단일 정본 = ui_kit\dropdown_stable).
+fn popup_source() -> String {
+    let items: Vec<(&str, String)> = CLASS_IDS.iter().map(|k| (*k, format!("#asset/base/text/ui?pos_lock.{}", k))).collect();
+    let items_ref: Vec<(&str, &str)> = items.iter().map(|(a, b)| (*a, b.as_str())).collect();
+    POPUP_UI.replace("<<CLASS_DD>>", &dd::button_source("class_dd", 0, 0, 150, 40, "#asset/base/text/ui?pos_lock.class_all", 16))
+        .replace("<<CLASS_LIST>>", &dd::list_source("class_list", 802, 81 + 40 + dd::LIST_GAP as i32, 150, 40, 16, &items_ref))
+}
+
 fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
     let pos = SEL_POS.load(Ordering::Relaxed);
     let ver = config::state_version();
     let Some(r) = crate::roster() else { return };
     let class_sel = CLASS_SEL.load(Ordering::Relaxed);
+    // ★09-18 v2(매프레임 — sig 조기반환 전): 게임 dropdown 규격 재현(공용 ui_kit\dropdown_stable) — 바깥 클릭 닫힘·hover·체크.
+    let edge = dd::click_edge();
+    dd::tick(ctx, &format!("{}.filter_bar.class_dd", pop), &format!("{}.class_list", pop), &CLASS_IDS, &DD_OPEN, class_sel, &format!("#asset/base/text/ui?pos_lock.{}", CLASS_IDS[class_sel]), edge);
     let search = SEARCH_TXT.lock().unwrap_or_else(|e| e.into_inner()).clone();
     let champs: Vec<String> = r.sorted.iter().filter(|id| {
         if class_sel > 0 { if r.cats.get(*id).copied() != Some((class_sel - 1) as u8) { return false; } }
@@ -176,11 +188,6 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
     *VISIBLE.lock().unwrap_or_else(|e| e.into_inner()) = champs.clone();
     // ★09-18: color_selectable 의 selected 는 0.6.0 stable 로 못 쓴다(state json = {}) → 버튼 탭에 색을 직접 칠한다.
     for (i, t) in TAB_IDS.iter().enumerate() { paint_tab(ctx, &format!("{}.pos_tabs.{}", pop, t), i == pos); }
-    let dd_open = DD_OPEN.load(Ordering::Relaxed);
-    let lst = format!("{}.class_list", pop);
-    if ctx.ui_visible(&lst) != Some(dd_open) { ctx.ui_set_visible(&lst, dd_open); }
-    for (i, t) in CLASS_IDS.iter().enumerate() { paint_tab(ctx, &format!("{}.{}", lst, t), i == class_sel); }
-    set_label(ctx, &format!("{}.filter_bar.class_dd.label", pop), &format!("#asset/base/text/ui?pos_lock.{}", CLASS_IDS[class_sel]));
     // ── 우측 요약 라벨(클래식 fill_grid 그대로)
     let cnt = config::pos_count(pos);
     let (_pool1, base_need, worst_bits, worst_have, worst_need) = config::pos_safety(pos);
