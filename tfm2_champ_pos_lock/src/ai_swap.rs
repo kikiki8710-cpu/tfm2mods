@@ -74,7 +74,7 @@ extern "C" fn detour(sret: usize, scorer: usize, ally_ptr: usize, ally_len: usiz
         let masks: Vec<u8> = names.iter().map(|n| crate::mask_of(n)).collect();
         let (want, best_n) = assign::best_order(&masks, &cur);
         let cur_n = assign::order_matched(&masks, &cur);
-        if best_n <= cur_n || want == cur { if let Ok(mut g) = LAST_LOG.try_lock() { *g = Some(format!("aiswap(무개입): {:?} {:?} 맞춤 {}/{} (최적 {})", names, cur, cur_n, vlen, best_n)); } return; }
+        if best_n <= cur_n || want == cur { if cfg.debug { if let Ok(mut g) = LAST_LOG.try_lock() { *g = Some(format!("aiswap(무개입): {:?} {:?} 맞춤 {}/{} (최적 {})", names, cur, cur_n, vlen, best_n)); } } return; }
         // 쓰기 가능한지(VirtualQuery RD 만 봤으므로 WRITE 플래그도 확인)
         let mut mbi = MemBasicInfo::default();
         if VirtualQuery(vptr as *const _, &mut mbi, core::mem::size_of::<MemBasicInfo>()) == 0 || mbi.protect & (0x04 | 0x40) == 0 { CNT_SKIP.fetch_add(1, Ordering::Relaxed); return; }

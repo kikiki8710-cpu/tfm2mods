@@ -155,6 +155,7 @@ const SAVE_MISS_GRACE: usize = 240;
 pub static PENDING_SAVE: Mutex<Option<String>> = Mutex::new(None);
 pub static PLAYER_TEAM: AtomicU64 = AtomicU64::new(u64::MAX);
 pub static FRAME: AtomicU64 = AtomicU64::new(0);
+static AISWAP_LAST_FIRE: AtomicU64 = AtomicU64::new(0);
 
 fn save_tick(ctx: &mut StableClient<'_>) {
     // ① UI 확인이 이월한 기록 대기분
@@ -304,6 +305,7 @@ impl StableExtension for Ext {
             if let Some(msg) = swap_confirm_hook::install_once() { config::dlog(&msg); config::llog(&msg); }
             if let Some(msg) = ai_swap::install_once() { config::dlog(&msg); config::llog(&msg); }
             if let Some(msg) = ai_swap::drain_log() { config::llog(&msg); config::dlog(&msg); }
+            if FRAME.load(Ordering::Relaxed) % 600 == 0 { let f = ai_swap::CNT_FIRE.load(Ordering::Relaxed); if f != AISWAP_LAST_FIRE.swap(f, Ordering::Relaxed) { config::llog(&format!("aiswap counters: fire={} rewrite={} skip={}", f, ai_swap::CNT_REWRITE.load(Ordering::Relaxed), ai_swap::CNT_SKIP.load(Ordering::Relaxed))); } }
             // 옵션 화면(환경설정): 행/팝업 + 룰 관측
             if FRAME.load(Ordering::Relaxed) % 120 == 0 { observe_rule_raw(ctx); }
             if let Some(contents) = option_contents(ctx) {
