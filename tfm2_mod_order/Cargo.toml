@@ -1,0 +1,18 @@
+[package]
+name = "tfm2_mod_order"
+version = "0.2.0"
+edition = "2021"
+
+# 0.6.0 stable 껍데기 판(2026-09-18). 클래식(0.5.x, child Vec 재배치) = _classic_058\src\lib.rs.
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
