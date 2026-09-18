@@ -24,9 +24,9 @@ const MEM_CR: u32 = 0x1000 | 0x2000;
 const RWX: u32 = 0x40;
 
 // 공용 4심볼(0.5.6, MIGRATION §7.6 §2 — pos_lock/inject.rs 와 동일 값).
-const LOADER_RVA: usize = 0x2ea830; // 에셋 게터 FUN(am, path, len) -> NodeTemplate*
-const PARSER_RVA: usize = 0x1ab140; // .ui 텍스트 → NodeTemplate
-const ALLOC_RVA: usize = 0x2b1b410; // 게임 alloc impl(_, flags, size) -> ptr
+const LOADER_RVA: usize = 0x336a80; // 에셋 게터 FUN(am, path, len) -> NodeTemplate*
+const PARSER_RVA: usize = 0x197b10; // .ui 텍스트 → NodeTemplate
+const ALLOC_RVA: usize = 0x2f380b0; // 게임 alloc impl(_, flags, size) -> ptr
 const NT_SIZE: usize = 0x90; // NodeTemplate stride
 // 템플릿 오프셋: id ptr+0x08 / id len+0x10 / child cap+0x48 / child ptr+0x50 / child len+0x58
 

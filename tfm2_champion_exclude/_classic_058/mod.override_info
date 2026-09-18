@@ -1,0 +1,6 @@
+{
+  "asset/base/text/ui": {
+    "remapping": "asset/tfm2_champion_exclude/text/champion_exclude",
+    "type": "merge"
+  }
+}

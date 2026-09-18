@@ -1,0 +1,19 @@
+[package]
+name = "tfm2_champion_exclude"
+version = "0.6.0"
+edition = "2021"
+
+# 0.6.0 = 게임 0.6.0 stable ABI 이식(2026-09-17). classic 0.5.8 source = _classic_058\src (detour + 클래식 UI 주입).
+# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py tfm2_champion_exclude --ver 0.6.0
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
