@@ -2,7 +2,7 @@
 //! 근거 RE: `mods_report/tfm2_champ_pos_lock/RE/2026-09-18_0.6.0-스왑단계-씬레이아웃-함수RVA.md`
 //!   · 씬 포인터 = `MatchUIRunner::update`(RVA 0x2452e50, vtable 호출·매프레임) 진입 **rdx**(rcx 는 sret). 진입 12B = push×8(경계 정확).
 //!   · 씬(size 0x478): pick1 Vec<String> 0x168 / pick2 0x180 / **order A(블루) Vec<u64> 0x198** / **order B(레드) 0x1b0** — `order[포지션] = 픽 인덱스`
-//!     / phase u32 0x3a8(**7 = 스왑**, 8 = 다음) / T1(블루) team id 0x3f8 / 0x400 = T2 id(추정) / 0x466 = SwapDone 전송됨 / rule 0xce(픽 수 = rule+2).
+//!     / phase u32 0x3a8(**7 = 스왑**, 8 = 다음) / T1(블루) team id 0x3f8 / 0x400 = T2(레드) team id(09-18 2세트 실측 확정) / 0x466 = SwapDone 전송됨 / rule 0xce(픽 수 = rule+2).
 //!   · 유저 클릭(select_swap)·코치 위임(apply_coach_swap_order — **Vec 버퍼 교체**라 ptr 매프레임 재독)·최종 배정(run_apply_swap) 전부 두 order 배열에 반영.
 //! 안전: 읽기는 전부 VirtualQuery 검사(`readable`) 경유 · 캡처 함수 안에서는 원자 저장만(format!/lock 금지) · 포인터 신선도 = `tick()` 이 히트 증가를 못 보면 stale 처리.
 //! 멀티모드: 같은 함수를 다른 모드(pos_lock·view_plus)가 먼저 후킹했으면 **체인**(진입 12B 가 `48 b8 <tgt> ff e0` 이면 그 12B 를 스텁 꼬리에 담아 tgt 로 점프). 재체인 금지(1회 설치 확정).
