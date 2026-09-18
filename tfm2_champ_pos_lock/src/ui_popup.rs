@@ -15,9 +15,19 @@ const POPUP_UI: &str = include_str!("../assets/pos_lock_popup.ui");
 pub const NCELLS: usize = 120;
 const TAB_IDS: [&str; 5] = ["tab_top", "tab_jungle", "tab_mid", "tab_bottom", "tab_support"];
 const CLASS_IDS: [&str; 6] = ["class_all", "class_melee", "class_range", "class_magician", "class_util", "class_assassin"];
-const GAMEPLAY_ROW: &str = "always_delegate_to_staff";
+const GAMEPLAY_ROW: &str = "difficulty"; // ★0.6.0: 게임플레이 탭에서 always_delegate_to_staff 행이 사라짐(09-17 실측) → 같은 탭의 난이도 행을 가시성 앵커로
 
 static POPUP_OPEN: AtomicBool = AtomicBool::new(false);
+static DD_OPEN: AtomicBool = AtomicBool::new(false);
+static TAB_PAINT: Mutex<Option<std::collections::HashMap<String, bool>>> = Mutex::new(None);
+/// 탭 버튼 선택색 직접 칠하기(값이 바뀔 때만 set_properties).
+fn paint_tab(ctx: &mut StableClient<'_>, path: &str, on: bool) {
+    { let mut g = TAB_PAINT.lock().unwrap_or_else(|e| e.into_inner()); let m = g.get_or_insert_with(std::collections::HashMap::new); if m.get(path) == Some(&on) { return; } m.insert(path.to_string(), on); }
+    let css = if on { "btn: { color: #ecfbf8ff; back_color: #ecfbf8ff; } text: { color: #161721ff; } hover: { btn: { color: #ffffffff; back_color: #ffffffff; } text: { color: #161721ff; } }" } else { "btn: { color: #6f7788ff; back_color: #20232dff; } text: { color: #d7dbe4ff; } hover: { btn: { color: #dfe5efff; back_color: #2a2f3cff; } text: { color: #ffffffff; } }" };
+    ctx.ui_set_properties(path, css);
+}
+static ROW_DIAG: AtomicBool = AtomicBool::new(false);
+static RESPAWN_TRIES: AtomicUsize = AtomicUsize::new(0);
 static SEL_POS: AtomicUsize = AtomicUsize::new(0);
 static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
 static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
@@ -28,22 +38,40 @@ static REGISTERED: Mutex<Option<HashSet<String>>> = Mutex::new(None);
 static POPUP_PATH: Mutex<Option<String>> = Mutex::new(None);
 pub static CNT_ROW_CLICK: AtomicU64 = AtomicU64::new(0);
 
+/// 클릭 등록 — ★09-18: 스폰마다 재등록(재로드로 등록이 사라지는 경우 대응) + 같은 프레임 중복 발화 무시.
 fn reg(ctx: &mut StableClient<'_>, path: &str, f: impl Fn() + Send + Sync + 'static) {
-    { let mut g = REGISTERED.lock().unwrap_or_else(|e| e.into_inner()); let s = g.get_or_insert_with(HashSet::new); if s.contains(path) { return; } s.insert(path.to_string()); }
-    if !ctx.ui_register_click(path, "", move |_| f()) { config::dlog(&format!("클릭 등록 실패 {}", path)); }
+    let key = path.to_string();
+    let ok = ctx.ui_register_click(path, "", move |_| {
+        let fr = crate::FRAME.load(Ordering::Relaxed);
+        { let mut g = FIRED.lock().unwrap_or_else(|e| e.into_inner()); let m = g.get_or_insert_with(std::collections::HashMap::new); if m.get(&key) == Some(&fr) { return; } m.insert(key.clone(), fr); }
+        f()
+    });
+    if !ok { config::dlog(&format!("클릭 등록 실패 {}", path)); }
 }
+static FIRED: Mutex<Option<std::collections::HashMap<String, u64>>> = Mutex::new(None);
 
-pub fn hidden() { POPUP_OPEN.store(false, Ordering::Relaxed); }
+pub fn hidden() { POPUP_OPEN.store(false, Ordering::Relaxed); DD_OPEN.store(false, Ordering::Relaxed); }
+/// 세이브 밖으로 나가면 클릭 등록이 사라진다(09-18 실측) → 등록 기억·경로 캐시 초기화.
+pub fn reset_registrations() { *REGISTERED.lock().unwrap_or_else(|e| e.into_inner()) = None; *POPUP_PATH.lock().unwrap_or_else(|e| e.into_inner()) = None; }
 pub fn is_open() -> bool { POPUP_OPEN.load(Ordering::Relaxed) }
 
 /// 매 프레임(옵션 화면 contents 경로가 있을 때).
 pub fn tick(ctx: &mut StableClient<'_>, contents: &str) {
     // ── 행 스폰/가시성
     let row = format!("{}.pos_lock_row", contents);
+    // ★09-17(유저 제보): 설정창이 열린 채 설정을 바꾸면 contents 재구성으로 행이 빠짐 → 60프레임마다 자식 목록 대조, 없으면 재스폰.
+    let f = crate::FRAME.load(Ordering::Relaxed);
+    if f % 60 == 0 && ctx.ui_exists(&row) && !ctx.ui_child_names(contents).iter().any(|c| c == "pos_lock_row") {
+        config::dlog("행이 contents 에서 떨어짐(옵션 재구성) — 재스폰");
+        ctx.ui_remove_node(&row);
+    }
     if !ctx.ui_exists(&row) {
         let ok = ctx.ui_spawn_source(contents, ROW_UI);
         config::dlog(&format!("행 스폰 {} ok={}", row, ok));
         if !ok { return; }
+        // ★09-17 근본원인(유저 제보 "다시 열면 없음"): uk 속성 캐시(경로|키)에 이전 인스턴스의 visible=true 가 남아
+        //   새 행(visible:false)에 set 을 건너뜀 → 스폰마다 캐시 초기화.
+        uk::index_clear();
         let btn = format!("{}.pos_lock_configure", row);
         reg(ctx, &btn, || {
             CNT_ROW_CLICK.fetch_add(1, Ordering::Relaxed);
@@ -55,7 +83,25 @@ pub fn tick(ctx: &mut StableClient<'_>, contents: &str) {
         });
     }
     let gp_vis = ctx.ui_visible(&format!("{}.{}", contents, GAMEPLAY_ROW)).unwrap_or(false);
-    uk::set_props_if_changed(ctx, &row, "visible", if gp_vis { "true" } else { "false" });
+    // 가시성은 실제 노드 상태를 읽어 다르면 직접 set(캐시 무관 — 새 인스턴스에도 확실히 적용).
+    if ctx.ui_visible(&row) != Some(gp_vis) { ctx.ui_set_visible(&row, gp_vis); }
+    // ★09-17 진단+자가복구(유저 제보 "설정창 다시 열면 행 없음"): 120프레임마다 rect 로그, 앵커 배치됐는데 행 rect 0 이면 재스폰(최대 3회).
+    if f % 120 == 0 {
+        let rr = ctx.ui_node_rect(&row); let ar = ctx.ui_node_rect(&format!("{}.{}", contents, GAMEPLAY_ROW));
+        config::dlog(&format!("행 진단: gp_vis={} row_vis={:?} row_rect={:?} anchor_rect={:?} kids_tail={:?}", gp_vis, ctx.ui_visible(&row), rr, ar, ctx.ui_child_names(contents).iter().rev().take(4).collect::<Vec<_>>()));
+        let anchor_laid = ar.map(|r| r.2 > 0.0).unwrap_or(false);
+        let row_zero = rr.map(|r| r.2 == 0.0 && r.3 == 0.0).unwrap_or(true);
+        if gp_vis && anchor_laid && row_zero && RESPAWN_TRIES.fetch_add(1, Ordering::Relaxed) < 3 {
+            config::dlog("행 미배치 — 제거 후 재스폰");
+            ctx.ui_remove_node(&row);
+            return;
+        }
+    }
+    // ★0.6.0 진단(1회): 앵커 행 rect / 스폰된 행 rect — 겹침·배치 확인용
+    if gp_vis && !ROW_DIAG.swap(true, Ordering::Relaxed) {
+        let a = ctx.ui_node_rect(&format!("{}.{}", contents, GAMEPLAY_ROW)); let r = ctx.ui_node_rect(&row); let d = ctx.ui_node_rect(&format!("{}.current_database_edit", contents));
+        config::dlog(&format!("행 배치 진단: anchor({})={:?} row={:?} dbedit={:?} contents_kids={:?}", GAMEPLAY_ROW, a, r, d, ctx.ui_child_names(contents)));
+    }
     // ── 팝업 스폰(옵션 루트 = contents 의 조부모)
     let root = match contents.rfind('.') { Some(i) => { let p = &contents[..i]; match p.rfind('.') { Some(j) => p[..j].to_string(), None => p.to_string() } } None => String::new() };
     let pop = if root.is_empty() { "pos_lock_popup".to_string() } else { format!("{}.pos_lock_popup", root) };
@@ -64,7 +110,9 @@ pub fn tick(ctx: &mut StableClient<'_>, contents: &str) {
         let ok = ctx.ui_spawn_source(&root, POPUP_UI);
         config::dlog(&format!("팝업 스폰 {} ok={}", pop, ok));
         if !ok || !ctx.ui_exists(&pop) { POPUP_OPEN.store(false, Ordering::Relaxed); return; }
+        uk::index_clear();
         GRID_SIG.store(u64::MAX, Ordering::Relaxed);
+        *TAB_PAINT.lock().unwrap_or_else(|e| e.into_inner()) = None; DD_OPEN.store(false, Ordering::Relaxed);
         register_popup_clicks(ctx, &pop);
     }
     *POPUP_PATH.lock().unwrap_or_else(|e| e.into_inner()) = Some(pop.clone());
@@ -89,7 +137,9 @@ fn register_popup_clicks(ctx: &mut StableClient<'_>, pop: &str) {
         config::slog(&format!("확인: {}B 기록 대기 (이 세이브)", body.len()));
     });
     for (i, t) in TAB_IDS.iter().enumerate() { reg(ctx, &format!("{}.pos_tabs.{}", pop, t), move || { SEL_POS.store(i, Ordering::Relaxed); GRID_SIG.store(u64::MAX, Ordering::Relaxed); }); }
-    for (i, t) in CLASS_IDS.iter().enumerate() { reg(ctx, &format!("{}.filter_bar.class_tabs.{}", pop, t), move || { CLASS_SEL.store(i, Ordering::Relaxed); GRID_SIG.store(u64::MAX, Ordering::Relaxed); }); }
+    // ★09-18: 클래스 필터 = 풀다운(버튼 class_dd + 목록 패널 class_list, 루트 마지막 자식) — stable 엔 드롭다운 항목 주입이 없다.
+    reg(ctx, &format!("{}.filter_bar.class_dd", pop), || { DD_OPEN.fetch_xor(true, Ordering::Relaxed); GRID_SIG.store(u64::MAX, Ordering::Relaxed); });
+    for (i, t) in CLASS_IDS.iter().enumerate() { reg(ctx, &format!("{}.class_list.{}", pop, t), move || { CLASS_SEL.store(i, Ordering::Relaxed); DD_OPEN.store(false, Ordering::Relaxed); GRID_SIG.store(u64::MAX, Ordering::Relaxed); }); }
     reg(ctx, &format!("{}.filter_bar.search_clear", pop), || SEARCH_CLEAR.store(true, Ordering::Relaxed));
     reg(ctx, &format!("{}.right.clear_pos", pop), || config::clear_pos(SEL_POS.load(Ordering::Relaxed)));
     reg(ctx, &format!("{}.right.select_all_pos", pop), || { if let Some(r) = crate::roster() { config::set_pos(SEL_POS.load(Ordering::Relaxed), r.ids.clone()); } });
@@ -119,13 +169,18 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
     let sig = {
         use std::hash::{Hash, Hasher};
         let mut h = std::collections::hash_map::DefaultHasher::new();
-        (pos, ver, &champs, class_sel, &search, style, ban_opt, r.sig, i18n::current_lang()).hash(&mut h);
+        (pos, ver, &champs, class_sel, &search, style, ban_opt, r.sig, i18n::current_lang(), DD_OPEN.load(Ordering::Relaxed)).hash(&mut h);
         h.finish()
     };
     if GRID_SIG.swap(sig, Ordering::Relaxed) == sig { return; }
     *VISIBLE.lock().unwrap_or_else(|e| e.into_inner()) = champs.clone();
-    for (i, t) in TAB_IDS.iter().enumerate() { ctx.ui_set_selectable_selected(&format!("{}.pos_tabs.{}", pop, t), i == pos); }
-    for (i, t) in CLASS_IDS.iter().enumerate() { ctx.ui_set_selectable_selected(&format!("{}.filter_bar.class_tabs.{}", pop, t), i == class_sel); }
+    // ★09-18: color_selectable 의 selected 는 0.6.0 stable 로 못 쓴다(state json = {}) → 버튼 탭에 색을 직접 칠한다.
+    for (i, t) in TAB_IDS.iter().enumerate() { paint_tab(ctx, &format!("{}.pos_tabs.{}", pop, t), i == pos); }
+    let dd_open = DD_OPEN.load(Ordering::Relaxed);
+    let lst = format!("{}.class_list", pop);
+    if ctx.ui_visible(&lst) != Some(dd_open) { ctx.ui_set_visible(&lst, dd_open); }
+    for (i, t) in CLASS_IDS.iter().enumerate() { paint_tab(ctx, &format!("{}.{}", lst, t), i == class_sel); }
+    set_label(ctx, &format!("{}.filter_bar.class_dd.label", pop), &format!("#asset/base/text/ui?pos_lock.{}", CLASS_IDS[class_sel]));
     // ── 우측 요약 라벨(클래식 fill_grid 그대로)
     let cnt = config::pos_count(pos);
     let (_pool1, base_need, worst_bits, worst_have, worst_need) = config::pos_safety(pos);

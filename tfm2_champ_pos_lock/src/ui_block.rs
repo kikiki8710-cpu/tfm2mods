@@ -27,8 +27,22 @@ static REASON: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
 static TIP_TEXT: Mutex<Option<(String, u64)>> = Mutex::new(None); // (본문, 표시 시작 프레임)
 static GATE_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static SWAP_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+static SWAP_DIAG: AtomicBool = AtomicBool::new(false);
+static SIDE_FAIL_LOGGED: AtomicBool = AtomicBool::new(false);
+static DISABLED: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
 static CNT_SPAWN_FAIL: AtomicUsize = AtomicUsize::new(0);
 static REGISTERED: Mutex<Option<HashSet<String>>> = Mutex::new(None);
+/// ★09-18 스왑 추적: 0.6.0 스왑 표 행(swap_slot_n)의 이름/포지션 텍스트는 stable API 로 못 읽는다(swapdiag: runner None·text None).
+///   행 클릭을 등록해 게임의 조작(행 A 선택 → 행 B 클릭 = A↔B 교환 / 같은 행 재클릭 = 해제)을 따라가고, 행 k = 포지션 k(라인업 순서 탑→서폿),
+///   행 k ↔ 픽 슬롯 = 같은 팀 pick_slot_n 을 y 오름차순 정렬한 k 번째. ⚠코치 위임 스왑은 클릭이 없어 추적 불가 → 게이트가 옛 배치로 판정할 수 있다(한계).
+static SWAP_SEL: Mutex<Option<usize>> = Mutex::new(None);
+static SWAP_ACTIVE: AtomicBool = AtomicBool::new(false);
+static SWAP_CLICKS: Mutex<Vec<usize>> = Mutex::new(Vec::new());
+static SWAP_LAST_CLICK: Mutex<Option<(u64, usize)>> = Mutex::new(None);
+static RAW_SRC: AtomicBool = AtomicBool::new(false);
+static RAW_LOGGED: AtomicBool = AtomicBool::new(false);
+/// 스왑 진입당 1회(스왑 화면을 떠날 때 리셋).
+fn f_once_swap() -> bool { !RAW_LOGGED.swap(true, Ordering::Relaxed) }
 pub static MY_PICK_TURN: AtomicBool = AtomicBool::new(false);
 pub static BAN_CNT_SEEN: AtomicUsize = AtomicUsize::new(0);
 
@@ -42,6 +56,9 @@ static DONE_CHANGED_AT: AtomicU64 = AtomicU64::new(0);
 const TICK_EVERY: u64 = 4;
 
 pub fn reset() {
+    SWAP_ACTIVE.store(false, Ordering::Relaxed);
+    *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = None;
+    *REGISTERED.lock().unwrap_or_else(|e| e.into_inner()) = None;
     MY_SIDE.store(-1, Ordering::Relaxed);
     *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None;
     *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = None;
@@ -56,7 +73,7 @@ pub fn tick(ctx: &mut StableClient<'_>) {
     let cfg = config::get();
     if !ctx.ui_exists(CARDS) || !vis(ctx, "main.champions_bg") && !vis(ctx, "main.swap") {
         // 밴픽 화면 아님 → 상태 리셋(오버레이는 트리와 함께 사라짐)
-        if OVERLAYS.lock().unwrap_or_else(|e| e.into_inner()).is_some() { *OVERLAYS.lock().unwrap_or_else(|e| e.into_inner()) = None; *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = None; *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; MY_SIDE.store(-1, Ordering::Relaxed); uk::index_clear(); }
+        if OVERLAYS.lock().unwrap_or_else(|e| e.into_inner()).is_some() { *OVERLAYS.lock().unwrap_or_else(|e| e.into_inner()) = None; *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = None; *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; MY_SIDE.store(-1, Ordering::Relaxed); *DISABLED.lock().unwrap_or_else(|e| e.into_inner()) = None; uk::index_clear(); }
         MY_PICK_TURN.store(false, Ordering::Relaxed);
         return;
     }
@@ -66,11 +83,20 @@ pub fn tick(ctx: &mut StableClient<'_>) {
     if MY_SIDE.load(Ordering::Relaxed) < 0 || f.saturating_sub(SIDE_CHECK_AT.load(Ordering::Relaxed)) > 30 {
         SIDE_CHECK_AT.store(f, Ordering::Relaxed);
         let my = crate::PLAYER_TEAM.load(Ordering::Relaxed);
+        if MY_SIDE.load(Ordering::Relaxed) < 0 && !SIDE_FAIL_LOGGED.load(Ordering::Relaxed) && f % 240 == 0 {
+            // ★09-17 진단: side 미확정 원인(PLAYER_TEAM 미캡처 / team_name None / 하단 텍스트 불일치) 1회
+            let nm = if my != u64::MAX { ctx.team_name(my as usize) } else { None };
+            let b = ctx.ui_text("main.bottom.blue_side.name"); let r = ctx.ui_text("main.bottom.red_side.name");
+            config::llog(&format!("side-diag: player_team={} name={:?} blue={:?} red={:?} bottom_kids={:?}", my as i64, nm, b, r, ctx.ui_child_names("main.bottom")));
+            SIDE_FAIL_LOGGED.store(true, Ordering::Relaxed);
+        }
         if my != u64::MAX { if let Some(name) = ctx.team_name(my as usize) {
             let b = ctx.ui_text("main.bottom.blue_side.name").unwrap_or_default();
             let r = ctx.ui_text("main.bottom.red_side.name").unwrap_or_default();
-            let side = if b == name { 0 } else if r == name { 1 } else { -1 };
-            if MY_SIDE.swap(side, Ordering::Relaxed) != side { config::llog(&format!("side: 내 팀 '{}' → {} (blue='{}' red='{}')", name, side, b, r)); }
+            // ★09-17: 밴픽 하단 팀명은 "Gen.G #2" 처럼 시드 접미가 붙는다 → 완전일치가 아니라 접두 일치(공백/# 앞까지).
+            let eq = |ui: &str| { let ui = ui.trim(); ui == name || ui.strip_prefix(name.as_str()).map(|rest| rest.trim_start().starts_with('#') || rest.trim().is_empty()).unwrap_or(false) };
+            let side = if eq(&b) { 0 } else if eq(&r) { 1 } else { -1 };
+            if MY_SIDE.swap(side, Ordering::Relaxed) != side || (side < 0 && !SIDE_FAIL_LOGGED.swap(true, Ordering::Relaxed)) { config::llog(&format!("side: 내 팀 '{}' → {} (blue='{}' red='{}')", name, side, b, r)); }
         } }
     }
     // ── 픽 슬롯 done 집합(싼 신호 10회) — 바뀐 직후에만 카드 전수 스캔
@@ -126,7 +152,7 @@ pub fn tick(ctx: &mut StableClient<'_>) {
     if pick_turn_side.is_some() && !ban_turn && need_scan { let per = ban_n / 2; if per <= 5 && BAN_CNT_SEEN.swap(per + 1, Ordering::Relaxed) != per + 1 { let (st, cb) = config::cur_rule(); if cb != Some(per) { config::set_rule(st, Some(per)); config::dlog(&format!("밴카드 관측: {}장/팀 (구 {:?})", per, cb)); } } }
     MY_PICK_TURN.store(my_turn, Ordering::Relaxed);
     // ── 스왑 확정 게이트
-    if vis(ctx, "main.swap") { swap_gate(ctx, my_side); } else { SWAP_SIG.store(u64::MAX, Ordering::Relaxed); }
+    if vis(ctx, "main.swap") { swap_track(ctx, my_side); swap_gate(ctx, my_side); } else { SWAP_SIG.store(u64::MAX, Ordering::Relaxed); SWAP_DIAG.store(false, Ordering::Relaxed); if SWAP_ACTIVE.swap(false, Ordering::Relaxed) { *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = None; } RAW_LOGGED.store(false, Ordering::Relaxed); crate::swap_confirm_hook::BLOCK.store(false, Ordering::Relaxed); }
     // ── 차단 집합 계산
     let mut block: HashSet<String> = HashSet::new();
     let mut reason: HashMap<String, String> = HashMap::new();
@@ -170,7 +196,9 @@ pub fn tick(ctx: &mut StableClient<'_>) {
             let op = format!("{}.{}", cp, OVERLAY);
             if !ctx.ui_exists(&op) {
                 if !want { continue; }
-                let src = format!("{}:color_icon_button {{ width: 100%; height: 100%; z: 50; btn: {{ color: #0f1016c8; hover: {{ color: #0f1016d8; }} active: {{ color: #0f1016e8; }} }} }}", OVERLAY);
+                // ★0.6.0: z 속성 제거(z 가 스폰 노드 렌더를 죽임 — 팝업과 동일 증상, 09-17 유저 제보 "차단 안 보임"). 카드 마지막 자식이라 트리 순서로 위에 그려진다.
+                // 밴 카드와 같은 계열(회색 #666666 + 우상단 ⊘ 아이콘) — 게임의 `.ban` 자식은 스캐너가 "밴됨" 판정에 쓰므로 건드리지 않고 덮개에 아이콘을 얹는다.
+                let src = format!("{}:color_icon_button {{ width: 100%; height: 100%; rounding: Uniform {{ rounding: 12; }} btn: {{ color: #666666b8; hover: {{ color: #6e6e6ec8; }} active: {{ color: #6e6e6ec8; }} }} icon: {{ source: \"asset/base/ui/icons/ban\"; rect: {{ x: 95; y: 6; w: 18; h: 18; }} }} }}", OVERLAY);
                 if !ctx.ui_spawn_source(&cp, &src) || !ctx.ui_exists(&op) { CNT_SPAWN_FAIL.fetch_add(1, Ordering::Relaxed); continue; }
                 spawned.insert(lower.clone());
                 let id2 = lower.clone();
@@ -178,7 +206,14 @@ pub fn tick(ctx: &mut StableClient<'_>) {
                 let rs = rg.get_or_insert_with(HashSet::new);
                 if !rs.contains(&op) { rs.insert(op.clone()); ctx.ui_register_click(&op, "", move |_| { let r = REASON.lock().unwrap_or_else(|e| e.into_inner()).as_ref().and_then(|m| m.get(&id2).cloned()); *TIP_TEXT.lock().unwrap_or_else(|e| e.into_inner()) = Some((crate::block_msg(&id2, r.as_deref()), crate::FRAME.load(Ordering::Relaxed))); }); }
             }
-            uk::set_props_if_changed(ctx, &op, "visible", if want { "true" } else { "false" });
+            if ctx.ui_visible(&op) != Some(want) { ctx.ui_set_visible(&op, want); }
+            // ★09-17(유저 제보 "회색인데 클릭하면 선택됨"): 0.6.0 에선 덮개가 클릭을 흡수하지 못한다 → 카드 자체를 disable.
+            //   (게임의 비활성 스타일도 따라온다 — 밴/피어리스 회색과 같은 계열.) 덮개는 사유 툴팁 클릭용으로 유지.
+            let dis = format!("{}|disable", cp);
+            let want_s = if want { "true" } else { "false" };
+            let mut dc = DISABLED.lock().unwrap_or_else(|e| e.into_inner());
+            let m = dc.get_or_insert_with(HashMap::new);
+            if m.get(&dis).map(|v| v != want_s).unwrap_or(want) { ctx.ui_set_properties(&cp, &format!("disable: {};", want_s)); m.insert(dis, want_s.to_string()); }
         }
         *REASON.lock().unwrap_or_else(|e| e.into_inner()) = Some(reason);
         *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = Some(block);
@@ -189,7 +224,7 @@ pub fn tick(ctx: &mut StableClient<'_>) {
     match tip {
         Some((text, at)) if f.saturating_sub(at) < 120 => {
             if !ctx.ui_exists(&tp) {
-                let src = SWAPTIP_UI.replacen("pos_lock_swaptip:color {", &format!("{}:color {{ z: 3000; width: 420px;", TIP), 1);
+                let src = SWAPTIP_UI.replacen("pos_lock_swaptip:color {", &format!("{}:color {{ width: 420px;", TIP), 1);
                 if !ctx.ui_spawn_source(ROOT, &src) { return; }
             }
             if let Some((mx, my)) = uk::cursor_ui() { uk::set_props_if_changed(ctx, &tp, "x", &format!("{}px", (mx - 210.0).clamp(0.0, 1500.0))); uk::set_props_if_changed(ctx, &tp, "y", &format!("{}px", (my - 44.0).max(0.0))); }
@@ -198,6 +233,52 @@ pub fn tick(ctx: &mut StableClient<'_>) {
             uk::set_props_if_changed(ctx, &tp, "visible", "true");
         }
         _ => { if ctx.ui_exists(&tp) { uk::set_props_if_changed(ctx, &tp, "visible", "false"); } }
+    }
+}
+
+/// 같은 팀 pick_slot_n 을 y 오름차순으로 정렬한 슬롯 번호 목록(행 k ↔ order[k]).
+fn slot_order(ctx: &StableClient<'_>, is_blue: bool) -> Vec<usize> {
+    let mut v: Vec<(usize, f32)> = (0..5).filter_map(|k| ctx.ui_node_rect(&format!("main.{}_picks.pick_slot_{}", side_name(is_blue), k)).map(|r| (k, r.1))).collect();
+    v.sort_by(|x, y| x.1.partial_cmp(&y.1).unwrap_or(std::cmp::Ordering::Equal));
+    v.into_iter().map(|(k, _)| k).collect()
+}
+
+/// 스왑 화면: 내 표 행 클릭 등록(진입마다) + 클릭 큐 처리(선택/교환) → PICK_STATE.slot_champ 갱신.
+fn swap_track(ctx: &mut StableClient<'_>, my_side: i32) {
+    if my_side < 0 { return; }
+    let is_blue = my_side == 0;
+    let table = format!("main.swap.{}_table", side_name(is_blue));
+    if !SWAP_ACTIVE.swap(true, Ordering::Relaxed) {
+        let mut ok = 0;
+        for n in 0..5 { let p = format!("{}.swap_slot_{}", table, n); if ctx.ui_exists(&p) && ctx.ui_register_click(&p, "", move |_| SWAP_CLICKS.lock().unwrap_or_else(|e| e.into_inner()).push(n)) { ok += 1; } }
+        *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = None;
+        SWAP_CLICKS.lock().unwrap_or_else(|e| e.into_inner()).clear();
+        config::llog(&format!("swaptrack: 진입 — 행 클릭 등록 {}/5 ({})", ok, table));
+    }
+    let clicks: Vec<usize> = std::mem::take(&mut *SWAP_CLICKS.lock().unwrap_or_else(|e| e.into_inner()));
+    if clicks.is_empty() { return; }
+    let f = crate::FRAME.load(Ordering::Relaxed);
+    for n in clicks {
+        { let mut lc = SWAP_LAST_CLICK.lock().unwrap_or_else(|e| e.into_inner()); if *lc == Some((f, n)) { continue; } *lc = Some((f, n)); }
+        let mut sel = SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner());
+        match *sel {
+            Some(a) if a == n => { *sel = None; }
+            Some(a) => {
+                *sel = None;
+                let order = slot_order(ctx, is_blue);
+                if let (Some(&ka), Some(&kb)) = (order.get(a), order.get(n)) {
+                    let mut g = PICK_STATE.lock().unwrap_or_else(|e| e.into_inner());
+                    if let Some(st) = g.as_mut() {
+                        let va = st.slot_champ.get(&(is_blue, ka)).cloned(); let vb = st.slot_champ.get(&(is_blue, kb)).cloned();
+                        match (va, vb) {
+                            (Some(va), Some(vb)) => { st.slot_champ.insert((is_blue, ka), vb.clone()); st.slot_champ.insert((is_blue, kb), va.clone()); config::llog(&format!("swaptrack: 행{}↔행{} = 슬롯{}({})↔슬롯{}({})", a, n, ka, va, kb, vb)); }
+                            _ => config::llog(&format!("swaptrack: 슬롯 {}/{} 챔피언 미확정 — 건너뜀", ka, kb)),
+                        }
+                    }
+                }
+            }
+            None => { *sel = Some(n); }
+        }
     }
 }
 
@@ -218,24 +299,50 @@ fn swap_gate(ctx: &mut StableClient<'_>, my_side: i32) {
             m
         };
         let pos_texts: Vec<String> = ["top", "jungle", "mid", "bottom", "support"].iter().map(|p| ctx.i18n(&format!("#asset/base/text/ui?position.{}", p)).unwrap_or_default()).collect();
-        for row in ctx.ui_child_names(&table) {
-            let rp = format!("{}.{}", table, row);
-            let Some(ath) = ctx.ui_text(&format!("{}.data.name_slot.text", rp)) else { continue };
-            let Some(pt) = ctx.ui_text(&format!("{}.data.position_name", rp)) else { continue };
-            let Some(p) = pos_texts.iter().position(|t| !t.is_empty() && *t == pt) else { continue };
-            let Some(champ) = slot_champ.get(&ath) else { continue };
+        let rows = ctx.ui_child_names(&table);
+        // ★진단(0.6.0 검증): 행 매칭 실패 원인 규명용 — 스왑 진입당 1회
+        if SWAP_DIAG.swap(true, Ordering::Relaxed) == false {
+            let first = rows.first().map(|r| format!("{}.{}", table, r));
+            let first_kids = first.as_ref().map(|f| ctx.ui_child_names(f)).unwrap_or_default();
+            let first_data = first.as_ref().map(|f| ctx.ui_child_names(&format!("{}.data", f))).unwrap_or_default();
+            let bottom = ctx.ui_child_names("main.swap.bottom");
+            let swap_kids = ctx.ui_child_names("main.swap");
+            let f0 = rows.iter().find(|r| r.starts_with("swap_slot")).map(|r| format!("{}.{}", table, r));
+            let name0 = f0.as_ref().map(|f| (ctx.ui_child_names(&format!("{}.name", f)), ctx.ui_text(&format!("{}.name", f)), ctx.ui_text(&format!("{}.name.text", f))));
+            let pos0 = f0.as_ref().map(|f| (ctx.ui_child_names(&format!("{}.main_position", f)), ctx.ui_text(&format!("{}.main_position", f)), ctx.ui_text(&format!("{}.main_position.text", f))));
+            let kinds: Vec<String> = f0.as_ref().map(|f| ["", ".name", ".main_position", ".name.text", ".main_position.text"].iter().map(|sfx| format!("{}: kind={:?} state={:?} text={:?} rect={:?} exists={} kids={:?}", sfx, ctx.ui_runner_name(&format!("{}{}", f, sfx)), ctx.ui_state_json(&format!("{}{}", f, sfx)).map(|j| j.chars().take(200).collect::<String>()), ctx.ui_text(&format!("{}{}", f, sfx)), ctx.ui_node_rect(&format!("{}{}", f, sfx)), ctx.ui_exists(&format!("{}{}", f, sfx)), ctx.ui_child_count(&format!("{}{}", f, sfx)))).collect()).unwrap_or_default();
+            config::llog(&format!("swapdiag: table={} rows={:?} swap_kids={:?} bottom={:?} first_kids={:?} first_data={:?} name0={:?} pos0={:?} pos_texts={:?} slot_champ={:?} | kinds={:?}", table, rows, swap_kids, bottom, first_kids, first_data, name0, pos0, pos_texts, slot_champ, kinds));
+        }
+        // ★0.6.0(09-18 RE): 1순위 = 씬 raw(order[포지션] = 픽 인덱스 · 유저 클릭·코치 위임·상대 AI 전부 반영) / 폴백 = 행 k = 포지션 k, 챔피언 = y 순 k 번째 픽 슬롯(swap_track 클릭 추적).
+        let raw = crate::draft_scene::read().filter(|st| st.is_swap());
+        let lineup: Vec<Option<String>> = match &raw {
+            Some(st) => st.lineup(my_side as usize),
+            None => {
+                let order = slot_order(ctx, my_side == 0);
+                let st_slots: HashMap<(bool, usize), String> = PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|st| st.slot_champ.clone()).unwrap_or_default();
+                let nrows = rows.iter().filter(|r| r.starts_with("swap_slot_")).count().min(5);
+                (0..nrows).map(|p| order.get(p).and_then(|k| st_slots.get(&(my_side == 0, *k)).cloned())).collect()
+            }
+        };
+        if RAW_SRC.swap(raw.is_some(), Ordering::Relaxed) != raw.is_some() { config::llog(&format!("swapgate: 소스 = {}", if raw.is_some() { "씬 raw(order)" } else { "클릭 추적 폴백" })); }
+        if let Some(st) = &raw { if f_once_swap() { config::llog(&format!("swapraw: phase={} rule={} sent={} t1={:#x} t2={:#x} pick1={:?} pick2={:?} orderA={:?} orderB={:?} my_side={}", st.phase, st.rule, st.sent, st.t1_id, st.t2_id, st.pick1, st.pick2, st.order_a, st.order_b, my_side)); } }
+        for (p, c) in lineup.iter().enumerate().take(5) {
+            let Some(champ) = c else { continue };
             resolved += 1;
             let m = crate::mask_of(champ);
             if m != MASK_ALL && m & (1 << p) == 0 { violations.push(format!("{}→{}", crate::disp_name(champ), i18n::pos_name(p))); }
         }
+        let _ = (&slot_champ, &pos_texts);
     }
     let bad = resolved == 5 && !violations.is_empty();
     let sig = { use std::hash::{Hash, Hasher}; let mut h = std::collections::hash_map::DefaultHasher::new(); (resolved, &violations, bad).hash(&mut h); h.finish() };
     if SWAP_SIG.swap(sig, Ordering::Relaxed) != sig { config::llog(&format!("swapgate: resolved={} bad={} {:?}", resolved, bad, violations)); }
     uk::set_props_if_changed(ctx, confirm, "disable", if bad { "true" } else { "false" });
+    // ★09-18: 게임 버튼은 disable 을 안 본다(실측: 클릭 통과) → 확정 핸들러 detour 가 클릭을 삼킨다.
+    crate::swap_confirm_hook::BLOCK.store(bad, Ordering::Relaxed);
     let tp = "main.pl_swaptip";
     if bad {
-        if !ctx.ui_exists(tp) { let src = SWAPTIP_UI.replacen("pos_lock_swaptip:color {", "pl_swaptip:color { z: 3000;", 1); if !ctx.ui_spawn_source(ROOT, &src) { return; } }
+        if !ctx.ui_exists(tp) { let src = SWAPTIP_UI.replacen("pos_lock_swaptip:color {", "pl_swaptip:color {", 1); if !ctx.ui_spawn_source(ROOT, &src) { return; } }
         if let Some((x, y, w, _h)) = ctx.ui_node_rect(confirm) { uk::set_props_if_changed(ctx, tp, "x", &format!("{}px", x + w / 2.0 - 120.0)); uk::set_props_if_changed(ctx, tp, "y", &format!("{}px", y - 40.0)); }
         uk::set_props_if_changed(ctx, tp, "visible", "true");
     } else if ctx.ui_exists(tp) { uk::set_props_if_changed(ctx, tp, "visible", "false"); }

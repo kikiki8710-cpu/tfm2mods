@@ -116,14 +116,9 @@ impl PosState {
         //   (유저 제보: 밴카드 5장으로 바꾸니 제한이 안 걸림 — 지정 14 < 최소 20 이었다).
         // ⚠guard 를 여기서 재사용한다 — `ROSTER.read()` 를 중첩으로 잡으면
         //   같은 스레드 재귀 read 로 데드락 가능(std RwLock).
-        let unassigned = match g.as_ref() {
-            Some(set) => set
-                .iter()
-                .filter(|id| !(0..5).any(|q| self.allowed[q].iter().any(|x| x == *id)))
-                .count(),
-            None => 0,
-        };
-        named + unassigned
+        // ★09-18: 규칙 ②(미지정 = 무제한 포지션에만) 이후로 미지정 챔프는 목록 있는 포지션에 못 가므로 풀에서 제외 — 표시가 정확식(N(S))과 같아진다.
+        let _ = &g;
+        named
     }
     /// 이 포지션의 제한이 **실제로 적용되나**.
     ///   ★빈 화이트리스트 = 전체 허용. 그리고 **최소 선택 수 미달도 전체 허용으로 취급**한다
@@ -163,7 +158,9 @@ impl PosState {
             }
         }
         if designated != 0 {
-            return designated; // ①지정된 자리에만
+            // ★09-17 유저 정정: "제한 안 건 포지션은 누구나 갈 수 있어야" — 지정 챔프도 비활성(목록 없는) 포지션엔 갈 수 있다.
+            //   (09-04 규칙 "지정된 자리에만"은 목록이 있는 다른 포지션에 한해 유지.)
+            return designated | free;
         }
         if free != 0 {
             return free; // ②목록 있는 자리엔 못 감
@@ -441,12 +438,14 @@ impl PosState {
         // 활성 집합 A 에서의 (have, need) 표 — S ⊄ A 는 0.
         let table = |a: u8, have: &mut [u16; 32], need: &mut [u16; 32]| {
             let free = MASK_ALL & !a;
-            let eff: Vec<u8> = des.iter().map(|&d| { let dd = d & a; if dd != 0 { dd } else if free != 0 { free } else { MASK_ALL } }).collect();
+            // ★09-18(유저 지적): 지정 챔프도 무제한(비활성) 포지션에 갈 수 있으므로(mask_of 규칙 ①) 실효 마스크 = 지정 | free,
+            //   그리고 상대가 내 후보를 무제한 자리에 집어가는 것까지 L 에 포함(아래 opp 가 free 라인을 센다).
+            let eff: Vec<u8> = des.iter().map(|&d| { let dd = d & a; if dd != 0 { dd | free } else if free != 0 { free } else { MASK_ALL } }).collect();
             for s in 1..32usize {
                 if s & a as usize != s { have[s] = 0; need[s] = 0; continue; }
                 let mut n = 0usize; let mut l = 0u8;
                 for &m in &eff { if m as usize & s != 0 { n += 1; l |= m; } }
-                let opp = ((l & a).count_ones() as usize).min(5);
+                let opp = (l.count_ones() as usize).min(5); // 상대 픽 유출 = N(S) 챔프가 갈 수 있는 모든 라인(무제한 포함)
                 let lock = (SERIES_GAMES - 1) * match style { 2 => 2 * opp, 1 => opp, _ => 0 };
                 let nd = if b == usize::MAX { usize::MAX } else { s.count_ones() as usize + 2 * b + opp + lock };
                 have[s] = n.min(u16::MAX as usize) as u16;

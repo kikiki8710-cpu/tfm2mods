@@ -1,5 +1,4 @@
 pos_lock_popup:color {
-  z: 2000;
   width: 1763px;
   height: 1003px;
   anchor_x: 0.5;
@@ -29,28 +28,19 @@ pos_lock_popup:color {
     rounding: Uniform { rounding: 8; }
     child_type: LeftToRight { spacing: 0px; }
 
-    #tab_top:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_top"; label: { size: 16; } selected_label: { size: 16; } }
-    #tab_jungle:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_jungle"; label: { size: 16; } selected_label: { size: 16; } }
-    #tab_mid:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_mid"; label: { size: 16; } selected_label: { size: 16; } }
-    #tab_bottom:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_bottom"; label: { size: 16; } selected_label: { size: 16; } }
-    #tab_support:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_support"; label: { size: 16; } selected_label: { size: 16; } }
+    #tab_top:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 32px;  text: { text: "#asset/base/text/ui?pos_lock.tab_top"; font: "asset/base/font/set/bold"; size: 16; align_x: Center; align_y: Center; } }
+    #tab_jungle:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 32px;  text: { text: "#asset/base/text/ui?pos_lock.tab_jungle"; font: "asset/base/font/set/bold"; size: 16; align_x: Center; align_y: Center; } }
+    #tab_mid:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 32px;  text: { text: "#asset/base/text/ui?pos_lock.tab_mid"; font: "asset/base/font/set/bold"; size: 16; align_x: Center; align_y: Center; } }
+    #tab_bottom:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 32px;  text: { text: "#asset/base/text/ui?pos_lock.tab_bottom"; font: "asset/base/font/set/bold"; size: 16; align_x: Center; align_y: Center; } }
+    #tab_support:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 32px;  text: { text: "#asset/base/text/ui?pos_lock.tab_support"; font: "asset/base/font/set/bold"; size: 16; align_x: Center; align_y: Center; } }
   }
 
   #filter_bar:empty {
     x: 802px; y: 81px; width: 437px; height: 40px;
 
-    #class_tabs:color {
-      width: 150px; height: 40px;
-      color: #4a4c56ff; stroke: 1; back_color: #00000000;
-      padding: { left: 3px; right: 3px; top: 4px; bottom: 4px; }
-      rounding: Uniform { rounding: 8; }
-      child_type: LeftToRight { spacing: 0px; }
-      #class_all:color_selectable { @"asset/base/style/main#strategy_option"; width: 24px; height: 32px; hint: "#asset/base/text/ui?pos_lock.class_all"; text: "*"; label: { size: 13; } selected_label: { size: 13; } }
-      #class_melee:color_selectable { @"asset/base/style/main#strategy_option"; width: 24px; height: 32px; hint: "#asset/base/text/ui?pos_lock.class_melee"; text: "M"; label: { size: 13; } selected_label: { size: 13; } }
-      #class_range:color_selectable { @"asset/base/style/main#strategy_option"; width: 24px; height: 32px; hint: "#asset/base/text/ui?pos_lock.class_range"; text: "R"; label: { size: 13; } selected_label: { size: 13; } }
-      #class_magician:color_selectable { @"asset/base/style/main#strategy_option"; width: 24px; height: 32px; hint: "#asset/base/text/ui?pos_lock.class_magician"; text: "A"; label: { size: 13; } selected_label: { size: 13; } }
-      #class_util:color_selectable { @"asset/base/style/main#strategy_option"; width: 24px; height: 32px; hint: "#asset/base/text/ui?pos_lock.class_util"; text: "S"; label: { size: 13; } selected_label: { size: 13; } }
-      #class_assassin:color_selectable { @"asset/base/style/main#strategy_option"; width: 24px; height: 32px; hint: "#asset/base/text/ui?pos_lock.class_assassin"; text: "K"; label: { size: 13; } selected_label: { size: 13; } }
+    #class_dd:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 0px; y: 0px; width: 150px; height: 40px;
+      icon: { source: "asset/base/ui/icons/dropdown"; rect: { x: 124; y: 14; w: 12; h: 12; } }
+      #label:label { @"asset/base/style/main#label"; ignore_event: true; x: 14px; width: 110px; height: 40px; size: 16; align_y: Center; text: "#asset/base/text/ui?pos_lock.class_all"; }
     }
 
     #champ_search:text_edit {
@@ -715,4 +705,18 @@ pos_lock_popup:color {
 
   #cancel:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 654px; y: 943px; width: 220px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.cancel"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
   #ok:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 890px; y: 943px; width: 220px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.ok"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
+
+  #class_list:color {
+    visible: false; x: 802px; y: 125px; width: 150px; height: 244px;
+    color: #1d1f2cff; stroke: 1; back_color: #4a4c56ff;
+    rounding: Uniform { rounding: 8; }
+    padding: { left: 0px; right: 0px; top: 2px; bottom: 2px; }
+    child_type: TopToBottom { spacing: 0px; }
+    #class_all:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.class_all"; size: 15; align_x: Center; align_y: Center; } }
+    #class_melee:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.class_melee"; size: 15; align_x: Center; align_y: Center; } }
+    #class_range:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.class_range"; size: 15; align_x: Center; align_y: Center; } }
+    #class_magician:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.class_magician"; size: 15; align_x: Center; align_y: Center; } }
+    #class_util:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.class_util"; size: 15; align_x: Center; align_y: Center; } }
+    #class_assassin:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 150px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.class_assassin"; size: 15; align_x: Center; align_y: Center; } }
+  }
 }

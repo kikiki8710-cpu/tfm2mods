@@ -22,9 +22,14 @@ pub mod draft;
 pub mod i18n;
 pub mod legacy_assign;
 pub mod ui_block;
+pub mod swap_confirm_hook;
 pub mod ui_popup;
 #[path = r"C:\tfm2mods\ui_kit\ui_kit_stable.rs"]
 pub mod uk;
+#[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
+pub mod cdb;
+#[path = r"C:\tfm2mods\ui_kit\draft_scene_stable.rs"]
+pub mod draft_scene;
 
 pub const MOD_ID: &str = "tfm2_champ_pos_lock";
 pub const VERSION: &str = "0.7.0";
@@ -65,6 +70,29 @@ pub static ROSTER_DIRTY: AtomicBool = AtomicBool::new(true);
 pub fn roster() -> Option<Arc<Roster>> { ROSTER.lock().unwrap_or_else(|e| e.into_inner()).clone() }
 pub fn disp_name(id: &str) -> String { roster().and_then(|r| r.names.get(id).cloned()).unwrap_or_else(|| id.to_string()) }
 
+/// ClientDatabase.available_champions(Vec<String>) raw 읽기 — 원소 전부 registry id 일 때만 Some.
+fn read_available(ctx: &StableClient<'_>, registry: &[String]) -> Option<std::collections::HashSet<String>> {
+    const OFF_AVAIL_CAP: usize = 0xe740;
+    let db = cdb::client_db(ctx)?;
+    unsafe {
+        let cap = cdb::rd_u64(db + OFF_AVAIL_CAP)? as usize;
+        let ptr = cdb::rd_u64(db + OFF_AVAIL_CAP + 8)? as usize;
+        let len = cdb::rd_u64(db + OFF_AVAIL_CAP + 0x10)? as usize;
+        if len == 0 || len > cap || len > 1024 || !cdb::readable(ptr, len * 0x18) { return None; }
+        let reg: std::collections::HashSet<&String> = registry.iter().collect();
+        let mut out = std::collections::HashSet::with_capacity(len);
+        for i in 0..len {
+            let e = ptr + i * 0x18;
+            let sp = cdb::rd_u64(e + 8)? as usize; let sl = cdb::rd_u64(e + 0x10)? as usize;
+            if sl == 0 || sl > 64 || !cdb::readable(sp, sl) { return None; }
+            let name = std::str::from_utf8(core::slice::from_raw_parts(sp as *const u8, sl)).ok()?.to_ascii_lowercase();
+            if !reg.contains(&name) { return None; }
+            out.insert(name);
+        }
+        Some(out)
+    }
+}
+
 fn roster_sig(ids: &[String]) -> u64 {
     use std::hash::{Hash, Hasher};
     let mut h = std::collections::hash_map::DefaultHasher::new();
@@ -76,7 +104,10 @@ fn roster_sig(ids: &[String]) -> u64 {
 fn capture_roster(ctx: &StableClient<'_>) {
     let raw = ctx.champion_names();
     if raw.is_empty() { return; }
-    let ids: Vec<String> = raw.iter().map(|s| s.to_ascii_lowercase()).collect();
+    let mut ids: Vec<String> = raw.iter().map(|s| s.to_ascii_lowercase()).collect();
+    // ★0.6.0(09-17 유저 제보 "아직 추가 안 된 챔피언이 목록에 있다"): champion_names() 는 registry 전체(미출시 포함) →
+    //   ClientDatabase.available_champions(cdb+0xe740, RE 09-17)로 출시분만 남긴다. 읽기 실패(레이아웃 stale)면 전체 유지.
+    if let Some(avail) = read_available(ctx, &ids) { ids.retain(|id| avail.contains(id)); if ids.is_empty() { return; } }
     let sig = roster_sig(&ids);
     if roster().map(|r| r.sig == sig).unwrap_or(false) { return; }
     let mut names = HashMap::new();
@@ -144,6 +175,8 @@ fn save_tick(ctx: &mut StableClient<'_>) {
                 SAVE_LOADED.store(true, Ordering::Relaxed);
                 let miss = SAVE_MISS.swap(0, Ordering::Relaxed);
                 config::slog(&format!("세이브 설정 로드: {}B / 포지션별 {:?} (대기 {miss}프레임)", txt.len(), (0..5).map(config::pos_count).collect::<Vec<_>>()));
+                // ★09-17: 현재 세이브의 설정 본문을 파일로도 덤프(사용자 문의·지원용 — 세이브 안에만 있어 밖에서 볼 수 없었다)
+                if let Some(d) = mod_dir() { let _ = std::fs::write(format!("{}\\champ_pos_lock_state.txt", d), &txt); }
             }
             None => {
                 let n = SAVE_MISS.fetch_add(1, Ordering::Relaxed) + 1;
@@ -170,17 +203,22 @@ fn leave_save() {
 // ───────── 밴픽 룰 관측(옵션 화면) ─────────
 static OPT_PATH: Mutex<Option<String>> = Mutex::new(None); // 옵션 화면 루트(`current_database_edit` 의 조상 = contents 의 부모)
 static OPT_SCAN_AT: AtomicU64 = AtomicU64::new(0);
-/// 옵션 화면 `contents` 경로(= `current_database_edit` 의 부모). 없으면 None. 60프레임마다 재탐색.
+/// 옵션 화면 `contents` 경로(= `current_database_edit` 의 부모). 없으면 None.
+/// ★성능(2026-09-17 유저 제보 "밴픽창 너무 느려"): 전 트리 DFS 를 매초 돌리면 밴픽 화면(카드 160장×자식) 에서 수천 호출 스파이크.
+///   → 관리 씬(Main)에서만, 최상위 루트 이름에 "option" 이 있을 때 그 루트 아래만 얕게(깊이 4) 탐색. 120프레임 간격.
 pub fn option_contents(ctx: &StableClient<'_>) -> Option<String> {
-    if let Some(p) = OPT_PATH.lock().unwrap_or_else(|e| e.into_inner()).clone() {
+    // ★09-17: 가드 임시값 수명 데드락 방지(comptest 실사고와 같은 패턴) — 가드를 별도 문장으로 먼저 해제.
+    let cached = OPT_PATH.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    if let Some(p) = cached {
         if ctx.ui_exists(&p) { return Some(p); }
         *OPT_PATH.lock().unwrap_or_else(|e| e.into_inner()) = None;
     }
+    if ctx.client_scene_kind() != Some(mod_api_stable::ClientSceneKindV1::Main) { return None; }
     let f = FRAME.load(Ordering::Relaxed);
-    if f.saturating_sub(OPT_SCAN_AT.swap(f, Ordering::Relaxed)) < 60 && f > 60 { return None; }
-    // 상위 루트들에서 얕은 DFS(깊이 5)
+    if f.saturating_sub(OPT_SCAN_AT.load(Ordering::Relaxed)) < 120 && f > 120 { return None; }
+    OPT_SCAN_AT.store(f, Ordering::Relaxed);
     fn dfs(ctx: &StableClient<'_>, path: &str, depth: usize) -> Option<String> {
-        if depth > 5 { return None; }
+        if depth > 4 { return None; }
         for c in ctx.ui_child_names(path) {
             let full = if path.is_empty() { c.clone() } else { format!("{}.{}", path, c) };
             if c == "current_database_edit" { return Some(path.to_string()); }
@@ -188,53 +226,97 @@ pub fn option_contents(ctx: &StableClient<'_>) -> Option<String> {
         }
         None
     }
-    let found = dfs(ctx, "", 0);
+    // ① 싼 후보 경로 먼저(옵션 팝업 루트 id 가 "option" 인 경우)
+    let mut found: Option<String> = ["pause_ui.option.option.contents", "option.option.contents", "body.option.option.contents", "pause_ui.option.contents", "option.contents", "main.option.option.contents", "main.pause_ui.option.option.contents"].iter()
+        .find(|p| ctx.ui_exists(&format!("{}.current_database_edit", p))).map(|p| p.to_string());
+    // ② 최상위 루트 중 이름에 option 이 든 것만 얕게 DFS (main 전체 트리는 절대 안 훑음)
+    let roots = ctx.ui_child_names("");
+    if found.is_none() { for r in roots.iter().filter(|r| r.to_ascii_lowercase().contains("option")) { if let Some(p) = dfs(ctx, r, 1) { found = Some(p); break; } } }
+    if found.is_none() && OPT_ROOTS_LOGGED.fetch_add(1, Ordering::Relaxed) < 6 {
+        // ★진단(0.6.0 검증): 루트 열거가 [] 라 후보 루트를 ui_exists 로 직접 더듬는다 — 6회까지만
+        let probe = ["pause_ui", "pause_ui.option", "pause_ui.pause", "pause_ui.fade", "main.pause_ui", "option.option", "main", "body", "pause", "option", "popup", "overlay", "modal", "root", "ingame", "top", "system", "dialog", "menu", "layer", "screen", "main.pause", "main.option", "main.popup", "main.overlay", "main.top", "body.option", "pause.option", "popup.option", "overlay.option"];
+        let mut hits: Vec<String> = Vec::new();
+        for r in probe { if ctx.ui_exists(r) { let kids = ctx.ui_child_names(r); hits.push(format!("{}={:?}", r, kids.iter().take(24).collect::<Vec<_>>())); } }
+        fn lst(ctx: &StableClient<'_>, path: &str, depth: usize, out: &mut Vec<String>) {
+            if depth == 0 || out.len() > 240 { return; }
+            for c in ctx.ui_child_names(path) { let full = format!("{}.{}", path, c); out.push(full.clone()); lst(ctx, &full, depth - 1, out); }
+        }
+        let mut tree: Vec<String> = Vec::new();
+        for r in ["main.bottom", "main.tooltip", "main.bg", "main.top.left"] { lst(ctx, r, 3, &mut tree); }
+        dlog(&format!("옵션 루트 탐색 실패 — 최상위 루트 = {:?} | 프로브 hit = {:?} | 트리 = {:?}", roots, hits, tree));
+    }
     if let Some(p) = &found { dlog(&format!("옵션 contents 경로 = {}", p)); }
     *OPT_PATH.lock().unwrap_or_else(|e| e.into_inner()) = found.clone();
     found
 }
-/// 옵션 화면의 밴픽 스타일/밴 수 선택값 → config::set_rule. (게임플레이 탭이 보일 때만 의미 있음)
-fn observe_rule_from_option(ctx: &StableClient<'_>, contents: &str) {
-    let style_root = format!("{}.banpick_style.bg", contents);
-    if !ctx.ui_exists(&style_root) { return; }
-    let style = if ctx.ui_selectable_selected(&format!("{}.fearless_hard", style_root)) == Some(true) { 2u8 }
-        else if ctx.ui_selectable_selected(&format!("{}.fearless", style_root)) == Some(true) { 1 } else { 0 };
-    let ban_root = format!("{}.ban_count.bg", contents);
-    let mut ban: Option<usize> = None;
-    for (i, id) in ["ban1", "ban2", "ban3", "ban4", "ban5", "ban5_split"].iter().enumerate() {
-        if ctx.ui_selectable_selected(&format!("{}.{}", ban_root, id)) == Some(true) { ban = Some((i + 1).min(5)); }
-    }
+static OPT_ROOTS_LOGGED: AtomicUsize = AtomicUsize::new(0);
+static RULE_DIAG: AtomicBool = AtomicBool::new(false);
+/// ★0.6.0(09-17, RE `RE\2026-09-17_0.6.0-GamePlayOption-…`): 옵션 값을 UI 로 못 읽음(pause 팝업 안 selectable = None) →
+/// ClientDatabase 의 GamePlayOption 을 raw 로 읽는다. banpick_style u8 cdb+0x738(0/1/2) · room_practice_ban_count u64 cdb+0x720
+/// (0=기본) · available len cdb+0xe750. 실효 밴 수 = 게임 공식(5v5): (1≤n≤5 && avail ≥ 2n+20·style+15) ? n : default,
+/// default = (avail≥40 ? 3 : 2), avail < 2·default+20·style+15 면 default=2. 옵션 화면이 아니어도 120프레임마다 관측(밴픽 전 확정).
+const OFF_BAN_COUNT: usize = 0x720;
+const OFF_TWO_PHASE: usize = 0x733;
+const OFF_BANPICK_STYLE: usize = 0x738;
+const OFF_AVAIL_LEN: usize = 0xe750;
+static RULE_LOGGED: AtomicU64 = AtomicU64::new(u64::MAX);
+fn observe_rule_raw(ctx: &StableClient<'_>) {
+    if ctx.ui_exists("main.champions.contents") { return; } // 밴픽 중엔 슬롯 실측(밴카드 관측)이 우선 — 왕복 덮어쓰기 방지
+    let Some(db) = cdb::client_db(ctx) else { return };
+    let (style, n, two, avail) = unsafe {
+        (cdb::rd_u32(db + OFF_BANPICK_STYLE).map(|v| (v & 0xff) as u8), cdb::rd_u64(db + OFF_BAN_COUNT),
+         cdb::rd_u32(db + OFF_TWO_PHASE).map(|v| (v & 0xff) as u8), cdb::rd_u64(db + OFF_AVAIL_LEN))
+    };
+    let (Some(style), Some(n), Some(two), Some(avail)) = (style, n, two, avail) else { return };
+    if style > 2 || n > 64 || two > 1 || avail > 4096 { return; } // 레이아웃 stale 가드
+    let n = n as usize; let avail = avail as usize; let st = style as usize;
+    let mut default = if avail >= 40 { 3 } else { 2 };
+    if avail < 2 * default + 20 * st + 15 { default = 2; }
+    let eff = if (1..=5).contains(&n) && avail >= 2 * n + 20 * st + 15 { n } else { default };
+    let sig = ((style as u64) << 48) | ((n as u64) << 32) | ((two as u64) << 24) | ((eff as u64) << 16) | (avail as u64 & 0xffff);
+    if RULE_LOGGED.swap(sig, Ordering::Relaxed) != sig { dlog(&format!("룰 raw: style={} ban_opt={}(0=기본) two_phase={} avail={} → 실효 밴 {}", style, n, two, avail, eff)); }
     let (cs, cb) = config::cur_rule();
-    if cs != style || (ban.is_some() && cb != ban) { config::set_rule(style, ban.or(cb)); }
+    if cs != style || cb != Some(eff) { config::set_rule(style, Some(eff)); }
 }
 
 struct Ext;
 impl StableExtension for Ext {
     fn post_update(&self, ctx: &mut StableClient<'_>, _dt: u64) {
-        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             FRAME.fetch_add(1, Ordering::Relaxed);
             uk::frame_begin();
             let cfg = config::get();
             if !cfg.enabled { return; }
             i18n::poll_lang();
-            if ctx.scene_kind() != Some(SceneKindV1::InGame) { leave_save(); return; }
+            if ctx.scene_kind() != Some(SceneKindV1::InGame) { leave_save(); ui_popup::reset_registrations(); ui_block::reset(); *OPT_PATH.lock().unwrap_or_else(|e| e.into_inner()) = None; return; }
             // 내 팀 id(비0 을 봤으면 0 으로 후퇴 안 함 — 조합테스트 등)
             if let Some(t) = ctx.player_team_id() { if t != 0 || PLAYER_TEAM.load(Ordering::Relaxed) == u64::MAX { PLAYER_TEAM.store(t as u64, Ordering::Relaxed); } }
-            if ROSTER_DIRTY.swap(false, Ordering::Relaxed) || roster().is_none() { capture_roster(ctx); }
+            if ROSTER_DIRTY.swap(false, Ordering::Relaxed) || roster().is_none() || FRAME.load(Ordering::Relaxed) % 600 == 0 { capture_roster(ctx); } // 600프레임 주기 재캡처 = 패치데이 출시분 반영(서명 같으면 no-op)
             save_tick(ctx);
             let _ = masks();
             legacy_assign::install_once();
+            // 밴픽 씬 포인터 캡처(update 진입 detour · 09-18 RE) — 스왑 order raw 읽기용. 설치 결과 1회 로그.
+            if let Some(msg) = draft_scene::install_once() { config::dlog(&msg); config::llog(&msg); }
+            draft_scene::tick();
+            if let Some(msg) = swap_confirm_hook::install_once() { config::dlog(&msg); config::llog(&msg); }
             // 옵션 화면(환경설정): 행/팝업 + 룰 관측
+            if FRAME.load(Ordering::Relaxed) % 120 == 0 { observe_rule_raw(ctx); }
             if let Some(contents) = option_contents(ctx) {
-                observe_rule_from_option(ctx, &contents);
                 ui_popup::tick(ctx, &contents);
             } else { ui_popup::hidden(); }
             // 밴픽/스왑 화면
             ui_block::tick(ctx);
             draft::drain_logs();
         }));
+        // ★09-17: post_update 안 패닉은 조용히 삼켜져 뒷단(ui_block)이 통째로 죽는다 → 페이로드를 로그(같은 메시지 1회).
+        if let Err(e) = r {
+            let msg = e.downcast_ref::<String>().cloned().or_else(|| e.downcast_ref::<&str>().map(|s| s.to_string())).unwrap_or_else(|| "?".into());
+            let n = PANIC_CNT.fetch_add(1, Ordering::Relaxed);
+            if n < 5 { config::slog(&format!("post_update 패닉 #{}: {}", n + 1, msg)); }
+        }
     }
 }
+static PANIC_CNT: AtomicUsize = AtomicUsize::new(0);
 
 fn init(host: &StableHost) -> StableMod {
     host.log(LogLevel::Info, "tfm2_champ_pos_lock v0.7.0 (stable 0.6.0)");
