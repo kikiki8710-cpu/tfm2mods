@@ -1,0 +1,10 @@
+{
+  "asset/base/ui/layout/training": {
+    "remapping": "asset/training_view_plus/ui/layout/training",
+    "type": "override"
+  },
+  "asset/base/text/ui": {
+    "remapping": "asset/training_view_plus/text/tvp",
+    "type": "merge"
+  }
+}

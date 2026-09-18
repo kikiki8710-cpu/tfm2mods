@@ -145,3 +145,19 @@ sylas/.gemini_key
 /MIG/_next/reach/*.reach.json
 /MIG/_next/reach/*.reach.txt
 /MIG/_next/reach/update_e4c5c0.ll
+
+# daram2 뷰 플러스 계열 0.6.0 stable 포팅 (2026-09-19 추가) — 09-16~19 포팅분이 화이트리스트에 없어 미추적이었다.
+#   소스·매니페스트·텍스트·ui 오버라이드·클래식 보관(dll 제외)만 넣는다. target/·dll 은 전역 규칙으로 제외.
+!/coaching_staff_view_plus/
+!/roster_view_plus/
+!/recruitment_view_plus/
+!/facility_view_plus/
+!/custom_tier_assignment/
+!/training_view_plus/
+/coaching_staff_view_plus/target/
+/roster_view_plus/target/
+/recruitment_view_plus/target/
+/facility_view_plus/target/
+/custom_tier_assignment/target/
+/training_view_plus/target/
+/*/preview.png

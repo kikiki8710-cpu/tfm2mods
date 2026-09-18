@@ -1,0 +1,20 @@
+[package]
+name = "training_view_plus"
+version = "0.6.0"
+edition = "2021"
+
+# daram2 training_view_plus(0.5.2, 클래식 SDK · Database::training_plans 직접 쓰기)의 0.6.0 stable 껍데기 재작성(2026-09-18).
+# 클라 = 훈련 화면 버튼 + 패널(포지션 5 × 역할군 풀다운 · 매일 자동) · 서버 = ui_kit\training_plan_stable.rs(0.6.0 RE 경로 B).
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+serde_json = "1"
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false

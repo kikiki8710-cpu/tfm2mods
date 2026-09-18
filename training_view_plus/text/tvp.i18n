@@ -1,0 +1,209 @@
+{
+  "ko": {
+    "training_view_plus": {
+      "title": "챔피언 훈련 일괄 설정",
+      "desc": "라인별 역할군을 클릭해 선택하면, 해당 포지션 선수 전원의 훈련 챔피언을 상위 티어 4개로 설정합니다.",
+      "line_top": "탑",
+      "line_jungle": "정글",
+      "line_mid": "미드",
+      "line_bottom": "바텀",
+      "line_support": "서포터",
+      "note": "※ '매일 자동 재적용'을 켜면 날짜 변경 시 최신 티어의 역할군 상위 4로 자동 재적용합니다.",
+      "cancel": "취소",
+      "save": "저장하기",
+      "open_btn": "챔피언 훈련 일괄",
+      "role_keep": "변경 안 함",
+      "role_team": "팀 훈련 따름",
+      "role_melee": "전사",
+      "role_range": "원거리",
+      "role_magician": "마법사",
+      "role_util": "전투보조",
+      "role_assassin": "암살자",
+      "auto": "매일 자동 재적용",
+      "on": "켬",
+      "off": "끔",
+      "apply": "적용",
+      "close": "닫기",
+      "status_idle": "역할군을 고르고 적용을 누르세요",
+      "applying": "적용 중…"
+    }
+  },
+  "en": {
+    "training_view_plus": {
+      "title": "Bulk Champion Training",
+      "desc": "Pick a role for each lane to set every player in that position to train that role's top 4 tier champions.",
+      "line_top": "Top",
+      "line_jungle": "Jungle",
+      "line_mid": "Mid",
+      "line_bottom": "Bottom",
+      "line_support": "Support",
+      "note": "※ With 'Daily auto re-apply' on, each lane is re-applied to its role's top 4 at the latest tiers when the date changes.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "open_btn": "Bulk Champ Training",
+      "role_keep": "Keep",
+      "role_team": "Follow team",
+      "role_melee": "Fighter",
+      "role_range": "Ranged",
+      "role_magician": "Mage",
+      "role_util": "Support",
+      "role_assassin": "Assassin",
+      "auto": "Daily auto re-apply",
+      "on": "On",
+      "off": "Off",
+      "apply": "Apply",
+      "close": "Close",
+      "status_idle": "Pick roles and press Apply",
+      "applying": "Applying…"
+    }
+  },
+  "zh-hans": {
+    "training_view_plus": {
+      "title": "批量英雄训练",
+      "desc": "为每条路线选择职业，即可将该位置所有选手的训练英雄设为该职业前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "辅助",
+      "note": "※ 开启「每日自动重新应用」后，日期变更时以最新分级的职业前4自动重新应用。",
+      "cancel": "取消",
+      "save": "保存",
+      "open_btn": "批量英雄训练",
+      "role_keep": "保持",
+      "role_team": "跟随团队",
+      "role_melee": "战士",
+      "role_range": "远程",
+      "role_magician": "法师",
+      "role_util": "辅助",
+      "role_assassin": "刺客",
+      "auto": "每日自动重新应用",
+      "on": "开",
+      "off": "关",
+      "apply": "应用",
+      "close": "关闭",
+      "status_idle": "选择职业后点击应用",
+      "applying": "应用中…"
+    }
+  },
+  "zh-Hans": {
+    "training_view_plus": {
+      "title": "批量英雄训练",
+      "desc": "为每条路线选择职业，即可将该位置所有选手的训练英雄设为该职业前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "辅助",
+      "note": "※ 开启「每日自动重新应用」后，日期变更时以最新分级的职业前4自动重新应用。",
+      "cancel": "取消",
+      "save": "保存",
+      "open_btn": "批量英雄训练"
+    }
+  },
+  "zh-CN": {
+    "training_view_plus": {
+      "title": "批量英雄训练",
+      "desc": "为每条路线选择职业，即可将该位置所有选手的训练英雄设为该职业前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "辅助",
+      "note": "※ 开启「每日自动重新应用」后，日期变更时以最新分级的职业前4自动重新应用。",
+      "cancel": "取消",
+      "save": "保存",
+      "open_btn": "批量英雄训练"
+    }
+  },
+  "zh": {
+    "training_view_plus": {
+      "title": "批量英雄训练",
+      "desc": "为每条路线选择职业，即可将该位置所有选手的训练英雄设为该职业前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "辅助",
+      "note": "※ 开启「每日自动重新应用」后，日期变更时以最新分级的职业前4自动重新应用。",
+      "cancel": "取消",
+      "save": "保存",
+      "open_btn": "批量英雄训练"
+    }
+  },
+  "schinese": {
+    "training_view_plus": {
+      "title": "批量英雄训练",
+      "desc": "为每条路线选择职业，即可将该位置所有选手的训练英雄设为该职业前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "辅助",
+      "note": "※ 开启「每日自动重新应用」后，日期变更时以最新分级的职业前4自动重新应用。",
+      "cancel": "取消",
+      "save": "保存",
+      "open_btn": "批量英雄训练"
+    }
+  },
+  "zh-hant": {
+    "training_view_plus": {
+      "title": "批量英雄訓練",
+      "desc": "為每條路線選擇職業，即可將該位置所有選手的訓練英雄設為該職業前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "輔助",
+      "note": "※ 開啟「每日自動重新套用」後，日期變更時以最新分級的職業前4自動重新套用。",
+      "cancel": "取消",
+      "save": "儲存",
+      "open_btn": "批量英雄訓練"
+    }
+  },
+  "zh-Hant": {
+    "training_view_plus": {
+      "title": "批量英雄訓練",
+      "desc": "為每條路線選擇職業，即可將該位置所有選手的訓練英雄設為該職業前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "輔助",
+      "note": "※ 開啟「每日自動重新套用」後，日期變更時以最新分級的職業前4自動重新套用。",
+      "cancel": "取消",
+      "save": "儲存",
+      "open_btn": "批量英雄訓練"
+    }
+  },
+  "zh-TW": {
+    "training_view_plus": {
+      "title": "批量英雄訓練",
+      "desc": "為每條路線選擇職業，即可將該位置所有選手的訓練英雄設為該職業前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "輔助",
+      "note": "※ 開啟「每日自動重新套用」後，日期變更時以最新分級的職業前4自動重新套用。",
+      "cancel": "取消",
+      "save": "儲存",
+      "open_btn": "批量英雄訓練"
+    }
+  },
+  "tchinese": {
+    "training_view_plus": {
+      "title": "批量英雄訓練",
+      "desc": "為每條路線選擇職業，即可將該位置所有選手的訓練英雄設為該職業前4名。",
+      "line_top": "上路",
+      "line_jungle": "打野",
+      "line_mid": "中路",
+      "line_bottom": "下路",
+      "line_support": "輔助",
+      "note": "※ 開啟「每日自動重新套用」後，日期變更時以最新分級的職業前4自動重新套用。",
+      "cancel": "取消",
+      "save": "儲存",
+      "open_btn": "批量英雄訓練"
+    }
+  }
+}

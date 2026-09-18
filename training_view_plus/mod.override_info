@@ -1,0 +1,6 @@
+{
+  "asset/base/text/ui": {
+    "remapping": "asset/training_view_plus/text/tvp",
+    "type": "merge"
+  }
+}
