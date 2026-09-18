@@ -782,9 +782,10 @@ const DEFAULT_CFG: &str = "\
     # Log the final line-up of every match to champ_pos_lock_lineups.txt.\r\n\
     #   For bug reports; keep it off normally.\r\n\
     log_lineups=0\r\n\
-    # (v0.7.0 / game 0.6.0) swap_force has NO effect any more: the server-side swap\r\n\
-    #   order rewrite was not ported to the stable ABI. AI position assignment is only\r\n\
-    #   nudged through ai_assign_mask. Kept for compatibility.\r\n\
+    # Force AI teams (opponents and every background league match) to seat their picks
+    #   on allowed positions in the swap phase: the server-side swap order returned by
+    #   compute_rule_swap_order is re-ordered to the best legal permutation (game 0.6.0 detour).
+    #   0 = leave AI swap orders untouched.
     swap_force=1\r\n\
 ";
 

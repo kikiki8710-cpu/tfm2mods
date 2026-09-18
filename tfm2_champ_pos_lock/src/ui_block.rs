@@ -326,7 +326,7 @@ fn swap_gate(ctx: &mut StableClient<'_>, my_side: i32) {
             }
         };
         if RAW_SRC.swap(raw.is_some(), Ordering::Relaxed) != raw.is_some() { config::llog(&format!("swapgate: 소스 = {}", if raw.is_some() { "씬 raw(order)" } else { "클릭 추적 폴백" })); }
-        if let Some(st) = &raw { if f_once_swap() { config::llog(&format!("swapraw: phase={} rule={} sent={} t1={:#x} t2={:#x} pick1={:?} pick2={:?} orderA={:?} orderB={:?} my_side={}", st.phase, st.rule, st.sent, st.t1_id, st.t2_id, st.pick1, st.pick2, st.order_a, st.order_b, my_side)); } }
+        if let Some(st) = &raw { if f_once_swap() { config::llog(&format!("swapraw: phase={} rule={} sent={} t1={:#x} t2={:#x} pick1={:?} pick2={:?} orderA={:?} orderB={:?} my_side={} | aiswap fire={} rewrite={} skip={} install={}", st.phase, st.rule, st.sent, st.t1_id, st.t2_id, st.pick1, st.pick2, st.order_a, st.order_b, my_side, crate::ai_swap::CNT_FIRE.load(Ordering::Relaxed), crate::ai_swap::CNT_REWRITE.load(Ordering::Relaxed), crate::ai_swap::CNT_SKIP.load(Ordering::Relaxed), crate::ai_swap::INSTALL_STATE.load(Ordering::Relaxed))); } }
         for (p, c) in lineup.iter().enumerate().take(5) {
             let Some(champ) = c else { continue };
             resolved += 1;

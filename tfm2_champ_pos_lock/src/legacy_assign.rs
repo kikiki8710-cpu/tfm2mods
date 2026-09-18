@@ -38,6 +38,7 @@ pub fn publish_model_names(names: Vec<String>) {
     config::dlog(&format!("모델 이름표 게시: {}종", names.len()));
     *g = Some(Arc::new(names));
 }
+pub fn model_names() -> Option<Arc<Vec<String>>> { MODEL_NAMES.lock().unwrap_or_else(|e| e.into_inner()).clone() }
 pub fn model_len() -> usize { MODEL_NAMES.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|v| v.len()).unwrap_or(0) }
 
 extern "C" fn pos_mask_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> usize {

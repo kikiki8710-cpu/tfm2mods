@@ -23,6 +23,7 @@ pub mod i18n;
 pub mod legacy_assign;
 pub mod ui_block;
 pub mod swap_confirm_hook;
+pub mod ai_swap;
 pub mod ui_popup;
 #[path = r"C:\tfm2mods\ui_kit\ui_kit_stable.rs"]
 pub mod uk;
@@ -301,6 +302,8 @@ impl StableExtension for Ext {
             if let Some(msg) = draft_scene::install_once() { config::dlog(&msg); config::llog(&msg); }
             draft_scene::tick();
             if let Some(msg) = swap_confirm_hook::install_once() { config::dlog(&msg); config::llog(&msg); }
+            if let Some(msg) = ai_swap::install_once() { config::dlog(&msg); config::llog(&msg); }
+            if let Some(msg) = ai_swap::drain_log() { config::llog(&msg); config::dlog(&msg); }
             // 옵션 화면(환경설정): 행/팝업 + 룰 관측
             if FRAME.load(Ordering::Relaxed) % 120 == 0 { observe_rule_raw(ctx); }
             if let Some(contents) = option_contents(ctx) {
