@@ -1502,7 +1502,7 @@ static FZ_LOGS: AtomicU64 = AtomicU64::new(0);
 //   **패닉·락·할당·로그 전부 제거한 순수 포인터 연산**으로 축소했다(스택 ~100B).
 //   재시험 전까지 기본 OFF. (사본 확보(`snap_take`)는 일반 스택에서 도므로 계속 켜 둔다.)
 const RPLY_ON: bool = false;                // ← 스왑 훅 설치 여부(재시험 시에만 true)
-const SNAP_ON: bool = true;                 // 사본 확보만(안전) — 스왑과 독립
+const SNAP_ON: bool = false;                // ★0.6.0: OFF — CD_RC_OFF/CHAMP_OFF/CHAMP_SZ(0.5.x 실측)가 0.6.0 미재검증. 09-17 11:41 유저 세션 크래시(MOD→CLONE_CHAMP+0x8c→AV 0x27) = snap_take 경로. RPLY_ON=false 라 기능 손실 없음(사본 확보만 중단). 재활성 = 오프셋 3종 0.6.0 재실측 후.
 const RPLY_RVA: usize = 0xd0c09;          // ★0.5.5(구0.5.4=0x2323bb2) 컨테이너 difflib. ⚠RPLY_ON=false로 inert — RPLY_ORIG 18B는 0.5.5 본문변경으로 불일치(재활성 시 install_mid가 byte mismatch로 fail-safe, 재작성 필요) // 스왑 훅(프레임 확보 후·첫 clone 직전)
 const RPLY_ORIG: [u8; 18] = [0x49,0x8d,0x90,0x80,0x19,0x00,0x00,   // lea rdx,[r8+0x1980]
                              0x48,0x8d,0x4d,0xe0,                   // lea rcx,[rbp-0x20]
@@ -4324,11 +4324,22 @@ impl StableExtension for CompTestExt {
 static CT_POPUP: Mutex<Option<String>> = Mutex::new(None);
 static CT_POPUP_SCAN: AtomicU64 = AtomicU64::new(0);
 fn ct_popup_path(ctx: &StableClient<'_>) -> Option<String> {
-    if let Some(p) = CT_POPUP.lock().unwrap_or_else(|e| e.into_inner()).clone() { if ctx.ui_exists(&p) { return Some(p); } *CT_POPUP.lock().unwrap_or_else(|e| e.into_inner()) = None; uk::index_clear(); }
+    // ★09-17 데드락 정정: `if let … = CT_POPUP.lock()…clone()` 은 가드 임시값이 if-let 본문 끝까지 살아
+    //   본문 안의 재-lock 이 자기 자신을 기다렸다(캐시 경로가 사라지는 순간 = 훈련탭 재구성/결과화면 → 먹통).
+    //   가드를 먼저 별도 문장으로 떨어뜨려 놓고 본문에서 다시 잠근다.
+    let cached = CT_POPUP.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    if let Some(p) = cached { if ctx.ui_exists(&p) { return Some(p); } *CT_POPUP.lock().unwrap_or_else(|e| e.into_inner()) = None; uk::index_clear(); }
     let f = CT_POPUP_SCAN.fetch_add(1, Ordering::Relaxed);
-    if f % 60 != 0 { return None; }
+    if f % 120 != 0 { return None; }
+    // ★성능(2026-09-17 유저 제보 "밴픽창 너무 느려"): 전 트리 DFS(깊이 6·매초) 금지 — 관리 씬 + 훈련 탭 루트 아래만 얕게.
+    if ctx.client_scene_kind() != Some(mod_api_stable::ClientSceneKindV1::Main) { return None; }
+    for cand in ["main.top.right.training.comp_test_popup", "main.top.right.training.contents.comp_test_popup", "main.comp_test_popup"] {
+        if ctx.ui_exists(cand) { let p = cand.to_string(); log(&format!("[ui] comp_test_popup 경로 = {}
+", p)); uk::index_rebuild(ctx, &p); *CT_POPUP.lock().unwrap_or_else(|e| e.into_inner()) = Some(p.clone()); return Some(p); }
+    }
+    let root = if ctx.ui_exists("main.top.right.training") { "main.top.right.training" } else { return None };
     fn dfs(ctx: &StableClient<'_>, path: &str, depth: usize) -> Option<String> {
-        if depth > 6 { return None; }
+        if depth > 4 { return None; }
         for c in ctx.ui_child_names(path) {
             let full = if path.is_empty() { c.clone() } else { format!("{}.{}", path, c) };
             if c == "comp_test_popup" { return Some(full); }
@@ -4336,7 +4347,7 @@ fn ct_popup_path(ctx: &StableClient<'_>) -> Option<String> {
         }
         None
     }
-    let found = dfs(ctx, "", 0);
+    let found = dfs(ctx, root, 1);
     if let Some(p) = &found { log(&format!("[ui] comp_test_popup 경로 = {}\n", p)); uk::index_rebuild(ctx, p); }
     *CT_POPUP.lock().unwrap_or_else(|e| e.into_inner()) = found.clone();
     found
