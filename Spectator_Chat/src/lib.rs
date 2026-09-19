@@ -19,7 +19,7 @@ mod phrases;
 use phrases::*;
 
 const MOD_ID: &str = "Spectator_Chat";
-const DBG: bool = true;
+const DBG: bool = false; // 09-20 인게임 검증 후 OFF(진단 시 true)
 const ROOT: &str = "ingame";
 const PANEL: &str = "ingame.sc_panel";
 const LINE_SLOTS: usize = 20;
@@ -142,6 +142,10 @@ impl StableMatchHook for Hook {
             let pids: Vec<usize> = r.players.keys().copied().collect();
             for pid in pids {
                 let Some(p) = sim.get_player(pid) else { continue };
+                // ★09-20 실측(crm 과 동일): on_match_start 엔 챔피언 엔티티가 아직 없어 이름이 "" → 첫 tick 들에서 지연 채움(빈 이름이면 채팅에 챔피언명이 안 나온다)
+                if r.players.get(&pid).map(|x| x.0.is_empty()).unwrap_or(false) {
+                    if let Some(n) = p.champion().and_then(|e| e.name()) { if !n.is_empty() { if let Some(x) = r.players.get_mut(&pid) { x.0 = n; } } }
+                }
                 let alive = p.is_alive();
                 let was = r.alive.insert(pid, alive).unwrap_or(true);
                 if was && !alive { r.events.push((t, Ev::Death(pid))); }
@@ -210,7 +214,12 @@ fn champ_display(ctx: &StableClient<'_>, id: &str) -> String { ctx.i18n(&format!
 fn rebuild(ctx: &StableClient<'_>, played: i64) {
     let (events, players, gen) = { let g = RAW.lock().unwrap_or_else(|e| e.into_inner()); let Some(r) = g.as_ref() else { return }; (r.events.clone(), r.players.clone(), r.gen) };
     let mut nm = NAMES.lock().unwrap_or_else(|e| e.into_inner());
-    if nm.is_none() { let m: HashMap<usize, String> = players.iter().map(|(pid, (c, _, _))| (*pid, champ_display(ctx, c))).collect(); *nm = Some(m); }
+    // 이름표가 없거나, 지연 채움 전(빈 챔피언 id)에 만들어졌으면 다시 만든다
+    let stale = nm.as_ref().map(|m| m.iter().any(|(pid, v)| v.is_empty() && players.get(pid).map(|p| !p.0.is_empty()).unwrap_or(false))).unwrap_or(true);
+    if stale {
+        if nm.is_some() { INDEX.lock().unwrap_or_else(|e| e.into_inner()).clear(); } // 빈 이름으로 만들어진 과거 줄까지 다시 생성
+        let m: HashMap<usize, String> = players.iter().map(|(pid, (c, _, _))| (*pid, if c.is_empty() { String::new() } else { champ_display(ctx, c) })).collect(); *nm = Some(m);
+    }
     let names_map = nm.clone().unwrap_or_default();
     drop(nm);
     let name = |pid: &usize| names_map.get(pid).cloned().unwrap_or_default();
@@ -332,9 +341,11 @@ impl StableExtension for Ext {
                 if press && !was && cfg().visible { if let Some((mx, my)) = cur {
                     let in_x = mx >= c.x && mx <= c.x + c.w; let in_y = my >= c.y && my <= c.y + c.h;
                     if in_x && in_y {
-                        if mx >= c.x + c.w - 18.0 && my >= c.y + c.h - 18.0 { *d = Some((2, mx, my, c.x, c.y, c.w, c.h)); }
+                        // 그립 판정 폭 18→28px(09-20: 18px 은 마우스 폴링 오차로 자주 빗나감)
+                        if mx >= c.x + c.w - 28.0 && my >= c.y + c.h - 28.0 { *d = Some((2, mx, my, c.x, c.y, c.w, c.h)); }
                         else if my <= c.y + HEADER_H + 4.0 { *d = Some((1, mx, my, c.x, c.y, c.w, c.h)); }
                     }
+                    log(&format!("press edge cur=({:.0},{:.0}) panel=({:.0},{:.0},{:.0},{:.0}) in={} mode={:?}", mx, my, c.x, c.y, c.w, c.h, in_x && in_y, d.map(|v| v.0)));
                 } }
                 if let Some((mode, mx0, my0, x0, y0, w0, h0)) = *d {
                     if !press { *d = None; cfg_save(); }
