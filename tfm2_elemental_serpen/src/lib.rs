@@ -220,40 +220,41 @@ struct WorldState {
 //   엔티티 name String = cap@+0x248/ptr@+0x250/len@+0x258 (0.5.2 정적 확정, ctor 3필드 기록 사이트 근거).
 //   player→champ 체인 = find_player 0x2306870 본문으로 0.5.2 불변 실증(+0x840/848 dense·+0x820 team·
 //   +0x8b8 tag·+0x8c0 key → slots +0x738/740 [idx*0x10+8]=dense_idx → champs +0x720/728 stride 0x6a8).
+// ★★0.6.0 재설계(09-19 ghidra-re · RE `REPORT	fm2_elemental_serpen\RE6-09-19_0.6.0-챔피언구성지문-오프셋검증-P_CHAMP_TAG생존enum.md`):
+//   구 방식(Player→tag→key→slots→dense→엔티티 name)은 `P_CHAMP_TAG` 가 "미배정 Option" 이 아니라 **생존 enum**(1=Alive{key} / 0=Dead{respawn_tick})
+//   이라 **죽은 선수가 지문에서 빠져** 시각마다 fp 가 달라졌다(실측: 웨이브#0 8b19 ≠ 웨이브#1 b5d7 → 웨이브#0 처치가 다른 파티션에 묻혀 툴팁 "(없음)").
+//   0.5.8 도 같은 결함이나 fp 캐시가 첫 값을 붙들어 숨어 있었다. 이제 **Player+0xa00(team) + Player+0x4e0/0x4e8(챔피언 이름 String, 엔티티 이름의 원천 ·
+//   생사 무관 상주)** 만 해시한다 = 시간불변. 미배정 = len 0. (엔티티 경로 상수들은 다른 곳에서 계속 쓰므로 유지.)
+const P_CHAMP_NAME_PTR: usize = 0x4e0; // Player+0x4e0 ptr / +0x4e8 len (챔프 엔티티 빌더 FUN_1416f68a0 이 여기서 복사 · 0.6.0 Δ 대역(≥0x928) 밖이라 0.5.8 과 동일)
+const P_CHAMP_NAME_LEN: usize = 0x4e8;
+static FP_NAME_LOGGED: AtomicBool = AtomicBool::new(false);
 unsafe fn world_fingerprint(w: usize) -> Option<u64> {
     let pp = safe_read_u64(w + W_PLAYER_DENSE)? as usize;
     let pn = safe_read_u64(w + W_PLAYER_DENSE + 8)? as usize;
     if pp < 0x10000 || pn == 0 || pn > 16 { return None; }
-    let sp = safe_read_u64(w + W_CHAMP_SLOTS)? as usize;
-    let sn = safe_read_u64(w + W_CHAMP_SLOTS + 8)? as usize;
-    let cp = safe_read_u64(w + W_CHAMP_DENSE)? as usize;
-    let cn = safe_read_u64(w + W_CHAMP_DENSE + 8)? as usize;
-    if sp < 0x10000 || cp < 0x10000 || cn == 0 || cn > 4096 { return None; }
     let mut pairs: [u64; 16] = [0; 16];
     let mut np_cnt = 0usize;
+    let mut names: Vec<String> = Vec::new();
     for i in 0..pn {
         let p = pp + i * PLAYER_STRIDE;
         let Some(team) = safe_read_u64(p + P_TEAM) else { continue };
         if team > 1 { continue; }
-        if safe_read_u64(p + P_CHAMP_TAG).unwrap_or(0) == 0 { continue; } // 챔피언 미배정
-        let Some(key) = safe_read_u64(p + P_CHAMP_KEY) else { continue };
-        let idx = (key & 0xffff_ffff) as usize;
-        if idx >= sn { continue; }
-        let Some(dense) = safe_read_u64(sp + idx * 0x10 + 8) else { continue };
-        if dense as usize >= cn { continue; }
-        let ent = cp + dense as usize * CHAMP_STRIDE;
-        if safe_read_i32(ent + ENTITY_KIND_OFF) != Some(CHAMP_KIND as i32) { continue; }
-        let Some(nl) = safe_read_u64(ent + 0x258) else { continue };
-        let nl = (nl as usize).min(32);
-        let Some(nptr) = safe_read_u64(ent + 0x250) else { continue };
-        if (nptr as usize) < 0x10000 || nl == 0 { continue; }
-        let mut nb = [0u8; 32];
+        let Some(nl) = safe_read_u64(p + P_CHAMP_NAME_LEN) else { continue };
+        let nl = nl as usize;
+        if nl == 0 || nl > 64 { continue; } // 챔피언 미배정(드래프트 미완) 또는 판독 불가
+        let Some(nptr) = safe_read_u64(p + P_CHAMP_NAME_PTR) else { continue };
+        if (nptr as usize) < 0x10000 { continue; }
+        let mut nb = [0u8; 64];
         if !safe_copy(nb.as_mut_ptr(), nptr as usize as *const u8, nl) { continue; }
         let mut h = 0xcbf2_9ce4_8422_2325u64; // FNV-1a
         for &b in &nb[..nl] { h = (h ^ b as u64).wrapping_mul(0x1000_0000_01b3); }
         if np_cnt < 16 { pairs[np_cnt] = (team << 62) | (h >> 2); np_cnt += 1; }
+        if !FP_NAME_LOGGED.load(Ordering::Relaxed) { names.push(format!("{}:{}", team, String::from_utf8_lossy(&nb[..nl]))); }
     }
     if np_cnt < 4 { return None; } // 드래프트 미완/판독 실패 → 미확정(다음 틱 재시도)
+    if !FP_NAME_LOGGED.swap(true, Ordering::Relaxed) && CFG_PROBE_LOG.load(Ordering::Relaxed) {
+        log_push(format!("[{}ms] ◆지문 원천 확인(Player+0x4e0) {}명: {}", now_ms(), np_cnt, names.join(" ")));
+    }
     pairs[..np_cnt].sort_unstable();
     let mut h = 0x9e37_79b9_7f4a_7c15u64;
     for &v in &pairs[..np_cnt] { h = splitmix64(h ^ v); }
@@ -420,7 +421,7 @@ const KILLS_RED_OFF: usize = 0xef68;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d95 �
 // ⬜0.5.2 정적 미검증(값 유지) — ClientDatabase raw 오프셋군. disp 센서스로는 판정 불가(위 SEED_OFF 주석).
 //   런타임 불변식으로 자기검증됨: 0 ≤ PLAYED_TICK ≤ events.len(EV_LEN_OFF). 어긋나면 조용히 미채택.
 //   ★교차확인 권장: crm·Spectator_Chat 이 같은 ClientDatabase 오프셋군을 쓰므로 그쪽 0.5.2 마이그 결과와 대조.
-const GAME_PROVIDER_OFF: usize = 0x1dc0; // Game + 0x1dc0 = provider data ptr (== detour rcx) ⬜0.5.2 런타임검증 대기
+const GAME_PROVIDER_OFF: usize = 0x48a0; // Game + 0x48a0 = provider data ptr (== detour rcx) ★0.6.0 런타임 자동스캔 확정(09-19 replay: 소스 0x1dc0 틀림 → 폴백 스캔이 0x48a0 적중·SEED_OFF=0xec90). 0.5.x = 0x1dc0
 // ★게임이 직접 관리하는 세르펜 처치 이력 (ghidra-re 0.5.1 확정, 리워드 배포 FUN@0x21fcf90 분석):
 //   provider + 0xed18/0xed20/0xed28 = Vec<{team:u64, tick:u64}> 의 cap/ptr/len. team 0=blue 1=red.
 //   처치 tick이 함께 저장되므로 played_tick 이하만 집계하면 sim 선행·뒤로감기가 자동 정합된다.
@@ -2142,7 +2143,7 @@ extern "win64" fn dmgb_detour(a1: u64, a2: u64, a3: u64, a4: u64, a5: u64, a6: u
 //   바닐라 베이스키 "asset/base/aseprite_resources/ingame/serpen" = 0.5.2에서도 **43자·3회 등장**
 //   ⇒ 제자리 치환(키 ≤43자) 제약 그대로 유효.
 const KEYRES_RVA: usize = 0x206a9e0; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x218be90 → 신 0x1be3ad0. skel-unique·프롤로그 14B 완전동일(KEYRES_PROLOGUE 무수정). (구0.5.3=0x1b0aba0)
-const KEYRES_PROLOGUE: [u8; 12] = [0x55, 0x56, 0x57, 0x48, 0x83, 0xEC, 0x60, 0x48, 0x8D, 0x6C, 0x24, 0x60];
+const KEYRES_PROLOGUE: [u8; 12] = [0x55, 0x56, 0x57, 0x48, 0x83, 0xEC, 0x70, 0x48, 0x8D, 0x6C, 0x24, 0x70]; // ★0.6.0: 프레임 0x60→0x70(09-19 Ghidra 0x206a9e0 실측 · 본문 = tower/nexus/minion/monster 키 리졸버 동일 · ABI 불변). 0.5.x = 0x60. ⚠이 12B 가 안 맞으면 "생산자seam 미설치" = 세르펜 색(속성 스프라이트) 교체 전멸
 const VAN_BASE_KEY: &[u8] = b"asset/base/aseprite_resources/ingame/serpen";
 static KEYRES_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static KEYRES_INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -2797,7 +2798,7 @@ fn update_tooltip(ctx: &mut StableClient<'_>) {
     }
     // ★호버 감지 = 커서가 세르펜 카운터 rect 안인지 (게임 툴팁 유무 무관 = 리플레이 호환). rect = ui_node_rect(1920×1080 공간).
     let hit_rect = |ctx: &StableClient<'_>, id: &str| -> bool {
-        let Some(r) = ctx.ui_node_rect(&format!("{}.{}.serpen", UI_ROOT, id)) else { return false };
+        let Some(r) = hdr_path(ctx, id).and_then(|p| ctx.ui_node_rect(&format!("{}.serpen", p))) else { return false };
         uk::cursor_in(r)
     };
     let by_rect: i32 = if hit_rect(ctx, "blue_stat") { 0 } else if hit_rect(ctx, "red_stat") { 1 } else { -1 };
@@ -2856,7 +2857,7 @@ fn update_elder_buff_ui(ctx: &mut StableClient<'_>) {
     // 화면 세르펜 카운트 읽기(자식 value 라벨 우선, 없으면 노드 라벨). 숫자만 추출.
     let read_cnt = |team: usize| -> Option<u64> {
         let id = if team == 0 { "blue_stat" } else { "red_stat" };
-        let p = format!("{}.{}.serpen", UI_ROOT, id);
+        let p = format!("{}.serpen", hdr_path(ctx, id)?);
         let txt = ctx.ui_text(&format!("{}.value", p)).or_else(|| ctx.ui_text(&p))?;
         let d: String = txt.chars().filter(|c| c.is_ascii_digit()).collect();
         d.parse::<u64>().ok()
@@ -3040,8 +3041,7 @@ fn nudge_morgard(ctx: &mut StableClient<'_>) {
     //   → `ui_set_properties` 로 목표값 세팅(uk::set_props_if_changed 가 같은 값 재적용을 걸러 파서 비용 0).
     for (i, id, x0, w0, dx, dw) in [(0usize, "red_morgard_buff", -400.0f32, 210.0f32, MORGARD_DX, MORGARD_DW),
                                     (1usize, "blue_morgard_buff", 380.0, 210.0, BLUE_MORGARD_DX, BLUE_MORGARD_DW)] {
-        let path = format!("{}.{}", UI_ROOT, id);
-        if !ctx.ui_exists(&path) { continue; }
+        let Some(path) = hdr_path(ctx, id) else { continue };
         if !MORGARD_SET[i].swap(true, Ordering::Relaxed) {
             MORGARD_X0[i].store(x0.to_bits(), Ordering::Relaxed);
             MORGARD_W0[i].store(w0.to_bits(), Ordering::Relaxed);
@@ -3055,6 +3055,16 @@ fn nudge_morgard(ctx: &mut StableClient<'_>) {
 static PLAYED_RESOLVED: AtomicU64 = AtomicU64::new(0); // 0=미시도 1=조회성공 2=구간없음
 struct ElementalSerpenExt;
 const UI_ROOT: &str = "ingame"; // 경기 화면 루트 경로(0.6.0 stable; Spectator_Chat 과 동일)
+/// ★0.6.0(09-19 실측): 상단 스탯 노드들이 `ingame.header.*` 아래로 들어갔다(`header:color` 1920×50 · blue_stat x653 / red_stat / *_morgard_buff).
+///   0.5.8 까지는 `ingame.<id>` 직속이라 경로 하드코딩이 전부 미스(카운터읽기실패 매프레임 → 화면 카운터 0 → 장로UI·툴팁·모르가드 nudge 전멸).
+///   → header 우선, 직속, 인덱스(find_or_rebuild) 순으로 찾는다. 패치로 또 옮겨도 인덱스 폴백이 받는다.
+fn hdr_path(ctx: &StableClient<'_>, id: &str) -> Option<String> {
+    let a = format!("{}.header.{}", UI_ROOT, id);
+    if ctx.ui_exists(&a) { return Some(a); }
+    let b = format!("{}.{}", UI_ROOT, id);
+    if ctx.ui_exists(&b) { return Some(b); }
+    uk::find_or_rebuild(ctx, id, UI_ROOT)
+}
 impl StableExtension for ElementalSerpenExt {
     fn on_init(&self, _ctx: &mut StableClient<'_>) {
         ensure_setup();
