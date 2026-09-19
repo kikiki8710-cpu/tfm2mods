@@ -19,7 +19,7 @@ static LAST_PICK: Mutex<Option<HashMap<String, Vec<usize>>>> = Mutex::new(None);
 pub fn load_phrases() {
     let mut text = String::new();
     if let Some(d) = mod_dir() {
-        if let Ok(s) = std::fs::read_to_string(format!(r"{}at_lines.txt", d)) { text = s; }
+        if let Ok(s) = std::fs::read_to_string(format!(r"{}\chat_lines.txt", d)) { text = s; }
     }
     if text.trim().is_empty() { text = default_phrases(); }   // 폴백
     let mut map: HashMap<String, Vec<String>> = HashMap::new();
