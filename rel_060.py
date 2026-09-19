@@ -29,6 +29,8 @@ RULES = {
     "tfm2_comptest_unlock":     (None, {"comptest_items.cfg"}, (), ()),
     "tfm2_elemental_serpen":    (None, {"README_en.md", "README_ko.md", "serpen_probe.cfg"}, ("config", "s", "text"), ()),  # 0.5.8 zip 구성 동일(28 엔트리)
     "banpick_view_plus":        (os.path.join(WORKSHOP, "3766306566"), set(), ("text", "ui", "asset", "skins"), ()),  # illust(761MB) 는 워크샵 배포분 · zip 제외
+    # crm 예외 규칙(REPORT community_reaction_mod/02 §2-a-1): 워크샵 폴더 덮어쓰기 패치 — mod.mod_info 의도적 미동봉(mods\ 이중 등록 방지)·README 필수·html 동봉
+    "community_reaction_mod":   (os.path.join(WORKSHOP, "3738958482"), {"TFA2_gallery.html"}, (), ("README_설치안내.txt",)),
 }
 BUNDLES = {"daram2_viewplus": ["roster_view_plus", "coaching_staff_view_plus", "training_view_plus", "recruitment_view_plus", "facility_view_plus", "custom_tier_assignment"]}
 EXC = (".bak", ".log", ".old", ".pdb", ".exp", ".lib")
@@ -39,7 +41,8 @@ def collect(m):
     out = []
     for f in sorted(os.listdir(d)):
         p = os.path.join(d, f)
-        if os.path.isfile(p) and (f == f"{m}.dll" or f in COMMON or f in extra): out.append((f, p))
+        common = COMMON if m != "community_reaction_mod" else set()  # crm 은 mod_info/preview 미동봉
+        if os.path.isfile(p) and (f == f"{m}.dll" or f in common or f in extra): out.append((f, p))
     for sub in subs:
         sd = os.path.join(d, sub)
         if not os.path.isdir(sd): continue

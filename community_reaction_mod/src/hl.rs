@@ -4,7 +4,8 @@
 //!   · 대상 sim = `sim_origin().kind` ∈ {ClientMatchView, ClientSpectate, ClientReplay} (서버 presim 제외)
 //!   · 킬 = kill_log 델타(killer_team+lane → pid) / 궁·스킬 시전 = cooldown 0→상승 / 피격 = 한 tick hp 하락 ≥100 또는 cc 추가
 //!   · 포탑·처형 데스 = is_alive 하강인데 ±10tick 안에 그 선수가 killed 인 kill_log 없음
-//!   · 골드 = 150tick 마다 팀합 / 승자 = nexus 사망(엔티티 이름에 nexus) 또는 최종 킬스코어
+//!   · 골드 = 150tick 마다 팀합(★누적 획득 = player.statistics_json("gold") — `player.gold()` 는 보유 골드라 구매 시 급락·09-20 실측) / 승자 = nexus 사망(엔티티 이름 "nexus" · 첫 tick 스캔) 또는 최종 킬스코어
+//!   · ★09-20: 같은 세트가 선행 sim(완주)·재생 sim(부분) 으로 두 번 돈다 → 블록은 진행도가 나은 쪽만 유지(finalize 참조) · on_match_start 엔 챔피언 엔티티가 없어 이름은 첫 tick 에서 지연 채움
 //!   · 완성 시점 = sim.is_end() / 다음 세트 on_match_start / export 시 5초 이상 tick 없음(부분 완성)
 //! 블록 키 = origin (match_id, replay_id, set_index) → export 가 우리 매치·세트 번호로 정확 매칭. 선수명은 export 시 리플레이 로스터로 해석
 //!   (sim 에는 athlete id 가 없어 pid → (팀, 챔피언) 만 저장; 라인 텍스트는 `{p:<pid>}` 자리표시자).
@@ -49,6 +50,8 @@ struct Raw {
     cds: HashMap<usize, (usize, usize, usize)>, // (skill, skill2, ult)
     nexus: HashMap<usize, usize>,               // entity id → team
     nexus_die: Option<usize>,
+    nexus_scanned: bool,                        // 엔티티 스캔 1회 완료(on_match_start 시점엔 챔피언·넥서스 엔티티가 아직 없다 — 09-20 실측 기타엔티티=[])
+    gold_last: HashMap<usize, i64>,             // pid → 마지막으로 읽은 골드(사망 중엔 player.gold() 가 0 → 직전 값 유지. 09-20 실측: 1:20 에 14,840G 차이 같은 헛 역전)
     last_gold_tick: i64,
     last_tick: i64,
     last_wall: Option<Instant>,
@@ -65,6 +68,8 @@ pub struct HlBlock {
     /// (tick, 텍스트 — `{p:<pid>}` 자리표시자 포함)
     pub lines: Vec<(i64, String)>,
     pub partial: bool,
+    /// 수집이 닿은 마지막 tick(진행도) — 같은 origin 의 블록 교체 판단에 쓴다.
+    pub last_tick: i64,
 }
 pub static BLOCKS: Mutex<Vec<HlBlock>> = Mutex::new(Vec::new());
 
@@ -93,12 +98,7 @@ impl StableMatchHook for Hook {
                 if let Some(e) = p.champion() { r.hp.insert(p.id(), e.hp().0); }
                 r.cds.insert(p.id(), p.cooldowns().map(|c| (c.1, c.2, c.3)).unwrap_or((0, 0, 0)));
             }
-            for i in 0..sim.entity_count() {
-                if let Some(e) = sim.entity_at(i) {
-                    if !e.is_champion() && !e.is_tower() && !e.is_minion() && e.name().map(|n| n.to_ascii_lowercase().contains("nexus")).unwrap_or(false) { r.nexus.insert(e.id(), e.team()); }
-                }
-            }
-            crate::log(&format!("[hl] start origin={:?} players={} nexus={:?}", key, r.players.len(), r.nexus));
+            crate::log(&format!("[hl] start origin={:?} players={} (챔피언명·넥서스는 첫 tick 들에서 지연 채움)", key, r.players.len()));
             *g = Some(r);
         }));
     }
@@ -122,9 +122,25 @@ impl StableMatchHook for Hook {
                 }
                 r.kill_seen += 1;
             }
+            // ★09-20: on_match_start 엔 챔피언 엔티티가 아직 없어 이름이 ""(→ 출력 "() 더블킬!")·넥서스 스캔도 빈손. 첫 tick 들에서 채운다.
+            if !r.nexus_scanned && t >= 30 {
+                let mut others: Vec<String> = Vec::new();
+                for i in 0..sim.entity_count() {
+                    if let Some(e) = sim.entity_at(i) {
+                        if e.is_champion() || e.is_minion() { continue; }
+                        let n = e.name().unwrap_or_default().to_ascii_lowercase();
+                        if n.contains("nexus") || n.contains("core") || n.contains("base") { r.nexus.insert(e.id(), e.team()); }
+                        if !e.is_tower() && others.len() < 12 && !others.contains(&n) { others.push(n); }
+                    }
+                }
+                if !r.nexus.is_empty() || t >= 30 * 60 { r.nexus_scanned = true; crate::log(&format!("[hl] 엔티티 스캔 t={} nexus={:?} 기타={:?}", t, r.nexus, others)); }
+            }
             let pids: Vec<usize> = r.players.keys().copied().collect();
             for pid in pids {
                 let Some(p) = sim.get_player(pid) else { continue };
+                if r.players.get(&pid).map(|x| x.0.is_empty()).unwrap_or(false) {
+                    if let Some(n) = p.champion().and_then(|e| e.name()) { if !n.is_empty() { if let Some(x) = r.players.get_mut(&pid) { x.0 = n; } } }
+                }
                 let alive = p.is_alive();
                 let was = r.alive.insert(pid, alive).unwrap_or(true);
                 if was && !alive { r.events.push((t, Ev::Death(pid))); }
@@ -147,7 +163,17 @@ impl StableMatchHook for Hook {
             if t - r.last_gold_tick >= GOLD_SAMPLE {
                 r.last_gold_tick = t;
                 let (mut gb, mut gr) = (0i64, 0i64);
-                for i in 0..sim.player_count() { if let Some(p) = sim.player_at(i) { if p.team() == 0 { gb += p.gold() as i64; } else { gr += p.gold() as i64; } } }
+                for i in 0..sim.player_count() {
+                    if let Some(p) = sim.player_at(i) {
+                        // ★09-20 실측: `player.gold()` = 현재 보유 골드(아이템 사면 급락 → 1:20 에 14,840G 헛 역전). "골드 열세"는 누적 획득이어야 한다
+                        //   → 통계 JSON `gold`(리플레이 statistics.gold 와 같은 누적 획득치) 우선, 없으면 보유 골드(사망 중엔 직전 값 유지) 폴백.
+                        let g = match p.statistics_json("gold").and_then(|v| v.trim().trim_matches('"').parse::<i64>().ok()) {
+                            Some(v) => v,
+                            None => if p.is_alive() { let v = p.gold() as i64; r.gold_last.insert(p.id(), v); v } else { *r.gold_last.get(&p.id()).unwrap_or(&0) },
+                        };
+                        if p.team() == 0 { gb += g; } else { gr += g; }
+                    }
+                }
                 r.events.push((t, Ev::Gold(gb, gr)));
             }
             if t % 30 == 0 && r.nexus_die.is_none() {
@@ -270,12 +296,22 @@ fn finalize(r: Raw, partial: bool) {
             }
         }
     }
-    crate::log(&format!("[hl] finalize origin={:?} partial={} kills={} casts={} hits={} gold={} nexus_die={:?} score={}:{} lines={}", origin, partial, kills.len(), casts.len(), hits.len(), gold.len(), r.nexus_die, kb, kr, ev.len()));
     ev.sort_by_key(|e| e.0);
     let mut blocks = BLOCKS.lock().unwrap_or_else(|e| e.into_inner());
+    // ★09-20 실측(0.6.0 라이브 관전): 같은 세트(origin)가 **두 번** 시뮬된다 — ①관전 진입 직후 전 경기를 한 번에 돌리는 선행 sim(수십 초 만에 is_end → 완성 블록)
+    //   ②그 뒤 화면 속도로 다시 도는 재생 sim(중간에 멈춤·idle 부분 확정 반복). 구 코드는 "origin 같으면 무조건 교체"라 ②의 부분 결과가 ①의 완성본을
+    //   덮어썼고, ②가 킬 1개·라인 0 이면 블록이 통째로 사라졌다(lines=0 → 하이라이트 섹션 소실). ⟹ 진행도가 더 나은 쪽만 남긴다.
+    if let Some(cur) = blocks.iter().find(|b| b.origin == origin) {
+        let keep_old = (!cur.partial && partial) || (cur.partial == partial && cur.last_tick >= r.last_tick && cur.lines.len() >= ev.len());
+        if keep_old {
+            if !partial || r.last_tick % (60 * TICKS_PER_SEC) == 0 { crate::log(&format!("[hl] finalize skip(기존 유지) origin={:?} partial={} last_tick={} lines={} ← 기존 partial={} last_tick={} lines={}", origin, partial, r.last_tick, ev.len(), cur.partial, cur.last_tick, cur.lines.len())); }
+            return;
+        }
+    }
+    crate::log(&format!("[hl] finalize origin={:?} partial={} last_tick={} kills={} casts={} hits={} gold={} nexus_die={:?} score={}:{} lines={}", origin, partial, r.last_tick, kills.len(), casts.len(), hits.len(), gold.len(), r.nexus_die, kb, kr, ev.len()));
     blocks.retain(|b| b.origin != origin);
-    if ev.is_empty() { return; }
-    blocks.push(HlBlock { origin, players: r.players.clone(), score: (kb, kr), lines: ev, partial });
+    if ev.is_empty() && kills.is_empty() { return; } // 아무 것도 못 모은 부분 수집 — 자리만 차지하지 않게
+    blocks.push(HlBlock { origin, players: r.players.clone(), score: (kb, kr), lines: ev, partial, last_tick: r.last_tick });
     while blocks.len() > MAX_BLOCKS { blocks.remove(0); }
 }
 

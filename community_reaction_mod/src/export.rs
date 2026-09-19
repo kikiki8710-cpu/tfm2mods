@@ -348,6 +348,7 @@ fn weighted_quantile(sorted: &[ChampTier], q: f32, total: f32) -> f32 {
 pub struct Req { pub our_team: usize, pub today: String, pub opp: Option<(usize, usize, usize)> }
 
 /// export 본체. Ok((opponent id, 요약 메모)) / Err(사유). 파일은 `<mod_dir>\latest_match.js`.
+static LAST_JS_HASH: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 pub fn run(ctx: &StableServerCtx<'_>, req: &Req) -> Result<(Option<usize>, String), String> {
     let n = EXPORT_N.fetch_add(1, Ordering::Relaxed);
     hl::flush_idle();
@@ -678,9 +679,14 @@ pub fn run(ctx: &StableServerCtx<'_>, req: &Req) -> Result<(Option<usize>, Strin
             let mut used: Vec<usize> = Vec::new();
             for (i, b) in matched.iter().enumerate() {
                 let (_, _, br, bs) = b.origin;
-                let mut set_idx: Option<usize> = if bs != u64::MAX && (bs as usize) < our_series.len() { Some(bs as usize) } else { None };
+                // ★09-20 실측: 라이브 관전 sim_origin.set_index 는 **1-based**(2세트 매치에서 1,2 로 관측) → −1. 킬스코어가 그 세트 리플레이와 맞으면 채택,
+                //   아니면(부분 블록·재생 중) 킬스코어 일치 세트 → 리플레이 id → 폴백 순.
+                let score_ok = |si: usize| our_series.get(si).map(|r| ji(&r.blue_perf, "total_kills") == b.score.0 && ji(&r.red_perf, "total_kills") == b.score.1).unwrap_or(false);
+                let mut set_idx: Option<usize> = None;
+                if bs != u64::MAX && bs >= 1 && ((bs - 1) as usize) < our_series.len() { let si = (bs - 1) as usize; if !used.contains(&si) && (score_ok(si) || b.partial) { set_idx = Some(si); } }
                 if set_idx.is_none() && br != u64::MAX { set_idx = our_series.iter().position(|r| r.id as u64 == br); }
                 if set_idx.is_none() { set_idx = our_series.iter().enumerate().position(|(si, r)| !used.contains(&si) && ji(&r.blue_perf, "total_kills") == b.score.0 && ji(&r.red_perf, "total_kills") == b.score.1); }
+                if set_idx.is_none() && bs != u64::MAX && bs >= 1 && ((bs - 1) as usize) < our_series.len() && !used.contains(&((bs - 1) as usize)) { set_idx = Some((bs - 1) as usize); }
                 let label = match set_idx { Some(si) => { used.push(si); format!("[{}세트 하이라이트 (킬스코어 {}:{})]", si + 1, b.score.0, b.score.1) } None => format!("[관전 세트 #{} (킬스코어 {}:{})]", i + 1, b.score.0, b.score.1) };
                 text.push_str(&format!("{}\n", label));
                 // 자리표시자 해석: {p:pid} → 선수명(리플레이 로스터: 팀0=블루 로스터에서 같은 챔피언), {c:champ} → 한글명
@@ -716,7 +722,11 @@ pub fn run(ctx: &StableServerCtx<'_>, req: &Req) -> Result<(Option<usize>, Strin
     let js_out = format!(r#"var latestMatchData = {{"summary": "{}", "series_id": {}, "is_series_finished": {}, "date": "{}"}};"#, escape_json(&text), latest.id, finished, match_date);
     let dir = crate::mod_dir().ok_or("mod_dir 없음")?;
     let path = format!(r"{}\latest_match.js", dir);
-    std::fs::write(&path, js_out.as_bytes()).map_err(|e| format!("write 실패 {}: {}", path, e))?;
+    // ★0.6.0 검증(09-17): 4초 주기 호출마다 26KB 를 무조건 다시 쓰고 있었다 → 내용 해시가 같으면 write 생략.
+    let h = { use std::hash::{Hash, Hasher}; let mut hs = std::collections::hash_map::DefaultHasher::new(); js_out.hash(&mut hs); hs.finish() };
+    if LAST_JS_HASH.swap(h, std::sync::atomic::Ordering::Relaxed) != h || !std::path::Path::new(&path).exists() {
+        std::fs::write(&path, js_out.as_bytes()).map_err(|e| format!("write 실패 {}: {}", path, e))?;
+    }
     Ok((Some(opp_id), format!("#{} replay={} match={:?} sets={} other={} finished={} text={}B today={}", n, latest.id, our_match_id, our_series.len(), other_series.len(), finished, text.len(), req.today)))
 }
 

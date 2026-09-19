@@ -17,7 +17,7 @@ mod hl;
 mod names;
 
 const MOD_ID: &str = "community_reaction_mod";
-const DBG: bool = true;
+const DBG: bool = false; // 09-20 하이라이트 검증 후 OFF(진단 시 true)
 const CMD: &str = "crm_export";
 const EVT: &str = "crm_result";
 const EXPORT_INTERVAL_US: u64 = 4_000_000;
