@@ -69,7 +69,7 @@ pub fn button_source(id: &str, x: i32, y: i32, w: i32, h: i32, label_tag: &str, 
 pub fn list_source(id: &str, x: i32, y: i32, w: i32, item_h: i32, size: i32, items: &[(&str, &str)]) -> String {
     let mut s = format!(
 "#{id}:color {{ visible: false; x: {x}px; y: {y}px; width: {w}px; height: {hh}px;
-  color: #1d1f2cff; stroke: 1; back_color: #4a4c56ff; rounding: Uniform {{ rounding: 8; }}
+  color: #4a4c56ff; stroke: 1; back_color: #1d1f2cff; rounding: Uniform {{ rounding: 8; }}
   padding: {{ left: 0px; right: 0px; top: 0px; bottom: 0px; }}
   child_type: TopToBottom {{ spacing: 0px; }}
 ", hh = item_h * items.len() as i32);
