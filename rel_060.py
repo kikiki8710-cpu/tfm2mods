@@ -27,6 +27,7 @@ RULES = {
     "custom_tier_assignment":   (None, set(), ("text",), ()),
     "tfm2_mod_order":           (None, set(), (), ("README_설치안내.txt",)),
     "tfm2_comptest_unlock":     (None, {"comptest_items.cfg"}, (), ()),
+    "tfm2_elemental_serpen":    (None, {"README_en.md", "README_ko.md", "serpen_probe.cfg"}, ("config", "s", "text"), ()),  # 0.5.8 zip 구성 동일(28 엔트리)
     "banpick_view_plus":        (os.path.join(WORKSHOP, "3766306566"), set(), ("text", "ui", "asset", "skins"), ()),  # illust(761MB) 는 워크샵 배포분 · zip 제외
 }
 BUNDLES = {"daram2_viewplus": ["roster_view_plus", "coaching_staff_view_plus", "training_view_plus", "recruitment_view_plus", "facility_view_plus", "custom_tier_assignment"]}
