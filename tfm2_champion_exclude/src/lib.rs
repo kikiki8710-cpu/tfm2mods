@@ -33,7 +33,7 @@ pub const MOD_ID: &str = "tfm2_champion_exclude";
 pub const VERSION: &str = "0.6.0";
 pub const I18N: &str = "#asset/base/text/ui?champ_excl.";
 /// 진단 로그(mods\tfm2_champion_exclude\champion_exclude.txt). 패치데이·UI 이벤트 단위라 저볼륨 — 상시 on.
-const LOG_ENABLED: bool = true;
+const LOG_ENABLED: bool = false; // 09-19 확정 배포(진단 시 true)
 
 #[link(name = "kernel32")]
 extern "system" { fn GetModuleFileNameW(module: usize, buf: *mut u16, size: u32) -> u32; fn GetModuleHandleExW(flags: u32, addr: *const u16, h: *mut usize) -> i32; }
