@@ -57,10 +57,12 @@
 // ⚠ 시드 재시뮬레이션 게임이라 적용 시 sim 결과가 바닐라와 달라진다.
 // ⚠ byte mismatch면 RVA stale(패치 옴) → 조용히 스킵 + 로그만. /migrate 후 재핀.
 //
-// 빌드: powershell -File C:\tfm2mods\build_inj.ps1 -Src C:\tfm2mods\tfm2_level_cap\src\lib.rs -ModId tfm2_level_cap
+// 빌드(★0.6.0 = stable ABI 껍데기, 2026-09-16): cd C:	fm2mods	fm2_level_cap && %USERPROFILE%\.cargoin\cargo.exe build --release
+//   → targetelease	fm2_level_cap.dll 을 mods	fm2_level_cap\ 로 복사. 클래식 SDK(build_inj.ps1) 경로는 0.6.0 부터 폐기(0.6.0 클래식 SDK 미배포·로더 거부).
+//   훅 본체는 그대로(raw RVA detour) — 바뀐 건 로더 계약(GameCtx/ModRegistration → StableHost/StableMod)뿐.
 // =====================================================================================
 
-use mod_api::*;
+use mod_api_stable::{declare_stable_mod, LogLevel, StableHost, StableMod};
 use std::path::PathBuf;
 use std::fs;
 use std::io::Write;
@@ -107,8 +109,8 @@ static mut TABLE_LEN: u64 = 0;
 //   방법 ①을 0.5.4에 먼저 돌려 기지 정답 1건 재현 확인 후 0.5.5 적용 → 각 버전 유일 1건.
 //   ★0.5.5 = 원본 바이트 변경: 48 8b 90(rax 베이스) → **49 8b 96(r14 베이스)** — mov rdx,[r14+0xd10].
 //   가드검사(교체영역 site+1..+6 내부로 점프하는 분기) = 0건, 7B 치환 안전.
-const RVA_LEN_LOAD: usize = 0x1835b4a;   // 0.5.6(구0.5.5=0x14d819a). 컨테이너델타(레벨업 0x14d7e10→0x15037c0·BYTE=SAME·함수내 +0x38a)·orig 498b96100d0000 실측 일치(r14 베이스·0xd10 불변). // 레벨업 함수 0x14d7e10 내 (구 0.5.4 0x14ece54 / 0.5.3 0x12c5b44 / 0.5.2 0x22d3fea)
-const ORIG_LEN_LOAD: [u8; 7] = [0x49, 0x8b, 0x96, 0x10, 0x0d, 0x00, 0x00]; // mov rdx,[r14+0xd10] (0.5.5: 베이스 rax→r14)
+const RVA_LEN_LOAD: usize = 0x151f034;   // 0.5.6(구0.5.5=0x14d819a). 컨테이너델타(레벨업 0x14d7e10→0x15037c0·BYTE=SAME·함수내 +0x38a)·orig 498b96100d0000 실측 일치(r14 베이스·0xd10 불변). // 레벨업 함수 0x14d7e10 내 (구 0.5.4 0x14ece54 / 0.5.3 0x12c5b44 / 0.5.2 0x22d3fea)
+const ORIG_LEN_LOAD: [u8; 7] = [0x48, 0x8b, 0x90, 0x10, 0x0d, 0x00, 0x00]; // ★0.6.0: mov rdx,[rax+0xd10] — 베이스 r14→rax 로 복귀(2026-09-16, 신 owner 0x151ebc0 내 유일: `mov rax,[r15+8]; mov r14,[r12+0xa60]; mov rdx,[rax+0xd10]; cmp r14,rdx`). ~~0.5.5~0.5.8: 49 8b 96 = [r14+0xd10]~~
 
 // UI 경험치 바 경로. 여기를 놓치면 레벨은 오르는데 경험치 막대가 깨진다(레벨 13+에서
 //   원본 11칸 테이블을 보고 len 가드에 걸림). 뒤따르는 `mov rax,[rax+0xd08]`가 같은
@@ -119,7 +121,7 @@ const ORIG_LEN_LOAD: [u8; 7] = [0x49, 0x8b, 0x96, 0x10, 0x0d, 0x00, 0x00]; // mo
 //   방법 ② 0.5.4 기지 정답 재현 후 적용 → 각 버전 유일 1건. 원본 7B·rax=GameSetting·rcx=index 전부
 //   무변경, 뒤따르는 `mov rax,[rax+0xd08]` 까지 거리 0x912 도 0.5.4와 동일 = UI 스텁 무수정.
 //   가드검사 0건, 7B 치환 안전.
-const RVA_UI_CMP: usize = 0x9560d9;      // 0.5.6(구0.5.5=0x95d8b9). 컨테이너 0x955680→0xb43ed0(본문변경·BYTE=DIFF)이라 owner내 유일검색으로 확정·orig 483b88100d0000 실측 일치(rax=GameSetting·0xd10 불변). // UI 함수 0x955680 내 (구 0.5.4 0xa99c29 / 0.5.3 0x95a359 / 0.5.2 0x80ae73)
+const RVA_UI_CMP: usize = 0xc667f4;      // 0.5.6(구0.5.5=0x95d8b9). 컨테이너 0x955680→0xb43ed0(본문변경·BYTE=DIFF)이라 owner내 유일검색으로 확정·orig 483b88100d0000 실측 일치(rax=GameSetting·0xd10 불변). // UI 함수 0x955680 내 (구 0.5.4 0xa99c29 / 0.5.3 0x95a359 / 0.5.2 0x80ae73)
 const ORIG_UI_CMP: [u8; 7] = [0x48, 0x3b, 0x88, 0x10, 0x0d, 0x00, 0x00];   // cmp rcx,[rax+0xd10]
 
 // GameSetting 오프셋
@@ -323,9 +325,10 @@ unsafe fn build_stub(stub: usize) {
 
     // 0.5.5: GameSetting 베이스 = r14 (REX.B) — mod=10 rm=110(r14)
     //   구 0.5.3/0.5.4(rax 베이스)는 48 8b 90 / 48 89 90 / 48 c7 80 이었다.
-    const LD_R14: [u8; 3] = [0x49, 0x8b, 0x96];   // mov rdx,[r14+disp32]
-    const ST_R14: [u8; 3] = [0x49, 0x89, 0x96];   // mov [r14+disp32],rdx
-    const MI_R14: [u8; 3] = [0x49, 0xc7, 0x86];   // mov qword [r14+disp32],imm32
+    // ★0.6.0: GameSetting 베이스 = rax (0.5.3/0.5.4 와 같은 인코딩). 0.5.5~0.5.8 은 r14(49 8b 96 / 49 89 96 / 49 c7 86)였다.
+    const LD_R14: [u8; 3] = [0x48, 0x8b, 0x90];   // mov rdx,[rax+disp32]
+    const ST_R14: [u8; 3] = [0x48, 0x89, 0x90];   // mov [rax+disp32],rdx
+    const MI_R14: [u8; 3] = [0x48, 0xc7, 0x80];   // mov qword [rax+disp32],imm32
 
     let mut s: Vec<u8> = Vec::new();
     s.extend_from_slice(&[0x41, 0x53]);                             // push r11
@@ -445,7 +448,7 @@ unsafe fn install_site(rva: usize, orig: &[u8; 7], builder: unsafe fn(usize)) ->
     Ok(format!("hooked @abs=0x{:x} stub=0x{:x} rel={}", site, stub, rel))
 }
 
-fn init(_ctx: &GameCtx) -> ModRegistration {
+fn init(host: &StableHost) -> StableMod {
     let (table, note) = load_config();
     let max_level = table.len() as u64 + 1;
     // ★Box::leak — 트램폴린이 이 주소를 imm64로 박으므로 절대 이동/해제되면 안 된다.
@@ -490,6 +493,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
                          ui_calls, UI_PATCH_COUNT.load(Ordering::Relaxed)));
         }
     });
-    ModRegistration::new(MOD_ID)
+    host.log(LogLevel::Info, "tfm2_level_cap (stable shell)");
+    StableMod::new(MOD_ID)
 }
-declare_mod!(init);
+declare_stable_mod!(init);

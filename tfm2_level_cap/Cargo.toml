@@ -1,0 +1,21 @@
+[package]
+name = "tfm2_level_cap"
+version = "2.2.0"
+edition = "2021"
+
+# ★0.6.0 부터 stable ABI 껍데기(mod-api-stable) + raw RVA 훅. 클래식 SDK 경로(build_inj.ps1) 폐기.
+# 빌드: %USERPROFILE%\.cargo\bin\cargo.exe build --release   (툴체인 무관)
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+# opt-level 2/3 = detour frame bloat -> STATUS_STACK_OVERFLOW (CLAUDE.md sec.2, 2026-07-18). keep 1.
+opt-level = 1
+overflow-checks = false
