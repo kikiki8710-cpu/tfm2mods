@@ -14,7 +14,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
 
 const MOD_ID: &str = "roster_view_plus";
-const DBG: bool = true;
+const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
 const VIEW: &str = "main.top.right.squad";
 const NA: usize = 12;
 const STAT_KEYS: [&str; NA] = ["last_hit", "skill_avoid", "skill_hit", "control_speed", "positioning", "judgement", "mental", "concentration", "order", "roaming", "aggressive", "ego"];
@@ -33,7 +33,10 @@ static ACTIVE: AtomicBool = AtomicBool::new(false);
 static SHOW: AtomicBool = AtomicBool::new(false);      // 능력치 모드
 static APPLIED: AtomicBool = AtomicBool::new(false);   // 현재 화면에 능력치 모드가 적용돼 있음
 static JSON_DUMPED: AtomicBool = AtomicBool::new(false);
-static LAYOUT: Mutex<Option<(f32, f32, f32, f32)>> = Mutex::new(None); // (face_x, face_w, col_x, col_w) ui px
+static CLICK_REGISTERED: AtomicBool = AtomicBool::new(false); // ★09-19: 뷰 재생성마다 재스폰하며 재등록하면 핸들러가 누적돼 클릭 1회에 2회 발화(recruitment 09-16 교훈) → 프로세스당 1회
+// ★09-19: 값 컬럼 ↔ 헤더 x 어긋남 보정(ui px, 값 노드 `x:` 에서 뺀다 · 음수 OK). None = 미측정. 첫 행 값 라벨 0 과 헤더 라벨 0 rect 실측 차이(실측 40px).
+static VAL_DX: Mutex<Option<f32>> = Mutex::new(None);
+static LAYOUT: Mutex<Option<(f32, f32, f32, f32, f32, f32)>> = Mutex::new(None); // (face_x, face_w, col_x, col_w, scale, right_lim) ui px · right_lim = 헤더 x 좌표계의 가시폭 오른쪽 한계
 static STATS: Mutex<Option<HashMap<usize, ([i64; NA], Vec<(String, i64)>)>>> = Mutex::new(None);
 
 #[link(name = "kernel32")]
@@ -139,7 +142,7 @@ fn faces_src(fx: f32, box_w: f32, n: usize) -> String {
     s.push('}'); s
 }
 fn toggle_src() -> String {
-    format!("{}:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; x: 320px; anchor_y: 1; pivot_y: 1; y: -12px; width: 40px; height: 40px; icon: {{ source: \"asset/base/ui/icons/swap\"; rect: {{ x: 10; y: 10; w: 20; h: 20; }} }}\n  #icon:image {{ ignore_event: true; x: 10px; y: 10px; width: 20px; height: 20px; source: \"asset/base/ui/icons/swap\"; color: #d7dbe4ff; }}\n}}", BTN_ID)
+    format!("{}:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; x: 320px; anchor_y: 1; pivot_y: 1; y: 2px; width: 40px; height: 40px; icon: {{ source: \"asset/base/ui/icons/swap\"; rect: {{ x: 10; y: 10; w: 20; h: 20; }} }}\n  #icon:image {{ ignore_event: true; x: 10px; y: 10px; width: 20px; height: 20px; source: \"asset/base/ui/icons/swap\"; color: #d7dbe4ff; }}\n}}", BTN_ID)
 }
 
 struct Ext;
@@ -159,7 +162,7 @@ impl StableExtension for Ext {
             if !ctx.ui_exists(&btn) {
                 let ok = ctx.ui_spawn_source(VIEW, &toggle_src());
                 log(&format!("토글 스폰 {} rect={:?}", ok, ctx.ui_node_rect(&btn)));
-                if ok { ctx.ui_register_click(&btn, "", |_c| { let v = !SHOW.load(Ordering::Relaxed); SHOW.store(v, Ordering::Relaxed); save_show(v); }); }
+                if ok && !CLICK_REGISTERED.swap(true, Ordering::Relaxed) { ctx.ui_register_click(&btn, "", |_c| { let v = !SHOW.load(Ordering::Relaxed); SHOW.store(v, Ordering::Relaxed); save_show(v); log(&format!("토글 클릭 → show={}", v)); }); }
             }
             let show = SHOW.load(Ordering::Relaxed);
             let applied = APPLIED.load(Ordering::Relaxed);
@@ -179,7 +182,7 @@ impl StableExtension for Ext {
             // 레이아웃(1회): name 헤더 오른쪽부터 [얼굴 스트립][12 컬럼]. 배율 = 카테고리 실측폭 / (게임 헤더 rect 로 추정 불가) → 헤더 스폰 후 실측.
             let layout = *LAYOUT.lock().unwrap_or_else(|e| e.into_inner());
             let hdr = format!("{}.{}", cat, HDR_ID);
-            let (fx, fw, cx, cw) = match layout {
+            let (fx, fw, cx, cw, scale, right_lim) = match layout {
                 Some(l) => l,
                 None => {
                     if !ctx.ui_exists(&hdr) { let _ = ctx.ui_spawn_source(&cat, &header_src(600.0, 60.0)); return; }
@@ -196,7 +199,10 @@ impl StableExtension for Ext {
                     let total = cr.2 / scale - (name_right + delta) - 8.0;
                     let face_w = (MAX_PROF as f32 * (PROF_BOX + PROF_GAP)).min(total * 0.3);
                     let col_w = ((total - face_w - 8.0) / NA as f32).min(85.0).max(48.0);
-                    let l = (name_right, face_w, name_right + face_w + 8.0, col_w);
+                    // ★09-19: 컬럼 폭이 85 로 캡되면 남는 폭이 생긴다 → 헤더(=값 컬럼 기준)를 가시폭 오른쪽 끝(−8px)에 붙여 항목명을 오른쪽으로
+                    let right_lim = cr.2 / scale - delta - 8.0;
+                    let cx_fit = right_lim - col_w * NA as f32;
+                    let l = (name_right, face_w, cx_fit.max(name_right + face_w + 8.0), col_w, scale, right_lim);
                     *LAYOUT.lock().unwrap_or_else(|e| e.into_inner()) = Some(l);
                     log(&format!("레이아웃: scale={:.3} delta={:.0} hdr={:?} cat(clip)={:?} name={:?} → face_x={:.0} face_w={:.0} col_x={:.0} col_w={:.0}", scale, delta, hr, cr, name_r, l.0, l.1, l.2, l.3));
                     ctx.ui_remove_node(&hdr);
@@ -204,6 +210,24 @@ impl StableExtension for Ext {
                 }
             };
             if !ctx.ui_exists(&hdr) { let _ = ctx.ui_spawn_source(&cat, &header_src(cx, cw)); }
+            // ★09-19: 값 컬럼 x 보정(1회 측정). 행(LeftToRight: name_slot→faces→vals)과 헤더(category 자동배치+probe 보정)의 기준이 달라 실측 40px 어긋났다.
+            //   첫 행 값 라벨 0 과 헤더 라벨 0 의 rect 차이를 재서 값 컬럼 전부를 그만큼 왼쪽으로(값 노드만 제거 → 다음 틱 재스폰 · 얼굴 스트립은 유지).
+            let val_dx = *VAL_DX.lock().unwrap_or_else(|e| e.into_inner());
+            if val_dx.is_none() {
+                if let Some(r0) = rows.first() {
+                    let v0 = format!("{}.{}.{}.rvp_v0", contents, r0, VAL_ID);
+                    let h0 = format!("{}.rvp_h0", hdr);
+                    if let (Some(vr), Some(hr)) = (ctx.ui_node_rect(&v0), ctx.ui_node_rect(&h0)) {
+                        if vr.2 > 1.0 && hr.2 > 1.0 {
+                            let dx = (vr.0 - hr.0) / scale;
+                            *VAL_DX.lock().unwrap_or_else(|e| e.into_inner()) = Some(dx);
+                            log(&format!("값/헤더 정렬 실측: v0={:?} h0={:?} scale={:.3} → dx={:.1} (right_lim={:.0})", vr, hr, scale, dx, right_lim));
+                            if dx.abs() > 1.0 { for r in &rows { let p = format!("{}.{}.{}", contents, r, VAL_ID); if ctx.ui_exists(&p) { ctx.ui_remove_node(&p); } } return; }
+                        }
+                    }
+                }
+            }
+            let val_dx = val_dx.unwrap_or(0.0);
             let box_w = ((fw - (MAX_PROF as f32 - 1.0) * PROF_GAP) / MAX_PROF as f32).min(PROF_BOX).floor();
             for r in rows {
                 let Ok(aid) = r.parse::<usize>() else { continue };
@@ -214,14 +238,15 @@ impl StableExtension for Ext {
                 // ★행은 LeftToRight 자동배치: 스폰 순서 = 화면 순서. 얼굴 스트립을 먼저(name_slot 뒤 16px), 값 컬럼을 그 뒤(8px).
                 let _ = (fx, cx);
                 let faces = format!("{}.{}", row, FACE_ID);
-                let mut fok = false;
-                if box_w >= 14.0 && !profs.is_empty() {
+                let had_faces = ctx.ui_exists(&faces); // ★09-19: 값 노드만 제거하고 재진입할 때 얼굴 스트립을 또 스폰하면 2겹(200px) → 값이 밀린다(실사고)
+                let mut fok = had_faces;
+                if !had_faces && box_w >= 14.0 && !profs.is_empty() {
                     fok = ctx.ui_spawn_source(&row, &faces_src(16.0, box_w, profs.len()));
                     if !fok { log(&format!("얼굴 스트립 스폰 실패 {}", row)); }
                 }
-                let vx = if fok { 8.0 } else { 16.0 + fw + 8.0 };
+                let vx = (if fok { 8.0 } else { 16.0 + fw + 8.0 }) - val_dx;
                 if !ctx.ui_spawn_source(&row, &values_src(vx, cw, &st)) { log(&format!("값 스폰 실패 {}", row)); continue; }
-                if fok {
+                if fok && !had_faces {
                     {
                         for (k, (id, val)) in profs.iter().enumerate() {
                             let ok = ctx.ui_set_champion_icon(&format!("{}.pi{}", faces, k), id, box_w - 4.0, box_w - 4.0, 2.0);
@@ -238,6 +263,7 @@ fn deactivate() {
     if ACTIVE.swap(false, Ordering::Relaxed) {
         APPLIED.store(false, Ordering::Relaxed);
         *LAYOUT.lock().unwrap_or_else(|e| e.into_inner()) = None;
+        *VAL_DX.lock().unwrap_or_else(|e| e.into_inner()) = None;
         *STATS.lock().unwrap_or_else(|e| e.into_inner()) = None;
     }
 }

@@ -21,7 +21,7 @@ use std::sync::Mutex;
 mod draft_scene;
 
 const MOD_ID: &str = "banpick_view_plus";
-const DBG: bool = true;
+const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
 const ROOT: &str = "main";
 const DISC: &str = "main.header.bp_settings";
 const PANEL: &str = "main.bp_settings_panel";

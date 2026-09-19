@@ -1,0 +1,178 @@
+{
+  "ko": {
+    "banpick_view_plus": {
+      "settings_title": "환경설정",
+      "panel_toggle": "하단 스탯 패널",
+      "namecolor_toggle": "이름 버프/너프 색",
+      "redflip_toggle": "레드팀 반전 끄기",
+      "hoverbg_toggle": "배경 표시",
+      "follow_toggle": "호버 챔피언 배경",
+      "bgcycle_label": "기본 배경",
+      "pack_caption": "스플래시 아트 팩 일괄 적용"    }
+  },
+  "en": {
+    "banpick_view_plus": {
+      "settings_title": "Settings",
+      "panel_toggle": "Bottom stat panel",
+      "namecolor_toggle": "Buff/nerf name color",
+      "redflip_toggle": "Red-team unflip",
+      "hoverbg_toggle": "Show background",
+      "follow_toggle": "Hover champ background",
+      "bgcycle_label": "Default background",
+      "pack_caption": "Apply art pack in bulk"    }
+  },
+  "ja": {
+    "banpick_view_plus": {
+      "settings_title": "Settings",
+      "panel_toggle": "Bottom stat panel",
+      "namecolor_toggle": "Buff/nerf name color",
+      "redflip_toggle": "Red-team unflip",
+      "hoverbg_toggle": "Show background",
+      "follow_toggle": "Hover champ background",
+      "bgcycle_label": "Default background",
+      "pack_caption": "Apply art pack in bulk"    }
+  },
+  "de": {
+    "banpick_view_plus": {
+      "settings_title": "Settings",
+      "panel_toggle": "Bottom stat panel",
+      "namecolor_toggle": "Buff/nerf name color",
+      "redflip_toggle": "Red-team unflip",
+      "hoverbg_toggle": "Show background",
+      "follow_toggle": "Hover champ background",
+      "bgcycle_label": "Default background",
+      "pack_caption": "Apply art pack in bulk"    }
+  },
+  "vi": {
+    "banpick_view_plus": {
+      "settings_title": "Settings",
+      "panel_toggle": "Bottom stat panel",
+      "namecolor_toggle": "Buff/nerf name color",
+      "redflip_toggle": "Red-team unflip",
+      "hoverbg_toggle": "Show background",
+      "follow_toggle": "Hover champ background",
+      "bgcycle_label": "Default background",
+      "pack_caption": "Apply art pack in bulk"    }
+  },
+  "tr": {
+    "banpick_view_plus": {
+      "settings_title": "Settings",
+      "panel_toggle": "Bottom stat panel",
+      "namecolor_toggle": "Buff/nerf name color",
+      "redflip_toggle": "Red-team unflip",
+      "hoverbg_toggle": "Show background",
+      "follow_toggle": "Hover champ background",
+      "bgcycle_label": "Default background",
+      "pack_caption": "Apply art pack in bulk"    }
+  },
+  "nl": {
+    "banpick_view_plus": {
+      "settings_title": "Settings",
+      "panel_toggle": "Bottom stat panel",
+      "namecolor_toggle": "Buff/nerf name color",
+      "redflip_toggle": "Red-team unflip",
+      "hoverbg_toggle": "Show background",
+      "follow_toggle": "Hover champ background",
+      "bgcycle_label": "Default background",
+      "pack_caption": "Apply art pack in bulk"    }
+  },
+  "ru": {
+    "banpick_view_plus": {
+      "settings_title": "Settings",
+      "panel_toggle": "Bottom stat panel",
+      "namecolor_toggle": "Buff/nerf name color",
+      "redflip_toggle": "Red-team unflip",
+      "hoverbg_toggle": "Show background",
+      "follow_toggle": "Hover champ background",
+      "bgcycle_label": "Default background",
+      "pack_caption": "Apply art pack in bulk"    }
+  },
+  "fr": {
+    "banpick_view_plus": {
+      "settings_title": "Settings",
+      "panel_toggle": "Bottom stat panel",
+      "namecolor_toggle": "Buff/nerf name color",
+      "redflip_toggle": "Red-team unflip",
+      "hoverbg_toggle": "Show background",
+      "follow_toggle": "Hover champ background",
+      "bgcycle_label": "Default background",
+      "pack_caption": "Apply art pack in bulk"    }
+  },
+  "zh-hans": {
+    "banpick_view_plus": {
+      "settings_title": "设置",
+      "panel_toggle": "底部属性面板",
+      "namecolor_toggle": "名称增强/削弱上色",
+      "redflip_toggle": "关闭红队翻转",
+      "hoverbg_toggle": "显示背景",
+      "follow_toggle": "悬停英雄背景",
+      "bgcycle_label": "默认背景",
+      "pack_caption": "原画包批量应用"    }
+  },
+  "zh-hant": {
+    "banpick_view_plus": {
+      "settings_title": "設定",
+      "panel_toggle": "底部屬性面板",
+      "namecolor_toggle": "名稱增強/削弱上色",
+      "redflip_toggle": "關閉紅隊翻轉",
+      "hoverbg_toggle": "顯示背景",
+      "follow_toggle": "懸停英雄背景",
+      "bgcycle_label": "預設背景",
+      "pack_caption": "原畫包批量應用"    }
+  },
+  "zh-CN": {
+    "banpick_view_plus": {
+      "settings_title": "设置",
+      "panel_toggle": "底部属性面板",
+      "namecolor_toggle": "名称增强/削弱上色",
+      "redflip_toggle": "关闭红队翻转",
+      "hoverbg_toggle": "显示背景",
+      "follow_toggle": "悬停英雄背景",
+      "bgcycle_label": "默认背景",
+      "pack_caption": "原画包批量应用"    }
+  },
+  "zh": {
+    "banpick_view_plus": {
+      "settings_title": "设置",
+      "panel_toggle": "底部属性面板",
+      "namecolor_toggle": "名称增强/削弱上色",
+      "redflip_toggle": "关闭红队翻转",
+      "hoverbg_toggle": "显示背景",
+      "follow_toggle": "悬停英雄背景",
+      "bgcycle_label": "默认背景",
+      "pack_caption": "原画包批量应用"    }
+  },
+  "schinese": {
+    "banpick_view_plus": {
+      "settings_title": "设置",
+      "panel_toggle": "底部属性面板",
+      "namecolor_toggle": "名称增强/削弱上色",
+      "redflip_toggle": "关闭红队翻转",
+      "hoverbg_toggle": "显示背景",
+      "follow_toggle": "悬停英雄背景",
+      "bgcycle_label": "默认背景",
+      "pack_caption": "原画包批量应用"    }
+  },
+  "zh-TW": {
+    "banpick_view_plus": {
+      "settings_title": "設定",
+      "panel_toggle": "底部屬性面板",
+      "namecolor_toggle": "名稱增強/削弱上色",
+      "redflip_toggle": "關閉紅隊翻轉",
+      "hoverbg_toggle": "顯示背景",
+      "follow_toggle": "懸停英雄背景",
+      "bgcycle_label": "預設背景",
+      "pack_caption": "原畫包批量應用"    }
+  },
+  "tchinese": {
+    "banpick_view_plus": {
+      "settings_title": "設定",
+      "panel_toggle": "底部屬性面板",
+      "namecolor_toggle": "名稱增強/削弱上色",
+      "redflip_toggle": "關閉紅隊翻轉",
+      "hoverbg_toggle": "顯示背景",
+      "follow_toggle": "懸停英雄背景",
+      "bgcycle_label": "預設背景",
+      "pack_caption": "原畫包批量應用"    }
+  }
+}

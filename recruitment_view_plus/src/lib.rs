@@ -16,7 +16,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
 
 const MOD_ID: &str = "recruitment_view_plus";
-const DBG: bool = true;
+const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
 const VIEW: &str = "main.top.right.scout";
 const NA: usize = 12;
 const NS: usize = 10;

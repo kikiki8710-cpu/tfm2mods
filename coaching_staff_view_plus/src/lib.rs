@@ -13,7 +13,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
 
 const MOD_ID: &str = "coaching_staff_view_plus";
-const DBG: bool = true;
+const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
 const VIEW: &str = "main.top.right.staff";
 const NUM_STATS: usize = 10;
 const STAT_KEYS: [&str; NUM_STATS] = ["banpick", "strategy", "negotiation", "judge_ability", "judge_potential", "feedback", "power_analysis", "control_coaching", "judgment_coaching", "mental_coaching"];

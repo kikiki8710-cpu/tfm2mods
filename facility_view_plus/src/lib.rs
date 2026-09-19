@@ -17,7 +17,7 @@ use std::sync::Mutex;
 mod team_sync;
 
 const MOD_ID: &str = "facility_view_plus";
-const DBG: bool = true;
+const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
 const VIEW: &str = "main.top.right.facility";
 const PANEL: &str = "main.top.right.facility.contents.merchandise";
 const CMD: &str = "fvp_produce";

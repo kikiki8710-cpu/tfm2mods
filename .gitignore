@@ -161,3 +161,6 @@ sylas/.gemini_key
 /custom_tier_assignment/target/
 /training_view_plus/target/
 /*/preview.png
+!/banpick_view_plus/
+/banpick_view_plus/target/
+/banpick_view_plus/**/*.bak_*

@@ -92,7 +92,7 @@ fn t(ctx: &StableClient<'_>, k: &str) -> String { ctx.i18n(&format!("{}{}", I18N
 
 fn panel_source() -> String {
     let mut s = format!(
-"#{PANEL}:color {{ visible: false; x: {PANEL_X}px; y: {PANEL_Y}px; width: {PANEL_W}px; height: {PANEL_H}px; color: #161721ff; stroke: 1; back_color: #4a4c56ff; rounding: Uniform {{ rounding: 12; }}
+"#{PANEL}:color {{ visible: false; x: {PANEL_X}px; y: {PANEL_Y}px; width: {PANEL_W}px; height: {PANEL_H}px; color: #4a4c56ff; stroke: 1; back_color: #161721ff; rounding: Uniform {{ rounding: 12; }}
   #title:label {{ @\"asset/base/style/main#bold_label\"; x: 24px; y: 18px; width: 580px; height: 36px; size: 22; align_y: Center; text: \"{I18N}title\"; }}
   #desc:label {{ @\"asset/base/style/main#label\"; x: 24px; y: 58px; width: 592px; height: 80px; size: 14; line_height: 20; color: #a3a9b6ff; align_y: Center; text: \"{I18N}desc\"; }}
   #close_x:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; anchor_x: 1; pivot_x: 1; x: -20px; y: 18px; width: 36px; height: 36px; icon: {{ source: \"asset/base/ui/icons/cross\"; rect: {{ x: 10; y: 10; w: 16; h: 16; }} }} }}
@@ -118,7 +118,7 @@ fn list_source(i: usize) -> String {
     dd::list_source(&format!("dl{i}"), PANEL_X + DD_X, PANEL_Y + ROW_Y0 + i as i32 * ROW_H + DD_H + dd::LIST_GAP as i32, DD_W, 34, 15, &refs)
 }
 fn btn_source() -> String {
-    format!("#{BTN}:color_icon_button {{ @\"asset/base/style/main#secondary_button\"; width: 180px; height: 31px; text: {{ font: \"asset/base/font/set/bold\"; text: \"{I18N}open_btn\"; size: 14; align_x: Center; align_y: Center; }} }}")
+    format!("#{BTN}:color_icon_button {{ @\"asset/base/style/main#secondary_button\"; x: 240px; width: 180px; height: 31px; text: {{ font: \"asset/base/font/set/bold\"; text: \"{I18N}open_btn\"; size: 14; align_x: Center; align_y: Center; }} }}")
 }
 
 fn register(ctx: &mut StableClient<'_>) {

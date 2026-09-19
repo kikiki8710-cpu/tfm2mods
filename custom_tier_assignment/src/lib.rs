@@ -20,7 +20,7 @@ use std::sync::Mutex;
 mod team_sync;
 
 const MOD_ID: &str = "custom_tier_assignment";
-const DBG: bool = true;
+const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
 const VIEW: &str = "main.top.right.champion_info";
 const ACTIONS: &str = "main.top.right.champion_info.data.action_buttons";
 const CARDS: &str = "main.top.right.champion_info.data.champions.contents";
@@ -48,7 +48,7 @@ fn stat_name_map(ctx: &StableClient<'_>) -> HashMap<String, String> {
 }
 /// 통계 챔피언 표 이름 색칠(뷰가 보일 때만 · 6프레임마다 · 색 캐시).
 fn stat_color_tick(ctx: &mut StableClient<'_>, f: u64) {
-    if f % 600 == 0 { let rows = ctx.ui_child_names(STAT_ROWS); let k0 = rows.first().map(|r| ctx.ui_child_names(&format!("{}.{}", STAT_ROWS, r))).unwrap_or_default(); let k1 = rows.first().map(|r| ctx.ui_child_names(&format!("{}.{}.data", STAT_ROWS, r))).unwrap_or_default(); let t0 = rows.first().and_then(|r| ctx.ui_text(&format!("{}.{}.data.champion_name.text", STAT_ROWS, r))); log(&format!("statdiag: view_vis={:?} exists={} rows={} kids0={:?} data_kids={:?} text0={:?} stat_kids={:?}", ctx.ui_visible(STAT_VIEW), ctx.ui_exists(STAT_VIEW), rows.len(), k0, k1, t0, ctx.ui_child_names("main.top.right.statistics"))); }
+    if DBG && f % 600 == 0 { let rows = ctx.ui_child_names(STAT_ROWS); let k0 = rows.first().map(|r| ctx.ui_child_names(&format!("{}.{}", STAT_ROWS, r))).unwrap_or_default(); let k1 = rows.first().map(|r| ctx.ui_child_names(&format!("{}.{}.data", STAT_ROWS, r))).unwrap_or_default(); let t0 = rows.first().and_then(|r| ctx.ui_text(&format!("{}.{}.data.champion_name.text", STAT_ROWS, r))); log(&format!("statdiag: view_vis={:?} exists={} rows={} kids0={:?} data_kids={:?} text0={:?} stat_kids={:?}", ctx.ui_visible(STAT_VIEW), ctx.ui_exists(STAT_VIEW), rows.len(), k0, k1, t0, ctx.ui_child_names("main.top.right.statistics"))); }
     if ctx.ui_visible(STAT_VIEW) != Some(true) { if STAT_COLOR.lock().unwrap_or_else(|e| e.into_inner()).is_some() { *STAT_COLOR.lock().unwrap_or_else(|e| e.into_inner()) = None; } return; }
     let on = cfg().name_color >= 0.5;
     if on && (TINTS.lock().unwrap_or_else(|e| e.into_inner()).is_none() || f.saturating_sub(STAT_TINT_AT.load(Ordering::Relaxed)) > 600) { *TINTS.lock().unwrap_or_else(|e| e.into_inner()) = Some(compute_tints(ctx)); STAT_TINT_AT.store(f, Ordering::Relaxed); }
