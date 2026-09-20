@@ -418,12 +418,12 @@ fn apply_vpack(idx: usize) {
 }
 fn asset_of(key: &str) -> String { format!("asset/{}/illust/raw/{}", MOD_ID, key) }
 
-fn layout_for(card_area: f32, show: bool) -> (f32, f32) {
-    if !show { return (INFO_Y_OFF, 0.0); }
-    if card_area <= 0.0 { return (INFO_Y_ON, 0.0); }
-    let card_end = CONTENTS_Y + card_area; let panel_in_scroll = INFO_Y_ON - SCROLL_Y;
-    let spacer = if card_end > panel_in_scroll { card_end + (VIEWPORT_H - panel_in_scroll) + CONTENTS_Y - SPACER_H } else { 0.0 };
-    (INFO_Y_ON, spacer)
+/// ★09-20(유저 제보 "ㅎ 챔프 일부가 기본 창에서 안 뜸 — 안 보이는 부분에 가려진 듯"): 스페이서로 스크롤 범위를 늘리는 방식은
+///   마지막 줄이 하단 패널(y 745~985) 뒤에 남는 경우가 있어 폐기. 대신 **스크롤 뷰 높이 자체를 패널 위까지(640px)** 로 두고
+///   패널을 끄면 880px 로 되돌린다 — 가려질 영역이 아예 없다. 반환 = (패널 y, 스크롤 뷰 높이).
+fn layout_for(_card_area: f32, show: bool) -> (f32, f32) {
+    if !show { return (INFO_Y_OFF, VIEWPORT_H); }
+    (INFO_Y_ON, INFO_Y_ON - SCROLL_Y)
 }
 fn push_click(s: &str) { PENDING_CLICKS.lock().unwrap_or_else(|e| e.into_inner()).push(s.to_string()); }
 fn name_map(ctx: &StableClient<'_>) -> HashMap<String, String> {
@@ -724,7 +724,9 @@ impl StableExtension for Ext {
                 let mut last = LAST_LAYOUT.lock().unwrap_or_else(|e| e.into_inner());
                 if (last.0 - py).abs() > 0.5 || (last.1 - sy).abs() > 0.5 {
                     ctx.ui_set_properties("main.champion_info", &format!("y: {}px;", py as i32));
-                    ctx.ui_set_properties("main.champions.bp_spacer", &format!("y: {}px;", sy as i32));
+                    ctx.ui_set_properties("main.champions", &format!("height: {}px;", sy as i32));
+                    ctx.ui_set_properties("main.champions.bp_spacer", "y: 0px;");
+                    if DBG { log(&format!("layout: panel y={} scroll h={} card_area={}", py, sy, card_area)); }
                     *last = (py, sy);
                 }
             }

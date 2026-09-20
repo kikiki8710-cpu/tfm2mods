@@ -1273,7 +1273,7 @@ main:match_ui {
 
   #champions:scroll_view {
     width: 1250px;
-    height: 880px;
+    height: 640px;
 
     x: 335px;
     y: 105px;
