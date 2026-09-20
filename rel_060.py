@@ -34,6 +34,8 @@ RULES = {
     # crm 예외 규칙(REPORT community_reaction_mod/02 §2-a-1): 워크샵 폴더 덮어쓰기 패치 — mod.mod_info 의도적 미동봉(mods\ 이중 등록 방지)·README 필수·html 동봉
     "community_reaction_mod":   (os.path.join(WORKSHOP, "3738958482"), {"TFA2_gallery.html"}, (), ("README_설치안내.txt",)),
 }
+# ★09-20 유저 지시(banpick_view_plus): 일러스트는 **경로만** 배포 — zip 에 빈 디렉터리 엔트리로 넣고 이미지 파일은 제외
+EMPTY_DIRS = {"banpick_view_plus": ("illust/blue", "illust/red", "illust/red_noflip")}
 BUNDLES = {"daram2_viewplus": ["roster_view_plus", "coaching_staff_view_plus", "training_view_plus", "recruitment_view_plus", "facility_view_plus", "custom_tier_assignment"]}
 EXC = (".bak", ".log", ".old", ".pdb", ".exp", ".lib")
 
@@ -69,6 +71,8 @@ def add(z, m, files, root_prefix=""):
         for k in PII:
             if k in data: print(f"  ⚠PII: {m}/{rel} ← {k.decode()}")
         z.write(p, f"{root_prefix}{m}/{rel}")
+    for d in EMPTY_DIRS.get(m, ()):
+        zi = zipfile.ZipInfo(f"{root_prefix}{m}/{d}/"); zi.external_attr = 0o40775 << 16; z.writestr(zi, b"")
     dll = [p for r, p in files if r == f"{m}.dll"][0]; st = os.stat(dll)
     print(f"  {m}: dll {st.st_size}B {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime))} · {len(files)} files")
 
