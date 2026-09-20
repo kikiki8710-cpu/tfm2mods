@@ -1,0 +1,100 @@
+
+########## INIT game 0.6.0 host_abi=9 sdk_abi=9 probes=260 ##########
+[sweep] ✓ #0 e73260 line_recall_pressure_penalty (wrap 0x7ffbdc9c2840 orig 0x1f781d80000)
+[sweep] ✓ #1 fb9b70 target_bush_v41 (wrap 0x7ffbdc9c3a20 orig 0x1f781d80040)
+[sweep] ✓ #2 f3d140 AgentVerHamster::count_nearby_enemies (wrap 0x7ffbdc9c2db0 orig 0x1f781d80080)
+[sweep] ✓ #3 f882e0 v23_healthy_allies_near_point (wrap 0x7ffbdc9c3380 orig 0x1f781d800c0)
+[sweep] ✓ #4 f89c30 v23_should_break_objective_hunt_anchor (wrap 0x7ffbdc9c4010 orig 0x1f781d80100)
+[sweep] 선택 5 · 설치 5
+[install] probe060_on.txt 없음/빈 파일(또는 전부 sweep) → 프로브 0
+[f0 sweep]
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=96 cmp=96 DIFF=0 pan=0
+
+[f300 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=9658 cmp=9658 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=451 cmp=451 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=46903 cmp=46903 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=216 cmp=0 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=108 cmp=108 DIFF=0 pan=0
+
+[f600 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=15720 cmp=15720 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=1082 cmp=1082 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=78695 cmp=78695 DIFF=0 pan=0
+
+[f900 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=24624 cmp=24624 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=1948 cmp=1948 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=132155 cmp=132155 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=1518 cmp=250 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=681 cmp=681 DIFF=0 pan=0
+
+[f1200 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=27075 cmp=27075 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=2153 cmp=2153 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=150460 cmp=150460 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=1846 cmp=250 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=872 cmp=872 DIFF=0 pan=0
+
+[f1500 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=33606 cmp=33606 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=2158 cmp=2158 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=185281 cmp=185281 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=1962 cmp=250 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=930 cmp=930 DIFF=0 pan=0
+
+[f1800 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=37414 cmp=37414 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=200962 cmp=200962 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=2108 cmp=250 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1003 cmp=1003 DIFF=0 pan=0
+
+[f2100 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=45088 cmp=45088 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=2173 cmp=2173 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=229704 cmp=229704 DIFF=0 pan=0
+
+[f2400 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=54431 cmp=54431 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=2276 cmp=2276 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=258862 cmp=258862 DIFF=0 pan=0
+
+[f2700 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=64352 cmp=64352 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=3002 cmp=3002 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=296582 cmp=296582 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=3246 cmp=434 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1480 cmp=1480 DIFF=0 pan=0
+
+[f3000 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=67521 cmp=67521 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=312658 cmp=312658 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=3256 cmp=434 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1485 cmp=1485 DIFF=0 pan=0
+
+[f3300 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=73153 cmp=73153 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=3780 cmp=3780 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=335045 cmp=335045 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=3264 cmp=434 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1489 cmp=1489 DIFF=0 pan=0
+
+[f3600 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=76292 cmp=76292 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=4122 cmp=4122 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=346586 cmp=346586 DIFF=0 pan=0
+
+[f3900 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=85238 cmp=85238 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=4872 cmp=4872 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=383751 cmp=383751 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=4446 cmp=434 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=2110 cmp=2110 DIFF=0 pan=0
+
+[f4200 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=95173 cmp=95173 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=5116 cmp=5116 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=417026 cmp=417026 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=5826 cmp=468 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=2851 cmp=2851 DIFF=0 pan=0
+

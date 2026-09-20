@@ -9,12 +9,14 @@
 //!   출력: 같은 폴더 `probe060.txt` — INIT · 설치 결과(프롤로그 불일치는 skip) · 5초마다 변화분 · 콜러 RVA.
 //! ★2단계(sweep · game==mine) 는 재현체(명세에서 직접 쓴 Rust) 가 생기면 `cap_fn` 자리에 「원본 실행 → 내 재현 실행 → 비교」
 //!   를 얹는다(0.5.8 sweep20.rs 의 SRET_LIVE/ARG_SNAP 기구 이식 대상 · 이 파일 범위 밖).
+//! ★2단계 = `sweep060.rs`(wrap + 재현체 my_* · 게이트 `sweep060_on.txt`) — 09-20 배치 1 = tier1 잎 5.
 //! ⚠ 프로브와 sweep 은 같은 진입부를 패치하므로 한 함수에 동시에 걸 수 없다(0.5.8 과 동일 원칙).
 //! ⚠ 진입 트램폴린은 rax 를 클로버한다(함수 진입 시 rax 는 살아있지 않다는 전제 · 0.5.8 과 동일) — 복귀 점프는 `jmp [rip+0]` 로 rax 보존.
 use mod_api_stable::{declare_stable_mod, LogLevel, StableClient, StableExtension, StableHost, StableMod};
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::Mutex;
 mod probe_tbl;
+mod sweep060;
 use probe_tbl::{Probe, PROBES, N};
 
 #[link(name = "kernel32")]
@@ -27,14 +29,14 @@ extern "system" {
     fn GetCurrentProcess() -> usize;
 }
 
-fn mod_dir() -> Option<String> {
+pub(crate) fn mod_dir() -> Option<String> {
     let mut buf = [0u16; 520];
     let n = unsafe { GetModuleFileNameW(0, buf.as_mut_ptr(), buf.len() as u32) } as usize;
     if n == 0 || n >= buf.len() { return None; }
     let exe = String::from_utf16_lossy(&buf[..n]);
     exe.rfind(|c| c == '\\' || c == '/').map(|i| format!(r"{}\mods\tfm2_judge_verify060", &exe[..i]))
 }
-fn w(s: &str) {
+pub(crate) fn w(s: &str) {
     if let Some(d) = mod_dir() {
         use std::io::Write;
         if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\probe060.txt", d)) { let _ = writeln!(f, "{}", s); }
@@ -47,7 +49,7 @@ static HITS: [AtomicU64; N] = [const { AtomicU64::new(0) }; N];
 static RETS: [AtomicUsize; N * RET_SLOTS] = [const { AtomicUsize::new(0) }; N * RET_SLOTS];
 static RET_OVF: [AtomicU64; N] = [const { AtomicU64::new(0) }; N];
 static INSTALLED: [AtomicUsize; N] = [const { AtomicUsize::new(0) }; N]; // 0 미설치 · 1 설치 · 2 프롤로그 불일치 · 3 실패
-static BASE: AtomicUsize = AtomicUsize::new(0);
+pub(crate) static BASE: AtomicUsize = AtomicUsize::new(0);
 static DONE: AtomicUsize = AtomicUsize::new(0);
 static FRAME: AtomicU64 = AtomicU64::new(0);
 static LAST: Mutex<Vec<u64>> = Mutex::new(Vec::new());
@@ -121,8 +123,10 @@ fn install_all() {
     if DONE.swap(1, Ordering::SeqCst) != 0 { return; }
     let _ = std::panic::catch_unwind(|| unsafe {
         let base = GetModuleHandleW(core::ptr::null()); BASE.store(base, Ordering::Relaxed);
-        let sel = selected();
-        if sel.is_empty() { w("[install] probe060_on.txt 없음/빈 파일 → 프로브 0 (기본 OFF)"); return; }
+        // ★2단계 sweep 을 먼저 설치하고, 그 RVA 는 1단계 프로브에서 제외(같은 진입부 — 공존 불가)
+        let swept = sweep060::install_all(&mod_dir().unwrap_or_default());
+        let sel: Vec<usize> = selected().into_iter().filter(|&i| !swept.contains(&PROBES[i].rva)).collect();
+        if sel.is_empty() { w("[install] probe060_on.txt 없음/빈 파일(또는 전부 sweep) → 프로브 0"); return; }
         let block = VirtualAlloc(0, sel.len() * 256, 0x1000 | 0x2000, 0x40);
         if block == 0 { w("[install] VirtualAlloc 실패"); return; }
         let (mut ok, mut mism, mut fail) = (0, 0, 0);
@@ -159,6 +163,7 @@ impl StableExtension for Ext {
             let f = FRAME.fetch_add(1, Ordering::Relaxed);
             if f % 300 != 0 { return; }
             if let Some(s) = snapshot(f) { w(&format!("{} scene={:?}", s, ctx.client_scene_kind())); }
+            if let Some(s) = sweep060::snapshot(f) { w(&s); }
         }));
     }
 }
