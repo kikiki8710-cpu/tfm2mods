@@ -36,6 +36,8 @@ pub struct Cfg {
     pub log_lineups: bool,
     /// 스왑 order 강제(0=끔 / 1=order[포지션]=픽인덱스 / 2=order[픽인덱스]=포지션). 방향 확정용.
     pub swap_force: u32,
+    /// ★09-20 내 팀 자동 스왑: 스왑 단계 진입 시 내 배치가 규칙 위반이면 합법 최적 순열로 1회 자동 재배치(게임 select_swap 호출 = 유저 클릭과 같은 경로). 이후 수동 스왑은 존중.
+    pub swap_auto: bool,
     /// AI 픽 차단 (DraftScoreHook)
     pub ai_pick_gate: bool,
     /// AI 배정 마스크 강제 (hookA)
@@ -58,6 +60,7 @@ impl Cfg {
             debug: false,
             log_lineups: false,
             swap_force: 1,
+            swap_auto: true,
             ai_pick_gate: true,
             ai_assign_mask: true,
             user_pick_block: true,
@@ -392,8 +395,11 @@ pub const SERIES_GAMES: usize = 5;
 // ── ★★[2026-09-16] 최소 선택 수 = 홀(Hall) 정리 기반 부분집합별 정확식 ─────────────────────────────
 //   라인 집합 S 에 대해 N(S) = S 어느 라인에든 갈 수 있는 챔프(미지정 = 전 라인), L(S) = N(S) 챔프들이 갈 수 있는 라인 집합.
 //   적대적 최악에서 N(S) 에서 빠질 수 있는 수:
-//     내 픽 |S| + 양팀 밴 2b + 이번 세트 상대 픽 min(5,|L|)(내 후보를 다른 라인용으로 집어감)
-//     + 이전 세트 잠금 (SERIES-1) × { 클래식 0 / 피어리스 min(5,|L|) / 하드 2·min(5,|L|) }
+//     내 픽 |S| + 양팀 밴 2b + Σ_{q∈L} min( R, |N(S) 중 q 에 갈 수 있는 챔프| )
+//     R = 라인 하나가 시리즈 동안 빼갈 수 있는 수 = 이번 세트 상대 1 + 이전 세트 잠금 (SERIES-1)×{ 클래식 0 / 피어리스 1 / 하드 2 }
+//   ★[2026-09-20] 라인별 상한 도입(유저 지적): 구 식은 |L|(새어 나갈 라인 수)×R 로 곱해 탑 20 에 정글 겹침 1개만 있어도 29 를
+//     요구했다(정글로 빠질 수 있는 건 그 1개뿐이므로 정답 21). 라인 q 로 빠지는 수는 "q 의 픽 수 R" 와 "q 에 갈 수 있는 내 후보 수"
+//     둘 다를 넘을 수 없다 → min 으로 상한. 겹침 없는 경우(20/56/36/16)는 구 식과 값이 같다.
 //   안전 ⇔ ∀S: |N(S)| ≥ need(S).  단일 라인·S={p} 이면 클래식 2b+2 · 피어리스 2b+6 · 하드 2b+10 (구 공식은 피어리스 2b+5).
 //   포지션 p 의 게이트 = p 를 포함하는 모든 S 의 슬랙 ≥ 0 (가장 빡빡한 S 를 UI 에 보여 준다).
 //   근거·실측 = REPORT\tfm2_champ_pos_lock\RE\2026-09-16_최소선택수-공식검증.md
@@ -443,11 +449,12 @@ impl PosState {
             let eff: Vec<u8> = des.iter().map(|&d| { let dd = d & a; if dd != 0 { dd | free } else if free != 0 { free } else { MASK_ALL } }).collect();
             for s in 1..32usize {
                 if s & a as usize != s { have[s] = 0; need[s] = 0; continue; }
-                let mut n = 0usize; let mut l = 0u8;
-                for &m in &eff { if m as usize & s != 0 { n += 1; l |= m; } }
-                let opp = (l.count_ones() as usize).min(5); // 상대 픽 유출 = N(S) 챔프가 갈 수 있는 모든 라인(무제한 포함)
-                let lock = (SERIES_GAMES - 1) * match style { 2 => 2 * opp, 1 => opp, _ => 0 };
-                let nd = if b == usize::MAX { usize::MAX } else { s.count_ones() as usize + 2 * b + opp + lock };
+                let mut n = 0usize; let mut lane_cnt = [0usize; 5]; // lane_cnt[q] = N(S) 중 라인 q 에 갈 수 있는 챔프 수(무제한 포함)
+                for &m in &eff { if m as usize & s != 0 { n += 1; for q in 0..5 { if m & (1 << q) != 0 { lane_cnt[q] += 1; } } } }
+                // 라인당 유출 상한 R = 상대 이번 세트 1 + 이전 세트 잠금 · 라인 q 로 빠지는 수 ≤ min(R, lane_cnt[q])
+                let r = 1 + (SERIES_GAMES - 1) * match style { 2 => 2, 1 => 1, _ => 0 };
+                let leak: usize = lane_cnt.iter().map(|&c| c.min(r)).sum();
+                let nd = if b == usize::MAX { usize::MAX } else { s.count_ones() as usize + 2 * b + leak };
                 have[s] = n.min(u16::MAX as usize) as u16;
                 need[s] = nd.min(u16::MAX as usize) as u16;
             }
@@ -576,6 +583,7 @@ pub fn load() {
                         "debug" => c.debug = on(v),
                         "log_lineups" => c.log_lineups = on(v),
                         "swap_force" => c.swap_force = v.trim().parse().unwrap_or(0),
+                        "swap_auto" => c.swap_auto = on(v),
                         "ai_pick_gate" => c.ai_pick_gate = on(v),
                         "ai_observe_only" => c.ai_observe_only = on(v),
                         "ai_assign_mask" => c.ai_assign_mask = on(v),
@@ -787,5 +795,10 @@ const DEFAULT_CFG: &str = "\
     #   compute_rule_swap_order is re-ordered to the best legal permutation (game 0.6.0 detour).
     #   0 = leave AI swap orders untouched.
     swap_force=1\r\n\
+    # Auto-arrange YOUR line-up when the swap stage begins (game 0.6.0): if the arrangement
+    #   violates your position rules it is re-seated once to the best legal order (same code
+    #   path as clicking the rows). Manual swaps afterwards are kept; delegating to the coach
+    #   re-arranges again. 0 = only block the confirm button, never move champions.
+    swap_auto=1\r\n\
 ";
 
