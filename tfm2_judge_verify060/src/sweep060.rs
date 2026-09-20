@@ -35,14 +35,25 @@ macro_rules! sw {
     };
 }
 /// 배치 1(tier 1 잎 · 동치 A) — 0.6.0 RVA · 프롤로그 = probe_tbl 채록 바이트(설치 시 완전 일치 검사).
-pub static SW: [Sw; 5] = [
+pub static SW: [Sw; K] = [
     sw!("line_recall_pressure_penalty", 0xe73260, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20, 0x80, 0xb9, 0x88, 0x04, 0x00, 0x00, 0x00], w_line_recall),
     sw!("target_bush_v41", 0xfb9b70, &[0x48, 0x83, 0xec, 0x58, 0x89, 0xc8, 0x48, 0x8b, 0x8a, 0x00, 0x0a, 0x00, 0x00], w_target_bush_v41),
     sw!("AgentVerHamster::count_nearby_enemies", 0xf3d140, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], w_count_nearby),
     sw!("v23_healthy_allies_near_point", 0xf882e0, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20, 0x48, 0x8b, 0x89, 0x00, 0x0a, 0x00, 0x00], w_healthy_allies),
     sw!("v23_should_break_objective_hunt_anchor", 0xf89c30, &[0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x30, 0x48, 0x89, 0xcf], w_should_break_anchor),
+    // ── 배치 2(09-20 · batch2.rs) ──
+    sw!("with_runaway(Single/BattlePlan)", 0xdd87b0, &[0x56, 0x57, 0x48, 0x83, 0xec, 0x28, 0x48, 0x89, 0xce, 0x48, 0x83, 0x79, 0x60, 0x00], crate::batch2::w_with_runaway),
+    sw!("is_wave_priority_start_line", 0xf87ea0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x20], crate::batch2::w_is_wave_priority_start_line),
+    sw!("v55_banish_penalty", 0xe83000, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], crate::batch2::w_v55_banish_penalty),
+    sw!("is_object_being_taken_by_enemy", 0xf88690, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], crate::batch2::w_is_object_being_taken),
+    sw!("should_keep_object_for_contested_wave_priority", 0xf18bf0, &[0x56, 0x57, 0x48, 0x83, 0xec, 0x28, 0x4c, 0x89, 0xc6, 0x48, 0x89, 0xd7], crate::batch2::w_should_keep_object),
+    // ── 배치 3(09-20 · batch3.rs) ──
+    sw!("champion_hp_value_uncached", 0xde5780, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], crate::batch3::w_champion_hp_value),
+    // ── 배치 4(09-20 · batch4.rs) ──
+    sw!("SmallActionRecall::is_end", 0xfdb0e0, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20, 0x48, 0x89, 0xce, 0x49, 0x8b, 0x89, 0x00, 0x0a, 0x00, 0x00], crate::batch4::w_is_end),
+    sw!("LegacyPlanHandler::take_misunderstood_received_chat", 0xd59280, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], crate::batch4::w_take_misunderstood),
 ];
-pub const K: usize = 5;
+pub const K: usize = 13;
 const NOTE_MAX: usize = 32;
 static NOTES: Mutex<Vec<String>> = Mutex::new(Vec::new());
 thread_local! { static DEPTH: Cell<u32> = const { Cell::new(0) }; }
@@ -50,15 +61,15 @@ thread_local! { static DEPTH: Cell<u32> = const { Cell::new(0) }; }
 /// 비교 허용 깊이. 배치 1 은 전부 순수 함수(상태 변이 0)라 중첩 호출도 비교한다(#4 원본 → #3 wrap 재진입 같은 경우 · 안 그러면 #3 은 top-level 표본이 0).
 ///   상태 변이 함수를 얹을 때는 그 wrap 에서 `depth==0` 조건을 따로 걸 것(0.5.8 top/pop 규율).
 const CMP_MAX_DEPTH: u32 = 4;
-#[inline(always)] fn top() -> bool { DEPTH.with(|d| { let v = d.get(); d.set(v + 1); v < CMP_MAX_DEPTH }) }
-#[inline(always)] fn pop() { DEPTH.with(|d| d.set(d.get().saturating_sub(1))); }
-fn note(i: usize, s: String) {
+#[inline(always)] pub(crate) fn top() -> bool { DEPTH.with(|d| { let v = d.get(); d.set(v + 1); v < CMP_MAX_DEPTH }) }
+#[inline(always)] pub(crate) fn pop() { DEPTH.with(|d| d.set(d.get().saturating_sub(1))); }
+pub(crate) fn note(i: usize, s: String) {
     let n = SW[i].diff.fetch_add(1, Ordering::Relaxed);
     if n < NOTE_MAX as u64 { let mut g = NOTES.lock().unwrap_or_else(|e| e.into_inner()); g.push(format!("[diff] #{} {} — {}", i, SW[i].name, s)); }
 }
-#[inline(always)] unsafe fn r64(p: usize, off: usize) -> u64 { core::ptr::read_unaligned((p + off) as *const u64) }
-#[inline(always)] unsafe fn r32(p: usize, off: usize) -> u32 { core::ptr::read_unaligned((p + off) as *const u32) }
-#[inline(always)] unsafe fn r8(p: usize, off: usize) -> u8 { *((p + off) as *const u8) }
+#[inline(always)] pub(crate) unsafe fn r64(p: usize, off: usize) -> u64 { core::ptr::read_unaligned((p + off) as *const u64) }
+#[inline(always)] pub(crate) unsafe fn r32(p: usize, off: usize) -> u32 { core::ptr::read_unaligned((p + off) as *const u32) }
+#[inline(always)] pub(crate) unsafe fn r8(p: usize, off: usize) -> u8 { *((p + off) as *const u8) }
 #[inline(always)] fn adiff(a: u64, b: u64) -> u64 { if a >= b { a - b } else { b - a } }
 /// game_core::utils::distance_sq(x1,y1,x2,y2) 인라인형 = abs_diff² 합(wrapping)
 #[inline(always)] fn dist_sq(x1: u64, y1: u64, x2: u64, y2: u64) -> u64 { let dx = adiff(x1, x2); let dy = adiff(y1, y2); dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) }
@@ -243,6 +254,8 @@ unsafe extern "C" fn w_healthy_allies(a0: usize, a1: usize, a2: u64, a3: u64, a4
     let g = f(a0, a1, a2, a3, a4, a5);
     if t {
         SW[I].cmp.fetch_add(1, Ordering::Relaxed);
+        // 헬퍼 자가검증(is_near_line · 실좌표 (x,y) · 3 라인)
+        let _ = catch_unwind(AssertUnwindSafe(|| crate::helpers::selftest_is_near_line(r64(a1, 8) as usize, a2, a3)));
         match catch_unwind(AssertUnwindSafe(|| my_healthy_allies(a0, a1, a2, a3, a4, a5))) {
             Ok(m) => if m != g { note(I, format!("g={} m={} | team={} x={} y={} range={} min_hp={} player={:#x} data={:#x}", g, m, r64(a0, 0xa00), a2, a3, a4, a5, a0, a1)); },
             Err(_) => { SW[I].pan.fetch_add(1, Ordering::Relaxed); }
@@ -339,6 +352,7 @@ pub unsafe fn install_all(dir: &str) -> Vec<usize> {
     rvas
 }
 static LAST: Mutex<Vec<(u64, u64)>> = Mutex::new(Vec::new());
+static HLAST: Mutex<(u64, u64)> = Mutex::new((0, 0));
 /// 5초마다: 변화 있는 항목 + 누적 note 를 내보낸다.
 pub fn snapshot(f: u64) -> Option<String> {
     let mut g = LAST.lock().unwrap_or_else(|e| e.into_inner());
@@ -351,7 +365,10 @@ pub fn snapshot(f: u64) -> Option<String> {
         lines.push(format!("  [sweep #{}] {} calls={} cmp={} DIFF={} pan={}", i, SW[i].name, c, SW[i].cmp.load(Ordering::Relaxed), d, SW[i].pan.load(Ordering::Relaxed)));
         g[i] = (c, d);
     }
-    let notes: Vec<String> = { let mut n = NOTES.lock().unwrap_or_else(|e| e.into_inner()); std::mem::take(&mut *n) };
+    let mut notes: Vec<String> = { let mut n = NOTES.lock().unwrap_or_else(|e| e.into_inner()); std::mem::take(&mut *n) };
+    { let (hc, hd) = (crate::helpers::H_CALLS.load(Ordering::Relaxed), crate::helpers::H_DIFF.load(Ordering::Relaxed));
+      if hc > 0 && (hc, hd) != *HLAST.lock().unwrap_or_else(|e| e.into_inner()) { lines.push(format!("  [helper] is_near_line selftest calls={} DIFF={}", hc, hd)); *HLAST.lock().unwrap_or_else(|e| e.into_inner()) = (hc, hd); }
+      let mut hn = crate::helpers::H_NOTE.lock().unwrap_or_else(|e| e.into_inner()); notes.extend(std::mem::take(&mut *hn)); }
     if lines.is_empty() && notes.is_empty() { return None; }
     Some(format!("[f{} sweep]\n{}\n{}", f, lines.join("\n"), notes.join("\n")))
 }

@@ -1,0 +1,420 @@
+
+########## INIT game 0.6.0 host_abi=9 sdk_abi=9 probes=260 ##########
+[sweep] ✓ #0 e73260 line_recall_pressure_penalty (wrap 0x7ffbdc9c2840 orig 0x1a601e00000)
+[sweep] ✓ #1 fb9b70 target_bush_v41 (wrap 0x7ffbdc9c3a20 orig 0x1a601e00040)
+[sweep] ✓ #2 f3d140 AgentVerHamster::count_nearby_enemies (wrap 0x7ffbdc9c2db0 orig 0x1a601e00080)
+[sweep] ✓ #3 f882e0 v23_healthy_allies_near_point (wrap 0x7ffbdc9c3380 orig 0x1a601e000c0)
+[sweep] ✓ #4 f89c30 v23_should_break_objective_hunt_anchor (wrap 0x7ffbdc9c4000 orig 0x1a601e00100)
+[sweep] ✓ #5 dd87b0 with_runaway(Single/BattlePlan) (wrap 0x7ffbdc9ca9d0 orig 0x1a601e00140)
+[sweep] ✓ #6 f87ea0 is_wave_priority_start_line (wrap 0x7ffbdc9cc460 orig 0x1a601e00180)
+[sweep] ✓ #7 e83000 v55_banish_penalty (wrap 0x7ffbdc9cb200 orig 0x1a601e001c0)
+[sweep] ✓ #8 f88690 is_object_being_taken_by_enemy (wrap 0x7ffbdc9cb9f0 orig 0x1a601e00200)
+[sweep] ✓ #9 f18bf0 should_keep_object_for_contested_wave_priority (wrap 0x7ffbdc9cac00 orig 0x1a601e00240)
+[sweep] ✓ #10 de5780 champion_hp_value_uncached (wrap 0x7ffbdc9cc9c0 orig 0x1a601e00280)
+[sweep] 선택 11 · 설치 11
+[install] probe060_on.txt 없음/빈 파일(또는 전부 sweep) → 프로브 0
+[f0 sweep]
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=95 cmp=95 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=132 cmp=132 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=36 cmp=36 DIFF=0 pan=0
+
+[f300 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=10992 cmp=10992 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=1185 cmp=1185 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=52836 cmp=52836 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=694 cmp=694 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=347 cmp=347 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=4713 cmp=4713 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=142719 cmp=142719 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=4285 cmp=4285 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=12477 cmp=12477 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=29015 cmp=29015 DIFF=0 pan=0
+
+[f600 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=15434 cmp=15434 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=1282 cmp=1282 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=77372 cmp=77372 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=1362 cmp=1362 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=681 cmp=681 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=6557 cmp=6557 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=214623 cmp=214623 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=5853 cmp=5853 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=24656 cmp=24656 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=42029 cmp=42029 DIFF=0 pan=0
+
+[f900 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=18287 cmp=18287 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=1587 cmp=1587 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=88220 cmp=88220 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=6772 cmp=6772 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=244605 cmp=244605 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=6430 cmp=6430 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=47696 cmp=47696 DIFF=0 pan=0
+
+[f1200 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=18570 cmp=18570 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=88712 cmp=88712 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=6867 cmp=6867 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=246327 cmp=246327 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=6479 cmp=6479 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=48006 cmp=48006 DIFF=0 pan=0
+
+[f1500 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=19797 cmp=19797 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=1729 cmp=1729 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=94358 cmp=94358 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=7297 cmp=7297 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=247341 cmp=247341 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=6905 cmp=6905 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=51057 cmp=51057 DIFF=0 pan=0
+
+[f1800 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=28845 cmp=28845 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=2586 cmp=2586 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=132073 cmp=132073 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=1820 cmp=1820 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=924 cmp=924 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=12958 cmp=12958 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=370491 cmp=370491 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=9170 cmp=9170 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=34254 cmp=34254 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=72118 cmp=72118 DIFF=0 pan=0
+
+[f2100 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=30341 cmp=30341 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=2914 cmp=2914 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=139355 cmp=139355 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=2278 cmp=2278 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1167 cmp=1167 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=14521 cmp=14521 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=393285 cmp=393285 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=9706 cmp=9706 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=37306 cmp=37306 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=76413 cmp=76413 DIFF=0 pan=0
+
+[f2400 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=37396 cmp=37396 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=3818 cmp=3818 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=173451 cmp=173451 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=2948 cmp=2948 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1531 cmp=1531 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=19816 cmp=19816 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=504339 cmp=504339 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=11520 cmp=11520 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=46038 cmp=46038 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=94149 cmp=94149 DIFF=0 pan=0
+
+[f2700 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=41487 cmp=41487 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=4821 cmp=4821 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=190519 cmp=190519 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=3468 cmp=3468 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1791 cmp=1791 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=21610 cmp=21610 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=528123 cmp=528123 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=12420 cmp=12420 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=52212 cmp=52212 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=102861 cmp=102861 DIFF=0 pan=0
+
+[f3000 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=43961 cmp=43961 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=5345 cmp=5345 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=198724 cmp=198724 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=3618 cmp=3618 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1895 cmp=1895 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=22419 cmp=22419 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=529878 cmp=529878 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=12886 cmp=12886 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=107207 cmp=107207 DIFF=0 pan=0
+
+[f3300 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=50711 cmp=50711 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=5743 cmp=5743 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=229546 cmp=229546 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=3626 cmp=3626 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=1899 cmp=1899 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=26396 cmp=26396 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=629997 cmp=629997 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=15012 cmp=15012 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=58556 cmp=58556 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=124230 cmp=124230 DIFF=0 pan=0
+
+[f3600 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=54583 cmp=54583 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=6393 cmp=6393 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=251848 cmp=251848 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=31067 cmp=31067 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=666561 cmp=666561 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=16412 cmp=16412 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=62608 cmp=62608 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=136397 cmp=136397 DIFF=0 pan=0
+
+[f3900 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=63022 cmp=63022 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=7014 cmp=7014 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=292409 cmp=292409 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=4055 cmp=4055 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=2114 cmp=2114 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=36618 cmp=36618 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=682608 cmp=682608 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=18527 cmp=18527 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=71869 cmp=71869 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=158047 cmp=158047 DIFF=0 pan=0
+
+[f4200 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=70321 cmp=70321 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=7228 cmp=7228 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=328933 cmp=328933 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=4441 cmp=4441 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=2307 cmp=2307 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=43391 cmp=43391 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=737415 cmp=737415 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=20810 cmp=20810 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=83699 cmp=83699 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=178193 cmp=178193 DIFF=0 pan=0
+
+[f4500 sweep]
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=329288 cmp=329288 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=4454 cmp=4454 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=2314 cmp=2314 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=43770 cmp=43770 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=20890 cmp=20890 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=178491 cmp=178491 DIFF=0 pan=0
+
+[f4800 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=75595 cmp=75595 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=7708 cmp=7708 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=349837 cmp=349837 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=4468 cmp=4468 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=2321 cmp=2321 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=48153 cmp=48153 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=765054 cmp=765054 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=22479 cmp=22479 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=84091 cmp=84091 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=190277 cmp=190277 DIFF=0 pan=0
+
+[f5100 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=84369 cmp=84369 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=8894 cmp=8894 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=390034 cmp=390034 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=5892 cmp=5892 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=3135 cmp=3135 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=53454 cmp=53454 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=896436 cmp=896436 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=25119 cmp=25119 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=94652 cmp=94652 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=212654 cmp=212654 DIFF=0 pan=0
+
+[f5400 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=91981 cmp=91981 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=423864 cmp=423864 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=7036 cmp=7036 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=3726 cmp=3726 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=57271 cmp=57271 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1006587 cmp=1006587 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=27307 cmp=27307 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=101360 cmp=101360 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=231651 cmp=231651 DIFF=0 pan=0
+
+[f5700 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=103258 cmp=103258 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=9942 cmp=9942 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=460803 cmp=460803 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=8062 cmp=8062 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=4288 cmp=4288 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=61018 cmp=61018 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1070058 cmp=1070058 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=29818 cmp=29818 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=111108 cmp=111108 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=252506 cmp=252506 DIFF=0 pan=0
+
+[f6000 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=113196 cmp=113196 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=10106 cmp=10106 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=502655 cmp=502655 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=9502 cmp=9502 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=5035 cmp=5035 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=65298 cmp=65298 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1084737 cmp=1084737 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=32375 cmp=32375 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=126018 cmp=126018 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=275496 cmp=275496 DIFF=0 pan=0
+
+[f6300 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=121675 cmp=121675 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=10818 cmp=10818 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=544505 cmp=544505 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=10907 cmp=10907 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=5803 cmp=5803 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=69638 cmp=69638 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1085556 cmp=1085556 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=34688 cmp=34688 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=141041 cmp=141041 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=297727 cmp=297727 DIFF=0 pan=0
+
+[f6600 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=125868 cmp=125868 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=11480 cmp=11480 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=563416 cmp=563416 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=11552 cmp=11552 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=6134 cmp=6134 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=73341 cmp=73341 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1086564 cmp=1086564 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=36088 cmp=36088 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=148618 cmp=148618 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=308168 cmp=308168 DIFF=0 pan=0
+
+[f6900 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=127780 cmp=127780 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=11672 cmp=11672 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=569726 cmp=569726 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=73649 cmp=73649 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1097109 cmp=1097109 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=36716 cmp=36716 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=311612 cmp=311612 DIFF=0 pan=0
+
+[f7200 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=131901 cmp=131901 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=11981 cmp=11981 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=591678 cmp=591678 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=11914 cmp=11914 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=6333 cmp=6333 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=76946 cmp=76946 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1133160 cmp=1133160 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=38058 cmp=38058 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=151535 cmp=151535 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=323626 cmp=323626 DIFF=0 pan=0
+
+[f7500 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=134982 cmp=134982 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=12252 cmp=12252 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=607644 cmp=607644 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=12276 cmp=12276 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=6532 cmp=6532 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=79380 cmp=79380 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1159419 cmp=1159419 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=39117 cmp=39117 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=154452 cmp=154452 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=332497 cmp=332497 DIFF=0 pan=0
+
+[f7800 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=143265 cmp=143265 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=12273 cmp=12273 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=640732 cmp=640732 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=81937 cmp=81937 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1267026 cmp=1267026 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=40856 cmp=40856 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=155923 cmp=155923 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=350981 cmp=350981 DIFF=0 pan=0
+
+[f8100 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=153838 cmp=153838 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=12886 cmp=12886 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=682450 cmp=682450 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=13076 cmp=13076 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=6937 cmp=6937 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=87259 cmp=87259 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1403940 cmp=1403940 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=42870 cmp=42870 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=182514 cmp=182514 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=373992 cmp=373992 DIFF=0 pan=0
+
+[f8400 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=158086 cmp=158086 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=13534 cmp=13534 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=702680 cmp=702680 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=13218 cmp=13218 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=7008 cmp=7008 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=90154 cmp=90154 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1434951 cmp=1434951 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=44308 cmp=44308 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=191617 cmp=191617 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=385197 cmp=385197 DIFF=0 pan=0
+
+[f8700 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=162380 cmp=162380 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=14182 cmp=14182 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=727558 cmp=727558 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=14162 cmp=14162 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=7557 cmp=7557 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=93603 cmp=93603 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1474086 cmp=1474086 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=45941 cmp=45941 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=202832 cmp=202832 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=398514 cmp=398514 DIFF=0 pan=0
+
+[f9000 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=164548 cmp=164548 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=14582 cmp=14582 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=737171 cmp=737171 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=14286 cmp=14286 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=7690 cmp=7690 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=95255 cmp=95255 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1490250 cmp=1490250 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=46603 cmp=46603 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=202949 cmp=202949 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=403754 cmp=403754 DIFF=0 pan=0
+
+[f9300 sweep]
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=737515 cmp=737515 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=95549 cmp=95549 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1490856 cmp=1490856 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=46713 cmp=46713 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=404018 cmp=404018 DIFF=0 pan=0
+
+[f9600 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=171603 cmp=171603 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=14773 cmp=14773 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=774641 cmp=774641 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=14983 cmp=14983 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=8075 cmp=8075 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=101876 cmp=101876 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1552560 cmp=1552560 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=48339 cmp=48339 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=219797 cmp=219797 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=424907 cmp=424907 DIFF=0 pan=0
+
+[f9900 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=175212 cmp=175212 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=14964 cmp=14964 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=793177 cmp=793177 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=15680 cmp=15680 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=8460 cmp=8460 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=103654 cmp=103654 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1583472 cmp=1583472 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=49048 cmp=49048 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=235857 cmp=235857 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=435319 cmp=435319 DIFF=0 pan=0
+
+[f10200 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=182101 cmp=182101 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=825826 cmp=825826 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=16908 cmp=16908 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=9142 cmp=9142 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=107834 cmp=107834 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1689384 cmp=1689384 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=50815 cmp=50815 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=241050 cmp=241050 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=452581 cmp=452581 DIFF=0 pan=0
+
+[f10500 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=182113 cmp=182113 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=826198 cmp=826198 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=108115 cmp=108115 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1690008 cmp=1690008 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=50865 cmp=50865 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=241471 cmp=241471 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=452807 cmp=452807 DIFF=0 pan=0
+
+[f10800 sweep]
+  [sweep #0] line_recall_pressure_penalty calls=191700 cmp=191700 DIFF=0 pan=0
+  [sweep #1] target_bush_v41 calls=16036 cmp=16036 DIFF=0 pan=0
+  [sweep #2] AgentVerHamster::count_nearby_enemies calls=863332 cmp=863332 DIFF=0 pan=0
+  [sweep #3] v23_healthy_allies_near_point calls=17549 cmp=17549 DIFF=0 pan=0
+  [sweep #4] v23_should_break_objective_hunt_anchor calls=9401 cmp=9401 DIFF=0 pan=0
+  [sweep #5] with_runaway(Single/BattlePlan) calls=112175 cmp=112175 DIFF=0 pan=0
+  [sweep #6] is_wave_priority_start_line calls=1751937 cmp=1751937 DIFF=0 pan=0
+  [sweep #7] v55_banish_penalty calls=53714 cmp=53714 DIFF=0 pan=0
+  [sweep #8] is_object_being_taken_by_enemy calls=253955 cmp=253955 DIFF=0 pan=0
+  [sweep #10] champion_hp_value_uncached calls=474006 cmp=474006 DIFF=0 pan=0
+

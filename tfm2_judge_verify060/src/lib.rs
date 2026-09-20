@@ -17,6 +17,10 @@ use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::Mutex;
 mod probe_tbl;
 mod sweep060;
+mod batch2;
+mod batch3;
+mod batch4;
+mod helpers;
 use probe_tbl::{Probe, PROBES, N};
 
 #[link(name = "kernel32")]
