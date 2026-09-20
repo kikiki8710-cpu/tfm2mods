@@ -29,6 +29,8 @@ const PANEL: &str = "main.bp_settings_panel";
 const HOVER_BG: &str = "main.bp_hover_bg";
 const CARDS: &str = "main.champions.contents";
 const PACK_USER: &str = "User_Splash_Art";
+/// ★09-20 유저 지시: 유저 그림 폴더 = 게임 로컬 `mods\tfm2_banpick_illust\illust\{blue,red,red_noflip}` (구 일러 모드 경로 그대로 — 워크샵 폴더가 아니라 지워지지 않음)
+const USER_ILLUST_DIR: &str = r"mods\tfm2_banpick_illust\illust";
 const DEFAULT_ILLUST_PACK: &str = "kahluamik_illust";
 const MAX_LEVEL: usize = 12;
 // 레이아웃 상수(원작)
@@ -288,17 +290,19 @@ fn find_mod_dir(id: &str) -> Option<String> {
     None
 }
 fn modinfo_name(dir: &str) -> Option<String> { std::fs::read_to_string(format!(r"{}\mod.mod_info", dir)).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()).and_then(|v| v.get("name").and_then(|x| x.as_str()).map(str::to_string)) }
-/// 원작 prepare_illust 축약: 유저 그림(★09-20 유저 지시 "원래처럼 모드폴더 안에": `<mod_dir>\illust\blue\` 1순위 + 호환용 `ModData\illust\User_Splash_Art`)
-///   + 활성 모드들의 BanPickIllust\ → <mod_dir>\illust\raw\<pack>\<stem>.png 로 복사(크기 다르면 갱신) → 인덱스.
-///   레드 전용 구도 = `<mod_dir>\illust\red\<stem>.png`(있으면 레드 진영에 반전 없이 사용 · 없으면 blue 반전). 구 tfm2_banpick_illust 의 blue/red 폴더 규칙.
-///   ⚠ 모드 폴더(워크샵)는 스팀 재다운로드 시 지워질 수 있다 — 유저가 알고 선택한 경로.
+/// 원작 prepare_illust 축약: 유저 그림(★09-20 유저 지시 "mods\tfm2_banpick_illust\illust\red 처럼": `<게임>\USER_ILLUST_DIR\blue\` 1순위
+///   + 호환용 `ModData\illust\User_Splash_Art`) + 활성 모드들의 BanPickIllust\ → <mod_dir>\illust\raw\<pack>\<stem>.png 로 복사(크기 다르면 갱신) → 인덱스.
+///   레드 전용 구도 = `USER_ILLUST_DIR\red\<stem>.png`(red_noflip=0) / `red_noflip\`(=1) — 있으면 레드 진영에 반전 없이, 없으면 blue 반전. 구 tfm2_banpick_illust 규칙.
+///   레드 파일은 에셋 경로가 모드 폴더 기준이라 `raw\_red\`·`raw\_red_noflip\` 캐시로 복사해 쓴다(`_` 접두 = 팩 인덱스에서 제외).
 fn prepare_illust() -> Illust {
     let mut il = Illust::default();
     let Some(md) = mod_dir() else { return il };
     let raw = format!(r"{}\illust\raw", md); let _ = std::fs::create_dir_all(&raw);
-    let blue_dir = format!(r"{}\illust\blue", md); let _ = std::fs::create_dir_all(&blue_dir);
-    let red_dir = format!(r"{}\illust\red", md); let _ = std::fs::create_dir_all(&red_dir);
-    let rnf_dir = format!(r"{}\illust\red_noflip", md); let _ = std::fs::create_dir_all(&rnf_dir);
+    let mut sources: Vec<(String, String, String)> = Vec::new(); // (pack, dir, 표시명)
+    let ud = exe_dir().map(|d| format!(r"{}\{}", d, USER_ILLUST_DIR)).unwrap_or_default();
+    let blue_dir = format!(r"{}\blue", ud); let _ = std::fs::create_dir_all(&blue_dir);
+    let red_dir = format!(r"{}\red", ud); let _ = std::fs::create_dir_all(&red_dir);
+    let rnf_dir = format!(r"{}\red_noflip", ud); let _ = std::fs::create_dir_all(&rnf_dir);
     let stems_of = |dir: &str| -> BTreeSet<String> {
         let mut out = BTreeSet::new();
         if let Ok(rd) = std::fs::read_dir(dir) {
@@ -310,7 +314,9 @@ fn prepare_illust() -> Illust {
         out
     };
     il.red = stems_of(&red_dir); il.red_noflip = stems_of(&rnf_dir);
-    let mut sources: Vec<(String, String, String)> = Vec::new(); // (pack, dir, 표시명)
+    // 레드 폴더는 팩이 아니라 진영 오버라이드 — `_` 접두 캐시로 복사(아래 복사 루프가 처리), 팩 인덱스에서는 제외
+    sources.push(("_red".into(), red_dir.clone(), String::new()));
+    sources.push(("_red_noflip".into(), rnf_dir.clone(), String::new()));
     sources.push((PACK_USER.into(), blue_dir, String::new()));
     if let Some(u) = exe_dir().map(|d| format!(r"{}\ModData\illust\{}", d, PACK_USER)) {
         if std::path::Path::new(&u).is_dir() { sources.push((PACK_USER.into(), u, String::new())); }
@@ -341,10 +347,10 @@ fn prepare_illust() -> Illust {
     }
     // 인덱스 = raw 폴더 실제 내용(복사 실패/기존 팩 포함). 팩 순서 = sources 순 + 나머지(알파벳)
     let mut order: Vec<String> = Vec::new();
-    for s in &sources { if !order.contains(&s.0) { order.push(s.0.clone()); } }
+    for s in &sources { if !s.0.starts_with('_') && !order.contains(&s.0) { order.push(s.0.clone()); } }
     let mut names: HashMap<String, String> = sources.iter().map(|s| (s.0.clone(), s.2.clone())).collect();
     if let Ok(rd) = std::fs::read_dir(&raw) {
-        let mut extra: Vec<String> = rd.flatten().filter(|e| e.path().is_dir()).filter_map(|e| e.file_name().to_str().map(str::to_string)).filter(|n| !order.contains(n)).collect();
+        let mut extra: Vec<String> = rd.flatten().filter(|e| e.path().is_dir()).filter_map(|e| e.file_name().to_str().map(str::to_string)).filter(|n| !n.starts_with('_') && !order.contains(n)).collect();
         extra.sort();
         for n in extra { names.entry(n.clone()).or_insert_with(|| n.clone()); order.push(n); }
     }
@@ -386,7 +392,7 @@ fn art_for(il: &Illust, key: &str, is_blue: bool) -> (String, bool) {
     if !is_blue {
         let stem = key.rsplit('/').next().unwrap_or(key);
         let (set, dir) = if noflip { (&il.red_noflip, "red_noflip") } else { (&il.red, "red") };
-        if set.contains(stem) { return (format!("asset/{}/illust/{}/{}", MOD_ID, dir, stem), false); }
+        if set.contains(stem) { return (format!("asset/{}/illust/raw/_{}/{}", MOD_ID, dir, stem), false); }
     }
     (asset_of(key), !is_blue && !noflip)
 }
