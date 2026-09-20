@@ -28,6 +28,7 @@ RULES = {
     "tfm2_mod_order":           (None, set(), (), ("README_설치안내.txt",)),
     "tfm2_comptest_unlock":     (None, {"comptest_items.cfg"}, (), ()),
     "tfm2_elemental_serpen":    (None, {"README_en.md", "README_ko.md", "serpen_probe.cfg"}, ("config", "s", "text"), ()),  # 0.5.8 zip 구성 동일(28 엔트리)
+    "tfm2_draft_overlay":       (None, set(), (), ()),  # 0.5.8 zip 구성 동일(dll·mod_info·override_info)
     "Spectator_Chat":           (None, {"chat_lines.txt", "chat_lines_프롬프트가이드.txt", "chat_lines_생성기.html"}, (), ()),  # 0.6.0: ui 오버라이드 폐지(스폰 API) → ui/ 미동봉
     "banpick_view_plus":        (os.path.join(WORKSHOP, "3766306566"), set(), ("text", "ui", "asset", "skins"), ()),  # illust(761MB) 는 워크샵 배포분 · zip 제외
     # crm 예외 규칙(REPORT community_reaction_mod/02 §2-a-1): 워크샵 폴더 덮어쓰기 패치 — mod.mod_info 의도적 미동봉(mods\ 이중 등록 방지)·README 필수·html 동봉
