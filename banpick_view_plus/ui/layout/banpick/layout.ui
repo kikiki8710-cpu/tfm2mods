@@ -189,170 +189,125 @@ main:match_ui {
 
     #matchup:label {
       @"asset/base/style/main#label";
-      height: 33px;
+      height: 26px;
       width: 285px;
 
-      anchor_y: 1;
-      pivot_y: 1;
+      anchor_y: 0;
+      pivot_y: 0;
 
       anchor_x: 0.5;
       pivot_x: 0.5;
 
-      y: 1px;
+      y: 0px;
 
       align_x: Center;
       align_y: Center;
       color: #e8e8e8ff;
-      size: 18;
+      size: 16;
       text: "A vs B";
     }
 
     #blue_side:empty {
       width: 50%;
       height: 100%;
-      x: 320px;
-
       #icon_slot:color {
-        anchor_x: 0;
-        pivot_x: 0;
-
-        x: 15px;
-        y: 8px;
-
-        width: 70px;
-        height: 70px;
-
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -20px;
+        y: 28px;
+        width: 52px;
+        height: 52px;
         color: #1d1f2cff;
-
         #icon:image {
-          width: 62px;
-          height: 62px;
-
+          width: 46px;
+          height: 46px;
           anchor_x: 0.5;
           pivot_x: 0.5;
           anchor_y: 0.5;
           pivot_y: 0.5;
-          
           source: "asset/base/aseprite_resources/team_logo";
         }
       }
-
       #name:label {
         @"asset/base/style/main#bold_label";
-        anchor_x: 0;
-        pivot_x: 0;
-        x: 295px;
-        y: 19px;
-
-        width: 250px;
+        x: 500px;
+        y: 0px;
+        width: 316px;
         height: 30px;
-
-        size: 30;
-
-        align_x: Left;
+        size: 24;
+        align_x: Center;
       }
-
       #bans:empty {
-        anchor_x: 0;
-        pivot_x: 0;
-        x: 95px;
-        y: 13px;
-
-        width: 188px;
-        height: 60px;
-
+        x: 515px;
+        y: 30px;
+        width: 286px;
+        height: 54px;
         child_type: LeftToRight {
           spacing: 4px;
         }
       }
-
       #sets:empty {
-        anchor_x: 0;
-        pivot_x: 0;
-        x: 600px;
-        y: 14px;
+        x: 878px;
+        y: 50px;
         width: 52px;
-
         child_type: LeftToRight {
           spacing: 2px;
         }
       }
     }
-
     #red_side:empty {
       width: 50%;
       height: 100%;
       anchor_x: 1;
       pivot_x: 1;
-      x: -320px;
-
       #icon_slot:color {
         color: #1d1f2cff;
-        anchor_x: 1;
-        pivot_x: 1;
-        x: -15px;
-        y: 8px;
-
-        width: 70px;
-        height: 70px;
-
+        x: 20px;
+        y: 28px;
+        width: 52px;
+        height: 52px;
         #icon:image {
-          width: 62px;
-          height: 62px;
-
+          width: 46px;
+          height: 46px;
           anchor_x: 0.5;
           pivot_x: 0.5;
           anchor_y: 0.5;
           pivot_y: 0.5;
-          
           source: "asset/base/aseprite_resources/team_logo";
         }
       }
-
       #name:label {
         @"asset/base/style/main#bold_label";
-
         anchor_x: 1;
         pivot_x: 1;
-
-        x: -295px;
-        y: 19px;
-
-        width: 250px;
+        x: -500px;
+        y: 0px;
+        width: 316px;
         height: 30px;
-
-        size: 30;
-
-        align_x: Right;
+        size: 24;
+        align_x: Center;
       }
-
       #bans:empty {
+        x: -515px;
+        y: 30px;
         anchor_x: 1;
         pivot_x: 1;
-        x: -95px;
-        y: 13px;
-
-        width: 188px;
-        height: 60px;
-
+        width: 286px;
+        height: 54px;
         child_type: LeftToRight {
           spacing: 4px;
         }
       }
-
       #sets:empty {
         anchor_x: 1;
         pivot_x: 1;
-
-        x: -600px;
-        y: 14px;
+        x: -878px;
+        y: 50px;
         width: 52px;
-
         child_type: LeftToRight {
           spacing: 2px;
         }
       }
-
       #tools_panel:color {
         anchor_x: 1;
         pivot_x: 1;
