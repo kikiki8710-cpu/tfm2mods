@@ -29,8 +29,8 @@ const PANEL: &str = "main.bp_settings_panel";
 const HOVER_BG: &str = "main.bp_hover_bg";
 const CARDS: &str = "main.champions.contents";
 const PACK_USER: &str = "User_Splash_Art";
-/// ★09-20 유저 지시: 유저 그림 폴더 = 게임 로컬 `mods\tfm2_banpick_illust\illust\{blue,red,red_noflip}` (구 일러 모드 경로 그대로 — 워크샵 폴더가 아니라 지워지지 않음)
-const USER_ILLUST_DIR: &str = r"mods\tfm2_banpick_illust\illust";
+/// ★09-20 유저 지시: 유저 그림 폴더 = 게임 로컬 `mods\banpick_view_plus\illust\{blue,red,red_noflip}` (구 일러 모드의 폴더 규칙을 이 모드 이름으로 — 워크샵 폴더가 아니라 갱신에 안 지워짐)
+const USER_ILLUST_DIR: &str = r"mods\banpick_view_plus\illust";
 const DEFAULT_ILLUST_PACK: &str = "kahluamik_illust";
 const MAX_LEVEL: usize = 12;
 // 레이아웃 상수(원작)
@@ -290,38 +290,28 @@ fn find_mod_dir(id: &str) -> Option<String> {
     None
 }
 fn modinfo_name(dir: &str) -> Option<String> { std::fs::read_to_string(format!(r"{}\mod.mod_info", dir)).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()).and_then(|v| v.get("name").and_then(|x| x.as_str()).map(str::to_string)) }
-/// 원작 prepare_illust 축약: 유저 그림(★09-20 유저 지시 "mods\tfm2_banpick_illust\illust\red 처럼": `<게임>\USER_ILLUST_DIR\blue\` 1순위
-///   + 호환용 `ModData\illust\User_Splash_Art`) + 활성 모드들의 BanPickIllust\ → <mod_dir>\illust\raw\<pack>\<stem>.png 로 복사(크기 다르면 갱신) → 인덱스.
+/// 원작 prepare_illust 축약: 유저 그림(★09-20 유저 지시: 루트 우선순위 본 모드 폴더 → ModData → 워크샵, 각 `blue/red/red_noflip`)
+///   + 활성 모드들의 BanPickIllust\ → <mod_dir>\illust\raw\<pack>\<stem>.png 로 복사(크기 다르면 갱신 · 같은 파일명은 앞선 루트 우선) → 인덱스.
 ///   레드 전용 구도 = `USER_ILLUST_DIR\red\<stem>.png`(red_noflip=0) / `red_noflip\`(=1) — 있으면 레드 진영에 반전 없이, 없으면 blue 반전. 구 tfm2_banpick_illust 규칙.
 ///   레드 파일은 에셋 경로가 모드 폴더 기준이라 `raw\_red\`·`raw\_red_noflip\` 캐시로 복사해 쓴다(`_` 접두 = 팩 인덱스에서 제외).
 fn prepare_illust() -> Illust {
     let mut il = Illust::default();
     let Some(md) = mod_dir() else { return il };
     let raw = format!(r"{}\illust\raw", md); let _ = std::fs::create_dir_all(&raw);
-    let mut sources: Vec<(String, String, String)> = Vec::new(); // (pack, dir, 표시명)
-    let ud = exe_dir().map(|d| format!(r"{}\{}", d, USER_ILLUST_DIR)).unwrap_or_default();
-    let blue_dir = format!(r"{}\blue", ud); let _ = std::fs::create_dir_all(&blue_dir);
-    let red_dir = format!(r"{}\red", ud); let _ = std::fs::create_dir_all(&red_dir);
-    let rnf_dir = format!(r"{}\red_noflip", ud); let _ = std::fs::create_dir_all(&rnf_dir);
-    let stems_of = |dir: &str| -> BTreeSet<String> {
-        let mut out = BTreeSet::new();
-        if let Ok(rd) = std::fs::read_dir(dir) {
-            for e in rd.flatten() {
-                let p = e.path(); if !p.is_file() || !p.extension().map(|x| x.eq_ignore_ascii_case("png")).unwrap_or(false) { continue; }
-                if let Some(stem) = p.file_stem().and_then(|s| s.to_str()) { if !stem.starts_with('_') && !stem.starts_with('.') { out.insert(stem.to_string()); } }
-            }
-        }
-        out
-    };
-    il.red = stems_of(&red_dir); il.red_noflip = stems_of(&rnf_dir);
-    // 레드 폴더는 팩이 아니라 진영 오버라이드 — `_` 접두 캐시로 복사(아래 복사 루프가 처리), 팩 인덱스에서는 제외
-    sources.push(("_red".into(), red_dir.clone(), String::new()));
-    sources.push(("_red_noflip".into(), rnf_dir.clone(), String::new()));
-    sources.push((PACK_USER.into(), blue_dir, String::new()));
-    if let Some(u) = exe_dir().map(|d| format!(r"{}\ModData\illust\{}", d, PACK_USER)) {
-        if std::path::Path::new(&u).is_dir() { sources.push((PACK_USER.into(), u, String::new())); }
+    let mut sources: Vec<(String, String, String)> = Vec::new(); // (pack, dir, 표시명) — 같은 팩에 여러 소스면 앞선 것이 우선(first-wins)
+    // ★09-20 유저 지시: 유저 그림 루트 우선순위 = ①본 모드 폴더 `<게임>\mods\banpick_view_plus\illust` → ②`<게임>\ModData\illust` → ③워크샵 모드 폴더 `illust`
+    //   각 루트 아래 `blue\`(=기본) · `red\` · `red_noflip\`. ②는 원작 호환으로 `User_Splash_Art\` 도 blue 로, ③은 루트 직속 png 도 blue 로 본다.
+    let game = exe_dir().unwrap_or_default();
+    let roots: Vec<String> = vec![format!(r"{}\{}", game, USER_ILLUST_DIR), format!(r"{}\ModData\illust", game), format!(r"{}\illust", md)];
+    for d in ["blue", "red", "red_noflip"] { let _ = std::fs::create_dir_all(format!(r"{}\{}", roots[0], d)); }
+    let is_dir = |p: &str| std::path::Path::new(p).is_dir();
+    for (i, r) in roots.iter().enumerate() {
+        let blue = format!(r"{}\blue", r); if is_dir(&blue) { sources.push((PACK_USER.into(), blue, String::new())); }
+        if i == 1 { let u = format!(r"{}\{}", r, PACK_USER); if is_dir(&u) { sources.push((PACK_USER.into(), u, String::new())); } }
+        if i == 2 && is_dir(r) { sources.push((PACK_USER.into(), r.clone(), String::new())); }
+        let red = format!(r"{}\red", r); if is_dir(&red) { sources.push(("_red".into(), red, String::new())); }
+        let rnf = format!(r"{}\red_noflip", r); if is_dir(&rnf) { sources.push(("_red_noflip".into(), rnf, String::new())); }
     }
-
     let mut baseline: Option<(String, String, String)> = None;
     for id in read_enabled_mods() {
         if id == MOD_ID { continue; }
@@ -333,6 +323,7 @@ fn prepare_illust() -> Illust {
     if let Some(b) = baseline { sources.push(b); }
     // 복사(새 파일/크기 변경만)
     let mut copied = 0usize;
+    let mut seen: std::collections::HashSet<(String, String)> = std::collections::HashSet::new(); // (pack, 파일명) — 우선순위 높은 소스가 먼저 잡으면 뒤는 무시
     for (pack, dir, _) in &sources {
         let Ok(rd) = std::fs::read_dir(dir) else { continue };
         let pd = format!(r"{}\{}", raw, pack); let _ = std::fs::create_dir_all(&pd);
@@ -340,11 +331,24 @@ fn prepare_illust() -> Illust {
             let p = e.path(); if !p.is_file() { continue; }
             let Some(name) = p.file_name().and_then(|s| s.to_str()) else { continue };
             if !name.to_ascii_lowercase().ends_with(".png") || name.starts_with('_') || name.starts_with('.') { continue; }
+            if !seen.insert((pack.clone(), name.to_ascii_lowercase())) { continue; }
             let dst = std::path::Path::new(&pd).join(name);
             let need = match (p.metadata(), dst.metadata()) { (Ok(a), Ok(b)) => a.len() != b.len(), (Ok(_), Err(_)) => true, _ => false };
             if need { if std::fs::copy(&p, &dst).is_ok() { copied += 1; } }
         }
     }
+    // 레드 오버라이드 stem = 캐시 실제 내용(팩과 같은 규칙)
+    let stems_of = |dir: String| -> BTreeSet<String> {
+        let mut out = BTreeSet::new();
+        if let Ok(rd) = std::fs::read_dir(&dir) {
+            for e in rd.flatten() {
+                let p = e.path(); if !p.is_file() || !p.extension().map(|x| x.eq_ignore_ascii_case("png")).unwrap_or(false) { continue; }
+                if let Some(stem) = p.file_stem().and_then(|s| s.to_str()) { out.insert(stem.to_string()); }
+            }
+        }
+        out
+    };
+    il.red = stems_of(format!(r"{}\_red", raw)); il.red_noflip = stems_of(format!(r"{}\_red_noflip", raw));
     // 인덱스 = raw 폴더 실제 내용(복사 실패/기존 팩 포함). 팩 순서 = sources 순 + 나머지(알파벳)
     let mut order: Vec<String> = Vec::new();
     for s in &sources { if !s.0.starts_with('_') && !order.contains(&s.0) { order.push(s.0.clone()); } }
