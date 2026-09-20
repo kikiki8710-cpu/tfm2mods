@@ -50,6 +50,7 @@ pick_slot:color_icon_button {
     }
 
     #position:image {
+      z: 310;
       x: 156px;
       y: 84px;
 
@@ -61,6 +62,7 @@ pick_slot:color_icon_button {
     }
 
     #proficiency_top:empty {
+      z: 310;
       x: 158px;
       y: 122px;
 
@@ -115,7 +117,7 @@ pick_slot:color_icon_button {
       align_y: Center;
       color: #e8e8e8ff;
       size: 20;
-      z: 50;
+      z: 310;
       text: "ABCD";
     }
   }
@@ -136,6 +138,7 @@ pick_slot:color_icon_button {
     }
 
     #position:image {
+      z: 310;
       x: 156px;
       y: 84px;
 
@@ -147,6 +150,7 @@ pick_slot:color_icon_button {
     }
 
     #proficiency_top:empty {
+      z: 310;
       x: 158px;
       y: 122px;
 
@@ -200,7 +204,7 @@ pick_slot:color_icon_button {
       align_y: Center;
       color: #e8e8e8ff;
       size: 20;
-      z: 50;
+      z: 310;
       text: "ABCD";
     }
 

@@ -22,7 +22,7 @@ mod draft_scene;
 mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카드 일러) 통합 — 게임 훅 RVA 29(패치마다 재핀)
 
 const MOD_ID: &str = "banpick_view_plus";
-const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
+const DBG: bool = false; // 09-20 확정 배포(진단 시 true)
 const ROOT: &str = "main";
 const DISC: &str = "main.header.bp_settings";
 const PANEL: &str = "main.bp_settings_panel";
@@ -425,6 +425,13 @@ fn layout_for(_card_area: f32, show: bool) -> (f32, f32) {
     if !show { return (INFO_Y_OFF, VIEWPORT_H); }
     (INFO_Y_ON, INFO_Y_ON - SCROLL_Y)
 }
+/// 스페이서 y = 콘텐츠 실제 끝 + 여백. card_area 는 표의 auto 높이가 아니라 **카드 rect 실측**(보이는 카드 최대 바닥 − 첫 카드 위) —
+///   09-20 실측: `ui_node_rect(contents).3` 은 13줄 중 마지막 1~2줄을 빠뜨렸고(ㅎ 챔프 미표시), 실측 1822px 로 스페이서를 두니 끝까지 닿음.
+///   스크롤 범위는 뷰 높이(640/880)를 제대로 반영하므로 추가 보정은 불필요(+240 을 넣었더니 빈 여백만 늘었다).
+fn spacer_y(card_area: f32, _view_h: f32) -> f32 {
+    if card_area <= 0.0 { return 0.0; }
+    CONTENTS_Y + card_area + 16.0 - SPACER_H
+}
 fn push_click(s: &str) { PENDING_CLICKS.lock().unwrap_or_else(|e| e.into_inner()).push(s.to_string()); }
 fn name_map(ctx: &StableClient<'_>) -> HashMap<String, String> {
     let mut g = NAME_MAP.lock().unwrap_or_else(|e| e.into_inner());
@@ -718,15 +725,25 @@ impl StableExtension for Ext {
                 }
             }
             // ── 하단 패널 레이아웃
-            let card_area = ctx.ui_node_rect(CARDS).map(|r| r.3).filter(|h| *h > 0.0).unwrap_or_else(|| { let n = ctx.ui_child_count(CARDS).unwrap_or(0); let rows = (n + GRID_COLS - 1) / GRID_COLS; rows as f32 * CARD_H + rows.saturating_sub(1) as f32 * CARD_GAP });
-            let (py, sy) = layout_for(card_area, c.show_panel);
+            // ★09-20: card_area = 카드 rect 실측(보이는 카드의 최대 바닥 − 첫 카드 위). 표 auto 높이는 마지막 1~2줄을 빠뜨렸다(ㅎ 챔프 미표시 제보).
+            let card_area = {
+                let mut top = f32::MAX; let mut bottom = f32::MIN;
+                for id in &cards {
+                    let cp = format!("{}.{}", CARDS, id);
+                    if ctx.ui_visible(&cp) != Some(true) { continue; }
+                    if let Some(r) = ctx.ui_node_rect(&cp) { if r.3 > 0.0 { top = top.min(r.1); bottom = bottom.max(r.1 + r.3); } }
+                }
+                if bottom > top { bottom - top } else { ctx.ui_node_rect(CARDS).map(|r| r.3).unwrap_or(0.0) }
+            };
+            let (py, vh) = layout_for(card_area, c.show_panel);
+            let sy = spacer_y(card_area, vh);
             {
                 let mut last = LAST_LAYOUT.lock().unwrap_or_else(|e| e.into_inner());
                 if (last.0 - py).abs() > 0.5 || (last.1 - sy).abs() > 0.5 {
                     ctx.ui_set_properties("main.champion_info", &format!("y: {}px;", py as i32));
-                    ctx.ui_set_properties("main.champions", &format!("height: {}px;", sy as i32));
-                    ctx.ui_set_properties("main.champions.bp_spacer", "y: 0px;");
-                    if DBG { log(&format!("layout: panel y={} scroll h={} card_area={}", py, sy, card_area)); }
+                    ctx.ui_set_properties("main.champions", &format!("height: {}px;", vh as i32));
+                    ctx.ui_set_properties("main.champions.bp_spacer", &format!("y: {}px;", sy as i32));
+                    if DBG { log(&format!("layout: panel y={} view h={} spacer y={} card_area={} cards={}", py, vh, sy, card_area, cards.len())); }
                     *last = (py, sy);
                 }
             }
