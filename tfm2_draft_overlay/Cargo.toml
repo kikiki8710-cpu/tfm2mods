@@ -1,0 +1,20 @@
+[package]
+name = "tfm2_draft_overlay"
+version = "0.2.0"
+edition = "2021"
+
+# 0.6.0+: stable ABI (mod-api-stable) + ui_kit_stable. no raw RVA hooks.
+# build: cargo build --release  (any toolchain)
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
