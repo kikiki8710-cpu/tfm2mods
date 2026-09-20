@@ -24,6 +24,7 @@ pub mod legacy_assign;
 pub mod ui_block;
 pub mod swap_confirm_hook;
 pub mod ai_swap;
+pub mod auto_swap; // ★09-20 내 팀 자동 스왑(select_swap 호출)
 pub mod ui_popup;
 #[path = r"C:\tfm2mods\ui_kit\ui_kit_stable.rs"]
 pub mod uk;

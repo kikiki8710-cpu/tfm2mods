@@ -41,6 +41,7 @@ static SWAP_CLICKS: Mutex<Vec<usize>> = Mutex::new(Vec::new());
 static SWAP_LAST_CLICK: Mutex<Option<(u64, usize)>> = Mutex::new(None);
 static RAW_SRC: AtomicBool = AtomicBool::new(false);
 static CONFIRM_PAINT: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(u8::MAX);
+static SWAP_DIAG2: AtomicBool = AtomicBool::new(false);
 static RAW_LOGGED: AtomicBool = AtomicBool::new(false);
 /// 스왑 진입당 1회(스왑 화면을 떠날 때 리셋).
 fn f_once_swap() -> bool { !RAW_LOGGED.swap(true, Ordering::Relaxed) }
@@ -153,7 +154,7 @@ pub fn tick(ctx: &mut StableClient<'_>) {
     if pick_turn_side.is_some() && !ban_turn && need_scan { let per = ban_n / 2; if per <= 5 && BAN_CNT_SEEN.swap(per + 1, Ordering::Relaxed) != per + 1 { let (st, cb) = config::cur_rule(); if cb != Some(per) { config::set_rule(st, Some(per)); config::dlog(&format!("밴카드 관측: {}장/팀 (구 {:?})", per, cb)); } } }
     MY_PICK_TURN.store(my_turn, Ordering::Relaxed);
     // ── 스왑 확정 게이트
-    if vis(ctx, "main.swap") { swap_track(ctx, my_side); swap_gate(ctx, my_side); } else { SWAP_SIG.store(u64::MAX, Ordering::Relaxed); SWAP_DIAG.store(false, Ordering::Relaxed); if SWAP_ACTIVE.swap(false, Ordering::Relaxed) { *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = None; } RAW_LOGGED.store(false, Ordering::Relaxed); crate::swap_confirm_hook::BLOCK.store(false, Ordering::Relaxed); CONFIRM_PAINT.store(u8::MAX, Ordering::Relaxed); }
+    if vis(ctx, "main.swap") { swap_track(ctx, my_side); swap_gate(ctx, my_side); } else { SWAP_SIG.store(u64::MAX, Ordering::Relaxed); SWAP_DIAG.store(false, Ordering::Relaxed); SWAP_DIAG2.store(false, Ordering::Relaxed); if SWAP_ACTIVE.swap(false, Ordering::Relaxed) { *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = None; } RAW_LOGGED.store(false, Ordering::Relaxed); crate::swap_confirm_hook::BLOCK.store(false, Ordering::Relaxed); CONFIRM_PAINT.store(u8::MAX, Ordering::Relaxed); }
     // ── 차단 집합 계산
     let mut block: HashSet<String> = HashSet::new();
     let mut reason: HashMap<String, String> = HashMap::new();
@@ -291,6 +292,7 @@ fn swap_gate(ctx: &mut StableClient<'_>, my_side: i32) {
     let enforce = cfg.enabled && config::any_restricted() && my_side >= 0;
     let mut violations: Vec<String> = Vec::new();
     let mut resolved = 0usize;
+    let mut raw_state: Option<crate::draft_scene::SwapState> = None; // ★09-20 자동 스왑용으로 밖에서도 본다
     if enforce {
         let table = format!("main.swap.{}_table", if my_side == 0 { "blue" } else { "red" });
         let slot_champ: HashMap<String, String> = {
@@ -316,6 +318,12 @@ fn swap_gate(ctx: &mut StableClient<'_>, my_side: i32) {
         }
         // ★0.6.0(09-18 RE): 1순위 = 씬 raw(order[포지션] = 픽 인덱스 · 유저 클릭·코치 위임·상대 AI 전부 반영) / 폴백 = 행 k = 포지션 k, 챔피언 = y 순 k 번째 픽 슬롯(swap_track 클릭 추적).
         let raw = crate::draft_scene::read().filter(|st| st.is_swap());
+        raw_state = raw.clone();
+        // ★09-20 진단: raw None 원인(hits 정체/설치/체인/phase) — 스왑 진입당 1회
+        if SWAP_DIAG2.swap(true, Ordering::Relaxed) == false {
+            let any = crate::draft_scene::read();
+            config::llog(&format!("swapdiag2: install={} chained={} hits={} scene={:?} read_any={} phase={:?} rule={:?} lens={:?}", crate::draft_scene::INSTALL_STATE.load(Ordering::Relaxed), crate::draft_scene::CHAINED.load(Ordering::Relaxed), crate::draft_scene::hits(), crate::draft_scene::scene().map(|s| format!("{:#x}", s)), any.is_some(), any.as_ref().map(|a| a.phase), any.as_ref().map(|a| a.rule), any.as_ref().map(|a| (a.pick1.len(), a.pick2.len(), a.order_a.len(), a.order_b.len()))));
+        }
         let lineup: Vec<Option<String>> = match &raw {
             Some(st) => st.lineup(my_side as usize),
             None => {
@@ -336,6 +344,8 @@ fn swap_gate(ctx: &mut StableClient<'_>, my_side: i32) {
         let _ = (&slot_champ, &pos_texts);
     }
     let bad = resolved == 5 && !violations.is_empty();
+    // ★09-20 자동 스왑(유저 요구): 위반이면 세트당 1회, 게임 select_swap 으로 합법 최적 순열로 옮긴다(raw 소스일 때만 — 클릭 추적 폴백은 순열이 불확실).
+    if bad && cfg.swap_auto { if let Some(st) = &raw_state { if let Some(line) = crate::auto_swap::try_auto(st, my_side as usize) { config::llog(&line); config::dlog(&line); } } }
     let sig = { use std::hash::{Hash, Hasher}; let mut h = std::collections::hash_map::DefaultHasher::new(); (resolved, &violations, bad).hash(&mut h); h.finish() };
     if SWAP_SIG.swap(sig, Ordering::Relaxed) != sig { config::llog(&format!("swapgate: resolved={} bad={} {:?}", resolved, bad, violations)); }
     // ★09-18: `disable`/`disabled` 속성 set 은 게임 버튼에 아무 효과 없음(실측 2회) → primary_button 의 disabled 스타일 색(btn #20342da6 · text #a7b8b3a6)을 직접 칠한다(클릭은 detour 가 삼킴).
