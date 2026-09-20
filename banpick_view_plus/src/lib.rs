@@ -261,6 +261,10 @@ struct Illust {
     pack_order: Vec<String>,
     /// (pack, 표시명, layer n)
     vpacks: Vec<(String, String, u32)>,
+    /// ★09-20 구 tfm2_banpick_illust 폴더 규칙 복원: `illust\red\<stem>.png`(red_noflip=0 일 때) / `illust\red_noflip\<stem>.png`(red_noflip=1 일 때)
+    ///   가 있으면 레드 진영은 그 그림을 반전 없이 쓴다. 없으면 blue 그림을 red_noflip 설정대로 반전/비반전.
+    red: BTreeSet<String>,
+    red_noflip: BTreeSet<String>,
 }
 fn stem_layer(stem: &str) -> u32 { stem.rsplit_once('-').and_then(|(_, n)| n.parse().ok()).unwrap_or(0) }
 fn stem_base(stem: &str) -> String { match stem.rsplit_once('-') { Some((b, n)) if n.parse::<u32>().is_ok() => b.to_string(), _ => stem.to_string() } }
@@ -284,15 +288,34 @@ fn find_mod_dir(id: &str) -> Option<String> {
     None
 }
 fn modinfo_name(dir: &str) -> Option<String> { std::fs::read_to_string(format!(r"{}\mod.mod_info", dir)).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()).and_then(|v| v.get("name").and_then(|x| x.as_str()).map(str::to_string)) }
-/// 원작 prepare_illust 축약: ModData\illust\User_Splash_Art + 활성 모드들의 BanPickIllust\ → <mod_dir>\illust\raw\<pack>\<stem>.png 로 복사(크기 다르면 갱신) → 인덱스.
+/// 원작 prepare_illust 축약: 유저 그림(★09-20 유저 지시 "원래처럼 모드폴더 안에": `<mod_dir>\illust\blue\` 1순위 + 호환용 `ModData\illust\User_Splash_Art`)
+///   + 활성 모드들의 BanPickIllust\ → <mod_dir>\illust\raw\<pack>\<stem>.png 로 복사(크기 다르면 갱신) → 인덱스.
+///   레드 전용 구도 = `<mod_dir>\illust\red\<stem>.png`(있으면 레드 진영에 반전 없이 사용 · 없으면 blue 반전). 구 tfm2_banpick_illust 의 blue/red 폴더 규칙.
+///   ⚠ 모드 폴더(워크샵)는 스팀 재다운로드 시 지워질 수 있다 — 유저가 알고 선택한 경로.
 fn prepare_illust() -> Illust {
     let mut il = Illust::default();
     let Some(md) = mod_dir() else { return il };
     let raw = format!(r"{}\illust\raw", md); let _ = std::fs::create_dir_all(&raw);
-    let user_src = exe_dir().map(|d| format!(r"{}\ModData\illust\{}", d, PACK_USER));
-    if let Some(u) = &user_src { let _ = std::fs::create_dir_all(u); }
+    let blue_dir = format!(r"{}\illust\blue", md); let _ = std::fs::create_dir_all(&blue_dir);
+    let red_dir = format!(r"{}\illust\red", md); let _ = std::fs::create_dir_all(&red_dir);
+    let rnf_dir = format!(r"{}\illust\red_noflip", md); let _ = std::fs::create_dir_all(&rnf_dir);
+    let stems_of = |dir: &str| -> BTreeSet<String> {
+        let mut out = BTreeSet::new();
+        if let Ok(rd) = std::fs::read_dir(dir) {
+            for e in rd.flatten() {
+                let p = e.path(); if !p.is_file() || !p.extension().map(|x| x.eq_ignore_ascii_case("png")).unwrap_or(false) { continue; }
+                if let Some(stem) = p.file_stem().and_then(|s| s.to_str()) { if !stem.starts_with('_') && !stem.starts_with('.') { out.insert(stem.to_string()); } }
+            }
+        }
+        out
+    };
+    il.red = stems_of(&red_dir); il.red_noflip = stems_of(&rnf_dir);
     let mut sources: Vec<(String, String, String)> = Vec::new(); // (pack, dir, 표시명)
-    if let Some(u) = user_src { sources.push((PACK_USER.into(), u, String::new())); }
+    sources.push((PACK_USER.into(), blue_dir, String::new()));
+    if let Some(u) = exe_dir().map(|d| format!(r"{}\ModData\illust\{}", d, PACK_USER)) {
+        if std::path::Path::new(&u).is_dir() { sources.push((PACK_USER.into(), u, String::new())); }
+    }
+
     let mut baseline: Option<(String, String, String)> = None;
     for id in read_enabled_mods() {
         if id == MOD_ID { continue; }
@@ -317,7 +340,8 @@ fn prepare_illust() -> Illust {
         }
     }
     // 인덱스 = raw 폴더 실제 내용(복사 실패/기존 팩 포함). 팩 순서 = sources 순 + 나머지(알파벳)
-    let mut order: Vec<String> = sources.iter().map(|s| s.0.clone()).collect();
+    let mut order: Vec<String> = Vec::new();
+    for s in &sources { if !order.contains(&s.0) { order.push(s.0.clone()); } }
     let mut names: HashMap<String, String> = sources.iter().map(|s| (s.0.clone(), s.2.clone())).collect();
     if let Ok(rd) = std::fs::read_dir(&raw) {
         let mut extra: Vec<String> = rd.flatten().filter(|e| e.path().is_dir()).filter_map(|e| e.file_name().to_str().map(str::to_string)).filter(|n| !order.contains(n)).collect();
@@ -337,7 +361,7 @@ fn prepare_illust() -> Illust {
     for (stem, list) in &il.packs { if stem_base(stem) == "bg" { continue; } for p in list { pack_layers.entry(p.clone()).or_default().insert(stem_layer(stem)); } }
     for p in &order { if let Some(ns) = pack_layers.get(p) { let nm = if p == PACK_USER { String::new() } else { names.get(p).cloned().unwrap_or_else(|| p.clone()) }; for n in ns { il.vpacks.push((p.clone(), nm.clone(), *n)); } } }
     il.pack_order = order;
-    log(&format!("illust: packs={} stems={} vpacks={} copied={}", il.pack_order.len(), il.packs.len(), il.vpacks.len(), copied));
+    log(&format!("illust: packs={} stems={} vpacks={} copied={} red={}", il.pack_order.len(), il.packs.len(), il.vpacks.len(), copied, il.red.len() + il.red_noflip.len()));
     il
 }
 fn illust() -> std::sync::Arc<Illust> { ILLUST.lock().unwrap_or_else(|e| e.into_inner()).get_or_insert_with(|| std::sync::Arc::new(prepare_illust())).clone() }
@@ -355,11 +379,22 @@ fn chosen_key(il: &Illust, base: &str) -> Option<String> {
     let sel = splash_sel().get(base).cloned();
     Some(match sel { Some(k) if c.contains(&k) => k, _ => c[0].clone() })
 }
-/// 쇼케이스(연출 카드) 아트 — 픽 슬롯과 같은 선택(팩 순환 반영). 반환 = (에셋 키, flip). 레드 = 엔진 flip(`red_noflip` 이면 안 뒤집음).
+/// 진영별 아트 = (에셋 경로, flip). 레드: red_noflip=0 → `illust\red\<stem>` / =1 → `illust\red_noflip\<stem>` 가 있으면 그것을 반전 없이,
+///   없으면 blue 그림을 엔진 flip(`red_noflip` 이면 안 뒤집음). (구 tfm2_banpick_illust 규칙)
+fn art_for(il: &Illust, key: &str, is_blue: bool) -> (String, bool) {
+    let noflip = cfg().red_noflip;
+    if !is_blue {
+        let stem = key.rsplit('/').next().unwrap_or(key);
+        let (set, dir) = if noflip { (&il.red_noflip, "red_noflip") } else { (&il.red, "red") };
+        if set.contains(stem) { return (format!("asset/{}/illust/{}/{}", MOD_ID, dir, stem), false); }
+    }
+    (asset_of(key), !is_blue && !noflip)
+}
+/// 쇼케이스(연출 카드) 아트 — 픽 슬롯과 같은 선택(팩 순환 반영). 반환 = (에셋 경로, flip).
 pub(crate) fn showcase_art(champ_id: &str, is_blue: bool) -> Option<(String, bool)> {
     let il = illust();
     let k = chosen_key(&il, champ_id)?;
-    Some((asset_of(&k), !is_blue && !cfg().red_noflip))
+    Some(art_for(&il, &k, is_blue))
 }
 fn cycle_illust(base: &str) {
     let il = illust(); let c = flat_cands(&il, base); if c.len() < 2 { return; }
@@ -621,7 +656,7 @@ impl StableExtension for Ext {
                 let key = chosen_key(&il, &id);
                 let sp = format!("{}.done.bp_splash", slot);
                 // ★09-17(유저 제보): 레드 대기 슬롯의 "?" 플레이스홀더까지 좌우반전되던 것 → 챔피언 일러만 반전, question_* 은 반전 안 함.
-                match &key { Some(k) => { want_splash.insert(sp.clone(), format!("{}|{}", k, !*is_blue && !c.red_noflip && !id.starts_with("question"))); } None => {} }
+                match &key { Some(k) => { let (a, fl) = art_for(&il, k, *is_blue); want_splash.insert(sp.clone(), format!("{}|{}", a, fl && !id.starts_with("question"))); } None => {} }
                 let hovered = cur.map(|p| inside(*r, p)).unwrap_or(false);
                 let gi = if *is_blue { *n } else { 5 + *n };
                 if hovered { grace[gi] = f + 10; }
@@ -648,13 +683,13 @@ impl StableExtension for Ext {
                     let w0 = want_splash.get(&key_sp).cloned().unwrap_or_default();
                     if w0.is_empty() { set_vis(ctx, &sp, false); }
                     else {
-                        let (k, flip) = w0.split_once('|').unwrap_or((&w0, "false"));
-                        let ok = ctx.ui_set_properties(&sp, &format!("source: \"{}\";", asset_of(k)));
+                        let (a, flip) = w0.split_once('|').unwrap_or((&w0, "false"));
+                        let ok = ctx.ui_set_properties(&sp, &format!("source: \"{}\";", a));
                         let _ = ctx.ui_set_properties(&sp, &format!("flip_x: {};", flip));
                         ctx.ui_set_visible(&sp, true);
                         // 이름 라벨을 일러스트 위로(원작: 이름을 일러스트 위 우/좌 정렬)
                         if done_vis { ctx.ui_set_properties(&format!("{}.name", done), "z: 310;"); }
-                        if f < 20000 { log(&format!("splash set {} ← {} flip={} → {}", sp, asset_of(k), flip, ok)); }
+                        if f < 20000 { log(&format!("splash set {} ← {} flip={} → {}", sp, a, flip, ok)); }
                     }
                     let sp = key_sp;
                     lm.insert(sp, w);
