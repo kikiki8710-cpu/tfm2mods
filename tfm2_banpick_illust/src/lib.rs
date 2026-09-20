@@ -1,3 +1,5 @@
+//! ⛔ [2026-09-20] **폐기 — banpick_view_plus 로 물리 통합됨(유저 결정 "3")**. 쇼케이스 훅(`showcase.rs`)은 `C:	fm2modsanpick_view_plus\src\showcase.rs` 가 정본.
+//!   게임 폴더 `mods	fm2_banpick_illust\` 의 dll·mod_info 는 `.merged_into_view_plus_20260920` 로 개명(로더 미인식). 이 소스는 이력용으로만 보존 — 빌드/배포 금지(같은 함수 이중 훅).
 //! tfm2_banpick_illust v1.4.0 — ★0.6.0 stable ABI 껍데기, **쇼케이스 전용**(2026-09-17).
 //! 클래식 v1.3.3(`_classic_058\src`)의 기능 중 픽슬롯 배경 일러·버프/너프 이름색·8각 레이더는 0.6.0 에서
 //! `banpick_view_plus`(stable 재작성) 가 담당 → 여기선 **밴/픽 셀렉트 연출(쇼케이스) 카드에 일러스트 표시**(`showcase.rs`,

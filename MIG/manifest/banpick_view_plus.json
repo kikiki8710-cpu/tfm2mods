@@ -1,0 +1,373 @@
+{
+  "mod": "banpick_view_plus",
+  "game_ver": "0.5.7",
+  "build": "",
+  "notes": [
+    "2026-09-20: tfm2_banpick_illust showcase.rs 를 banpick_view_plus 로 물리 통합(유저 결정) — 이 매니페스트는 illust 것을 복사해 locs 만 재계산. 원본 illust 매니페스트는 이력용(illust 모드 폐기)."
+  ],
+  "offsets": [
+    {
+      "name": "FX_SET self+blue_team_id",
+      "value": "0x3f8",
+      "ver": "0.6.0",
+      "prev": "0.5.8=0x3d0",
+      "verify": "FX_SET 진입부 `mov rax,[rcx+OFF]; cmp rax,r9(team_id)` — 훅 A 의 self_ 와 동일 구조체",
+      "src": "src/showcase.rs cap_fx_set"
+    }
+  ],
+  "entries": [
+    {
+      "name": "RVA_ASSET_GET",
+      "value": "0x16cdb0",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:46"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641554154565753",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_SUBMIT",
+      "value": "0x1b48d0",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:32"
+      ],
+      "sect": ".text",
+      "bytes": "5541565657534881ec200100",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_SUBMIT_TEXT",
+      "value": "0x1b4b50",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:33"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641545657534881",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_TEXT_BUILD",
+      "value": "0x1b5240",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:39"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641554154565753",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_IMG_UV",
+      "value": "0x1b5bb0",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:35"
+      ],
+      "sect": ".text",
+      "bytes": "564883ec2048b80000000000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_IMG_BUILD",
+      "value": "0x1b5d50",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:34"
+      ],
+      "sect": ".text",
+      "bytes": "5541565657534881ecc00000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+      "note": "★0.6.0 정정: repin BYTES_UNIQUE(32B) 0x10d92f0 은 프롤로그 충돌 오답(size 410·callers 0) → CG 매칭+지역창(IMG_UV~IMG_FLAG 사이)+ALIGN 0.71·size 633→614·callers 23"
+    },
+    {
+      "name": "RVA_IMG_FLAG",
+      "value": "0x1b6060",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:36"
+      ],
+      "sect": ".text",
+      "bytes": "564883ec2048b80000000000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_IMG_SHADER",
+      "value": "0x1b7660",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:38"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641554154565753",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_IMG_COLOR",
+      "value": "0x216910",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:37"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641554154565753",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_ANIM_GET",
+      "value": "0x21f0b0",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:47"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641554154565753",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_FX_SET",
+      "value": "0x23c0b40",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:29"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641554154565753",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_CARD_DRAW",
+      "value": "0x23d64c0",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:30"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641554154565753",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_D_CUT_LO",
+      "value": "0x23e0828",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:104"
+      ],
+      "sect": ".text",
+      "bytes": "d4a96401f3450f58c2f3440f",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_D_CUT_HI",
+      "value": "0x23e0836",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:105"
+      ],
+      "sect": ".text",
+      "bytes": "b6f07101f3450f58d941b820",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_NAME_GET",
+      "value": "0x23ff380",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:40"
+      ],
+      "sect": ".text",
+      "bytes": "55415741565657534883ec78",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_SPRITE_CALC",
+      "value": "0x2404750",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:48"
+      ],
+      "sect": ".text",
+      "bytes": "554157415641554154565753",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_I_SNAP_H",
+      "value": "0x2450d10",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:102"
+      ],
+      "sect": ".text",
+      "bytes": "0000f043488d8d700100004c",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_D_SNAP_W",
+      "value": "0x2450d26",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:103"
+      ],
+      "sect": ".text",
+      "bytes": "9aa65d01e8e125d5fd90498b",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_D_ZIG_X1",
+      "value": "0x2451b72",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:108"
+      ],
+      "sect": ".text",
+      "bytes": "1a127801440f58d8410fc6fb",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_D_ZIG_X2",
+      "value": "0x2452250",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:109"
+      ],
+      "sect": ".text",
+      "bytes": "3c0b78010f58d50fc6da010f",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_ILLUST_GET",
+      "value": "0x28cf2a0",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:31"
+      ],
+      "sect": ".text",
+      "bytes": "5541565657534881ec800000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_GAME_ALLOC",
+      "value": "0x2f380b0",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:52"
+      ],
+      "sect": ".text",
+      "bytes": "5556574883ec20488d6c2420",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_C_CARD_RECT",
+      "value": "0x3bd2d10",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:90"
+      ],
+      "sect": ".rdata",
+      "bytes": "000034c3000070c30000b443",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_C_SNAP_RECT",
+      "value": "0x3bd2d30",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:91"
+      ],
+      "sect": ".rdata",
+      "bytes": "00000000000000000000b443",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+      "curated": true,
+      "note": "[0.5.8 f32 블록 직접 대조 {0,0,360,480} — 블록 내부 재배치라 형제 델타 불가]"
+    },
+    {
+      "name": "RVA_C_NORMAL",
+      "value": "0x3bd2d40",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:95"
+      ],
+      "sect": ".rdata",
+      "bytes": "90c62f3f891d3a3f00000000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_C_LINE_DIR",
+      "value": "0x3bd2d60",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:92"
+      ],
+      "sect": ".rdata",
+      "bytes": "0000b4430000aa4300000000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_C_LINE_START",
+      "value": "0x3bd2d70",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:93"
+      ],
+      "sect": ".rdata",
+      "bytes": "000034c300002a4300000000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_C_LINE_ANCHOR",
+      "value": "0x3bd2d80",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:94"
+      ],
+      "sect": ".rdata",
+      "bytes": "0000000000002a4300000000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+    },
+    {
+      "name": "RVA_SLOTS",
+      "value": "0x484f000",
+      "ver": "0.6.0",
+      "kind": "UNCLASSIFIED",
+      "locs": [
+        "src/showcase.rs:112"
+      ],
+      "sect": ".rdata",
+      "bytes": "000000000000000000000000",
+      "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+      "curated": true,
+      "note": "[0.5.8 .rdata 0런(0x4158641+0x135a) 내 페이지정렬 스크래치 슬롯]"
+    }
+  ]
+}

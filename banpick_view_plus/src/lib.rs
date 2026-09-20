@@ -19,6 +19,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
 #[path = r"C:\tfm2mods\ui_kit\draft_scene_stable.rs"]
 mod draft_scene;
+mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카드 일러) 통합 — 게임 훅 RVA 29(패치마다 재핀)
 
 const MOD_ID: &str = "banpick_view_plus";
 const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
@@ -58,8 +59,8 @@ const DIM_NODES: [(&str, &str, &str); 5] = [
 
 // ───────── 설정 ─────────
 #[derive(Clone, Copy)]
-struct Cfg { show_panel: bool, name_color: bool, red_noflip: bool, show_bg: bool, hero_bg: bool }
-static CFG: Mutex<Cfg> = Mutex::new(Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false });
+struct Cfg { show_panel: bool, name_color: bool, red_noflip: bool, show_bg: bool, hero_bg: bool, showcase: bool }
+static CFG: Mutex<Cfg> = Mutex::new(Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false, showcase: true });
 fn cfg() -> Cfg { *CFG.lock().unwrap_or_else(|e| e.into_inner()) }
 fn cfg_mut(f: impl FnOnce(&mut Cfg)) { let mut g = CFG.lock().unwrap_or_else(|e| e.into_inner()); f(&mut g); let c = *g; drop(g); save_cfg(&c); }
 /// ★설정 저장소 = 원작과 같은 공용 파일 `<게임>\ModData\config.txt`(키: show_panel/banpick_name_color/banpick_red_noflip/banpick_show_bg/banpick_hero_bg).
@@ -69,17 +70,17 @@ fn shared_cfg_path() -> Option<String> { exe_dir().map(|d| format!(r"{}\ModData\
 fn cfg_apply_line(c: &mut Cfg, l: &str) {
     let Some((k, v)) = l.split_once('=') else { return };
     let b = matches!(v.trim().to_ascii_lowercase().as_str(), "true" | "1" | "on" | "yes");
-    match k.trim() { "show_panel" => c.show_panel = b, "banpick_name_color" => c.name_color = b, "banpick_red_noflip" => c.red_noflip = b, "banpick_show_bg" => c.show_bg = b, "banpick_hero_bg" => c.hero_bg = b, _ => {} }
+    match k.trim() { "show_panel" => c.show_panel = b, "banpick_name_color" => c.name_color = b, "banpick_red_noflip" => c.red_noflip = b, "banpick_show_bg" => c.show_bg = b, "banpick_hero_bg" => c.hero_bg = b, "banpick_showcase" => c.showcase = b, _ => {} }
 }
 fn load_cfg() -> Cfg {
-    let mut c = Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false };
+    let mut c = Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false, showcase: true };
     if let Some(t) = shared_cfg_path().and_then(|p| std::fs::read_to_string(p).ok()) { for l in t.lines() { cfg_apply_line(&mut c, l); } }
     c
 }
 fn save_cfg(c: &Cfg) {
     let Some(p) = shared_cfg_path() else { return };
     let mut lines: Vec<String> = std::fs::read_to_string(&p).map(|t| t.lines().map(|l| l.to_string()).collect()).unwrap_or_default();
-    let pairs = [("show_panel", c.show_panel), ("banpick_name_color", c.name_color), ("banpick_red_noflip", c.red_noflip), ("banpick_show_bg", c.show_bg), ("banpick_hero_bg", c.hero_bg)];
+    let pairs = [("show_panel", c.show_panel), ("banpick_name_color", c.name_color), ("banpick_red_noflip", c.red_noflip), ("banpick_show_bg", c.show_bg), ("banpick_hero_bg", c.hero_bg), ("banpick_showcase", c.showcase)];
     for (k, v) in pairs {
         let line = format!("{} = {}", k, v);
         match lines.iter_mut().find(|l| l.split_once('=').map(|(a, _)| a.trim() == k).unwrap_or(false)) { Some(l) => *l = line, None => lines.push(line) }
@@ -354,6 +355,12 @@ fn chosen_key(il: &Illust, base: &str) -> Option<String> {
     let sel = splash_sel().get(base).cloned();
     Some(match sel { Some(k) if c.contains(&k) => k, _ => c[0].clone() })
 }
+/// 쇼케이스(연출 카드) 아트 — 픽 슬롯과 같은 선택(팩 순환 반영). 반환 = (에셋 키, flip). 레드 = 엔진 flip(`red_noflip` 이면 안 뒤집음).
+pub(crate) fn showcase_art(champ_id: &str, is_blue: bool) -> Option<(String, bool)> {
+    let il = illust();
+    let k = chosen_key(&il, champ_id)?;
+    Some((asset_of(&k), !is_blue && !cfg().red_noflip))
+}
 fn cycle_illust(base: &str) {
     let il = illust(); let c = flat_cands(&il, base); if c.len() < 2 { return; }
     let cur = chosen_key(&il, base).unwrap_or_default();
@@ -386,6 +393,7 @@ impl StableExtension for Ext {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let f = FRAME.fetch_add(1, Ordering::Relaxed);
             if f % 3 != 0 { return; }
+            if cfg().showcase { showcase::tick(); } // 늦은 1회 설치(멱등) — 밴픽 화면 진입 전에 설치돼 있어야 첫 연출부터 잡힌다
             if !ctx.ui_exists(DISC) { deactivate(); return; }
             let il = illust();
             if !ACTIVE.swap(true, Ordering::Relaxed) {
