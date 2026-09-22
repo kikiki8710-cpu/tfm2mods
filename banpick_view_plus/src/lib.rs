@@ -22,7 +22,7 @@ mod draft_scene;
 mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카드 일러) 통합 — 게임 훅 RVA 29(패치마다 재핀)
 
 const MOD_ID: &str = "banpick_view_plus";
-const DBG: bool = false; // 09-20 확정 배포(진단 시 true — rects/layout 로그가 스크롤 한계를 알려준다)
+const DBG: bool = false; // 09-23 확정 배포(진단 시 true — rects/layout/swap/카드덤프 로그)
 const ROOT: &str = "main";
 const DISC: &str = "main.header.bp_settings";
 const PANEL: &str = "main.bp_settings_panel";
@@ -147,7 +147,9 @@ static PICK_STATE: Mutex<Option<PickState>> = Mutex::new(None);
 ///   행 k ↔ 픽 슬롯 = 같은 팀 pick_slot_n 을 y 오름차순으로 정렬한 k 번째(둘 다 라인업 순서 = 탑→서폿). ⚠코치 위임·상대 AI 스왑은 클릭이 없어 추적 불가(한계).
 static SWAP_SEL: Mutex<[Option<usize>; 2]> = Mutex::new([None, None]);
 static SWAP_ACTIVE: AtomicBool = AtomicBool::new(false);
-static HIDE_SIDE_LOG: AtomicBool = AtomicBool::new(false);  // 상대 일러 ? 처리 전환 로그 1회용
+static HIDE_SIDE_LOG: AtomicBool = AtomicBool::new(false);
+static BOTTOM_DUMPED: AtomicBool = AtomicBool::new(false);
+static CARD_DUMPED: AtomicBool = AtomicBool::new(false);  // 상대 일러 ? 처리 전환 로그 1회용
 static SWAP_LAST_CLICK: Mutex<Option<(u64, String)>> = Mutex::new(None);
 static NAME_MAP: Mutex<Option<HashMap<String, String>>> = Mutex::new(None); // 표시명 → id
 static AXES: Mutex<Option<HashMap<String, [f32; 8]>>> = Mutex::new(None);
@@ -447,6 +449,58 @@ fn name_map(ctx: &StableClient<'_>) -> HashMap<String, String> {
     let mut g = NAME_MAP.lock().unwrap_or_else(|e| e.into_inner());
     g.get_or_insert_with(|| { let mut m = HashMap::new(); for id in ctx.champion_names() { if let Some(n) = ctx.i18n(&format!("#asset/base/text/champion?description.{}.name", id)) { if !n.is_empty() { m.insert(n, id.clone()); } } } log(&format!("이름 맵 {}개", m.len())); m }).clone()
 }
+/// ★09-23: 0.6.x 게임은 픽 카드의 `name`/`position`/`proficiency_top` 을 **매 프레임 자기 좌표로 되돌린다**
+///   (.ui 로 옮겨도 무효 — 실측: 게임이 안 건드리는 `proficiency_badge_title`/`badge` 만 .ui 값이 살아남았다).
+///   ⟹ 하단 띠 배치는 여기서 **매 프레임** 강제한다. 모드 본체는 3프레임 주기라 거기서 고치면
+///   2/3 프레임은 게임 위치로 보여 **깜빡인다**(유저 제보 09-23).
+///   비용 절감 = 슬롯0의 이름 rect 만 먼저 보고(프로브), 이미 맞으면 나머지는 건드리지 않는다.
+///   대기·차례 슬롯("?" 일러)도 같은 배치 — 정보가 "?" 위로 올라온다.
+const CARD_POS_BLUE: [(&str, f32, f32); 3] = [("name", 194.0, 137.0), ("position", 268.0, 117.0), ("proficiency_top", 10.0, 140.0)];
+const CARD_POS_RED: [(&str, f32, f32); 3] = [("name", 10.0, 137.0), ("position", 10.0, 117.0), ("proficiency_top", 166.0, 140.0)];
+fn card_block(ctx: &StableClient<'_>, slot: &str) -> Option<String> {
+    for b in ["done", "in_turn", "wait"] {
+        let p = format!("{}.{}", slot, b);
+        if ctx.ui_visible(&p) == Some(true) { return Some(p); }
+    }
+    None
+}
+fn fix_card_labels(ctx: &mut StableClient<'_>) {
+    // ★x/y 는 **무조건 매 프레임** 덮어쓴다. rect 를 보고 "어긋났을 때만" 고치면, 우리가 고친 프레임엔
+    //   맞다고 읽혀 건너뛰고 → 그 사이 게임이 되돌려 → 격프레임으로 왔다갔다 = 깜빡임(유저 제보 2회).
+    for team in ["blue", "red"] {
+        let want = if team == "blue" { CARD_POS_BLUE } else { CARD_POS_RED };
+        for n in 0..5 {
+            let slot = format!("main.{}_picks.pick_slot_{}", team, n);
+            let Some(blk) = card_block(ctx, &slot) else { continue };
+            for (nm, wx, wy) in want {
+                ctx.ui_set_properties(&format!("{}.{}", blk, nm), &format!("x: {}px; y: {}px; z: 310;", wx as i32, wy as i32));
+            }
+        }
+    }
+}
+
+/// 숙련도 위젯은 **빈 컨테이너**(`:empty`)라 z 가 자식에게 안 내려간다 — 컨테이너만 z310 을 줘도
+/// 배경·아이콘·라벨(자식)은 z0 으로 남아 **일러(z300) 밑에 깔린다**(유저 제보: % 와 챔피언 얼굴이 아예 안 보임).
+/// z 는 게임이 되돌리지 않으므로(`.ui` 의 title z310 이 유지되는 것으로 실측) 3프레임 주기 패스에서 1회씩만 올린다.
+fn raise_card_children(ctx: &mut StableClient<'_>) {
+    for team in ["blue", "red"] {
+        for n in 0..5 {
+            let slot = format!("main.{}_picks.pick_slot_{}", team, n);
+            let Some(blk) = card_block(ctx, &slot) else { continue };
+            for cont in ["proficiency_top", "proficiency_badge", "proficiency_badge_title"] {
+                let cp = format!("{}.{}", blk, cont);
+                if !ctx.ui_exists(&cp) { continue; }
+                ctx.ui_set_properties(&cp, "z: 310;");
+                for k in ctx.ui_child_names(&cp) {
+                    let kp = format!("{}.{}", cp, k);
+                    ctx.ui_set_properties(&kp, "z: 311;");
+                    for k2 in ctx.ui_child_names(&kp) { ctx.ui_set_properties(&format!("{}.{}", kp, k2), "z: 312;"); }
+                }
+            }
+        }
+    }
+}
+
 fn set_vis(ctx: &mut StableClient<'_>, p: &str, v: bool) { if ctx.ui_exists(p) && ctx.ui_visible(p) != Some(v) { ctx.ui_set_visible(p, v); } }
 
 struct Ext;
@@ -454,6 +508,8 @@ impl StableExtension for Ext {
     fn post_update(&self, ctx: &mut StableClient<'_>, _dt: u64) {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let f = FRAME.fetch_add(1, Ordering::Relaxed);
+            // 카드 라벨 위치 보정만 매 프레임(위 주석 참조 — 3프레임 주기면 깜빡인다)
+            if ACTIVE.load(Ordering::Relaxed) { fix_card_labels(ctx); }
             if f % 3 != 0 { return; }
             if cfg().showcase { showcase::tick(); } // 늦은 1회 설치(멱등) — 밴픽 화면 진입 전에 설치돼 있어야 첫 연출부터 잡힌다
             if !ctx.ui_exists(DISC) { deactivate(); return; }
@@ -674,19 +730,60 @@ impl StableExtension for Ext {
             let dim = bg_key.is_some();
             if DIM_STATE.load(Ordering::Relaxed) != dim { for (p, orig, dimc) in DIM_NODES { if ctx.ui_exists(p) { ctx.ui_set_properties(p, &format!("color: {};", if dim { dimc } else { orig })); } } DIM_STATE.store(dim, Ordering::Relaxed); }
             // ── 픽 슬롯 스플래시 + 순환 버튼
-            // ★0.6.1(09-22 유저 요청): **내가 스왑을 확정한 뒤 상대가 확정할 때까지 상대 진영 일러를 "?" 로 되돌린다.**
-            //   (확정 후에도 상대 슬롯에 최종이 아닌 배치가 그대로 보여 정보가 새는 것을 막는다.)
-            //   판정 = 씬 raw `phase==7(스왑)` + `sent!=0`(내 SwapDone 전송됨, 0x466) + 스왑 화면이 아직 떠 있음.
-            //   내 진영 = player_team_id 가 t1_id(블루)/t2_id(레드) 중 어느 쪽인가. 못 가리면 **아무것도 안 한다**(폴백).
+            // ★0.6.1(09-22 요청 → 09-23 정정): **스왑 화면이 떠 있는 동안 상대 진영 일러를 "?" 로 둔다.**
+            //   요청 원문 = "밴픽 완료 → 내 스왑 정하기 → 스왑 확정" 에서, 내가 정하는 동안 상대는 아직 확정 전이므로
+            //   상대 배치를 보여주면 안 된다. 스왑 화면이 닫히면(= 양쪽 확정) 원래 일러로 돌아온다.
+            //   ⚠구현 1차(09-22)는 `sent!=0`(내 SwapDone, 씬 0x466)을 걸었는데 ①의미가 요청과 다르고
+            //     ②실측상 확정을 눌러도 계속 0 이었다(0.6.1 로그: phase 5→7 정상, sent 내내 0) ⟹ 조건에서 제거.
+            //   내 진영 = player_team_id ↔ t1_id(블루)/t2_id(레드). 못 가리면 **아무것도 안 한다**(폴백).
             let hide_side: Option<bool> = if ctx.ui_visible("main.swap").unwrap_or(false) {
-                draft_scene::read().filter(|r| r.is_swap() && r.sent != 0).and_then(|r| {
+                draft_scene::read().and_then(|r| {
                     let me = ctx.player_team_id()? as u64;
                     if me == r.t1_id { Some(false) } else if me == r.t2_id { Some(true) } else { None }  // 숨길 쪽 = 상대
                 })
             } else { None };
+            if DBG && !CARD_DUMPED.swap(true, Ordering::Relaxed) {
+                for slot in ["main.blue_picks.pick_slot_0", "main.blue_picks.pick_slot_1"] {
+                    for b in ["done", "in_turn", "wait"] {
+                        let bp = format!("{}.{}", slot, b);
+                        if ctx.ui_visible(&bp) != Some(true) { continue; }
+                        let mut v: Vec<String> = Vec::new();
+                        for c in ctx.ui_child_names(&bp) {
+                            let cp = format!("{}.{}", bp, c);
+                            v.push(format!("{}={:?} vis={:?} kids={}", c, ctx.ui_node_rect(&cp), ctx.ui_visible(&cp), ctx.ui_child_names(&cp).len()));
+                        }
+                        log(&format!("카드덤프 {} [{}]: {}", slot, b, v.join(" | ")));
+                    }
+                }
+            }
+            if DBG && ctx.ui_visible("main.swap").unwrap_or(false) && !BOTTOM_DUMPED.swap(true, Ordering::Relaxed) {
+                let mut out: Vec<String> = Vec::new();
+                let mut walk = |ctx: &StableClient<'_>, root: &str, out: &mut Vec<String>| {
+                    for a in ctx.ui_child_names(root) {
+                        let pa = format!("{}.{}", root, a);
+                        if let Some(r) = ctx.ui_node_rect(&pa) { if r.1 + r.3 > 950.0 || r.1 > 950.0 { out.push(format!("{}={:?}", pa, r)); } }
+                        for b in ctx.ui_child_names(&pa) {
+                            let pb = format!("{}.{}", pa, b);
+                            if let Some(r) = ctx.ui_node_rect(&pb) { if r.1 > 950.0 { out.push(format!("{}={:?} vis={:?}", pb, r, ctx.ui_visible(&pb))); } }
+                        }
+                    }
+                };
+                walk(ctx, "main", &mut out);
+                log(&format!("하단노드 dump({}): {}", out.len(), out.join(" | ")));
+                for side in ["blue", "red"] {
+                    let root = format!("main.{}_picks", side);
+                    let mut v: Vec<String> = Vec::new();
+                    for a in ctx.ui_child_names(&root) { let pa = format!("{}.{}", root, a); if let Some(r) = ctx.ui_node_rect(&pa) { v.push(format!("{}={:?}", a, r)); } }
+                    log(&format!("{} rect: {}", root, v.join(" | ")));
+                }
+            }
+            if DBG && ctx.ui_visible("main.swap").unwrap_or(false) && f % 60 == 0 {
+                log(&format!("swap: phase={:?} me={:?} hide_side={:?}", draft_scene::read().map(|r| (r.phase, r.sent)), ctx.player_team_id(), hide_side));
+            }
             if HIDE_SIDE_LOG.swap(hide_side.is_some(), Ordering::Relaxed) != hide_side.is_some() {
                 log(&format!("스왑 확정 대기: 상대({}) 일러 ? 처리 = {}", if hide_side == Some(true) { "블루" } else { "레드" }, hide_side.is_some()));
             }
+            raise_card_children(ctx);
             let mut want_splash: HashMap<String, String> = HashMap::new();
             let mut grace = SLOT_GRACE.lock().unwrap_or_else(|e| e.into_inner());
             for ((is_blue, n), r) in &slot_rects {
@@ -724,6 +821,12 @@ impl StableExtension for Ext {
                     if lm.get(&key_sp) == Some(&w) { continue; }
                     if !ctx.ui_exists(&sp) { continue; }
                     let w0 = want_splash.get(&key_sp).cloned().unwrap_or_default();
+                    // ★09-23: 하단 반투명 판은 **일러가 실제로 깔릴 때만** — 일러 없는 카드는 원본 그대로 둔다.
+                    //   픽 완료 = done.bp_dim / 대기·차례("?") = 슬롯 루트 bp_dim_q (유저 요청 09-23: "?" 에서도 글자가 묻힌다)
+                    let dim = if done_vis { format!("{}.bp_dim", done) } else { format!("{}.bp_dim_q", slot) };
+                    let dim_other = if done_vis { format!("{}.bp_dim_q", slot) } else { format!("{}.bp_dim", done) };
+                    set_vis(ctx, &dim_other, false);
+                    set_vis(ctx, &dim, !w0.is_empty());
                     if w0.is_empty() { set_vis(ctx, &sp, false); }
                     else {
                         let (a, flip) = w0.split_once('|').unwrap_or((&w0, "false"));

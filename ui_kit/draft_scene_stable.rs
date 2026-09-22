@@ -8,6 +8,7 @@
 //! 멀티모드: 같은 함수를 다른 모드(pos_lock·view_plus)가 먼저 후킹했으면 **체인**(진입 12B 가 `48 b8 <tgt> ff e0` 이면 그 12B 를 스텁 꼬리에 담아 tgt 로 점프). 재체인 금지(1회 설치 확정).
 //! 사용: `#[path = r"C:\tfm2mods\ui_kit\draft_scene_stable.rs"] mod draft_scene;` → 매프레임 `draft_scene::tick()` → `draft_scene::read()`.
 #![allow(dead_code)]
+use std::sync::Mutex;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 pub const GAME_VER: &str = "0.6.1";
@@ -123,6 +124,23 @@ pub fn tick() {
     if h != LAST_HITS.swap(h, Ordering::Relaxed) { IDLE_TICKS.store(0, Ordering::Relaxed); } else { IDLE_TICKS.fetch_add(1, Ordering::Relaxed); }
 }
 pub fn hits() -> u64 { HITS.load(Ordering::Relaxed) }
+
+/// ★진단 전용(0.6.1 09-23): 씬 0x478B 를 처음 본 시점과 비교해 **바뀐 오프셋**을 나열한다.
+/// 스왑 확정처럼 "어떤 플래그가 서는가"를 모를 때, 누르기 전/후 로그를 비교하면 바로 잡힌다.
+static SNAP: Mutex<Option<Vec<u8>>> = Mutex::new(None);
+pub fn scene_diff() -> Option<String> {
+    let s = scene()?;
+    let cur: Vec<u8> = unsafe { if !readable(s, 0x478) { return None } core::slice::from_raw_parts(s as *const u8, 0x478).to_vec() };
+    let mut g = SNAP.lock().unwrap_or_else(|e| e.into_inner());
+    let Some(base) = g.as_ref() else { *g = Some(cur); return Some("스냅샷 채록".into()) };
+    let mut out: Vec<String> = Vec::new();
+    for (i, (a, b)) in base.iter().zip(cur.iter()).enumerate() {
+        if a != b && out.len() < 48 { out.push(format!("{:#x}:{:02x}->{:02x}", i, a, b)); }
+    }
+    Some(if out.is_empty() { "변화 없음".into() } else { out.join(" ") })
+}
+/// 스왑 화면을 벗어날 때 등 스냅샷 리셋.
+pub fn scene_diff_reset() { *SNAP.lock().unwrap_or_else(|e| e.into_inner()) = None; }
 /// 지금 살아 있는(최근 히트) 씬 포인터.
 pub fn scene() -> Option<usize> {
     if INSTALL_STATE.load(Ordering::Relaxed) != 1 { return None; }

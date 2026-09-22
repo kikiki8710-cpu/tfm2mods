@@ -34,6 +34,18 @@ pick_slot:color_icon_button {
     source: "asset/banpick_view_plus/asset/hover_ph";
   }
 
+  #bp_dim_q:color {
+    x: 0px;
+    y: 114px;
+    width: 284px;
+    height: 59px;
+    z: 305;
+    color: #23252fa6;
+    visible: false;
+    ignore_event: true;
+    rounding: Individual { top_left: 0; top_right: 0; bottom_left: 8; bottom_right: 8; }
+  }
+
   #wait:empty {
     width: 100%;
     height: 174px;
@@ -62,6 +74,7 @@ pick_slot:color_icon_button {
     }
 
     #proficiency_top:empty {
+      @"asset/base/style/main#bold_label";
       z: 310;
       x: 158px;
       y: 122px;
@@ -89,7 +102,6 @@ pick_slot:color_icon_button {
       }
 
       #label:label {
-        @"asset/base/style/main#bold_label";
         width: 78px;
         height: 18px;
         size: 12;
@@ -103,21 +115,17 @@ pick_slot:color_icon_button {
 
     #name:label {
       @"asset/base/style/main#bold_label";
-      x: 184px;
+      x: 10px;
+      y: 137px;
+      z: 310;
       width: 96px;
-      height: 48px;
-
-
+      height: 28px;
       anchor_x: 0;
       pivot_x: 0;
-
-      y: 71px;
-
       align_x: Left;
       align_y: Center;
       color: #e8e8e8ff;
-      size: 20;
-      z: 310;
+      size: 16;
       text: "ABCD";
     }
   }
@@ -150,6 +158,7 @@ pick_slot:color_icon_button {
     }
 
     #proficiency_top:empty {
+      @"asset/base/style/main#bold_label";
       z: 310;
       x: 158px;
       y: 122px;
@@ -177,7 +186,6 @@ pick_slot:color_icon_button {
       }
 
       #label:label {
-        @"asset/base/style/main#bold_label";
         width: 78px;
         height: 18px;
         size: 12;
@@ -191,20 +199,17 @@ pick_slot:color_icon_button {
 
     #name:label {
       @"asset/base/style/main#bold_label";
-      x: 184px;
+      x: 10px;
+      y: 137px;
+      z: 310;
       width: 96px;
-      height: 48px;
-
+      height: 28px;
       anchor_x: 0;
       pivot_x: 0;
-
-      y: 71px;
-
       align_x: Left;
       align_y: Center;
       color: #e8e8e8ff;
-      size: 20;
-      z: 310;
+      size: 16;
       text: "ABCD";
     }
 
@@ -238,8 +243,9 @@ pick_slot:color_icon_button {
     }
 
     #position:image {
-      x: 156px;
-      y: 84px;
+      x: 10px;
+      y: 117px;
+      z: 310;
 
       source: "asset/base/ui/icons/top";
 
@@ -250,8 +256,9 @@ pick_slot:color_icon_button {
 
     #proficiency_badge_title:label {
       @"asset/base/style/main#label";
-      x: 166px;
-      y: 36px;
+      x: 90px;
+      y: 121px;
+      z: 310;
       width: 110px;
       height: 18px;
       size: 13;
@@ -264,8 +271,10 @@ pick_slot:color_icon_button {
     }
 
     #proficiency_badge:empty {
-      x: 197px;
-      y: 58px;
+      @"asset/base/style/main#bold_label";
+      x: 109px;
+      y: 148px;
+      z: 310;
 
       width: 30px;
       height: 30px;
@@ -290,7 +299,6 @@ pick_slot:color_icon_button {
       }
 
       #label:label {
-        @"asset/base/style/main#bold_label";
         width: 78px;
         height: 18px;
         size: 12;
@@ -303,8 +311,9 @@ pick_slot:color_icon_button {
     }
 
     #proficiency_top:empty {
-      x: 158px;
-      y: 122px;
+      x: 166px;
+      y: 140px;
+      z: 310;
       width: 124px;
       height: 30px;
       visible: false;
@@ -330,17 +339,17 @@ pick_slot:color_icon_button {
 
     #name:label {
       @"asset/base/style/main#bold_label";
+      x: 10px;
+      y: 137px;
+      z: 310;
       width: 96px;
-      height: 48px;
+      height: 28px;
 
-      x: 184px;
-      y: 71px;
 
       align_x: Left;
       align_y: Center;
       color: #e8e8e8ff;
-      size: 20;
-      z: 50;
+      size: 16;
       text: "ABCD";
     }
 
@@ -371,6 +380,18 @@ pick_slot:color_icon_button {
       }
     }
 
+
+    #bp_dim:color {
+      x: 0px;
+      y: 114px;
+      width: 284px;
+      height: 59px;
+      z: 305;
+      color: #23252fa6;
+      visible: false;
+      ignore_event: true;
+      rounding: Individual { top_left: 0; top_right: 0; bottom_left: 8; bottom_right: 8; }
+    }
     #bp_splash:image {
       ignore_event: true;
       x: 0px;
@@ -488,6 +509,7 @@ pick_slot:color_icon_button {
     }
 
     #position_row:empty {
+      @"asset/base/style/main#label";
       width: 100%;
       height: 22px;
       y: 4px;
@@ -503,7 +525,6 @@ pick_slot:color_icon_button {
       }
 
       #text:label {
-        @"asset/base/style/main#label";
         x: 30px;
         width: 780px;
         height: 100%;
@@ -515,13 +536,13 @@ pick_slot:color_icon_button {
     }
 
     #proficiency_header:empty {
+      @"asset/base/style/main#bold_label";
       width: 100%;
       height: 26px;
       y: 26px;
       visible: false;
 
       #text:label {
-        @"asset/base/style/main#bold_label";
         x: 12px;
         width: 780px;
         height: 100%;
@@ -535,6 +556,7 @@ pick_slot:color_icon_button {
     }
 
     #most_row:empty {
+      @"asset/base/style/main#label";
       width: 100%;
       height: 34px;
       y: 26px;
@@ -590,7 +612,6 @@ pick_slot:color_icon_button {
       }
 
       #text:label {
-        @"asset/base/style/main#label";
         x: 164px;
         width: 780px;
         height: 100%;
@@ -673,6 +694,7 @@ pick_slot:color_icon_button {
     }
 
     #row1:empty {
+      @"asset/base/style/main#label";
       width: 100%;
       height: 22px;
       y: 24px;
@@ -689,7 +711,6 @@ pick_slot:color_icon_button {
       }
 
       #text:label {
-        @"asset/base/style/main#label";
         width: 80px;
         height: 100%;
         x: 30px;
@@ -701,6 +722,7 @@ pick_slot:color_icon_button {
     }
 
     #row2:empty {
+      @"asset/base/style/main#label";
       width: 100%;
       height: 22px;
       y: 46px;
@@ -717,7 +739,6 @@ pick_slot:color_icon_button {
       }
 
       #text:label {
-        @"asset/base/style/main#label";
         width: 80px;
         height: 100%;
         x: 30px;

@@ -436,13 +436,14 @@ main:match_ui {
 
   #blue_pool:color {
     width: 300px;
-    height: 46px;
+    height: 58px;
 
     color: #1d1f2cff;
 
     anchor_y: 1;
     pivot_y: 1;
-    y: -6px;
+    x: 3px;
+    y: -21px;
 
     visible: false;
 
@@ -454,8 +455,8 @@ main:match_ui {
     }
 
     #data:empty {
-      width: 220px;
-      height: 36px;
+      width: 280px;
+      height: 48px;
 
       anchor_x: 0.5;
       pivot_x: 0.5;
@@ -483,7 +484,7 @@ main:match_ui {
 
   #red_pool:color {
     width: 300px;
-    height: 46px;
+    height: 58px;
 
     color: #1d1f2cff;
 
@@ -491,7 +492,8 @@ main:match_ui {
     pivot_x: 1;
     anchor_y: 1;
     pivot_y: 1;
-    y: -6px;
+    x: -3px;
+    y: -21px;
 
     visible: false;
 
@@ -503,8 +505,8 @@ main:match_ui {
     }
 
     #data:empty {
-      width: 220px;
-      height: 36px;
+      width: 280px;
+      height: 48px;
 
       anchor_x: 0.5;
       pivot_x: 0.5;
