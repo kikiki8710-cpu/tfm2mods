@@ -1,0 +1,18 @@
+R0   rc=0 nr=0 epic=0 hp=500 max=1000                    | before=0 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=3 rnd=0
+R1   rc=0 nr=1 epic=0 hp=290 max=1000                    | before=1 after=1 pred=1 MATCH | pred=1 got=1 MATCH | len=1 tags=tag=4 rnd=0
+R1b  rc=0 nr=1 epic=0 hp=289 max=1000                    | before=1 after=1 pred=1 MATCH | pred=1 got=1 MATCH | len=1 tags=tag=4 rnd=0
+R2   rc=0 nr=1 epic=0 hp=300 max=1000                    | before=1 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=3 rnd=0
+R2b  rc=0 nr=1 epic=0 hp=299 max=1000                    | before=1 after=1 pred=1 MATCH | pred=1 got=1 MATCH | len=1 tags=tag=4 rnd=0
+E1   rc=0 nr=0 epic=1 focus=me hp=3d max=100000          | before=0 after=1 pred=1 MATCH | pred=1 got=1 MATCH | len=1 tags=tag=4 rnd=0
+E2   rc=0 nr=0 epic=1 focus=me hp=3d+1 max=100000        | before=0 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=14 rnd=0
+E3   rc=0 nr=0 epic=1 focus=none hp=d max=100000         | before=0 after=1 pred=1 MATCH | pred=1 got=1 MATCH | len=1 tags=tag=4 rnd=0
+E4   rc=0 nr=0 epic=1 focus=none hp=d+1 max=100000       | before=0 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=14 rnd=0
+E5   rc=0 nr=0 epic=1 focus=other hp=3d max=100000       | before=0 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=14 rnd=0
+E6   rc=0 nr=0 epic=1 focus=other hp=d max=100000        | before=0 after=1 pred=1 MATCH | pred=1 got=1 MATCH | len=1 tags=tag=4 rnd=0
+E7   rc=0 nr=0 epic=1 focus=me hp=3d-1 max=100000        | before=0 after=1 pred=1 MATCH | pred=1 got=1 MATCH | len=1 tags=tag=4 rnd=0
+E8   rc=0 nr=1 epic=1 focus=me hp=3d+1 max=1000          | before=1 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=14 rnd=0
+E9   rc=0 nr=1 epic=1 focus=none hp=d+1 max=400          | before=1 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=14 rnd=0
+N1   rc=0 nr=0 epic=1 focus=me hp=3d+1 near=1 max=100000 | before=0 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=2 tags=tag=15,tag=16 rnd=0
+N2   rc=0 nr=0 epic=1 focus=me hp=3d+1 near=1 dx=50000 max=100000 | before=0 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=14 rnd=0
+N3   rc=0 nr=0 epic=0 hp=500 enemy=1 max=100000          | before=0 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=1 tags=tag=14 rnd=0
+N4   rc=0 nr=0 epic=1 focus=none hp=d+1 near=1 enemy=1 max=100000 | before=0 after=0 pred=0 MATCH | pred=0 got=0 MATCH | len=2 tags=tag=15,tag=16 rnd=0

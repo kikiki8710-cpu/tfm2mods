@@ -1,0 +1,113 @@
+A1_phase_change_jungle       ok=True  game=None                                          mine=None("L102")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=None/None infos=0
+A2_phase_setup               ok=True  game=None                                          mine=None("L155")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/0 infos=0
+B1_v1_allies_gt_enemies      ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L127", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=None/None infos=0
+B2_v1_enemies_eq             ok=True  game=Battle es=3 goal=2 tgt=801174405592 mt=801174423544 mine=Battle { site: "L136", entry_src: 3, goal_tag: 2, target: 0, min_trace: 0 }
+                              chat g=Some((6, 23, 0)) m=Some(23)  runs=[(0, 288)] self_diff=[0, 8, 9, 10, 11, 12, 13, 16] rnd=false bush=None/None infos=0
+B3_v1_enemies_zero_far_seen  ok=True  game=Battle es=3 goal=2 tgt=170590421128 mt=170590439080 mine=Battle { site: "L136", entry_src: 3, goal_tag: 2, target: 0, min_trace: 0 }
+                              chat g=Some((6, 23, 0)) m=Some(23)  runs=[(0, 288)] self_diff=[0, 8, 9, 10, 11, 12, 13, 16] rnd=false bush=None/None infos=0
+B4_v1_no_seen                ok=True  game=None                                          mine=None("L155")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/0 infos=0
+B5_v1_allies_gt_hp39         ok=True  game=Battle es=3 goal=2 tgt=132238885640 mt=132238903592 mine=Battle { site: "L136", entry_src: 3, goal_tag: 2, target: 0, min_trace: 0 }
+                              chat g=Some((6, 23, 0)) m=Some(23)  runs=[(0, 288)] self_diff=[0, 8, 9, 10, 11, 12, 13, 16] rnd=false bush=None/None infos=0
+B5b_v1_allies_gt_hp40        ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L127", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=None/None infos=0
+B6_v1_dist_250000            ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L127", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=None/None infos=0
+B6b_v1_dist_250001           ok=True  game=Battle es=3 goal=2 tgt=274613419832 mt=274613437784 mine=Battle { site: "L136", entry_src: 3, goal_tag: 2, target: 0, min_trace: 0 }
+                              chat g=Some((6, 23, 0)) m=Some(23)  runs=[(0, 288)] self_diff=[0, 8, 9, 10, 11, 12, 13, 16] rnd=false bush=None/None infos=0
+B7_v2_allies_gt              ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L127", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=None/None infos=2
+   INFO 19:with_dive: false, die_tick_with_tower: 60, die_tick: 120, is_in_tower_focused: false, is_in_tower_range: false
+   INFO 19:near_allies: 2, near_enemies: 0, can_near_enemies: 0, warn_tower: false
+B8_v1_nearest_pick           ok=True  game=Battle es=3 goal=2 tgt=579968254568 mt=579968272520 mine=Battle { site: "L136", entry_src: 3, goal_tag: 2, target: 0, min_trace: 0 }
+                              chat g=Some((6, 24, 0)) m=Some(24)  runs=[(0, 288)] self_diff=[0, 8, 9, 10, 11, 12, 13, 16] rnd=false bush=None/None infos=0
+C1_not_bush                  ok=True  game=None                                          mine=None("L155")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/0 infos=0
+C2_in_bush_empty             ok=True  game=None                                          mine=None("L245")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=0
+D1_loop_dbg                  ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+D2_ally_gt                   ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L217", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+D3_ally_gt_ms                ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L214", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 17, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+D4_ally_eq_wait              ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=2
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0, 1], move_to_tower_tick: 173850, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+   INFO 19:target: 24, near_allies_p: [0, 1], near_enemies_p: [0, 1], move_to_tower_tick: 201801, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+D5_range_in                  ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L241", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 160900, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+D6_range_out                 ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 160012, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+D7_wait_gate                 ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L217", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+D8_v2_loop                   ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L217", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=3
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+   INFO 19:with_dive: false, die_tick_with_tower: 60, die_tick: 120, is_in_tower_focused: false, is_in_tower_range: false
+   INFO 19:near_allies: 2, near_enemies: 0, can_near_enemies: 0, warn_tower: false
+D9_two_enemies_order         ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L217", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1, 2], near_enemies_p: [0, 1], move_to_tower_tick: 182603, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+D10_unseen_enemy_near        ok=True  game=None                                          mine=None("L245")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=0
+E1_L212_edt_le60             ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L212", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 17, me_die_tick: 9999999999, enemy_die_tick: 8
+E2_L205_continue             ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 17, me_die_tick: 9999999999, enemy_die_tick: 250006
+E2b_L214_ally                ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L214", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 124), (125, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 17, me_die_tick: 9999999999, enemy_die_tick: 203346
+E3_L217                      ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L217", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+E4_L216_false_wait181        ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 198806, me_die_tick: 0, enemy_die_tick: 15
+E4b_L220_L221_wait180        ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L221", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 122), (123, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 198806, me_die_tick: 0, enemy_die_tick: 15
+E4c_L220_false               ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 198806, me_die_tick: 0, enemy_die_tick: 15
+E5_check_kill                ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L217", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 9999999999, enemy_die_tick: 8
+E6_v2_hopeless               ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [0, 1], near_enemies_p: [0], move_to_tower_tick: 17, me_die_tick: 8, enemy_die_tick: 80833
+E7_v2_L212                   ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 17, me_die_tick: 9999999999, enemy_die_tick: 8
+E8_dist_cut_150000           ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L212", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 19, me_die_tick: 9999999999, enemy_die_tick: 13
+E8b_dist_cut_150001          ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=0
+F1_check_kill_L227           ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 0, enemy_die_tick: 8
+F1b_check_kill_L227_v2       ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 0, enemy_die_tick: 8
+F2_range_eq_20000            ok=True  game=Battle es=7 goal=0 tgt=23 mt=60               mine=Battle { site: "L241", entry_src: 7, goal_tag: 0, target: 23, min_trace: 60 }
+                              chat g=None m=None  runs=[(0, 288)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 160449, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+F3_range_20001               ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 160449, me_die_tick: 9999999999, enemy_die_tick: 9999999999
+F4_L227_seed                 ok=True  game=None                                          mine=None("L240")
+                              chat g=None m=None  runs=[(0, 8)] self_diff=[] rnd=false bush=14/14 infos=1
+   INFO 19:target: 23, near_allies_p: [1], near_enemies_p: [0], move_to_tower_tick: 173850, me_die_tick: 0, enemy_die_tick: 8
+MATCH 41 / 41

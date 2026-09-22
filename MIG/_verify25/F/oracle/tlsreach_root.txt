@@ -1,0 +1,117 @@
+TLS keys: 35
+root: game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan17action_candidates direct callees: 51 own tls: set()
+[-  ] 11collections3vecINtB3_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE12from_iter_inABU_j1_EBY_
+[-  ] _ENCNvMNtNtNtBY_11plan_legacy8sub_plan9epic_pokeNtB3P_15EpicPokeSubPlan17action_candidatess0_0ENCB3M_s1_0EEBY_
+[-  ] onPlayE6retainNCNvMNtNtNtBY_11plan_legacy8sub_plan9epic_pokeNtB22_15EpicPokeSubPlan17action_candidatess2_0EBY_
+[TLS] onPlayE6retainNCNvMNtNtNtBY_11plan_legacy8sub_plan9epic_pokeNtB22_15EpicPokeSubPlan17action_candidatess3_0EBY_
+       d=2  INTER_CTX                    via _RNvNtCshdEBA0ozCnw_7game_ai12action_score17interaction_score
+       d=3  DIE_TICK_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19check_kill_die_tick
+       d=3  HP_VALUE_MEMO                via _RNvNtCshdEBA0ozCnw_7game_ai5utils17champion_hp_value
+       d=3  LAST_STAND_MEMO              via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus18base_defense_focus
+       d=3  POS_EVAL_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+       d=4  ATTACK_DMG_CACHE             via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  EPC_CACHE                    via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  PE_CAND_MASKS                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  PE_PLAYER_CTX                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  TOWER_MINION_CNT_CACHE       via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=5  CC_TIME_MEMO                 via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached
+       d=5  SIEGE_STANCE_CACHE           via _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance
+       d=5  SLOT_READY_MEMO              via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached
+       d=7  RESOLVE_FIGHT_CACHE          via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full
+[-  ] MNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB5m_15EpicPokeSubPlan15get_move_actions_0EEB5s_
+[-  ] erator10min_by_key3keyB2R_yNCB4O_s_0E0EB6E_4foldTyB2R_ENCINvNvB6E_6min_by4foldB7S_INvB6C_7compareB2R_yEE0EB4X_
+[TLS] icPokeSubPlan17action_candidatess6_0E0EB2q_4foldTxB3e_ENCINvNvB2q_6max_by4foldB51_INvB2o_7compareB3e_xEE0EB1r_
+       d=2  INTER_CTX                    via _RNvNtCshdEBA0ozCnw_7game_ai12action_score17interaction_score
+       d=3  DIE_TICK_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19check_kill_die_tick
+       d=3  HP_VALUE_MEMO                via _RNvNtCshdEBA0ozCnw_7game_ai5utils17champion_hp_value
+       d=3  LAST_STAND_MEMO              via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus18base_defense_focus
+       d=3  POS_EVAL_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+       d=4  ATTACK_DMG_CACHE             via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  EPC_CACHE                    via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  PE_CAND_MASKS                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  PE_PLAYER_CTX                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  TOWER_MINION_CNT_CACHE       via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=5  CC_TIME_MEMO                 via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached
+       d=5  SIEGE_STANCE_CACHE           via _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance
+       d=5  SLOT_READY_MEMO              via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached
+       d=7  RESOLVE_FIGHT_CACHE          via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full
+[-  ] plan9epic_pokeNtB3D_15EpicPokeSubPlan17action_candidates0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3J_
+[TLS] _RNvMNtCshdEBA0ozCnw_7game_ai12small_actionNtB2_15SmallActionPlay9get_input
+       d=2  LAST_STAND_MEMO              via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus17nexus_final_stand
+       d=2  PATH_SCRATCH                 via icyNCNvMs3_NtNtB5_12small_action6aroundNtB1r_25SmallActionAroundPosition9get_inputs0_0EB5_
+       d=2  SPLICE_VISITED               via athNCNvMs3_NtNtB5_12small_action6aroundNtB1g_25SmallActionAroundPosition9get_inputs3_0EB5_
+       d=3  ATTACK_DMG_CACHE             via _RNvNtCshdEBA0ozCnw_7game_ai16minion_wave_risk32enemy_minion_wave_risk_damage_at
+       d=3  FIELD_SCRATCH                via _NtNtB4_12small_action6aroundNtB25_25SmallActionAroundPosition9get_inputs0_0E0NCBX_s_0EB4_
+       d=3  HIDE_NEAREST                 via Ms_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB4_21SmallActionAroundHide10check_cell
+       d=4  POS_EVAL_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+       d=4  SIEGE_STANCE_CACHE           via _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance
+       d=5  EPC_CACHE                    via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=5  PE_CAND_MASKS                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=5  PE_PLAYER_CTX                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=5  TOWER_MINION_CNT_CACHE       via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=6  CC_TIME_MEMO                 via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached
+       d=6  RESOLVE_FIGHT_CACHE          via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full
+       d=6  SLOT_READY_MEMO              via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached
+[-  ] _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect11is_in_range
+[-  ] _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust
+[-  ] _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect22expected_damage_target
+[-  ] HDMLkPaX_7bumpalo11collections3vecINtB2_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE4pushBX_
+[-  ] kPaX_7bumpalo11collections3vecINtB2_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE8truncateBX_
+[-  ] _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill
+[-  ] _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB2_18SmallActionRunAway3new
+[-  ] _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB2_17SmallActionAround3new
+[TLS] _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan21action_candidates_old
+       d=2  POS_EVAL_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+       d=3  ATTACK_DMG_CACHE             via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  EPC_CACHE                    via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  PE_CAND_MASKS                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  PE_PLAYER_CTX                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  TOWER_MINION_CNT_CACHE       via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  CC_TIME_MEMO                 via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached
+       d=4  SIEGE_STANCE_CACHE           via _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance
+       d=4  SLOT_READY_MEMO              via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached
+       d=6  RESOLVE_FIGHT_CACHE          via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full
+[TLS] _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan5score
+       d=1  INTER_CTX                    via _RNvNtCshdEBA0ozCnw_7game_ai12action_score17interaction_score
+       d=2  DIE_TICK_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19check_kill_die_tick
+       d=2  HP_VALUE_MEMO                via _RNvNtCshdEBA0ozCnw_7game_ai5utils17champion_hp_value
+       d=2  LAST_STAND_MEMO              via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus18base_defense_focus
+       d=2  POS_EVAL_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+       d=3  ATTACK_DMG_CACHE             via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  EPC_CACHE                    via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  PE_CAND_MASKS                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  PE_PLAYER_CTX                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  TOWER_MINION_CNT_CACHE       via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=4  CC_TIME_MEMO                 via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached
+       d=4  SIEGE_STANCE_CACHE           via _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance
+       d=4  SLOT_READY_MEMO              via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached
+       d=6  RESOLVE_FIGHT_CACHE          via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full
+[-  ] EBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan31v27_objective_discipline_action
+[-  ] _RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_23SmallActionAroundRegion3new
+[-  ] _RNvMs0_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard17is_recent_visible
+[-  ] _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache25iter_towers_without_nexus
+[-  ] _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity11block_input
+[-  ] _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity18remain_action_time
+[-  ] _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter20positioning_accuracy
+[TLS] _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19check_kill_die_tick
+       d=0  DIE_TICK_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19check_kill_die_tick
+       d=2  ATTACK_DMG_CACHE             via _RNvNtCshdEBA0ozCnw_7game_ai16minion_wave_risk29enemy_minion_wave_risk_dps_at
+[TLS] _RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position
+       d=1  POS_EVAL_CACHE               via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+       d=2  ATTACK_DMG_CACHE             via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=2  EPC_CACHE                    via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=2  PE_CAND_MASKS                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=2  PE_PLAYER_CTX                via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=2  TOWER_MINION_CNT_CACHE       via _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+       d=3  CC_TIME_MEMO                 via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached
+       d=3  SIEGE_STANCE_CACHE           via _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance
+       d=3  SLOT_READY_MEMO              via _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached
+       d=5  RESOLVE_FIGHT_CACHE          via _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full
+[-  ] _RNvNtCshdEBA0ozCnw_7game_ai5utils18range_misjudge_rng
+[-  ] _RNvNtCshdEBA0ozCnw_7game_ai5utils19range_misjudge_roll
+[-  ] _RNvNtCshdEBA0ozCnw_7game_ai5utils26nontarget_windup_perceived
+[-  ] _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle17max_range_can_use
+[-  ] _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle24max_range_nearly_can_use
+[-  ] JLkH_9game_core10simulationNtB5_14ProjectileIterNtNtNtNtCsjihNppCmMEE_4core4iter6traits8iterator8Iterator4next
+[-  ] f5S1uJLkH_9game_core10simulation6entity6EntityENtNtCsjihNppCmMEE_4core5clone5Clone5cloneCshdEBA0ozCnw_7game_ai
+[-  ] _RNvXs_NtCshdEBA0ozCnw_7game_ai12small_actionNtB4_15SmallActionPlayNtNtCsjihNppCmMEE_4core5clone5Clone5clone

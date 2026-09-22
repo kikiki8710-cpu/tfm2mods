@@ -1,0 +1,131 @@
+# -*- coding: utf-8 -*-
+"""25차 배치G patch.json 생성 — #200 SerpenPokeSubPlan::action_candidates"""
+import sys, io
+sys.path.insert(0, r"C:\tfm2mods\MIG")
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+import mkpatch
+
+p = mkpatch.Patch(round=25, batch="G")
+S = "/specs[200]"
+
+# ── E1 G18: logic 의 `t.tower` 는 실재 필드가 아니다(문면)
+p.fix(S + "/logic",
+      old="let Some((_, id))=t.tower.nearest_enemy(+0x88 tag, +0x98 id)",
+      new="let Some((_, id))=t.ty@Tower.info.nearest_enemy(+0x88 tag, +0x98 id · Entity::nearest_enemy entity.rs:1819 인라인 — Tower.info.nearest_enemy: Option<(usize,usize)> 의 .1)",
+      evidence="tcxdict Entity 0x88 = `ty@Tower.info.nearest_enemy@tag` · 0x98 = `ty@Tower.info.nearest_enemy@Some.0.1`(Entity 에 `tower` 필드 없음 · G18 지적) · MIR entity.rs:1822 `(((*_1).5 as Tower).0: Tower).4: Option<(usize,usize)>` → `Some(_12)`(.1) · IR m14.ll:15920 `gep %983, 136` / 15934 `gep %983, 152`",
+      behavior_change=False, found_by="new", kind="실오류")
+
+# ── E2 L285~291 has_non_target_action_range 에 casting.is_nontarget() 게이트 누락(실오류 · 동작 변경)
+p.fix(S + "/logic",
+      old="_=>continue }.unwrap().is_in_range(c, champ))",
+      new="_=>continue }.unwrap() as eff; eff.casting.is_nontarget() [CastingType +0x30(Effect 선두) ∈ {Position(1), Direction(2)} — Targeting(0)·None(3) 은 skip(계속)] && eff.is_in_range(c, champ))",
+      evidence="IR m14.ll:13979~13983 `switch i32 %239(casting@+1272), label %232(loop continue) [ -1→unwrap_failed · 1→%242 · 2→%242 ]` (`!range !16944 = [-1,4)` 라 0·3 이 default=skip) · Skill2/Ult 팔도 동일(14008~14011 · 14031~14034) · MIR game_core::CastingType::is_nontarget(type.rs:148) `switchInt [1: true, 2: true, otherwise false]` · tcxdict --enum CastingType 0=Targeting 1=Position 2=Direction 3=None · dbg 는 option.rs:742(as_ref) 로 접혀 있어 줄 규약상 L287~291 소속",
+      behavior_change=True, found_by="new", kind="실오류")
+
+# ── E3 open[1] 해소: L243 헬퍼 = ProjectileMoveType::is_targeting(projectile.rs:133)
+p.fix(S + "/logic",
+      old="!(BouncingTarget 이면서 첫 워드==1 [projectile.rs:134 인라인, 의미 미확정])",
+      new="!(BouncingTarget{target_id: Some(_)}) [셋을 합쳐 `!p.move_type.is_targeting()` — ProjectileMoveType::is_targeting projectile.rs:133 인라인 · BouncingTarget 은 untagged 니치라 +0x40 워드가 곧 target_id: Option<usize> 의 태그(1=Some)]",
+      evidence="MIR game_core::ProjectileMoveType::is_targeting(projectile.rs:133~139) `switchInt(discr) [4: true, 5: true, 7: bb2]` · bb2 `discriminant(((*_1) as BouncingTarget).1: Option<usize>) == 1` · tcxdict --enum ProjectileMoveType: untagged=7 BouncingTarget · enum+0x0 target_id Option<usize>(16B) · IR m14.ll:16411~16426 `%1154 = select ugt %1150,1 ? %1150-2 : 7` → switch 4,5→skip · 7→(%1150==1 → skip)",
+      behavior_change=False, found_by="new", kind="보강")
+p.fix(S + "/reads[46]/note",
+      old="gep 64 — ProjectileMoveType 니치(tag 6=Target 7=TargetSplash 는 제외, tag<=1 → BouncingTarget)",
+      new="gep 64 — ProjectileMoveType 니치(untagged=BouncingTarget · niche_start 2 · tag 6=Target 7=TargetSplash 는 제외 · 워드<=1 이면 BouncingTarget 이고 그 워드 = target_id: Option<usize> 의 태그(1=Some 이면 제외) — is_targeting(projectile.rs:133) 인라인)",
+      evidence="tcxdict --enum ProjectileMoveType(BouncingTarget enum+0x0 target_id Option<usize>) · MIR is_targeting bb2",
+      behavior_change=False, found_by="new", kind="보강")
+
+# ── E4 open[0] 해소: L383 = Effect::range(&self, caster=champ)
+p.fix(S + "/logic",
+      old="# ★champ.level·champ.stat_range 와 s.atk.range 혼합(IR 그대로)",
+      new="# = atk.range(caster=champ) + 20000 + radius_adj(champ) + radius_adj(s) — Effect::range(&self, caster: &Entity)(effect.rs:25 MIR: self.range + self.growth_range*(caster.level-1) + caster.stat_buff_cached.range) 를 caster=champ 로 부른 것. 세르펜 이펙트에 챔피언 레벨·사거리 스탯이 섞이는 것은 소스 호출 인자 그대로(L367 은 caster=e 로 정상) — 재현은 IR 대로",
+      evidence="MIR game_core::Effect::range(effect.rs:25~26) `_4=(*_1).0(range) · _6=(*_1).1(growth_range) · _9=(*_2).1(caster.level) · _11=((*_2).18 BuffState).23(stat_buff_cached.range)` · IR m14.ll:14900~14962 사슬 `;L26<383<205` 에서 %635/%639 가 %210(champ) 기준, %631/%633 이 %583(serpen) 기준 · L367 (14651~14711) 은 전부 %493(e) 기준",
+      behavior_change=False, found_by="new", kind="보강")
+
+# ── E5 open[2] 해소: L232/L234 순서는 줄번호로 확정(판정 반전 미확정→확정)
+p.fix(S + "/logic",
+      old="(마지막 두 항의 소스 순서는 컬럼 부재로 미확정)",
+      new="(!c.block_input() 은 L232 · mr == 0 은 L234 로 줄이 달라 순서 확정: m14.ll:16205 `invoke block_input ;L232` → 16209~16210 `icmp ne mr,0 · or ;L234` → 둘 다 순수라 외연도 동일 · ‘한 줄 안 순서’ 문제가 아니었다)",
+      evidence="IR m14.ll:16205 `%1097 = invoke i1 @Entity::block_input(%1045)` !dbg L232 · 16210 `%1100 = or i1 %1099(mr!=0), %1097` !dbg L234 · 16212 `br %1100, %1101(skip), %1126(RunAway)`",
+      behavior_change=False, found_by="new", kind="실오류")
+
+# ── E6 mem[19] 헬퍼 이름 정정: is_visible_to(team) → Entity::is_visible_from(&self, other)
+p.fix(S + "/reads[19]/note",
+      old="stride 24 · tag 0=Visible. is_visible_to(team) 인라인(entity.rs:1482~1483)",
+      new="stride 24 · tag 0=Visible. Entity::is_visible_from(&self, other: &Entity) 인라인(entity.rs:1481~1485 MIR: other.team Neutral→true · Player(t)→self.visible_state[t].is_visible() · t<2 bounds_check)",
+      evidence="tcx AssocFn pub game_core::Entity::is_visible_from entity.rs:1481 mir=True · MIR bb3 `_0=true`(Neutral) / bb4 `_5=(team as Player).0; assert(_5<2)` / bb1 `discriminant(visible_state[_5])==0` · IR m14.ll:14822~14846 `;L1136<1482<380` / `;L122<1483<380`",
+      behavior_change=False, found_by="new", kind="보강")
+
+# ── E7 returns: variant 별 live 바이트 정정(생성자 initializes 속성 기준)
+p.fix(S + "/signature/returns",
+      old="variant 별 live 바이트(원소 선두 기준): Attack/Skill/Skill2/Ult = start_tick@0 · target@8 · is_act@0x10 (24B 페이로드, 0x11~0xb0 미기록) / RunAway = SmallActionRunAway 136B(@0~0x83 필드, 0x84~0x87 패딩) → memcpy 136B 후 태그만 기록 ⟹ 0x88~0xb0·0xb2~0xb7 **미초기화(alloca 잔재)** / Around = SmallActionAround 136B(@0~0x81) 동일 / AroundRegion = 120B(@0~0x77) → 0x78~0xb0 미초기화 / Trace = SmallActionTrace 152B(@0~0x95) → 0x96~0xb0 미초기화.",
+      new="variant 별 live(기록) 바이트(원소 선두 기준 · 생성자 sret `initializes`/store 로 확정 · 그 밖은 전부 alloca 잔재=미기록): Attack/Skill/Skill2/Ult(15~18) = [0x0,0x11) (start_tick@0 · target@8 · is_act@0x10; 24B memcpy 에 0x11~0x17 잔재가 실리고 0x18~0xb0 미기록) / RunAway(3) = [0x0,0x38)(start_tick·goal_x·goal_y·end_delay·goal_risk·prog_best_dist_sq·prog_best_tick) + 0x7d(path_finder 태그 None=2) + [0x80,0x84)(with_skill·with_ult·dodge_trajectory·goal_committed) — ⚠path_finder 페이로드 [0x38,0x7d)·[0x7e,0x80)·[0x84,0xb1) 미기록 / Around(5) = [0x0,0x38)(start_tick·target·goal_x·goal_y·goal_gain·range·end_delay) + 0x7d(=2) + [0x80,0x82)(position_eval_purpose=5·escape_mode=0) / AroundRegion(7) = [0x0,0x30)(start_tick·target_region·goal_x·goal_y·goal_risk=i64::MAX·end_delay) + 0x75(=2) / Trace(14) = [0x0,0x8)(explicit_min_range 태그) + 0x55(path_finder 태그=2) + [0x58,0x96)(start_tick·target·goal_x·goal_y·attack_range_margin·end_delay·escape_commit_until·5 bool·last_escape) / AroundPosition(untagged 니치 · v27 L17 경로만) = [0x0,0x68) + 0xad(path_finder 태그=2) + 0xb0(purpose=6) + 0xb1(outline_type 태그=0). RunAway::new 는 with_skill=true(0x80=1) · new_with_skill(b) 는 b · L263/266/269 의 best.clone() 과 L29~92 의 clone 은 path_finder 페이로드를 undef 째 memcpy 하므로 확정 live 집합은 위와 같다.",
+      evidence="define 속성: m08.ll:92086 RunAway::new_with_skill / 92133 RunAway::new `initializes((0, 56), (125, 126), (128, 132))` · m08.ll:92385 Around::new `initializes((0, 56), (125, 126), (128, 130))` · m02.ll:9506 Trace::new `initializes((0, 8), (85, 86), (88, 150))` · AroundRegion::new(m08.ll:98411~98462, initializes 없음) store @0,8,16,24,32(i64::MAX),40 + `store i8 2 @117` · cast.rs Attack/Skill/Skill2/Ult::new 4종 `initializes((0, 17))` + battle_action m15.ll:24159 `memcpy 24B` + `store i8 15 @177` · AroundPosition::new m08.ll:103238~ store @0..48 + memcpy 40B@48(wait_around 전부 기록) + @88,@96 + memcpy 72B@104(path_finder: %8 의 @69 만 기록) + @176=6 + @177=0 · RunAway::new m08.ll:92133 `store i8 1 @+128` · clone m14.ll:63537~ RunAway 팔 `memcpy 69B @56 <- %4(None 이면 undef)` · 오라클 o200 10케이스 RunAway/Around/AroundRegion/Trace 4종의 위 필드값 판독 일치(pf_tag 2 · goal_risk i64::MAX 등)",
+      behavior_change=False, found_by="new", kind="실오류")
+
+# ── E8 params 보강
+p.fix(S + "/signature/params[3]/note",
+      old="range_misjudge_roll·check_kill_die_tick·Around/AroundRegion::new·score·get_input·v27·_old 로 전달(콜리가 소비)",
+      new="range_misjudge_roll·check_kill_die_tick·score·get_input·v27·_old 로 전달(콜리가 소비). Around::new/AroundRegion::new 도 받지만 define 속성 `readnone`(m08.ll:92385·98411) = 소비 0. 오라클 o200 10케이스 전부 StdRng 상태(Debug) 불변 — 닿은 경로(v27 None·_old·range_misjudge_roll·check_kill_die_tick·score·get_input)에서 StdRng 소비 0",
+      evidence="m08.ll:92385 `ptr noalias noundef readnone align 16 captures(none) dereferenceable(320) %2` · 98411 동일 · _verify25/G/oracle/o200_case*.log `rnd_changed=false` ×10",
+      behavior_change=False, found_by="new", kind="보강")
+p.fix(S + "/signature/params[7]/note",
+      old="v27_objective_discipline_action 의 &self 로만 전달",
+      new="v27_objective_discipline_action 의 &self 로만 전달. 루트 define 에서 %7 은 `noundef nonnull align 8` 뿐(readonly·noalias 없음 — TeamPlan 이 V54Counter=AtomicUsize 를 품어 !Freeze) 이나 v27 define 은 `%1 readonly captures(none)`(m09.ll:19231) ⟹ 이 함수 경유 team_plan 쓰기 표면 0 · v27 서브트리 TLS 접점 0(tlstree)",
+      evidence="m14.ll:13287 `ptr noundef nonnull align 8 %7` · m09.ll:19231 `ptr noundef nonnull readonly align 8 captures(none) %1` · tcxdict TeamPlan 0x3f8/0x400/0x408 V54Counter(std::sync::atomic::Atomic<usize>)",
+      behavior_change=False, found_by="new", kind="보강")
+p.fix(S + "/signature/params[8]/note",
+      old="직접 read/write 0. check_kill_die_tick·score·get_input 으로 전달",
+      new="직접 read/write 0. check_kill_die_tick·score·get_input 으로 전달. 오라클 o200 10케이스(ctx.debug=false) 에서 224B 바이트 diff 0 — 닿은 경로의 debug 쓰기 없음",
+      evidence="_verify25/G/oracle/o200_case*.log `debug_diff_bytes=[]` ×10 · define `%8 noalias align 8 dereferenceable(224)`(readonly 없음 = &mut)",
+      behavior_change=False, found_by="new", kind="보강")
+
+# ── E9 RunAway::new 의 with_skill=true (L387/L406 · 런타임 구분 재료)
+p.fix(S + "/logic",
+      old="else { L387: res.push(RunAway::new(data, player, 5) as RunAway(3)) }",
+      new="else { L387: res.push(RunAway::new(data, player, 5) as RunAway(3)) }   # RunAway::new = with_skill true(0x80=1, m08.ll:92133 `store i8 1 @+128`) — L406 도 동일 · new_with_skill(false) 인 L235/L261/L412 와 0x80 으로 구분됨",
+      evidence="m08.ll:92133 RunAway::new `store i8 1, ptr %21(@+128)` · 오라클 o200 case5(L387 경로) `with_skill@0x80=1` / case2(L412 경로) `=0` / case3(L213) `=1`",
+      behavior_change=False, found_by="new", kind="보강")
+
+# ── E10 TLS 절 보강 — 콜리별 TLS 이름(정적 그래프)
+p.fix(S + "/signature/tls/call_conditions",
+      old="여기서는 순서만 확정(추정 아님·IR 호출 순서 그대로)",
+      new="여기서는 순서만 확정(추정 아님·IR 호출 순서 그대로). ★25차G tlstree(game_ai 정적 호출그래프 · 깊이 8 · 정의 865/선언 116): (1) v27 서브트리 TLS 0 (2) _old: POS_EVAL_CACHE·PE_PLAYER_CTX·PE_CAND_MASKS·ATTACK_DMG_CACHE·TOWER_MINION_CNT_CACHE·EPC_CACHE·CC_TIME_MEMO·SLOT_READY_MEMO·SIEGE_STANCE_CACHE(v47_siege_stance)·RESOLVE_FIGHT_CACHE (3) s2_0(aoe_heal_covers_low_ally) TLS 0 (4) score→interaction_score: INTER_CTX·HP_VALUE_MEMO(champion_hp_value)·LAST_STAND_MEMO(base_defense_focus) + check_kill_die_tick(DIE_TICK_CACHE) + position_eval 계열 (5) position_score_at_position→position_eval_at: POS_EVAL_CACHE, →_uncached: PE_PLAYER_CTX·PE_CAND_MASKS·ATTACK_DMG_CACHE·TOWER_MINION_CNT_CACHE·EPC_CACHE (6) check_kill_die_tick: DIE_TICK_CACHE + (uncached→enemy_minion_wave_risk_dps_at) ATTACK_DMG_CACHE (7) get_input: POS_EVAL_CACHE·LAST_STAND_MEMO(nexus_final_stand)·PATH_SCRATCH·FIELD_SCRATCH(path_finder/path_field). MAX_RANGE_CACHE(max_range_cached)·CAST_BEAMS(battle)·V48_PROJ_PROFILE 은 이 루트에서 도달 불가(직접 콜리는 비캐시 max_range_can_use/nearly · TLS 0). game_core TLS(CAMP_POS_MEMO·BATTLE_RECENCY·CHAMP_BBOX)는 game_core 내부 사슬 미추적(재료 부재: _gcbc 호출그래프 도구 없음). 정적 도달 = 과대 집합이며 실제 발화는 각 콜리 조건",
+      evidence="_verify25/G/oracle/tlstree_200.log · tlstree_2_17SerpenPokeSubPlan17action_candidates.json(서브트리별 TLS 함수 집계 · v27 18/0 · _old 212/7 · score 318/13 · get_input 785/77 · check_kill_die_tick 54/2 · position_score_at_position 161/7) · tlsscan.py 전역 목록에 MAX_RANGE_CACHE(m10)·CAST_BEAMS(m02) 실재하나 그래프 미포함",
+      behavior_change=False, found_by="new", kind="보강")
+
+# ── E11 mem[52] Option<Input> None=-1 오라클 확증 (open[4])
+p.fix(S + "/reads[52]/note",
+      old="L252 get_input sret: -1=None(get_input 본문 m11.ll:42814~ 에서 `store i64 -1` 확인) · 0=Move{x@+8,y@+16}",
+      new="L252 get_input sret: -1=None(get_input 본문 m11.ll:42814~ 에서 `store i64 -1` 확인 · 오라클 o200 transmute(None::<Input>)[0]=0xffffffffffffffff=-1 · Some(Move{7,9})=[0,7,9]) · 0=Move{x@+8,y@+16}. 니치: Input 태그(Direct 0..=5, i64) 아래쪽 -1 을 rustc 가 None 으로 잡음",
+      evidence="_verify25/G/oracle/o200_case0.log `Option<Input>::None words = [0xffffffffffffffff, …] (i64 -1)` / `Some(Move 7,9) words = [0, 7, 9, …]`",
+      behavior_change=False, found_by="new", kind="보강")
+
+# ── ev 상향: mem 오프셋 tcxdict 전량 대조(불일치 0) → 3
+for i in range(0, 51):
+    if i in (8, 32):     # 팻포인터 vtable 절반 — tcx 필드 아님(이미 divtable ev3)
+        continue
+    p.ev(S + "/mem[%d]" % i, to=3, frm=4, found_by="reused",
+         evidence="25차G memaudit: tcxdict <base> <offset> 대조 일치(51행 중 팻포인터 2행 제외 49행 불일치 0)")
+p.ev(S + "/mem[52]", to=2, frm=4, found_by="new",
+     evidence="오라클 o200: transmute(None::<Input>)[0] == -1 · Some(Move{7,9}) == [0,7,9]")
+# 오라클로 분기 확정된 노브/상수
+p.ev(S + "/knobs[3]", to=2, frm=4, found_by="new",
+     evidence="오라클 o200 case4(champ.hp=1·dmg 0 → Around target=serpen.id) vs case5(champ.hp=0 → dmg*2<hp 거짓·range²≥dist² → RunAway::new with_skill=1) — L386 극성 실행 확정")
+p.ev(S + "/consts[20]", to=2, frm=4, found_by="new",
+     evidence="오라클 o200 case8(적 챔프 50000 거리·적팀이 나를 봄 → RunAway::new(with_skill=1) 발행·선택) vs case9(적팀이 나를 못 봄 → AroundRegion 만) — L401 게이트·L403 반경 내 발행 실행 확정(경계값 미측정)")
+p.ev(S + "/knobs[4]", to=2, frm=4, found_by="new",
+     evidence="오라클 o200 case8/case9 — L401·L403 발행 여부 실행 확정(경계값 미측정)")
+p.ev(S + "/mem[22]", to=3, frm=4, found_by="new",
+     evidence="오라클 o200 case3: 최근접 적 타워 +0x88=1·+0x98=champ.id 세팅 → 결과 [RunAway with_skill=1](L208~213 경로) · tcxdict 일치")
+p.ev(S + "/mem[23]", to=3, frm=4, found_by="new",
+     evidence="오라클 o200 case3 동일 · tcxdict 일치")
+p.ev(S + "/consts[19]", to=2, frm=4, found_by="new",
+     evidence="오라클 o200 case4(거리 100000 → L383 경로 Around) / case6(거리 150001 → L381 경로 Around) / case7(비가시 → L381) — 세 경로 모두 실행·무패닉, 변형 동일이라 경계 자체는 출력으로 안 갈림(ugt 극성은 IR)")
+
+# ── 지시문 오류
+p.brief_error("지시문 ② 의 `next_plan`(Option<BigPlan> 384B)·`attack`(Option<Input> 32B)은 이 함수의 인자/출력이 아니다 — action_candidates 의 출력은 sret Vec<SmallActionPlay> 32B 하나뿐(Option<Input> 은 L248 get_input 의 지역 sret). 범용 루트 문구가 그대로 실렸다.")
+p.brief_error("지시문 ② 의 variant 집합(Recall 4·AroundBush 12·LaneMinionPosition 13·Stop 19 포함)은 이 함수가 sret 에 넣을 수 있는 집합이 아니다 — 실제 = v27{None·AroundPosition(untagged)·RunAway 3} ∪ s0_0 통과 {15·16·17·18} ∪ move_actions {3·5·7·14} = 9종.")
+p.brief_error("지시문 ④ 의 TLS 작성자 목록 중 max_range_cached(MAX_RANGE_CACHE)·v48_cast_beams(CAST_BEAMS)는 이 루트의 game_ai 정적 호출그래프(깊이 8)에서 도달 불가 — 직접 콜리는 비캐시 max_range_can_use/nearly_can_use(TLS 0). CAMP_POS_MEMO 는 game_core 내부라 미추적(재료 부재).")
+p.brief_error("§4 G18 지적문 「잎 `tower` 는 distruct 의 실재 필드명」 — Entity 에는 `tower` 필드가 없고(tcxdict: ty@Tower.info) 다른 구조체의 동명 필드가 잡힌 것. 지적 자체는 옳으나 근거 문면이 오해를 산다(=logic 이 없는 필드를 썼다 가 정확).")
+p.brief_error("§1 표 `mem 58 · open 8` 는 정본과 일치했으나 도시에 §3 의 `exe` 칸이 `e7caf0 (None) · None바이트 · None명령` 으로 비어 있다 — rvaname 확정치가 명세 exe 칸에 안 실려 있어 배치가 주소 확정 여부를 알 수 없다(지시문은 '재탐색 금지'라 했다).")
+p.save()

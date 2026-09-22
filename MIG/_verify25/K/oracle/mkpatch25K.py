@@ -1,0 +1,193 @@
+# -*- coding: utf-8 -*-
+import sys, io, json
+sys.path.insert(0, r"C:\tfm2mods\MIG")
+import mkpatch
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+p = mkpatch.Patch(round=25, batch="K")
+OR = u"오라클 25차K(_verify25/K/oracle/o25k.rs · run25k.py · 케이스당 프로세스 1)"
+
+# ───────────────── 190 AttackNexusSubPlan::action_candidates ─────────────────
+# ① one_line: 타워 후보에 넥서스가 포함된다
+p.fix("/specs[190]/one_line",
+      old=u"최근접 타워 평타", new=u"최근접 타워(넥서스 포함 · can_target∧block_target_tick==0 인 것만) 평타",
+      evidence=u"iter_towers 본체 g15.ll:102521~102585 sret 136B: +40..+80 = [top,mid,bottom,top2,mid2,bottom2]_tower[team](Option 6칸, cache+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0) · +120/+128 = twin_towers[team] 슬라이스(cache+0x130) · +0=1,+8=nexus[team](cache+0x170) · 190 의 fold 심볼 m14.ll:20600 `Chain<Chain<Flatten<array::IntoIter<Option<&Entity>,6>>,Copied<slice::Iter>>,option::IntoIter<&Entity>>` → 순회 = 레인타워 6 → twin → 넥서스. "
+               + OR + u" n_nexus_on(넥서스 can_target=1·타워 can_target=0·사거리 안) → tags=[5,3,15] Attack target_id=1(=nexus.id) / n_nexus_off(넥서스 can_target=0) → tags=[5,3]",
+      behavior_change=True, found_by="new")
+p.fix("/specs[190]/logic",
+      old=u"          let nearest_enemy_tower = data.cache.iter_towers(1-team)       // rs:78",
+      new=u"          let nearest_enemy_tower = data.cache.iter_towers(1-team)       // rs:78  ★순회 = [top,mid,bottom,top2,mid2,bottom2]_tower[1-team](Option 6) → twin_towers[1-team] 슬라이스 → nexus[1-team](Option) — 넥서스 포함(iter_towers_without_nexus 가 아님) · 오라클 n_nexus_on: Attack(target=nexus.id)",
+      evidence=u"g15.ll:102521~102585(iter_towers 본체 store 전수) · m14.ll:20600 fold 심볼의 Chain<Chain<Flatten<array 6>,Copied<slice>>,option::IntoIter> · m14.ll:20297~20517 인라인 find(+16 상태 -2/-1 → +0/+8 넥서스) · " + OR + u" n_nexus_on/off",
+      behavior_change=True, found_by="new")
+# ② G15 NEG: consts[3] meaning 의 「태그가 아님」 부정문 제거(kind=태그 가 맞다 — switch case)
+p.fix("/specs[190]/consts[3]/meaning",
+      old=u"ChampionActionState 태그 5 = Skill2 → level>2 일 때 skill2_effect. ⚠같은 리터럴 5 가 다른 뜻으로도 쓰임: SmallActionRunAway/Around 생성자 end_delay=5(rs:16·142·148) · battle_action 5번째 usize 인자=5(rs:149) · PositionEvalPurpose 태그가 아님",
+      new=u"ChampionActionState 태그 5 = Skill2 (switch case `i64 5, label %93` · IR L19154) → level>2 일 때 skill2_effect. ⚠같은 리터럴 5 의 end_delay/battle_action 인자 용법은 consts[9] 참조(별개 상수)",
+      evidence=u"m14.ll:19152~19156 `switch i64 %85, label %81 [ i64 4, label %86  i64 5, label %93  i64 6, label %103 ]` — 이 src_line 129 의 5 는 switch 케이스(태그) 하나뿐. G15 NEG 는 문면의 「태그가 아님」 부정문이 원인(kindchk 부정문 검사)",
+      behavior_change=False, found_by="reused", kind=u"오탐")
+# ③ rnd 소비 0 (콜리 readnone)
+p.fix("/specs[190]/sig/params[3]/role",
+      old=u"본문 직접 사용 없음 — SmallActionAround::new(L19303)·battle_action(L19420) 에만 전달.",
+      new=u"본문 직접 사용 없음 — SmallActionAround::new(L19303)·battle_action(L19420) 에만 전달. ★두 콜리 모두 rnd 인자가 `readnone captures(none)`(SmallActionAround::new m08.ll:92385 %2 · battle_action m15.ll:23700 %2) → 이 함수 경로 전체 RNG 소비 0. 오라클 실행 확인: 11케이스 전부 rnd_advanced=false.",
+      evidence=u"m08.ll:92385 `ptr noalias noundef readnone align 16 captures(none) dereferenceable(320) %2` · m15.ll:23700 `ptr noalias readnone align 16 captures(none) %2` · " + OR + u" n_* 11케이스 rnd_advanced=false",
+      behavior_change=False, found_by="new", kind=u"보강")
+# ④ open[2](iter_towers 구성) 해소 → 사실 서술(메인이 notes/closed 로 이동)
+p.fix("/specs[190]/open[2]",
+      old=u"iter_towers 136B 의 array 6칸 + 슬라이스 + Option 구성이 각각 무엇(레인 타워 6 · 추가 타워 · 넥서스?)인지 — game_core 경계. dloc 사슬로 타입만 확정.",
+      new=u"[해소 25차K] iter_towers(team) 136B = Chain<Chain<Flatten<[Option<&Entity>;6]>, Copied<slice::Iter<&Entity>>>, option::IntoIter<&Entity>>: +40..+80 array 6 = top_tower·mid_tower·bottom_tower·top_tower2·mid_tower2·bottom_tower2[team] (cache+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0) · +120/+128 슬라이스 = twin_towers[team](cache+0x130) · +0/+8 Option = nexus[team](cache+0x170). 순회 순서 레인타워 6 → twin → 넥서스(g15.ll:102521~102585 · 오라클 iter_towers 덤프 id 3,7,11,5,9,13,16,17,1).",
+      evidence=u"g15.ll:102521~102585 · m14.ll:20600 · " + OR + u" n_base iter_towers[0..8] 덤프",
+      behavior_change=False, found_by="new", kind=u"보강")
+# ⑤ open[6](Option<SmallActionPlay> None 태그값) 해소
+p.fix("/specs[190]/open[6]",
+      old=u"Option<SmallActionPlay> 태그값(20?) 은 tcxdict 로 미확인",
+      new=u"Option<SmallActionPlay>::None 태그값 = +177 에 0xff(255) — 오라클 실행 확인(probe: size 184 · None +177 = 255) · IR dbg `iter[177..+1] = i8 -1`(L20831) 과 일치. 20 이 아니다",
+      evidence=OR + u" probe 케이스 `probe\tsize Option<SmallActionPlay>=184\tNone +177 = 255 (0xff)` · m14.ll:20831 dbg_value iter[177..+1]=i8 -1",
+      behavior_change=False, found_by="new", kind=u"보강")
+# ⑥ closed[0](iter_minions 세 슬라이스) 정체 확정
+p.fix("/specs[190]/open[0]",
+      old=u"iter_minions 56B 이터레이터의 세 슬라이스가 각각 어느 레인/종류의 미니언 목록인지 — game_core 경계(본 배치 범위 밖).",
+      new=u"iter_minions(team) 56B 의 세 슬라이스 = A top_minions[team](cache+0x10+32·team) → B mid_minions[team](cache+0x50) → C bottom_minions[team](cache+0x90) (g15.ll:102624~102660 store 전수).",
+      evidence=u"g15.ll:102624~102660 iter_minions 본체: +8/+16 = top_minions[t] ptr/end · +24/+32 = mid_minions[t] · +40/+48 = bottom_minions[t] · tcxdict AbstractGameWithCache 0x10/0x50/0x90",
+      behavior_change=False, found_by="new", kind=u"보강", force=True)   # v3 closed[0] = v2 unknown[3] — applypatch 는 open 경로를 문면으로 찾는다
+
+# ───────────────── 191 EpicCheckSubPlan::action_candidates ─────────────────
+# ① ★rs:66 극성 반전(실오류·동작 변경): Stump 경유 검사는 「자기 진영」에서, 적 진영이면 즉시 move_check=true
+p.fix("/specs[191]/logic",
+      old=u"      else if is_enemy_side(data.context, team, champ.x, champ.y) {                          // rs:66  = is_blue_side(ctx,x,y) != (team==0) ; is_blue_side = (x - y + setting.height) > setting.width (map_regions.rs:7~8, wrapping)",
+      new=u"      else if !is_enemy_side(data.context, team, champ.x, champ.y) {                         // rs:66 ★자기 진영이면 Stump 경유 검사. IR %290 = xor(team==0, (x−y+height) >u width)(L10349~10359) 참 → %298 Stump 검사 · 거짓 → %291 move_check=true. (x−y+height)>u width 는 !is_blue_side(레드 진영, 오라클 pub is_blue_side 대조) · is_enemy_side = is_blue_side != (team==0). 소스가 `if is_enemy_side {..true} else {Stump}` 인지 `if !is_enemy_side {Stump} else {..}` 인지는 표기 불가(분기 의미는 확정)",
+      evidence=u"m02.ll:10349 `%280 = icmp eq i64 %43, 0` · 10354~10359 `%285 = sub i64 %116,%118 / %286 = add %285,%284(height) / %289 = icmp ugt i64 %286, %288(width) / %290 = xor i1 %280, %289 / br i1 %290, label %298, label %291` · %298 = camp_pos(Stump) 검사 블록 · %291 = `store i8 1, ptr %1`(L10363). "
+               + OR + u": e_base_t0/e_base_t1/e_stump_gt(자기 진영·Stump 멀리) move_check after=0 & AroundPosition(Stump) · e_stump_eq/e_t1_stump_eq(자기 진영·Stump 70000) after=1 & AroundPosition(Morgard) · e_t0_enemyside/e_t1_enemyside(적 진영) after=1 & AroundPosition(Morgard) — 정정 후 predict 13/13 SELF MATCH·AROUND MATCH (정정 전 명세 logic 대로면 8/13 MISMATCH)",
+      behavior_change=True, found_by="new")
+p.fix("/specs[191]/logic",
+      old=u"      } else { self.move_check = true; true };                                               // rs:66 else (IR %291)",
+      new=u"      } else { self.move_check = true; true };                                               // rs:66 else = 적 진영 (IR %291 store i8 1)",
+      evidence=u"m02.ll:10360~10364 · " + OR + u" e_t0_enemyside/e_t1_enemyside before=0 after=1",
+      behavior_change=True, found_by="new")
+p.fix("/specs[191]/mem[35]/note",
+      old=u"조건: move_check==false 일 때 (a) !is_enemy_side(context, team, champ.x, champ.y) 이거나 (b) is_enemy_side 이고 dist_sq(champ, camp_pos(Stump, team==0)) < 4900000001.",
+      new=u"조건: move_check==false 일 때 (a) is_enemy_side(context, team, champ.x, champ.y)(적 진영) 이거나 (b) 자기 진영이고 dist_sq(champ, camp_pos(Stump, team==0)) < 4900000001 (Stump 캠프는 자기 진영에 있다 — camp_pos(Stump,true)=(256000,448000) · (Stump,false)=(448000,256000)). 오라클 실행 확인: 13케이스 before/after 전부 predict 일치. ★조기반환 경로에서는 안 쓴다 — rs:41(위험) · rs:55(WaitGroup/SoftDisengage return) 는 rs:65~75 블록에 못 미친다: 오라클 e_v20_5(WaitGroup · 적 진영 is_enemy_side=true 인데도 after=0) · e_v20_15(SoftDisengage after=0).",
+      evidence=u"m02.ll:10349~10364 분기 · " + OR + u" e_base_t0(자기진영·멀리 after=0) e_stump_eq(after=1) e_stump_gt(after=0) e_t0_enemyside(after=1) e_t1_stump_eq/gt(1/0) e_mc1_own(1→1)",
+      behavior_change=True, found_by="new")
+p.fix("/specs[191]/mem[10]/note",
+      old=u"IR L10356~10358 (map_regions.rs:8 is_blue_side)",
+      new=u"IR L10356~10358 (map_regions.rs:8) — 인라인 식 `(x−y+height) >u width`(=%289) 의 값은 !is_blue_side(레드 진영): 오라클 pub is_blue_side(100000,900000)=true·(900000,100000)=false·(500000,500000)=true 와 raw 식 대조",
+      evidence=OR + u" sideprobe 줄(e_base_t0: raw(x-y+H>W)=false, pub is_blue_side=true · e_t0_enemyside: raw=true, pub=false)",
+      behavior_change=False, found_by="new", kind=u"보강")
+p.fix("/specs[191]/one_line",
+      old=u"없으면 사이드 경유(Stump 캠프)→모르가드 캠프 AroundPosition",
+      new=u"없으면 (자기 진영일 때 Stump 캠프 경유 확인 후) 모르가드 캠프 AroundPosition",
+      evidence=u"m02.ll:10349~10364 · " + OR + u" 13케이스",
+      behavior_change=False, found_by="new")
+# ② returns: Screen+Some 은 return 없이 (C) 로 이어진다
+p.fix("/specs[191]/sig/returns",
+      old=u"(B) rs:46~55 posture Some & kind∈{Screen,WaitGroup,SoftDisengage} 경로 = [Trace?] 또는 [RunAway?(with_skill=false) + AroundPosition(wait_pos)]",
+      new=u"(B) rs:46~55 posture Some & kind∈{WaitGroup,SoftDisengage} = [RunAway?(with_skill=false · SoftDisengage∧near_enemy_count≠0 일 때만) + AroundPosition(wait_pos)] 후 return · Screen∧focus_enemy=Some 은 [Trace] 를 push 하고 return 없이 (C) 로 계속(최종 = [Trace] + (C) 원소들 · 오라클 e_v20_31 tags=[14,0])",
+      evidence=u"m02.ll:10079 `br label %153`(Trace push 뒤) → 10366 %133(rs:65) · " + OR + u" e_v20_31 tags=[14,0](Trace 뒤 AroundPosition(Stump)) · e_v20_5 tags=[0](WaitGroup) · e_v20_15 tags=[3,0](SoftDisengage ne=2)",
+      behavior_change=True, found_by="new")
+# ③ TLS 절 정정: camp_pos(CAMP_POS_MEMO) 누락 · TLS 없는 콜리 나열
+p.fix("/specs[191]/sig/tls/indirect_callees_in_order",
+      old=u"①nontarget_windup_perceived(적 챔프마다, rs:24) ②position_score_at_position(rs:36, purpose=Objective(11)) — 내부 position_eval_at(POS_EVAL_CACHE) 소관 ③v25_objective_posture(rs:45) ④Blackboard::is_recent_visible(rs:90, 적 챔프마다) ⑤battle_action(rs:99, 조건부) — 각 TLS 접점은 그 콜리 명세 참조. 미러 재현 시 이 호출 순서를 지켜야 캐시 채움 순서가 같다.",
+      new=u"[TLS 접점이 있는 콜리만, 호출 순서] ①position_score_at_position(rs:36, purpose=Objective 11) → position_eval_at: POS_EVAL_CACHE 직접 · position_eval_at_uncached 경유 EPC_CACHE·PE_CAND_MASKS·PE_PLAYER_CTX·ATTACK_DMG_CACHE·TOWER_MINION_CNT_CACHE·SLOT_READY_MEMO(slot_ready_cached)·CC_TIME_MEMO(slot_cc_time_cached)·SIEGE_STANCE_CACHE(v47_siege_stance)·RESOLVE_FIGHT_CACHE(v47_siege_stance→resolve_fight) ②v25_objective_posture(rs:45) → MapDef::camp_pos: CAMP_POS_MEMO ③MapDef::camp_pos 직접 호출(CAMP_POS_MEMO) — rs:69(조건: move_check==false ∧ 자기 진영) · rs:77(조기반환 경로 밖에서 무조건) · rs:83(조건: 멀고 ∧ move_check_now==false). ⚠nontarget_windup_perceived·is_recent_visible·battle_action·attack_summon_action·SmallActionRunAway::new/new_with_skill·SmallActionAroundPosition::new 은 정적 콜그래프(깊이 25)에서 TLS 접점 0(AbstractGame vtable 간접 호출 3곳은 추적 불가). 미러 재현 시 이 순서를 지켜야 캐시 채움 순서가 같다. 근거 = 25차K tlsreach.py(호출 그래프 BFS · TLS 이름토큰/@anon 상수 매칭) + tlsfull.py(깊이 무제한 fixpoint · TLS 는 `thread_local` 전역 직접참조 + `@anon = constant ptr @F`(LocalKey `__getit` fn-ptr) 간선으로만 판정 — 이름 휴리스틱 0) 두 방법 결과 동일(11종). vtable 3슬롯(tick +0x28 · is_visible +0xf8 · get_entity_by_id +0x1f0)의 impl 4종(Game·SingleLaneGame·DeathMatchGame·ExpectedGame) 전이 TLS 0 → 간접호출도 TLS 접점 없음.",
+      evidence=u"tlsreach.py(스크래치 scratchpad25K · _verify25/K/oracle 에 사본) 출력 tls191_d25.txt: position_score_at_position → 10종 · v25_objective_posture → camp_pos → CAMP_POS_MEMO(g07.ll) · camp_pos 직접(m02.ll:10371/10377/10604) → CAMP_POS_MEMO · 나머지 직접 콜리 TLS 0. tlsscan.py 80종 목록에 CAMP_POS_MEMO(g07.ll 400B) 실재",
+      behavior_change=False, found_by="new")
+# ④ team_plan 인자 속성 해명(크기 미확정 아님 · !Freeze)
+p.fix("/specs[191]/sig/params[7]/role",
+      old=u"(dereferenceable 없음 — 크기 미확정 타입)",
+      new=u"(dereferenceable·noalias·readonly 없음 — TeamPlan 1064B(tcx · 오라클 size_of=1064) 가 V54Counter=Atomic<usize>(+0x3f8/+0x400/+0x408) 를 품어 !Freeze 이므로 rustc 가 &T 속성을 떼는 것. v25_objective_posture 의 &self 도 같은 형태 m09.ll:15168 `ptr noundef nonnull readonly align 8 captures(none) %1`)",
+      evidence=u"tcxdict TeamPlan(1064B) · tcxdict V54Counter(0x0 Atomic<usize>) · m09.ll:15168 define 속성 · " + OR + u" probe size TeamPlan=1064",
+      behavior_change=False, found_by="new", kind=u"보강")
+p.fix("/specs[191]/open[5]",
+      old=u"team_plan(%7) 의 실제 크기 — IR 에 dereferenceable 없음. TeamPlan 구조는 v25_objective_posture 명세 소관.",
+      new=u"[해소 25차K] team_plan(%7) = &TeamPlan 1064B(tcx·size_of). dereferenceable 이 없는 이유 = TeamPlan 이 V54Counter(Atomic<usize>) 를 품어 !Freeze → rustc 가 &T 에 noalias/readonly/dereferenceable 을 안 붙인다(크기 미확정이 아님).",
+      evidence=u"tcxdict TeamPlan/V54Counter · m09.ll:15168 · " + OR + u" probe",
+      behavior_change=False, found_by="new", kind=u"보강")
+# ⑤ open[3] AroundPosition path_finder 72B 의 초기화 바이트 확정
+p.fix("/specs[191]/open[3]",
+      old=u"AroundPosition 원소의 path_finder 72B(+104..+176) 가 memcpy 로 채워지는데 원본(%8)이 wait_around 결과의 일부라 어느 바이트가 초기화돼 있는지 미확인(태그 0xad=2 None 만 확정). ELEM_LIVE 등록 시 그 구간은 런타임 갈림 오프셋으로 확인 필요.",
+      new=u"[해소 25차K] AroundPosition 원소의 path_finder 72B(+104..+176) 원본 %8 은 wait_around 결과가 아니라 별도 alloca [72 x i8] 이고 store 는 `+69 = i8 2`(m08.ll:103271, Option<PathFinder> None 태그 · 오라클 probe None +69 = 2) 하나뿐 → 원소 +0xad(173) 만 live, 나머지 71B 는 스택 잔재(미기록). wait_around 40B(+48..+88) 는 5×i64 전부 live(m04.ll:33088~33096: target_x, target_y, d=60000, now_goal_x/y = target + 12칸 (cos,sin)×1000 표에서 choose 한 항×60000/1000).",
+      evidence=u"m08.ll:103252 `%8 = alloca [72 x i8]` · 103270~103271 `%16 = gep %8, 69 / store i8 2, ptr %16` · 103294 memcpy(+104, %8, 72) · m04.ll:33007 wait_around sret 40B store 5건 · " + OR + u" e_* AroundPosition 덤프 +173=02 · now_goal=(448000,316000)=target+(0,60000)",
+      behavior_change=False, found_by="new", kind=u"보강")
+p.fix("/specs[191]/open[4]",
+      old=u"Option<ObjectivePosture> None 니치가 focus_enemy@tag == -1 인 것은 IR(L9916) 관측. tcxdict --enum 으로 Option<ObjectivePosture> 는 직접 조회 불가(제네릭 인스턴스).",
+      new=u"[해소 25차K] Option<ObjectivePosture>::None = +0(focus_enemy@tag) i64 -1 — 오라클 실행 확인(probe: size 88 · None +0 = -1) · IR L9916 `icmp eq i64 %131, -1` 일치.",
+      evidence=OR + u" probe `size Option<ObjectivePosture>=88\tNone +0 i64 = -1` · m02.ll:9916",
+      behavior_change=False, found_by="new", kind=u"보강")
+# ⑥ rnd 소비: AroundPosition::new → wait_around → SliceRandom::choose(12) 1회 · battle_action readnone
+p.fix("/specs[191]/sig/params[3]/role",
+      old=u"본문 직접 사용 없음 — SmallActionAroundPosition::new(4곳)·battle_action 에 전달.",
+      new=u"본문 직접 사용 없음 — SmallActionAroundPosition::new(4곳)·battle_action 에 전달. ★RNG 소비 = SmallActionAroundPosition::new → abstract_input::wait_around(rnd,x,y,60000) 의 `SliceRandom::choose`(12칸 (cos,sin)×1000 표) 정확히 1회(m04.ll:33067) — 조기반환(rs:41) 밖의 모든 경로에서 AroundPosition 은 정확히 1개 push 되므로 호출당 1회. battle_action 은 rnd `readnone`(m15.ll:23700) → 소비 0. 오라클 실행 확인: 19케이스 전부 rnd == snapshot+choose(12) 1회.",
+      evidence=u"m04.ll:33067 `call ... SliceRandom::choose(%6, i64 12, rnd)` · m08.ll:103272 wait_around 호출 · m15.ll:23700 battle_action %2 readnone · " + OR + u" e_* 19케이스 eq_one_choose12=true eq_two_choose12=false",
+      behavior_change=False, found_by="new", kind=u"보강")
+# ⑦ G18: mem 에 AbstractGameWithCache.game 행 삽입(v3 mem[4] 자리)
+p.errors.append({"op": "insert", "path": "/specs[191]/mem", "at": 4, "guard": u"game (&dyn AbstractGame 팻포인터: data ptr @+0 · vtable @+8)", "guard_key": "name",
+                 "new": {"base": "AbstractGameWithCache", "offset": "0x0", "name": u"game (&dyn AbstractGame 팻포인터: data ptr @+0 · vtable @+8)",
+                         "note": u"tcxdict AbstractGameWithCache 0x0 game (16B). IR L9973~9977 (Trace 생성자 인라인: %159=load cache+0 · %161=load cache+8 → vtable+0x1f0 get_entity_by_id · +0x28 tick) · L10495~10497 (rs:90 is_recent_visible 2번째 인자 = (data ptr, vtable)) · L10801~10803 (rs:98 vtable+0xf8 is_visible). logic 의 `data.cache.game` 이 이 필드.",
+                         },
+                 "found_by": "new", "kind": u"보강", "behavior_change": False, "evidence": u"m02.ll:9973~9977 · 10495~10497 · 10801~10803 · tcxdict AbstractGameWithCache 0x0 game(16B)"})
+
+# ⑧ consts.kind 오분류 2건(게이트 무발화 — 지지 관측이 있어 반증식이 안 울린 사례)
+p.fix("/specs[191]/consts[0]/meaning",
+      old=u"team 바운즈 상한(2팀). IR L9654. ⚠같은 리터럴 2 = ObjectivePostureKind 태그 2 Screen(rs:47 `>2`·rs:58 `==2`) · JungleType 태그 2 Stump(camp_pos 인자 rs:69·83) · CastingType Direction · level>2(rs:27)",
+      new=u"player.team 바운즈 상한 임계(팀 2) — IR L9654 `icmp ult i64 %43, 2`(panic_bounds_check). 190 consts[0] 과 같은 상수·같은 종류. ⚠같은 리터럴 2 의 다른 뜻(ObjectivePostureKind 2=Screen rs:47/58 · JungleType 2=Stump rs:69/83 · CastingType 2=Direction · level>2 rs:27)은 별개 리터럴",
+      evidence=u"m02.ll:9654 `%44 = icmp ult i64 %43, 2` → panic_bounds_check — 순서비교(임계). 190 consts[0](같은 줄 구조 m14.ll:19026)은 임계로 분류돼 있어 두 명세가 같은 상수를 다르게 분류(G20 R4 계열 · kind 파생은 meaning 낱말 '태그' 우선이라 생긴 오분류)",
+      behavior_change=False, found_by="new", kind=u"실오류")
+p.fix("/specs[191]/consts[2]/meaning",
+      old=u"ChampionActionState 4 Skill. ⚠같은 리터럴 4 = JungleType 4 Morgard(v25_objective_posture 마지막 인자 i8 4 · camp_pos rs:77) · ObjectivePostureKind 4 SoftDisengage(rs:48) · 적 ult 레벨 게이트 >4(rs:29)",
+      new=u"ChampionActionState 태그 4 = Skill (switch case `i64 4, label %85` · IR L9789 — 적 챔프가 스킬 시전 중이면 skill_effect 사거리 검사). ⚠같은 리터럴 4 의 다른 뜻(JungleType 4 Morgard: v25_objective_posture i8 4·camp_pos rs:77 · ObjectivePostureKind 4 SoftDisengage rs:48 · 적 ult 레벨 임계 >4 rs:29)은 별개 리터럴",
+      evidence=u"m02.ll:9788~9792 `switch i64 %84, label %80 [ i64 4, label %85 ...` — src_line 25 의 4 는 switch 케이스(태그). 190 consts[2](같은 구조 · src 127)는 태그로 분류돼 있다",
+      behavior_change=False, found_by="new", kind=u"실오류")
+
+# ───────────────── ev 상향 (오라클 실행) ─────────────────
+p.ev("/specs[190]/consts[18]", to=2, evidence=u"오라클 25차K n_hp55_tower(hp 550/1000 → can_tower_focused_when_attack=true → Attack 없음) / n_hp56_tower(560 → Attack(7)) · n_hp55/n_hp56(넥서스, 검사 false → Attack 유지) — 임계 56 · `<` 확정", found_by="new")
+p.ev("/specs[190]/knobs[1]", to=2, evidence=u"오라클 25차K n_hp55_tower / n_hp56_tower 경계 55/56", found_by="new")
+p.ev("/specs[190]/consts[16]", to=2, evidence=u"오라클 25차K n_range_eq(dist_sq == max_dist² → Attack) / n_range_gt(+1 → 없음), max_dist = range+stat_buff.range+(level-1)·growth+range_adjust+radius(champ)+radius(nexus)+move_speed·30 = 120030 재현 일치", found_by="new")
+p.ev("/specs[190]/consts[9]", to=2, evidence=u"오라클 25차K n_* 원소 덤프 Around end_delay=5 · RunAway end_delay=5 · battle_action 5", found_by="new")
+p.ev("/specs[190]/consts[10]", to=2, evidence=u"오라클 25차K n_base tags=[5,3] RunAway +177=3", found_by="new")
+p.ev("/specs[190]/consts[11]", to=2, evidence=u"오라클 25차K n_base elem[0] tag=5 target=nexus.id range=80000 purpose=5", found_by="new")
+p.ev("/specs[190]/consts[12]", to=2, evidence=u"오라클 25차K n_tower7/n_nexus_on elem tag=15 target_id=7/1", found_by="new")
+p.ev("/specs[191]/consts[12]", to=2, evidence=u"오라클 25차K e_stump_eq(dist_sq=70000² → move_check=1) / e_stump_gt(70001² → 0) · e_t1_stump_eq/gt 동일", found_by="new")
+p.ev("/specs[191]/consts[13]", to=2, evidence=u"오라클 25차K e_morg_eq(dist_sq=150000² → 근접 → AroundPosition(Morgard)) / e_morg_gt(+1 → 멀다 → mc=0 이라 AroundPosition(Stump))", found_by="new")
+p.ev("/specs[191]/knobs[0]", to=2, evidence=u"오라클 25차K e_stump_eq/gt 경계 70000", found_by="new")
+p.ev("/specs[191]/knobs[1]", to=2, evidence=u"오라클 25차K e_morg_eq/gt 경계 150000", found_by="new")
+p.ev("/specs[191]/consts[8]", to=2, evidence=u"오라클 25차K e_v20_15 elem[0] tag=3 with_skill=0(rs:49)", found_by="new")
+p.ev("/specs[191]/consts[9]", to=2, evidence=u"오라클 25차K e_v20_31 elem[0] tag=14 target=19 margin=15000 attack_range_only=1", found_by="new")
+p.ev("/specs[191]/consts[10]", to=2, evidence=u"오라클 25차K e_v20_31 Trace margin=15000", found_by="new")
+p.ev("/specs[191]/mem[36]", to=3, evidence=u"오라클 25차K 13케이스 move_check before/after 전부 predict 일치(정정된 극성)", found_by="new")
+p.ev("/specs[191]/mem[37]", to=3, evidence=u"오라클 25차K e_v20_15_dbg debug.infos={24: [\"v25 morgard check posture: SoftDisengage\"]} · e_v20_31_dbg(Screen) 비어 있음", found_by="new")
+
+p.brief_error(u"§4 G20 R1 [191] focus_enemy@Some.0 vs focus_enemy.0 — tcxdict ObjectivePosture 0x8 정본 이름은 `focus_enemy@Some.0` 이라 191 이 맞고 192 가 틀렸다. 이 배치(191) 쪽엔 고칠 것이 없는데 내 몫으로 배정됐다.")
+p.brief_error(u"지시 ④ TLS 절 검증 — 190 명세엔 `signature.tls` 절 자체가 없다(191 만 있음 · 두 함수는 위험 판정 블록이 문자 단위 동일한 형제인데 한쪽만 절이 있다 = mkspec/tls 절 생성기의 누락). ~~이전 시도는 「dict 하위키 신설은 그 필드가 dict 일 때만 받아 190 은 patch 로 못 넣는다」고 썼는데~~ applypatch ① 스칼라 분기가 `new` 가 dict 이고 현재값이 None/{} 이면 객체를 통째로 만든다(applypatch.py:459~465) → 이번 patch 에 `/specs[190]/sig/tls` 신설로 냈다(판정 반전 1건).")
+p.brief_error(u"지시 ②의 variant 목록(Around 5 (0,56)+0x7d+0x80+0x81) — Around::new initializes 는 (0,56),(125,126),(128,130) 로 0x81 까지 맞다. 단 191 의 AroundPosition 은 initializes 속성이 없는 생성자(memcpy 2건 포함)라 「initializes 표면」으로는 확정 불가 — store 전수 + 원본 alloca 추적으로 확정했다(open[3] 해소).")
+# ───────────────── 추가(최종판) ─────────────────
+# ⑨ 190 sig.tls 절 신설 — 191 과 같은 형식(direct / indirect_callees_in_order). 스칼라 분기의 dict 신설(현재값 None).
+p.fix("/specs[190]/sig/tls", old=None,
+      new={"direct": u"없음 — 본 범위(m14.ll 18966~20981)에 thread_local 전역 직접참조·LocalKey::with 호출 0건(tlsfull.py: direct TLS refs [] · 간접(vtable/fnptr) 호출부 0).",
+           "indirect_callees_in_order": u"[TLS 접점이 있는 콜리만, 호출 순서] ①position_score_at_position(rs:138, purpose=General 2 · m14.ll:19241) → position_eval_at: POS_EVAL_CACHE 직접 · position_eval_at_uncached 경유 EPC_CACHE·PE_CAND_MASKS·PE_PLAYER_CTX·ATTACK_DMG_CACHE·TOWER_MINION_CNT_CACHE·SLOT_READY_MEMO(slot_ready_cached)·CC_TIME_MEMO(slot_cc_time_cached)·SIEGE_STANCE_CACHE(v47_siege_stance)·RESOLVE_FIGHT_CACHE(v47_siege_stance→resolve_fight→resolve_fight_full) — 10종 · 이 함수 경로의 TLS 접점은 이 1호출뿐(위험 판정 전에 1회 · 조기반환 여부와 무관하게 항상 호출). ⚠나머지 직접 콜리 30종(nontarget_windup_perceived·SmallActionRunAway::new/new_with_skill·SmallActionAround::new·battle_action·iter_minions·can_attack/can_skill/can_skill2·Effect::range_adjust·CastingTarget::check·SmallActionAttack/Skill/Skill2::new·attack_summon_action·iter_towers·can_tower_focused_when_attack·attack_structure_skill_action 등)은 전이 TLS 0(깊이 무제한). CAMP_POS_MEMO(camp_pos)·CAST_BEAMS·HP_VALUE_MEMO·INTER_CTX·DIE_TICK_CACHE·MAX_RANGE_CACHE·LAST_STAND_MEMO 는 이 루트에서 도달 불가(정적 콜그래프 · fn-ptr 상수 간선 포함). 미도달 사각 = 콜리 내부 vtable 간접호출(battle_action 6곳 · attack_structure_skill_action 6곳 등 79 define) — AbstractGame impl 4종의 tick/is_visible/get_entity_by_id 는 TLS 0 확인. 근거 = 25차K tlsreach.py(tls190_d25.txt) + tlsfull.py(scratchpad25K · 두 방법 결과 동일). 미러 재현 시 position_score_at_position 1회의 캐시 채움만 재현하면 된다."},
+      evidence=u"tlsfull.py 출력(scratchpad25K/tlsfull_out.txt): ROOT …AttackNexusSubPlan17action_candidates m14.ll 18966 reachable defines 348 · direct TLS refs [] · indirect call sites 0 · transitive TLS = ATTACK_DMG_CACHE,CC_TIME_MEMO,EPC_CACHE,PE_CAND_MASKS,PE_PLAYER_CTX,POS_EVAL_CACHE,RESOLVE_FIGHT_CACHE,SIEGE_STANCE_CACHE,SLOT_READY_MEMO,TOWER_MINION_CNT_CACHE(전부 6. L19241 position_score_at_position 경유) · 나머지 30 콜리 TLS 없음 · m07.ll:24637 `call @…LocalKey…PosEvalCache…with…position_eval_at0…(ptr @anon.81aa2713ddfa9e15f7e3c0757f8f3b51.97…)` → m07.ll:118 `@anon…97 = constant ptr @…POS_EVAL_CACHE00…call_once` → m07.ll:63551 `@llvm.threadlocal.address.p0(ptr @…POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL)`",
+      behavior_change=False, found_by="new", kind=u"보강", force=True)   # 필드가 없어 locate=None → force
+
+# ⑩ sret variant 별 live 바이트 표(런타임 _SAP_EL 재료) — 190
+p.fix("/specs[190]/sig/params[0]/role",
+      old=u"원소 184B, 태그 @+0xb1(=177).",
+      new=u"원소 184B, 태그 @+0xb1(=177). ★이 함수가 sret 에 넣을 수 있는 variant = {RunAway 3, Around 5, Attack 15, Skill 16, Skill2 17} 뿐(자체 push = 3·5·15·16·17 · extend 콜리: battle_action → 15/16/17(m15.ll:24160/24476/24709/24788/25119/25352/25490) · attack_summon_action → 15/16/17(m15.ll:28529/28680/28826) · attack_structure_skill_action → 16/17(m15.ll:34407/34571)). push 규약 = 생성자 sret(136B 또는 24B) alloca → 184B alloca 로 memcpy(생성자 크기만큼) → +177 태그 store → Vec 원소로 memcpy 184B(예: m14.ll:19311~19313 Around · 19370~19372 RunAway) ⟹ 원소 live 바이트 = 생성자 `initializes` ∪ {177}, 나머지는 두 alloca 의 스택 잔재. variant 별: RunAway(3) = [0,56)+[125,126)+[128,132)+{177} (new_with_skill m08.ll:92086 · new 92133 initializes((0,56),(125,126),(128,132)) · +128 with_skill: new=1 · new_with_skill=인자) · Around(5) = [0,56)+[125,126)+[128,130)+{177} (m08.ll:92385 initializes((0,56),(125,126),(128,130)) · +40 range=80000 · +128 end_delay) · Attack(15)/Skill(16)/Skill2(17) = [0,17)+{177} (m07.ll:7129/7645/12020 initializes((0,17)) · +0 tick · +8 target id · +16 i8 0). 오라클 n_* 덤프(elem[i] tag/[0,56)/+125/[128,132))와 일치.",
+      evidence=u"m14.ll:19311~19313 `memcpy(%26,%25,136) / gep %26,177 / store i8 5` · 19370~19372 `memcpy(%33,%32,136) / store i8 3` · 생성자 define 줄 initializes 속성(m08.ll:92086/92133/92385 · m07.ll:7129/7645/12020) · 콜리 본문 +177 store 전수(elemstores.py) · " + OR + u" n_base elem[0] tag=5 [0,56)=… +125=02 [128,130)=0500 · elem[1] tag=3 +125=02 [128,132)=01000000",
+      behavior_change=False, found_by="new", kind=u"보강")
+# ⑪ 191
+p.fix("/specs[191]/sig/params[0]/role",
+      old=u"원소 184B, 태그 @+0xb1(177).",
+      new=u"원소 184B, 태그 @+0xb1(177). ★이 함수가 sret 에 넣을 수 있는 variant = {RunAway 3, AroundPosition(untagged · +177=0), Trace 14, Attack 15, Skill 16, Skill2 17}(자체 push = 3·AroundPosition·14 · extend 콜리: battle_action → 15/16/17 · attack_summon_action → 15/16/17). variant 별 live 바이트(그 외 = alloca 스택 잔재): RunAway(3) = [0,56)+[125,126)+[128,132)+{177} (m02.ll:10100~10102 memcpy 136 + store i8 3 · 생성자 initializes((0,56),(125,126),(128,132)) · +128 with_skill: rs:40 =1 · rs:49 =0 · rs:95 new=1) · AroundPosition(untagged) = [0,48)+[48,88)+[88,104)+{173,176,177} (생성자 m08.ll:103238 sret 184B 직접: +0 tick(vtable+0x28) · +8/+16 target x,y · +24 0 · +32/+40 goal x,y · +48..+88 wait_around 40B 전부 live(m04.ll:33088~33096: target_x,target_y,d=60000,now_goal x,y) · +88 80000 · +96 end_delay · +104..+176 path_finder 72B 중 +173(=%8+69) i8 2 만 · +176 i8 6 · +177 i8 0(outline_type — SmallActionPlay 니치 판별자 자리)) · Trace(14) = [0,8)+{85}+[88,150)+{177} (본문 인라인 m02.ll:10012~10042: +0 i64 0 · +85 i8 2 · +88 tick · +96 target id · +104/+112 goal xy(get_entity_by_id 있으면 +0x660/+0x668, 없으면 0/0) · +120 15000 · +128 5 · +136 0 · +144 i8 0 · +145 i8 1(attack_range_only) · +146~148 0 · +149 i8 2 · +177 14) · Attack/Skill/Skill2 = [0,17)+{177}. 오라클 e_* 덤프(RunAway [0,56)+125+[128,132) · AroundPosition [0,104)+173+176 · Trace +0/+85/[88,150))와 일치.",
+      evidence=u"elemstores.py(scratchpad25K) m02.ll 9581~10950 alloca 기준 store 전수: %22(Trace) +0/+85/+88/+96/+104/+112/+120/+128/+136/+144~149/+177 · %29/%15/%33 memcpy 136 + +177 i8 3 · %17/%19/%21/%27 memcpy 184(AroundPosition 생성자 sret) · m08.ll:103252~103306 AroundPosition::new store/memcpy 전수 · m04.ll:33088~33096 wait_around sret 5 store · " + OR + u" e_v20_31 elem[0] tag=14 +0=0 +85=02 [88,150)=… · e_base_t0 elem[0] AroundPosition [0,48)/[48,104) +173=02 +176=06",
+      behavior_change=False, found_by="new", kind=u"보강")
+
+# ⑫ ev_up guard(삽입 뒤 인덱스 밀림 방지 — mem 행은 이름으로 확인)
+for u in p.ev_up:
+    if u["path"] == "/specs[191]/mem[36]": u["guard"] = u"move_check"
+    if u["path"] == "/specs[191]/mem[37]": u["guard"] = u"infos"
+    if u["path"] == "/specs[190]/consts[18]": u["guard"] = u"56"
+    if u["path"] == "/specs[190]/consts[16]": u["guard"] = u"30"
+    if u["path"] == "/specs[191]/consts[12]": u["guard"] = u"4900000001"
+    if u["path"] == "/specs[191]/consts[13]": u["guard"] = u"22500000000"
+p.brief_error(u"지시 ②는 sret 를 「bumpalo Vec<SmallActionPlay> 32B」와 「next_plan Option<BigPlan> 384B · attack Option<Input> 32B」를 함께 열거했는데 이 배치 2함수는 action_candidates 라 sret 는 Vec 32B 하나뿐이다(next_plan/attack 은 다른 루트(next_plan/attack 계열)의 몫) — 배치별로 sret 종류를 갈라 적어야 한다. 또 variant 목록의 AroundPosition 「+0xb1 = outline_type」은 맞지만 그 값이 0 으로 고정 저장되는 것(m08.ll:103302)까지 적어야 런타임 _SAP_EL 이 「태그 0 = AroundPosition」으로 읽을 수 있다.")
+p.brief_error(u"지시 ④의 TLS 작성자 목록(v48_cast_beams·champion_hp_value·interaction_score·check_kill_die_tick·max_range_cached·LAST_STAND_MEMO·CAMP_POS_MEMO)은 r16 루트 20개 전체의 합집합이라 이 배치엔 190 → 10종(position_score_at_position 1호출) · 191 → +CAMP_POS_MEMO 만 닿는다. 「이 함수가 직접·간접으로 부르는 TLS 작성자」를 배치별로 미리 좁혀 주지 않으면 배치마다 전 corpus 콜그래프를 다시 짠다(이번엔 24초짜리 캐시 도구를 만들어 해결 — tlsfull.py · callgraph.json 을 다음 배치가 재사용 가능).")
+
+p.save()

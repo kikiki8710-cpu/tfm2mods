@@ -1,0 +1,440 @@
+{
+ "tfm2_ai_adjust": [
+  {
+   "fn": "RVA_CONDGATE",
+   "delta": 16,
+   "pairs": [
+    [
+     "0x30",
+     "0x40"
+    ]
+   ]
+  },
+  {
+   "fn": "RVA_GENERIC_BUILD",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "RVA_RETREAT",
+   "delta": 120,
+   "pairs": [
+    [
+     "0x90",
+     "0x108"
+    ],
+    [
+     "0xd8",
+     "0x150"
+    ]
+   ]
+  },
+  {
+   "fn": "RVA_FC59A0",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "RVA_AUCTION",
+   "delta": 2432,
+   "pairs": [
+    [
+     "0xc59b",
+     "0xcf1b"
+    ],
+    [
+     "0xc5af",
+     "0xcf2f"
+    ],
+    [
+     "0xdbeb",
+     "0xe56b"
+    ],
+    [
+     "0xdbff",
+     "0xe57f"
+    ],
+    [
+     "0xddd2",
+     "0xe752"
+    ],
+    [
+     "0xdde6",
+     "0xe766"
+    ],
+    [
+     "0xdf36",
+     "0xe8b6"
+    ],
+    [
+     "0xe793",
+     "0xf113"
+    ]
+   ]
+  },
+  {
+   "fn": "RVA_DISC18_HANDLER",
+   "delta": 8,
+   "pairs": [
+    [
+     "0xe0",
+     "0xe8"
+    ]
+   ]
+  },
+  {
+   "fn": "RVA_DISC19_HANDLER",
+   "delta": 8,
+   "pairs": [
+    [
+     "0xe0",
+     "0xe8"
+    ]
+   ]
+  },
+  {
+   "fn": "HR_AE_FN_RVA",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "HR_AP_FN_RVA",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "INLINE@src/genbuild_repro.rs:73",
+   "delta": null,
+   "pairs": []
+  }
+ ],
+ "tfm2_champ_pos_lock": [
+  {
+   "fn": "RVA_CPROD",
+   "delta": 16,
+   "pairs": [
+    [
+     "0xf8",
+     "0x108"
+    ],
+    [
+     "0x170",
+     "0x180"
+    ],
+    [
+     "0x1f8",
+     "0x208"
+    ]
+   ]
+  }
+ ],
+ "tfm2_comptest_unlock": [
+  {
+   "fn": "ORACLE_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0x110",
+     "0x120"
+    ],
+    [
+     "0x130",
+     "0x140"
+    ],
+    [
+     "0x158",
+     "0x168"
+    ],
+    [
+     "0x198",
+     "0x1a8"
+    ],
+    [
+     "0x2a8",
+     "0x2b8"
+    ],
+    [
+     "0x310",
+     "0x320"
+    ]
+   ]
+  },
+  {
+   "fn": "CT_ARM_HI",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "RPLY3_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0x170",
+     "0x180"
+    ]
+   ]
+  },
+  {
+   "fn": "ARRIVE_RVA",
+   "delta": 24,
+   "pairs": [
+    [
+     "0x5e",
+     "0x76"
+    ],
+    [
+     "0x5f",
+     "0x77"
+    ],
+    [
+     "0x61",
+     "0x79"
+    ],
+    [
+     "0x62",
+     "0x7a"
+    ],
+    [
+     "0x63",
+     "0x7b"
+    ],
+    [
+     "0x64",
+     "0x7c"
+    ],
+    [
+     "0x65",
+     "0x7d"
+    ],
+    [
+     "0x66",
+     "0x7e"
+    ],
+    [
+     "0x67",
+     "0x7f"
+    ]
+   ]
+  },
+  {
+   "fn": "LIVEB_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0x170",
+     "0x180"
+    ]
+   ]
+  },
+  {
+   "fn": "CT_REGION_LO",
+   "delta": -24,
+   "pairs": [
+    [
+     "0x5b8",
+     "0x5a0"
+    ],
+    [
+     "0x5c8",
+     "0x5b0"
+    ],
+    [
+     "0x5d8",
+     "0x5c0"
+    ],
+    [
+     "0x5e8",
+     "0x5d0"
+    ]
+   ]
+  }
+ ],
+ "tfm2_elemental_serpen": [
+  {
+   "fn": "DMGB_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0xa8",
+     "0xb8"
+    ],
+    [
+     "0x138",
+     "0x148"
+    ],
+    [
+     "0x158",
+     "0x168"
+    ],
+    [
+     "0x1e8",
+     "0x1f8"
+    ]
+   ]
+  },
+  {
+   "fn": "MOBATICK_RVA",
+   "delta": 56,
+   "pairs": [
+    [
+     "0xecc8",
+     "0xed00"
+    ],
+    [
+     "0xece0",
+     "0xed18"
+    ],
+    [
+     "0xee78",
+     "0xeeb0"
+    ],
+    [
+     "0xef80",
+     "0xefb8"
+    ],
+    [
+     "0xefa0",
+     "0xefd8"
+    ]
+   ]
+  },
+  {
+   "fn": "SERPEN_RVA",
+   "delta": 8,
+   "pairs": [
+    [
+     "0xe0",
+     "0xe8"
+    ]
+   ]
+  }
+ ],
+ "tfm2_flow_capture": [
+  {
+   "fn": "PARSER_RVA",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "LOADER_RVA",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "RUN_TICK_RVA",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "CTOR_RVA",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "ALLOC_RVA",
+   "delta": null,
+   "pairs": []
+  },
+  {
+   "fn": "RECO_INNER_RVA",
+   "delta": null,
+   "pairs": []
+  }
+ ],
+ "sylas": [
+  {
+   "fn": "AIEVAL_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0xe8",
+     "0xf8"
+    ],
+    [
+     "0x140",
+     "0x150"
+    ]
+   ]
+  },
+  {
+   "fn": "KZONE_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0x188",
+     "0x198"
+    ],
+    [
+     "0x1e0",
+     "0x1f0"
+    ]
+   ]
+  },
+  {
+   "fn": "ADDBUFF_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0x1e0",
+     "0x1f0"
+    ],
+    [
+     "0x1e8",
+     "0x1f8"
+    ]
+   ]
+  },
+  {
+   "fn": "GRAB_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0x1e0",
+     "0x1f0"
+    ],
+    [
+     "0x1e8",
+     "0x1f8"
+    ]
+   ]
+  },
+  {
+   "fn": "BASEULT_RVA",
+   "delta": 16,
+   "pairs": [
+    [
+     "0x1e0",
+     "0x1f0"
+    ]
+   ]
+  },
+  {
+   "fn": "ETICK_RVA",
+   "delta": 24,
+   "pairs": [
+    [
+     "0x138",
+     "0x150"
+    ],
+    [
+     "0x140",
+     "0x158"
+    ],
+    [
+     "0x1e0",
+     "0x1f8"
+    ]
+   ]
+  },
+  {
+   "fn": "JT_RVA",
+   "delta": 8,
+   "pairs": [
+    [
+     "0xe0",
+     "0xe8"
+    ]
+   ]
+  }
+ ]
+}

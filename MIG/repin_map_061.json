@@ -1,0 +1,165 @@
+{
+ "ui_kit": {
+  "0x1e4c90": {
+   "name": "DD_SETOPT_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "ui_kit.rs:939"
+   ],
+   "sect_old": ".text",
+   "new": "0x1e7ba0",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534883ec58",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2f5410": {
+   "name": "RVA_DROP_MAP",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x2f5410->0x2f62c0 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:15"
+   ],
+   "sect_old": ".text",
+   "new": "0x2f62c0",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x3059c0": {
+   "name": "RVA_DROP_PLAN",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x3059c0->0x306870 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:14"
+   ],
+   "sect_old": ".text",
+   "new": "0x306870",
+   "sect_new": ".text",
+   "new_bytes": "555657534883ec48488d6c24",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0xb50720": {
+   "name": "RVA_INSERT",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0xb50720->0xced790 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:16"
+   ],
+   "sect_old": ".text",
+   "new": "0xced790",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534883",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1d19d80": {
+   "name": "RVA_CLONE",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x1d19d80->0x1e69780 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:13"
+   ],
+   "sect_old": ".text",
+   "new": "0x1e69780",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x21ce320": {
+   "name": "RVA_DROP",
+   "kind": "MANUAL",
+   "note": "masked byte pattern 3 clones(0x251bd00/0x2601ff0/0x2997460) → 신 대핸들러 0x255ce50(구 0x220f040) 본문이 부르는 것 = 0x251bd00 (build/send 와 같은 클러스터)",
+   "locs": [
+    "team_sync_stable.rs:17",
+    "training_plan_stable.rs:20"
+   ],
+   "sect_old": ".text",
+   "new": "0x251bd00",
+   "sect_new": ".text",
+   "fn_start_new": true
+  },
+  "0x220ce30": {
+   "name": "RVA_SEND",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "team_sync_stable.rs:16",
+    "training_plan_stable.rs:19"
+   ],
+   "sect_old": ".text",
+   "new": "0x255a520",
+   "sect_new": ".text",
+   "new_bytes": "555657534881ec180f000048",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2262850": {
+   "name": "RVA_BUILD",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "team_sync_stable.rs:15"
+   ],
+   "sect_old": ".text",
+   "new": "0x25b0960",
+   "sect_new": ".text",
+   "new_bytes": "555657534881ece808000048",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x227c570": {
+   "name": "RVA_SANITIZE",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "training_plan_stable.rs:17"
+   ],
+   "sect_old": ".text",
+   "new": "0x25ca570",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2452e50": {
+   "name": "RVA_UPDATE",
+   "kind": "MANUAL",
+   "note": "mnem cosine 1.0000 + head SAME · size 132790→132128 · callees 145→148 (본문 소폭 수정) · 프롤로그 push8 동일 · 씬 disp 히스토그램 0xce/0x168/0x180/0x198/0x1b0/0x3a8/0x3f8/0x400/0x466 불변",
+   "locs": [
+    "draft_scene_stable.rs:14"
+   ],
+   "sect_old": ".text",
+   "new": "0x24c34a0",
+   "sect_new": ".text",
+   "fn_start_new": true
+  },
+  "0x295d220": {
+   "name": "RVA_RESPONSE",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "training_plan_stable.rs:18"
+   ],
+   "sect_old": ".text",
+   "new": "0x228ac80",
+   "sect_new": ".text",
+   "new_bytes": "555657534883ec38488d6c24",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ }
+}

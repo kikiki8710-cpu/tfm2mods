@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m11.ll", "line": 51693, "text": "%148 = tail call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) %2, ptr noalias n"}]

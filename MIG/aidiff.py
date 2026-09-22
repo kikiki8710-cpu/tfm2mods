@@ -50,7 +50,7 @@ except ImportError:
     sys.exit("capstone 이 필요하다:  pip install capstone")
 
 BASE = 0x140000000
-CACHE_VER = 4          # 캐시 포맷이 바뀌면 올린다
+CACHE_VER = 6          # 캐시 포맷이 바뀌면 올린다
 
 
 # ────────────────────────────────────────────────────────────── PE
@@ -136,17 +136,29 @@ def find_locations(img):
             continue
         blob = d[pr:pr + sz]
         for i in range(0, max(0, len(blob) - 24), 8):
-            v = struct.unpack_from('<Q', blob, i)[0]
-            hit = want.get(v)
-            if not hit:
-                continue
-            ln = struct.unpack_from('<Q', blob, i + 8)[0]
-            if ln != len(hit[1]):
-                continue                      # len 불일치 = Location 아님
             line, col = struct.unpack_from('<II', blob, i + 16)
             if line == 0 or line > 100000 or col == 0 or col > 1000:
+                continue                      # line/col 부터 걸러야 아래가 싸다
+            v = struct.unpack_from('<Q', blob, i)[0]
+            ln = struct.unpack_from('<Q', blob, i + 8)[0]
+            hit = want.get(v)
+            if hit is not None and ln == len(hit[1]):
+                loc[va + i] = (hit[1], line, col)
                 continue
-            loc[va + i] = (hit[1], line, col)
+            # ★정규식이 시작점을 놓친 사본 — 포인터를 직접 따라가 확인한다.
+            #   문자열이 NUL 없이 앞 문자열과 붙어 있으면(0.6.1 실측:
+            #   `DM_NO_ACTIVE_DODGE` + `game-ai\src\…\passive_line.rs`)
+            #   정규식이 앞 문자열부터 매치해 str_rva 의 키가 18바이트 앞이 되고,
+            #   진짜 포인터는 want 에 없어 Location 이 통째로 누락된다.
+            #   그 결과 그 사본만 참조하는 함수가 AI 계층에서 빠져 **삭제로 오판**된다.
+            if not 4 < ln <= 120:
+                continue
+            s = img.code(v - BASE, ln)
+            if len(s) != ln or not s.endswith(b'.rs'):
+                continue
+            if any(c < 0x20 or c > 0x7e for c in s):
+                continue
+            loc[va + i] = (s.decode('latin1'), line, col)
     return loc
 
 
@@ -175,10 +187,12 @@ def census(img, loc, only_prefix, verbose=False):
         offs = collections.Counter()
         vslots = collections.Counter()
         callees = collections.Counter()
+        skel = []                              # 명령어 니모닉 열 = 코드 골격(짝짓기 잠금용)
         n = 0
         for ins in md.disasm(blob, BASE + b):
             n += 1
             mn = ins.mnemonic
+            skel.append(mn)
             if mn == 'call' and ins.operands and ins.operands[0].type == X86_OP_IMM:
                 callees[ins.operands[0].imm - BASE] += 1
             for op in ins.operands:
@@ -205,7 +219,8 @@ def census(img, loc, only_prefix, verbose=False):
         if only_prefix and only_prefix not in top:
             continue
         out[(b, e)] = dict(mods=mods, top=top, lines=lines, lmods=dict(lmods),
-                           imms=imms, offs=offs, vslots=vslots, callees=callees, n=n)
+                           imms=imms, offs=offs, vslots=vslots, callees=callees, n=n,
+                           skel=hashlib.md5(' '.join(skel).encode()).hexdigest())
     return out
 
 
@@ -302,22 +317,46 @@ def pair(old, new):
         by_mod_new[v['top']].append(k)
     pairs, gone = {}, []
     used = set()
+    # ★0순위 — **골격이 완전히 같은 쌍을 먼저 잠근다**(2026-09-23 신설).
+    #   자매 함수들은 Location 집합이 서로 같아 겹침 점수가 동률이 되고, 크기 근접
+    #   2순위도 자매끼리 뒤섞인다. 그 상태로 구 주소 순 탐욕 짝짓기를 돌리면
+    #   **앞 함수가 뒤 함수의 쌍둥이를 먼저 채가** 한 줄로 밀리는 사슬이 생긴다
+    #   (0.6.0→0.6.1 실측: free_dist 2522→2440·2440→1725 식으로 EDITED 9건 허위).
+    #   골격 일치는 유사도가 아니라 **완전일치 지문**이라 자매쌍에서도 안전하다.
+    lock = collections.defaultdict(list)
+    for kn, vn in new.items():
+        lock[(vn['top'], vn.get('skel'), kn[1] - kn[0])].append(kn)
     for ko, vo in sorted(old.items()):
-        cands = by_mod_new.get(vo['top'], [])
-        best, score = None, -1
-        for kn in cands:
+        key = (vo['top'], vo.get('skel'), ko[1] - ko[0])
+        c = [k for k in lock.get(key, []) if k not in used]
+        if len(c) == 1:
+            used.add(c[0])
+            d, n = mod_overlap(vo, new[c[0]])
+            pairs[ko] = (c[0], d, n)
+    # ★나머지는 **전역 최선순**으로 붙인다(2026-09-23).
+    #   구 주소순 탐욕이면 **먼저 온 구 함수가 뒤 함수의 더 좋은 짝을 채간다**
+    #   (0.6.0→0.6.1 실측: around 533B 가 1778B 를 먼저 물어, 진짜 짝인 1780B 가
+    #   「삭제」로 밀렸다). 후보쌍을 전부 점수화해 **높은 점수부터** 확정한다.
+    cand = []
+    for ko, vo in sorted(old.items()):
+        if ko in pairs:
+            continue
+        for kn in by_mod_new.get(vo['top'], []):
             if kn in used:
                 continue
             d, n = mod_overlap(vo, new[kn])
             # 겹친 Location 수가 1순위, 크기 근접이 2순위
             sc = n * 1000 - min(999, abs((ko[1] - ko[0]) - (kn[1] - kn[0])) // 16)
-            if sc > score:
-                best, score, bd, bn = kn, sc, d, n
-        if best is None:
-            gone.append(ko)
+            cand.append((sc, ko, kn, d, n))
+    cand.sort(key=lambda x: (-x[0], x[1], x[2]))
+    for sc, ko, kn, d, n in cand:
+        if ko in pairs or kn in used:
             continue
-        used.add(best)
-        pairs[ko] = (best, bd, bn)
+        used.add(kn)
+        pairs[ko] = (kn, d, n)
+    for ko in sorted(old):
+        if ko not in pairs:
+            gone.append(ko)
     added = [k for k in new if k not in used]
     return pairs, gone, added
 
@@ -391,7 +430,34 @@ def main():
     for ko, (kn, d, n) in pairs.items():
         v, extra = verdict(fo[ko], fn[kn])
         rows.append((v, ko, kn, d, extra))
-    order = {'EDITED': 0, 'SHIFTED': 1, 'IDENTICAL': 2}
+
+    # ★MERGED — **인라인 병합은 1:1 짝짓기로 표현이 안 된다**(2026-09-23 신설).
+    #   구 함수 둘이 신 함수 하나로 인라인되면 한쪽만 짝이 붙고 나머지는 「사라짐」으로,
+    #   짝이 붙은 쪽은 상대의 Location 을 통째로 얻어 **EDITED 로 오판**된다
+    #   (0.6.0→0.6.1 실측: around 636B+533B → 1030B 가 Location 2+3=5 로 정확히 합산).
+    #   그래서 「생긴 행」이 사라진 함수의 Location 과 정확히 맞아떨어지면 병합으로 본다.
+    absorbed = {}
+    for i, (v, ko, kn, d, extra) in enumerate(rows):
+        if v != 'EDITED' or not extra:
+            continue
+        lost, born = extra
+        if lost or not born:
+            continue
+        rest, eaten = set(born), []
+        for kg in gone:
+            g = set()
+            for m, ls in fo[kg]['lmods'].items():
+                g |= {(m, x) for x in ls}
+            if g and g <= rest:
+                rest -= g
+                eaten.append(kg)
+        if eaten and not rest:
+            rows[i] = ('MERGED', ko, kn, d, ([], born))
+            for kg in eaten:
+                absorbed[kg] = kn
+    if absorbed:
+        gone = [k for k in gone if k not in absorbed]
+    order = {'EDITED': 0, 'MERGED': 1, 'SHIFTED': 2, 'IDENTICAL': 3}
     rows.sort(key=lambda r: (order.get(r[0].split('(')[0], 9), fo[r[1]]['top']))
 
     ned = sum(1 for r in rows if r[0] == 'EDITED')
@@ -401,7 +467,13 @@ def main():
     w('- 행만 밀림(SHIFTED) = %d개 · 소스 무변경(IDENTICAL) = %d개'
       % (sum(1 for r in rows if r[0].startswith('SHIFTED')),
          sum(1 for r in rows if r[0] == 'IDENTICAL')))
-    w('- 사라짐 = %d개 · 새로 생김 = %d개' % (len(gone), len(added)))
+    w('- 인라인 병합(MERGED) = %d개 · 사라짐 = %d개 · 새로 생김 = %d개'
+      % (sum(1 for r in rows if r[0] == 'MERGED'), len(gone), len(added)))
+    if absorbed:
+        w('')
+        w('> MERGED = 구 함수가 **신 함수 안으로 인라인**된 것이다(Location 이 정확히 합산).')
+        w('> 소스 변경이 아니므로 EDITED 와 섞지 마라. 흡수된 구 함수: %s'
+          % ', '.join('`%#x`→`%#x`' % (k[0], v[0]) for k, v in sorted(absorbed.items())))
     w('')
     w('> 판정은 **Rust 패닉 Location**(모듈·행·열) 기준이다. 유사도는 자매쌍에서 원리적으로')
     w('> 오답을 내므로 쓰지 않는다(2026-09-05 실측: serpen_hunt 의 유사도 1위가 epic_hunt).')

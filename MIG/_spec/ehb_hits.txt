@@ -1,0 +1,108 @@
+r11/handler__LegacyPlanHandler_passive_plan.json :: 0 + ObjectPhase). `or disjoint i8 %phase, 80`"
+  },
+  {
+   "value": 96,
+   "src_line": 2031,
+   "meaning": "v2_obj_part == Some(0x60 | phase) — Morgard 복원 코드"
+  },
+  {
+   "value": 12,
+   "src_line": 1863,
+   "meaning": "BigPlan::EpicHuntAndPoke 메모리태그(idx10+2). :2025 `(tag&30)==12` = EpicHuntAndPoke|EpicHuntAndBattle 판정"
+  },
+  {
+   "value": 14,
+   "src_line": 1869,
+   "meaning": "BigPlan::SerpenHuntAndPoke 태그. :2008 `(tag&30)==14` = SerpenHuntAndPoke|SerpenHuntAndBattle. 발원코드 14(:2117) 와 값 동일"
+  },
+  {
+   "value": 16,
+   "src_line": 1879,
+   "meaning": "BigPlan::AttackNexus 태그"
+  },
+  {
+   "value": 17,
+   "src
+=======
+r12/handler__LegacyPlanHandler_update.json ::  nrst = distance/1000 (k 단위 표기). 디버그 전용"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 1580,
+   "meaning": "150000^2+1 — aux 클로저(1366/1371/1580/1652)의 distance_sq < 150000² (150k 반경). 본문엔 없고 aux 에 있음"
+  },
+  {
+   "value": 12,
+   "src_line": 1601,
+   "meaning": "BigPlan 태그 12~15 = EpicHuntAndPoke/EpicHuntAndBattle/SerpenHuntAndPoke/SerpenHuntAndBattle → plan_tag_code 3. 1298 의 12 는 \"ActiveRecall\" 길이"
+  }
+ ],
+ "calls": [
+  "LegacyPlanHandler::sanitize_rule_scope",
+  "TeamPlan::update",
+  "GoalData::update",
+  "Instant::now",
+  "Instant::elapsed",
+  "drop_glue<Option<ProfTimer>>",
+  "drain",
+  "extend_truste
+=======
+r12/handler__LegacyPlanHandler_update.partD.json ::  nrst = distance/1000 (k 단위 표기). 디버그 전용"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 1580,
+   "meaning": "150000^2+1 — aux 클로저(1366/1371/1580/1652)의 distance_sq < 150000² (150k 반경). 본문엔 없고 aux 에 있음"
+  },
+  {
+   "value": 12,
+   "src_line": 1601,
+   "meaning": "BigPlan 태그 12~15 = EpicHuntAndPoke/EpicHuntAndBattle/SerpenHuntAndPoke/SerpenHuntAndBattle → plan_tag_code 3. 1298 의 12 는 \"ActiveRecall\" 길이"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::prof::ProfTimer::start (Instant::now 경유 — std::time::Instant::now)",
+  "std::time::Instant::elapsed",
+  "game_ai::plan_legacy::types::BigPlan::sub_plan",
+  "game_a
+=======
+r10/handler__v2_apply_assign_commit.json :: (tutorial-7) as u8 < 250 ⇔ tutorial ∉ {1..6} ⇔ ∈ {0 None,7 Line,8 Total}"
+  },
+  {
+   "value": -6,
+   "src_line": 46,
+   "meaning": "= 250 (u8). 위 morgard_exists 의 비교 상수"
+  },
+  {
+   "value": 28,
+   "src_line": 527,
+   "meaning": "BigPlan 태그 마스크: (tag & 28)==12 ⇔ tag∈{12,13,14,15} = EpicHuntAndPoke/EpicHuntAndBattle/SerpenHuntAndPoke/SerpenHuntAndBattle (매치가 마스크로 접힘)"
+  },
+  {
+   "value": 12,
+   "src_line": 527,
+   "meaning": "위 마스크 비교값 겸 L533 EpicHuntAndPoke 메모리태그"
+  },
+  {
+   "value": 14,
+   "src_line": 533,
+   "meaning": "SerpenHuntAndPoke 메모리태그(src==11 일 때 select)"
+  },
+  {
+   "value": -17,
+   "src_line": 
+=======
+r1/handler__v3_fall_back_to_passive.json :: name": "v3_lapse_passive_fallbacks", "note": "usize 카운터. 폴백 성사마다 +1"},
+  {"base": "BigPlan", "offset": "0x0", "name": "tag", "note": "i64 태그. 2=ForcePassive 3=PassiveLine 4=SinglePlanLine 5=SinglePlanBattle 7=PassiveJungle 8=ActiveRecall 9=Battle 10=LineGanker 11=LineGankCover 12=EpicHuntAndPoke 13=EpicHuntAndBattle 14=SerpenHuntAndPoke 15=SerpenHuntAndBattle 16=AttackNexus, 0..1=DeathMatchBattle(니치)"},
+  {"base": "BigPlan::SinglePlanLine", "offset": "0x8", "name": "chats.cap", "note": "빈 Vec 구성: cap=0"},
+  {"base": "BigPlan::SinglePlanLine", "offset": "0x10", "name": "chats.ptr", "note": "빈 Vec 의 dangling 포인터
+=======
+r8/handler__v3_assign_anchor.json :: er_champion 의 바깥 배열 길이 2, panic_bounds_check)"},
+  {"value": 6, "src_line": 1784, "meaning": "BigPlan 태그 6 은 존재하지 않음(llvm.assume ne 6) — 니치 구멍"},
+  {"value": -2, "src_line": 1784, "meaning": "BigPlan 태그 → 논리 인덱스 (niche_start=2). 1 PassiveLine / 5 PassiveJungle / 8 LineGanker / 10·11 EpicHuntAndPoke·EpicHuntAndBattle / 12·13 SerpenHuntAndPoke·SerpenHuntAndBattle"},
+  {"value": 4, "src_line": 1784, "meaning": "태그 0/1(DeathMatchBattle 니치)의 논리 인덱스 4 — switch 에 없으므로 default(=Some(here))"},
+  {"value": 1, "src_line": 1781, "meaning": "theirs = first_tower_position(line, 1 - team) — 상대 팀 인덱스"},
+  {"value": 1, "src_li
+=======
+r8/handler__v3_assign_anchor.json :: (p)                          => line_anchor(p.line(+0x706)),\n[L1786]   LineGanker(p)                           => line_anchor(p.line(+0x618)),\n[L1787]   PassiveJungle(p)                        => data.context.map(+0x20).camp_pos(p.jungle(+0x650), p.team(+0x638) == 0),\n[L1789]   EpicHuntAndPoke | EpicHuntAndBattle     => map.camp_pos(JungleType::Morgard(4), team == 0),\n[L1791]   SerpenHuntAndPoke | SerpenHuntAndBattle => map.camp_pos(JungleType::Serpen(5), team == 0),\n          _ /*ForcePassive·SinglePlanLine·SinglePlanBattle·DeathMatchBattle·ActiveRecall·Battle·LineGankCover·AttackNexus·DefenseNexus*/ => 
+=======

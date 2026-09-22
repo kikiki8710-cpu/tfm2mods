@@ -31,7 +31,8 @@ RULES = {
     "tfm2_draft_overlay":       (None, set(), (), ()),  # 0.5.8 zip 구성 동일(dll·mod_info·override_info)
     "Spectator_Chat":           (None, {"chat_lines.txt", "chat_lines_프롬프트가이드.txt", "chat_lines_생성기.html"}, (), ()),  # 0.6.0: ui 오버라이드 폐지(스폰 API) → ui/ 미동봉
     "banpick_view_plus":        (None, set(), ("text", "ui", "asset", "skins"), ()),  # ★09-20 워크샵 3766306566 → 로컬 mods\ 로 이관(유저 지시) · illust(761MB) 는 zip 제외
-    # crm 예외 규칙(REPORT community_reaction_mod/02 §2-a-1): 워크샵 폴더 덮어쓰기 패치 — mod.mod_info 의도적 미동봉(mods\ 이중 등록 방지)·README 필수·html 동봉
+    # crm 예외 규칙(REPORT community_reaction_mod/02 §2-a-1): 워크샵 폴더 덮어쓰기 패치 — README 필수·html 동봉·preview 미동봉.
+    #   ★mod.mod_info 는 2026-09-22 유저 지시로 동봉(구 규칙 = 미동봉, 이중 등록 방지)
     "community_reaction_mod":   (os.path.join(WORKSHOP, "3738958482"), {"TFA2_gallery.html"}, (), ("README_설치안내.txt",)),
 }
 # ★09-20 유저 지시(banpick_view_plus): 일러스트는 **경로만** 배포 — zip 에 빈 디렉터리 엔트리로 넣고 이미지 파일은 제외
@@ -45,7 +46,9 @@ def collect(m):
     out = []
     for f in sorted(os.listdir(d)):
         p = os.path.join(d, f)
-        common = COMMON if m != "community_reaction_mod" else set()  # crm 은 mod_info/preview 미동봉
+        # crm = 워크샵 덮어쓰기 패치라 preview 는 빼지만, ★2026-09-22 유저 지시로 mod.mod_info 는 동봉한다
+        #   (구 규칙 = 전면 미동봉 — `mods\` 에 풀면 워크샵 구독본과 mod_id 가 이중 등록되는 문제 때문. 0.5.2 확정)
+        common = COMMON if m != "community_reaction_mod" else {"mod.mod_info"}
         if os.path.isfile(p) and (f == f"{m}.dll" or f in common or f in extra): out.append((f, p))
     for sub in subs:
         sd = os.path.join(d, sub)

@@ -1,0 +1,124 @@
+thread_local globals: 80 globals with symbol refs: 10131
+scanned m00.ll 129
+scanned m01.ll 375
+scanned m02.ll 567
+scanned m03.ll 765
+scanned m04.ll 982
+scanned m05.ll 1113
+scanned m06.ll 1477
+scanned m07.ll 1626
+scanned m08.ll 1859
+scanned m09.ll 1982
+scanned m10.ll 2229
+scanned m11.ll 2682
+scanned m12.ll 3100
+scanned m13.ll 3225
+scanned m14.ll 3440
+scanned m15.ll 3632
+scanned g00.ll 5403
+scanned g01.ll 6651
+scanned g02.ll 8812
+scanned g03.ll 9476
+scanned g04.ll 14298
+scanned g05.ll 16177
+scanned g06.ll 18877
+scanned g07.ll 21227
+scanned g08.ll 23430
+scanned g09.ll 24827
+scanned g10.ll 25728
+scanned g11.ll 26690
+scanned g12.ll 28361
+scanned g13.ll 32424
+scanned g14.ll 34014
+scanned g15.ll 36096
+
+ROOT _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12attack_nexusNtB2_18AttackNexusSubPlan17action_candidates m14.ll 18966 reachable defines: 348
+direct TLS refs: [] indirect call sites: 0
+transitive TLS (전체, 깊이 무제한): ['ATTACK_DMG_CACHE', 'CC_TIME_MEMO', 'EPC_CACHE', 'PE_CAND_MASKS', 'PE_PLAYER_CTX', 'POS_EVAL_CACHE', 'RESOLVE_FIGHT_CACHE', 'SIEGE_STANCE_CACHE', 'SLOT_READY_MEMO', 'TOWER_MINION_CNT_CACHE', 'anon.afb017e85830050c32e5158c55060899.1']
+ 1. L19030  _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check                          (no define)
+ 2. L19035  llections3vec3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEEB1t_ m15.ll:2964
+ 3. L19119  _RNvNtCshdEBA0ozCnw_7game_ai5utils26nontarget_windup_perceived                   m04.ll:53108
+ 4. L19131  _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect11is_in_range    g06.ll:51634
+ 5. L19170  _RNvNtCsjihNppCmMEE_4core6option13unwrap_failed                                  (no define)
+ 6. L19241  _RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position          m07.ll:34232
+      TLS: ATTACK_DMG_CACHE, CC_TIME_MEMO, EPC_CACHE, PE_CAND_MASKS, PE_PLAYER_CTX, POS_EVAL_CACHE, RESOLVE_FIGHT_CACHE, SIEGE_STANCE_CACHE, SLOT_READY_MEMO, TOWER_MINION_CNT_CACHE, anon.afb017e85830050c32e5158c55060899.1
+        ATTACK_DMG_CACHE         via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > tB1c_4cell7RefCellNtB8_17AttackDamageCacheEEEEE9call_onceBa_
+        CC_TIME_MEMO             via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > NvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached > ZKFYzm_5ahash12random_state11RandomStateEEEEEEE9call_onceBa_
+        EPC_CACHE                via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > QIB1L_INtNtB16_4cell7RefCellNtB8_8EpcCacheEEEEE9call_onceBa_
+        PE_CAND_MASKS            via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > Q_INtNtB1b_4cell7RefCellNtB8_11PeCandMasksEEEEE9call_onceBa_
+        PE_PLAYER_CTX            via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > NtNtB1b_4cell4CellIB1Q_NtB8_11PePlayerCtxEEEEEE9call_onceBa_
+        POS_EVAL_CACHE           via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _INtNtB1a_4cell7RefCellNtB8_12PosEvalCacheEEEEE9call_onceBa_
+        RESOLVE_FIGHT_CACHE      via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > NtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance > 0ozCnw_7game_ai11plan_legacy3old11fight_model13resolve_fight > w_7game_ai11plan_legacy3old11fight_model18resolve_fight_full > tB1y_4cell7RefCellNtB8_17ResolveFightCacheEEEEE9call_onceBe_
+        SIEGE_STANCE_CACHE       via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > NtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance > NtB1h_4cell7RefCellNtB8_16SiegeStanceCacheEEEEE9call_onceBa_
+        SLOT_READY_MEMO          via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached > ZKFYzm_5ahash12random_state11RandomStateEEEEEEE9call_onceBa_
+        TOWER_MINION_CNT_CACHE   via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > 1i_4cell7RefCellNtB8_19TowerMinionCntCacheEEEEE9call_onceBa_
+        anon.afb017e85830050c32e5158c55060899.1 via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _INtNtB1a_4cell7RefCellNtB8_12PosEvalCacheEEEEE9call_onceBa_ > wNvNvB1R_14POS_EVAL_CACHE27___rust_std_internal_init_fnEB1T_
+ 7. L19259  nw_7game_ai12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill m08.ll:92086
+ 8. L19303  _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB2_17SmallActionAround3new m08.ll:92385
+ 9. L19335  BA0ozCnw_7game_ai12small_action15SmallActionPlayE25reserve_internal_or_panicB17_ m02.ll:49585
+10. L19344  4core3ptr9drop_glueNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEBF_ m15.ll:3100
+11. L19360  nPlayEINtNtNtNtCsjihNppCmMEE_4core4iter6traits7collect6ExtendBX_E6extendBN_EB11_ m15.ll:5803
+12. L19366  tCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB2_18SmallActionRunAway3new m08.ll:92133
+13. L19420  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_action                         m15.ll:23700
+14. L19458  NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache12iter_minions g15.ll:102624
+15. L19548  Plan20attack_minion_action0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3L_ m11.ll:34399
+16. L19593  Plan20attack_minion_action0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3K_ m11.ll:33574
+17. L19629  Plan20attack_minion_action0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3J_ m11.ll:32034
+18. L19688  _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity10can_attack  g06.ll:63321
+19. L19714  _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust   g06.ll:51785
+20. L19813  _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB2_17SmallActionAttack3new   m07.ll:7129
+21. L19870  _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity9can_skill    g06.ll:84420
+22. L19887  NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget5check g06.ll:86744
+23. L19992  _RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_16SmallActionSkill3new m07.ll:7645
+24. L20049  _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity10can_skill2  g06.ll:63720
+25. L20166  RNvMs2_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_17SmallActionSkill23new m07.ll:12020
+26. L20231  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check20attack_summon_action                  m15.ll:28194
+27. L20265  _NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache11iter_towers g15.ll:102521
+28. L20466  bPlan19attack_tower_action0E0INtNtNtBb_3ops12control_flow11ControlFlowB1s_EEB3K_ m11.ll:33519
+29. L20600  5f_s_0E0EB7e_4foldTyB2W_ENCINvNvB7e_6min_by4foldB8s_INvB7c_7compareB2W_yEE0EB5o_ m12.ll:16739
+30. L20640  _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline29can_tower_focused_when_attack    m07.ll:50962
+31. L20909  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check29attack_structure_skill_action         m15.ll:33783
+
+ROOT _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan10epic_checkNtB2_16EpicCheckSubPlan17action_candidates m02.ll 9581 reachable defines: 345
+direct TLS refs: [] indirect call sites: 3
+transitive TLS (전체, 깊이 무제한): ['ATTACK_DMG_CACHE', 'CAMP_POS_MEMO', 'CC_TIME_MEMO', 'EPC_CACHE', 'PE_CAND_MASKS', 'PE_PLAYER_CTX', 'POS_EVAL_CACHE', 'RESOLVE_FIGHT_CACHE', 'SIEGE_STANCE_CACHE', 'SLOT_READY_MEMO', 'TOWER_MINION_CNT_CACHE', 'anon.afb017e85830050c32e5158c55060899.1']
+ 1. L9658   _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check                          (no define)
+ 2. L9663   llections3vec3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEEB1t_ m15.ll:2964
+ 3. L9687   _RNvNtCsjihNppCmMEE_4core6option13unwrap_failed                                  (no define)
+ 4. L9755   _RNvNtCshdEBA0ozCnw_7game_ai5utils26nontarget_windup_perceived                   m04.ll:53108
+ 5. L9767   _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect11is_in_range    g06.ll:51634
+ 6. L9887   _RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position          m07.ll:34232
+      TLS: ATTACK_DMG_CACHE, CC_TIME_MEMO, EPC_CACHE, PE_CAND_MASKS, PE_PLAYER_CTX, POS_EVAL_CACHE, RESOLVE_FIGHT_CACHE, SIEGE_STANCE_CACHE, SLOT_READY_MEMO, TOWER_MINION_CNT_CACHE, anon.afb017e85830050c32e5158c55060899.1
+        ATTACK_DMG_CACHE         via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > tB1c_4cell7RefCellNtB8_17AttackDamageCacheEEEEE9call_onceBa_
+        CC_TIME_MEMO             via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > NvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached > ZKFYzm_5ahash12random_state11RandomStateEEEEEEE9call_onceBa_
+        EPC_CACHE                via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > QIB1L_INtNtB16_4cell7RefCellNtB8_8EpcCacheEEEEE9call_onceBa_
+        PE_CAND_MASKS            via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > Q_INtNtB1b_4cell7RefCellNtB8_11PeCandMasksEEEEE9call_onceBa_
+        PE_PLAYER_CTX            via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > NtNtB1b_4cell4CellIB1Q_NtB8_11PePlayerCtxEEEEEE9call_onceBa_
+        POS_EVAL_CACHE           via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _INtNtB1a_4cell7RefCellNtB8_12PosEvalCacheEEEEE9call_onceBa_
+        RESOLVE_FIGHT_CACHE      via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > NtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance > 0ozCnw_7game_ai11plan_legacy3old11fight_model13resolve_fight > w_7game_ai11plan_legacy3old11fight_model18resolve_fight_full > tB1y_4cell7RefCellNtB8_17ResolveFightCacheEEEEE9call_onceBe_
+        SIEGE_STANCE_CACHE       via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > NtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance > NtB1h_4cell7RefCellNtB8_16SiegeStanceCacheEEEEE9call_onceBa_
+        SLOT_READY_MEMO          via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached > ZKFYzm_5ahash12random_state11RandomStateEEEEEEE9call_onceBa_
+        TOWER_MINION_CNT_CACHE   via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > EBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > 1i_4cell7RefCellNtB8_19TowerMinionCntCacheEEEEE9call_onceBa_
+        anon.afb017e85830050c32e5158c55060899.1 via BA0ozCnw_7game_ai13position_eval26position_score_at_position > RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _INtNtB1a_4cell7RefCellNtB8_12PosEvalCacheEEEEE9call_onceBa_ > wNvNvB1R_14POS_EVAL_CACHE27___rust_std_internal_init_fnEB1T_
+ 7. L9905   nw_7game_ai12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill m08.ll:92086
+ 8. L9911   plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan21v25_objective_posture m09.ll:15168
+      TLS: CAMP_POS_MEMO
+        CAMP_POS_MEMO            via n20objective_disciplineNtB4_8TeamPlan21v25_objective_posture > 5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_pos > NtNtB1L_4cell7RefCellTjAAIB2q_TyyEEj2_j8_EEEEEE9call_onceBf_
+ 9. L10058  BA0ozCnw_7game_ai12small_action15SmallActionPlayE25reserve_internal_or_panicB17_ m02.ll:49585
+10. L10063  4core3ptr9drop_glueNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEBF_ m15.ll:3100
+11. L10090  tCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_25SmallActionAroundPosition3new m08.ll:103238
+12. L10209  9EYcZKFYzm_5ahash12random_state11RandomStateE11rustc_entryCshdEBA0ozCnw_7game_ai m07.ll:3902
+13. L10248  XJB_5alloc3vec3VecNtNtBV_6string6StringEEE14insert_no_growCshdEBA0ozCnw_7game_ai m11.ll:48328
+14. L10271  string6StringENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai m06.ll:54318
+15. L10277  string6StringENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai m03.ll:146814
+16. L10305  _RNvNvNtCs9LexZzt9XJB_5alloc3fmt6format12format_inner                            (no define)
+17. L10325  loc7raw_vecINtB5_6RawVecNtNtB7_6string6StringE8grow_oneCszutcqs0z2F_10sys_locale (no define)
+18. L10330  4core3ptr9drop_glueNtNtCs9LexZzt9XJB_5alloc6string6StringECshdEBA0ozCnw_7game_ai m15.ll:3081
+19. L10371  _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_pos       g07.ll:152570
+      TLS: CAMP_POS_MEMO
+        CAMP_POS_MEMO            via 5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_pos > NtNtB1L_4cell7RefCellTjAAIB2q_TyyEEj2_j8_EEEEEE9call_onceBf_
+20. L10554  JLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard17is_recent_visible g07.ll:157005
+21. L10809  tCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB2_18SmallActionRunAway3new m08.ll:92133
+22. L10870  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_action                         m15.ll:23700
+23. L10875  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check20attack_summon_action                  m15.ll:28194
+24. L10882  nPlayEINtNtNtNtCsjihNppCmMEE_4core4iter6traits7collect6ExtendBX_E6extendBN_EB11_ m15.ll:5803

@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m05.ll", "line": 42515, "text": "%1043 = call noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai10buff_value18v55_banish_penalty(i64 noundef %1042, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(56) %6, ptr noalia"}]

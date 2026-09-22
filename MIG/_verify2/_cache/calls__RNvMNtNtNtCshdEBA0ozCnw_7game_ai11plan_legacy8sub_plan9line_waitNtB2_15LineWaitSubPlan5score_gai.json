@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m12.ll", "line": 37243, "text": "%23 = tail call noundef i64 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9line_waitNtB2_15LineWaitSubPlan5score(ptr noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(1) %22, i"}]

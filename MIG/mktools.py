@@ -100,7 +100,7 @@ CAT = [
    'ghidra_syms.py', 'ghidra_inject.py', 'ghidra_cycle.ps1']),
  ('마이그레이션 — 패치가 왔을 때',
   '진입점은 `run.py`. 상세 = `MODS\\MIGRATION.md`.',
-  ['run.py', 'mig_verify.py', 'repin.py', 'sitealign.py', 'midpin.py', 'sitepin.py', 'fncheck.py',
+  ['run.py', 'mig_verify.py', 'repin.py', 'sitealign.py', 'fieldmap.py', 'constevid.py', 'midpin.py', 'sitepin.py', 'fncheck.py',
    'chain.py', 'offsets.py', 'env.py', 'posdiff.py', 'apply_manual.py',
    'bump_deps.py', 'aidiff.py']),
  ('재현·포팅 — judge 계층 만들 때',

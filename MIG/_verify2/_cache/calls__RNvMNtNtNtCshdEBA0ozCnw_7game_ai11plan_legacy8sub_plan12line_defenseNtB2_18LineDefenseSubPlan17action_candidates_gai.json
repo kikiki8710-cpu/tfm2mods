@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m12.ll", "line": 35184, "text": "invoke void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12line_defenseNtB2_18LineDefenseSubPlan17action_candidates(ptr noalias noundef nonnull sret([32 x i8]) align 8 captures(address) dereferenceable(32) %0,"}]

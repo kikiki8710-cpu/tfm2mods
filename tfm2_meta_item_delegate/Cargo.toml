@@ -1,11 +1,22 @@
 [package]
 name = "tfm2_meta_item_delegate"
-version = "0.2.6"
+version = "0.3.0"
 edition = "2021"
+
+# 0.6.0+: stable ABI (mod-api-stable). classic build script build_delegate.ps1 is retired.
+# build: cargo build --release
 
 [lib]
 name = "tfm2_meta_item_delegate"
 crate-type = ["cdylib"]
 
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+serde_json = "1"
+
+[workspace]
+
 [profile.release]
 codegen-units = 1
+opt-level = 1
+overflow-checks = false

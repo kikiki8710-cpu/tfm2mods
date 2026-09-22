@@ -7,8 +7,32 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::time::SystemTime;
 
-use game_core::{Database, ItemBuildOverride};
-use mod_api::*;
+// ★0.6.0 (2026-09-16): stable ABI 재작성. 클래식 원본 = src/lib_classic_058.rs.bak.
+//   game_core::ItemBuildOverride → 로컬 enum(JSON 문자열) · ServerModContext → StableServerCtx
+//   · team.champion_personal_tactics 직접 쓰기 → team_set_json("champion_personal_tactics.<champ>", [..]).
+use mod_api_stable::{declare_stable_mod, LogLevel, StableHost, StableMod, StableServerCtx, StableServerExtension};
+
+/// game_core::ItemBuildOverride 의 로컬 미러(serde 유닛 variant = 문자열). 순서·이름은 0.5.8 SDK 기준.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum ItemBuildOverride { AD, Magic, AttackSpeed, MagicResistance, Hp, Auto }
+impl ItemBuildOverride {
+    fn name(self) -> &'static str {
+        match self { Self::AD => "AD", Self::Magic => "Magic", Self::AttackSpeed => "AttackSpeed",
+                     Self::MagicResistance => "MagicResistance", Self::Hp => "Hp", Self::Auto => "Auto" }
+    }
+    fn from_name(v: &str) -> Option<Self> { direction_from_str(v) }
+}
+/// ★0.6.0: `champion_personal_tactics` 값은 **4칸**(4번째 아이템 칸 정식 편입 — 실측 `["Auto","Auto","Auto","Auto"]`).
+///   3칸으로 쓰면 서버 스키마가 거부한다(2026-09-16 실측 failed=84). 4번째는 "Auto"(게임 아이템 신경망 추천).
+const SLOTS: usize = 4;
+fn dirs_vec(d: &[ItemBuildOverride; 3]) -> Vec<&'static str> {
+    let mut v: Vec<&'static str> = d.iter().map(|x| x.name()).collect();
+    while v.len() < SLOTS { v.push(ItemBuildOverride::Auto.name()); }
+    v
+}
+fn dirs_json(d: &[ItemBuildOverride; 3]) -> String {
+    format!("[{}]", dirs_vec(d).iter().map(|n| format!("\"{}\"", n)).collect::<Vec<_>>().join(","))
+}
 use serde_json::Value;
 
 const MOD_ID: &str = "tfm2_meta_item_delegate";
@@ -50,12 +74,12 @@ static TICK_LOGGED: AtomicBool = AtomicBool::new(false);
 static NOTEAM_LOGGED: AtomicBool = AtomicBool::new(false);
 static LAST_SYNC_MS: AtomicU64 = AtomicU64::new(0);
 
-impl ModServerExtension for MetaItemDelegateServer {
-    fn on_server_start(&self, ctx: &mut ServerModContext<'_>) {
+impl StableServerExtension for MetaItemDelegateServer {
+    fn on_server_start(&self, ctx: &mut StableServerCtx<'_>) {
         let _ = catch_unwind(AssertUnwindSafe(|| sync_meta_items(ctx, "server_start", true)));
     }
 
-    fn after_management_tick(&self, ctx: &mut ServerModContext<'_>) {
+    fn after_management_tick(&self, ctx: &mut StableServerCtx<'_>) {
         let _ = catch_unwind(AssertUnwindSafe(|| sync_meta_items(ctx, "after_tick", false)));
     }
 }
@@ -69,57 +93,29 @@ impl ModServerExtension for MetaItemDelegateServer {
 //    `Team::is_player_team` (메서드·필드 — game_core 의 is_player_team 은 NegotiationContext 필드라 무관).
 //  → 정본은 상시 필드 `ServerState::players : HashMap<PlayerId, PlayerData>` 이고 `PlayerData::team_id` 가 답이다.
 //    클라측 `ClientDatabase::id`(=클라의 team_id)의 서버쪽 원천이 바로 이것.
-fn find_player_teams(ctx: &mut ServerModContext<'_>) -> Vec<usize> {
-    let multiplayer: Vec<usize> = ctx
-        .server_state
-        .active_multiplayer_player_team_ids
-        .iter()
-        .copied()
-        .collect();
-    if !multiplayer.is_empty() {
-        return multiplayer;
-    }
-    // ★ 상시 필드 `players`(사람 플레이어 → 팀 매핑)가 정본. 싱글도 로컬 서버가 도는 구조라
-    //   여기 엔트리 1개가 곧 내 팀이다. 위 멀티 필드들과는 무관한 별도 필드다.
-    //  ※원본 0.2.26(RVA 0x15EE0)은 팀을 순회하며 players 역조회로 **첫 매치 하나만** 적용한다.
-    //    여기서는 사람 플레이어가 붙은 팀을 전부 반환한다 — 싱글은 엔트리 1개라 동작이 같고,
-    //    멀티에서만 갈린다(원본=임의의 한 팀, 이쪽=사람 팀 전부). 멀티를 쓰게 되면 재검토할 것.
-    let mut ids: Vec<usize> = ctx
-        .server_state
-        .players
-        .values()
-        .map(|p| p.team_id as usize)
-        .collect();
+fn find_player_teams(ctx: &mut StableServerCtx<'_>) -> Vec<usize> {
+    // stable: `player_team_id(player_id)`. 싱글은 로컬 서버의 플레이어 1명 — id 는 호스트 내부값이라
+    //   0..PLAYER_ID_SCAN 을 훑어 Some 인 것을 모은다(⬜0.6.0 인게임: 어느 id 가 맞는지 diag 로그로 확정).
+    const PLAYER_ID_SCAN: usize = 32;
+    let mut ids: Vec<usize> = (0..PLAYER_ID_SCAN).filter_map(|pid| ctx.player_team_id(pid)).collect();
     ids.sort_unstable();
     ids.dedup();
     ids
 }
 
-// 어느 후보 집합이 실제로 채워지는지 알아내기 위한 1회성 진단.
-//  SDK 서버측에는 "플레이어 팀"을 직접 주는 API 가 없다(Database 에 player_team_id 필드·메서드 모두 부재,
-//  is_player_team 은 NegotiationContext 의 필드라 무관). 그래서 실측으로 고른다.
 static DIAG_LOGGED: AtomicBool = AtomicBool::new(false);
 
-fn log_team_diagnostics(ctx: &mut ServerModContext<'_>, source: &str) {
+fn log_team_diagnostics(ctx: &mut StableServerCtx<'_>, source: &str) {
     if DIAG_LOGGED.swap(true, Ordering::Relaxed) {
         return;
     }
-    let ss = &ctx.server_state;
-    log_line(&format!(
-        "diag[{source}]: teams={} active_mp={:?} joined_mp={:?} mp_players={} match_entered={}",
-        ctx.database.teams.len(),
-        ss.active_multiplayer_player_team_ids,
-        ss.multiplayer_joined_team_ids,
-        ss.multiplayer_players.as_ref().map_or(-1i64, |v| v.len() as i64),
-        ss.match_entered_players.len(),
-    ));
-    let players: Vec<(String, usize)> = ctx
-        .server_state
-        .players
-        .iter()
-        .map(|(pid, p)| (format!("{pid:?}"), p.team_id as usize))
-        .collect();
-    log_line(&format!("diag[{source}]: server_state.players={players:?}"));
+    let hits: Vec<(usize, usize)> = (0..32usize).filter_map(|pid| ctx.player_team_id(pid).map(|t| (pid, t))).collect();
+    let n_teams = ctx.record_ids(mod_api_stable::RecordKindV1::Team).len();
+    log_line(&format!("diag[{source}]: teams={n_teams} player_team_id hits(pid,team)={hits:?}"));
+    if let Some((_, t)) = hits.first() {
+        let cur = ctx.team_get_json(*t, "champion_personal_tactics").unwrap_or_default();
+        log_line(&format!("diag[{source}]: team {t} name={:?} champion_personal_tactics={}", ctx.team_get_string(*t, "name"), &cur[..cur.len().min(400)]));
+    }
 }
 
 fn now_unix_ms() -> u64 {
@@ -129,7 +125,7 @@ fn now_unix_ms() -> u64 {
         .unwrap_or(0)
 }
 
-fn sync_meta_items(ctx: &mut ServerModContext<'_>, source: &str, force: bool) {
+fn sync_meta_items(ctx: &mut StableServerCtx<'_>, source: &str, force: bool) {
     if !TICK_LOGGED.swap(true, Ordering::Relaxed) {
         log_line(&format!("server: management tick active source={source}"));
     }
@@ -168,25 +164,35 @@ fn sync_meta_items(ctx: &mut ServerModContext<'_>, source: &str, force: bool) {
     };
 
     for team_id in player_teams {
-        let Some(team) = ctx.database.teams.get_mut(team_id) else {
-            continue;
-        };
-        let before_len = team.champion_personal_tactics.len();
+        // 현재 맵(JSON 객체 champ -> [3 문자열]) 읽기 — 값이 같으면 건드리지 않는다(세이브 dirty 방지).
+        let cur_json = ctx.team_get_json(team_id, "champion_personal_tactics").unwrap_or_else(|| "{}".into());
+        let mut cur: Value = serde_json::from_str(&cur_json).unwrap_or(Value::Object(Default::default()));
+        if !cur.is_object() { cur = Value::Object(Default::default()); }
+        let before_len = cur.as_object().map(|o| o.len()).unwrap_or(0);
         let mut changed = 0usize;
+        let mut failed = 0usize;
+        // ★0.6.0 실측(2026-09-16): `champion_personal_tactics.<champ>` 경로로 **새 키**를 넣는 쓰기는
+        //   호스트가 거부한다(failed=84 · 기존 키 10개만 통과). ⟹ 맵 전체를 병합해 한 번에 쓴다.
         for (champion, directions) in builds.rows.iter() {
-            // 값이 같으면 건드리지 않는다(원본과 동일: 불필요한 세이브 dirty 방지).
-            if team.champion_personal_tactics.get(champion) == Some(directions) {
-                continue;
-            }
-            team.champion_personal_tactics.insert(champion.clone(), *directions);
+            let want: Vec<Value> = dirs_vec(directions).into_iter().map(|n| Value::String(n.to_string())).collect();
+            let same = cur.get(champion).and_then(|v| v.as_array()).map(|a| *a == want).unwrap_or(false);
+            if same { continue; }
+            if let Some(o) = cur.as_object_mut() { o.insert(champion.clone(), Value::Array(want)); }
             changed += 1;
         }
         if changed > 0 {
-            let after_len = team.champion_personal_tactics.len();
-            // 팀 이름을 함께 남긴다 — id 만으로는 "정말 내 팀인가"를 사람이 검증할 수 없다.
-            log_line(&format!("apply: target team name={:?}", team.name));
+            let body = cur.to_string();
+            if !ctx.team_set_json(team_id, "champion_personal_tactics", &body) {
+                failed = changed; changed = 0;
+                log_error_once(format!("apply: team_set_json(맵 전체) 거부 team={team_id} bytes={}", body.len()));
+            }
+        }
+        if changed > 0 || failed > 0 {
+            let after = ctx.team_get_json(team_id, "champion_personal_tactics").unwrap_or_default();
+            let after_len = serde_json::from_str::<Value>(&after).ok().and_then(|v| v.as_object().map(|o| o.len())).unwrap_or(0);
+            log_line(&format!("apply: target team name={:?}", ctx.team_get_string(team_id, "name")));
             log_line(&format!(
-                "apply: team {team_id} personal item defaults changed={changed}, map_size={before_len}->{after_len}"
+                "apply: team {team_id} personal item defaults changed={changed} failed={failed}, map_size={before_len}->{after_len}"
             ));
             log_line(&format!(
                 "server: auto synced meta item defaults source={source}, team={team_id}, changed={changed}"
@@ -194,9 +200,6 @@ fn sync_meta_items(ctx: &mut ServerModContext<'_>, source: &str, force: bool) {
         }
     }
 }
-
-
-
 
 fn load_builds() -> Option<MetaBuilds> {
     let Some(path) = find_data_file() else {
@@ -630,15 +633,16 @@ fn remember_apply_signature(signature: String) -> bool {
     }
 }
 
-fn init(_ctx: &GameCtx) -> ModRegistration {
-    log_line("mod: init 0.2.26 server item delegate");
-
-    let mut reg = ModRegistration::new(MOD_ID);
-    reg.set_server_extension(MetaItemDelegateServer);
-    reg
+fn init(host: &StableHost) -> StableMod {
+    let v = host.game_version();
+    log_line(format!("mod: init 0.3.0 server item delegate (stable, game {}.{}.{} host_abi={})", v.major, v.minor, v.patch, host.abi_level()));
+    host.log(LogLevel::Info, "tfm2_meta_item_delegate (stable 0.6.0)");
+    let mut decl = StableMod::new(MOD_ID);
+    decl.set_server_extension(MetaItemDelegateServer);
+    decl
 }
 
-declare_mod!(init);
+declare_stable_mod!(init);
 
 #[cfg(test)]
 mod tests {

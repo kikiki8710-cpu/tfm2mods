@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m14.ll", "line": 56755, "text": "%7 = tail call { i64, i64 } @_RNvMs1_CshdEBA0ozCnw_7game_aiNtB5_15AgentVerHamster8buy_item(ptr noalias noundef nonnull align 16 dereferenceable(10704) %0, ptr noalias noundef nonnull align 16 dereferenceable(320) %1, ptr"}]

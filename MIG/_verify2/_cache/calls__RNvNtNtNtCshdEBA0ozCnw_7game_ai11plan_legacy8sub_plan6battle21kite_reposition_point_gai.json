@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m02.ll", "line": 29950, "text": "%916 = invoke fastcc { i64, i64 } @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle21kite_reposition_point(i64 noundef %255, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) de"}]

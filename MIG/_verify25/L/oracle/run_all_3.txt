@@ -1,0 +1,293 @@
+s_base_mc0             MATCH     rc=0
+    game	n=1	move_check=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    mine	n=1	move_check=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 161, 168, 169, 178, 179, 180]
+s_base_mc1             MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 161, 168, 169, 178, 179, 180]
+s_rhino_own_eq         MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 1
+s_rhino_own_gt         MATCH     rc=0
+    game	n=1	move_check=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 1
+s_rhino_enemy          MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_enemy_far            MATCH     rc=0
+    game	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+    elem[1]	RunAway	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_serpen_eq            MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_serpen_gt            MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_serpen_gt_blue       MATCH     rc=0
+    game	n=1	move_check=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    mine	n=1	move_check=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_serpen_on            MATCH     rc=0
+    game	n=1	move_check=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 1
+s_diag_plus1           MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_t1_base              MATCH     rc=0
+    game	n=1	move_check=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	move_check=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_t1_enemy             MATCH     rc=0
+    game	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=928000,32000 end=5 with_skill=1 with_ult=0)]
+    mine	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=928000,32000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+    elem[1]	RunAway	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_near_enemy_champ     MATCH     rc=0
+    game	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+    elem[1]	RunAway	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_dbg                  MATCH     rc=0
+    game	n=1	move_check=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    mine	n=1	move_check=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 161, 168, 169, 178, 179, 180]
+j_own_rhino            MATCH     rc=0
+    game	n=1	check_move=0 team=0 camp=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    mine	n=1	check_move=0 team=0 camp=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_enemy_rhino_base     MATCH     rc=0
+    game	n=1	check_move=0 team=1 camp=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    mine	n=1	check_move=0 team=1 camp=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_enemy_mush_base      MATCH     rc=0
+    game	n=1	check_move=0 team=1 camp=1	[AroundPosition(goal=288000,288000 tgt=288000,288000 out=1 pur=6)]
+    mine	n=1	check_move=0 team=1 camp=1	[AroundPosition(goal=288000,288000 tgt=288000,288000 out=1 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_enemy_stump_base     MATCH     rc=0
+    game	n=1	check_move=0 team=1 camp=2	[AroundPosition(goal=288000,288000 tgt=288000,288000 out=1 pur=6)]
+    mine	n=1	check_move=0 team=1 camp=2	[AroundPosition(goal=288000,288000 tgt=288000,288000 out=1 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_enemy_bee_base       MATCH     rc=0
+    game	n=1	check_move=0 team=1 camp=3	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    mine	n=1	check_move=0 team=1 camp=3	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 160, 161, 162, 163, 164, 168, 169, 178, 179, 180]
+j_morg_eq              MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=592000,176000 tgt=592000,176000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=592000,176000 tgt=592000,176000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_morg_gt              MATCH     rc=0
+    game	n=2	check_move=0 team=1 camp=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=288000,288000 tgt=288000,288000 out=1 pur=6)]
+    mine	n=2	check_move=0 team=1 camp=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=288000,288000 tgt=288000,288000 out=1 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_serp_eq              MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_serp_gt              MATCH     rc=0
+    game	n=2	check_move=0 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    mine	n=2	check_move=0 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_enemy_side           MATCH     rc=0
+    game	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_cm1                  MATCH     rc=0
+    game	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_at_camp              MATCH     rc=0
+    game	n=4	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=4	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[2]	Skill	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 
+    elem[3]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 108, 109, 112, 113, 114, 115, 116, 117, 120, 128, 129, 130, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 178, 179, 180]
+j_at_camp_lvl3         MATCH     rc=0
+    game	n=4	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=4	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[2]	Skill	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 
+    elem[3]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 108, 109, 112, 113, 114, 115, 116, 117, 120, 128, 129, 130, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 178, 179, 180]
+j_at_camp_eff          MATCH     rc=0
+    game	n=5	check_move=1 team=1 camp=3	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=37 is_act=0) | Attack(target=38 is_act=0) | Attack(target=39 is_act=0) | AroundPosition(goal=800000,351000 tgt=800000,35
+    mine	n=5	check_move=1 team=1 camp=3	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=37 is_act=0) | Attack(target=38 is_act=0) | Attack(target=39 is_act=0) | AroundPosition(goal=800000,351000 tgt=800000,35
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[2]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[3]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[4]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 108, 109, 112, 113, 114, 115, 116, 117, 120, 121, 128, 129, 130, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 178, 179, 180]
+j_range_eq             MATCH     rc=0
+    game	n=4	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=4	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[2]	Skill	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 
+    elem[3]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 108, 109, 112, 113, 114, 115, 116, 117, 120, 121, 128, 129, 130, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 178, 179, 180]
+j_own_at_camp          MATCH     rc=0
+    game	n=4	check_move=0 team=0 camp=3	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=32 is_act=0) | Skill(target=32 is_act=0) | AroundPosition(goal=351000,800000 tgt=351000,800000 out=0 pur=6)]
+    mine	n=4	check_move=0 team=0 camp=3	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=32 is_act=0) | Skill(target=32 is_act=0) | AroundPosition(goal=351000,800000 tgt=351000,800000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[2]	Skill	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 
+    elem[3]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 108, 109, 112, 113, 114, 115, 116, 117, 120, 121, 128, 129, 130, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 178, 179, 180]
+j_t1_enemy_mush        MATCH     rc=0
+    game	n=1	check_move=0 team=0 camp=1	[AroundPosition(goal=288000,288000 tgt=288000,288000 out=1 pur=6)]
+    mine	n=1	check_move=0 team=0 camp=1	[AroundPosition(goal=288000,288000 tgt=288000,288000 out=1 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_tick0_nomobs         MATCH     rc=0
+    game	n=1	check_move=0 team=1 camp=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    mine	n=1	check_move=0 team=1 camp=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 160, 161, 162, 163, 164, 168, 169, 178, 179, 180]
+s_rv_eq                MATCH     rc=0
+    game	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+    elem[1]	RunAway	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_rv_gt                MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_vis_battle           MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+j_range_gt             MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_camp150k_eq          MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_camp150k_gt          MATCH     rc=0
+    game	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_jungles_eq           MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_jungles_gt           MATCH     rc=0
+    game	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_vis                  MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 97, 98, 99, 100, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123, 124, 13
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+s_posture_try          MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 120, 121, 128, 129, 130, 131, 132, 133, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_nt_skill_pos         MATCH     rc=0
+    game	n=1	move_check=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=1	move_check=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 109, 112, 113, 114, 
+s_nt_skill_dir         MATCH     rc=0
+    game	n=1	move_check=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=1	move_check=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 57, 58, 59, 60, 61, 62, 63, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 109, 112, 113, 114, 115,
+s_nt_skill_tgt         MATCH     rc=0
+    game	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+    elem[1]	RunAway	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_nt_skill_far         MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_nt_skill2_lvl1       PANIC     rc=101
+    thread 'main' (22804) panicked at game-ai\src\plan_legacy\sub_plan\serpen_check.rs:39:68:
+s_nt_skill2_lvl3       MATCH     rc=0
+    game	n=1	move_check=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=1	move_check=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 109, 112, 113, 114, 
+s_nt_ult_lvl4          PANIC     rc=101
+    thread 'main' (18788) panicked at game-ai\src\plan_legacy\sub_plan\serpen_check.rs:41:62:
+s_nt_ult_lvl5          MATCH     rc=0
+    game	n=1	move_check=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=1	move_check=1	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 109, 112, 113, 114, 
+j_nt_skill_pos         MATCH     rc=0
+    game	n=1	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=1	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+j_nt_skill_tgt         MATCH     rc=0
+    game	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+s_nt_react_lo          MATCH     rc=0
+    game	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+    elem[1]	RunAway	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+j_nt_skill2_lvl1       PANIC     rc=101
+    thread 'main' (13720) panicked at game-ai\src\plan_legacy\sub_plan\jungle.rs:118:68:
+j_nt_ult_lvl4          PANIC     rc=101
+    thread 'main' (20060) panicked at game-ai\src\plan_legacy\sub_plan\jungle.rs:120:62:
+j_skill2_lvl3          MATCH     rc=0
+    game	n=5	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | Skill2(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496
+    mine	n=5	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | Skill2(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[2]	Skill	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 
+    elem[3]	Skill2	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[4]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 108, 109, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123, 124, 125, 129, 130, 131, 132, 133, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 1
+j_skill2_lvl2          MATCH     rc=0
+    game	n=4	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=4	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | Attack(target=34 is_act=0) | Skill(target=34 is_act=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	Attack	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83,
+    elem[2]	Skill	live_ok=true	bad_live=[]	dead_diff=[24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 
+    elem[3]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 108, 109, 112, 113, 114, 115, 116, 117, 120, 121, 128, 129, 130, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 178, 179, 180]
+j_t1_enemy_rhino       MATCH     rc=0
+    game	n=1	check_move=0 team=0 camp=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    mine	n=1	check_move=0 team=0 camp=0	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_t1_enemy_side        MATCH     rc=0
+    game	n=1	check_move=1 team=0 camp=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    mine	n=1	check_move=1 team=0 camp=0	[AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 168, 169, 1
+j_t1_serp_eq           MATCH     rc=0
+    game	n=2	check_move=1 team=0 camp=0	[RunAway(goal=928000,32000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=0 camp=0	[RunAway(goal=928000,32000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=496000,752000 tgt=496000,752000 out=0 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 1
+j_t1_serp_gt           MATCH     rc=0
+    game	n=2	check_move=0 team=0 camp=0	[RunAway(goal=928000,32000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    mine	n=2	check_move=0 team=0 camp=0	[RunAway(goal=928000,32000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=672000,672000 tgt=672000,672000 out=1 pur=6)]
+    elem[0]	RunAway	live_ok=true	bad_live=[]	dead_diff=[56, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 96, 97, 98, 99, 100, 104, 105, 106, 107, 108, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123
+    elem[1]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 107, 108, 112, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144, 145, 146, 147, 148, 149, 150, 151, 160, 161, 162, 1
+s_t1_rhino_eq          MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 1
+s_t1_rhino_gt          MATCH     rc=0
+    game	n=1	move_check=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	move_check=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 122, 123, 124, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+s_others_near          MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    elem[0]	AroundPosition	live_ok=true	bad_live=[]	dead_diff=[104, 105, 106, 109, 112, 120, 121, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 152, 153, 154, 155, 156, 160, 161, 162, 168, 169, 178, 179, 180]
+
+SUMMARY 61 / 65 MATCH

@@ -1,0 +1,32 @@
+s_rv_eq                MATCH     rc=0
+    game	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+    mine	n=2	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6) | RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0)]
+s_rv_gt                MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+s_vis_battle           MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+j_range_gt             MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+j_camp150k_eq          MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+j_camp150k_gt          MATCH     rc=0
+    game	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+j_jungles_eq           MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+j_jungles_gt           MATCH     rc=0
+    game	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=1	check_move=1 team=1 camp=0	[AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+j_vis                  MATCH     rc=0
+    game	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+    mine	n=2	check_move=1 team=1 camp=0	[RunAway(goal=32000,928000 end=5 with_skill=1 with_ult=0) | AroundPosition(goal=752000,496000 tgt=752000,496000 out=0 pur=6)]
+s_posture_try          MATCH     rc=0
+    game	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+    mine	n=1	move_check=1	[AroundPosition(goal=672000,672000 tgt=672000,672000 out=0 pur=6)]
+
+SUMMARY 10 / 10 MATCH

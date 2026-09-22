@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m14.ll", "line": 29309, "text": "%353 = invoke noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline34v47_tower_focus_position_dangerous(i64 noundef %1, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) derefer"}]

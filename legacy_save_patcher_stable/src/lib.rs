@@ -303,6 +303,12 @@ fn process_save(path: &std::path::Path, targets: &[(String, String)]) -> std::io
     out.extend_from_slice(&save[..off]);
     out.extend_from_slice(&gz);
     out[0x0d..0x15].copy_from_slice(&(gz.len() as u64).to_le_bytes());
+    // ★0.6.0 (2026-09-16): 헤더 +0x15 u32 = 페이로드(gz) CRC32. 0.6.0 로더가 이 값을 검증한다
+    //   ("save file is corrupted: checksum mismatch … not written completely"). 0.5.x 는 검증 안 해서
+    //   원본 패처가 갱신 안 해도 됐지만 0.6.0 에선 패치한 세이브 전부가 로드 거부됐다(실사고 09-16
+    //   save_20260904_200217.data · 복구 = _backups\*.scbak_N). 검증 알고리즘 실측 = crc32(gz 페이로드 전체).
+    let crc = crc32fast::hash(&gz);
+    out[0x15..0x19].copy_from_slice(&crc.to_le_bytes());
 
     backup(path)?;
     let tmp = path.with_extension("data.sctmp");

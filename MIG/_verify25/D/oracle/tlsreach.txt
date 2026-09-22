@@ -1,0 +1,182 @@
+# 직접 콜 사이트(IR 줄 순) · 루트 소스줄 · 콜리 · 전이 도달 TLS
+ 13087 L205  gc:10simulation6effectNtB2_6Effect22expected_damage_target                                           -
+ 13163 L227  ai:11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan31v27_objective_discipline_action      -
+ 13183 L223  _RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB5_17SmallActionRecall3new           -
+ 13203 L232  _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache25iter_towers_without_nexus -
+ 13382 L234  _RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_ -
+ 13440 L234  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_5chain5ChainINtNtB8_7flatten -
+ 13470 L237  ai:11fight_check13battle_action                                                                      -
+ 13488 L237  ai:11fight_check20attack_summon_action                                                               -
+ 13501 L237  ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan20attack_jungle_action                      -
+ 13520 L238  _RNvMsb_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_11PlayerState8strategy           -
+ 13674 L424  ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8sub_plan9epic_huntNtB22_15EpicHuntSubPlan17action_ AttackDamageCache, DieTickCache, EpcCache, InterActionCtx, PeCandMasks, PePlayerCtx, PosEvalCache, RandomState, ResolveFightCache, SiegeStanceCache, TowerMinionCntCache, _EEE
+ 13812 L429  ai:5utils26nontarget_windup_perceived                                                                -
+ 13824 L429  gc:10simulation6effectNtB2_6Effect11is_in_range                                                      -
+ 13949 L429  ai:13position_eval26position_score_at_position                                                       AttackDamageCache, EpcCache, PeCandMasks, PePlayerCtx, PosEvalCache, RandomState, ResolveFightCache, SiegeStanceCache, TowerMinionCntCache
+ 13967 L429  ai:12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill                             -
+ 13972 L429  ai:11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan21v25_objective_posture                _EEE
+ 14024 L429  ai:12small_action5traceNtB2_16SmallActionTrace16new_attack_range                                     -
+ 14086 L429  _RNvMs2_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_25SmallActionAroundPosition3new          -
+ 14092 L429  ai:12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill                             -
+ 14212 L429  ai:                                                                                                  -
+ 14251 L429  _RNvMs6_NtCs5gUUnHMsxBL_9hashbrown3rawINtB5_8RawTableTjINtNtCs9LexZzt9XJB_5alloc3vec3VecNtNtBV_6string6StringEEE14insert -
+ 14274 L429  _RNvXso_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecNtNtB7_6string6StringENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0oz -
+ 14280 L429  _RNvXs1_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtB7_6string6StringENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCsh -
+ 14288 L429  _RNvXs1_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtB7_6string6StringENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCsh -
+ 14308 L429  _RNvNvNtCs9LexZzt9XJB_5alloc3fmt6format12format_inner                                                -
+ 14328 L429  _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtB7_6string6StringE8grow_oneCszutcqs0z2F_10sys_locale -
+ 14402 L429  _RNvMsb_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_11PlayerState8strategy           -
+ 14439 L429  gc:10simulation6effectNtB2_6Effect12range_adjust                                                     -
+ 14538 L429  gc:10simulation7map_defNtB2_6MapDef8camp_pos                                                         _EEE
+ 14544 L429  ai:11plan_legacy9team_plan17objective_helpers38v23_should_break_objective_hunt_anchor                -
+ 14567 L429  ai:12small_action5traceNtB2_16SmallActionTrace16new_attack_range                                     -
+ 14593 L429  _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter20positioning_accuracy -
+ 14616 L429  ai:11plan_legacy8sub_plan9epic_huntNtB5m_15EpicHuntSubPlan15get_move_actions1_0EEB5s_                -
+ 14622 L429  _RNvXs7_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEN -
+ 14637 L429  ai:11fight_check19check_kill_die_tick                                                                AttackDamageCache, DieTickCache
+ 14705 L429  ai:11plan_legacy3old11fight_model23can_enemy_hit_objective                                           -
+ 14712 L429  ai:5utils18range_misjudge_rng                                                                        -
+ 14723 L429  ai:11plan_legacy3old6battle17max_range_can_use                                                       -
+ 14727 L429  ai:5utils19range_misjudge_roll                                                                       -
+ 14734 L429  ai:11plan_legacy3old6battle17max_range_can_use                                                       -
+ 14738 L429  ai:5utils19range_misjudge_roll                                                                       -
+ 14745 L429  ai:11plan_legacy3old6battle24max_range_nearly_can_use                                                -
+ 14749 L429  ai:5utils19range_misjudge_roll                                                                       -
+ 14785 L429  ai:11plan_legacy3old6battle24max_range_nearly_can_use                                                -
+ 14789 L429  _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity18remain_action_time              -
+ 14793 L429  ai:5utils19range_misjudge_roll                                                                       -
+ 14816 L429  ai:12small_action5traceNtB2_16SmallActionTrace3new                                                   -
+ 14903 L429  ai:12small_action5traceNtB2_16SmallActionTrace3new                                                   -
+ 14960 L429  ai:12small_action5traceNtB2_16SmallActionTrace3new                                                   -
+ 15076 L429  gc:10simulation6effectNtB2_6Effect12range_adjust                                                     -
+ 15181 L429  gc:10simulation7map_defNtB2_6MapDef8camp_pos                                                         _EEE
+ 15187 L429  ai:11plan_legacy9team_plan17objective_helpers38v23_should_break_objective_hunt_anchor                -
+ 15207 L429  ai:12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill                             -
+ 15237 L429  ai:12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill                             -
+ 15322 L429  gc:10simulation6effectNtB2_6Effect12range_adjust                                                     -
+ 15435 L429  _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity8distance                         -
+ 15456 L429  ai:                                                                                                  -
+ 15474 L429  ai:12small_action5traceNtB2_16SmallActionTrace23new_attack_range_margin                              -
+ 15547 L429  _RNvXsu_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEN -
+ 15553 L429  _RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6E -
+ 15561 L429  _RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6E -
+ 15752 L437  ai:12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill                             -
+ 15993 L446  gc:10simulation6effectNtB2_6Effect12range_adjust                                                     -
+ 16138 L446  ai:11plan_legacy8sub_plan9epic_huntNtB5m_15EpicHuntSubPlan34v27_objective_safe_attack_position0EEB5s_ -
+ 16152 L446  _RNvXsu_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEN -
+ 16158 L446  _RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6E -
+ 16166 L446  _RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6E -
+ 16241 L446  gc:5utils8distance                                                                                   -
+ 16246 L446  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core1 -
+ 16295 L446  ai:11plan_legacy3old6battle24max_range_nearly_can_use                                                -
+ 16368 L446  ai:11plan_legacy8sub_plan9epic_huntNtB5m_15EpicHuntSubPlan34v27_objective_safe_attack_positions1_0EEB5s_ -
+ 16446 L446  _RNvXsu_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEN -
+ 16452 L446  _RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6E -
+ 16460 L446  _RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6E -
+ 16509 L446  ai:13position_eval26position_score_at_position                                                       AttackDamageCache, EpcCache, PeCandMasks, PePlayerCtx, PosEvalCache, RandomState, ResolveFightCache, SiegeStanceCache, TowerMinionCntCache
+ 16517 L446  _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter21positioning_effective -
+ 16586 L446  gc:5utils8distance                                                                                   -
+ 16712 L446  _RNvMs2_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_25SmallActionAroundPosition15new_with_radius -
+ 16828 L446  gc:5utils8distance                                                                                   -
+ 16833 L446  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core1 -
+ 16849 L446  ai:13position_eval22position_score_at_cell                                                           AttackDamageCache, EpcCache, PeCandMasks, PePlayerCtx, PosEvalCache, RandomState, ResolveFightCache, SiegeStanceCache, TowerMinionCntCache
+ 16856 L446  _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter21positioning_effective -
+ 16906 L446  gc:5utils8distance                                                                                   -
+ 16942 L446  gc:5utils8distance                                                                                   -
+ 17091 L448  ai:                                                                                                  -
+ 17130 L448  _RNvMs18_NtNtNtCs9ec1k27omRZ_3std11collections4hash3mapINtB6_5EntryjINtNtCs9LexZzt9XJB_5alloc3vec3VecNtNtB18_6string6Str -
+ 17158 L448  _RNvMs4_NtCs9LexZzt9XJB_5alloc7raw_vecNtB5_11RawVecInner15try_allocate_inCshdEBA0ozCnw_7game_ai      -
+ 17173 L448  _RNvNtCs9LexZzt9XJB_5alloc7raw_vec12handle_error                                                     -
+ 17203 L448  _RNvMsF_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecNtNtB7_6string6StringE8push_mutCshdEBA0ozCnw_7game_ai    -
+ 17245 L457  _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter20positioning_accuracy -
+ 17352 L463  ai:5utils18range_misjudge_rng                                                                        -
+ 17360 L463  ai:11plan_legacy3old6battle17max_range_can_use                                                       -
+ 17364 L463  ai:5utils19range_misjudge_roll                                                                       -
+ 17372 L463  ai:11plan_legacy3old6battle17max_range_can_use                                                       -
+ 17379 L463  _RNvMs0_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard17is_recent_visible -
+ 17429 L463  _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity11block_input                     -
+ 17555 L476  ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score                                               AttackDamageCache, DieTickCache, EpcCache, InterActionCtx, PeCandMasks, PePlayerCtx, PosEvalCache, RandomState, ResolveFightCache, SiegeStanceCache, TowerMinionCntCache, _EEE
+ 17561 L476  _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterNtNtCshdEBA0ozCnw_7game_ai12smal AttackDamageCache, DieTickCache, EpcCache, InterActionCtx, PeCandMasks, PePlayerCtx, PosEvalCache, RandomState, ResolveFightCache, SiegeStanceCache, TowerMinionCntCache, _EEE
+ 17567 L473  ai:12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill                             -
+ 17604 L480  _RNvXs2_NtCs97f5S1uJLkH_9game_core10simulationNtB5_14ProjectileIterNtNtNtNtCsjihNppCmMEE_4core4iter6traits8iterator8Iter -
+ 17872 L486  _RNvXs_NtCshdEBA0ozCnw_7game_ai12small_actionNtB4_15SmallActionPlayNtNtCsjihNppCmMEE_4core5clone5Clone5clone -
+ 17878 L507  _RNvXs_NtCshdEBA0ozCnw_7game_ai12small_actionNtB4_15SmallActionPlayNtNtCsjihNppCmMEE_4core5clone5Clone5clone -
+ 17883 L486  ai:12small_actionNtB2_15SmallActionPlay9get_input                                                    AttackDamageCache, Cell, EpcCache, FREE_DIST_CACHE, FieldScratch, PathScratch, PeCandMasks, PePlayerCtx, PosEvalCache, RandomState, ResolveFightCache, SiegeStanceCache, TowerMinionCntCache, _mEEE
+ 17911 L494  ai:13position_eval26position_score_at_position                                                       AttackDamageCache, EpcCache, PeCandMasks, PePlayerCtx, PosEvalCache, RandomState, ResolveFightCache, SiegeStanceCache, TowerMinionCntCache
+ 17917 L504  _RNvXs_NtCshdEBA0ozCnw_7game_ai12small_actionNtB4_15SmallActionPlayNtNtCsjihNppCmMEE_4core5clone5Clone5clone -
+ 17942 L501  _RNvXs_NtCshdEBA0ozCnw_7game_ai12small_actionNtB4_15SmallActionPlayNtNtCsjihNppCmMEE_4core5clone5Clone5clone -
+ 17948 L499  ai:12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill                             -
+
+# TLS 별 최단 경로 예시 (직접 콜리 기준)
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> _EEE : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > gc:10simulation7map_defNtB2_6MapDef8camp_pos
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> InterActionCtx : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> DieTickCache : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:11fight_check19check_kill_die_tick
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> PosEvalCache : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> RandomState : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:5utils17champion_hp_value
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> AttackDamageCache : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:12action_score34calculate_interaction_action_score > ai:16minion_wave_risk32enemy_minion_wave_risk_damage_at
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> PePlayerCtx : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> PeCandMasks : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> TowerMinionCntCache : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> EpcCache : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> SiegeStanceCache : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance
+L424 ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11pl -> ResolveFightCache : ai:12small_action15SmallActionPlayE6retainNCNvMNtNtNtBY_11plan_legacy8 > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance > ai:11plan_legacy3old11fight_model13resolve_fight > ai:11plan_legacy3old11fight_model18resolve_fight_full
+L429 ai:13position_eval26position_score_at_position -> PosEvalCache : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at
+L429 ai:13position_eval26position_score_at_position -> PePlayerCtx : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L429 ai:13position_eval26position_score_at_position -> PeCandMasks : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L429 ai:13position_eval26position_score_at_position -> AttackDamageCache : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L429 ai:13position_eval26position_score_at_position -> TowerMinionCntCache : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L429 ai:13position_eval26position_score_at_position -> EpcCache : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L429 ai:13position_eval26position_score_at_position -> RandomState : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:11fight_check17slot_ready_cached
+L429 ai:13position_eval26position_score_at_position -> SiegeStanceCache : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance
+L429 ai:13position_eval26position_score_at_position -> ResolveFightCache : ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance > ai:11plan_legacy3old11fight_model13resolve_fight > ai:11plan_legacy3old11fight_model18resolve_fight_full
+L429 ai:11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPl -> _EEE : ai:11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan21v25_ob > gc:10simulation7map_defNtB2_6MapDef8camp_pos
+L429 gc:10simulation7map_defNtB2_6MapDef8camp_pos -> _EEE : gc:10simulation7map_defNtB2_6MapDef8camp_pos
+L429 ai:11fight_check19check_kill_die_tick -> DieTickCache : ai:11fight_check19check_kill_die_tick
+L429 ai:11fight_check19check_kill_die_tick -> AttackDamageCache : ai:11fight_check19check_kill_die_tick > ai:11fight_check28check_kill_die_tick_uncached > ai:16minion_wave_risk29enemy_minion_wave_risk_dps_at
+L446 ai:13position_eval22position_score_at_cell -> PosEvalCache : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at
+L446 ai:13position_eval22position_score_at_cell -> PePlayerCtx : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L446 ai:13position_eval22position_score_at_cell -> PeCandMasks : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L446 ai:13position_eval22position_score_at_cell -> AttackDamageCache : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L446 ai:13position_eval22position_score_at_cell -> TowerMinionCntCache : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L446 ai:13position_eval22position_score_at_cell -> EpcCache : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L446 ai:13position_eval22position_score_at_cell -> RandomState : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:11fight_check17slot_ready_cached
+L446 ai:13position_eval22position_score_at_cell -> SiegeStanceCache : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance
+L446 ai:13position_eval22position_score_at_cell -> ResolveFightCache : ai:13position_eval22position_score_at_cell > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance > ai:11plan_legacy3old11fight_model13resolve_fight > ai:11plan_legacy3old11fight_model18resolve_fight_full
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> _EEE : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > gc:10simulation7map_defNtB2_6MapDef8camp_pos
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> InterActionCtx : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> DieTickCache : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:11fight_check19check_kill_die_tick
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> PosEvalCache : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> RandomState : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:5utils17champion_hp_value
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> AttackDamageCache : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:12action_score34calculate_interaction_action_score > ai:16minion_wave_risk32enemy_minion_wave_risk_damage_at
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> PePlayerCtx : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> PeCandMasks : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> TowerMinionCntCache : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> EpcCache : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> SiegeStanceCache : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance
+L476 ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score -> ResolveFightCache : ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance > ai:11plan_legacy3old11fight_model13resolve_fight > ai:11plan_legacy3old11fight_model18resolve_fight_full
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> _EEE : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > gc:10simulation7map_defNtB2_6MapDef8camp_pos
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> InterActionCtx : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> DieTickCache : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:11fight_check19check_kill_die_tick
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> PosEvalCache : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> RandomState : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:5utils17champion_hp_value
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> AttackDamageCache : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:12action_score34calculate_interaction_action_score > ai:16minion_wave_risk32enemy_minion_wave_risk_damage_at
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> PePlayerCtx : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> PeCandMasks : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> TowerMinionCntCache : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> EpcCache : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> SiegeStanceCache : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance
+L476 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3M -> ResolveFightCache : _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtB > ai:11plan_legacy8sub_plan9epic_huntNtB2_15EpicHuntSubPlan5score > ai:11plan_legacy8sub_plan9epic_hunt17epic_action_score > ai:12action_score17interaction_score > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached > ai:16tower_discipline16v47_siege_stance > ai:11plan_legacy3old11fight_model13resolve_fight > ai:11plan_legacy3old11fight_model18resolve_fight_full
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> PathScratch : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get > ai:11path_finderNtB3_10PathFinder10new_targetNCNvMNtNtB5_12small_actio
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> _mEEE : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get > ai:11path_finderNtB3_10PathFinder11update_pathNCNvMNtNtB5_12small_acti
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> FREE_DIST_CACHE : ai:12small_actionNtB2_15SmallActionPlay9get_input > _RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB5_17S > ai:9free_dist16shared_free_dist
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> RandomState : ai:12small_actionNtB2_15SmallActionPlay9get_input > _RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB4_18Sm > ai:11plan_legacy3old13defense_nexus17nexus_final_stand
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> FieldScratch : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get > ai:11path_finderNtB3_10PathFinder10new_targetNCNvMNtNtB5_12small_actio > ai:10path_field17solve_with_policyNCINvMNtB4_11path_finderNtB11_10Path
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> AttackDamageCache : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action6aroundNtB2_17SmallActionAround9get_input > ai:16minion_wave_risk23v3_lethal_wave_position > ai:16minion_wave_risk32enemy_minion_wave_risk_damage_at
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> SiegeStanceCache : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get > _RNvMs0_NtCshdEBA0ozCnw_7game_ai11path_finderNtB5_17TowerDodgeContext2 > ai:16tower_discipline38v22_lane_tower_pressure_attack_allowed > ai:16tower_discipline16v47_siege_stance
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> PosEvalCache : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action6aroundNtB2_17SmallActionAround9get_input > ai:12small_action25positioning_cell_value_at > ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> Cell : ai:12small_actionNtB2_15SmallActionPlay9get_input > _RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_16SmallActio > ai:14abstract_input5skill > ai:14abstract_input16get_input_target > gc:10simulation6entity19nt_trace_record_aim
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> PePlayerCtx : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action6aroundNtB2_17SmallActionAround9get_input > ai:12small_action25positioning_cell_value_at > ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> PeCandMasks : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action6aroundNtB2_17SmallActionAround9get_input > ai:12small_action25positioning_cell_value_at > ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> TowerMinionCntCache : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action6aroundNtB2_17SmallActionAround9get_input > ai:12small_action25positioning_cell_value_at > ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> EpcCache : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action6aroundNtB2_17SmallActionAround9get_input > ai:12small_action25positioning_cell_value_at > ai:13position_eval26position_score_at_position > ai:13position_eval16position_eval_at > ai:13position_eval25position_eval_at_uncached
+L486 ai:12small_actionNtB2_15SmallActionPlay9get_input -> ResolveFightCache : ai:12small_actionNtB2_15SmallActionPlay9get_input > ai:12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get > _RNvMs0_NtCshdEBA0ozCnw_7game_ai11path_finderNtB5_17TowerDodgeContext2 > ai:16tower_discipline38v22_lane_tower_pressure_attack_allowed > ai:16tower_discipline16v47_siege_stance > ai:11plan_legacy3old11fight_model13resolve_fight > ai:11plan_legacy3old11fight_model18resolve_fight_full

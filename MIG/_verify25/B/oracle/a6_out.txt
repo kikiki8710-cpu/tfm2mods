@@ -1,0 +1,183 @@
+visited 992 fns with TLS 88
+== direct callees (game_ai, in IR order of first appearance) and transitive TLS ==
+   simulation::prof::ProfTimer -> TLS none
+   utils::nontarget_windup_perceived -> TLS none
+   position_eval::line_phase_position_eval_purpose -> TLS none
+   position_eval::position_score_at_position
+        AttackDamageCache@x::expected_attack_damage_cached   (in position_eval::position_eval_at_uncached)
+        EpcCache@x::entity_positioning_cache_cached   (in position_eval::position_eval_at_uncached)
+        PeCandMasks@x::pe_cand_masks   (in position_eval::position_eval_at_uncached)
+        PePlayerCtx@Q::pe_player_ctx   (in position_eval::position_eval_at_uncached)
+        PosEvalCache@x::position_eval_at   (in position_eval::position_eval_at)
+        RandomState@fight_check::slot_cc_time_cached   (in fight_check::slot_cc_time_cached)
+        RandomState@fight_check::slot_ready_cached   (in fight_check::slot_ready_cached)
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+        TowerMinionCntCache@x::tower_minion_in_range_count_cached   (in position_eval::position_eval_at_uncached)
+   _1::SmallAct::new_with_skill -> TLS none
+   small_action::SmallActionPlay::t -> TLS none
+   o_::compare::e_y -> TLS none
+   _1::SmallAc::new -> TLS none
+   small_action::lane_minion::lane_minion_position_action
+        AttackDamageCache@x::expected_attack_damage_cached   (in position_eval::position_eval_at_uncached)
+        EpcCache@x::entity_positioning_cache_cached   (in position_eval::position_eval_at_uncached)
+        PeCandMasks@x::pe_cand_masks   (in position_eval::position_eval_at_uncached)
+        PePlayerCtx@Q::pe_player_ctx   (in position_eval::position_eval_at_uncached)
+        PosEvalCache@x::position_eval_at   (in position_eval::position_eval_at)
+        RandomState@fight_check::slot_cc_time_cached   (in fight_check::slot_cc_time_cached)
+        RandomState@fight_check::slot_ready_cached   (in fight_check::slot_ready_cached)
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+        TowerMinionCntCache@x::tower_minion_in_range_count_cached   (in position_eval::position_eval_at_uncached)
+   small_action::SmallActionPlay::reserve_internal_or_panic -> TLS none
+   drop_glue::small_action::SmallActionPlay -> TLS none
+   collect::Extend::extend -> TLS none
+   o_::compare::e_y -> TLS none
+   _1::SmallAct::new -> TLS none
+   fight_check::battle_action -> TLS none
+   small_action::around::SmallActionAround -> TLS none
+   small_action::lane_minion::line_minion_action_candidates -> TLS none
+   fight_check::attack_summon_action -> TLS none
+   control_flow::ControlFlow::s -> TLS none
+   s_INvB7c::compare::W_ -> TLS none
+   tower_discipline::v22_lane_tower_pressure_attack_allowed
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+   _1::SmallAc::new -> TLS none
+   fight_check::attack_structure_skill_action -> TLS none
+   fight_check::battle_ally_action -> TLS none
+   control_flow::ControlFlow::s -> TLS none
+   Z_INvB6::compare::R_ -> TLS none
+   _::M_s::_0 -> TLS none
+   _18LineDefenseSubPlan1::action_::_0E -> TLS none
+   _18LineDefenseSubPlan1::action_::_0EB -> TLS none
+   _18LineDefenseSubPlan1::action_::_0EBY
+        AttackDamageCache@x::expected_attack_damage_cached   (in minion_wave_risk::enemy_minion_wave_risk_damage_at)
+        DieTickCache@x::check_kill_die_tick   (in fight_check::check_kill_die_tick)
+        EpcCache@x::entity_positioning_cache_cached   (in position_eval::position_eval_at_uncached)
+        InterActionCtx@B::interaction_ctx   (in action_score::interaction_score)
+        PeCandMasks@x::pe_cand_masks   (in position_eval::position_eval_at_uncached)
+        PePlayerCtx@Q::pe_player_ctx   (in position_eval::position_eval_at_uncached)
+        PosEvalCache@x::position_eval_at   (in position_eval::position_eval_at)
+        RandomState@fight_check::slot_cc_time_cached   (in fight_check::slot_cc_time_cached)
+        RandomState@fight_check::slot_ready_cached   (in fight_check::slot_ready_cached)
+        RandomState@plan_legacy::old   (in old::defense_nexus::base_defense_focus)
+        RandomState@utils::champion_hp_value   (in utils::champion_hp_value)
+        RefCell@plan_legacy::action_eval   (in plan_legacy::action_eval::evaluate_action)
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+        TowerMinionCntCache@x::tower_minion_in_range_count_cached   (in position_eval::position_eval_at_uncached)
+   ops::range::Range -> TLS none
+   choose::_4rng::StdRng -> TLS none
+   clone::Clone::clone -> TLS none
+   small_action::SmallActionPlay::truncate -> TLS none
+   o_::compare::e_y -> TLS none
+   m_18L::get_move_action_v46::_0 -> TLS none
+   vec::_3Vec::f5S1uJLkH_9game_core10simulation6entity6EntityENtNtCsjihNppCmMEE_4core5clone5Clone5cloneCshdEBA0o -> TLS none
+   simulation::entity::Entity -> TLS none
+   fight_check::check_kill_die_tick
+        AttackDamageCache@x::expected_attack_damage_cached   (in minion_wave_risk::enemy_minion_wave_risk_dps_at)
+        DieTickCache@x::check_kill_die_tick   (in fight_check::check_kill_die_tick)
+   utils::range_misjudge_rng -> TLS none
+   old::battle::max_range_can_use -> TLS none
+   utils::range_misjudge_roll -> TLS none
+   old::battle::max_range_nearly_can_use -> TLS none
+   old::battle::max_poke_range -> TLS none
+   old::battle::expected_trade_net_hp -> TLS none
+   _1::SmallA::new -> TLS none
+   _1::SmallA::new_keep_range -> TLS none
+   ops::control_flow::ControlFlow -> TLS none
+   ops::control_flow::ControlFlow -> TLS none
+   random_state::RandomState::rustc_entry -> TLS none
+   string::String::insert_no_grow -> TLS none
+   drop::Drop::drop -> TLS none
+   drop::Drop::drop -> TLS none
+   LexZzt9XJ::string::String -> TLS none
+   vec::_3Vec::f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEB -> TLS none
+   raw_vec::_6Raw::f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEB -> TLS none
+   tower_discipline::v47_siege_stance
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+   vec::Vec::_6string6StringEE9 -> TLS none
+   _6strin::String::push_mut -> TLS none
+   line_defense::_18LineDefenseSubPlan1::action_
+        AttackDamageCache@x::expected_attack_damage_cached   (in minion_wave_risk::enemy_minion_wave_risk_dps_at)
+        DieTickCache@x::check_kill_die_tick   (in fight_check::check_kill_die_tick)
+        EpcCache@x::entity_positioning_cache_cached   (in position_eval::position_eval_at_uncached)
+        PeCandMasks@x::pe_cand_masks   (in position_eval::position_eval_at_uncached)
+        PePlayerCtx@Q::pe_player_ctx   (in position_eval::position_eval_at_uncached)
+        PosEvalCache@x::position_eval_at   (in position_eval::position_eval_at)
+        RandomState@fight_check::slot_cc_time_cached   (in fight_check::slot_cc_time_cached)
+        RandomState@fight_check::slot_ready_cached   (in fight_check::slot_ready_cached)
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+        TowerMinionCntCache@x::tower_minion_in_range_count_cached   (in position_eval::position_eval_at_uncached)
+   drop::Drop::drop -> TLS none
+   drop::Drop::drop -> TLS none
+   e_::d_sa_0::u_EB6 -> TLS none
+   line_defense::_18LineDefenseSubPlan1::action_ -> TLS none
+   _1::LineDefe::score
+        AttackDamageCache@x::expected_attack_damage_cached   (in minion_wave_risk::enemy_minion_wave_risk_damage_at)
+        DieTickCache@x::check_kill_die_tick   (in fight_check::check_kill_die_tick)
+        EpcCache@x::entity_positioning_cache_cached   (in position_eval::position_eval_at_uncached)
+        InterActionCtx@B::interaction_ctx   (in action_score::interaction_score)
+        PeCandMasks@x::pe_cand_masks   (in position_eval::position_eval_at_uncached)
+        PePlayerCtx@Q::pe_player_ctx   (in position_eval::position_eval_at_uncached)
+        PosEvalCache@x::position_eval_at   (in position_eval::position_eval_at)
+        RandomState@fight_check::slot_cc_time_cached   (in fight_check::slot_cc_time_cached)
+        RandomState@fight_check::slot_ready_cached   (in fight_check::slot_ready_cached)
+        RandomState@plan_legacy::old   (in old::defense_nexus::base_defense_focus)
+        RandomState@utils::champion_hp_value   (in utils::champion_hp_value)
+        RefCell@plan_legacy::action_eval   (in plan_legacy::action_eval::evaluate_action)
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+        TowerMinionCntCache@x::tower_minion_in_range_count_cached   (in position_eval::position_eval_at_uncached)
+   compare::e_x::r
+        AttackDamageCache@x::expected_attack_damage_cached   (in minion_wave_risk::enemy_minion_wave_risk_damage_at)
+        DieTickCache@x::check_kill_die_tick   (in fight_check::check_kill_die_tick)
+        EpcCache@x::entity_positioning_cache_cached   (in position_eval::position_eval_at_uncached)
+        InterActionCtx@B::interaction_ctx   (in action_score::interaction_score)
+        PeCandMasks@x::pe_cand_masks   (in position_eval::position_eval_at_uncached)
+        PePlayerCtx@Q::pe_player_ctx   (in position_eval::position_eval_at_uncached)
+        PosEvalCache@x::position_eval_at   (in position_eval::position_eval_at)
+        RandomState@fight_check::slot_cc_time_cached   (in fight_check::slot_cc_time_cached)
+        RandomState@fight_check::slot_ready_cached   (in fight_check::slot_ready_cached)
+        RandomState@plan_legacy::old   (in old::defense_nexus::base_defense_focus)
+        RandomState@utils::champion_hp_value   (in utils::champion_hp_value)
+        RefCell@plan_legacy::action_eval   (in plan_legacy::action_eval::evaluate_action)
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+        TowerMinionCntCache@x::tower_minion_in_range_count_cached   (in position_eval::position_eval_at_uncached)
+   _1::Small::get_input
+        AttackDamageCache@x::expected_attack_damage_cached   (in position_eval::position_eval_at_uncached)
+        EpcCache@x::entity_positioning_cache_cached   (in position_eval::position_eval_at_uncached)
+        FieldScratch@_17solve_with_policyNCINvM::_11path_finderNtB3A_10PathFi   (in _12s::move_actions::_18SmallActionRunAway9ge)
+        PathScratch@_NtB26_10PathFinder21calcu::_   (in i::SmallActionRunAway::get_input)
+        PeCandMasks@x::pe_cand_masks   (in position_eval::position_eval_at_uncached)
+        PePlayerCtx@Q::pe_player_ctx   (in position_eval::position_eval_at_uncached)
+        PosEvalCache@x::position_eval_at   (in position_eval::position_eval_at)
+        RandomState@fight_check::slot_cc_time_cached   (in fight_check::slot_cc_time_cached)
+        RandomState@fight_check::slot_ready_cached   (in fight_check::slot_ready_cached)
+        RandomState@plan_legacy::old   (in old::defense_nexus::nexus_final_stand)
+        RandomState@small_action::around   (in around::_21S::check_cell)
+        RefCell@path_finder::S   (in f::SmallActionRunAway::get_input)
+        ResolveFightCache@x::resolve_fight_full   (in old::fight_model::resolve_fight_full)
+        SiegeStanceCache@x::v47_siege_stance   (in tower_discipline::v47_siege_stance)
+        TowerMinionCntCache@x::tower_minion_in_range_count_cached   (in position_eval::position_eval_at_uncached)
+   SmallActionPlay::from_iter_in::_ -> TLS none
+== game_core callees (declared only; need _gcbc) ==
+   effect::_6::is_in_range _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect11is_in_range
+   effect::_6::range_adjust _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust
+   blackboard::_10Bl::is_recent_visible _RNvMs0_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard17is_recent_visible
+   simulation::_21Ab::iter_towers _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache11iter_towers
+   simulation::_21Ab::iter_minions _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache12iter_minions
+   simulation::_21Ab::iter_towers_without_nexus _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache25iter_towers_without_nexus
+   player::_8Lin::get_start_position _RNvMs4_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_8LineType18get_start_position
+   entity::_6Ent::can_skill2 _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity10can_skill2
+   entity::_6Ent::block_input _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity11block_input
+   entity::_6Ent::remain_action_time _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity18remain_action_time
+   entity::_6Ent::can_ult _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity7can_ult
+   entity::_6Ent::can_skill _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity9can_skill
+   player::_16A::judge_line_accuracy _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter19judge_line_accuracy
+   player::_16A::positioning_accuracy _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB4_16AthleteParameter20positioning_accuracy
+   f5S1uJLkH_9game_core10simulationNtB5_14ProjectileIterNtNtNtNtCsjihNppCmMEE_4core4iter6traits8iter::Iterator::next _RNvXs2_NtCs97f5S1uJLkH_9game_core10simulationNtB5_14ProjectileIterNtNtNtNtCsjihNppCmMEE_4core4iter6traits8iterator8Iterator4next

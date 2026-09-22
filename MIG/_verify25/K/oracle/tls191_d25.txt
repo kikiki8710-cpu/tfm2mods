@@ -1,0 +1,65 @@
+ROOT _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan10epic_checkNtB2_16EpicCheckSubPlan17action_candidates
+direct TLS refs in root: []
+indirect(vtable/fnptr) call sites in root: 3
+
+# direct callees in body order (first occurrence) -> transitive TLS
+ 1. +L77    _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check
+      (no define)
+ 2. +L82    _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueINtNtNtCshWfHDMLkPaX_7bumpalo11collections3vec3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEEB
+      m15.ll:2964
+ 3. +L106   _RNvNtCsjihNppCmMEE_4core6option13unwrap_failed
+      (no define)
+ 4. +L174   _RNvNtCshdEBA0ozCnw_7game_ai5utils26nontarget_windup_perceived
+      m04.ll:53108
+ 5. +L186   _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect11is_in_range
+      g06.ll:51634
+ 6. +L306   _RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position
+      m07.ll:34232
+      TLS ATTACK_DMG_CACHE         via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+      TLS CC_TIME_MEMO             via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19slot_cc_time_cached
+      TLS EPC_CACHE                via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+      TLS PE_CAND_MASKS            via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+      TLS PE_PLAYER_CTX            via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+      TLS POS_EVAL_CACHE           via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at
+      TLS RESOLVE_FIGHT_CACHE      via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance > tNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model13resolve_fight > hdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full
+      TLS SIEGE_STANCE_CACHE       via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline16v47_siege_stance
+      TLS SLOT_READY_MEMO          via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached > _RNvNtCshdEBA0ozCnw_7game_ai11fight_check17slot_ready_cached
+      TLS TOWER_MINION_CNT_CACHE   via RNvNtCshdEBA0ozCnw_7game_ai13position_eval26position_score_at_position > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval16position_eval_at > _RNvNtCshdEBA0ozCnw_7game_ai13position_eval25position_eval_at_uncached
+ 7. +L324   _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB2_18SmallActionRunAway14new_with_skill
+      m08.ll:92086
+ 8. +L330   _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan21v25_objective_posture
+      m09.ll:15168
+      TLS CAMP_POS_MEMO            via y9team_plan20objective_disciplineNtB4_8TeamPlan21v25_objective_posture > MNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_pos
+ 9. +L477   _RNvMs2_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayE25reserve_internal_or_pa
+      m02.ll:49585
+10. +L482   _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEBF_
+      m15.ll:3100
+11. +L509   _RNvMs2_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_25SmallActionAroundPosition3new
+      m08.ll:103238
+12. +L628   _RNvMNtCs5gUUnHMsxBL_9hashbrown11rustc_entryINtNtB4_3map7HashMapjINtNtCs9LexZzt9XJB_5alloc3vec3VecNtNtB15_6string6StringENtNtCs9EYcZKFYzm_5ahash12rand
+      m07.ll:3902
+13. +L667   _RNvMs6_NtCs5gUUnHMsxBL_9hashbrown3rawINtB5_8RawTableTjINtNtCs9LexZzt9XJB_5alloc3vec3VecNtNtBV_6string6StringEEE14insert_no_growCshdEBA0ozCnw_7game_ai
+      m11.ll:48328
+14. +L690   _RNvXso_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecNtNtB7_6string6StringENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai
+      m06.ll:54318
+15. +L696   _RNvXs1_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtB7_6string6StringENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai
+      m03.ll:146814
+16. +L724   _RNvNvNtCs9LexZzt9XJB_5alloc3fmt6format12format_inner
+      (no define)
+17. +L744   _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtB7_6string6StringE8grow_oneCszutcqs0z2F_10sys_locale
+      (no define)
+18. +L749   _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtCs9LexZzt9XJB_5alloc6string6StringECshdEBA0ozCnw_7game_ai
+      m15.ll:3081
+19. +L790   _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_pos
+      g07.ll:152570
+      TLS CAMP_POS_MEMO            via y9team_plan20objective_disciplineNtB4_8TeamPlan21v25_objective_posture > MNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_pos
+20. +L973   _RNvMs0_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard17is_recent_visible
+      g07.ll:157005
+21. +L1228  _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB2_18SmallActionRunAway3new
+      m08.ll:92133
+22. +L1289  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check13battle_action
+      m15.ll:23700
+23. +L1294  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check20attack_summon_action
+      m15.ll:28194
+24. +L1301  _RINvXsg_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB6_3VecNtNtCshdEBA0ozCnw_7game_ai12small_action15SmallActionPlayEINtNtNtNtCsjihNppCmMEE_4core4i
+      m15.ll:5803

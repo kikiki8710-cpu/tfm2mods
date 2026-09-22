@@ -1,0 +1,322 @@
+{
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle10CAST_BEAMSs_0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle10CAST_BEAMSs_0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [41 "
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle10CAST_BEAMSs_0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle10CAST_BEAMSs_0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [4"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11path_finder12PATH_SCRATCH0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11path_finder12PATH_SCRATCH0023___RUST_STD_INTERNAL_VAL = external thread_local global { { { [2 x i64] } }, i8, [7 x i8] }\r"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11path_finder12PATH_SCRATCH0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11path_finder12PATH_SCRATCH0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [2 x i64] } }, i8, [7 "
+ ],
+ "@_RNvNCNKNvNvMNtCshdEBA0ozCnw_7game_ai11path_finderNtBa_10PathFinder17try_splice_detour14SPLICE_VISITEDs_0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNvMNtCshdEBA0ozCnw_7game_ai11path_finderNtBa_10PathFinder17try_splice_detour14SPLICE_VISITEDs_0023___RUST_STD_INTERNAL_VAL = external hidden thread_"
+ ],
+ "@_RNvNCNKNvNvMNtCshdEBA0ozCnw_7game_ai11path_finderNtBa_10PathFinder17try_splice_detour14SPLICE_VISITEDs_0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNvMNtCshdEBA0ozCnw_7game_ai11path_finderNtBa_10PathFinder17try_splice_detour14SPLICE_VISITEDs_0s_023___RUST_STD_INTERNAL_VAL = external thread_local"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils13HP_VALUE_MEMO0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils13HP_VALUE_MEMO0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [12 x i64] } }, i8, [7 x i8] }"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils13HP_VALUE_MEMO0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils13HP_VALUE_MEMO0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [12 x i64] } }, i8, [7 x i8]"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils17CHAMP_POWERS_MEMO0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils17CHAMP_POWERS_MEMO0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [63 x i64] } }, i8, [7 x i"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils17CHAMP_POWERS_MEMO0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai5utils17CHAMP_POWERS_MEMO0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [63 x i64] } }, i8, [7 x"
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus15LAST_STAND_MEMO0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus15LAST_STAND_MEMO0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { "
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus15LAST_STAND_MEMO0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus15LAST_STAND_MEMO0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { "
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai12action_score9INTER_CTX0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai12action_score9INTER_CTX0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [13 x i64] } }, i8, [7 x i8"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai12action_score9INTER_CTX0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai12action_score9INTER_CTX0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [13 x i64] } }, i8, [7 x "
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_CAND_MASKS0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_CAND_MASKS0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [4 x i64] } }, i8, [7"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_CAND_MASKS0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_CAND_MASKS0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [4 x i64] } }, i8, "
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_PLAYER_CTX0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_PLAYER_CTX0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { { { [35 x i8], i8, [4"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_PLAYER_CTX0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval13PE_PLAYER_CTX0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [35 x i8], i8, [4 x"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval14POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval14POS_EVAL_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [3 x i64] } }, i8, ["
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval14POS_EVAL_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval14POS_EVAL_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [3 x i64] } }, i8,"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval16ATTACK_DMG_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval16ATTACK_DMG_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [11 x i64] } }, i8"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval16ATTACK_DMG_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval16ATTACK_DMG_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [11 x i64] } }, "
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval22TOWER_MINION_CNT_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval22TOWER_MINION_CNT_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [11 x i64] }"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval22TOWER_MINION_CNT_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval22TOWER_MINION_CNT_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [11 x i64]"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval9EPC_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval9EPC_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [10603 x i64] } }, i8, [7 "
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval9EPC_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai13position_eval9EPC_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [10603 x i64] } }, i8, ["
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai16tower_discipline18SIEGE_STANCE_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai16tower_discipline18SIEGE_STANCE_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [11 x i64] } "
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai16tower_discipline18SIEGE_STANCE_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai16tower_discipline18SIEGE_STANCE_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [11 x i64] "
+ ],
+ "@anon.afb017e85830050c32e5158c55060899.1": [
+  "m08.ll",
+  "@anon.afb017e85830050c32e5158c55060899.1 = private unnamed_addr constant [96 x i8] c\"/rustc/23a3312d92a1c4ba0373f1e25277be20ba8bb28c/library\\\\std\\\\src\\\\sys\\\\th"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai10path_field13FIELD_SCRATCH0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai10path_field13FIELD_SCRATCH0023___RUST_STD_INTERNAL_VAL = external thread_local global { { { [2 x i64] } }, i8, [7 x i8] }\r"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai10path_field13FIELD_SCRATCH0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai10path_field13FIELD_SCRATCH0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [2 x i64] } }, i8, [7 "
+ ],
+ "@_RNvNCNKNvNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtBc_21SmallActionAroundHide10check_cell12HIDE_NEAREST0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtBc_21SmallActionAroundHide10check_cell12HIDE_NEAREST0023___RUST_STD_INTERNAL_VAL = external hi"
+ ],
+ "@_RNvNCNKNvNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtBc_21SmallActionAroundHide10check_cell12HIDE_NEAREST0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtBc_21SmallActionAroundHide10check_cell12HIDE_NEAREST0s_023___RUST_STD_INTERNAL_VAL = external "
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model19RESOLVE_FIGHT_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model19RESOLVE_FIGHT_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { "
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model19RESOLVE_FIGHT_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model19RESOLVE_FIGHT_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global "
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle15MAX_RANGE_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle15MAX_RANGE_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [203 x"
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle15MAX_RANGE_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle15MAX_RANGE_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [203"
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle21FIGHT_KIT_RANGE_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle21FIGHT_KIT_RANGE_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { "
+ ],
+ "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle21FIGHT_KIT_RANGE_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle21FIGHT_KIT_RANGE_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { "
+ ],
+ "@_RNvNCNKNvCshdEBA0ozCnw_7game_ai16FINISH_AGG_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m14.ll",
+  "@_RNvNCNKNvCshdEBA0ozCnw_7game_ai16FINISH_AGG_CACHE0023___RUST_STD_INTERNAL_VAL = hidden thread_local local_unnamed_addr global <{ [664 x i8], [1 x i8], [7 x i"
+ ],
+ "@_RNvNCNKNvCshdEBA0ozCnw_7game_ai16FINISH_AGG_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m14.ll",
+  "@_RNvNCNKNvCshdEBA0ozCnw_7game_ai16FINISH_AGG_CACHE0s_023___RUST_STD_INTERNAL_VAL = hidden thread_local global <{ [664 x i8], [1 x i8], [7 x i8] }> <{ [664 x i"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check12CC_TIME_MEMO0023___RUST_STD_INTERNAL_VAL": [
+  "m15.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check12CC_TIME_MEMO0023___RUST_STD_INTERNAL_VAL = hidden thread_local global <{ [88 x i8], [1 x i8], [7 x i8] }> <{ "
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check12CC_TIME_MEMO0s_023___RUST_STD_INTERNAL_VAL": [
+  "m15.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check12CC_TIME_MEMO0s_023___RUST_STD_INTERNAL_VAL = hidden thread_local local_unnamed_addr global <{ [88 x i8], [1 x"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check14DIE_TICK_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "m15.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check14DIE_TICK_CACHE0023___RUST_STD_INTERNAL_VAL = hidden thread_local global <{ [88 x i8], [1 x i8], [7 x i8] }> <"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check14DIE_TICK_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m15.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check14DIE_TICK_CACHE0s_023___RUST_STD_INTERNAL_VAL = hidden thread_local local_unnamed_addr global <{ [88 x i8], [1"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check15SLOT_READY_MEMO0023___RUST_STD_INTERNAL_VAL": [
+  "m15.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check15SLOT_READY_MEMO0023___RUST_STD_INTERNAL_VAL = hidden thread_local global <{ [88 x i8], [1 x i8], [7 x i8] }> "
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check15SLOT_READY_MEMO0s_023___RUST_STD_INTERNAL_VAL": [
+  "m15.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check15SLOT_READY_MEMO0s_023___RUST_STD_INTERNAL_VAL = hidden thread_local local_unnamed_addr global <{ [88 x i8], ["
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check16V48_PROJ_PROFILE0023___RUST_STD_INTERNAL_VAL": [
+  "m15.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check16V48_PROJ_PROFILE0023___RUST_STD_INTERNAL_VAL = hidden thread_local global <{ [64 x i8], [1 x i8], [7 x i8] }>"
+ ],
+ "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check16V48_PROJ_PROFILE0s_023___RUST_STD_INTERNAL_VAL": [
+  "m15.ll",
+  "@_RNvNCNKNvNtCshdEBA0ozCnw_7game_ai11fight_check16V48_PROJ_PROFILE0s_023___RUST_STD_INTERNAL_VAL = hidden thread_local local_unnamed_addr global <{ [64 x i8], "
+ ],
+ "@_RNvNCNKNvNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy11action_eval16lane_anchor_gain8LAG_MEMOs_0s_023___RUST_STD_INTERNAL_VAL": [
+  "m11.ll",
+  "@_RNvNCNKNvNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy11action_eval16lane_anchor_gain8LAG_MEMOs_0s_023___RUST_STD_INTERNAL_VAL = internal thread_local global <{ "
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7setting4item15ITEM_INDEX_MEMO0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7setting4item15ITEM_INDEX_MEMO0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [17 x i64] } }, i"
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7setting4item15ITEM_INDEX_MEMO0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7setting4item15ITEM_INDEX_MEMO0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [17 x i64] } },"
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v212VIABLE_CACHE0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v212VIABLE_CACHE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [7 x i64] } }, i8,"
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v212VIABLE_CACHE0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v212VIABLE_CACHE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [7 x i64] } }, i"
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v215V3_INTENT_COLOR0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v215V3_INTENT_COLOR0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [7 x i64] } }, "
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v215V3_INTENT_COLOR0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v215V3_INTENT_COLOR0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [7 x i64] } }"
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v215V3_REVEAL_STATE0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v215V3_REVEAL_STATE0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [3 x i64] } }, "
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v215V3_REVEAL_STATE0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v215V3_REVEAL_STATE0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [3 x i64] } }"
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v216MINI_SGD_SCRATCH0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v216MINI_SGD_SCRATCH0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [7 x i64] } },"
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v216MINI_SGD_SCRATCH0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v216MINI_SGD_SCRATCH0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [7 x i64] } "
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v218DETERMINISTIC_SEED0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v218DETERMINISTIC_SEED0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [3 x i64] } "
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v218DETERMINISTIC_SEED0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core7banpick6sgd_v218DETERMINISTIC_SEED0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [3 x i64] "
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity20APPLY_NONTARGET_FLAG0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity20APPLY_NONTARGET_FLAG0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { i8, i8 }\r"
+ ],
+ "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity20APPLY_NONTARGET_FLAG0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtCs97f5S1uJLkH_9game_core10simulation6entity20APPLY_NONTARGET_FLAG0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global i8\r"
+ ],
+ "@_RNvNCNKNvNtNtNtCs97f5S1uJLkH_9game_core10simulation4game4data13RECENT_SPAWNS0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtNtCs97f5S1uJLkH_9game_core10simulation4game4data13RECENT_SPAWNS0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { i64, { {"
+ ],
+ "@_RNvNCNKNvNtNtNtCs97f5S1uJLkH_9game_core10simulation4game4data13RECENT_SPAWNS0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtNtCs97f5S1uJLkH_9game_core10simulation4game4data13RECENT_SPAWNS0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { i64, { { {"
+ ],
+ "@_RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef8camp_pos13CAMP_POS_MEMOs0_0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef8camp_pos13CAMP_POS_MEMOs0_0023___RUST_STD_INTERNAL_VAL = external hidden thread_loca"
+ ],
+ "@_RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef8camp_pos13CAMP_POS_MEMOs0_0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef8camp_pos13CAMP_POS_MEMOs0_0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_lo"
+ ],
+ "@_RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef9lane_path14LANE_PATH_MEMOs1_0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef9lane_path14LANE_PATH_MEMOs1_0023___RUST_STD_INTERNAL_VAL = external hidden thread_lo"
+ ],
+ "@_RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef9lane_path14LANE_PATH_MEMOs1_0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtBa_6MapDef9lane_path14LANE_PATH_MEMOs1_0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_"
+ ],
+ "@_RNvNCNKNvNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity5tower10CHAMP_BBOX0023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity5tower10CHAMP_BBOX0023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [8 x i64"
+ ],
+ "@_RNvNCNKNvNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity5tower10CHAMP_BBOX0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity5tower10CHAMP_BBOX0s_023___RUST_STD_INTERNAL_VAL = external hidden thread_local global { { { [8 x i"
+ ],
+ "@anon.5a908681f232d91e7ede4f385579bd8c.9": [
+  "g10.ll",
+  "@anon.5a908681f232d91e7ede4f385579bd8c.9 = private unnamed_addr constant [96 x i8] c\"/rustc/23a3312d92a1c4ba0373f1e25277be20ba8bb28c/library\\\\std\\\\src\\\\sys\\\\th"
+ ],
+ "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core10simulation14BATTLE_RECENCY0023___RUST_STD_INTERNAL_VAL": [
+  "g15.ll",
+  "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core10simulation14BATTLE_RECENCY0023___RUST_STD_INTERNAL_VAL = hidden thread_local global <{ [88 x i8], [1 x i8], [7 x i8] }> "
+ ],
+ "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core10simulation14BATTLE_RECENCY0s_023___RUST_STD_INTERNAL_VAL": [
+  "g15.ll",
+  "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core10simulation14BATTLE_RECENCY0s_023___RUST_STD_INTERNAL_VAL = hidden thread_local local_unnamed_addr global <{ [88 x i8], ["
+ ],
+ "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core10simulation14NEAR_LANE_GRIDs0_0023___RUST_STD_INTERNAL_VAL": [
+  "g15.ll",
+  "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core10simulation14NEAR_LANE_GRIDs0_0023___RUST_STD_INTERNAL_VAL = hidden thread_local local_unnamed_addr global <{ [920 x i8],"
+ ],
+ "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core10simulation14NEAR_LANE_GRIDs0_0s_023___RUST_STD_INTERNAL_VAL": [
+  "g15.ll",
+  "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core10simulation14NEAR_LANE_GRIDs0_0s_023___RUST_STD_INTERNAL_VAL = hidden thread_local global <{ [920 x i8], [1 x i8], [7 x i"
+ ],
+ "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core6mod_ai21DRAFT_CHAMPION_BRIEFS0023___RUST_STD_INTERNAL_VAL": [
+  "g13.ll",
+  "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core6mod_ai21DRAFT_CHAMPION_BRIEFS0023___RUST_STD_INTERNAL_VAL = hidden thread_local global <{ [16 x i8], [1 x i8], [7 x i8] }"
+ ],
+ "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core6mod_ai21DRAFT_CHAMPION_BRIEFS0s_023___RUST_STD_INTERNAL_VAL": [
+  "g13.ll",
+  "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core6mod_ai21DRAFT_CHAMPION_BRIEFS0s_023___RUST_STD_INTERNAL_VAL = hidden thread_local local_unnamed_addr global <{ [16 x i8],"
+ ],
+ "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core4data19ADVANCE_PROFILE_ACCs_0s_023___RUST_STD_INTERNAL_VAL": [
+  "g11.ll",
+  "@_RNvNCNKNvNtCs97f5S1uJLkH_9game_core4data19ADVANCE_PROFILE_ACCs_0s_023___RUST_STD_INTERNAL_VAL = internal thread_local global <{ [8 x i8], [8 x i8], [160 x i8"
+ ]
+}

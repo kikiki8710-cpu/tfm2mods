@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m00.ll", "line": 91173, "text": "%60 = invoke noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai5utils26champion_hp_value_uncached(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(5384) %59, ptr noalias noundef nonn"}]

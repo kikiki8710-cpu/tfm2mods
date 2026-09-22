@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m07.ll", "line": 24480, "text": "tail call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input6attack(ptr noalias noundef nonnull sret([32 x i8]) align 8 captures(address) dereferenceable(32) %0, i64 noundef %2, ptr noalias noundef nonnull align 16 deref"}]

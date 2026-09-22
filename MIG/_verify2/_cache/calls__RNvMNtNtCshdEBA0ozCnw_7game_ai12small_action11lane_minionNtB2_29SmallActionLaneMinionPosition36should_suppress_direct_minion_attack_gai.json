@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m11.ll", "line": 55132, "text": "%279 = invoke noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition36should_suppress_direct_minion_attack(i64 noundef %1, ptr noalias noundef nonnull readonly "}]

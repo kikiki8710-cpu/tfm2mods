@@ -204,7 +204,27 @@ sylas `+0x1e0→0x1f0` 5개 함수, serpen MOBATICK Δ+0x38 등)
 - 교훈: 소스 자동치환은 **"덮어쓰기"가 아니라 "마스킹된 좌표계에서의 치환"** 이다.
   치환 좌표를 만드는 함수와 치환 대상 문자열은 **길이가 같아야 한다**.
 
-## 현행 상태 (2026-09-02 · 게임 0.5.8) — ⛔**마이그 미완**
+
+## ★★0.6.0 추가 (2026-09-16): repin 값은 후보다 — 정렬·콜타깃·orig 로 교차검증한 뒤 apply
+0.6.0 은 함수 +15,147(+11%) 전면 재컴파일. `repin.py plan` 187/222 "해결" 중 **오답 15 + 함수시작 오답 3**(bancard PATCH_RVA 12B 유일·banpick_illust IMG_BUILD 32B 유일·sylas CLONE 32B 유일 — 전부 BYTES_UNIQUE)이 섞여 있었다. 그대로 apply 했으면 명령 한복판 훅 = 0.5.8 크래시 재판.
+```
+python MIG\sitealign.py --map MIGepin_map_<v>.json --old .. --new .. --oldpkl .. --newpkl .. --oldcg .. --newcg .. --write MIGepin_map_<v>.aligned.json
+      # MID_* 전건: owner 명령열 정렬(LOOSE 키·틈 사영·거대함수 창) → AGREE / DISAGREE(정렬값) / NO_ALIGN. 2분.
+      # DISAGREE 는 콜사이트면 call 타깃 ↔ 독립 재핀된 피호출 함수 일치로, 바이트패치면 orig 바이트로 확정.
+python MIGieldmap.py --mod <MOD> ... --json      # 축②: 함수별 (구off→신off) 이동표 + trace()
+python MIG\constevid.py <MOD> --old .. --new ..    # 축②: 소스 `const X: usize = 0x..` 상수별 정렬 증거 → 불변/이동후보
+```
+- **함수시작 채택 규칙**: (콜러 수 · callee 사영 · size 비) 3종 중 2종 일치. `BYTES_UNIQUE` 라도 20B 연장이 0건이면 WEAK.
+- **vtable 슬롯 함수(직접 콜러 0)** 는 콜그래프가 안 닿는다 → 표를 먼저(구조 불변식) 재핀하고 슬롯에서 함수를 읽는다(sylas GRAB).
+- **RET(리턴주소) 엔트리** 는 피호출 함수의 콜사이트 전수 대응으로(serpen LAUNCHER_RET 9↔9).
+- **오프셋 기준선**: `offsets/` 가 0.5.7 채록인 채 0.5.8 회차가 끝나 있었다(⑬ 미실시). 재핀 **전에** 구 exe 로 snap 해 복구 가능(매니페스트가 아직 구값이므로). 회차 종료 체크리스트에 ⑬을 기계 검사로 넣을 것.
+- **인라인 `+0x..` 리터럴**(banpick_illust `self_+0x3d0`)은 constevid 도 못 본다 → 훅 진입부 나란히 대조. 발견 즉시 매니페스트 `offsets` 에 등재.
+- 회차 문서 = `REPORT\_0.6.0_마이그.md`.
+
+## 현행 상태 (2026-09-16 · 게임 0.6.0) — ⛔**마이그 진행 중 (SDK 미수령)**
+- 범위: item_tactics·banpick_order·ai_adjust **제외**(유저 지시). 축① = 10모드 check PASS·coverage 클린·dups 13그룹 동시 갱신(serpen·banpick_illust·draft_overlay·sylas·level_cap·champion_exclude·bancard_keep·ui_kit 완료 / champ_pos_lock 4·comptest 18·sylas 2 낙인 `unresolved 0.6.0`). 축② = serpen·sylas·banpick_illust 반영 / champ_pos_lock(draft scene)·comptest(World Δ+0xdd0) ghidra-re 대기. 축③ = SDK 대기(bump_deps·env·빌드 미실시). flow_capture·stat_exp 보류 유지. 상세 = `REPORT\_0.6.0_마이그.md`.
+
+## (이력) 현행 상태 (2026-09-02 · 게임 0.5.8) — ⛔**마이그 미완**
 ★`run.py` 종료코드 **1**. 축① RVA 는 클린이지만 **축② 구조체 오프셋 · 축③ 환경이 열려 있다.**
 - ⛔**인게임 크래시 발생**(0xc0000005 읽기·`faultAddr=0x5df3` = 널 컨테이너 순회). 원인 = **축②**.
   콜체인 = comptest ORACLE → serpen MOBATICK → sylas ETICK → `0x132f630` 에서 폭발.

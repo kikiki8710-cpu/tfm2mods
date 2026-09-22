@@ -1,0 +1,413 @@
+### A1_fountain_full
+  args: maxhp=1000 line=0 me=0 hp=100
+  expect: in_recall=0
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=1000/1000	hp_ratio=100	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### A2_fountain_990
+  args: maxhp=1000 line=0 me=0 hp=99
+  expect: in_recall=1
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=990/1000	hp_ratio=99	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### A3_fountain_1
+  args: maxhp=1000 line=0 me=0 hpabs=1
+  expect: in_recall=1
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=1/1000	hp_ratio=0	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B1_tower_hp10
+  args: maxhp=1000 line=0 me=0 pos=tower hp=10
+  expect: in_recall=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=100/1000	hp_ratio=10	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B2_tower_hp11
+  args: maxhp=1000 line=0 me=0 pos=tower hp=11
+  expect: in_recall=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=110/1000	hp_ratio=11	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B3_tower_hp30
+  args: maxhp=1000 line=0 me=0 pos=tower hp=30
+  expect: in_recall=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=300/1000	hp_ratio=30	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B4_tower_hp60
+  args: maxhp=1000 line=0 me=0 pos=tower hp=60
+  expect: in_recall=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=600/1000	hp_ratio=60	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B5_more_enemy_hp30
+  args: maxhp=1000 line=0 me=0 pos=tower epos=tower vis=1 hp=30
+  expect: in_recall=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=300/1000	hp_ratio=30	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B6_more_enemy_hp31
+  args: maxhp=1000 line=0 me=0 pos=tower epos=tower vis=1 hp=31
+  expect: in_recall=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=310/1000	hp_ratio=31	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B7_more_enemy_hp50
+  args: maxhp=1000 line=0 me=0 pos=tower epos=tower vis=1 hp=50
+  expect: in_recall=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=500/1000	hp_ratio=50	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B8_more_enemy_hp51
+  args: maxhp=1000 line=0 me=0 pos=tower epos=tower vis=1 hp=51
+  expect: in_recall=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=510/1000	hp_ratio=51	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B9_more_enemy_hp70
+  args: maxhp=1000 line=0 me=0 pos=tower epos=tower vis=1 hp=70
+  expect: in_recall=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=700/1000	hp_ratio=70	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B10_more_enemy_hp71
+  args: maxhp=1000 line=0 me=0 pos=tower epos=tower vis=1 hp=71
+  expect: in_recall=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=710/1000	hp_ratio=71	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B11_more_enemy_novis
+  args: maxhp=1000 line=0 me=0 pos=tower epos=tower vis=0 hp=30
+  expect: in_recall=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=300/1000	hp_ratio=30	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B12_jungle_more_hp30
+  args: maxhp=1000 line=1 me=1 pos=tower epos=tower vis=1 hp=30
+  expect: in_recall=1
+  world	tick=600	team=0	me=1	line=Mid	me=(368000,592000)	hp=300/1000	hp_ratio=30	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((368000, 592000, 6))	enemy_tower=Some((592000, 368000, 7))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B13_jungle_more_hp81
+  args: maxhp=1000 line=1 me=1 pos=tower epos=tower vis=1 hp=81
+  expect: in_recall=0
+  world	tick=600	team=0	me=1	line=Mid	me=(368000,592000)	hp=810/1000	hp_ratio=81	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((368000, 592000, 6))	enemy_tower=Some((592000, 368000, 7))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### B14_jungle_more_hp80
+  args: maxhp=1000 line=1 me=1 pos=tower epos=tower vis=1 hp=80
+  expect: in_recall=1
+  world	tick=600	team=0	me=1	line=Mid	me=(368000,592000)	hp=800/1000	hp_ratio=80	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((368000, 592000, 6))	enemy_tower=Some((592000, 368000, 7))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### C1_gank_same_hp25
+  args: maxhp=1000 line=0 me=0 pos=tower obj=gank oline=0 hp=25
+  expect: in_recall=0 chats_len=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=250/1000	hp_ratio=25	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### C2_gank_same_hp24
+  args: maxhp=1000 line=0 me=0 pos=tower obj=gank oline=0 hp=24
+  expect: chats_len=1 tag=17 +1=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=240/1000	hp_ratio=24	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=1	[tag=17 +1=0 +8=1889412902768 raw=[17, 0, 224, 233, 183, 1, 0, 0, 112, 239, 200, 233, 183, 1, 0, 0]] 	rnd_used=false	debug_logs=0
+  self_diff	+0x18:0->4 +0x20:8->128 +0x21:0->227 +0x22:0->163 +0x23:0->233 +0x24:0->183 +0x25:0->1 +0x28:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### C3_gank_same_hp24_fnt
+  args: maxhp=1000 line=0 me=0 obj=gank oline=0 hp=24
+  expect: in_recall=1 chats_len=1 tag=17
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=240/1000	hp_ratio=24	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=1	[tag=17 +1=0 +8=1966901165760 raw=[17, 0, 127, 244, 201, 1, 0, 0, 192, 254, 113, 244, 201, 1, 0, 0]] 	rnd_used=false	debug_logs=0
+  self_diff	+0x18:0->4 +0x20:8->160 +0x21:0->238 +0x22:0->150 +0x23:0->244 +0x24:0->201 +0x25:0->1 +0x28:0->1 +0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### C4_dive_same_hp25
+  args: maxhp=1000 line=0 me=0 pos=tower obj=dive oline=0 hp=25
+  expect: in_recall=0 chats_len=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=250/1000	hp_ratio=25	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=9	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### C5_gank_other_hp25
+  args: maxhp=1000 line=0 me=0 pos=tower obj=gank oline=2 hp=25
+  expect: in_recall=0 chats_len=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=250/1000	hp_ratio=25	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=2
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### C6_gank_same_hp25_cmt
+  args: maxhp=1000 line=0 me=0 pos=tower obj=gank oline=0 hp=25 commit0=1
+  expect: in_recall=0 v46_commit=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=250/1000	hp_ratio=25	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x111:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D1_adj_top_mid_hp70
+  args: maxhp=1000 line=0 me=0 obj=gank oline=1 hp=70
+  expect: in_recall=0 chats_len=1 tag=12 +1=1 +8=0
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=1
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=1	[tag=12 +1=1 +8=0 raw=[12, 1, 47, 13, 158, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] 	rnd_used=false	debug_logs=0
+  self_diff	+0x18:0->4 +0x20:8->144 +0x21:0->238 +0x22:0->31 +0x23:0->13 +0x24:0->158 +0x25:0->1 +0x28:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D2_adj_top_mid_hp69
+  args: maxhp=1000 line=0 me=0 obj=gank oline=1 hp=69
+  expect: in_recall=1 chats_len=0
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=690/1000	hp_ratio=69	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=1
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D3_adj_vis_enemy
+  args: maxhp=1000 line=0 me=0 obj=gank oline=1 hp=70 epos=tower vis=1
+  expect: in_recall=1 chats_len=0
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=1
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D3b_adj_vis_far
+  args: maxhp=1000 line=0 me=0 obj=gank oline=1 hp=70 epos=etower vis=1
+  expect: in_recall=0 chats_len=1
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=1
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D4_adj_mid_top
+  args: maxhp=1000 line=1 me=2 obj=gank oline=0 hp=70
+  expect: in_recall=0 chats_len=1 tag=12 +1=0
+  world	tick=600	team=0	me=2	line=Mid	me=(49000,911000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((368000, 592000, 6))	enemy_tower=Some((592000, 368000, 7))	obj_tag=8	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=1	[tag=12 +1=0 +8=0 raw=[12, 0, 97, 130, 126, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] 	rnd_used=false	debug_logs=0
+  self_diff	+0x18:0->4 +0x20:8->128 +0x21:0->236 +0x22:0->31 +0x23:0->130 +0x24:0->126 +0x25:0->1 +0x28:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D5_adj_mid_bot
+  args: maxhp=1000 line=1 me=2 obj=gank oline=2 hp=70
+  expect: in_recall=0 chats_len=1 tag=12 +1=2
+  world	tick=600	team=0	me=2	line=Mid	me=(49000,911000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((368000, 592000, 6))	enemy_tower=Some((592000, 368000, 7))	obj_tag=8	obj_line=2
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=1	[tag=12 +1=2 +8=0 raw=[12, 2, 210, 76, 102, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] 	rnd_used=false	debug_logs=0
+  self_diff	+0x18:0->4 +0x20:8->208 +0x21:0->236 +0x22:0->172 +0x23:0->76 +0x24:0->102 +0x25:0->1 +0x28:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D6_nonadj_top_bot
+  args: maxhp=1000 line=0 me=0 obj=gank oline=2 hp=70
+  expect: in_recall=1 chats_len=0
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=2
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D7_nonadj_bot_top
+  args: maxhp=1000 line=2 me=3 obj=gank oline=0 hp=70
+  expect: in_recall=1 chats_len=0
+  world	tick=600	team=0	me=3	line=Bottom	me=(15000,938000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((688000, 912000, 10))	enemy_tower=Some((912000, 688000, 11))	obj_tag=8	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D8_adj_bot_mid
+  args: maxhp=1000 line=2 me=3 obj=gank oline=1 hp=70
+  expect: in_recall=0 chats_len=1 tag=12 +1=1
+  world	tick=600	team=0	me=3	line=Bottom	me=(15000,938000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((688000, 912000, 10))	enemy_tower=Some((912000, 688000, 11))	obj_tag=8	obj_line=1
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=1	[tag=12 +1=1 +8=0 raw=[12, 1, 179, 243, 147, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] 	rnd_used=false	debug_logs=0
+  self_diff	+0x18:0->4 +0x20:8->208 +0x21:0->236 +0x22:0->147 +0x23:0->243 +0x24:0->147 +0x25:0->2 +0x28:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D9_adj_dive
+  args: maxhp=1000 line=0 me=0 obj=dive oline=1 hp=70
+  expect: in_recall=0 chats_len=1 tag=12
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=9	obj_line=1
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=1	[tag=12 +1=1 +8=0 raw=[12, 1, 58, 227, 187, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] 	rnd_used=false	debug_logs=0
+  self_diff	+0x18:0->4 +0x20:8->176 +0x21:0->236 +0x22:0->3 +0x23:0->227 +0x24:0->187 +0x25:0->2 +0x28:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D10_adj_not_in_recall
+  args: maxhp=1000 line=0 me=0 pos=tower obj=gank oline=1 hp=70
+  expect: in_recall=0 chats_len=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=700/1000	hp_ratio=70	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=1
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### E1_commit_keep
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 commit0=1
+  expect: in_recall=1 v46_commit=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=1	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### E2_commit_in_heal
+  args: maxhp=1000 line=0 me=0 hp=100 commit0=1
+  expect: in_recall=0 v46_commit=0
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=1000/1000	hp_ratio=100	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x111:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### E3_commit_no_phase
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 commit0=1 tick=40000
+  expect: in_recall=0 v46_commit=0
+  world	tick=40000	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=false	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x111:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### E4_commit_phase_edge
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 commit0=1 tick=34199
+  expect: v46_commit=1
+  world	tick=34199	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=1	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### E5_commit_phase_edge2
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 commit0=1 tick=34200
+  expect: v46_commit=0
+  world	tick=34200	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=false	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x111:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### F1_flee_end_nohit
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 commit0=1 flee0=1 entry0=100 eflags0=2 appr0=1 hpe0=500 hpm0=500
+  expect: flee_episodes=[(100, Top, 3)] nohit=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=1	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x0:1->0 +0x78:0->4 +0x80:8->112 +0x81:0->223 +0x82:0->85 +0x83:0->65 +0x84:0->168 +0x85:0->1 +0x88:0->1 +0xf8:0->1 +0x110:0->1 +0x112:1->0 +0x114:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 1, flee_episodes: [(100, Top, 3)] } }
+### F2_flee_end_hit
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 commit0=1 flee0=1 entry0=100 eflags0=4 appr0=0 hpe0=500 hpm0=499
+  expect: flee_episodes=[(100, Top, 4)] nohit=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=1	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x0:1->0 +0x78:0->4 +0x80:8->128 +0x81:0->194 +0x82:0->117 +0x83:0->120 +0x84:0->42 +0x85:0->2 +0x88:0->1 +0x110:0->1 +0x112:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [(100, Top, 4)] } }
+### F3_flee_end_noentry
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 commit0=1 flee0=1 appr0=1 hpe0=500 hpm0=500
+  expect: flee_episodes=[] nohit=0 v46_flee=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=1	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1 +0x112:1->0 +0x114:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### G1_flee_keep_threats
+  args: maxhp=1000 line=0 me=0 pos=tower hp=50 flee0=1 entry0=100 hpe0=600 hpm0=600 threats0=e0,e1 epos=tower
+  expect: hold_ticks=1 acute=1 approached=1 refuge=1 hp_min=500
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=500/1000	hp_ratio=50	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=1	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0xd8:0->1 +0xe0:0->1 +0xe8:0->1 +0x108:88->244 +0x109:2->1 +0x113:0->1 +0x114:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 1, flee_hold_acute_ticks: 1, flee_hold_refuge_ticks: 1, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### G2_flee_threats_gone
+  args: maxhp=1000 line=0 me=0 pos=tower hp=50 flee0=1 entry0=100 hpe0=600 hpm0=600 threats0=e0,e1 epos=etower
+  expect: flee_end episode flags=0 hp_min=500
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=500/1000	hp_ratio=50	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x0:1->0 +0x58:2->0 +0x78:0->4 +0x80:8->240 +0x81:0->247 +0x82:0->49 +0x83:0->224 +0x84:0->126 +0x85:0->2 +0x88:0->1 +0x108:88->244 +0x109:2->1 +0x112:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [(100, Top, 0)] } }
+### G3_flee_keep_far
+  args: maxhp=1000 line=0 me=0 pos=tower hp=50 flee0=1 entry0=100 hpe0=600 hpm0=600 threats0=e0 epos=tower enear=200000
+  expect: still? acute=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=500/1000	hp_ratio=50	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=1	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0xd8:0->1 +0xe0:0->1 +0xe8:0->1 +0x108:88->244 +0x109:2->1 +0x113:0->1 +0x114:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 1, flee_hold_acute_ticks: 1, flee_hold_refuge_ticks: 1, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### G4_flee_still_notacute
+  args: maxhp=1000 line=0 me=0 pos=tower hp=50 flee0=1 entry0=100 hpe0=600 hpm0=600 threats0=e0 epos=tower edx=100000
+  expect: hold=1 acute=0 approached=0 refuge=1 v46_flee=1
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=500/1000	hp_ratio=50	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=1	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0xd8:0->1 +0xe8:0->1 +0x108:88->244 +0x109:2->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 1, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 1, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### G5_flee_still_edge_out
+  args: maxhp=1000 line=0 me=0 pos=tower hp=50 flee0=1 entry0=100 hpe0=600 hpm0=600 threats0=e0 epos=tower edx=250001
+  expect: flee_end (>250000)
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=500/1000	hp_ratio=50	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x0:1->0 +0x58:1->0 +0x78:0->4 +0x80:8->192 +0x81:0->230 +0x82:0->38 +0x83:0->35 +0x84:0->204 +0x85:0->1 +0x88:0->1 +0x108:88->244 +0x109:2->1 +0x112:1->0
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [(100, Top, 0)] } }
+### G6_flee_still_edge_in
+  args: maxhp=1000 line=0 me=0 pos=tower hp=50 flee0=1 entry0=100 hpe0=600 hpm0=600 threats0=e0 epos=tower edx=250000
+  expect: still (<=250000) hold=1 acute=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=500/1000	hp_ratio=50	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=1	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0xd8:0->1 +0xe8:0->1 +0x108:88->244 +0x109:2->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 1, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 1, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### G7_flee_hpmin_keep
+  args: maxhp=1000 line=0 me=0 pos=tower hp=50 flee0=1 entry0=100 hpe0=600 hpm0=400 threats0=e0 epos=tower edx=100000
+  expect: hp_min stays 400
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=500/1000	hp_ratio=50	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=1	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0xd8:0->1 +0xe8:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 1, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 1, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### H1_etnear_hp30
+  args: maxhp=1000 line=0 me=0 pos=tower hp=30 etnear=1
+  expect: in_recall=1 (L1261 hp<31)
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=300/1000	hp_ratio=30	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### H2_etnear_hp31
+  args: maxhp=1000 line=0 me=0 pos=tower hp=31 etnear=1
+  expect: in_recall=0
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=310/1000	hp_ratio=31	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### H3_etnear_hp30_enemies
+  args: maxhp=1000 line=0 me=0 pos=tower hp=30 etnear=1 epos=tower vis=1
+  expect: in_recall=1 (L1256 hp<31)
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=300/1000	hp_ratio=30	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### H4_etnear_hp31_enemies
+  args: maxhp=1000 line=0 me=0 pos=tower hp=31 etnear=1 epos=tower vis=1
+  expect: in_recall=1 (heal 70-5)
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=310/1000	hp_ratio=31	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### R1_return_remain60
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 ret=60
+  expect: in_recall=1 (remain 60 <= tps 60)
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### R2_return_remain61
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 ret=59
+  expect: in_recall=0 (remain 61 > 60)
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=0	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### R3_return_remain0
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 ret=120
+  expect: in_recall=1 (remain 0)
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### R4_return_over
+  args: maxhp=1000 line=0 me=0 pos=tower hp=100 ret=121
+  expect: in_recall=1 (sat_sub 0)
+  world	tick=600	team=0	me=0	line=Top	me=(48000,272000)	hp=1000/1000	hp_ratio=100	in_fountain=false	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=255	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D3c_adj_vis_fountain
+  args: maxhp=1000 line=0 me=0 obj=gank oline=1 hp=70 vis=1
+  expect: 적이 자기 분수(라인 밖)에 있고 가시 → is_near_line? → 결과 관찰
+  world	tick=600	team=0	me=0	line=Top	me=(15000,913000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((48000, 272000, 2))	enemy_tower=Some((272000, 48000, 3))	obj_tag=8	obj_line=1
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
+### D11_adj_hp70_gank_top_me_mid
+  args: maxhp=1000 line=1 me=2 obj=gank oline=0 hp=70 vis=1 epos=tower
+  expect: 적이 내(Mid) 타워에 가시 → my_line_enemy_visible → 유지
+  world	tick=600	team=0	me=2	line=Mid	me=(49000,911000)	hp=700/1000	hp_ratio=70	in_fountain=true	fountain=(0, 896000, 64000, 960000)	line_phase=true	first_spawn=36000	tps=60	my_tower=Some((368000, 592000, 6))	enemy_tower=Some((592000, 368000, 7))	obj_tag=8	obj_line=0
+  RESULT	in_recall=1	v46_commit=0	v46_flee=0	chats_len=0		rnd_used=false	debug_logs=0
+  self_diff	+0x110:0->1
+  v46_pending: V46LaneRecallPending { trigger_ticks: [], danger_ticks: 0, veto_wave: 0, veto_crash: 0, veto_heal: 0, stage2_saves: 0, commit_clears: 0, trigger_wave_enemy_half: 0, trigger_wave_my_half: 0, flee_triggers: 0, flee_hold_ticks: 0, flee_hold_acute_ticks: 0, flee_hold_refuge_ticks: 0, flee_hold_cover_ticks: 0, flee_nohit_episodes: 0, flee_episodes: [] } }
