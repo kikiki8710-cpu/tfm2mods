@@ -168,3 +168,13 @@ sylas/.gemini_key
 # 9) 빌드 위생(PII remap) — cargo 전역 설정. 없으면 dll 에 로컬 경로가 박힌다(0.6.1 실사고).
 !/.cargo/
 !/.cargo/config.toml
+
+# 10) 백업 파일은 추적하지 않는다 (2026-09-23)
+#   MIG 도구(addspec/gensweep 등)가 실행마다 타임스탬프 백업을 남겨 이력이 불어난다 —
+#   0.6.1 회차에 specs20.bak-* 33개만으로 73MB 가 한 번에 들어갔다(그때 삭제).
+#   ⚠이미 추적 중인 파일에는 무효(gitignore 는 미추적 파일만 막는다) ⟹ 참고용으로 남길 백업은
+#   추적 상태를 유지하면 된다(예: tfm2_comptest_unlock/src/*.rs.bak_20260917_pre060 = 클래식 원본).
+*.bak
+*.bak[0-9]*
+*.bak-*
+*.bak_*
