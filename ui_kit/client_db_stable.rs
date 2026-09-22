@@ -8,7 +8,7 @@
 #![allow(dead_code)]
 use mod_api_stable::StableClient;
 
-pub const GAME_VER: &str = "0.6.0";
+pub const GAME_VER: &str = "0.6.1"; // 0.6.1: 0.6.0 오프셋 전부 불변 확인(참조 함수 0x291b10→0x2929c0 disp 7/7 동일 · 0xf178 11/11 · 2026-09-22)
 pub const OFF_SCENE_TAG: usize = 0x1360;
 pub const SCENE_TAG_INGAME: u64 = 0xb;
 pub const OFF_LIVE_PLAYED: usize = 0x15c8;

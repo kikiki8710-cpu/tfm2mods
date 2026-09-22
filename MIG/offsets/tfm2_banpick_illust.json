@@ -1,8 +1,8 @@
 {
  "mod": "tfm2_banpick_illust",
- "game_ver": "0.5.7",
+ "game_ver": "0.5.8",
  "fns": {
-  "0x143de0": {
+  "0x144070": {
    "name": "RVA_ASSET_GET",
    "size": 425,
    "offs": {
@@ -13,7 +13,7 @@
     "0x18": 1
    }
   },
-  "0x182430": {
+  "0x182260": {
    "name": "RVA_SUBMIT",
    "size": 510,
    "offs": {
@@ -22,7 +22,7 @@
     "0x10": 3
    }
   },
-  "0x1826b0": {
+  "0x1824e0": {
    "name": "RVA_SUBMIT_TEXT",
    "size": 583,
    "offs": {
@@ -31,14 +31,14 @@
     "0x10": 4
    }
   },
-  "0x183040": {
+  "0x182e70": {
    "name": "RVA_TEXT_BUILD",
    "size": 1297,
    "offs": {
     "0x10": 1
    }
   },
-  "0x1839b0": {
+  "0x1837e0": {
    "name": "RVA_IMG_UV",
    "size": 401,
    "offs": {
@@ -61,7 +61,7 @@
     "0x84": 2
    }
   },
-  "0x183b50": {
+  "0x183980": {
    "name": "RVA_IMG_BUILD",
    "size": 633,
    "offs": {
@@ -89,7 +89,7 @@
     "0xa8": 1
    }
   },
-  "0x183e90": {
+  "0x183cc0": {
    "name": "RVA_IMG_FLAG",
    "size": 385,
    "offs": {
@@ -112,7 +112,7 @@
     "0x92": 1
    }
   },
-  "0x185490": {
+  "0x1852c0": {
    "name": "RVA_IMG_SHADER",
    "size": 5018,
    "offs": {
@@ -151,7 +151,7 @@
     "0xbc": 2
    }
   },
-  "0x1eeee0": {
+  "0x1eee10": {
    "name": "RVA_IMG_COLOR",
    "size": 2107,
    "offs": {
@@ -190,7 +190,7 @@
     "0xbc": 2
    }
   },
-  "0x74bf10": {
+  "0x7507e0": {
    "name": "RVA_ANIM_GET",
    "size": 425,
    "offs": {
@@ -201,7 +201,7 @@
     "0x18": 1
    }
   },
-  "0x1e598b0": {
+  "0x2140e70": {
    "name": "RVA_FX_SET",
    "size": 1460,
    "offs": {
@@ -225,7 +225,7 @@
     "0x37c": 1
    }
   },
-  "0x1e6f350": {
+  "0x21568c0": {
    "name": "RVA_CARD_DRAW",
    "size": 2979,
    "offs": {
@@ -233,14 +233,14 @@
     "0x10": 1
    }
   },
-  "0x1e8d1e0": {
+  "0x2174b00": {
    "name": "RVA_NAME_GET",
    "size": 331,
    "offs": {
     "0x10": 2
    }
   },
-  "0x1e92110": {
+  "0x2179a30": {
    "name": "RVA_SPRITE_CALC",
    "size": 1405,
    "offs": {
@@ -252,7 +252,7 @@
     "0x20": 1
    }
   },
-  "0x226f290": {
+  "0x207d140": {
    "name": "RVA_ILLUST_GET",
    "size": 617,
    "offs": {
@@ -265,7 +265,7 @@
     "0x24": 1
    }
   },
-  "0x2ab4010": {
+  "0x2b1b410": {
    "name": "RVA_GAME_ALLOC",
    "size": 60,
    "offs": {}

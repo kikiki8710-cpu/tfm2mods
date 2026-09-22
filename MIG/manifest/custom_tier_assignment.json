@@ -1,0 +1,10 @@
+{
+ "mod": "custom_tier_assignment",
+ "game_ver": "0.6.1",
+ "build": "cargo build --release (stable) → <게임>\\mods\\custom_tier_assignment\\ ",
+ "notes": [
+  "ui_kit/team_sync_stable.rs(#[path]) = RVA 3 + 루프 오프셋 → ui_kit.json. facility 와 동일 증상."
+ ],
+ "offsets": [],
+ "entries": []
+}

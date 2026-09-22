@@ -164,3 +164,7 @@ sylas/.gemini_key
 !/banpick_view_plus/
 /banpick_view_plus/target/
 /banpick_view_plus/**/*.bak_*
+
+# 9) 빌드 위생(PII remap) — cargo 전역 설정. 없으면 dll 에 로컬 경로가 박힌다(0.6.1 실사고).
+!/.cargo/
+!/.cargo/config.toml

@@ -3,6 +3,7 @@
  "game_ver": "0.5.7",
  "build": "powershell -File C:\\tfm2mods\\build_inj.ps1 -Src <src>\\lib.rs -ModId tfm2_item_tactics",
  "notes": [
+  "⛔2026-09-22 유저 확정: 0.6.1 부터 마이그 대상 제외(추후 대상 아님). 값 = 0.6.0 기준 마지막 상태. mig_verify.MODS 에서 제거 — 재개 시 EXCLUDED_MODS 참조.",
   "★nat_dd_selected/set_options = ui_kit 미사용 로컬 복사본. 선택 idx=runner+0x1790(ui_kit DD_SELECTED_OFF 와 연동 — 0.5.7 사고 3).",
   "FN_DD_SETOPT 0x1c31f0 은 ui_kit 0x1c2e00 과 별개 함수 — 보류(현재 정상·다음 고장 시 ui_kit 값 1순위, REPORT 02).",
   "MOD_ITEMS_VEC_OFF/ITEM_STRIDE/NT_OFF 는 offset_of! 자가적응 = 매니페스트 불요(0.5.7 전환)."

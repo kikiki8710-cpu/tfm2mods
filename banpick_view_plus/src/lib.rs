@@ -22,7 +22,7 @@ mod draft_scene;
 mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카드 일러) 통합 — 게임 훅 RVA 29(패치마다 재핀)
 
 const MOD_ID: &str = "banpick_view_plus";
-const DBG: bool = false; // 09-20 확정 배포(진단 시 true)
+const DBG: bool = false; // 09-20 확정 배포(진단 시 true — rects/layout 로그가 스크롤 한계를 알려준다)
 const ROOT: &str = "main";
 const DISC: &str = "main.header.bp_settings";
 const PANEL: &str = "main.bp_settings_panel";
@@ -41,6 +41,9 @@ const CONTENTS_Y: f32 = 20.0;
 const VIEWPORT_H: f32 = 880.0;
 const SPACER_H: f32 = 10.0;
 const CARD_H: f32 = 135.0;
+const ROW_GAP: f32 = 11.0;   // layout.ui #contents child_type Table spacing_y
+const SCROLL_SLACK: f32 = 20.0;  // 게임이 스크롤 한계에서 떼어먹는 몫(= bar_padding top+bottom) — 0.6.1 실측
+const BOTTOM_GAP: f32 = 20.0;    // 마지막 줄 아래 보이는 여백
 const CARD_GAP: f32 = 10.0;
 const GRID_COLS: usize = 9;
 const SLOT_W: f32 = 300.0;
@@ -144,6 +147,7 @@ static PICK_STATE: Mutex<Option<PickState>> = Mutex::new(None);
 ///   행 k ↔ 픽 슬롯 = 같은 팀 pick_slot_n 을 y 오름차순으로 정렬한 k 번째(둘 다 라인업 순서 = 탑→서폿). ⚠코치 위임·상대 AI 스왑은 클릭이 없어 추적 불가(한계).
 static SWAP_SEL: Mutex<[Option<usize>; 2]> = Mutex::new([None, None]);
 static SWAP_ACTIVE: AtomicBool = AtomicBool::new(false);
+static HIDE_SIDE_LOG: AtomicBool = AtomicBool::new(false);  // 상대 일러 ? 처리 전환 로그 1회용
 static SWAP_LAST_CLICK: Mutex<Option<(u64, String)>> = Mutex::new(None);
 static NAME_MAP: Mutex<Option<HashMap<String, String>>> = Mutex::new(None); // 표시명 → id
 static AXES: Mutex<Option<HashMap<String, [f32; 8]>>> = Mutex::new(None);
@@ -425,12 +429,18 @@ fn layout_for(_card_area: f32, show: bool) -> (f32, f32) {
     if !show { return (INFO_Y_OFF, VIEWPORT_H); }
     (INFO_Y_ON, INFO_Y_ON - SCROLL_Y)
 }
-/// 스페이서 y = 콘텐츠 실제 끝 + 여백. card_area 는 표의 auto 높이가 아니라 **카드 rect 실측**(보이는 카드 최대 바닥 − 첫 카드 위) —
-///   09-20 실측: `ui_node_rect(contents).3` 은 13줄 중 마지막 1~2줄을 빠뜨렸고(ㅎ 챔프 미표시), 실측 1822px 로 스페이서를 두니 끝까지 닿음.
-///   스크롤 범위는 뷰 높이(640/880)를 제대로 반영하므로 추가 보정은 불필요(+240 을 넣었더니 빈 여백만 늘었다).
+/// 스페이서 y = 콘텐츠 실제 끝 + 여백.
+/// ★0.6.1(09-22) 실측으로 확정한 게임측 관계식(debug.log f3301, 패널 ON·98챔프):
+///   `최대 스크롤 = 스페이서 바닥 − 뷰 높이 − SCROLL_SLACK`
+///   실측 = 스페이서 바닥 1858 · 뷰 640 → 최대 스크롤 **1198**(= 1858−640−20). 20px 은 scroll_view 의
+///   `bar_padding{top:10,bottom:10}` 몫으로 보인다. 그래서 여백을 16px 만 주면 **4px 이 모자라**
+///   마지막 줄 바닥(로컬 1842)이 클립 바닥(745)보다 4px 아래(749)에 놓여 **테두리가 잘린다**
+///   — 유저 제보 "살짝 잘린다"의 정체. 카드 rect·contents auto 높이 어느 쪽도 이 몫을 알려주지 않는다.
+///   ⟹ 여백 = SCROLL_SLACK(20) + 보이는 여백(20) = 40.
+///   여백이 과해도 손해는 아래쪽 빈 공간뿐이고(과거 +240 시 관측), 모자라면 곧바로 잘린다 ⟹ 넉넉한 쪽.
 fn spacer_y(card_area: f32, _view_h: f32) -> f32 {
     if card_area <= 0.0 { return 0.0; }
-    CONTENTS_Y + card_area + 16.0 - SPACER_H
+    CONTENTS_Y + card_area + SCROLL_SLACK + BOTTOM_GAP - SPACER_H
 }
 fn push_click(s: &str) { PENDING_CLICKS.lock().unwrap_or_else(|e| e.into_inner()).push(s.to_string()); }
 fn name_map(ctx: &StableClient<'_>) -> HashMap<String, String> {
@@ -664,12 +674,28 @@ impl StableExtension for Ext {
             let dim = bg_key.is_some();
             if DIM_STATE.load(Ordering::Relaxed) != dim { for (p, orig, dimc) in DIM_NODES { if ctx.ui_exists(p) { ctx.ui_set_properties(p, &format!("color: {};", if dim { dimc } else { orig })); } } DIM_STATE.store(dim, Ordering::Relaxed); }
             // ── 픽 슬롯 스플래시 + 순환 버튼
+            // ★0.6.1(09-22 유저 요청): **내가 스왑을 확정한 뒤 상대가 확정할 때까지 상대 진영 일러를 "?" 로 되돌린다.**
+            //   (확정 후에도 상대 슬롯에 최종이 아닌 배치가 그대로 보여 정보가 새는 것을 막는다.)
+            //   판정 = 씬 raw `phase==7(스왑)` + `sent!=0`(내 SwapDone 전송됨, 0x466) + 스왑 화면이 아직 떠 있음.
+            //   내 진영 = player_team_id 가 t1_id(블루)/t2_id(레드) 중 어느 쪽인가. 못 가리면 **아무것도 안 한다**(폴백).
+            let hide_side: Option<bool> = if ctx.ui_visible("main.swap").unwrap_or(false) {
+                draft_scene::read().filter(|r| r.is_swap() && r.sent != 0).and_then(|r| {
+                    let me = ctx.player_team_id()? as u64;
+                    if me == r.t1_id { Some(false) } else if me == r.t2_id { Some(true) } else { None }  // 숨길 쪽 = 상대
+                })
+            } else { None };
+            if HIDE_SIDE_LOG.swap(hide_side.is_some(), Ordering::Relaxed) != hide_side.is_some() {
+                log(&format!("스왑 확정 대기: 상대({}) 일러 ? 처리 = {}", if hide_side == Some(true) { "블루" } else { "레드" }, hide_side.is_some()));
+            }
             let mut want_splash: HashMap<String, String> = HashMap::new();
             let mut grace = SLOT_GRACE.lock().unwrap_or_else(|e| e.into_inner());
             for ((is_blue, n), r) in &slot_rects {
                 let team = if *is_blue { "blue" } else { "red" };
                 let slot = format!("main.{}_picks.pick_slot_{}", team, n);
-                let id = slots.get(&(*is_blue, *n)).cloned().unwrap_or_default();
+                let mut id = slots.get(&(*is_blue, *n)).cloned().unwrap_or_default();
+                if hide_side == Some(*is_blue) && !id.is_empty() {
+                    id = if *is_blue { "question_blue".into() } else { "question_red".into() };  // 상대 확정 전 = 물음표로 되돌림
+                }
                 let key = chosen_key(&il, &id);
                 let sp = format!("{}.done.bp_splash", slot);
                 // ★09-17(유저 제보): 레드 대기 슬롯의 "?" 플레이스홀더까지 좌우반전되던 것 → 챔피언 일러만 반전, question_* 은 반전 안 함.
@@ -726,24 +752,46 @@ impl StableExtension for Ext {
             }
             // ── 하단 패널 레이아웃
             // ★09-20: card_area = 카드 rect 실측(보이는 카드의 최대 바닥 − 첫 카드 위). 표 auto 높이는 마지막 1~2줄을 빠뜨렸다(ㅎ 챔프 미표시 제보).
+            // ★0.6.1(09-22, 유저 제보 "여전히 마지막 줄이 살짝 잘린다"): rect 실측은 **스크롤 클립에 잘린 값**이다
+            //   (화면 밖 줄 = 높이 0, 걸친 줄 = 잘린 높이). 그래서 마지막 줄 바닥이 언제나 "클립 바닥"으로 보고되고,
+            //   스페이서가 딱 그만큼만 자라 **마지막 줄이 클립에 닿은 상태로 수렴**한다(자기충족 루프 — +16 여백이 영영 안 생김).
+            //   ⟹ 실측은 **한 칸 높이·열 수**에만 쓰고, 전체 높이는 **카드 수로 계산**한다(스크롤 위치 무관).
             let card_area = {
-                let mut top = f32::MAX; let mut bottom = f32::MIN;
+                let mut cell_h = 0.0f32; let mut xs: Vec<f32> = Vec::new(); let mut vis = 0usize;
                 for id in &cards {
                     let cp = format!("{}.{}", CARDS, id);
                     if ctx.ui_visible(&cp) != Some(true) { continue; }
-                    if let Some(r) = ctx.ui_node_rect(&cp) { if r.3 > 0.0 { top = top.min(r.1); bottom = bottom.max(r.1 + r.3); } }
+                    vis += 1;
+                    if let Some(r) = ctx.ui_node_rect(&cp) {
+                        if r.3 > 0.0 {
+                            cell_h = cell_h.max(r.3);                         // 완전히 보이는 줄이 진짜 카드 높이를 준다
+                            if !xs.iter().any(|x| (x - r.0).abs() < 1.0) { xs.push(r.0); }
+                        }
+                    }
                 }
-                if bottom > top { bottom - top } else { ctx.ui_node_rect(CARDS).map(|r| r.3).unwrap_or(0.0) }
+                let cols = xs.len().max(1);
+                if cell_h <= 0.0 || vis == 0 { ctx.ui_node_rect(CARDS).map(|r| r.3).unwrap_or(0.0) }
+                else {
+                    let rows = vis.div_ceil(cols);
+                    rows as f32 * cell_h + rows.saturating_sub(1) as f32 * ROW_GAP
+                }
             };
             let (py, vh) = layout_for(card_area, c.show_panel);
             let sy = spacer_y(card_area, vh);
+            if DBG && f % 60 == 0 {
+                let lastc = cards.last().map(|id| format!("{}.{}", CARDS, id)).unwrap_or_default();
+                log(&format!("rects: clip={:?} contents={:?} spacer(exists={})={:?} last({})={:?}",
+                    ctx.ui_node_rect("main.champions"), ctx.ui_node_rect(CARDS),
+                    ctx.ui_exists("main.champions.bp_spacer"), ctx.ui_node_rect("main.champions.bp_spacer"),
+                    lastc, ctx.ui_node_rect(&lastc)));
+            }
             {
                 let mut last = LAST_LAYOUT.lock().unwrap_or_else(|e| e.into_inner());
                 if (last.0 - py).abs() > 0.5 || (last.1 - sy).abs() > 0.5 {
-                    ctx.ui_set_properties("main.champion_info", &format!("y: {}px;", py as i32));
-                    ctx.ui_set_properties("main.champions", &format!("height: {}px;", vh as i32));
-                    ctx.ui_set_properties("main.champions.bp_spacer", &format!("y: {}px;", sy as i32));
-                    if DBG { log(&format!("layout: panel y={} view h={} spacer y={} card_area={} cards={}", py, vh, sy, card_area, cards.len())); }
+                    let r1 = ctx.ui_set_properties("main.champion_info", &format!("y: {}px;", py as i32));
+                    let r2 = ctx.ui_set_properties("main.champions", &format!("height: {}px;", vh as i32));
+                    let r3 = ctx.ui_set_properties("main.champions.bp_spacer", &format!("y: {}px;", sy as i32));
+                    if DBG { log(&format!("layout: panel y={} view h={} spacer y={} card_area={} cards={} set={}/{}/{}", py, vh, sy, card_area, cards.len(), r1, r2, r3)); }
                     *last = (py, sy);
                 }
             }

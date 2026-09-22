@@ -1,10 +1,11 @@
 {
  "mod": "ui_kit",
- "game_ver": "0.5.7",
+ "game_ver": "0.6.1",
  "build": "(공유모듈 — 자체 dll 없음. 반영 = 소비 모드 재빌드)",
  "notes": [
   "★#[path] import 공유모듈 = 설치 모드 스캔에 안 잡힘(0.5.7 사고 1·2의 근원). 마이그 때 반드시 이 매니페스트로 확인.",
-  "소비 모드의 로컬 복사본(nat_dd_*)은 dups 로 확인 — 여기만 고치면 item_tactics/comptest 는 안 고쳐진다(0x1788 사고)."
+  "소비 모드의 로컬 복사본(nat_dd_*)은 dups 로 확인 — 여기만 고치면 item_tactics/comptest 는 안 고쳐진다(0x1788 사고).",
+  "0.6.1: stable 헬퍼(training_plan/team_sync/draft_scene) RVA 는 0.6.0 신설분인데 gen 을 안 돌려 미등록이었다(coverage 10건). 소비 모드 = training_view_plus·facility_view_plus·custom_tier_assignment(RE 헬퍼)·banpick_view_plus·champ_pos_lock(draft_scene). 게임 dll 엔 RVA 리터럴이 컴파일돼 들어가므로 이 3종은 \"순수 stable\" 이 아니다."
  ],
  "offsets": [
   {
@@ -48,13 +49,55 @@
    "ver": "0.5.7",
    "prev": "불변",
    "verify": "RE"
+  },
+  {
+   "name": "OFF_SERVER_IN_LOOP",
+   "value": "0x6c0",
+   "ver": "0.6.1",
+   "prev": "0.6.0=0x9d8",
+   "verify": "서버 루프(구 0x2996d30→신 0x22c4f40)의 대핸들러 유일 콜사이트 lea rdx,[rbx+X] — team_sync/training_plan 공용"
+  },
+  {
+   "name": "OFF_SENDER_IN_LOOP",
+   "value": "0x290",
+   "ver": "0.6.1",
+   "prev": "0.6.0=0x3f0",
+   "verify": "같은 콜사이트 lea r9,[rbx+X]"
+  },
+  {
+   "name": "OFF_ADDR_IN_LOOP",
+   "value": "0x1c0",
+   "ver": "0.6.1",
+   "prev": "0.6.0=0x1a0",
+   "verify": "같은 콜사이트 [rsp+0x28]=lea rax,[rbx+X] (SocketAddr 복사본)"
+  },
+  {
+   "name": "OFF_STATE_IN_LOOP",
+   "value": "0x60",
+   "ver": "0.6.1",
+   "prev": "0.6.0=0x50",
+   "verify": "콜 직전 mov r12,[rbx+X] (r12=rcx=state) — 가드①"
+  },
+  {
+   "name": "OFF_TRAINING_PLANS(Database)",
+   "value": "0x16f08",
+   "ver": "0.6.1",
+   "prev": "불변",
+   "verify": "대핸들러 Database disp 히스토그램 0x16700~0x177af 구·신 동일(4/4). Database 는 0x19388 이후만 성장"
+  },
+  {
+   "name": "draft scene 오프셋(0xce/0x168/0x180/0x198/0x1b0/0x3a8/0x3f8/0x400/0x466)",
+   "value": "불변",
+   "ver": "0.6.1",
+   "prev": "0.6.0 동일",
+   "verify": "RVA_UPDATE 본문 non-stack disp 히스토그램 대조 — ⬜인게임(banpick_view_plus 스왑) 확인 전"
   }
  ],
  "entries": [
   {
    "name": "DD_SETOPT_RVA",
-   "value": "0x1c2d30",
-   "ver": "0.5.8",
+   "value": "0x1e7ba0",
+   "ver": "0.6.1",
    "kind": "FN_START",
    "locs": [
     "ui_kit.rs:939"
@@ -63,6 +106,138 @@
    "bytes": "55415741565657534883ec58",
    "method": "0.5.6=0x1c1710 바이트동일 match_fn UNIQUE. 프롤로그 55 41 57 41 56 56 57 53 48 83 ec 58",
    "note": "downcast_ref::<DropdownRunner> 로 제거 가능(컴파일 확인·런타임 미검증)",
+   "curated": true
+  },
+  {
+   "name": "RVA_DROP_MAP",
+   "value": "0x2f62c0",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "training_plan_stable.rs:15"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575553",
+   "method": "0.6.1: repin BYTES_UNIQUE/CG + skel·head·mnem SAME + 정규화 디스어셈 operand-diff 0(SANITIZE 만 state+0x19388→0x1bfb8 내부 disp 2건 = Database 후반부 성장, 호출 계약 불변)",
+   "curated": true
+  },
+  {
+   "name": "RVA_DROP_PLAN",
+   "value": "0x306870",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "training_plan_stable.rs:14"
+   ],
+   "sect": ".text",
+   "bytes": "555657534883ec48488d6c24",
+   "method": "0.6.1: repin BYTES_UNIQUE/CG + skel·head·mnem SAME + 정규화 디스어셈 operand-diff 0(SANITIZE 만 state+0x19388→0x1bfb8 내부 disp 2건 = Database 후반부 성장, 호출 계약 불변)",
+   "curated": true
+  },
+  {
+   "name": "RVA_INSERT",
+   "value": "0xced790",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "training_plan_stable.rs:16"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641545657534883",
+   "method": "0.6.1: repin BYTES_UNIQUE/CG + skel·head·mnem SAME + 정규화 디스어셈 operand-diff 0(SANITIZE 만 state+0x19388→0x1bfb8 내부 disp 2건 = Database 후반부 성장, 호출 계약 불변)",
+   "curated": true
+  },
+  {
+   "name": "RVA_CLONE",
+   "value": "0x1e69780",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "training_plan_stable.rs:13"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "0.6.1: repin BYTES_UNIQUE/CG + skel·head·mnem SAME + 정규화 디스어셈 operand-diff 0(SANITIZE 만 state+0x19388→0x1bfb8 내부 disp 2건 = Database 후반부 성장, 호출 계약 불변)",
+   "curated": true
+  },
+  {
+   "name": "RVA_DROP",
+   "value": "0x251bd00",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "team_sync_stable.rs:17",
+    "training_plan_stable.rs:20"
+   ],
+   "sect": ".text",
+   "bytes": "488b114883faff74234883ea",
+   "method": "0.6.1: masked 바이트패턴 3클론 중 신 대핸들러(0x255ce50) 본문 콜 = 0x251bd00. .pdata 밖 leaf 라 fnindex 에 없음 → repin FAIL 정상",
+   "curated": true
+  },
+  {
+   "name": "RVA_SEND",
+   "value": "0x255a520",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "team_sync_stable.rs:16",
+    "training_plan_stable.rs:19"
+   ],
+   "sect": ".text",
+   "bytes": "555657534881ec180f000048",
+   "method": "0.6.1: repin BYTES_UNIQUE/CG + skel·head·mnem SAME + 정규화 디스어셈 operand-diff 0(SANITIZE 만 state+0x19388→0x1bfb8 내부 disp 2건 = Database 후반부 성장, 호출 계약 불변)",
+   "curated": true
+  },
+  {
+   "name": "RVA_BUILD",
+   "value": "0x25b0960",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "team_sync_stable.rs:15"
+   ],
+   "sect": ".text",
+   "bytes": "555657534881ece808000048",
+   "method": "0.6.1: repin BYTES_UNIQUE/CG + skel·head·mnem SAME + 정규화 디스어셈 operand-diff 0(SANITIZE 만 state+0x19388→0x1bfb8 내부 disp 2건 = Database 후반부 성장, 호출 계약 불변)",
+   "curated": true
+  },
+  {
+   "name": "RVA_SANITIZE",
+   "value": "0x25ca570",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "training_plan_stable.rs:17"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "0.6.1: repin BYTES_UNIQUE/CG + skel·head·mnem SAME + 정규화 디스어셈 operand-diff 0(SANITIZE 만 state+0x19388→0x1bfb8 내부 disp 2건 = Database 후반부 성장, 호출 계약 불변)",
+   "curated": true
+  },
+  {
+   "name": "RVA_UPDATE",
+   "value": "0x24c34a0",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "draft_scene_stable.rs:14"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "0.6.1: mnem cosine 1.0 + head SAME(size 132790→132128, callees 145→148 = 본문 소폭 수정). 씬 disp 0xce/0x168/0x180/0x198/0x1b0/0x3a8/0x3f8/0x400/0x466 히스토그램 불변",
+   "curated": true
+  },
+  {
+   "name": "RVA_RESPONSE",
+   "value": "0x228ac80",
+   "ver": "0.6.1",
+   "kind": "FN_START",
+   "locs": [
+    "training_plan_stable.rs:18"
+   ],
+   "sect": ".text",
+   "bytes": "555657534883ec38488d6c24",
+   "method": "0.6.1: repin BYTES_UNIQUE/CG + skel·head·mnem SAME + 정규화 디스어셈 operand-diff 0(SANITIZE 만 state+0x19388→0x1bfb8 내부 disp 2건 = Database 후반부 성장, 호출 계약 불변)",
    "curated": true
   }
  ]

@@ -1,8 +1,8 @@
 {
  "mod": "tfm2_banpick_order",
- "game_ver": "0.5.7",
+ "game_ver": "0.5.8",
  "fns": {
-  "0x1642600": {
+  "0x1056c00": {
    "name": "RVA_COMMIT",
    "size": 1675,
    "offs": {
@@ -11,7 +11,7 @@
     "0x152": 2
    }
   },
-  "0x1e458d0": {
+  "0x212cf00": {
    "name": "RVA_APP_PICK_T1",
    "size": 338,
    "offs": {
@@ -23,7 +23,7 @@
     "0x20": 1
    }
   },
-  "0x1e45a60": {
+  "0x212d090": {
    "name": "RVA_APP_PICK_T2",
    "size": 338,
    "offs": {
@@ -35,7 +35,7 @@
     "0x20": 1
    }
   },
-  "0x1e46390": {
+  "0x212d9c0": {
    "name": "RVA_LINEUP",
    "size": 2338,
    "offs": {
@@ -55,7 +55,7 @@
     "0x1b8": 2
    }
   },
-  "0x1e4fa70": {
+  "0x2137030": {
    "name": "RVA_TRANSITION",
    "size": 14295,
    "offs": {
@@ -126,7 +126,7 @@
     "0x178": 1
    }
   },
-  "0x1e56e00": {
+  "0x213e3c0": {
    "name": "RVA_BANNER",
    "size": 401,
    "offs": {
@@ -146,7 +146,7 @@
     "0x1fc": 1
    }
   },
-  "0x1e59680": {
+  "0x2140c40": {
    "name": "RVA_APPLIER",
    "size": 547,
    "offs": {
@@ -164,7 +164,7 @@
     "0x190": 1
    }
   },
-  "0x1e782a0": {
+  "0x215f810": {
    "name": "RVA_TRIGGER",
    "size": 1567,
    "offs": {
@@ -204,7 +204,7 @@
     "0x200": 1
    }
   },
-  "0x1e83360": {
+  "0x216a8d0": {
    "name": "RVA_APP_BAN_T1",
    "size": 335,
    "offs": {
@@ -216,7 +216,7 @@
     "0x20": 1
    }
   },
-  "0x1e834e0": {
+  "0x216aa50": {
    "name": "RVA_APP_BAN_T2",
    "size": 335,
    "offs": {
@@ -228,7 +228,7 @@
     "0x20": 1
    }
   },
-  "0x1e98ed0": {
+  "0x2180b10": {
    "name": "RVA_SLOTUPD",
    "size": 4493,
    "offs": {
@@ -258,7 +258,7 @@
     "0x17c": 1
    }
   },
-  "0x2aaf154": {
+  "0x2b16554": {
    "name": "RVA_PANIC_HOOK",
    "size": 527,
    "offs": {

@@ -3,6 +3,7 @@
  "game_ver": "0.5.7",
  "build": "(tfm2_html_overlay_stable 참조)",
  "notes": [
+  "⛔2026-09-22 유저 확정: 0.6.1 부터 마이그 대상 제외(추후 대상 아님). 값 = 0.6.0 기준 마지막 상태. mig_verify.MODS 에서 제거 — 재개 시 EXCLUDED_MODS 참조.",
   "stable ABI — 소스 정본 = tfm2_html_overlay_stable(Cargo)."
  ],
  "offsets": [],

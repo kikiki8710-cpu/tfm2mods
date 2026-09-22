@@ -3,6 +3,7 @@
  "game_ver": "0.5.7",
  "build": "",
  "notes": [
+  "⛔2026-09-22 유저 확정: 0.6.1 부터 마이그 대상 제외(추후 대상 아님). 값 = 0.6.0 기준 마지막 상태. mig_verify.MODS 에서 제거 — 재개 시 EXCLUDED_MODS 참조.",
   "★유저 제외 판정(0.5.7 마이그 대상 아님) — 전 엔트리 0.5.6 값.",
   "⚠2026-08-29 정정: 이 제외가 마이그 누락 1건을 낳았다. EFF_VT_BASE(0.5.6 0x34200d8)는 0.5.7에서 무효 = effect vtable이 35슬롯(stride 0x118) -> 36슬롯(stride 0x120)으로 바뀌었다(구 +0x28과 +0x30 사이 1개 삽입 -> 구 +0x30 이상 전부 +8).",
   "0.5.7 확정값 = EFF_VT_BASE 0x33FF9C8 / 개수 57 / stride 0x120. 소스(sylas/src/lib.rs)에는 반영 완료. 이 엔트리의 value/bytes는 아직 0.5.6 채록이므로 재채록 필요(version-migrator).",
@@ -12,8 +13,8 @@
  "entries": [
   {
    "name": "RVA_BOXDROP",
-   "value": "0xec780",
-   "ver": "0.5.8",
+   "value": "0xee110",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1309"
@@ -35,7 +36,7 @@
     "src/lib.rs:4070"
    ],
    "sect": ".text",
-   "bytes": "8b416489c1d1e981e1555555",
+   "bytes": "c9f34c0f2cc94531d20f57d2",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "curated": true,
@@ -43,26 +44,26 @@
   },
   {
    "name": "VIEWLOOP_RVA",
-   "value": "0x94e160",
-   "ver": "0.5.8",
+   "value": "0xc5e6b0",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2436"
    ],
    "sect": ".text",
-   "bytes": "488bb508010000483bb5a800",
+   "bytes": "4c3ba5980000000f84669300",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "VIEWLOOKUP_RVA",
-   "value": "0x950dc5",
-   "ver": "0.5.8",
+   "value": "0xc6155f",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2435"
    ],
    "sect": ".text",
-   "bytes": "488b85e80600004883784800",
+   "bytes": "488b85580700004883784800",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -74,13 +75,15 @@
     "src/lib.rs:2433"
    ],
    "sect": ".text",
-   "bytes": "4c8bb5c0050000e98cd1ffff",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "0048c1e604488975d8498d04",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "unresolved": "0.6.0",
+   "note": "⬜0.6.0 미해결: VIEWFAIL: 신 owner 에 동형 실패exit 13곳 — 어느 것이 AnimData 이름조회 실패인지 ghidra-re 필요(idle_fallback 기본 OFF)"
   },
   {
    "name": "AIEVAL_RVA",
-   "value": "0xd399a0",
-   "ver": "0.5.8",
+   "value": "0xde6080",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2520"
@@ -91,8 +94,8 @@
   },
   {
    "name": "CVIEW_RVA",
-   "value": "0x17f5700",
-   "ver": "0.5.8",
+   "value": "0x16b3a80",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2418"
@@ -103,20 +106,21 @@
   },
   {
    "name": "EMIT_RVA",
-   "value": "0x17fc840",
-   "ver": "0.5.8",
+   "value": "0x16baaa0",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1796"
    ],
    "sect": ".text",
    "bytes": "555657534883ec78488d6c24",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "note": "⬜0.6.0 미해결: 12B 9후보 / fn:NONE skel 후보0 / head후보 4 | cg 판별실패 (1위 7.00 2위 6.96, 후보 5) (caller제한 5->5) / mid:OWNER_NONE owner=0x17fc840 off=0x0 skel 후보0 / head후보 4 | cg 판별실패 (1위 7.00 2위 6.96, 후보 5) (caller제한 5->5) | ★0.6.0: 콜러 사영(0x129dfe0→0x165c6a0)·프롤로그 13B 동일·size 302→300"
   },
   {
    "name": "KZONE_RVA",
-   "value": "0x16a3730",
-   "ver": "0.5.8",
+   "value": "0x17df850",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2408"
@@ -127,8 +131,8 @@
   },
   {
    "name": "ADDBUFF_RVA",
-   "value": "0x1150800",
-   "ver": "0.5.8",
+   "value": "0x1403130",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1247"
@@ -139,8 +143,8 @@
   },
   {
    "name": "CVIEW_APPLY_RVA",
-   "value": "0x17c40a0",
-   "ver": "0.5.8",
+   "value": "0x17e2c50",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2421"
@@ -151,32 +155,34 @@
   },
   {
    "name": "CLONE_RVA",
-   "value": "0x16f45d0",
-   "ver": "0.5.8",
+   "value": "0x1851260",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:107"
    ],
    "sect": ".text",
    "bytes": "554157415641554154565753",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "note": "★0.6.0 정정: repin BYTES_UNIQUE(32B) 0x1344d60 오답(callee 사영 0/9) → HEAD 매칭 0x1851260(callee 7/9·callers 3/4 사영 일치·size 9803→10366)"
   },
   {
    "name": "GRAB_RVA",
-   "value": "0x13bf990",
-   "ver": "0.5.8",
+   "value": "0x185daf0",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:22"
    ],
    "sect": ".text",
-   "bytes": "4157415641545657534883ec",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "415741564155415456575348",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "note": "⬜0.6.0 미해결: 12B 9후보 / fn:NONE skel 후보0 / head후보 0 / mid:OWNER_NONE owner=0x13bf990 off=0x0 skel 후보0 / head후보 0 | ★0.6.0: effect vtable entry 8 apply 슬롯(+0x20) 에서 도출 · 본문 동형 · 프롤로그 변경(GRAB_SIG/GRAB_LEN 동시 갱신)"
   },
   {
    "name": "BASEULT_RVA",
-   "value": "0x1753cf0",
-   "ver": "0.5.8",
+   "value": "0x18b2540",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:100"
@@ -187,8 +193,8 @@
   },
   {
    "name": "ETICK_RVA",
-   "value": "0x128fe80",
-   "ver": "0.5.8",
+   "value": "0x164e550",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:667"
@@ -199,8 +205,8 @@
   },
   {
    "name": "RVA_ASSEMBLE",
-   "value": "0x129c0b0",
-   "ver": "0.5.8",
+   "value": "0x165a780",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1308"
@@ -211,8 +217,8 @@
   },
   {
    "name": "BUFFPUSH_RVA",
-   "value": "0x129e660",
-   "ver": "0.5.8",
+   "value": "0x165cd20",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1252"
@@ -223,8 +229,8 @@
   },
   {
    "name": "COMBINE_RVA",
-   "value": "0x12a70b0",
-   "ver": "0.5.8",
+   "value": "0x1acfe90",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:31"
@@ -235,8 +241,8 @@
   },
   {
    "name": "JT_RVA",
-   "value": "0x1285640",
-   "ver": "0.5.8",
+   "value": "0x16435e0",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:94"
@@ -247,8 +253,8 @@
   },
   {
    "name": "COMBINE_APPLYS",
-   "value": "0x11f7b90",
-   "ver": "0.5.8",
+   "value": "0x135be50",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:40"
@@ -259,8 +265,8 @@
   },
   {
    "name": "COMBINE_APPLYS",
-   "value": "0x11f7cc0",
-   "ver": "0.5.8",
+   "value": "0x135bf80",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:40"
@@ -271,8 +277,8 @@
   },
   {
    "name": "INLINE@src/lib.rs:3200",
-   "value": "0x1222cc0",
-   "ver": "0.5.8",
+   "value": "0x1381540",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:3200",
@@ -284,8 +290,8 @@
   },
   {
    "name": "TAGSEL_RVA",
-   "value": "0x2069c50",
-   "ver": "0.5.8",
+   "value": "0x2073c00",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1643"
@@ -296,8 +302,8 @@
   },
   {
    "name": "ALLOC_RVA",
-   "value": "0x2b1b410",
-   "ver": "0.5.8",
+   "value": "0x2f380b0",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:42"
@@ -308,8 +314,8 @@
   },
   {
    "name": "EFF_VT_BASE",
-   "value": "0x3494778",
-   "ver": "0.5.8",
+   "value": "0x3b3f748",
+   "ver": "0.6.0",
    "kind": "RDATA_TABLE",
    "locs": [
     "src/lib.rs:1559"
@@ -329,7 +335,7 @@
     "src/lib.rs:179"
    ],
    "sect": ".rdata",
-   "bytes": "38043c042000410442043004",
+   "bytes": "25022116a27e232225112d07",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "curated": true,
@@ -337,8 +343,8 @@
   },
   {
    "name": "CASTANIM_RVA",
-   "value": "0x17f2d60",
-   "ver": "0.5.8",
+   "value": "0x16b1100",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2089"

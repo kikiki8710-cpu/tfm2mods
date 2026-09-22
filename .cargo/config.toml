@@ -1,0 +1,20 @@
+# ★[2026-09-22 / 0.6.1] `C:\tfm2mods\` 아래 **모든 cargo 빌드**에 소스 절대경로 remap 을 강제한다(PII 유출 방지).
+#
+# 왜 여기(루트)인가: cargo 는 패키지 디렉터리에서 **상위로 올라가며** `.cargo\config.toml` 을 찾는다.
+#   모드가 전부 `C:\tfm2mods\<MOD_ID>\` 라서 이 파일 하나면 어느 셸·누가 빌드하든 항상 적용된다.
+#
+# 무엇을 막는가: rustc 는 panic Location 으로 소스 절대경로를 바이너리에 박는다. 0.6.0 부터 stable 모드는
+#   전부 `cargo build --release` 경로라, 구 rustc 직접호출 경로(`build_full_remap.ps1`)의 remap 을 안 탄다.
+#   그 결과 의존 크레이트의 registry 경로(`C:\Users\jungs\.cargo\registry\...`)·std 경로(`.rustup\...`)가 박힌다.
+#
+# ⚠실사고 이력: 0.5.4 legacy_save_patcher / 0.5.5 daram2 7종 / **0.6.1(2026-09-22) 재빌드 9종** — 매번
+#   "빌드 경로가 바뀌면 위생 조치가 조용히 빠진다"는 같은 함정이었다. 그래서 환경변수(RUSTFLAGS)가 아니라
+#   **저장소에 커밋되는 설정 파일**로 못 박는다(`$env:RUSTFLAGS` 는 `cmd /c` 자식에 전달 안 되는 전례도 있다).
+#   검사는 `rel_060.py` 가 zip 생성 때 매번 수행(`C:\Users`·`jungs`·`kikiki8710` 스캔).
+[build]
+rustflags = [
+  "--remap-path-prefix=C:\\Users\\jungs\\.cargo=cargo",
+  "--remap-path-prefix=C:\\Users\\jungs\\.rustup=rustup",
+  "--remap-path-prefix=C:\\Users\\jungs=~",
+  "--remap-path-prefix=C:\\tfm2mods=src",
+]

@@ -7,7 +7,7 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// 신챔프 추가 후보 Vec<String> 생성 함수 — ★0.6.0 재핀(MIG/manifest/tfm2_champion_exclude.json HOOK_RVA, FN_UNIQUE size 331 동일; 0.5.6 0x1894610).
-pub const HOOK_RVA: usize = 0x1b2c140;
+pub const HOOK_RVA: usize = 0x1b5c490;
 /// 프롤로그: push rbp; push r15; push r14; push r12; push rsi; push rdi; push rbx; sub rsp,0xA0 (17B, rip-rel 없음)
 const HOOK_ORIG: [u8; 17] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x81, 0xEC, 0xA0, 0x00, 0x00, 0x00];
 const ORIG_LEN: usize = 17;

@@ -1,32 +1,34 @@
 {
  "mod": "tfm2_level_cap",
- "game_ver": "0.5.7",
+ "game_ver": "0.6.1",
  "build": "",
- "notes": [],
+ "notes": [
+  "0.6.1(09-22): 방법② `cmp r,[reg+0xd10]` .text 전역 2히트(rax 베이스=UI 0x8d3b84 / rbp 베이스=미패치, 0.6.0 도 동일 2히트) · LEN_LOAD = owner 0x151ebc0→0x14e9a10 skel SAME +0x474 · orig 7B(48 8b 90 / 48 3b 88) 불변 · 인게임 levelup patched 카운터 증가·Lv15 실측"
+ ],
  "offsets": [],
  "entries": [
   {
    "name": "RVA_UI_CMP",
-   "value": "0x9560d9",
-   "ver": "0.5.8",
+   "value": "0x8d3b84",
+   "ver": "0.6.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:122"
+    "src/lib.rs:124"
    ],
    "sect": ".text",
-   "bytes": "483b88100d00000f873c0900",
+   "bytes": "483b88100d00000f87570800",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_LEN_LOAD",
-   "value": "0x1835b4a",
-   "ver": "0.5.8",
+   "value": "0x14e9e84",
+   "ver": "0.6.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:110"
+    "src/lib.rs:112"
    ],
    "sect": ".text",
-   "bytes": "498b96100d00004839d70f87",
+   "bytes": "488b90100d00004939d60f87",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   }
  ]

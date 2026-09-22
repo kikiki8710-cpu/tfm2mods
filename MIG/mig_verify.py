@@ -22,22 +22,25 @@ MIGD = os.path.join(ROOT, 'MIG')
 MAND = os.path.join(MIGD, 'manifest')
 GAME_EXE = r'C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\TeamfightManager2.exe'
 RVA_LO, RVA_HI = 0x80000, 0x4800000   # .text + RVA vtable(.rdata ~0x34e6a20) 포함
-GAME_VER = '0.5.8'   # gen 이 새 엔트리에 박는 버전 라벨(패치마다 갱신)
+GAME_VER = '0.6.1'   # gen 이 새 엔트리에 박는 버전 라벨(패치마다 갱신) — 2026-09-22 0.6.1
 
 NBYTES = 12                            # 엔트리당 채록 바이트
 
 # 마이그 대상 모드 (설치 여부 아님 — ui_kit 같은 공유모듈 포함이 이 목록의 존재 이유)
 MODS = [
-  'tfm2_ai_adjust', 'tfm2_item_tactics', 'tfm2_champ_pos_lock',
-  'tfm2_comptest_unlock', 'tfm2_banpick_order', 'tfm2_banpick_illust',
-  'tfm2_elemental_serpen', 'tfm2_draft_overlay', 'tfm2_flow_capture',
-  'tfm2_stat_exp', 'tfm2_level_cap', 'tfm2_champion_exclude',
-  'tfm2_bancard_keep', 'tfm2_mod_order', 'tfm2_html_overlay',
-  'sylas', 'Spectator_Chat', 'community_reaction_mod',
-  'tfm2_meta_item_delegate',
+  # ★2026-09-22 유저 확정(0.6.1): 마이그 대상 = 아래 6 + 공유 ui_kit + ui_kit 헬퍼 소비 3종.
+  #   제외(추후 마이그 대상 아님): ai_adjust·item_tactics·banpick_order·banpick_illust(→view_plus 통합)·draft_overlay·flow_capture·stat_exp·bancard_keep·sylas·html_overlay
+  #   순수 stable(패치 대응 불필요, deps >=0.6.0 상한 없음): mod_order·roster/coaching_staff/recruitment_view_plus·Spectator_Chat·crm·meta_item_delegate·legacy_save_patcher
+  'tfm2_level_cap', 'tfm2_champion_exclude', 'banpick_view_plus',
+  'tfm2_comptest_unlock', 'tfm2_elemental_serpen', 'tfm2_champ_pos_lock',
+  'training_view_plus', 'facility_view_plus', 'custom_tier_assignment',  # 자체 RVA 0 이지만 ui_kit RE 헬퍼(#[path]) 소비 = 재빌드 대상(0.6.1 발견)
   'ui_kit',   # 공유모듈(dll 없음) — 0.5.7 사고 1·2 의 근원
 ]
-SKIP_DIRS = {'target', '_archive', 'backup_0.2.26', 'release'}
+# 제외 모드 매니페스트는 manifest\ 에 보존(값 = 마지막 마이그 버전). 재개 시 여기 다시 넣고 check.
+EXCLUDED_MODS = ['tfm2_ai_adjust', 'tfm2_item_tactics', 'tfm2_banpick_order', 'tfm2_banpick_illust', 'tfm2_draft_overlay',
+                 'tfm2_flow_capture', 'tfm2_stat_exp', 'tfm2_bancard_keep', 'sylas', 'tfm2_html_overlay',
+                 'tfm2_mod_order', 'Spectator_Chat', 'community_reaction_mod', 'tfm2_meta_item_delegate']
+SKIP_DIRS = {'target', '_archive', 'backup_0.2.26', 'release', '_classic_058', '_bak', '_art_src'}  # _classic_058 = 0.6.0 stable 전환 때 남긴 클래식 소스(죽은 RVA) — 매니페스트 오염 방지(2026-09-22)
 
 
 def sources(mod):

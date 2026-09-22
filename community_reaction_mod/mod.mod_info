@@ -1,14 +1,1 @@
-{
-  "mod_id": "community_reaction_mod",
-  "name": "community_reaction_mod",
-  "author": "anbyo",
-  "version": "0.6.0",
-  "description": "경기 데이터를 기반으로 LLM이 제작한 가상 커뮤니티 반응을 보여주는 모드입니다. gemini api 사용이 필요합니다. (0.6.0 stable ABI 재작성판)",
-  "dependencies": [
-    {
-      "mod_id": "base",
-      "version": ">=0.6.0, <0.6.1"
-    }
-  ],
-  "last_updated": "2026-09-17"
-}
+{"mod_id": "community_reaction_mod", "name": "community_reaction_mod", "author": "anbyo", "version": "0.6.0", "description": "경기 데이터를 기반으로 LLM이 제작한 가상 커뮤니티 반응을 보여주는 모드입니다. gemini api 사용이 필요합니다. (0.6.0 stable ABI 재작성판)", "dependencies": [{"mod_id": "base", "version": ">=0.6.0"}], "last_updated": "2026-09-17"}

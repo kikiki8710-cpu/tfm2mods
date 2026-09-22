@@ -9,7 +9,7 @@ use crate::config;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 /// 0.6.0 — RE 09-18. (값은 RE 결과로 확정)
-pub const RVA_COMPUTE_RULE_SWAP_ORDER: usize = 0x27d8660;
+pub const RVA_COMPUTE_RULE_SWAP_ORDER: usize = 0x2a789d0;
 const PROL: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 
 #[link(name = "kernel32")]

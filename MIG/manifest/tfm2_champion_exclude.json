@@ -1,68 +1,22 @@
 {
  "mod": "tfm2_champion_exclude",
- "game_ver": "0.5.7",
+ "game_ver": "0.6.1",
  "build": "",
- "notes": [],
+ "notes": [
+  "0.6.1(09-22): HOOK_RVA FN_UNIQUE skel SAME(331B c1/4). client_db_stable 오프셋 불변 확인. 매니페스트는 _classic_058 오염 제거 후 1엔트리(구 5). 로그 OFF 라 인게임 실증은 hook 성공 여부 미확인(패치데이 필요)"
+ ],
  "offsets": [],
  "entries": [
   {
-   "name": "PARSER_RVA",
-   "value": "0x1ab140",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/inject.rs:28"
-   ],
-   "sect": ".text",
-   "bytes": "554157415641554154565753",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "LOADER_RVA",
-   "value": "0x2ea830",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/inject.rs:27"
-   ],
-   "sect": ".text",
-   "bytes": "554157415641554154565753",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
    "name": "HOOK_RVA",
-   "value": "0x18e0180",
-   "ver": "0.5.8",
+   "value": "0x1b5c490",
+   "ver": "0.6.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:73"
+    "src/hook.rs:10"
    ],
    "sect": ".text",
    "bytes": "554157415641545657534881",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "RVA_ICON_SETTER",
-   "value": "0x2170920",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/lib.rs:82"
-   ],
-   "sect": ".text",
-   "bytes": "554157415641554154565753",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "ALLOC_RVA",
-   "value": "0x2b1b410",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/inject.rs:29"
-   ],
-   "sect": ".text",
-   "bytes": "5556574883ec20488d6c2420",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   }
  ]

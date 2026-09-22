@@ -11,16 +11,16 @@
 use mod_api_stable::StableServerCtx;
 
 /// 0.6.0 (exe sha AECB984A2C7AE187)
-pub const GAME_VER: &str = "0.6.0";
-const RVA_BUILD: usize = 0x2262850; // FUN_142262850(out*, state, ids_ptr, ids_len, my_team_id) -> out*  (ServerPacket ResponseTeam 0x740)
-const RVA_SEND: usize = 0x220ce30;  // FUN_14220ce30(out*, &Sender, &OutMsg) -> out*  ([out]==u64::MAX 면 Ok)
-const RVA_DROP: usize = 0x21ce320;  // FUN_1421ce320(&out)
+pub const GAME_VER: &str = "0.6.1";
+const RVA_BUILD: usize = 0x25b0960; // FUN_142262850(out*, state, ids_ptr, ids_len, my_team_id) -> out*  (ServerPacket ResponseTeam 0x740)
+const RVA_SEND: usize = 0x255a520;  // FUN_14220ce30(out*, &Sender, &OutMsg) -> out*  ([out]==u64::MAX 면 Ok)
+const RVA_DROP: usize = 0x251bd00;  // FUN_1421ce320(&out)
 /// 세 함수 공통 프롤로그(push rbp,r15,r14,r13,r12,rsi,rdi,rbx) — RE 확인은 0x2259320/0x220f040 기준. build/send/drop 은 첫 바이트만 느슨히 검사.
 const PROLOGUE_PUSH: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
-const OFF_SERVER_IN_LOOP: usize = 0x9d8;
-const OFF_SENDER_IN_LOOP: usize = 0x3f0;
-const OFF_ADDR_IN_LOOP: usize = 0x1a0;
-const OFF_STATE_IN_LOOP: usize = 0x50;
+const OFF_SERVER_IN_LOOP: usize = 0x6c0; // 0.6.1 재핀(0.6.0=0x9d8) — 서버 루프 콜사이트 lea rdx,[rbx+..]
+const OFF_SENDER_IN_LOOP: usize = 0x290; // 0.6.1(0.6.0=0x3f0) lea r9
+const OFF_ADDR_IN_LOOP: usize = 0x1c0; // 0.6.1(0.6.0=0x1a0) [rsp+0x28]
+const OFF_STATE_IN_LOOP: usize = 0x60; // 0.6.1(0.6.0=0x50) mov r12,[rbx+..] 콜 직전
 const PKT_SIZE: usize = 0x740;
 const MSG_SIZE: usize = 0x768;
 const ADDR_SIZE: usize = 0x20;
@@ -65,7 +65,7 @@ pub fn unicast_team(ctx: &StableServerCtx<'_>, team_id: usize) -> Result<String,
         if state == 0 || server < OFF_SERVER_IN_LOOP { return Err(format!("state/server 이상 state=0x{:x} server=0x{:x}", state, server)); }
         let lp = server - OFF_SERVER_IN_LOOP;
         // 가드 ①: 루프 구조체 +0x50 == state
-        match rd_u64(lp + OFF_STATE_IN_LOOP) { Some(v) if v as usize == state => {}, v => return Err(format!("가드① 실패: loop+0x50={:?} state=0x{:x}", v.map(|x| format!("0x{:x}", x)), state)) }
+        match rd_u64(lp + OFF_STATE_IN_LOOP) { Some(v) if v as usize == state => {}, v => return Err(format!("가드① 실패: loop+state_off={:?} state=0x{:x}", v.map(|x| format!("0x{:x}", x)), state)) }
         // 가드 ②: Sender.kind ≤ 2
         let sender = lp + OFF_SENDER_IN_LOOP;
         match rd_u64(sender) { Some(k) if k <= 2 => {}, k => return Err(format!("가드② 실패: sender.kind={:?}", k)) }

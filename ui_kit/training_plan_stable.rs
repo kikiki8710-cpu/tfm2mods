@@ -9,15 +9,15 @@
 #![allow(dead_code)]
 use mod_api_stable::StableServerCtx;
 
-pub const GAME_VER: &str = "0.6.0";
-const RVA_CLONE: usize = 0x1d19d80;
-const RVA_DROP_PLAN: usize = 0x3059c0;
-const RVA_DROP_MAP: usize = 0x2f5410;
-const RVA_INSERT: usize = 0xb50720;
-const RVA_SANITIZE: usize = 0x227c570;
-const RVA_RESPONSE: usize = 0x295d220;
-const RVA_SEND: usize = 0x220ce30;
-const RVA_DROP_RES: usize = 0x21ce320;
+pub const GAME_VER: &str = "0.6.1";
+const RVA_CLONE: usize = 0x1e69780;
+const RVA_DROP_PLAN: usize = 0x306870;
+const RVA_DROP_MAP: usize = 0x2f62c0;
+const RVA_INSERT: usize = 0xced790;
+const RVA_SANITIZE: usize = 0x25ca570;
+const RVA_RESPONSE: usize = 0x228ac80;
+const RVA_SEND: usize = 0x255a520;
+const RVA_DROP_RES: usize = 0x251bd00;
 const OFF_TRAINING_PLANS: usize = 0x16f08;
 const OFF_MAP_SENTINEL: usize = 0x30;
 const NODE_NEXT: usize = 0x1f8;
@@ -26,10 +26,10 @@ const NODE_KEY: usize = 0x208;
 const PLAN_SIZE: usize = 0x1f8;
 const OFF_CHAMP_MAP: usize = 0x198;
 const OFF_DELEGATED: usize = 0x1ea;
-const OFF_SERVER_IN_LOOP: usize = 0x9d8;
-const OFF_SENDER_IN_LOOP: usize = 0x3f0;
-const OFF_ADDR_IN_LOOP: usize = 0x1a0;
-const OFF_STATE_IN_LOOP: usize = 0x50;
+const OFF_SERVER_IN_LOOP: usize = 0x6c0; // 0.6.1 재핀(0.6.0=0x9d8) — 서버 루프 콜사이트 lea rdx,[rbx+..]
+const OFF_SENDER_IN_LOOP: usize = 0x290; // 0.6.1(0.6.0=0x3f0) lea r9
+const OFF_ADDR_IN_LOOP: usize = 0x1c0; // 0.6.1(0.6.0=0x1a0) [rsp+0x28]
+const OFF_STATE_IN_LOOP: usize = 0x60; // 0.6.1(0.6.0=0x50) mov r12,[rbx+..] 콜 직전
 const PKT_SIZE: usize = 0x740;
 const ADDR_SIZE: usize = 0x20;
 const UNICAST: u64 = 0x57;
@@ -110,7 +110,7 @@ pub fn apply(ctx: &StableServerCtx<'_>, team_id: usize, set: &[(u64, String)], c
         let server = rd_u64(host_state + 0x18).ok_or("server 읽기 불가")? as usize;
         if db == 0 || server < OFF_SERVER_IN_LOOP { return Err(format!("state/server 이상 db=0x{:x} server=0x{:x}", db, server)); }
         let lp = server - OFF_SERVER_IN_LOOP;
-        match rd_u64(lp + OFF_STATE_IN_LOOP) { Some(v) if v as usize == db => {}, v => return Err(format!("가드① 실패: loop+0x50={:?}", v)) }
+        match rd_u64(lp + OFF_STATE_IN_LOOP) { Some(v) if v as usize == db => {}, v => return Err(format!("가드① 실패: loop+state_off={:?}", v)) }
         let sender = lp + OFF_SENDER_IN_LOOP;
         match rd_u64(sender) { Some(k) if k <= 2 => {}, k => return Err(format!("가드② 실패: sender.kind={:?}", k)) }
         if !readable(lp + OFF_ADDR_IN_LOOP, ADDR_SIZE) { return Err("송신자 addr 읽기 불가".into()); }

@@ -2,19 +2,21 @@
  "mod": "tfm2_bancard_keep",
  "game_ver": "0.5.7",
  "build": "",
- "notes": [],
+ "notes": [
+  "⛔2026-09-22 유저 확정: 0.6.1 부터 마이그 대상 제외(추후 대상 아님). 값 = 0.6.0 기준 마지막 상태. mig_verify.MODS 에서 제거 — 재개 시 EXCLUDED_MODS 참조."
+ ],
  "offsets": [],
  "entries": [
   {
    "name": "PATCH_RVA",
-   "value": "0x1a95aea",
-   "ver": "0.5.8",
+   "value": "0x2278249",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:39"
    ],
    "sect": ".text",
-   "bytes": "48c786200700000000000048",
+   "bytes": "48c7862007000000000000c6",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   }
  ]

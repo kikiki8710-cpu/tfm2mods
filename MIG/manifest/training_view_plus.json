@@ -1,0 +1,10 @@
+{
+ "mod": "training_view_plus",
+ "game_ver": "0.6.1",
+ "build": "cargo build --release (stable) → <게임>\\mods\\training_view_plus\\ ",
+ "notes": [
+  "ui_kit/training_plan_stable.rs(#[path]) = RVA 8 + 루프/Database 오프셋 → 값은 MIG/manifest/ui_kit.json. 패치마다 ui_kit 재핀 후 재빌드 필수(0.6.1: 가드① 실패로 적용 버튼 사망 실측)."
+ ],
+ "offsets": [],
+ "entries": []
+}

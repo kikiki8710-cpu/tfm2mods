@@ -3,6 +3,7 @@
  "game_ver": "0.5.7",
  "build": "",
  "notes": [
+  "⛔2026-09-22 유저 확정: 0.6.1 부터 마이그 대상 제외(추후 대상 아님). 값 = 0.6.0 기준 마지막 상태. mig_verify.MODS 에서 제거 — 재개 시 EXCLUDED_MODS 참조.",
   "★전 엔트리 0.5.5 값 잔존 — 배포용 아님, 보류(유저 2026-08-28). 0x763329/0x76829b 는 flow_capture ONSCREEN_RETADDRS 와 공유 — 고칠 때 동시에."
  ],
  "offsets": [],

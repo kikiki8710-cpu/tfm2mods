@@ -11,7 +11,7 @@ use crate::config::{self, MASK_ALL};
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
-const RVA_POS_MASK: usize = 0x13796a0; // 0.6.0 (MIG\manifest\tfm2_champ_pos_lock.json)
+const RVA_POS_MASK: usize = 0x13a75f0; // 0.6.0 (MIG\manifest\tfm2_champ_pos_lock.json)
 const PROL_POS_MASK: [u8; 12] = [0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53];
 
 #[link(name = "kernel32")]

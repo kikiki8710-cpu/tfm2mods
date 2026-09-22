@@ -2,13 +2,15 @@
  "mod": "tfm2_draft_overlay",
  "game_ver": "0.5.7",
  "build": "",
- "notes": [],
+ "notes": [
+  "⛔2026-09-22 유저 확정: 0.6.1 부터 마이그 대상 제외(추후 대상 아님). 값 = 0.6.0 기준 마지막 상태. mig_verify.MODS 에서 제거 — 재개 시 EXCLUDED_MODS 참조."
+ ],
  "offsets": [],
  "entries": [
   {
    "name": "PARSER_RVA",
-   "value": "0x1ab140",
-   "ver": "0.5.8",
+   "value": "0x197b10",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:397"
@@ -19,8 +21,8 @@
   },
   {
    "name": "LOADER_RVA",
-   "value": "0x2ea830",
-   "ver": "0.5.8",
+   "value": "0x336a80",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:381"
@@ -31,8 +33,8 @@
   },
   {
    "name": "ANIM_GET_RVA",
-   "value": "0x7507e0",
-   "ver": "0.5.8",
+   "value": "0x21f0b0",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:153"
@@ -43,8 +45,8 @@
   },
   {
    "name": "ALLOC_RVA",
-   "value": "0x2b1b410",
-   "ver": "0.5.8",
+   "value": "0x2f380b0",
+   "ver": "0.6.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:406"

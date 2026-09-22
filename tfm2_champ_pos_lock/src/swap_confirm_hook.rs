@@ -5,7 +5,7 @@
 //! 안전: detour 는 원자 읽기 + 카운터만(패닉 경로 없음) · 프롤로그 검증 실패 = 미설치(fail-safe: 게이트는 툴팁만) · 체인 훅 대응(진입부가 외부 `movabs rax; jmp rax` 면 그 스텁으로 점프).
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
 
-pub const RVA_SWAP_CONFIRM: usize = 0x1fc5ce0; // 0.6.0
+pub const RVA_SWAP_CONFIRM: usize = 0x2921bc0; // 0.6.0
 const PROL: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 
 #[link(name = "kernel32")]

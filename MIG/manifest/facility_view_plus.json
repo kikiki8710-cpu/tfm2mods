@@ -1,0 +1,10 @@
+{
+ "mod": "facility_view_plus",
+ "game_ver": "0.6.1",
+ "build": "cargo build --release (stable) → <게임>\\mods\\facility_view_plus\\ ",
+ "notes": [
+  "ui_kit/team_sync_stable.rs(#[path]) = RVA 3 + 루프 오프셋 → ui_kit.json. 재핀 없이도 생산은 서버 반영되나 즉시 화면 반영(유니캐스트)만 실패."
+ ],
+ "offsets": [],
+ "entries": []
+}

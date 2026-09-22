@@ -3,6 +3,7 @@
  "game_ver": "0.5.7",
  "build": "powershell -File C:\\tfm2mods\\build_extra.ps1 -Src <src>\\lib.rs -ModId tfm2_banpick_order -MaxSize 4500000 (extern 추가 불요)",
  "notes": [
+  "⛔2026-09-22 유저 확정: 0.6.1 부터 마이그 대상 제외(추후 대상 아님). 값 = 0.6.0 기준 마지막 상태. mig_verify.MODS 에서 제거 — 재개 시 EXCLUDED_MODS 참조.",
   "HL_COUNT(훅 M)는 0.5.7 1차 재핀 누락으로 침묵 사망했던 전력(사고 6) — check 가 잡는 대표 케이스.",
   "RVA_PANIC_HOOK = champ_pos_lock 과 공유(dups)."
  ],
