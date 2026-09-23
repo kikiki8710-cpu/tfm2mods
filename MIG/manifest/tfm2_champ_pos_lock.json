@@ -30,18 +30,6 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
-   "name": "RVA_SWAP_CONFIRM",
-   "value": "0x2921bc0",
-   "ver": "0.6.1",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/swap_confirm_hook.rs:8"
-   ],
-   "sect": ".text",
-   "bytes": "554157415641554154565753",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
    "name": "RVA_SELECT_SWAP",
    "value": "0x2424490",
    "ver": "0.6.1",
@@ -51,6 +39,30 @@
    ],
    "sect": ".text",
    "bytes": "4883ec2880b969040000000f",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_PICK_CLICK",
+   "value": "0x2921300",
+   "ver": "0.6.1",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/pick_click_hook.rs:14"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_SWAP_CONFIRM",
+   "value": "0x2921bc0",
+   "ver": "0.6.1",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/swap_confirm_hook.rs:8"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {

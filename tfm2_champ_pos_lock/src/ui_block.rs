@@ -65,6 +65,7 @@ pub fn reset() {
     *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None;
     *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = None;
     MY_PICK_TURN.store(false, Ordering::Relaxed);
+    crate::pick_click_hook::set_block(&HashSet::new());
 }
 
 fn vis(ctx: &StableClient<'_>, p: &str) -> bool { ctx.ui_visible(p) == Some(true) }
@@ -77,6 +78,8 @@ pub fn tick(ctx: &mut StableClient<'_>) {
         // 밴픽 화면 아님 → 상태 리셋(오버레이는 트리와 함께 사라짐)
         if OVERLAYS.lock().unwrap_or_else(|e| e.into_inner()).is_some() { *OVERLAYS.lock().unwrap_or_else(|e| e.into_inner()) = None; *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = None; *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; MY_SIDE.store(-1, Ordering::Relaxed); *DISABLED.lock().unwrap_or_else(|e| e.into_inner()) = None; uk::index_clear(); }
         MY_PICK_TURN.store(false, Ordering::Relaxed);
+        crate::pick_click_hook::set_block(&HashSet::new());
+        BAN_CNT_SEEN.store(0, Ordering::Relaxed); // 다음 밴픽 화면(세트)에서 관측 로그 재출력용
         return;
     }
     let f = crate::FRAME.load(Ordering::Relaxed);
@@ -151,7 +154,23 @@ pub fn tick(ctx: &mut StableClient<'_>) {
             for (k, id) in new_slots.iter().zip(new_champs.drain(..)) { st.slot_champ.insert(*k, id.clone()); st.known.push((side, id)); }
         }
     }
-    if pick_turn_side.is_some() && !ban_turn && need_scan { let per = ban_n / 2; if per <= 5 && BAN_CNT_SEEN.swap(per + 1, Ordering::Relaxed) != per + 1 { let (st, cb) = config::cur_rule(); if cb != Some(per) { config::set_rule(st, Some(per)); config::dlog(&format!("밴카드 관측: {}장/팀 (구 {:?})", per, cb)); } } }
+    // ★09-23(유저 제보 "하드피어리스 3/2 에서 2밴 후 회색이 풀림"): 밴이 나뉘는 형식(3/2)에선 1페이즈 픽 때 밴이 3개씩만 보이고
+    //   2페이즈엔 5개씩 보인다. 매번 관측값으로 룰을 갈면 **세트 도중에 최소 선택 수가 16→20 으로 뛰어** 허용 17개 포지션이
+    //   1페이즈엔 제한·2페이즈엔 해제로 뒤집혔다(로그: 23:48:01 밴3→최소16 / 23:48:42 밴5→최소20 · 포지션별 [17,43,43,43,43]).
+    //   유저 결정 = **총 밴 수 기준** ⟹ 밴픽 전 GamePlayOption 에서 읽은 실효 밴 수(= 총 밴 수, 3/2 면 5)가 기준이고,
+    //   화면 관측은 그보다 **클 때만** 올린다(관측은 페이즈 도중의 부분값일 수 있으므로 절대 낮추지 않는다).
+    if pick_turn_side.is_some() && !ban_turn && need_scan {
+        let per = ban_n / 2;
+        if per <= 5 && BAN_CNT_SEEN.swap(per + 1, Ordering::Relaxed) != per + 1 {
+            let (st, cb) = config::cur_rule();
+            if cb.map(|c| per > c).unwrap_or(true) {
+                config::set_rule(st, Some(per));
+                config::dlog(&format!("밴카드 관측: {}장/팀 > 룰 {:?} → 상향", per, cb));
+            } else if cb != Some(per) {
+                config::dlog(&format!("밴카드 관측: {}장/팀 (룰 {:?} 유지 — 총 밴 수 기준, 부분 관측으로 낮추지 않음)", per, cb));
+            }
+        }
+    }
     MY_PICK_TURN.store(my_turn, Ordering::Relaxed);
     // ── 스왑 확정 게이트
     if vis(ctx, "main.swap") { swap_track(ctx, my_side); swap_gate(ctx, my_side); } else { SWAP_SIG.store(u64::MAX, Ordering::Relaxed); SWAP_DIAG.store(false, Ordering::Relaxed); SWAP_DIAG2.store(false, Ordering::Relaxed); if SWAP_ACTIVE.swap(false, Ordering::Relaxed) { *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = None; } RAW_LOGGED.store(false, Ordering::Relaxed); crate::swap_confirm_hook::BLOCK.store(false, Ordering::Relaxed); CONFIRM_PAINT.store(u8::MAX, Ordering::Relaxed); }
@@ -218,7 +237,14 @@ pub fn tick(ctx: &mut StableClient<'_>) {
             if m.get(&dis).map(|v| v != want_s).unwrap_or(want) { ctx.ui_set_properties(&cp, &format!("disabled: {};", want_s)); m.insert(dis, want_s.to_string()); }
         }
         *REASON.lock().unwrap_or_else(|e| e.into_inner()) = Some(reason);
+        crate::pick_click_hook::set_block(&block); // ★09-24: 회색 카드 클릭은 detour 가 삼킨다(disabled 는 무효)
         *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = Some(block);
+    }
+    // 훅이 삼킨 클릭 → 사유 툴팁(덮개 클릭 핸들러가 안 불린 경우 대비)
+    if let Some(id) = crate::pick_click_hook::LAST_BLOCKED.lock().unwrap_or_else(|e| e.into_inner()).take() {
+        let r = REASON.lock().unwrap_or_else(|e| e.into_inner()).as_ref().and_then(|m| m.get(&id).cloned());
+        *TIP_TEXT.lock().unwrap_or_else(|e| e.into_inner()) = Some((crate::block_msg(&id, r.as_deref()), f));
+        config::dlog(&format!("pick_click: '{}' 클릭 차단 (누적 {}/{})", id, crate::pick_click_hook::CNT_BLOCKED.load(Ordering::Relaxed), crate::pick_click_hook::CNT_FIRE.load(Ordering::Relaxed)));
     }
     // ── 사유 툴팁(클릭 후 2초)
     let tip = TIP_TEXT.lock().unwrap_or_else(|e| e.into_inner()).clone();

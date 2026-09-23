@@ -23,6 +23,7 @@ pub mod i18n;
 pub mod legacy_assign;
 pub mod ui_block;
 pub mod swap_confirm_hook;
+pub mod pick_click_hook;
 pub mod ai_swap;
 pub mod auto_swap; // ★09-20 내 팀 자동 스왑(select_swap 호출)
 pub mod ui_popup;
@@ -304,6 +305,7 @@ impl StableExtension for Ext {
             if let Some(msg) = draft_scene::install_once() { config::dlog(&msg); config::llog(&msg); }
             draft_scene::tick();
             if let Some(msg) = swap_confirm_hook::install_once() { config::dlog(&msg); config::llog(&msg); }
+            if let Some(msg) = pick_click_hook::install_once() { config::dlog(&msg); config::llog(&msg); }
             if let Some(msg) = ai_swap::install_once() { config::dlog(&msg); config::llog(&msg); }
             if let Some(msg) = ai_swap::drain_log() { config::llog(&msg); config::dlog(&msg); }
             if FRAME.load(Ordering::Relaxed) % 600 == 0 { let f = ai_swap::CNT_FIRE.load(Ordering::Relaxed); if f != AISWAP_LAST_FIRE.swap(f, Ordering::Relaxed) { config::llog(&format!("aiswap counters: fire={} rewrite={} skip={}", f, ai_swap::CNT_REWRITE.load(Ordering::Relaxed), ai_swap::CNT_SKIP.load(Ordering::Relaxed))); } }
