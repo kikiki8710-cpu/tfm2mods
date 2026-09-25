@@ -29,7 +29,7 @@ NBYTES = 12                            # 엔트리당 채록 바이트
 # 마이그 대상 모드 (설치 여부 아님 — ui_kit 같은 공유모듈 포함이 이 목록의 존재 이유)
 MODS = [
   # ★2026-09-22 유저 확정(0.6.1): 마이그 대상 = 아래 6 + 공유 ui_kit + ui_kit 헬퍼 소비 3종.
-  #   제외(추후 마이그 대상 아님): ai_adjust·item_tactics·banpick_order·banpick_illust(→view_plus 통합)·draft_overlay·flow_capture·stat_exp·bancard_keep·sylas·html_overlay
+  #   제외(추후 마이그 대상 아님): ai_adjust·item_tactics·banpick_order·banpick_illust(→view_plus 통합)·draft_overlay·flow_capture(09-24 순수 stable 재작성 = 재핀 불요)·stat_exp·bancard_keep·sylas·html_overlay
   #   순수 stable(패치 대응 불필요, deps >=0.6.0 상한 없음): mod_order·roster/coaching_staff/recruitment_view_plus·Spectator_Chat·crm·meta_item_delegate·legacy_save_patcher
   'tfm2_level_cap', 'tfm2_champion_exclude', 'banpick_view_plus',
   'tfm2_comptest_unlock', 'tfm2_elemental_serpen', 'tfm2_champ_pos_lock',

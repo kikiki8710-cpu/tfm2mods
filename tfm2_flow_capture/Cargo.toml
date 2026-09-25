@@ -1,0 +1,20 @@
+[package]
+name = "tfm2_flow_capture"
+version = "0.8.0"
+edition = "2021"
+
+# 0.8.0 = 0.6.1 stable ABI 재작성(2026-09-24). 클래식 0.5.x 소스 = _classic_058\src (run_tick detour·raw 오프셋 기반).
+# 빌드: cargo build --release  /  배포: python C:\tfm2mods\deploy_stable.py tfm2_flow_capture --ver 0.8.0
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+serde_json = "1"
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
