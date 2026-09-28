@@ -304,7 +304,7 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
         }
     }
     let n = champs.len().min(NCELLS);
-    let rows = n.div_ceil(5); // ★09-28: 7열 → 5열(그리드 오른쪽에 규칙 요약 열 — 유저 "따로 패널 말고 옆에 다 써줘")
+    let rows = n.div_ceil(4); // ★09-28: 7열 → 5열 → 4열(가운데 설명 칸 — 유저 "옆에 다 써줘" + "쉬운 말로" 로 글이 길어져 칸을 넓힘)
     let h = (rows as f32) * (171.0 + 15.0) + 16.0;
     uk::set_props_if_changed(ctx, &contents, "height", &format!("{}px", h));
     let total = r.sorted.len();

@@ -67,17 +67,17 @@ pos_lock_popup:color {
   }
 
   #left:color {
-    x: 32px; y: 136px; width: 873px; height: 787px; color: #1d1f2cff;
+    x: 32px; y: 136px; width: 706px; height: 787px; color: #1d1f2cff;
     rounding: Uniform { rounding: 8; }
 
     #scroll:scroll_view {
-      x: 16px; y: 16px; width: 841px; height: 755px; speed: 100; bar_width: 4;
+      x: 16px; y: 16px; width: 674px; height: 755px; speed: 100; bar_width: 4;
       bar_padding: { top: 8px; bottom: 8px; }
       bar: { source: "asset/base/sprite/white"; color: #37d5b3ff; hover: { color: #ecfbf8ff; } }
       back: { source: "asset/base/sprite/white"; color: #4a4c56ff; }
 
       #contents:empty {
-        x: 8px; y: 8px; width: 820px; height: 1900px;
+        x: 8px; y: 8px; width: 653px; height: 2600px;
         child_type: Table { spacing_x: 15px; spacing_y: 15px; }
         #cell0:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
           #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
@@ -684,10 +684,10 @@ pos_lock_popup:color {
   }
 
   #rules_col:color {
-    x: 919px; y: 136px; width: 321px; height: 787px; color: #1d1f2cff;
+    x: 752px; y: 136px; width: 488px; height: 787px; color: #1d1f2cff;
     rounding: Uniform { rounding: 8; }
-    #title:label { @"asset/base/style/main#bold_label"; x: 16px; y: 14px; width: 289px; height: 26px; size: 16; align_y: Center; text: "#asset/base/text/ui?pos_lock.rules_title"; }
-    #text:label { @"asset/base/style/main#label"; x: 14px; y: 42px; width: 295px; height: 738px; size: 13; line_height: 18; color: #c9ccd8ff; align_y: Center; text: "#asset/base/text/ui?pos_lock.rules_short"; }
+    #title:label { @"asset/base/style/main#bold_label"; x: 16px; y: 14px; width: 456px; height: 26px; size: 16; align_y: Center; text: "#asset/base/text/ui?pos_lock.rules_title"; }
+    #text:label { @"asset/base/style/main#label"; x: 16px; y: 42px; width: 456px; height: 738px; size: 13; line_height: 18; color: #c9ccd8ff; align_y: Center; text: "#asset/base/text/ui?pos_lock.rules_short"; }
   }
 
   #right:color {
