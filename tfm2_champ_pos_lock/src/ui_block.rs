@@ -25,6 +25,8 @@ static OVERLAYS: Mutex<Option<HashSet<String>>> = Mutex::new(None); // 오버레
 static BLOCKED: Mutex<Option<HashSet<String>>> = Mutex::new(None);   // 현재 차단 집합(표시 상태)
 static REASON: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
 static TIP_TEXT: Mutex<Option<(String, u64)>> = Mutex::new(None); // (본문, 표시 시작 프레임)
+/// ★09-28 유저 제보 "회색 부분 호버하면 제한 이유 떴던 것 같은데 없어짐": 회색 카드 (카드 경로, 소문자 id) — 호버 판정용.
+static BLOCKED_PATHS: Mutex<Vec<(String, String)>> = Mutex::new(Vec::new());
 static GATE_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static SWAP_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static SWAP_DIAG: AtomicBool = AtomicBool::new(false);
@@ -64,6 +66,7 @@ pub fn reset() {
     MY_SIDE.store(-1, Ordering::Relaxed);
     *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None;
     *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = None;
+    BLOCKED_PATHS.lock().unwrap_or_else(|e| e.into_inner()).clear();
     MY_PICK_TURN.store(false, Ordering::Relaxed);
     crate::pick_click_hook::set_block(&HashSet::new());
 }
@@ -210,10 +213,12 @@ pub fn tick(ctx: &mut StableClient<'_>) {
         let cards: Vec<String> = if cards.is_empty() { ctx.ui_child_names(CARDS) } else { cards.clone() };
         let mut ov = OVERLAYS.lock().unwrap_or_else(|e| e.into_inner());
         let spawned = ov.get_or_insert_with(HashSet::new);
+        let mut bpaths: Vec<(String, String)> = Vec::new();
         for id in &cards {
             let lower = id.to_ascii_lowercase();
             let cp = format!("{}.{}", CARDS, id);
             let want = block.contains(&lower);
+            if want { bpaths.push((cp.clone(), lower.clone())); }
             let op = format!("{}.{}", cp, OVERLAY);
             if !ctx.ui_exists(&op) {
                 if !want { continue; }
@@ -237,6 +242,7 @@ pub fn tick(ctx: &mut StableClient<'_>) {
             if m.get(&dis).map(|v| v != want_s).unwrap_or(want) { ctx.ui_set_properties(&cp, &format!("disabled: {};", want_s)); m.insert(dis, want_s.to_string()); }
         }
         *REASON.lock().unwrap_or_else(|e| e.into_inner()) = Some(reason);
+        *BLOCKED_PATHS.lock().unwrap_or_else(|e| e.into_inner()) = bpaths;
         crate::pick_click_hook::set_block(&block); // ★09-24: 회색 카드 클릭은 detour 가 삼킨다(disabled 는 무효)
         *BLOCKED.lock().unwrap_or_else(|e| e.into_inner()) = Some(block);
     }
@@ -246,8 +252,25 @@ pub fn tick(ctx: &mut StableClient<'_>) {
         *TIP_TEXT.lock().unwrap_or_else(|e| e.into_inner()) = Some((crate::block_msg(&id, r.as_deref()), f));
         config::dlog(&format!("pick_click: '{}' 클릭 차단 (누적 {}/{})", id, crate::pick_click_hook::CNT_BLOCKED.load(Ordering::Relaxed), crate::pick_click_hook::CNT_FIRE.load(Ordering::Relaxed)));
     }
-    // ── 사유 툴팁(클릭 후 2초)
-    let tip = TIP_TEXT.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    // ── ★09-28 호버 사유: 커서가 회색 카드 위면 그 카드의 사유를 즉시(떠나면 즉시 숨김). 그리드 영역 안일 때만 rect 조회.
+    let mut hover_tip: Option<String> = None;
+    let mut hover_rect: Option<(f32, f32, f32, f32)> = None;
+    if let Some((mx, my)) = uk::cursor_ui() {
+        let inside = |r: (f32, f32, f32, f32)| mx >= r.0 && mx < r.0 + r.2 && my >= r.1 && my < r.1 + r.3;
+        if ctx.ui_node_rect("main.champions").map(inside).unwrap_or(false) {
+            let bp = BLOCKED_PATHS.lock().unwrap_or_else(|e| e.into_inner()).clone();
+            for (path, lower) in &bp {
+                if let Some(cr) = ctx.ui_node_rect(path).filter(|r| inside(*r)) {
+                    hover_rect = Some(cr);
+                    let r = REASON.lock().unwrap_or_else(|e| e.into_inner()).as_ref().and_then(|m| m.get(lower).cloned());
+                    hover_tip = Some(crate::block_msg(lower, r.as_deref()));
+                    break;
+                }
+            }
+        }
+    }
+    // ── 사유 툴팁(호버 중 · 또는 클릭 후 2초)
+    let tip = match hover_tip { Some(t) => Some((t, f)), None => TIP_TEXT.lock().unwrap_or_else(|e| e.into_inner()).clone() };
     let tp = format!("{}.{}", ROOT, TIP);
     match tip {
         Some((text, at)) if f.saturating_sub(at) < 120 => {
@@ -255,7 +278,13 @@ pub fn tick(ctx: &mut StableClient<'_>) {
                 let src = SWAPTIP_UI.replacen("pos_lock_swaptip:color {", &format!("{}:color {{ width: 420px;", TIP), 1);
                 if !ctx.ui_spawn_source(ROOT, &src) { return; }
             }
-            if let Some((mx, my)) = uk::cursor_ui() { uk::set_props_if_changed(ctx, &tp, "x", &format!("{}px", (mx - 210.0).clamp(0.0, 1500.0))); uk::set_props_if_changed(ctx, &tp, "y", &format!("{}px", (my - 44.0).max(0.0))); }
+            // ★09-28: 호버 중이면 카드 바로 위(맨 윗줄이면 아래)에 붙인다 — 밴픽뷰 레이더(카드 옆·카드 높이 범위)와 안 겹치고,
+            //   회색 카드엔 게임 포지션 툴팁이 안 뜨므로 그 자리가 비어 있다. x 는 좌·우 선수 패널(~335/1585px)을 피해 그리드 안으로.
+            if let Some(cr) = hover_rect {
+                let y = if cr.1 - 48.0 >= 100.0 { cr.1 - 48.0 } else { cr.1 + cr.3 + 4.0 };
+                uk::set_props_if_changed(ctx, &tp, "x", &format!("{}px", (cr.0 + cr.2 / 2.0 - 210.0).clamp(340.0, 1160.0)));
+                uk::set_props_if_changed(ctx, &tp, "y", &format!("{}px", y));
+            } else if let Some((mx, my)) = uk::cursor_ui() { uk::set_props_if_changed(ctx, &tp, "x", &format!("{}px", (mx - 210.0).clamp(340.0, 1160.0))); uk::set_props_if_changed(ctx, &tp, "y", &format!("{}px", (my - 44.0).max(0.0))); }
             let tt = format!("{}.text", tp);
             if ctx.ui_text(&tt).as_deref() != Some(text.as_str()) { ctx.ui_set_text(&tt, &text); }
             uk::set_props_if_changed(ctx, &tp, "visible", "true");
