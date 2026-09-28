@@ -19,6 +19,9 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
 #[path = r"C:\tfm2mods\ui_kit\draft_scene_stable.rs"]
 mod draft_scene;
+#[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
+mod cdb; // ★09-28: 출시분 챔피언 목록 raw 읽기(champion_names() 는 모드 챔프가 많을수록 수백 ms~수 초)
+mod reveal; // ★09-28: 스왑 종료 → 전술창 위 "상대 스왑 결과" 3초 패널
 mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카드 일러) 통합 — 게임 훅 RVA 29(패치마다 재핀)
 
 const MOD_ID: &str = "banpick_view_plus";
@@ -246,8 +249,12 @@ fn load_sheet() -> HashMap<String, SheetEntry> {
 fn sheet() -> HashMap<String, SheetEntry> { SHEET.lock().unwrap_or_else(|e| e.into_inner()).get_or_insert_with(load_sheet).clone() }
 /// 축 8개 = [attack, magic, hp, def, mr, move, range, atkspeed] 상대변화(원작 compute_radar). 사거리·공속은 현재값 API 없음 → 0.
 fn compute_axes(ctx: &StableClient<'_>) -> HashMap<String, [f32; 8]> {
-    let sh = sheet(); let mut out = HashMap::new(); let lv = (MAX_LEVEL - 1) as f32;
-    for name in ctx.champion_names() {
+    let sh = sheet();
+    // ★09-28 렉 수정: ~~ctx.champion_names()~~(모드 챔프가 많을수록 수백 ms~수 초 — 밴픽 진입마다 불려 초기화 전 화면("test")이
+    //   멈춘 채 보이던 원인 · 실측 98종 577ms) → 출시분 raw 목록(0.07ms). 전체 13ms(시트 10ms 포함).
+    let names = cdb::champion_ids_fast(ctx);
+    let mut out = HashMap::new(); let lv = (MAX_LEVEL - 1) as f32;
+    for name in names {
         let Some(b) = ctx.champion_brief(&name) else { continue };
         let mut axes = [0f32; 8];
         if let Some(e) = sh.get(&name) {
@@ -511,6 +518,7 @@ impl StableExtension for Ext {
             // 카드 라벨 위치 보정만 매 프레임(위 주석 참조 — 3프레임 주기면 깜빡인다)
             if ACTIVE.load(Ordering::Relaxed) { fix_card_labels(ctx); }
             if f % 3 != 0 { return; }
+            reveal::tick(ctx, f); // 전술창(밴픽 화면 밖)에서도 돌아야 하므로 DISC 판정보다 먼저
             if cfg().showcase { showcase::tick(); } // 늦은 1회 설치(멱등) — 밴픽 화면 진입 전에 설치돼 있어야 첫 연출부터 잡힌다
             if !ctx.ui_exists(DISC) { deactivate(); return; }
             let il = illust();
@@ -547,6 +555,7 @@ impl StableExtension for Ext {
                     log(&format!("스왑 화면 진입: 행 클릭 등록 {}/10", ok));
                 } else if !swap_vis && SWAP_ACTIVE.swap(false, Ordering::Relaxed) {
                     *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = [None, None];
+                    reveal::arm(f);
                 }
             }
             // ── 클릭 처리
@@ -742,6 +751,8 @@ impl StableExtension for Ext {
                     if me == r.t1_id { Some(false) } else if me == r.t2_id { Some(true) } else { None }  // 숨길 쪽 = 상대
                 })
             } else { None };
+            // ★09-28: 스왑 중 숨기는 쪽(상대)의 최신 라인업을 기억 → 스왑 종료 시 전술창 위 결과 패널(reveal.rs)
+            if let Some(side) = hide_side { if let Some(r) = draft_scene::read() { reveal::track(r.lineup(if side { 0 } else { 1 })); } }
             if DBG && !CARD_DUMPED.swap(true, Ordering::Relaxed) {
                 for slot in ["main.blue_picks.pick_slot_0", "main.blue_picks.pick_slot_1"] {
                     for b in ["done", "in_turn", "wait"] {
@@ -911,7 +922,8 @@ impl StableExtension for Ext {
     }
 }
 fn deactivate() {
-    SWAP_ACTIVE.store(false, Ordering::Relaxed);
+    // 스왑 화면에서 곧장 밴픽 화면 밖(전술창)으로 나간 경우도 결과 패널 예약
+    if SWAP_ACTIVE.swap(false, Ordering::Relaxed) { reveal::arm(FRAME.load(Ordering::Relaxed)); }
     if ACTIVE.swap(false, Ordering::Relaxed) { SETTINGS_OPEN.store(false, Ordering::Relaxed); *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER_BG_KEY.lock().unwrap_or_else(|e| e.into_inner()) = None; }
 }
 /// 원작 draw_radar_octagon 재현(UI 맵 드로잉). 카드 오른쪽/왼쪽 옆에 그린다(게임 자체 포지션 툴팁은 카드 위·아래).
