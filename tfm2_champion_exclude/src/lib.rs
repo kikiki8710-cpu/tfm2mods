@@ -133,8 +133,19 @@ static CAND_AT: AtomicU64 = AtomicU64::new(0);
 pub static CAND_FORCE: AtomicBool = AtomicBool::new(false);
 pub static FRAME: AtomicU64 = AtomicU64::new(0);
 
+/// ★09-28 렉 수정: ~~600프레임마다 무조건 재계산~~ → **출시분 수(cdb avail len)가 바뀌었거나 강제/최초일 때만**.
+///   재계산은 `champion_names()`(registry 전체)를 부르는데, 이 API 는 챔프마다 호스트 슬롯을 불러 모드 챔프가 많을수록
+///   급격히 느려진다(09-28 실측 98종 577ms) → 관리 화면에서 10초마다 멈추던 원인. 미출시 목록은 출시(avail 증가)나
+///   세이브 전환(CAND_AT=0 리셋) 때만 바뀌므로 avail len 을 키로 쓴다.
+static CAND_KEY: AtomicU64 = AtomicU64::new(u64::MAX);
 fn recompute_candidates(ctx: &StableClient<'_>, f: u64) {
-    if !CAND_FORCE.swap(false, Ordering::Relaxed) && f.saturating_sub(CAND_AT.load(Ordering::Relaxed)) < 600 && CAND_AT.load(Ordering::Relaxed) != 0 { return; }
+    let forced = CAND_FORCE.swap(false, Ordering::Relaxed);
+    if !forced && CAND_AT.load(Ordering::Relaxed) != 0 {
+        if f.saturating_sub(CAND_AT.load(Ordering::Relaxed)) < 600 { return; }
+        let key = cdb::available_len(ctx).unwrap_or(0);
+        if CAND_KEY.load(Ordering::Relaxed) == key { CAND_AT.store(f, Ordering::Relaxed); return; }
+    }
+    CAND_KEY.store(cdb::available_len(ctx).unwrap_or(0), Ordering::Relaxed);
     CAND_AT.store(f, Ordering::Relaxed);
     let registry: Vec<String> = ctx.champion_names().iter().map(|s| s.to_ascii_lowercase()).collect();
     if registry.is_empty() { return; }
