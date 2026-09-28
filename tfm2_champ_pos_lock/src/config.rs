@@ -568,6 +568,35 @@ pub static ROSTER_VER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU
 ///   (실측: 도박사 1개 지정 → 19/24 → 20/20). ⟹ "몇 개 더"를 `need − have` 로 내면 과대 안내.
 ///   여기서는 **실제로 한 개씩 지정해 보는 탐욕 시뮬레이션**으로 활성까지 필요한 추가 수를 센다(매 단계 슬랙을 가장 크게 올리는 챔프).
 ///   활성 집합은 현재 판정의 활성 포지션 + p 로 고정(추정치 — 다른 포지션이 꺼지는 경우까지는 안 본다). None = 60개 추가로도 불가/룰 미관측.
+/// ★09-28 유저 요청 "왜 56개 필요라고 써 있는지 계산식을 써줘 — 현재 포지션에만 선택된 챔피언/다른 포지션과 겹치는 챔피언 식으로":
+///   S={p} 의 필요치 = |S|(1) + 2b + Σ_q min(R, lane_cnt[q]) 를 쪼갠다. 기본 = 1 + 2b + min(R, lane_cnt[p]) (하드·밴5 = 20),
+///   나머지 = 다른 라인 q 로 "빠질 수 있는 몫"(q 가 비어 있으면 풀 전부가 q 로 갈 수 있어 보통 R 로 꽉 참 / 겹쳐 지정한 수).
+///   활성 집합은 compute_safety 표시와 같이 (현재 활성) ∪ {p}.
+pub struct NeedBreak { pub need: usize, pub base: usize, pub only: usize, pub overlap: usize, pub anywhere: usize, pub lanes: Vec<(usize, usize, bool)> }
+pub fn need_breakdown(p: usize) -> Option<NeedBreak> {
+    if p >= 5 { return None; }
+    let (style, ban) = cur_rule();
+    let b = ban?;
+    let s = safety();
+    let a: u8 = (0..5).filter(|&q| s.active[q]).fold(0u8, |m, q| m | (1 << q)) | (1 << p);
+    let free = MASK_ALL & !a;
+    let roster: Vec<String> = ROSTER.read().unwrap_or_else(|e| e.into_inner()).as_ref()?.iter().cloned().collect();
+    let des: Vec<u8> = with_state(|st| roster.iter().map(|c| (0..5).filter(|&q| st.allowed[q].iter().any(|x| x == c)).fold(0u8, |m, q| m | (1 << q))).collect());
+    let r = 1 + (SERIES_GAMES - 1) * match style { 2 => 2, 1 => 1, _ => 0 };
+    let (mut only, mut overlap, mut anywhere) = (0usize, 0usize, 0usize);
+    let mut lane_cnt = [0usize; 5];
+    for &d in &des {
+        let dd = d & a;
+        let eff = if dd != 0 { dd | free } else if free != 0 { free } else { MASK_ALL };
+        if eff & (1 << p) == 0 { continue; }
+        if dd == 1 << p { only += 1; } else if dd & (1 << p) != 0 { overlap += 1; } else { anywhere += 1; }
+        for q in 0..5 { if eff & (1 << q) != 0 { lane_cnt[q] += 1; } }
+    }
+    let base = 1 + 2 * b + lane_cnt[p].min(r);
+    let lanes: Vec<(usize, usize, bool)> = (0..5).filter(|&q| q != p).map(|q| (q, lane_cnt[q].min(r), free & (1 << q) != 0)).filter(|x| x.1 > 0).collect();
+    let need = base + lanes.iter().map(|x| x.1).sum::<usize>();
+    Some(NeedBreak { need, base, only, overlap, anywhere, lanes })
+}
 pub fn adds_needed(p: usize) -> Option<usize> {
     if p >= 5 { return None; }
     let (style, ban) = cur_rule();

@@ -34,6 +34,7 @@ static RESPAWN_TRIES: AtomicUsize = AtomicUsize::new(0);
 static SEL_POS: AtomicUsize = AtomicUsize::new(0);
 static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
 static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
+
 static GRID_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static SEARCH_TXT: Mutex<String> = Mutex::new(String::new());
 static VISIBLE: Mutex<Vec<String>> = Mutex::new(Vec::new());
@@ -209,13 +210,17 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
     let right = format!("{}.right", pop);
     set_label(ctx, &format!("{}.summary", right), &if cnt == 0 { i18n::trf("summary_fmt", &[("pos", &i18n::pos_name(pos))]) } else { i18n::trf("summary_cnt", &[("pos", &i18n::pos_name(pos)), ("n", &cnt.to_string())]) });
     let rule_name = i18n::tr(match style { 2 => "rule_fearless_hard", 1 => "rule_fearless", _ => "rule_classic" });
-    set_label(ctx, &format!("{}.rule_label", right), &if ban_opt.is_none() { i18n::trf("rule_ban_reading", &[("name", &rule_name)]) } else { i18n::trf("rule_ban", &[("name", &rule_name), ("n", &ban_count.to_string())]) });
+    set_label(ctx, &format!("{}.rule_label", right), &if ban_opt.is_none() { i18n::trf("rule_ban_reading", &[("name", &rule_name)]) } else { i18n::trf("rule_ban", &[("name", &rule_name), ("n", &ban_count.to_string()), ("base", &config::min_required(style, ban_count).to_string())]) });
     // ★09-28 유저 요청 "인원제한 부분 알기 편하게": ~~최소 선택 수/현재 선택 수/다른 포지션 경고 문장 3줄~~ →
     //   포지션 5줄 현황판(이름 · 막대 · 현재/필요). 초록 = 제한 적용 / 빨강 = 부족(제한 없음 취급) / 회색 = 지정 0 또는 밴 수 미확인.
     //   값 = 판정 풀(지정 + 미지정 · pos_safety 단일 포지션값). 겹침 부분집합이 원인이면 그 부분집합의 have/need 를 쓰고 " · 겹침 탑/정글" 을 붙인다.
     {
         const GREEN: &str = "#37d5b3ff"; const RED: &str = "#ff4a4aff"; const GRAY: &str = "#6b6f82ff"; const BAR_W: f32 = 170.0;
         let board = format!("{}.board", right);
+        // ★09-28 유저 요청: "처음에 56개 부족이라 떠서 56개 골라야 하는 줄 안다 — 하드·밴5 기준 20개인 걸 알게" →
+        //   룰 줄에 기본 최소를 쓰고, 필요치가 기본보다 큰 줄이 있으면 그 이유(비운 포지션·겹침 → 다른 라인 유출)를 한 줄로.
+        let base = if ban_opt.is_some() { config::min_required(style, ban_count) } else { usize::MAX };
+        let mut over_base = false;
         for p in 0..5 {
             let row = format!("{}.row{}", board, p);
             set_label(ctx, &format!("{}.name", row), &i18n::pos_name(p));
@@ -235,11 +240,25 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
                 else if ban_opt.is_none() { (i18n::trf("row_unknown", &[("have", &have.to_string())]), GRAY, 0.0) }
                 else if active { (i18n::trf("row_ok", &[("have", &have.to_string()), ("need", &need.to_string()), ("tail", "")]), GREEN, 1.0) }
                 else { (i18n::trf("row_short", &[("have", &have.to_string()), ("need", &need.to_string()), ("more", &config::adds_needed(p).unwrap_or(need.saturating_sub(have)).to_string()), ("tail", &tail)]), RED, if need == 0 { 0.0 } else { (have as f32 / need as f32).min(1.0) }) };
+            if cnt_p > 0 && ban_opt.is_some() && need > base { over_base = true; }
             set_label(ctx, &format!("{}.val", row), &txt);
             uk::set_props_if_changed(ctx, &format!("{}.val", row), "color", color);
             uk::set_props_if_changed(ctx, &format!("{}.bar", row), "color", color);
             uk::set_props_if_changed(ctx, &format!("{}.bar", row), "width", &format!("{}px", (BAR_W * ratio).round() as i32));
         }
+        let _ = over_base;
+        // ★09-28 유저 요청: 현재 탭 포지션의 필요치 계산식(기본 + 다른 라인으로 빠질 수 있는 몫)을 3줄로.
+        let note = if config::pos_count(pos) == 0 { String::new() } else if let Some(nb) = config::need_breakdown(pos) {
+            let extra = nb.need - nb.base;
+            let lanes = if nb.lanes.is_empty() { i18n::tr("need_lanes_none") } else {
+                i18n::trf("need_lanes", &[("list", &nb.lanes.iter().map(|&(q, n, fr)| i18n::trf(if fr { "lane_free" } else { "lane_ov" }, &[("pos", &i18n::pos_name(q)), ("n", &n.to_string())])).collect::<Vec<_>>().join(" · "))])
+            };
+            format!("{}\n{}\n{}",
+                i18n::trf("need_calc", &[("need", &nb.need.to_string()), ("base", &nb.base.to_string()), ("extra", &extra.to_string())]),
+                i18n::trf("need_pool", &[("only", &nb.only.to_string()), ("ov", &nb.overlap.to_string()), ("un", &nb.anywhere.to_string())]),
+                lanes)
+        } else { String::new() };
+        set_label(ctx, &format!("{}.base_note", right), &note);
     }
     {
         let live = config::pos_pool(pos);
@@ -285,7 +304,7 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
         }
     }
     let n = champs.len().min(NCELLS);
-    let rows = n.div_ceil(7);
+    let rows = n.div_ceil(5); // ★09-28: 7열 → 5열(그리드 오른쪽에 규칙 요약 열 — 유저 "따로 패널 말고 옆에 다 써줘")
     let h = (rows as f32) * (171.0 + 15.0) + 16.0;
     uk::set_props_if_changed(ctx, &contents, "height", &format!("{}px", h));
     let total = r.sorted.len();
