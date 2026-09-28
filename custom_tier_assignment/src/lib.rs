@@ -18,6 +18,8 @@ use std::sync::atomic::{AtomicBool, AtomicI64, AtomicU64, Ordering};
 use std::sync::Mutex;
 #[path = r"C:\tfm2mods\ui_kit\team_sync_stable.rs"]
 mod team_sync;
+#[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
+mod cdb; // ★09-28: 출시분 챔피언 raw 목록(champion_names() 는 모드 챔프 수에 비례해 수백 ms~수 초 — 통계 뷰 6프레임마다 부르던 게 "게임정보 멈춤" 원인)
 
 const MOD_ID: &str = "custom_tier_assignment";
 const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
@@ -37,11 +39,15 @@ const STAT_ROWS: &str = "main.top.right.statistics.data.champion.data.contents";
 static STAT_COLOR: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
 static STAT_NAME_MAP: Mutex<Option<HashMap<String, String>>> = Mutex::new(None); // 표시명 → id
 static STAT_TINT_AT: AtomicU64 = AtomicU64::new(u64::MAX);
+static STAT_NAME_KEY: AtomicU64 = AtomicU64::new(u64::MAX);
 fn stat_name_map(ctx: &StableClient<'_>) -> HashMap<String, String> {
+    // ★09-28 렉 수정: ~~매 호출 `champion_names().len()` 비교~~(통계 뷰가 보이는 동안 6프레임마다 = 사실상 정지 · 유저 제보
+    //   "나만의 티어 켜면 게임정보 들어가면 멈춤") → 출시분 수(u64 한 번 읽기)가 바뀔 때만 재구성.
+    let key = cdb::available_len(ctx).unwrap_or(0);
     let mut g = STAT_NAME_MAP.lock().unwrap_or_else(|e| e.into_inner());
-    if g.as_ref().map(|m| m.len()).unwrap_or(0) < ctx.champion_names().len() {
+    if g.is_none() || STAT_NAME_KEY.swap(key, Ordering::Relaxed) != key {
         let mut m = HashMap::new();
-        for id in ctx.champion_names() { if let Some(n) = ctx.i18n(&format!("#asset/base/text/champion?description.{}.name", id)) { if !n.is_empty() { m.insert(n, id.clone()); } } }
+        for id in cdb::champion_ids_fast(ctx) { if let Some(n) = ctx.i18n(&format!("#asset/base/text/champion?description.{}.name", id)) { if !n.is_empty() { m.insert(n, id.clone()); } } }
         *g = Some(m);
     }
     g.clone().unwrap_or_default()
@@ -280,7 +286,7 @@ fn stat_scores(ctx: &StableClient<'_>, c: &Config) -> Vec<(String, usize, f32)> 
 /// 버프/너프 판정: 현재 brief vs 번들 시트 기본값(6 스탯, 1레벨+만렙 합 상대변화 합산)
 fn compute_tints(ctx: &StableClient<'_>) -> HashMap<String, i8> {
     let sh = sheet(); let mut out = HashMap::new(); let lv = (MAX_LEVEL - 1) as f32;
-    for name in ctx.champion_names() {
+    for name in cdb::champion_ids_fast(ctx) { // ★09-28: 출시분 raw(600프레임 주기 호출이라 champion_names 금지)
         let (Some(b), Some(e)) = (ctx.champion_brief(&name), sh.get(&name)) else { continue };
         let cur = [b.stat.attack, b.stat.magic_power, b.stat.hp, b.stat.defence, b.stat.magic_resistance, b.stat.move_speed].map(|x| x as f32);
         let cg = [b.growth.attack, b.growth.magic_power, b.growth.hp, b.growth.defence, b.growth.magic_resistance, b.growth.move_speed].map(|x| x as f32);
