@@ -34,6 +34,14 @@ static RESPAWN_TRIES: AtomicUsize = AtomicUsize::new(0);
 static SEL_POS: AtomicUsize = AtomicUsize::new(0);
 static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
 static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
+/// ⚠(09-28) 다시 여는 '규칙 보기' 버튼은 창 루트·`:empty`·`:color` 패널 어디에 둬도 클릭 콜백이 한 번도 안 불렸다(등록 실패 로그 없음 · 원인 미규명) →
+///   요청 범위(기본 켜짐 + '설명 닫기')만 구현: 규칙 칸 안의 '설명 닫기'(동작 확인). 다시 보려면 창을 다시 열면 기본으로 켜짐.
+/// ★09-28 유저 요청: 규칙 칸은 창을 열 때마다 기본으로 켜짐 · '설명 닫기'로 닫으면 그리드가 7열로 넓어짐 · 닫힌 동안 우상단 '규칙 보기'로 다시 열기.
+static RULES_SHOWN: AtomicBool = AtomicBool::new(true);
+static WAS_OPEN: AtomicBool = AtomicBool::new(false);
+static LAYOUT_SHOWN: Mutex<Option<bool>> = Mutex::new(None);
+/// 그리드 열 수(규칙 칸 켜짐 4열 / 닫힘 7열)
+fn grid_cols() -> usize { if RULES_SHOWN.load(Ordering::Relaxed) { 4 } else { 7 } }
 
 static GRID_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static SEARCH_TXT: Mutex<String> = Mutex::new(String::new());
@@ -123,7 +131,23 @@ pub fn tick(ctx: &mut StableClient<'_>, contents: &str) {
     *POPUP_PATH.lock().unwrap_or_else(|e| e.into_inner()) = Some(pop.clone());
     let open = POPUP_OPEN.load(Ordering::Relaxed);
     uk::set_props_if_changed(ctx, &pop, "visible", if open { "true" } else { "false" });
-    if !open { return; }
+    if !open { WAS_OPEN.store(false, Ordering::Relaxed); return; }
+    // 창을 새로 열 때마다 규칙 칸 켜진 상태로 시작
+    if !WAS_OPEN.swap(true, Ordering::Relaxed) { RULES_SHOWN.store(true, Ordering::Relaxed); *LAYOUT_SHOWN.lock().unwrap_or_else(|e| e.into_inner()) = None; GRID_SIG.store(u64::MAX, Ordering::Relaxed); }
+    // 규칙 칸 켜짐/닫힘 → 그리드 폭(4열 653px / 7열 1154px) · 버튼 가시성
+    {
+        let shown = RULES_SHOWN.load(Ordering::Relaxed);
+        let mut g = LAYOUT_SHOWN.lock().unwrap_or_else(|e| e.into_inner());
+        if *g != Some(shown) {
+            *g = Some(shown);
+            let (lw, sw, cw) = if shown { (706, 674, 653) } else { (1207, 1175, 1154) };
+            ctx.ui_set_properties(&format!("{}.left", pop), &format!("width: {}px;", lw));
+            ctx.ui_set_properties(&format!("{}.left.scroll", pop), &format!("width: {}px;", sw));
+            ctx.ui_set_properties(&format!("{}.left.scroll.contents", pop), &format!("width: {}px;", cw));
+            ctx.ui_set_properties(&format!("{}.rules_col", pop), &format!("visible: {};", shown));
+            GRID_SIG.store(u64::MAX, Ordering::Relaxed);
+        }
+    }
     // ── 필터 위젯
     if SEARCH_CLEAR.swap(false, Ordering::Relaxed) { ctx.ui_set_text_edit_text(&format!("{}.filter_bar.champ_search", pop), ""); }
     let cur = ctx.ui_text_edit_text(&format!("{}.filter_bar.champ_search", pop)).unwrap_or_default().trim().to_lowercase();
@@ -135,6 +159,7 @@ fn register_popup_clicks(ctx: &mut StableClient<'_>, pop: &str) {
     let close = || POPUP_OPEN.store(false, Ordering::Relaxed);
     reg(ctx, &format!("{}.close", pop), close);
     reg(ctx, &format!("{}.cancel", pop), close);
+    reg(ctx, &format!("{}.rules_col.rules_close", pop), || { RULES_SHOWN.store(false, Ordering::Relaxed); GRID_SIG.store(u64::MAX, Ordering::Relaxed); });
     reg(ctx, &format!("{}.ok", pop), || {
         let body = config::state_text(true);
         *crate::PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()) = Some(body.clone());
@@ -304,7 +329,7 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
         }
     }
     let n = champs.len().min(NCELLS);
-    let rows = n.div_ceil(4); // ★09-28: 7열 → 5열 → 4열(가운데 설명 칸 — 유저 "옆에 다 써줘" + "쉬운 말로" 로 글이 길어져 칸을 넓힘)
+    let rows = n.div_ceil(grid_cols()); // ★09-28: 규칙 칸 켜짐 4열 / 닫힘 7열
     let h = (rows as f32) * (171.0 + 15.0) + 16.0;
     uk::set_props_if_changed(ctx, &contents, "height", &format!("{}px", h));
     let total = r.sorted.len();

@@ -686,7 +686,8 @@ pos_lock_popup:color {
   #rules_col:color {
     x: 752px; y: 136px; width: 488px; height: 787px; color: #1d1f2cff;
     rounding: Uniform { rounding: 8; }
-    #title:label { @"asset/base/style/main#bold_label"; x: 16px; y: 14px; width: 456px; height: 26px; size: 16; align_y: Center; text: "#asset/base/text/ui?pos_lock.rules_title"; }
+    #rules_close:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 352px; y: 10px; width: 120px; height: 32px; text: { text: "#asset/base/text/ui?pos_lock.rules_close"; font: "asset/base/font/set/bold"; size: 14; align_x: Center; align_y: Center; } }
+    #title:label { @"asset/base/style/main#bold_label"; x: 16px; y: 14px; width: 330px; height: 26px; size: 16; align_y: Center; text: "#asset/base/text/ui?pos_lock.rules_title"; }
     #text:label { @"asset/base/style/main#label"; x: 16px; y: 42px; width: 456px; height: 738px; size: 13; line_height: 18; color: #c9ccd8ff; align_y: Center; text: "#asset/base/text/ui?pos_lock.rules_short"; }
   }
 
@@ -747,6 +748,8 @@ pos_lock_popup:color {
 
   #cancel:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 654px; y: 943px; width: 220px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.cancel"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
   #ok:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 890px; y: 943px; width: 220px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.ok"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
+
+
 
   <<CLASS_LIST>>
 }
