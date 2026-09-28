@@ -141,11 +141,14 @@ impl StableExtension for Ext {
             if !ctx.ui_exists(PANEL) || !ctx.ui_visible(VIEW).unwrap_or(false) { deactivate(); return; }
             if !ACTIVE.swap(true, Ordering::Relaxed) { log("facility 뷰 활성"); }
             let (b_add, b_new, popup, toast) = (format!("{}.{}", PANEL, BTN_ADD), format!("{}.{}", PANEL, BTN_NEW), format!("{}.{}", VIEW, POPUP), format!("{}.{}", PANEL, TOAST));
-            if !ctx.ui_exists(&b_add) {
-                let ok1 = ctx.ui_spawn_source(PANEL, &btn_src(BTN_ADD, 20, "전체 추가 생산"));
-                let ok2 = ctx.ui_spawn_source(PANEL, &btn_src(BTN_NEW, 192, "전체 신규 생산"));
-                let ok3 = ctx.ui_spawn_source(VIEW, &popup_src());
-                let ok4 = ctx.ui_spawn_source(PANEL, &toast_src());
+            // ★09-28 유저 제보 "시설에 버튼이 여러 개 생긴다": ~~add 하나만 보고 4개를 통째로 재스폰~~ → add 스폰이 실패하거나
+            //   add 만 사라진 경우 6프레임마다 new/popup/toast 가 계속 쌓였다(구조상 가능 · 로컬 미재현 = 추정).
+            //   → 노드별로 없을 때만 스폰(멱등).
+            if !ctx.ui_exists(&b_add) || !ctx.ui_exists(&b_new) || !ctx.ui_exists(&popup) || !ctx.ui_exists(&toast) {
+                let ok1 = ctx.ui_exists(&b_add) || ctx.ui_spawn_source(PANEL, &btn_src(BTN_ADD, 20, "전체 추가 생산"));
+                let ok2 = ctx.ui_exists(&b_new) || ctx.ui_spawn_source(PANEL, &btn_src(BTN_NEW, 192, "전체 신규 생산"));
+                let ok3 = ctx.ui_exists(&popup) || ctx.ui_spawn_source(VIEW, &popup_src());
+                let ok4 = ctx.ui_exists(&toast) || ctx.ui_spawn_source(PANEL, &toast_src());
                 log(&format!("스폰 add={} new={} popup={} toast={} add_rect={:?} popup_rect={:?}", ok1, ok2, ok3, ok4, ctx.ui_node_rect(&b_add), ctx.ui_node_rect(&popup)));
                 // ★핸들러는 경로 키 영구 등록 — 프로세스당 1회만(재등록 = 중복 발화)
                 if !CLICKS_REGISTERED.swap(true, Ordering::Relaxed) {
