@@ -38,7 +38,7 @@ pub mod draft_scene;
 pub mod dd;
 
 pub const MOD_ID: &str = "tfm2_champ_pos_lock";
-pub const VERSION: &str = "0.7.0";
+pub const VERSION: &str = "0.7.4";
 
 #[link(name = "kernel32")]
 extern "system" { fn GetModuleFileNameW(module: usize, buf: *mut u16, size: u32) -> u32; fn GetModuleHandleExW(flags: u32, addr: *const u16, h: *mut usize) -> i32; }
@@ -361,7 +361,7 @@ impl StableExtension for Ext {
 static PANIC_CNT: AtomicUsize = AtomicUsize::new(0);
 
 fn init(host: &StableHost) -> StableMod {
-    host.log(LogLevel::Info, "tfm2_champ_pos_lock v0.7.0 (stable 0.6.0)");
+    host.log(LogLevel::Info, "tfm2_champ_pos_lock v0.7.4 (stable · game 0.6.1)");
     config::load();
     i18n::load();
     let v = host.game_version();
