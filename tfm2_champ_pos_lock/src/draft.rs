@@ -53,6 +53,7 @@ impl StableDraftHook for PosLockDraft {
     fn priority(&self) -> i32 { 100 }
     fn score_pick(&self, ctx: &StableDraftContext<'_>, candidate: usize, base_score: f32) -> StableDraftDecision {
         CNT_SCORE.fetch_add(1, Ordering::Relaxed);
+        let _s = crate::perf::sec(crate::perf::SCORE);
         publish_model(ctx);
         let key = ctx_key(ctx);
         SCORE_KEY.with(|k| { let mut k = k.borrow_mut(); if *k != key { *k = key; SCORES.with(|s| s.borrow_mut().clear()); } });
@@ -67,6 +68,7 @@ impl StableDraftHook for PosLockDraft {
 
 fn decide(ctx: &StableDraftContext<'_>) -> Option<usize> {
     CNT_DECIDE.fetch_add(1, Ordering::Relaxed);
+    let _s = crate::perf::sec(crate::perf::DECIDE);
     let cfg = config::get();
     if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() { return None; }
     if ctx.phase() != Some(DraftPhaseV1::Pick) { return None; }

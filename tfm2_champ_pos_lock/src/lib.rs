@@ -27,6 +27,7 @@ pub mod pick_click_hook;
 pub mod ai_swap;
 pub mod auto_swap; // ★09-20 내 팀 자동 스왑(select_swap 호출)
 pub mod ui_popup;
+pub mod perf; // ★09-28 구간 계측(cfg perf_log)
 #[path = r"C:\tfm2mods\ui_kit\ui_kit_stable.rs"]
 pub mod uk;
 #[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
@@ -105,14 +106,29 @@ fn roster_sig(ids: &[String]) -> u64 {
     h.finish()
 }
 
-/// 로스터 캡처: `champion_names()` + i18n 표시명 + `champion_brief` 클래스. 서명이 같으면 게시하지 않는다.
+/// 로스터 캡처: 출시분 id + i18n 표시명 + `champion_brief` 클래스. 서명이 같으면 게시하지 않는다.
+/// ★09-28 렉 수정: ~~`champion_names()`(registry 전체) → 출시분 필터~~ → **출시분 raw 목록을 직접**(`cdb::available_champion_ids`).
+///   `champion_names()` 는 챔프마다 호스트 슬롯을 부르는 구조라 모드 챔프가 많을수록 급격히 느려진다
+///   (09-28 실측 60종 1.6ms → 98종 577ms · 유저 제보 "밴픽·인게임 중간중간 멈춤"). raw 읽기 실패 시에만 옛 경로로 폴백.
 fn capture_roster(ctx: &StableClient<'_>) {
-    let raw = ctx.champion_names();
-    if raw.is_empty() { return; }
-    let mut ids: Vec<String> = raw.iter().map(|s| s.to_ascii_lowercase()).collect();
-    // ★0.6.0(09-17 유저 제보 "아직 추가 안 된 챔피언이 목록에 있다"): champion_names() 는 registry 전체(미출시 포함) →
-    //   ClientDatabase.available_champions(cdb+0xe740, RE 09-17)로 출시분만 남긴다. 읽기 실패(레이아웃 stale)면 전체 유지.
-    if let Some(avail) = read_available(ctx, &ids) { ids.retain(|id| avail.contains(id)); if ids.is_empty() { return; } }
+    let t0 = std::time::Instant::now();
+    let fast = cdb::available_champion_ids(ctx);
+    let fast_ok = fast.is_some();
+    let ids: Vec<String> = match fast {
+        Some(v) => v.iter().map(|s| s.to_ascii_lowercase()).collect(),
+        None => {
+            // 폴백(레이아웃 stale 등): registry 전체 → 출시분 필터(0.6.0 09-17 경로 그대로)
+            let raw = ctx.champion_names();
+            if raw.is_empty() { return; }
+            let mut ids: Vec<String> = raw.iter().map(|s| s.to_ascii_lowercase()).collect();
+            if let Some(avail) = read_available(ctx, &ids) { ids.retain(|id| avail.contains(id)); }
+            ids
+        }
+    };
+    if ids.is_empty() { return; }
+    // 출시분 수를 기억 → 주기 점검은 이 값만 비교(roster_changed_cheap).
+    if let Some(l) = avail_len(ctx) { AVAIL_SEEN.store(l, Ordering::Relaxed); }
+    if perf::on() { perf::note(&format!("capture_roster: {} {}종 {}us", if fast_ok { "raw" } else { "champion_names 폴백" }, ids.len(), t0.elapsed().as_micros())); }
     let sig = roster_sig(&ids);
     if roster().map(|r| r.sig == sig).unwrap_or(false) { return; }
     let mut names = HashMap::new();
@@ -129,6 +145,15 @@ fn capture_roster(ctx: &StableClient<'_>) {
     config::set_roster(&ids);
     *ROSTER.lock().unwrap_or_else(|e| e.into_inner()) = Some(Arc::new(Roster { ids, names, cats, sorted, sig }));
     MASK_VER.store(u64::MAX, Ordering::Relaxed);
+}
+
+/// ★09-28 렉 수정: 출시분 챔프 수(ClientDatabase.available_champions len · cdb+0xe750). 실패 = None.
+fn avail_len(ctx: &StableClient<'_>) -> Option<u64> { let db = cdb::client_db(ctx)?; unsafe { cdb::rd_u64(db + OFF_AVAIL_LEN) } }
+static AVAIL_SEEN: AtomicU64 = AtomicU64::new(u64::MAX);
+/// 주기 점검(600프레임) — 출시분 수가 바뀌었을 때만 true(패치데이 신챔 출시 반영). 전수 재캡처는 수백 ms 라
+///   (09-28 실측 98종 360~625ms · 유저 제보 "인게임 중간중간 멈춤"의 원인) 주기 호출 금지 — 여기서 바뀜만 본다.
+fn roster_changed_cheap(ctx: &StableClient<'_>) -> bool {
+    match avail_len(ctx) { Some(l) => AVAIL_SEEN.load(Ordering::Relaxed) != l, None => false }
 }
 
 // ───────── 마스크 캐시(id → 5비트) — state/roster 버전으로 무효화 ─────────
@@ -290,16 +315,19 @@ impl StableExtension for Ext {
     fn post_update(&self, ctx: &mut StableClient<'_>, _dt: u64) {
         let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             FRAME.fetch_add(1, Ordering::Relaxed);
+            if perf::on() { perf::frame_gap(FRAME.load(Ordering::Relaxed), if ctx.ui_exists("main.champions.contents") { "draft" } else { "other" }); }
+            let _p = perf::sec(perf::POST);
             uk::frame_begin();
             let cfg = config::get();
             if !cfg.enabled { return; }
-            i18n::poll_lang();
+            { let _s = perf::sec(perf::I18N); i18n::poll_lang(); }
             if ctx.scene_kind() != Some(SceneKindV1::InGame) { leave_save(); ui_popup::reset_registrations(); ui_block::reset(); *OPT_PATH.lock().unwrap_or_else(|e| e.into_inner()) = None; return; }
             // 내 팀 id(비0 을 봤으면 0 으로 후퇴 안 함 — 조합테스트 등)
             if let Some(t) = ctx.player_team_id() { if t != 0 || PLAYER_TEAM.load(Ordering::Relaxed) == u64::MAX { PLAYER_TEAM.store(t as u64, Ordering::Relaxed); } }
-            if ROSTER_DIRTY.swap(false, Ordering::Relaxed) || roster().is_none() || FRAME.load(Ordering::Relaxed) % 600 == 0 { capture_roster(ctx); } // 600프레임 주기 재캡처 = 패치데이 출시분 반영(서명 같으면 no-op)
-            save_tick(ctx);
-            let _ = masks();
+            if ROSTER_DIRTY.swap(false, Ordering::Relaxed) || roster().is_none() || (FRAME.load(Ordering::Relaxed) % 600 == 0 && roster_changed_cheap(ctx)) { let _s = perf::sec(perf::ROSTER); capture_roster(ctx); } // ★09-28: ~~600프레임마다 전수 재캡처~~ → 출시분 수가 바뀔 때만(전수 1회 수백 ms = 10초마다 멈춤의 원인)
+            { let _s = perf::sec(perf::SAVE); save_tick(ctx); }
+            { let _s = perf::sec(perf::MASKS); let _ = masks(); }
+            let _hk = perf::sec(perf::HOOKS);
             legacy_assign::install_once();
             // 밴픽 씬 포인터 캡처(update 진입 detour · 09-18 RE) — 스왑 order raw 읽기용. 설치 결과 1회 로그.
             if let Some(msg) = draft_scene::install_once() { config::dlog(&msg); config::llog(&msg); }
@@ -309,15 +337,19 @@ impl StableExtension for Ext {
             if let Some(msg) = ai_swap::install_once() { config::dlog(&msg); config::llog(&msg); }
             if let Some(msg) = ai_swap::drain_log() { config::llog(&msg); config::dlog(&msg); }
             if FRAME.load(Ordering::Relaxed) % 600 == 0 { let f = ai_swap::CNT_FIRE.load(Ordering::Relaxed); if f != AISWAP_LAST_FIRE.swap(f, Ordering::Relaxed) { config::llog(&format!("aiswap counters: fire={} rewrite={} skip={}", f, ai_swap::CNT_REWRITE.load(Ordering::Relaxed), ai_swap::CNT_SKIP.load(Ordering::Relaxed))); } }
+            drop(_hk);
+            let _op = perf::sec(perf::OPTION);
             // 옵션 화면(환경설정): 행/팝업 + 룰 관측
             if FRAME.load(Ordering::Relaxed) % 120 == 0 { observe_rule_raw(ctx); }
             if let Some(contents) = option_contents(ctx) {
                 ui_popup::tick(ctx, &contents);
             } else { ui_popup::hidden(); }
+            drop(_op);
             // 밴픽/스왑 화면
-            ui_block::tick(ctx);
+            { let _s = perf::sec(perf::UI_BLOCK); ui_block::tick(ctx); }
             draft::drain_logs();
         }));
+        if perf::on() { perf::end_frame(FRAME.load(Ordering::Relaxed), if ctx.ui_exists("main.champions.contents") { "draft" } else { "other" }); }
         // ★09-17: post_update 안 패닉은 조용히 삼켜져 뒷단(ui_block)이 통째로 죽는다 → 페이로드를 로그(같은 메시지 1회).
         if let Err(e) = r {
             let msg = e.downcast_ref::<String>().cloned().or_else(|| e.downcast_ref::<&str>().map(|s| s.to_string())).unwrap_or_else(|| "?".into());

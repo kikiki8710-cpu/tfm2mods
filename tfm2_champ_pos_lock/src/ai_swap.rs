@@ -59,6 +59,7 @@ extern "C" fn detour(sret: usize, scorer: usize, ally_ptr: usize, ally_len: usiz
     let orig: extern "C" fn(usize, usize, usize, usize, usize, usize, usize, usize) -> usize = unsafe { core::mem::transmute(tramp) };
     let ret = orig(sret, scorer, ally_ptr, ally_len, enemy_ptr, enemy_len, rule, is_explore);
     CNT_FIRE.fetch_add(1, Ordering::Relaxed);
+    let _s = crate::perf::sec(crate::perf::AI_SWAP);
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
         let cfg = config::get();
         if !cfg.enabled || cfg.swap_force == 0 || !config::any_restricted() { return; }

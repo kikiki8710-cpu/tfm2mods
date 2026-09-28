@@ -74,3 +74,41 @@ pub fn play_cursor(ctx: &StableClient<'_>) -> Option<PlayCursor> {
         Some(PlayCursor { replay, played, ev_len: len, ev_ptr: ptr, scene_tag: tag })
     }
 }
+
+/// ★09-28 출시분 챔피언 id 목록 = `ClientDatabase.available_champions`(cdb+0xe740 Vec cap/ptr/len · 원소 0x18 = String cap/ptr/len).
+///   근거 = champ_pos_lock `read_available`(RE 09-17 · 0.6.1 인게임 98종 일치 09-28).
+///   ⚠**왜 필요한가**: stable `ctx.champion_names()` 는 모드 챔피언이 늘수록 급격히 느려진다
+///   (09-28 실측 60종 1.6ms → 98종 577ms). 밴픽 진입·주기 점검에서 부르면 그만큼 프레임이 멈춘다 → 이 raw 읽기(≈0.3ms)로 대체.
+///   레이아웃 stale 가드: len ≤ 4096 · 문자열 1..=64B · 유효 UTF-8·제어문자/공백 없음(모드 챔프 id 에 비ASCII 가능). 하나라도 어긋나면 None(호출측이 champion_names 로 폴백).
+pub const OFF_AVAIL_CHAMPS: usize = 0xe740;
+pub fn available_champion_ids(ctx: &StableClient<'_>) -> Option<Vec<String>> {
+    let db = client_db(ctx)?;
+    unsafe {
+        let cap = rd_u64(db + OFF_AVAIL_CHAMPS)? as usize;
+        let ptr = rd_u64(db + OFF_AVAIL_CHAMPS + 8)? as usize;
+        let len = rd_u64(db + OFF_AVAIL_CHAMPS + 0x10)? as usize;
+        if len == 0 || len > cap || len > 4096 || !readable(ptr, len * 0x18) { return None; }
+        let mut out = Vec::with_capacity(len);
+        for i in 0..len {
+            let e = ptr + i * 0x18;
+            let sp = core::ptr::read_unaligned((e + 8) as *const usize);
+            let sl = core::ptr::read_unaligned((e + 0x10) as *const usize);
+            if sl == 0 || sl > 64 || !readable(sp, sl) { return None; }
+            let Ok(st) = core::str::from_utf8(core::slice::from_raw_parts(sp as *const u8, sl)) else { return None };
+            if st.chars().any(|c| c.is_control() || c == ' ') { return None; }
+            out.push(st.to_string());
+        }
+        Some(out)
+    }
+}
+/// 출시분 챔피언 수(cdb+0xe750 u64 한 번 읽기) — 목록이 바뀌었는지 싸게 감지하는 키. 실패 = None.
+pub fn available_len(ctx: &StableClient<'_>) -> Option<u64> {
+    let db = client_db(ctx)?;
+    let n = unsafe { rd_u64(db + OFF_AVAIL_CHAMPS + 0x10)? };
+    if n > 4096 { None } else { Some(n) }
+}
+/// 챔피언 id 목록(빠른 경로 우선): 출시분 raw 읽기 → 실패 시 `ctx.champion_names()`(느림 · registry 전체).
+/// ⚠의미 차이: 빠른 경로는 **출시분만**(미출시 제외). registry 전체가 필요한 곳(미출시 계산)은 쓰지 말 것.
+pub fn champion_ids_fast(ctx: &StableClient<'_>) -> Vec<String> {
+    available_champion_ids(ctx).unwrap_or_else(|| ctx.champion_names())
+}

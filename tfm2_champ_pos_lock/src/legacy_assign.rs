@@ -47,6 +47,7 @@ extern "C" fn pos_mask_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> u
     let orig: extern "C" fn(usize, usize, usize, usize) -> usize = unsafe { core::mem::transmute(tramp) };
     let ret = orig(rcx, rdx, r8, r9);
     CNT_FIRE.fetch_add(1, Ordering::Relaxed);
+    let _s = crate::perf::sec(crate::perf::POS_MASK);
     let adj = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         let cfg = config::get();
         if !cfg.enabled || !cfg.ai_assign_mask { return None; }

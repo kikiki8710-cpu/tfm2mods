@@ -191,20 +191,43 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
     // ── 우측 요약 라벨(클래식 fill_grid 그대로)
     let cnt = config::pos_count(pos);
     let (_pool1, base_need, worst_bits, worst_have, worst_need) = config::pos_safety(pos);
-    let comp_size = worst_bits.count_ones() as usize;
+
     let worst_label: String = (0..5).filter(|q| worst_bits & (1 << q) != 0).map(i18n::pos_name).collect::<Vec<_>>().join("/");
     let right = format!("{}.right", pop);
-    set_label(ctx, &format!("{}.summary", right), &i18n::trf("summary_fmt", &[("pos", &i18n::pos_name(pos))]));
+    set_label(ctx, &format!("{}.summary", right), &if cnt == 0 { i18n::trf("summary_fmt", &[("pos", &i18n::pos_name(pos))]) } else { i18n::trf("summary_cnt", &[("pos", &i18n::pos_name(pos)), ("n", &cnt.to_string())]) });
     let rule_name = i18n::tr(match style { 2 => "rule_fearless_hard", 1 => "rule_fearless", _ => "rule_classic" });
-    set_label(ctx, &format!("{}.rule_label", right), &i18n::trf("rule_label", &[("name", &rule_name)]));
-    set_label(ctx, &format!("{}.ban_label", right), &if ban_opt.is_none() { i18n::tr("ban_reading") } else { i18n::trf("ban_label", &[("n", &ban_count.to_string())]) });
-    let min_s = if ban_opt.is_none() { i18n::tr("min_unknown") }
-        else if comp_size > 1 { i18n::trf("min_shared", &[("need", &base_need.to_string()), ("count", &comp_size.to_string()), ("have", &worst_have.to_string()), ("want", &worst_need.to_string())]) }
-        else { i18n::trf("min_label", &[("need", &base_need.to_string())]) };
-    set_label(ctx, &format!("{}.min_label", right), &min_s);
-    let pool = config::pos_pool(pos);
-    let count_s = if cnt == 0 { i18n::tr("count_zero") } else if pool > cnt { i18n::trf("count_label_pool", &[("n", &cnt.to_string()), ("pool", &pool.to_string())]) } else { i18n::trf("count_label", &[("n", &cnt.to_string())]) };
-    set_label(ctx, &format!("{}.count_label", right), &count_s);
+    set_label(ctx, &format!("{}.rule_label", right), &if ban_opt.is_none() { i18n::trf("rule_ban_reading", &[("name", &rule_name)]) } else { i18n::trf("rule_ban", &[("name", &rule_name), ("n", &ban_count.to_string())]) });
+    // ★09-28 유저 요청 "인원제한 부분 알기 편하게": ~~최소 선택 수/현재 선택 수/다른 포지션 경고 문장 3줄~~ →
+    //   포지션 5줄 현황판(이름 · 막대 · 현재/필요). 초록 = 제한 적용 / 빨강 = 부족(제한 없음 취급) / 회색 = 지정 0 또는 밴 수 미확인.
+    //   값 = 판정 풀(지정 + 미지정 · pos_safety 단일 포지션값). 겹침 부분집합이 원인이면 그 부분집합의 have/need 를 쓰고 " · 겹침 탑/정글" 을 붙인다.
+    {
+        const GREEN: &str = "#37d5b3ff"; const RED: &str = "#ff4a4aff"; const GRAY: &str = "#6b6f82ff"; const BAR_W: f32 = 170.0;
+        let board = format!("{}.board", right);
+        for p in 0..5 {
+            let row = format!("{}.row{}", board, p);
+            set_label(ctx, &format!("{}.name", row), &i18n::pos_name(p));
+            uk::set_props_if_changed(ctx, &format!("{}.name", row), "color", if p == pos { GREEN } else { "#ffffffff" });
+            let cnt_p = config::pos_count(p);
+            let (pool1, need1, wbits, whave, wneed) = config::pos_safety(p);
+            let active = config::pos_active_of(p);
+            let own = active || wbits == (1u8 << p);
+            let _ = pool1;
+            // 현재값 = 아래 경고 문장과 같은 `pos_pool`(09-28 실측: pos_safety 단일값 20 vs pos_pool 19 로 1 어긋나 보였다)
+            let (have, need) = if own { (config::pos_pool(p), need1) } else { (whave, wneed) };
+            let tail = if own { String::new() } else {
+                let lines: String = (0..5).filter(|q| wbits & (1 << q) != 0).map(i18n::pos_name).collect::<Vec<_>>().join("/");
+                i18n::trf("row_tail_shared", &[("lines", &lines)])
+            };
+            let (txt, color, ratio) = if cnt_p == 0 { (i18n::tr("row_free"), GRAY, 0.0f32) }
+                else if ban_opt.is_none() { (i18n::trf("row_unknown", &[("have", &have.to_string())]), GRAY, 0.0) }
+                else if active { (i18n::trf("row_ok", &[("have", &have.to_string()), ("need", &need.to_string()), ("tail", "")]), GREEN, 1.0) }
+                else { (i18n::trf("row_short", &[("have", &have.to_string()), ("need", &need.to_string()), ("more", &need.saturating_sub(have).to_string()), ("tail", &tail)]), RED, if need == 0 { 0.0 } else { (have as f32 / need as f32).min(1.0) }) };
+            set_label(ctx, &format!("{}.val", row), &txt);
+            uk::set_props_if_changed(ctx, &format!("{}.val", row), "color", color);
+            uk::set_props_if_changed(ctx, &format!("{}.bar", row), "color", color);
+            uk::set_props_if_changed(ctx, &format!("{}.bar", row), "width", &format!("{}px", (BAR_W * ratio).round() as i32));
+        }
+    }
     {
         let live = config::pos_pool(pos);
         let active = config::pos_active_of(pos);
@@ -218,26 +241,10 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
                 } else {
                     i18n::trf("warn_min", &[("need", &base_need.to_string()), ("pool", &live.to_string()), ("more", &base_need.saturating_sub(live).to_string()), ("tail", &tail)])
                 }
-            } else { i18n::trf("status_active", &[("pool", &live.to_string()), ("need", &base_need.to_string())]) };
+            } else { String::new() }; // ★09-28: 적용 중(초록)은 현황판 줄이 이미 말하므로 문장 생략 — 문제가 있을 때만 설명
         let p = format!("{}.warning_min", right);
         set_label(ctx, &p, &s);
-        let warn = !s.is_empty() && !active;
-        uk::set_props_if_changed(ctx, &p, "color", if s.is_empty() || warn { "#ff4a4aff" } else { "#37d5b3ff" });
-    }
-    {
-        let s = if ban_opt.is_none() { String::new() } else {
-            let mut items: Vec<String> = Vec::new();
-            for p in 0..5 {
-                if p == pos || config::pos_count(p) == 0 || config::pos_active_of(p) { continue; }
-                let (pool1, need1, wbits, whave, wneed) = config::pos_safety(p);
-                items.push(if wbits == (1u8 << p) { format!("{} {}/{}", i18n::pos_name(p), pool1, need1) } else {
-                    let lines: String = (0..5).filter(|q| wbits & (1 << q) != 0).map(i18n::pos_name).collect::<Vec<_>>().join("/");
-                    format!("{}({} {}/{})", i18n::pos_name(p), lines, whave, wneed)
-                });
-            }
-            if items.is_empty() { String::new() } else { i18n::trf("warn_others", &[("list", &items.join(" · "))]) }
-        };
-        set_label(ctx, &format!("{}.warning_others", right), &s);
+        uk::set_props_if_changed(ctx, &p, "color", "#ff4a4aff");
     }
     // ── 셀
     let contents = format!("{}.left.scroll.contents", pop);

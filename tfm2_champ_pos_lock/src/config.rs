@@ -50,6 +50,8 @@ pub struct Cfg {
     pub ai_observe_only: bool,
     /// 옵션/팝업 노드 트리 덤프(디버그 — UI 주입점 파악용)
     pub dump_ui: bool,
+    /// ★09-28 구간별 소요시간 계측(champ_pos_lock_perf.txt). 렉 진단용 — 평소 OFF.
+    pub perf_log: bool,
     pub load_log: Vec<String>,
 }
 
@@ -67,6 +69,7 @@ impl Cfg {
             enforce_lineup: false,
             ai_observe_only: false,
             dump_ui: false,
+            perf_log: false,
             load_log: Vec::new(),
         }
     }
@@ -590,6 +593,7 @@ pub fn load() {
                         "user_pick_block" => c.user_pick_block = on(v),
                         "enforce_lineup" => c.enforce_lineup = on(v),
                         "dump_ui" => c.dump_ui = on(v),
+                        "perf_log" => c.perf_log = on(v),
                         _ => {}
                     }
                 }
@@ -735,7 +739,7 @@ extern "system" {
     fn GetLocalTime(p: *mut WinSysTime);
 }
 /// 로컬 시각 "HH:MM:SS" — 로그를 세이브 파일 mtime 과 대조하려면 벽시계가 필요하다.
-fn now_hms() -> String {
+pub fn now_hms() -> String {
     let mut s = WinSysTime { year: 0, month: 0, dow: 0, day: 0, hour: 0, min: 0, sec: 0, ms: 0 };
     unsafe { GetLocalTime(&mut s) };
     format!("{:02}:{:02}:{:02}", s.hour, s.min, s.sec)
