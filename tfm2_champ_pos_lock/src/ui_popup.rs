@@ -159,6 +159,8 @@ fn register_popup_clicks(ctx: &mut StableClient<'_>, pop: &str) {
     let close = || POPUP_OPEN.store(false, Ordering::Relaxed);
     reg(ctx, &format!("{}.close", pop), close);
     reg(ctx, &format!("{}.cancel", pop), close);
+    // ★09-28 '규칙 설명 켜기/끄기' — 코드가 이 버튼에 ui_set_properties 를 절대 걸지 않는다(걸었던 7가지 시도는 전부 클릭 무반응). 글자 고정·토글.
+    reg(ctx, &format!("{}.filter_bar.rules_switch", pop), || { let was = RULES_SHOWN.fetch_xor(true, Ordering::Relaxed); GRID_SIG.store(u64::MAX, Ordering::Relaxed); config::dlog(&format!("rules_switch 클릭: {} → {}", was, !was)); });
     reg(ctx, &format!("{}.rules_col.rules_close", pop), || { RULES_SHOWN.store(false, Ordering::Relaxed); GRID_SIG.store(u64::MAX, Ordering::Relaxed); });
     reg(ctx, &format!("{}.ok", pop), || {
         let body = config::state_text(true);

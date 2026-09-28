@@ -36,7 +36,7 @@ pos_lock_popup:color {
   }
 
   #filter_bar:empty {
-    x: 802px; y: 81px; width: 437px; height: 40px;
+    x: 802px; y: 81px; width: 620px; height: 40px;
 
     <<CLASS_DD>>
 
@@ -57,6 +57,8 @@ pos_lock_popup:color {
     }
 
     #filter_count:label { @"asset/base/style/main#label"; x: 410px; width: 27px; height: 40px; size: 13; align_y: Center; text: ""; }
+
+    #rules_switch:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 445px; width: 170px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.rules_switch"; font: "asset/base/font/set/bold"; size: 15; align_x: Center; align_y: Center; } }
 
     #search_clear:color_icon_button {
       @"asset/base/style/main#tertiary_button";
