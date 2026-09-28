@@ -563,6 +563,51 @@ pub fn safety() -> Safety {
 /// 로스터 게시 횟수(안전식 캐시 키).
 pub static ROSTER_VER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 /// UI 표시용: 포지션 p 의 (판정 풀 |N({p})|, 필요 need({p}), 가장 빡빡한 S 비트, 그 S 의 (have, need)).
+/// ★09-28 유저 제보 "24개 부족이라며 하나 더 누르니 20/20 충족": 필요치는 고정값이 아니다 — **미지정 챔프는 모든 라인으로 새는 것**
+///   (eff = MASK_ALL)으로 세므로, 그 챔프를 이 포지션에 지정하면 현재치 +1 과 동시에 유출항이 줄어 필요치가 내려간다
+///   (실측: 도박사 1개 지정 → 19/24 → 20/20). ⟹ "몇 개 더"를 `need − have` 로 내면 과대 안내.
+///   여기서는 **실제로 한 개씩 지정해 보는 탐욕 시뮬레이션**으로 활성까지 필요한 추가 수를 센다(매 단계 슬랙을 가장 크게 올리는 챔프).
+///   활성 집합은 현재 판정의 활성 포지션 + p 로 고정(추정치 — 다른 포지션이 꺼지는 경우까지는 안 본다). None = 60개 추가로도 불가/룰 미관측.
+pub fn adds_needed(p: usize) -> Option<usize> {
+    if p >= 5 { return None; }
+    let (style, ban) = cur_rule();
+    let b = ban?;
+    let s = safety();
+    if s.active[p] { return Some(0); }
+    let a: u8 = (0..5).filter(|&q| s.active[q]).fold(0u8, |m, q| m | (1 << q));
+    let ap = a | (1 << p);
+    let roster: Vec<String> = ROSTER.read().unwrap_or_else(|e| e.into_inner()).as_ref()?.iter().cloned().collect();
+    let mut des: Vec<u8> = with_state(|st| roster.iter().map(|c| (0..5).filter(|&q| st.allowed[q].iter().any(|x| x == c)).fold(0u8, |m, q| m | (1 << q))).collect());
+    let r = 1 + (SERIES_GAMES - 1) * match style { 2 => 2, 1 => 1, _ => 0 };
+    // compute_safety 의 table + feasible 와 같은 식(활성 집합 ap 고정)의 최소 슬랙
+    let slack = |des: &[u8]| -> i64 {
+        let free = MASK_ALL & !ap;
+        let eff: Vec<u8> = des.iter().map(|&d| { let dd = d & ap; if dd != 0 { dd | free } else if free != 0 { free } else { MASK_ALL } }).collect();
+        let mut mn = i64::MAX;
+        for s in 1..32usize {
+            if s & ap as usize != s { continue; }
+            let mut n = 0usize; let mut lane_cnt = [0usize; 5];
+            for &m in &eff { if m as usize & s != 0 { n += 1; for q in 0..5 { if m & (1 << q) != 0 { lane_cnt[q] += 1; } } } }
+            let leak: usize = lane_cnt.iter().map(|&c| c.min(r)).sum();
+            let sl = n as i64 - (s.count_ones() as usize + 2 * b + leak) as i64;
+            if sl < mn { mn = sl; }
+        }
+        mn
+    };
+    if slack(&des) >= 0 { return Some(0); }
+    for k in 1..=60usize {
+        let mut best: Option<(usize, i64)> = None;
+        for i in 0..des.len() {
+            if des[i] & (1 << p) != 0 { continue; }
+            let old = des[i]; des[i] |= 1 << p; let sl = slack(&des); des[i] = old;
+            if best.map_or(true, |(_, bs)| sl > bs) { best = Some((i, sl)); }
+        }
+        let (i, sl) = best?;
+        des[i] |= 1 << p;
+        if sl >= 0 { return Some(k); }
+    }
+    None
+}
 pub fn pos_safety(p: usize) -> (usize, usize, u8, usize, usize) {
     let s = safety();
     let one = 1usize << p;

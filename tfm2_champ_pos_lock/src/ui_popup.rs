@@ -234,7 +234,7 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
             let (txt, color, ratio) = if cnt_p == 0 { (i18n::tr("row_free"), GRAY, 0.0f32) }
                 else if ban_opt.is_none() { (i18n::trf("row_unknown", &[("have", &have.to_string())]), GRAY, 0.0) }
                 else if active { (i18n::trf("row_ok", &[("have", &have.to_string()), ("need", &need.to_string()), ("tail", "")]), GREEN, 1.0) }
-                else { (i18n::trf("row_short", &[("have", &have.to_string()), ("need", &need.to_string()), ("more", &need.saturating_sub(have).to_string()), ("tail", &tail)]), RED, if need == 0 { 0.0 } else { (have as f32 / need as f32).min(1.0) }) };
+                else { (i18n::trf("row_short", &[("have", &have.to_string()), ("need", &need.to_string()), ("more", &config::adds_needed(p).unwrap_or(need.saturating_sub(have)).to_string()), ("tail", &tail)]), RED, if need == 0 { 0.0 } else { (have as f32 / need as f32).min(1.0) }) };
             set_label(ctx, &format!("{}.val", row), &txt);
             uk::set_props_if_changed(ctx, &format!("{}.val", row), "color", color);
             uk::set_props_if_changed(ctx, &format!("{}.bar", row), "color", color);
@@ -250,9 +250,9 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
                 let stale = config::pos_stale(pos);
                 let tail = if stale > 0 { i18n::trf("warn_min_tail_stale", &[("n", &stale.to_string())]) } else { String::new() };
                 if worst_bits != (1u8 << pos) || live >= base_need {
-                    i18n::trf("warn_subset", &[("lines", &worst_label), ("have", &worst_have.to_string()), ("need", &worst_need.to_string()), ("more", &worst_need.saturating_sub(worst_have).to_string())])
+                    i18n::trf("warn_subset", &[("lines", &worst_label), ("have", &worst_have.to_string()), ("need", &worst_need.to_string()), ("more", &config::adds_needed(pos).unwrap_or(worst_need.saturating_sub(worst_have)).to_string())])
                 } else {
-                    i18n::trf("warn_min", &[("need", &base_need.to_string()), ("pool", &live.to_string()), ("more", &base_need.saturating_sub(live).to_string()), ("tail", &tail)])
+                    i18n::trf("warn_min", &[("need", &base_need.to_string()), ("pool", &live.to_string()), ("more", &config::adds_needed(pos).unwrap_or(base_need.saturating_sub(live)).to_string()), ("tail", &tail)])
                 }
             } else { String::new() }; // ★09-28: 적용 중(초록)은 현황판 줄이 이미 말하므로 문장 생략 — 문제가 있을 때만 설명
         let p = format!("{}.warning_min", right);
