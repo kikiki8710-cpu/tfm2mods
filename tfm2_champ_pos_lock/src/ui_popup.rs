@@ -15,6 +15,9 @@ const POPUP_UI: &str = include_str!("../assets/pos_lock_popup.ui");
 pub const NCELLS: usize = 120;
 const TAB_IDS: [&str; 5] = ["tab_top", "tab_jungle", "tab_mid", "tab_bottom", "tab_support"];
 const CLASS_IDS: [&str; 6] = ["class_all", "class_melee", "class_range", "class_magician", "class_util", "class_assassin"];
+/// 클래스 전체 선택 버튼 cb0~cb4 ↔ 로스터 cats 코드(0 전사 1 원거리 2 마법사 3 전투보조 4 암살자). 유저 지정 순서.
+const CLASS_BTNS: [u8; 5] = [0, 1, 2, 4, 3];
+const CLASS_BTN_KEYS: [&str; 5] = ["class_melee", "class_range", "class_magician", "class_assassin", "class_util"];
 const GAMEPLAY_ROW: &str = "difficulty"; // ★0.6.0: 게임플레이 탭에서 always_delegate_to_staff 행이 사라짐(09-17 실측) → 같은 탭의 난이도 행을 가시성 앵커로
 
 static POPUP_OPEN: AtomicBool = AtomicBool::new(false);
@@ -143,6 +146,16 @@ fn register_popup_clicks(ctx: &mut StableClient<'_>, pop: &str) {
     for (i, t) in CLASS_IDS.iter().enumerate() { reg(ctx, &format!("{}.class_list.{}", pop, t), move || { CLASS_SEL.store(i, Ordering::Relaxed); DD_OPEN.store(false, Ordering::Relaxed); GRID_SIG.store(u64::MAX, Ordering::Relaxed); }); }
     reg(ctx, &format!("{}.filter_bar.search_clear", pop), || SEARCH_CLEAR.store(true, Ordering::Relaxed));
     reg(ctx, &format!("{}.right.clear_pos", pop), || config::clear_pos(SEL_POS.load(Ordering::Relaxed)));
+    // ★09-28: 클래스별 전체 선택(현재 포지션 · 다시 누르면 해제). 버튼 순서 = 전사·원거리·마법사·암살자·전투보조.
+    for (k, cat) in CLASS_BTNS.iter().enumerate() {
+        let cat = *cat;
+        reg(ctx, &format!("{}.right.class_btns.cb{}", pop, k), move || {
+            if let Some(r) = crate::roster() {
+                let ids: Vec<String> = r.ids.iter().filter(|id| r.cats.get(*id).copied() == Some(cat)).cloned().collect();
+                config::toggle_many(SEL_POS.load(Ordering::Relaxed), &ids);
+            }
+        });
+    }
     reg(ctx, &format!("{}.right.select_all_pos", pop), || { if let Some(r) = crate::roster() { config::set_pos(SEL_POS.load(Ordering::Relaxed), r.ids.clone()); } });
     for k in 0..NCELLS {
         reg(ctx, &format!("{}.left.scroll.contents.cell{}", pop, k), move || {
@@ -245,6 +258,15 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
         let p = format!("{}.warning_min", right);
         set_label(ctx, &p, &s);
         uk::set_props_if_changed(ctx, &p, "color", "#ff4a4aff");
+    }
+    // ── ★09-28 클래스 전체 선택 버튼 라벨 = "전사 8/15"(현재 포지션에서 켠 수 / 그 클래스 전체) · 전부 켜졌으면 초록
+    for (k, cat) in CLASS_BTNS.iter().enumerate() {
+        let ids: Vec<&String> = r.ids.iter().filter(|id| r.cats.get(*id).copied() == Some(*cat)).collect();
+        let on = ids.iter().filter(|id| config::is_listed(pos, id)).count();
+        let b = format!("{}.class_btns.cb{}", right, k);
+        let col = if !ids.is_empty() && on == ids.len() { "#37d5b3ff" } else { "#ffffffff" };
+        // color_icon_button 의 글자는 자식 노드가 아니라 `text` 속성 블록 → set_properties 로 내용·색을 함께(탭 칠하기와 같은 방식)
+        ctx.ui_set_properties(&b, &format!("text: {{ text: \"{} {}/{}\"; color: {}; }}", i18n::tr(CLASS_BTN_KEYS[k]), on, ids.len(), col));
     }
     // ── 셀
     let contents = format!("{}.left.scroll.contents", pop);

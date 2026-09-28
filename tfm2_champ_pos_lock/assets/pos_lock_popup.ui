@@ -725,6 +725,14 @@ pos_lock_popup:color {
     }
     #warning_min:label { @"asset/base/style/main#label"; x: 24px; y: 458px; width: 429px; height: 96px; size: 15; line_height: 24; color: #ff4a4aff; align_y: Center; }
 
+    #class_title:label { @"asset/base/style/main#label"; x: 24px; y: 564px; width: 429px; height: 24px; size: 14; color: #9a9db0ff; align_y: Center; text: "#asset/base/text/ui?pos_lock.class_all_title"; }
+    #class_btns:empty { x: 24px; y: 592px; width: 429px; height: 40px;
+      #cb0:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 0px; y: 0px; width: 81px; height: 40px; text: { text: ""; font: "asset/base/font/set/bold"; size: 14; align_x: Center; align_y: Center; } }
+      #cb1:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 87px; y: 0px; width: 81px; height: 40px; text: { text: ""; font: "asset/base/font/set/bold"; size: 14; align_x: Center; align_y: Center; } }
+      #cb2:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 174px; y: 0px; width: 81px; height: 40px; text: { text: ""; font: "asset/base/font/set/bold"; size: 14; align_x: Center; align_y: Center; } }
+      #cb3:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 261px; y: 0px; width: 81px; height: 40px; text: { text: ""; font: "asset/base/font/set/bold"; size: 14; align_x: Center; align_y: Center; } }
+      #cb4:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 348px; y: 0px; width: 81px; height: 40px; text: { text: ""; font: "asset/base/font/set/bold"; size: 14; align_x: Center; align_y: Center; } }
+    }
     #clear_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 682px; width: 429px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.clear_pos"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
     #select_all_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 732px; width: 429px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.select_all_pos"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
   }

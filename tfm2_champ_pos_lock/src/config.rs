@@ -306,6 +306,24 @@ pub fn clear_pos(pos: usize) {
     }
     mutate(|st| st.allowed[pos].clear());
 }
+/// ★09-28 유저 요청 "전사/원거리/마법사/암살자/전투보조 각각 전체선택": ids 가 전부 이미 목록에 있으면 전부 해제, 아니면 빠진 것만 추가.
+pub fn toggle_many(pos: usize, ids: &[String]) {
+    if pos >= 5 || ids.is_empty() {
+        return;
+    }
+    mutate(|st| {
+        let all_in = ids.iter().all(|id| st.allowed[pos].iter().any(|x| x == id));
+        if all_in {
+            st.allowed[pos].retain(|x| !ids.contains(x));
+        } else {
+            for id in ids {
+                if !st.allowed[pos].iter().any(|x| x == id) {
+                    st.allowed[pos].push(id.clone());
+                }
+            }
+        }
+    });
+}
 pub fn set_pos(pos: usize, list: Vec<String>) {
     if pos >= 5 {
         return;
