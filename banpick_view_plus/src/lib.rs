@@ -21,7 +21,6 @@ use std::sync::Mutex;
 mod draft_scene;
 #[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
 mod cdb; // ★09-28: 출시분 챔피언 목록 raw 읽기(champion_names() 는 모드 챔프가 많을수록 수백 ms~수 초)
-mod reveal; // ★09-28: 스왑 종료 → 전술창 위 "상대 스왑 결과" 3초 패널
 mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카드 일러) 통합 — 게임 훅 RVA 29(패치마다 재핀)
 
 const MOD_ID: &str = "banpick_view_plus";
@@ -518,7 +517,6 @@ impl StableExtension for Ext {
             // 카드 라벨 위치 보정만 매 프레임(위 주석 참조 — 3프레임 주기면 깜빡인다)
             if ACTIVE.load(Ordering::Relaxed) { fix_card_labels(ctx); }
             if f % 3 != 0 { return; }
-            reveal::tick(ctx, f); // 전술창(밴픽 화면 밖)에서도 돌아야 하므로 DISC 판정보다 먼저
             if cfg().showcase { showcase::tick(); } // 늦은 1회 설치(멱등) — 밴픽 화면 진입 전에 설치돼 있어야 첫 연출부터 잡힌다
             if !ctx.ui_exists(DISC) { deactivate(); return; }
             let il = illust();
@@ -555,7 +553,6 @@ impl StableExtension for Ext {
                     log(&format!("스왑 화면 진입: 행 클릭 등록 {}/10", ok));
                 } else if !swap_vis && SWAP_ACTIVE.swap(false, Ordering::Relaxed) {
                     *SWAP_SEL.lock().unwrap_or_else(|e| e.into_inner()) = [None, None];
-                    reveal::arm(f);
                 }
             }
             // ── 클릭 처리
@@ -751,8 +748,6 @@ impl StableExtension for Ext {
                     if me == r.t1_id { Some(false) } else if me == r.t2_id { Some(true) } else { None }  // 숨길 쪽 = 상대
                 })
             } else { None };
-            // ★09-28: 스왑 중 숨기는 쪽(상대)의 최신 라인업을 기억 → 스왑 종료 시 전술창 위 결과 패널(reveal.rs)
-            if let Some(side) = hide_side { if let Some(r) = draft_scene::read() { reveal::track(r.lineup(if side { 0 } else { 1 })); } }
             if DBG && !CARD_DUMPED.swap(true, Ordering::Relaxed) {
                 for slot in ["main.blue_picks.pick_slot_0", "main.blue_picks.pick_slot_1"] {
                     for b in ["done", "in_turn", "wait"] {
@@ -922,8 +917,7 @@ impl StableExtension for Ext {
     }
 }
 fn deactivate() {
-    // 스왑 화면에서 곧장 밴픽 화면 밖(전술창)으로 나간 경우도 결과 패널 예약
-    if SWAP_ACTIVE.swap(false, Ordering::Relaxed) { reveal::arm(FRAME.load(Ordering::Relaxed)); }
+    SWAP_ACTIVE.store(false, Ordering::Relaxed);
     if ACTIVE.swap(false, Ordering::Relaxed) { SETTINGS_OPEN.store(false, Ordering::Relaxed); *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER_BG_KEY.lock().unwrap_or_else(|e| e.into_inner()) = None; }
 }
 /// 원작 draw_radar_octagon 재현(UI 맵 드로잉). 카드 오른쪽/왼쪽 옆에 그린다(게임 자체 포지션 툴팁은 카드 위·아래).
@@ -932,10 +926,11 @@ fn draw_radar(ctx: &mut StableClient<'_>, axes: &[f32; 8], card: (f32, f32, f32,
     const ORD: [usize; 8] = [0, 1, 7, 2, 3, 4, 6, 5];
     const MAXPCT: f32 = 0.15;
     let r = 60.0f32; let r0 = r * 0.55; let rmin = r * 0.20; let icon_rad = r + 12.0; let ext = r + 24.0;
-    // 원작처럼 카드 위(공간 없으면 아래)에 그린다
-    let cx = (card.0 + card.2 / 2.0).clamp(ext, 1920.0 - ext);
-    let above = card.1 - 5.0 - 2.0 * ext >= 100.0;
-    let cy = (if above { card.1 - 5.0 - ext } else { card.1 + card.3 + 5.0 + ext }).clamp(ext, 1080.0 - ext);
+    // ★09-28 유저 제보 "호버하면 나오는 포지션 부분 한글이 깨진다": ~~카드 위(공간 없으면 아래)~~ = 게임 자체 포지션 툴팁
+    //   ("주 사용 포지션", 카드 위·아래)과 같은 자리라 레이더가 그 글자를 덮었다 → 카드 **오른쪽**(화면 밖이면 왼쪽) 옆에 그린다.
+    let right = card.0 + card.2 + 5.0 + 2.0 * ext <= 1920.0;
+    let cx = if right { card.0 + card.2 + 5.0 + ext } else { card.0 - 5.0 - ext };
+    let cy = (card.1 + card.3 / 2.0).clamp(ext, 1080.0 - ext);
     let ang = |i: usize| -PI / 2.0 + i as f32 * (PI / 4.0);
     let pt = |i: usize, rad: f32| (cx + rad * ang(i).cos(), cy + rad * ang(i).sin());
     let cur_r = |i: usize| { let d = (axes[ORD[i]] / MAXPCT).clamp(-1.0, 1.0); if d >= 0.0 { r0 + d * (r - r0) } else { r0 + d * (r0 - rmin) } };
@@ -948,8 +943,11 @@ fn draw_radar(ctx: &mut StableClient<'_>, axes: &[f32; 8], card: (f32, f32, f32,
     // 채움 근사: 중심→각 꼭짓점 굵은 선(폴리곤 API 없음)
     for i in 0..8 { let (x, y) = pt(i, cur_r(i)); ctx.draw_line("UI", cx, cy, x, y, 6.0, z + 4, fillc); }
     for i in 0..8 { let (x1, y1) = pt(i, cur_r(i)); let (x2, y2) = pt((i + 1) % 8, cur_r((i + 1) % 8)); ctx.draw_line("UI", x1, y1, x2, y2, 2.4, z + 5, netcol); }
-    // 스탯 아이콘(게임 시트 asset/base/ui/banpick/champion_stat_icon#sheet, 8칸 가로 0.1125 폭)
-    const ICON_UVX: [f32; 8] = [0.0, 0.1125, 0.225, 0.3375, 0.45, 0.5625, 0.675, 0.7875];
+    // 스탯 아이콘(게임 시트 asset/base/ui/banpick/champion_stat_icon#sheet = 80×10px, 칸 보폭 0.125 · 아이콘 폭 0.1125).
+    // ★09-28 유저 제보 "8각형 레이더 아이콘이 이상하다": ~~보폭 0.1125 + 축 순서 그대로~~ → 시트 정의(#data.sprite_sheet) 좌표를
+    //   축 순서 [attack, magic, hp, def, mr, move, range, atkspeed] 에 맞춰 매핑
+    //   (ad 0 · ap .125 · armor .25 · hp .375 · range .5 · speed .625 · attack_speed .75 · magic resistance .875).
+    const ICON_UVX: [f32; 8] = [0.0, 0.125, 0.375, 0.25, 0.875, 0.625, 0.5, 0.75];
     for i in 0..8 {
         let (icx, icy) = pt(i, icon_rad);
         let p = StableSpriteParams { x: icx, y: icy, z: z + 6, pivot_x: 0.5, pivot_y: 0.5, uv: (ICON_UVX[ORD[i]], 0.0, 0.1125, 0.9), sample_nearest: true, ..Default::default() };
