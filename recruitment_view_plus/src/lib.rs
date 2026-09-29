@@ -142,7 +142,10 @@ impl StableExtension for Ext {
     fn post_update(&self, ctx: &mut StableClient<'_>, _dt: u64) {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let f = FRAME.fetch_add(1, Ordering::Relaxed);
-            if f % 15 != 0 { return; }
+            // ★09-29 깜빡임 수정(Flover 제보: 스크롤 중 원래 컬럼으로 돌아갔다가 멈추면 능력치): 리스트는 스크롤 때 행 노드를
+            //   새로 만든다 → ~~15프레임마다~~ 패치하면 스크롤 동안 새 행이 원래 모습으로 최대 14프레임 보인다.
+            //   영입 뷰가 활성인 동안은 매 프레임 돈다(비활성 탐지는 기존대로 15프레임 주기).
+            if f % 15 != 0 && !ACTIVE.load(Ordering::Relaxed) { return; }
             if ctx.client_scene_kind() != Some(ClientSceneKindV1::Main) { deactivate(); return; }
             if !ctx.ui_exists(VIEW) || !ctx.ui_visible(VIEW).unwrap_or(false) { deactivate(); return; }
             if !ACTIVE.swap(true, Ordering::Relaxed) { log("scout 뷰 활성"); }
@@ -175,7 +178,7 @@ impl StableExtension for Ext {
             let can_show = !hide.is_empty();
             let show = SHOW.load(Ordering::Relaxed);
             let eff_show = show && can_show;
-            if ctx.ui_exists(&btn) { ctx.ui_set_visible(&btn, can_show); }
+            if ctx.ui_exists(&btn) && ctx.ui_visible(&btn) != Some(can_show) { ctx.ui_set_visible(&btn, can_show); }
             // 상태 전환(섹션별)
             if prev != Some((eff_show, mode)) {
                 if let Some((_, pm)) = prev {
