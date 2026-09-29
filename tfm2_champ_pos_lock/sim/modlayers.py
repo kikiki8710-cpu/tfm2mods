@@ -54,20 +54,37 @@ class PosState:
             des[c] = m
         named = sum(1 << p for p in range(5) if self.named_count(p) > 0)
 
+        new_rule = self.gate in ('sum', 'flow')   # ★09-28: 현행 모드(09-18 eff|free · 09-20 Σmin(R,lane_cnt)) / 최대유량
+        R = 1 + 4 * {0: 0, 1: 1, 2: 2}[self.style]
+
         def table(a):
             free = MASK_ALL & ~a
-            eff = [((d & a) if (d & a) else (free if free else MASK_ALL)) for d in des.values()]
+            if new_rule:
+                eff = [((d & a) | free) if (d & a) else (free if free else MASK_ALL) for d in des.values()]
+            else:
+                eff = [((d & a) if (d & a) else (free if free else MASK_ALL)) for d in des.values()]
             have = [0] * 32; need = [0] * 32
             for S in range(1, 32):
                 if S & a != S:
                     continue
                 n = 0; l = 0
+                ms = []
                 for m in eff:
                     if m & S:
-                        n += 1; l |= m
-                opp = min(5, bin(l & a).count('1'))
-                lock = 4 * {0: 0, 1: opp, 2: 2 * opp}[self.style]
-                have[S] = n; need[S] = bin(S).count('1') + 2 * self.ban_count + opp + lock
+                        n += 1; l |= m; ms.append(m)
+                if self.gate == 'sum':
+                    leak = sum(min(R, sum(1 for m in ms if m & (1 << q))) for q in range(5))
+                    need[S] = bin(S).count('1') + 2 * self.ban_count + leak
+                elif self.gate == 'flow':
+                    cnt = [0] * 32
+                    for m in ms: cnt[m] += 1
+                    leak = min(R * bin(T).count('1') + sum(cnt[m] for m in range(1, 32) if m & ~T) for T in range(32))
+                    need[S] = bin(S).count('1') + 2 * self.ban_count + leak
+                else:
+                    opp = min(5, bin(l & a).count('1'))
+                    lock = 4 * {0: 0, 1: opp, 2: 2 * opp}[self.style]
+                    need[S] = bin(S).count('1') + 2 * self.ban_count + opp + lock
+                have[S] = n
             return have, need
 
         excl = [sum(1 for d in des.values() if d == 1 << p) for p in range(5)]
@@ -101,7 +118,7 @@ class PosState:
             elif lower in self.allowed[p]:
                 designated |= 1 << p
         if designated:
-            return designated
+            return designated | free if self.gate in ('sum', 'flow') else designated
         if free:
             return free
         return MASK_ALL

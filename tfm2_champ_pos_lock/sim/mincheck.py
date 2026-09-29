@@ -143,6 +143,7 @@ def run_case(style, b, k, n_per, seeds, sets):
         from modlayers import PosState, ModState, ModParams
         r.pos = PosState(allowed, set(avail), style, b)
         r.pos.gate = GATE
+        r.pos._saf = None
         r.ms = ModState(avail, r.model, r.pos, PARAM_SETS['v4_fix'])
         r.model_idx = {n: i for i, n in enumerate(r.model)}
         if not r.pos.any_restricted():

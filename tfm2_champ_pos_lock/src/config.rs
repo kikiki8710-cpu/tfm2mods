@@ -470,11 +470,13 @@ impl PosState {
             let eff: Vec<u8> = des.iter().map(|&d| { let dd = d & a; if dd != 0 { dd | free } else if free != 0 { free } else { MASK_ALL } }).collect();
             for s in 1..32usize {
                 if s & a as usize != s { have[s] = 0; need[s] = 0; continue; }
-                let mut n = 0usize; let mut lane_cnt = [0usize; 5]; // lane_cnt[q] = N(S) 중 라인 q 에 갈 수 있는 챔프 수(무제한 포함)
-                for &m in &eff { if m as usize & s != 0 { n += 1; for q in 0..5 { if m & (1 << q) != 0 { lane_cnt[q] += 1; } } } }
-                // 라인당 유출 상한 R = 상대 이번 세트 1 + 이전 세트 잠금 · 라인 q 로 빠지는 수 ≤ min(R, lane_cnt[q])
+                let mut n = 0usize; let mut cnt = [0u32; 32]; // N(S) 챔프를 실효 마스크별로 센다
+                for &m in &eff { if m as usize & s != 0 { n += 1; cnt[m as usize & 31] += 1; } }
+                // 라인당 유출 상한 R = 상대 이번 세트 1 + 이전 세트 잠금.
+                // ★09-28 유저 지적 정정: ~~Σ_q min(R, lane_cnt[q])~~(챔프 한 명을 갈 수 있는 라인마다 중복 계산 — 미지정 1개가 +4)
+                //   → **최대 유량**(라인당 ≤R · 챔프당 1회) = min_T { R·|T| + #(마스크 ⊄ T) } (leak_flow).
                 let r = 1 + (SERIES_GAMES - 1) * match style { 2 => 2, 1 => 1, _ => 0 };
-                let leak: usize = lane_cnt.iter().map(|&c| c.min(r)).sum();
+                let leak: usize = leak_flow(&cnt, r);
                 let nd = if b == usize::MAX { usize::MAX } else { s.count_ones() as usize + 2 * b + leak };
                 have[s] = n.min(u16::MAX as usize) as u16;
                 need[s] = nd.min(u16::MAX as usize) as u16;
@@ -584,18 +586,52 @@ pub fn need_breakdown(p: usize) -> Option<NeedBreak> {
     let des: Vec<u8> = with_state(|st| roster.iter().map(|c| (0..5).filter(|&q| st.allowed[q].iter().any(|x| x == c)).fold(0u8, |m, q| m | (1 << q))).collect());
     let r = 1 + (SERIES_GAMES - 1) * match style { 2 => 2, 1 => 1, _ => 0 };
     let (mut only, mut overlap, mut anywhere) = (0usize, 0usize, 0usize);
-    let mut lane_cnt = [0usize; 5];
+    let mut cnt = [0u32; 32];
     for &d in &des {
         let dd = d & a;
         let eff = if dd != 0 { dd | free } else if free != 0 { free } else { MASK_ALL };
         if eff & (1 << p) == 0 { continue; }
         if dd == 1 << p { only += 1; } else if dd & (1 << p) != 0 { overlap += 1; } else { anywhere += 1; }
-        for q in 0..5 { if eff & (1 << q) != 0 { lane_cnt[q] += 1; } }
+        cnt[eff as usize & 31] += 1;
     }
-    let base = 1 + 2 * b + lane_cnt[p].min(r);
-    let lanes: Vec<(usize, usize, bool)> = (0..5).filter(|&q| q != p).map(|q| (q, lane_cnt[q].min(r), free & (1 << q) != 0)).filter(|x| x.1 > 0).collect();
+    // ★09-28: 라인별 몫 = 실제 최대 유량 배분(자기 라인 p 를 먼저 채움) — 합 = leak_flow 와 같다
+    let alloc = leak_alloc(&cnt, r, p);
+    let base = 1 + 2 * b + alloc[p];
+    let lanes: Vec<(usize, usize, bool)> = (0..5).filter(|&q| q != p).map(|q| (q, alloc[q], free & (1 << q) != 0)).filter(|x| x.1 > 0).collect();
     let need = base + lanes.iter().map(|x| x.1).sum::<usize>();
     Some(NeedBreak { need, base, only, overlap, anywhere, lanes })
+}
+/// ★09-28 최대 유량 유출: 챔프를 실효 마스크별로 센 cnt 에서, 라인당 ≤r · 챔프당 1회로 빼 갈 수 있는 최대 수.
+///   이분 그래프(챔프 → 갈 수 있는 라인, 라인 용량 r) 최소 절단 = min_T { r·|T| + Σ_{m ⊄ T} cnt[m] } (T = 절단할 라인 집합).
+pub fn leak_flow(cnt: &[u32; 32], r: usize) -> usize {
+    (0..32u32).map(|t| r * t.count_ones() as usize + (1..32usize).filter(|&m| (m as u32) & !t != 0).map(|m| cnt[m] as usize).sum::<usize>()).min().unwrap_or(0)
+}
+/// 유량의 라인별 배분(표시용). 자기 라인 `own` 먼저 채운 뒤 나머지 — 합은 leak_flow 와 같다.
+pub fn leak_alloc(cnt: &[u32; 32], r: usize, own: usize) -> [usize; 5] {
+    // 노드: 0=src, 1..=31 마스크 종류, 32..=36 라인, 37=sink
+    const N: usize = 38;
+    let mut cap = vec![[0i64; N]; N];
+    for m in 1..32usize {
+        cap[0][m] = cnt[m] as i64;
+        for q in 0..5 { if m & (1 << q) != 0 { cap[m][32 + q] = i64::MAX / 4; } }
+    }
+    let mut flow_to = [0usize; 5];
+    let augment = |cap: &mut Vec<[i64; N]>, lanes: &[usize]| {
+        for &q in lanes { cap[32 + q][37] = r as i64; }
+        loop {
+            // BFS
+            let mut prev = [usize::MAX; N]; prev[0] = 0;
+            let mut qd = std::collections::VecDeque::new(); qd.push_back(0usize);
+            while let Some(u) = qd.pop_front() { for v in 0..N { if prev[v] == usize::MAX && cap[u][v] > 0 { prev[v] = u; qd.push_back(v); } } }
+            if prev[37] == usize::MAX { break; }
+            let mut v = 37; while v != 0 { let u = prev[v]; cap[u][v] -= 1; cap[v][u] += 1; v = u; }
+        }
+    };
+    augment(&mut cap, &[own]);
+    let others: Vec<usize> = (0..5).filter(|&q| q != own).collect();
+    augment(&mut cap, &others);
+    for q in 0..5 { flow_to[q] = (r as i64 - cap[32 + q][37]).max(0) as usize; }
+    flow_to
 }
 pub fn adds_needed(p: usize) -> Option<usize> {
     if p >= 5 { return None; }
@@ -615,9 +651,9 @@ pub fn adds_needed(p: usize) -> Option<usize> {
         let mut mn = i64::MAX;
         for s in 1..32usize {
             if s & ap as usize != s { continue; }
-            let mut n = 0usize; let mut lane_cnt = [0usize; 5];
-            for &m in &eff { if m as usize & s != 0 { n += 1; for q in 0..5 { if m & (1 << q) != 0 { lane_cnt[q] += 1; } } } }
-            let leak: usize = lane_cnt.iter().map(|&c| c.min(r)).sum();
+            let mut n = 0usize; let mut cnt = [0u32; 32];
+            for &m in &eff { if m as usize & s != 0 { n += 1; cnt[m as usize & 31] += 1; } }
+            let leak: usize = leak_flow(&cnt, r); // ★09-28 최대 유량(compute_safety 와 동일)
             let sl = n as i64 - (s.count_ones() as usize + 2 * b + leak) as i64;
             if sl < mn { mn = sl; }
         }
