@@ -264,7 +264,11 @@ fn stat_scores(ctx: &StableClient<'_>, c: &Config) -> Vec<(String, usize, f32)> 
     let tt = ((c.level - 1.0) / 11.0).clamp(0.0, 1.0);
     let blend = |b: f32, g: f32| (1.0 - tt) * b + tt * (b + g * lv);
     let mut rows: Vec<Row> = Vec::new();
-    for name in ctx.champion_names() {
+    let t0 = std::time::Instant::now();
+    // ★09-29 딜레이 수정: ~~ctx.champion_names()~~(98개 663ms 실측 — 모드 챔프 수 비례) → 출시분 raw 목록(즉시)
+    let names = cdb::champion_ids_fast(ctx);
+    log(&format!("[t] champion_ids_fast {}개 {}ms", names.len(), t0.elapsed().as_millis()));
+    for name in names {
         let Some(b) = ctx.champion_brief(&name) else { continue };
         let (s, g) = (&b.stat, &b.growth);
         let e = sh.get(&name).cloned().unwrap_or_default();
@@ -357,7 +361,7 @@ impl StableExtension for Ext {
     fn post_update(&self, ctx: &mut StableClient<'_>, _dt: u64) {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let f = FRAME.fetch_add(1, Ordering::Relaxed);
-            for ev in ctx.take_events() { if ev.event == EVT { let m = String::from_utf8_lossy(&ev.payload).to_string(); log(&format!("서버 응답: {}", m)); toast(&m); } }
+            for ev in ctx.take_events() { if ev.event == EVT { log("[t] 서버 응답 수신"); let m = String::from_utf8_lossy(&ev.payload).to_string(); log(&format!("서버 응답: {}", m)); toast(&m); } }
             // 단축키 ` (엔진 키 이름 확인용: 처음 누른 키 몇 개 로그)
             let evs = ctx.input_events();
             if !evs.is_empty() && !KEY_LOGGED.load(Ordering::Relaxed) { log(&format!("input_events 표본: {:?}", evs.iter().map(|e| (e.kind, e.key.clone())).take(4).collect::<Vec<_>>())); if evs.len() >= 1 { KEY_LOGGED.store(true, Ordering::Relaxed); } }
@@ -372,7 +376,9 @@ impl StableExtension for Ext {
             // 적용 요청 → 서버
             if APPLY_REQ.swap(false, Ordering::Relaxed) {
                 let c = cfg();
+                let t0 = std::time::Instant::now();
                 let rows = stat_scores(ctx, &c);
+                log(&format!("[t] stat_scores {}ms", t0.elapsed().as_millis()));
                 if rows.is_empty() { log("champion 0개 — 적용 불가"); }
                 else {
                     let mut p = c.encode(); p.push('\n');
@@ -455,6 +461,7 @@ fn deactivate() {
 fn ji(v: &Value, k: &str) -> i64 { v.get(k).and_then(|x| x.as_i64()).or_else(|| v.get(k).and_then(|x| x.as_f64()).map(|f| f as i64)).unwrap_or(0) }
 /// 시즌 성적: 챔피언별 (wins, matches, bans) + (대회 수, 세트 수).
 /// wins/matches = Competition `statistics[athlete].champion_detail`; bans = 대회 matches → Match.replays → MatchReplay.blue_ban/red_ban.
+static BAN_CACHE: std::sync::LazyLock<Mutex<HashMap<i64, Vec<String>>>> = std::sync::LazyLock::new(|| Mutex::new(HashMap::new()));
 fn live_stats(ctx: &StableServerCtx<'_>, all: bool) -> (HashMap<String, (i64, i64, i64)>, usize, usize) {
     let mut out: HashMap<String, (i64, i64, i64)> = HashMap::new();
     let (mut comps, mut sets) = (0usize, 0usize);
@@ -481,12 +488,27 @@ fn live_stats(ctx: &StableServerCtx<'_>, all: bool) -> (HashMap<String, (i64, i6
         let Some(mj) = ctx.record_get_json(RecordKindV1::Match, mid as usize, "replays") else { continue };
         let Ok(rv) = serde_json::from_str::<Value>(&mj) else { continue };
         for rid in rv.as_array().into_iter().flatten().filter_map(|x| x.as_i64()) {
-            let Some(rj) = ctx.record_get_json(RecordKindV1::MatchReplay, rid as usize, "") else { continue };
-            let Ok(r) = serde_json::from_str::<Value>(&rj) else { continue };
+            // ★09-29 딜레이 수정: ~~리플레이 전체 JSON("")~~(2045세트 883ms 실측 · 세이브가 길수록 느려짐) →
+            //   밴 필드만 읽고, 끝난 세트의 밴은 바뀌지 않으므로 리플레이 id 별로 캐시.
+            let cached = BAN_CACHE.lock().unwrap_or_else(|e| e.into_inner()).get(&rid).cloned();
+            let bans = match cached {
+                Some(b) => b,
+                None => {
+                    let mut b: Vec<String> = Vec::new();
+                    let mut ok = false;
+                    for key in ["blue_ban", "red_ban"] {
+                        let Some(j) = ctx.record_get_json(RecordKindV1::MatchReplay, rid as usize, key) else { continue };
+                        let Ok(v) = serde_json::from_str::<Value>(&j) else { continue };
+                        ok = true;
+                        b.extend(v.as_array().into_iter().flatten().filter_map(|x| x.as_str().map(|s| s.to_string())));
+                    }
+                    if !ok { continue; }
+                    BAN_CACHE.lock().unwrap_or_else(|e| e.into_inner()).insert(rid, b.clone());
+                    b
+                }
+            };
             sets += 1;
-            for key in ["blue_ban", "red_ban"] {
-                for b in r.get(key).and_then(|x| x.as_array()).into_iter().flatten().filter_map(|x| x.as_str()) { out.entry(b.to_string()).or_insert((0, 0, 0)).2 += 1; }
-            }
+            for name in bans { out.entry(name).or_insert((0, 0, 0)).2 += 1; }
         }
     }
     (out, comps, sets)
@@ -497,7 +519,10 @@ impl StableServerExtension for Srv {
     fn handle_command(&self, ctx: &mut StableServerCtx<'_>, cmd: &StableCommand<'_>) -> CommandResultV1 {
         if cmd.command != CMD { return CommandResultV1::Pass; }
         let reply = cmd.reply_target();
-        let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| apply(ctx, cmd)));
+        let t0 = std::time::Instant::now();
+    log("[t][server] 명령 수신");
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| apply(ctx, cmd)));
+    log(&format!("[t][server] apply {}ms", t0.elapsed().as_millis()));
         let msg = match r { Ok(m) => m, Err(_) => "오류: 서버 패닉".to_string() };
         log(&format!("[server] {}", msg));
         ctx.emit_event(reply, EVT, msg.as_bytes());
@@ -516,7 +541,9 @@ fn apply(ctx: &mut StableServerCtx<'_>, cmd: &StableCommand<'_>) -> String {
     let mut scores: Vec<f32> = rows.iter().map(|r| r.2).collect();
     let mut live_note = String::new();
     if c.live_weight > 0.0 {
+        let tl = std::time::Instant::now();
         let (st, comps, sets) = live_stats(ctx, c.patch_mode >= 0.5);
+        log(&format!("[t][server] live_stats {}ms", tl.elapsed().as_millis()));
         let k = c.bayes_k.max(0.0);
         let wr: Vec<f32> = rows.iter().map(|r| { let (w, m, _) = st.get(&r.0).copied().unwrap_or((0, 0, 0)); let d = m as f32 + k; if d > 0.0 { (w as f32 + k * 0.5) / d } else { 0.5 } }).collect();
         let br: Vec<f32> = rows.iter().map(|r| { let b = st.get(&r.0).map(|x| x.2).unwrap_or(0); if sets > 0 { b as f32 / sets as f32 } else { 0.0 } }).collect();
@@ -548,7 +575,9 @@ fn apply(ctx: &mut StableServerCtx<'_>, cmd: &StableCommand<'_>) -> String {
     let body = Value::Object(map).to_string();
     let ok = ctx.team_set_json(team, "champion_tiers", &body);
     if !ok { return format!("오류: champion_tiers 쓰기 거부({}B)", body.len()); }
+    let ts = std::time::Instant::now();
     let sync = match team_sync::unicast_team(ctx, team) { Ok(m) => { log(&format!("[server] sync: {}", m)); "" } Err(e) => { log(&format!("[server] sync 실패: {}", e)); " (화면 반영은 다음 진행 시)" } };
+    log(&format!("[t][server] set_json+sync {}ms", ts.elapsed().as_millis()));
     format!("티어 {}개 적용: S{} A{} B{} C{} D{}{}{}", n, cnt[0], cnt[1], cnt[2], cnt[3], cnt[4], live_note, sync)
 }
 
