@@ -209,19 +209,21 @@ unsafe fn from_mid(cache: usize, bbs: usize, team: usize, line: usize) -> i64 {
 
 /// 규칙 평가. Some(line) = 교체 · None = 게임 선택 유지.
 unsafe fn eval(rules: &[Rule], pos: usize, team: usize, cache: usize, ctx: usize, bbs: usize) -> Option<u8> {
-    for r in rules {
+    for (i, r) in rules.iter().enumerate() {
+        let i = i.min(6);
+        let hit = |l: u8| { C_MATCH[pos * 8 + i].fetch_add(1, Ordering::Relaxed); Some(l) };
         match *r {
-            Rule::Game => return None,
-            Rule::Line(l) => return Some(l),
+            Rule::Game => { C_MATCH[pos * 8 + i].fetch_add(1, Ordering::Relaxed); return None; }
+            Rule::Line(l) => return hit(l),
             Rule::Pushed(th) => {
                 let (mut best, mut bl) = (i64::MAX, 0u8);
                 for l in 0..3 { let v = from_mid(cache, bbs, team, l); if v < best { best = v; bl = l as u8; } }
-                if best <= th { return Some(bl); }
+                if best <= th { return hit(bl); }
             }
             Rule::Push(th) => {
                 let (mut best, mut bl) = (i64::MIN, 0u8);
                 for l in 0..3 { let v = from_mid(cache, bbs, team, l); if v > best { best = v; bl = l as u8; } }
-                if best >= th { return Some(bl); }
+                if best >= th { return hit(bl); }
             }
             Rule::Ally(p) => {
                 let p = p as usize; if p == pos || p > 4 { continue; }
@@ -229,13 +231,14 @@ unsafe fn eval(rules: &[Rule], pos: usize, team: usize, cache: usize, ctx: usize
                 if !ok(champ) { continue; }                                    // 사망/없음
                 let bb = bbs + team * BB_STRIDE;
                 if r8(bb, BB_CLAIM + p * 0x20) == 0 {                           // 라인 점유(tag 0 = Line)
-                    let l = r8(bb, BB_CLAIM + 1 + p * 0x20); if l <= 2 { return Some(l); }
+                    let l = r8(bb, BB_CLAIM + 1 + p * 0x20); if l <= 2 { return hit(l); }
                 }
                 let (x, y) = (r64(champ, 0x660), r64(champ, 0x668));
-                for l in 0..3u8 { if in_lane_region(ctx, x, y, l) { return Some(l); } }
+                for l in 0..3u8 { if in_lane_region(ctx, x, y, l) { return hit(l); } }
             }
         }
     }
+    C_MATCH[pos * 8 + 7].fetch_add(1, Ordering::Relaxed);                  // 규칙 전부 불성립
     None
 }
 
@@ -252,18 +255,18 @@ static C_COMMIT_BAD: AtomicU64 = AtomicU64::new(0);
 static C_POS_OVR: [AtomicU64; 5] = [const { AtomicU64::new(0) }; 5];
 /// (진영,포지션)별 직전 목표 라인(0xff 없음) — 커밋 반영 확인용(백그라운드 경기와 섞이므로 근사치)
 static LAST_WANT: [AtomicU8; 10] = [const { AtomicU8::new(0xff) }; 10];
+/// 규칙 채택 분포 [pos][규칙 idx 0..6 · 7 = 전부 불성립]
+static C_MATCH: [AtomicU64; 40] = [const { AtomicU64::new(0) }; 40];
+/// 라인전 이후 반환 분포 [pos][code 0..63][최종 line 0..2 · 3 = PassiveLine 아님]
+static C_RET: [AtomicU64; 5 * 64 * 4] = [const { AtomicU64::new(0) }; 5 * 64 * 4];
 static TRACE: Mutex<Vec<String>> = Mutex::new(Vec::new());
 static TRACE_N: AtomicU64 = AtomicU64::new(0);
 
 unsafe fn post(sret: usize, lph: usize, player: usize, data: usize) {
     let c = cfg();
     if !c.enabled || !ok(sret) || !ok(lph) || !ok(player) || !ok(data) { return; }
-    if r32(sret, PLAN_TAG) != 3 { return; }                                  // PassiveLine 만
-    let code = r8(sret, RET_CODE) as usize;
-    if code >= 64 || !c.codes[code] { return; }
-    if r32(sret, PL_FLAGS) & 1 != 0 { return; }
     let team = r64(player, PS_TEAM) as usize; if team > 1 || !c.teams[team] { return; }
-    let pos = r32(player, PS_POS) as usize; if pos > 4 || c.rules[pos].is_empty() { return; }
+    let pos = r32(player, PS_POS) as usize; if pos > 4 { return; }
     let (cache, ctx, bbs) = (r64(data, 0) as usize, r64(data, 8) as usize, r64(data, 0x10) as usize);
     if !ok(cache) || !ok(ctx) || !ok(bbs) { return; }
     let tut = r8(ctx, 0x38); if !(tut == 0 || tut == 7 || tut == 8) { return; }  // 3라인 맵만
@@ -271,6 +274,18 @@ unsafe fn post(sret: usize, lph: usize, player: usize, data: usize) {
     let tps = r64(setting, 0x12f8); let first = r64(setting, 0x8a8);
     let Some(now) = tick(cache) else { return };
     if now < first.saturating_sub(tps.wrapping_mul(30)) { return; }          // 라인전 중
+    let code = (r8(sret, RET_CODE) as usize).min(63);
+    let is_pl = r32(sret, PLAN_TAG) == 3;
+    let decided = decide(c, sret, lph, cache, ctx, bbs, team, pos, code, is_pl, now);
+    let fin = if is_pl { (r8(sret, PL_LINE) as usize).min(2) } else { 3 };
+    let _ = decided;
+    C_RET[(pos * 64 + code) * 4 + fin].fetch_add(1, Ordering::Relaxed);
+}
+
+#[allow(clippy::too_many_arguments)]
+unsafe fn decide(c: &Cfg, sret: usize, lph: usize, cache: usize, ctx: usize, bbs: usize, team: usize, pos: usize, code: usize, is_pl: bool, now: u64) {
+    if !is_pl || !c.codes[code] || c.rules[pos].is_empty() { return; }      // PassiveLine · 교체 대상 코드만
+    if r32(sret, PL_FLAGS) & 1 != 0 { return; }
     C_ELIG.fetch_add(1, Ordering::Relaxed);
 
     // 직전 교체가 실제로 커밋됐는지(래치/hold 되돌림 감시)
@@ -367,6 +382,16 @@ fn snapshot() {
     w(&format!("[stat] calls={} eligible={} override={} same={} keep(game)={} hold_clear={} commit ok/bad={}/{} panic={} | {}",
         calls, elig, ovr, C_SAME.load(Ordering::Relaxed), C_KEEP.load(Ordering::Relaxed), C_HOLD.load(Ordering::Relaxed),
         C_COMMIT_OK.load(Ordering::Relaxed), C_COMMIT_BAD.load(Ordering::Relaxed), C_PAN.load(Ordering::Relaxed), per.join(" ")));
+    const LN: [&str; 4] = ["T", "M", "B", "비PL"];
+    for p in 0..5 {
+        let m: Vec<String> = (0..8).filter_map(|i| { let v = C_MATCH[p * 8 + i].load(Ordering::Relaxed); if v == 0 { None } else { Some(format!("{}:{}", if i == 7 { "불성립".to_string() } else { format!("r{}", i) }, v)) } }).collect();
+        let mut r: Vec<String> = vec![];
+        for code in 0..64 { let v: Vec<u64> = (0..4).map(|l| C_RET[(p * 64 + code) * 4 + l].load(Ordering::Relaxed)).collect();
+            if v.iter().sum::<u64>() == 0 { continue; }
+            let parts: Vec<String> = (0..4).filter(|&l| v[l] > 0).map(|l| format!("{}{}", LN[l], v[l])).collect();
+            r.push(format!("c{}[{}]", code, parts.join(" "))); }
+        if !m.is_empty() || !r.is_empty() { w(&format!("  [dist {}] 규칙 {} | 코드→최종라인 {}", POS_NAMES[p], m.join(" "), r.join(" "))); }
+    }
     let t: Vec<String> = { let mut v = TRACE.lock().unwrap_or_else(|e| e.into_inner()); std::mem::take(&mut *v) };
     for s in t { w(&s); }
 }

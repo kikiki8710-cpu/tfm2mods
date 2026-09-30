@@ -1,6 +1,6 @@
 [package]
 name = "tfm2_lane_tactics"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 # 라인전 이후 포지션 전술 — stable 껍데기 + passive_plan 사후 wrap detour(0.6.2).
