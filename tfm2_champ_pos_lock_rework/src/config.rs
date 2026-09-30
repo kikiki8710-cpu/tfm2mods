@@ -1,6 +1,6 @@
 //! tfm2_champ_pos_lock 설정 (2본 분리).
 //! ===========================================================================
-//! ① 토글 = `tfm2_champ_pos_lock_rework.cfg` (on/off·debug — 사람이 거의 안 건드림)
+//! ① 토글 = `tfm2_champ_pos_lock.cfg` (on/off·debug — 사람이 거의 안 건드림)
 //! ② ★상태 = `champ_pos_lock_state.txt` (포지션별 허용 챔피언 화이트리스트)
 //!    - 인게임 UI(환경설정 게임플레이 탭 → 포지션 제한)가 이 파일을 읽고 쓴다.
 //!    - 형식: `<포지션> = <id>, <id>, …`  (포지션 = top/jungle/mid/bottom/support)
@@ -698,7 +698,7 @@ pub fn state_text(live_only: bool) -> String {
 ///     "파일에서 이관"이라고 찍고 있었다).
 pub fn state_text_of(st: &PosState, live_only: bool) -> String {
     let mut s = String::from(
-        "# tfm2_champ_pos_lock_rework — 포지션별 허용 챔피언 (이 세이브 전용)
+        "# tfm2_champ_pos_lock — 포지션별 허용 챔피언 (이 세이브 전용)
 ",
     );
     let g = ROSTER.read().unwrap_or_else(|e| e.into_inner());
@@ -842,7 +842,7 @@ pub fn dlog(msg: &str) {
 }
 
 const DEFAULT_CFG: &str = "\
-    # tfm2_champ_pos_lock_rework - Champion Position Lock: Rework (toggles only; the actual per-position\r\n\
+    # tfm2_champ_pos_lock - Champion Position Lock: Rework (toggles only; the actual per-position\r\n\
     #   champion lists are edited in-game).\r\n\
     # In game: Settings -> Gameplay -> 'Position Lock' button at the bottom.\r\n\
     enabled=1\r\n\

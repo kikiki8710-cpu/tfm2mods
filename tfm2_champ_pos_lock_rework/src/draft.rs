@@ -49,7 +49,7 @@ fn publish_model(ctx: &StableDraftContext<'_>) {
 
 pub struct PosLockDraft;
 impl StableDraftHook for PosLockDraft {
-    fn id(&self) -> String { "tfm2_champ_pos_lock_rework.pick_gate".into() }
+    fn id(&self) -> String { "tfm2_champ_pos_lock.pick_gate".into() }
     fn priority(&self) -> i32 { 100 }
     fn score_pick(&self, ctx: &StableDraftContext<'_>, candidate: usize, base_score: f32) -> StableDraftDecision {
         CNT_SCORE.fetch_add(1, Ordering::Relaxed);

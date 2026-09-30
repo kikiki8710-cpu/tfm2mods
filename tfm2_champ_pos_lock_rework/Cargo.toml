@@ -1,10 +1,10 @@
 [package]
-name = "tfm2_champ_pos_lock_rework"
+name = "tfm2_champ_pos_lock"  # ★2026-09-30 유저 지시: mod_id 를 원본과 통일(중복 설치 방지) — 크레이트명 = dll 이름 = MOD_ID
 version = "1.0.0"
 edition = "2021"
 
 # 0.7.0 = 0.6.0 stable ABI redesign (2026-09-17). classic 0.5.8 source = _classic_058\src (detour-based).
-# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py tfm2_champ_pos_lock_rework --ver 1.0.0
+# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py tfm2_champ_pos_lock --dll tfm2_champ_pos_lock_rework\target\release\tfm2_champ_pos_lock.dll --ver 1.0.0
 
 [lib]
 crate-type = ["cdylib"]

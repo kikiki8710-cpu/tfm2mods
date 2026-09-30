@@ -37,7 +37,7 @@ pub mod draft_scene;
 #[path = "../../ui_kit/dropdown_stable.rs"]
 pub mod dd;
 
-pub const MOD_ID: &str = "tfm2_champ_pos_lock_rework";
+pub const MOD_ID: &str = "tfm2_champ_pos_lock"; // ★2026-09-30 유저 지시: 원본과 같은 mod_id(중복 설치 방지 · 세이브 설정 형식 동일=parse_state_text 원본과 바이트 동일)
 pub const VERSION: &str = "1.0.0";
 
 #[link(name = "kernel32")]
