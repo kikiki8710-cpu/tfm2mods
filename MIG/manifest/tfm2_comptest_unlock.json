@@ -109,7 +109,7 @@
   },
   {
    "name": "CD_RC_OFF",
-   "value": "0x202230",
+   "value": "0x202070",
    "ver": "0.6.2",
    "kind": "UNCLASSIFIED",
    "locs": [
@@ -117,7 +117,9 @@
    ],
    "sect": ".text",
    "bytes": "f30f5c0df0d98103f3480f2c",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "note": "0.6.2(09-30): RVA 아님 — fnv1a 길이 상한(≈2MB) 리터럴. 0.6.2 repin 이 0x202230 으로 오치환한 것을 원복. 재핀 금지"
   },
   {
    "name": "LOADER_RVA",

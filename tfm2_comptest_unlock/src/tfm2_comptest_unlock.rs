@@ -1321,7 +1321,7 @@ const CD_RC_OFF: usize = 0x23c8;     // runner → Rc<RefCell<ClientData>>
 
 fn fnv1a(addr: usize, len: usize) -> u64 {
     unsafe {
-        if len == 0 || len > 0x202230 || addr < 0x10000 || !readable(addr, len) { return 0; }
+        if len == 0 || len > 0x202070 || addr < 0x10000 || !readable(addr, len) { return 0; }
         let mut h: u64 = 0xcbf29ce484222325;
         let p = addr as *const u8;
         for i in 0..len {
