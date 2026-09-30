@@ -1,4 +1,4 @@
-//! tfm2_mod_order v0.2.0 — 모드 관리 목록 순서 변경 (키보드) · ★0.6.0 stable ABI 껍데기 판 (2026-09-18)
+//! tfm2_mod_order v0.2.1 — 모드 관리 목록 순서 변경 (키보드) · ★0.6.0 stable ABI 껍데기 판 (2026-09-18)
 //! ===========================================================================
 //! 목표: 타이틀 "모드 관리" 팝업(title.ui #mods_popup)의 모드 목록 표시 순서를 바꾼다.
 //!   게임 기본순서 = mod_id(폴더명) ASCII 정렬(순서 저장 필드 없음 — 메모리 [[tfm2-mod-order-mod]] RE 정본).
@@ -48,6 +48,10 @@ static ROWS_SIG: AtomicU64 = AtomicU64::new(0);
 static UP_REP: Mutex<(u64, bool)> = Mutex::new((0, false));
 static DN_REP: Mutex<(u64, bool)> = Mutex::new((0, false));
 static REG_OPEN: AtomicUsize = AtomicUsize::new(0);
+/// 마지막으로 실제 set_properties 를 호출한 프레임 — 직후 몇 프레임은 rect 가 아직 옛 배치라 검사를 건너뛴다.
+static LAST_APPLY: AtomicU64 = AtomicU64::new(0);
+const VERIFY_EVERY: u64 = 6;
+const VERIFY_SETTLE: u64 = 10;
 
 fn mod_dir() -> Option<String> {
     let mut buf = [0u16; 512];
@@ -83,6 +87,7 @@ fn save_order_to_file(order: &[String]) {
 fn set_prop(ctx: &mut StableClient<'_>, key: &str, path: &str, css: &str) {
     { let mut g = PROP_CACHE.lock().unwrap_or_else(|e| e.into_inner()); let m = g.get_or_insert_with(HashMap::new); if m.get(key).map(|s| s.as_str()) == Some(css) { return; } m.insert(key.to_string(), css.to_string()); }
     ctx.ui_set_properties(path, css);
+    LAST_APPLY.store(FRAME.load(Ordering::Relaxed), Ordering::Relaxed);
 }
 
 /// 팝업·행 컨테이너 경로 탐색(루트 자식 × 후보). 캐시.
@@ -153,6 +158,23 @@ fn tick(ctx: &mut StableClient<'_>) {
         log(&format!("pitch = {} (r0={:?} r1={:?})", p, r0, r1));
     }
     let pitch = PITCH.lock().unwrap_or_else(|e| e.into_inner()).unwrap_or(PITCH_FALLBACK);
+    // ★v0.2.1(2026-09-30 유저 제보): 모드 활성/비활성을 토글하면 게임이 행을 다시 그리며 우리가 준 `y` 오프셋을 지운다.
+    //   행 이름 집합은 그대로라 ROWS_SIG 로는 못 잡고, PROP_CACHE 가 "이미 설정함"이라 다시 넣지도 않아 순서가 게임 기본으로 풀렸다.
+    //   ⟹ 주기적으로 화면상 y 가 원하는 순서대로 단조 증가하는지 검사 → 깨졌으면 캐시·등록을 버리고 처음부터 다시 적용.
+    if f % VERIFY_EVERY == 0 && f > LAST_APPLY.load(Ordering::Relaxed) + VERIFY_SETTLE {
+        let ids0: Vec<String> = rows.iter().map(|r| r.trim_start_matches("mod_").to_string()).collect();
+        let want = desired_order(&ids0);
+        let mut prev = f32::MIN; let mut broken = false;
+        for id in &want {
+            if let Some(r) = ctx.ui_node_rect(&format!("{}.mod_{}", cont, id)) { if r.1 + 1.0 < prev { broken = true; break; } prev = r.1; }
+        }
+        if broken {
+            log("순서 초기화 감지(게임 재배치) → 재적용");
+            ROWS_SIG.store(0, Ordering::Relaxed);
+            *PROP_CACHE.lock().unwrap_or_else(|e| e.into_inner()) = None;
+            return;
+        }
+    }
     // 클릭 → 선택
     let clicks: Vec<String> = std::mem::take(&mut *CLICKS.lock().unwrap_or_else(|e| e.into_inner()));
     for c in clicks { { let mut lc = LAST_CLICK.lock().unwrap_or_else(|e| e.into_inner()); if lc.as_ref().map(|(ff, t)| *ff == f && *t == c).unwrap_or(false) { continue; } *lc = Some((f, c.clone())); } *SELECTED.lock().unwrap_or_else(|e| e.into_inner()) = Some(c.clone()); log(&format!("선택 {}", c)); }
@@ -200,8 +222,8 @@ impl StableExtension for Ext {
     }
 }
 fn init(host: &StableHost) -> StableMod {
-    host.log(LogLevel::Info, "tfm2_mod_order v0.2.0 (stable 0.6.0)");
-    log("init v0.2.0");
+    host.log(LogLevel::Info, "tfm2_mod_order v0.2.1 (stable 0.6.0)");
+    log("init v0.2.1");
     let mut d = StableMod::new(MOD_ID);
     d.set_extension(Ext);
     d
