@@ -24,7 +24,7 @@ const CMD: &str = "tvp_apply";
 const EVT: &str = "tvp_result";
 const VIEW: &str = "main.top.right"; // ★09-19: training 뷰 안(루트·panel)에 스폰하면 클릭이 우리 핸들러에 안 오고 뷰가 재생성됨(실측) → 뷰 형제 레벨(main.top.right)에 스폰하고 training 이 보일 때만 표시
 const VIEW_ROOT: &str = "main.top.right.training";
-const BTN_PARENT: &str = "main.top.right.training.tabs"; // 실험: 게임 버튼 컨테이너 안이면 클릭이 오는가
+const BTN_PARENT: &str = "main.top.right"; // ★0.6.2(09-30): ~~main.top.right.training.tabs~~ — 0.6.2 에서 게임 tabs 컨테이너 안 모드 버튼에 클릭이 안 온다(DBG 실측: register=true·클릭 0건) → 패널과 같은 형제 레벨로 이동, 우측 앵커로 기존 자리 재현
 const BTN: &str = "tvp_open";
 const PANEL: &str = "tvp_panel";
 const I18N: &str = "#asset/base/text/ui?training_view_plus.";
@@ -118,7 +118,7 @@ fn list_source(i: usize) -> String {
     dd::list_source(&format!("dl{i}"), PANEL_X + DD_X, PANEL_Y + ROW_Y0 + i as i32 * ROW_H + DD_H + dd::LIST_GAP as i32, DD_W, 34, 15, &refs)
 }
 fn btn_source() -> String {
-    format!("#{BTN}:color_icon_button {{ @\"asset/base/style/main#secondary_button\"; x: 240px; width: 180px; height: 31px; text: {{ font: \"asset/base/font/set/bold\"; text: \"{I18N}open_btn\"; size: 14; align_x: Center; align_y: Center; }} }}")
+    format!("#{BTN}:color_icon_button {{ @\"asset/base/style/main#secondary_button\"; anchor_x: 1; pivot_x: 1; x: -265px; y: 29px; width: 180px; height: 31px; text: {{ font: \"asset/base/font/set/bold\"; text: \"{I18N}open_btn\"; size: 14; align_x: Center; align_y: Center; }} }}")
 }
 
 fn register(ctx: &mut StableClient<'_>) {
