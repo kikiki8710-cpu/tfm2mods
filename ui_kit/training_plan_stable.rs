@@ -9,15 +9,15 @@
 #![allow(dead_code)]
 use mod_api_stable::StableServerCtx;
 
-pub const GAME_VER: &str = "0.6.1";
-const RVA_CLONE: usize = 0x1e69780;
-const RVA_DROP_PLAN: usize = 0x306870;
-const RVA_DROP_MAP: usize = 0x2f62c0;
-const RVA_INSERT: usize = 0xced790;
-const RVA_SANITIZE: usize = 0x25ca570;
-const RVA_RESPONSE: usize = 0x228ac80;
-const RVA_SEND: usize = 0x255a520;
-const RVA_DROP_RES: usize = 0x251bd00;
+pub const GAME_VER: &str = "0.6.2";
+const RVA_CLONE: usize = 0x2341ab0;
+const RVA_DROP_PLAN: usize = 0x307070;
+const RVA_DROP_MAP: usize = 0x2f6ac0;
+const RVA_INSERT: usize = 0xc8e4e0;
+const RVA_SANITIZE: usize = 0x2317950;
+const RVA_RESPONSE: usize = 0x1dbcdd0;
+const RVA_SEND: usize = 0x1da43f0;
+const RVA_DROP_RES: usize = 0x224ff70;
 const OFF_TRAINING_PLANS: usize = 0x16f08;
 const OFF_MAP_SENTINEL: usize = 0x30;
 const NODE_NEXT: usize = 0x1f8;
@@ -26,10 +26,10 @@ const NODE_KEY: usize = 0x208;
 const PLAN_SIZE: usize = 0x1f8;
 const OFF_CHAMP_MAP: usize = 0x198;
 const OFF_DELEGATED: usize = 0x1ea;
-const OFF_SERVER_IN_LOOP: usize = 0x6c0; // 0.6.1 재핀(0.6.0=0x9d8) — 서버 루프 콜사이트 lea rdx,[rbx+..]
-const OFF_SENDER_IN_LOOP: usize = 0x290; // 0.6.1(0.6.0=0x3f0) lea r9
-const OFF_ADDR_IN_LOOP: usize = 0x1c0; // 0.6.1(0.6.0=0x1a0) [rsp+0x28]
-const OFF_STATE_IN_LOOP: usize = 0x60; // 0.6.1(0.6.0=0x50) mov r12,[rbx+..] 콜 직전
+const OFF_SERVER_IN_LOOP: usize = 0xa08; // 0.6.2 재핀(0.6.1=0x6c0 · 0.6.0=0x9d8) — 콜 루프 직전 lea r13,[rbx+0xa08] → rdx=r13 — 서버 루프 콜사이트 lea rdx,[rbx+..]
+const OFF_SENDER_IN_LOOP: usize = 0x3e0; // 0.6.2(0.6.1=0x290 · 0.6.0=0x3f0) lea r9
+const OFF_ADDR_IN_LOOP: usize = 0x2c0; // 0.6.2(0.6.1=0x1c0 · 0.6.0=0x1a0) [rsp+0x28]
+const OFF_STATE_IN_LOOP: usize = 0x68; // 0.6.2(0.6.1=0x60 · 0.6.0=0x50) mov r12,[rbx+..] 콜 직전
 const PKT_SIZE: usize = 0x740;
 const ADDR_SIZE: usize = 0x20;
 const UNICAST: u64 = 0x57;

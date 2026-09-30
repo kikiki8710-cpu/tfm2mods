@@ -78,7 +78,7 @@ pub fn disp_name(id: &str) -> String { roster().and_then(|r| r.names.get(id).clo
 
 /// ClientDatabase.available_champions(Vec<String>) raw 읽기 — 원소 전부 registry id 일 때만 Some.
 fn read_available(ctx: &StableClient<'_>, registry: &[String]) -> Option<std::collections::HashSet<String>> {
-    const OFF_AVAIL_CAP: usize = 0xe740;
+    const OFF_AVAIL_CAP: usize = 0xe7e8; // ★0.6.2(0.6.1=0xe740) ClientDatabase +0xa8
     let db = cdb::client_db(ctx)?;
     unsafe {
         let cap = cdb::rd_u64(db + OFF_AVAIL_CAP)? as usize;
@@ -289,7 +289,7 @@ static RULE_DIAG: AtomicBool = AtomicBool::new(false);
 const OFF_BAN_COUNT: usize = 0x720;
 const OFF_TWO_PHASE: usize = 0x733;
 const OFF_BANPICK_STYLE: usize = 0x738;
-const OFF_AVAIL_LEN: usize = 0xe750;
+const OFF_AVAIL_LEN: usize = 0xe7f8; // ★0.6.2(0.6.1=0xe750) ClientDatabase +0xa8
 static RULE_LOGGED: AtomicU64 = AtomicU64::new(u64::MAX);
 fn observe_rule_raw(ctx: &StableClient<'_>) {
     if ctx.ui_exists("main.champions.contents") { return; } // 밴픽 중엔 슬롯 실측(밴카드 관측)이 우선 — 왕복 덮어쓰기 방지

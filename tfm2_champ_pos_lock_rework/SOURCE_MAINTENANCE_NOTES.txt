@@ -1,0 +1,28 @@
+TFM2 Champion Position Lock: Rework - Source Maintenance Notes
+===============================================================
+Current release line: v1.0.0
+Mod ID: tfm2_champ_pos_lock_rework
+Display name: TFM2 Champion Position Lock: Rework
+Authors: tfm2mods (original) · flover (Rework)
+
+[Canonical files for future upgrades]
+1. Gameplay logic : tfm2_champ_pos_lock_rework\src\
+2. UI text        : tfm2_champ_pos_lock_rework\assets\text\poslock.i18n
+3. Metadata       : tfm2_champ_pos_lock_rework\mod.mod_info
+4. Build/package  : BUILD_AND_PACKAGE.ps1 / BUILD_AND_PACKAGE.bat
+
+[Important Rework invariants]
+- Safety requirement is dynamic; never hard-code 20 as a universal value.
+- A position below the safety target still keeps its designated position mask.
+- Designated champions are used first.
+- Unassigned champions are free-reserve and stay locked until a designated pool is actually exhausted.
+- Exhaustion opens reserve fallback only for the affected position; champions designated to other positions do not become free.
+- Shared-pool/subset safety is evaluated only across actually overlapping designated positions.
+- Direct player / AI / head coach / AI assignment / auto-swap must share the same rules.
+- Global fail-open is the final anti-deadlock emergency only.
+
+[_classic_058]
+This folder is historical reference source for the old 0.5.8/classic line. It is NOT used by the Rework build script. Do not copy its old wording/rules back into current src/assets when upgrading.
+
+[Upgrade workflow]
+Always modify this BUILD_READY source tree, bump Cargo.toml + src/lib.rs VERSION + mod.mod_info version together, then run BUILD_AND_PACKAGE.bat. Do not use an already-built FINAL distribution ZIP as the source of truth.

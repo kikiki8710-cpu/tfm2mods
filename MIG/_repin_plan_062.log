@@ -1,0 +1,9 @@
+[cg] 전역 대응맵 42459/153079 (27.7%)
+tfm2_level_cap             재핀대상    2  해결    2  실패   0   BYTES_UNIQUE=2
+tfm2_champion_exclude      재핀대상    1  해결    1  실패   0   FN_UNIQUE=1
+banpick_view_plus          재핀대상   28  해결   28  실패   0   BYTES_UNIQUE=17 FN_UNIQUE=3 MID_OWNER_CG_MULTI=2 MID_OWNER_CG_MULTI_caller=1 MID_OWNER_UNIQUE=5
+tfm2_comptest_unlock       재핀대상   73  해결   69  실패   4   BYTES_UNIQUE=38 FAIL=4 FN_HEAD_UNIQUE=1 FN_UNIQUE=7 MID_OWNER_CG_MULTI=1 MID_OWNER_CG_MULTI_caller=3 MID_OWNER_CG_NONE=5 MID_OWNER_HEAD_UNIQUE=6 MID_OWNER_UNIQUE=8
+tfm2_elemental_serpen      재핀대상   19  해결   18  실패   1   BYTES_UNIQUE=6 FAIL=1 FN_HEAD_UNIQUE=5 FN_UNIQUE=2 MID_OWNER_CG_MULTI=1 MID_OWNER_CG_NONE=2 MID_OWNER_UNIQUE=2
+tfm2_champ_pos_lock        재핀대상    5  해결    5  실패   0   BYTES_UNIQUE=1 FN_HEAD_UNIQUE=1 FN_UNIQUE=3
+ui_kit                     재핀대상   11  해결    9  실패   2   BYTES_UNIQUE=5 FAIL=2 MID_OWNER_CG_MULTI=1 MID_OWNER_CG_MULTI_caller=3
+-> MIG/repin_map_062.json

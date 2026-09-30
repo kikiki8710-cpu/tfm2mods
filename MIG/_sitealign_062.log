@@ -1,0 +1,14 @@
+tfm2_comptest_unlock   RPLY_RVA                     0xd0c09    FAIL_ALIGNED_EXACT -> 0xd0dc9  [A:ALIGN 0.77 (2위 0.30) size 496->496] mov rbx, xffffffffffff(7B) -> mov rbx, xffffffffffff(7B)
+tfm2_comptest_unlock   RPLY_RESUME_RVA              0xd0c14    FAIL_ALIGNED_EXACT -> 0xd0dd4  [A:ALIGN 0.77 (2위 0.30) size 496->496] mov rcx, r(3B) -> mov rcx, r(3B)
+tfm2_comptest_unlock   A15E20_RVA                   0x799b60   FAIL_OWNER (POOL_SMALL)
+tfm2_comptest_unlock   INLINE@src/tfm2_comptest_unlock.rs:147 0x256ee48  DISAGREE_WLOOSE_GAP repin=0x22bd308 align=0x22bd0b3  cmp qword ptr [rax + x(8B) -> cmp qword ptr [rax + x(8B) | 12B 0후보 / owner 0x255ce50->0x22ab310 off 0x11ff8(동일오프셋 가정)
+tfm2_comptest_unlock   INLINE@src/tfm2_comptest_unlock.rs:137 0x2572708  DISAGREE_WMNEM repin=0x22c0bc8 align=0x22c0580  cmp rax, (4B) -> cmp rax, (4B) | 12B 0후보 / owner 0x255ce50->0x22ab310 off 0x158b8(동일오프셋 가정)
+tfm2_comptest_unlock   INLINE@src/tfm2_comptest_unlock.rs:251 0x25b4531  NO_ALIGN owner 0x25b4140->0x23014c0 (REPIN)
+tfm2_comptest_unlock   INLINE@src/tfm2_comptest_unlock.rs:171 0x25b45d0  DISAGREE_MNEM repin=0x2301950 align=0x23019d4  jne xbae(6B) -> jne xaad(6B) | 12B 0후보 / owner 0x25b4140->0x23014c0 off 0x490(동일오프셋 가정)
+tfm2_comptest_unlock   CT_CLIENT_LO                 0x226d9f2  DISAGREE_EXACT repin=0x1d99882 align=0x1d9986f  inc r(3B) -> inc r(3B) | 12B 0후보 / owner 0x226cc10->0x1d98aa0 off 0xde2(동일오프셋 가정)
+tfm2_elemental_serpen  INLINE@src/lib.rs:2029       0xbadb3    FAIL_OWNER (POOL_SMALL)
+tfm2_elemental_serpen  LAUNCHER_RET_A               0x7dba18   DISAGREE_WMNEM repin=0x994c48 align=0x994a26  nop (1B) -> nop (1B) | 12B 0후보 / owner 0x7cee00->0x988030 off 0xcc18(동일오프셋 가정)
+tfm2_elemental_serpen  LAUNCHER_RET_B               0x7e0bd7   DISAGREE_WLOOSE_GAP repin=0x999e07 align=0x999b61  nop (1B) -> nop (1B) | 12B 0후보 / owner 0x7cee00->0x988030 off 0x11dd7(동일오프셋 가정)
+
+집계: {'AGREE': 45, 'DISAGREE_EXACT': 1, 'DISAGREE_MNEM': 1, 'DISAGREE_WLOOSE_GAP': 2, 'DISAGREE_WMNEM': 2, 'FAIL_ALIGNED_EXACT': 2, 'FAIL_OWNER': 2, 'NO_ALIGN': 1}
+-> MIG/repin_map_062.aligned.json (new_aligned 필드 추가 · repin 값은 보존 — 교체는 apply 전 사람이 결정)
