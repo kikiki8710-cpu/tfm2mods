@@ -3,7 +3,7 @@
 //! 게임 `LegacyPlanHandler::passive_plan`(라인전 이후 소극 플랜 = "지금 어느 라인에 설까")을 wrap 으로 감싸
 //! **원본 실행 → 반환된 PassiveLine 의 line 을 포지션별 규칙으로 교체**한다. 규칙 = `lane_tactics.cfg`(모드 폴더).
 //!   규칙(왼쪽부터 시도 · 첫 성립이 채택): `top|mid|bot` 고정 / `pushed[:임계]` 가장 밀린 라인 /
-//!   `push[:임계]` 가장 밀고 있는 라인 / `ally:<pos>` 그 아군과 같은 라인 / `game` 게임 원래 선택 유지(여기서 중단).
+//!   `push[:임계]` 가장 밀고 있는 라인 / `ally:<pos>` 그 아군과 같은 라인(점유 → 그 아군 규칙 → 위치(기지 제외)) / `game` 게임 원래 선택 유지(여기서 중단).
 //! 설계·RE 원문 = mods_report\tfm2_lane_tactics\ (RE\2026-09-30_G1~G4 · 0.6.1 기준, 0.6.2 재핀).
 //!
 //! 안전: wrap 본문 = catch_unwind · 원본은 항상 먼저 실행하고 반환값을 그대로 돌려준다(모드 로직 실패 = 게임 원래 동작).
@@ -82,7 +82,8 @@ const DEFAULT_CFG: &str = "# tfm2_lane_tactics 설정 (UTF-8 · BOM 없이 저�
 #   top / mid / bot      : 그 라인 고정
 #   pushed[:임계]         : 우리가 가장 밀리고 있는 라인 (임계 이하일 때만 · 기본 -2000 · 범위 -10000~10000)
 #   push[:임계]           : 우리가 가장 밀고 있는 라인 (임계 이상일 때만 · 기본 -10000 = 항상)
-#   ally:<top|jungle|mid|bot|sup> : 그 아군이 있는 라인 (그 아군이 죽었거나 라인에 없으면 불성립)
+#   ally:<top|jungle|mid|bot|sup> : 그 아군의 라인 (라인 플랜이면 그 라인 → 귀환·교전 중이면 그 아군 규칙이 가리키는 라인)
+#                                   그 아군이 죽었으면 나와 가장 가까운 살아 있는 아군의 라인
 #   game                 : 게임 원래 선택을 그대로 둔다 (여기서 중단)
 # 비워 두면(또는 game) 그 포지션은 손대지 않는다. 정글은 라인 플랜이 아니라 영향 없음.
 enabled=1
@@ -173,14 +174,15 @@ unsafe fn tick(cache: usize) -> Option<u64> {
 }
 
 /// map_regions::is_near_line(ctx, x, y, line) 재현(0.6.0 judge_verify060 helpers.rs · 0.6.1 G1 §4 와 동일 규칙 · 게임 헬퍼 호출 안 함)
-unsafe fn in_lane_region(ctx: usize, x: u64, y: u64, line: u8) -> bool {
+/// strict = 기지 모서리(모든 라인에 속한다고 보는 구역)를 제외 — 아군 위치로 라인을 추정할 때 기지에 있으면 Top 으로 오판하던 v0.1.0 버그 방지
+unsafe fn in_lane_region(ctx: usize, x: u64, y: u64, line: u8, strict: bool) -> bool {
     let s = r64(ctx, 8) as usize; if !ok(s) { return false; }
     let (width, height) = (r64(s, 0x12b8), r64(s, 0x12c0));
     let umax = |a: u64, b: u64| if a > b { a } else { b };
     let umin = |a: u64, b: u64| if a < b { a } else { b };
     let c = height.wrapping_sub(y);
-    if umax(c, x) < 0x2ee01 { return true; }
-    if umin(c, x) >= width.wrapping_sub(0x2ee00) { return true; }
+    if umax(c, x) < 0x2ee01 { return !strict; }
+    if umin(c, x) >= width.wrapping_sub(0x2ee00) { return !strict; }
     if line == 1 { return x.abs_diff(c) < 0xfa00; }
     let w2 = width.wrapping_sub(0xabe00) >> 1;
     let out_x = x < w2 || x > w2.wrapping_add(0xabe00);
@@ -208,12 +210,15 @@ unsafe fn from_mid(cache: usize, bbs: usize, team: usize, line: usize) -> i64 {
 }
 
 /// 규칙 평가. Some(line) = 교체 · None = 게임 선택 유지.
-unsafe fn eval(rules: &[Rule], pos: usize, team: usize, cache: usize, ctx: usize, bbs: usize) -> Option<u8> {
+unsafe fn eval(rules: &[Rule], pos: usize, team: usize, cache: usize, ctx: usize, bbs: usize) -> Option<u8> { eval_in(rules, pos, team, cache, ctx, bbs, true) }
+
+/// count = 진단 카운트 기록 여부(아군 의도 추정용 내부 평가는 false · Ally 규칙은 재귀하지 않음)
+unsafe fn eval_in(rules: &[Rule], pos: usize, team: usize, cache: usize, ctx: usize, bbs: usize, count: bool) -> Option<u8> {
     for (i, r) in rules.iter().enumerate() {
         let i = i.min(6);
-        let hit = |l: u8| { C_MATCH[pos * 8 + i].fetch_add(1, Ordering::Relaxed); Some(l) };
+        let hit = |l: u8| { if count { C_MATCH[pos * 8 + i].fetch_add(1, Ordering::Relaxed); } Some(l) };
         match *r {
-            Rule::Game => { C_MATCH[pos * 8 + i].fetch_add(1, Ordering::Relaxed); return None; }
+            Rule::Game => { if count { C_MATCH[pos * 8 + i].fetch_add(1, Ordering::Relaxed); } return None; }
             Rule::Line(l) => return hit(l),
             Rule::Pushed(th) => {
                 let (mut best, mut bl) = (i64::MAX, 0u8);
@@ -226,19 +231,42 @@ unsafe fn eval(rules: &[Rule], pos: usize, team: usize, cache: usize, ctx: usize
                 if best >= th { return hit(bl); }
             }
             Rule::Ally(p) => {
+                if !count { continue; }                                        // 아군 의도 추정 중에는 Ally 재귀 금지
                 let p = p as usize; if p == pos || p > 4 { continue; }
-                let champ = r64(cache, 0x1e0 + team * 0x28 + p * 8) as usize;
-                if !ok(champ) { continue; }                                    // 사망/없음
-                let bb = bbs + team * BB_STRIDE;
-                if r8(bb, BB_CLAIM + p * 0x20) == 0 {                           // 라인 점유(tag 0 = Line)
-                    let l = r8(bb, BB_CLAIM + 1 + p * 0x20); if l <= 2 { return hit(l); }
+                let champ = |q: usize| r64(cache, 0x1e0 + team * 0x28 + q * 8) as usize;
+                if ok(champ(p)) {
+                    if let Some(l) = ally_line(p, team, cache, ctx, bbs) { return hit(l); }
+                } else {
+                    // 그 아군이 죽었으면 → 나와 가장 가까운 살아 있는 아군의 라인(라인을 알 수 있는 아군 중)
+                    let me = champ(pos);
+                    if ok(me) {
+                        let (mx, my) = (r64(me, 0x660), r64(me, 0x668));
+                        let mut cand: Vec<(u64, usize)> = (0..5).filter(|&q| q != pos && q != p && ok(champ(q)))
+                            .map(|q| { let e = champ(q); let (dx, dy) = (r64(e, 0x660).abs_diff(mx), r64(e, 0x668).abs_diff(my)); (dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)), q) }).collect();
+                        cand.sort();
+                        for (_, q) in cand { if let Some(l) = ally_line(q, team, cache, ctx, bbs) { C_ALLY[4].fetch_add(1, Ordering::Relaxed); return hit(l); } }
+                    }
                 }
-                let (x, y) = (r64(champ, 0x660), r64(champ, 0x668));
-                for l in 0..3u8 { if in_lane_region(ctx, x, y, l) { return hit(l); } }
+                C_ALLY[3].fetch_add(1, Ordering::Relaxed);
             }
         }
     }
-    C_MATCH[pos * 8 + 7].fetch_add(1, Ordering::Relaxed);                  // 규칙 전부 불성립
+    if count { C_MATCH[pos * 8 + 7].fetch_add(1, Ordering::Relaxed); }     // 규칙 전부 불성립
+    None
+}
+
+/// 살아 있는 아군 q 의 라인: ① 라인 플랜 점유 → ② (귀환·교전 등) 그 아군 규칙이 가리키는 라인 → ③ 현재 위치(기지 모서리 제외)
+unsafe fn ally_line(q: usize, team: usize, cache: usize, ctx: usize, bbs: usize) -> Option<u8> {
+    let bb = bbs + team * BB_STRIDE;
+    if r8(bb, BB_CLAIM + q * 0x20) == 0 {
+        let l = r8(bb, BB_CLAIM + 1 + q * 0x20); if l <= 2 { C_ALLY[0].fetch_add(1, Ordering::Relaxed); return Some(l); }
+    }
+    if let Some(l) = eval_in(&cfg().rules[q], q, team, cache, ctx, bbs, false) { C_ALLY[1].fetch_add(1, Ordering::Relaxed); return Some(l); }
+    let e = r64(cache, 0x1e0 + team * 0x28 + q * 8) as usize;
+    if ok(e) {
+        let (x, y) = (r64(e, 0x660), r64(e, 0x668));
+        for l in 0..3u8 { if in_lane_region(ctx, x, y, l, true) { C_ALLY[2].fetch_add(1, Ordering::Relaxed); return Some(l); } }
+    }
     None
 }
 
@@ -255,6 +283,8 @@ static C_COMMIT_BAD: AtomicU64 = AtomicU64::new(0);
 static C_POS_OVR: [AtomicU64; 5] = [const { AtomicU64::new(0) }; 5];
 /// (진영,포지션)별 직전 목표 라인(0xff 없음) — 커밋 반영 확인용(백그라운드 경기와 섞이므로 근사치)
 static LAST_WANT: [AtomicU8; 10] = [const { AtomicU8::new(0xff) }; 10];
+/// ally 규칙 해석 경로 [점유 · 아군 규칙 · 위치 · 불성립 · (사망→)가까운 아군]
+static C_ALLY: [AtomicU64; 5] = [const { AtomicU64::new(0) }; 5];
 /// 규칙 채택 분포 [pos][규칙 idx 0..6 · 7 = 전부 불성립]
 static C_MATCH: [AtomicU64; 40] = [const { AtomicU64::new(0) }; 40];
 /// 라인전 이후 반환 분포 [pos][code 0..63][최종 line 0..2 · 3 = PassiveLine 아님]
@@ -383,6 +413,7 @@ fn snapshot() {
         calls, elig, ovr, C_SAME.load(Ordering::Relaxed), C_KEEP.load(Ordering::Relaxed), C_HOLD.load(Ordering::Relaxed),
         C_COMMIT_OK.load(Ordering::Relaxed), C_COMMIT_BAD.load(Ordering::Relaxed), C_PAN.load(Ordering::Relaxed), per.join(" ")));
     const LN: [&str; 4] = ["T", "M", "B", "비PL"];
+    w(&format!("  [ally] 점유={} 아군규칙={} 위치={} 사망→가까운아군={} 불성립={}", C_ALLY[0].load(Ordering::Relaxed), C_ALLY[1].load(Ordering::Relaxed), C_ALLY[2].load(Ordering::Relaxed), C_ALLY[4].load(Ordering::Relaxed), C_ALLY[3].load(Ordering::Relaxed)));
     for p in 0..5 {
         let m: Vec<String> = (0..8).filter_map(|i| { let v = C_MATCH[p * 8 + i].load(Ordering::Relaxed); if v == 0 { None } else { Some(format!("{}:{}", if i == 7 { "불성립".to_string() } else { format!("r{}", i) }, v)) } }).collect();
         let mut r: Vec<String> = vec![];
