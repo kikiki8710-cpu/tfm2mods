@@ -1,0 +1,20 @@
+[package]
+name = "tfm2_lane_tactics"
+version = "0.1.0"
+edition = "2021"
+
+# 라인전 이후 포지션 전술 — stable 껍데기 + passive_plan 사후 wrap detour(0.6.2).
+# build: cargo build --release  /  deploy: python C:\tfm2mods\deploy_stable.py tfm2_lane_tactics --ver 0.1.0
+# 설계·RE = C:\Users\jungs\Desktop\claude\tfm2\mods_report\tfm2_lane_tactics\
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
