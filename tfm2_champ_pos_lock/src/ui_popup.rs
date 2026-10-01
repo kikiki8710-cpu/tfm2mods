@@ -12,7 +12,7 @@ use std::sync::Mutex;
 
 const ROW_UI: &str = include_str!("../assets/pos_lock_row.ui");
 const POPUP_UI: &str = include_str!("../assets/pos_lock_popup.ui");
-pub const NCELLS: usize = 120;
+pub const NCELLS: usize = 300; // ★2026-10-01: ~~120~~ — 챔피언(모드 포함) 120명 초과 시 뒤쪽이 안 보이던 상한 상향. .ui 의 cell0~cell299 와 개수 일치 필수
 const TAB_IDS: [&str; 5] = ["tab_top", "tab_jungle", "tab_mid", "tab_bottom", "tab_support"];
 const CLASS_IDS: [&str; 6] = ["class_all", "class_melee", "class_range", "class_magician", "class_util", "class_assassin"];
 /// 클래스 전체 선택 버튼 cb0~cb4 ↔ 로스터 cats 코드(0 전사 1 원거리 2 마법사 3 전투보조 4 암살자). 유저 지정 순서.
