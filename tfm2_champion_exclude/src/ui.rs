@@ -11,7 +11,7 @@ use std::sync::Mutex;
 
 const ROW_UI: &str = include_str!("../assets/champ_excl_row.ui");
 const POPUP_UI: &str = include_str!("../assets/champ_excl_popup.ui");
-pub const NCELLS: usize = 120;
+pub const NCELLS: usize = 300; // ★2026-10-01: ~~120~~ — 챔피언(모드 포함) 120명 초과 시 뒤쪽이 안 보이던 상한 상향. .ui 의 cell0~cell299 와 개수 일치 필수
 const CLASS_IDS: [&str; 6] = ["class_all", "class_melee", "class_range", "class_magician", "class_util", "class_assassin"];
 const GAMEPLAY_ROW: &str = "difficulty";
 
