@@ -1,0 +1,2340 @@
+{
+ "tfm2_level_cap": {
+  "0xa84374": {
+   "name": "RVA_UI_CMP",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:124"
+   ],
+   "sect_old": ".text",
+   "new": "0x929924",
+   "sect_new": ".text",
+   "new_bytes": "483b88100d00000f87570800",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE_GAP"
+   }
+  },
+  "0x16b5e14": {
+   "name": "RVA_LEN_LOAD",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:112"
+   ],
+   "sect_old": ".text",
+   "new": "0x1275d64",
+   "sect_new": ".text",
+   "new_bytes": "488b90100d00004939d60f87",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  }
+ },
+ "tfm2_champion_exclude": {
+  "0x1b81c90": {
+   "name": "HOOK_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 331->331",
+   "locs": [
+    "src/hook.rs:10"
+   ],
+   "sect_old": ".text",
+   "new": "0x1b2ea80",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534881",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ },
+ "banpick_view_plus": {
+  "0x16cf70": {
+   "name": "RVA_ASSET_GET",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x16cf70->0x16d040 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/showcase.rs:46"
+   ],
+   "sect_old": ".text",
+   "new": "0x16d040",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x16d040",
+   "manual": "HIGH 425B 제네릭 클론 28개 중 pcmpeqb TypeId 상수(cdfec416…dc4b) 일치 유일, 콜러 strict 54(차순위 0x20fc10 43 — 공유 콜러)"
+  },
+  "0x1c61a0": {
+   "name": "RVA_SUBMIT",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:32"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c6430",
+   "sect_new": ".text",
+   "new_bytes": "5541565657534881ec200100",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c6420": {
+   "name": "RVA_SUBMIT_TEXT",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:33"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c66b0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534881",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c6e70": {
+   "name": "RVA_TEXT_BUILD",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 830->830",
+   "locs": [
+    "src/showcase.rs:39"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c7100",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c7450": {
+   "name": "RVA_IMG_UV",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:35"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c76e0",
+   "sect_new": ".text",
+   "new_bytes": "564883ec2048b80000000000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c75f0": {
+   "name": "RVA_IMG_BUILD",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:34"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c7880",
+   "sect_new": ".text",
+   "new_bytes": "5541565657534881ecc00000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c7900": {
+   "name": "RVA_IMG_FLAG",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:36"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c7b90",
+   "sect_new": ".text",
+   "new_bytes": "564883ec2048b80000000000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c8f60": {
+   "name": "RVA_IMG_SHADER",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:38"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c91f0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x218470": {
+   "name": "RVA_IMG_COLOR",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 2107->2107",
+   "locs": [
+    "src/showcase.rs:37"
+   ],
+   "sect_old": ".text",
+   "new": "0x224bc0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x220bc0": {
+   "name": "RVA_ANIM_GET",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x220bc0->0x20fc10 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/showcase.rs:47"
+   ],
+   "sect_old": ".text",
+   "new": "0x20fc10",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x20fc10",
+   "manual": "HIGH TypeId 상수(d841cff2…b3c0) 일치 유일, 콜러 strict 57(차순위 43)"
+  },
+  "0x2508a90": {
+   "name": "RVA_FX_SET",
+   "kind": "BYTES_UNIQUE(64B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:29"
+   ],
+   "sect_old": ".text",
+   "new": "0x21d2fe0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x251e410": {
+   "name": "RVA_CARD_DRAW",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 2979->2979",
+   "locs": [
+    "src/showcase.rs:30"
+   ],
+   "sect_old": ".text",
+   "new": "0x21e8960",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2528688": {
+   "name": "RVA_D_CUT_LO",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2528600->0x21f2c70 off 0x88(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:104"
+   ],
+   "sect_old": ".text",
+   "new": "0x21f2cf8",
+   "sect_new": ".text",
+   "new_bytes": "f8658a01f3450f58c2f3440f",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2528696": {
+   "name": "RVA_D_CUT_HI",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2528600->0x21f2c70 off 0x96(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:105"
+   ],
+   "sect_old": ".text",
+   "new": "0x21f2d06",
+   "sect_new": ".text",
+   "new_bytes": "5a1c9c01f3450f58d941b820",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x253c0f0": {
+   "name": "RVA_NAME_GET",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:40"
+   ],
+   "sect_old": ".text",
+   "new": "0x2212a20",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534883ec78",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x25414c0": {
+   "name": "RVA_SPRITE_CALC",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:48"
+   ],
+   "sect_old": ".text",
+   "new": "0x2217df0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x25976a0": {
+   "name": "RVA_I_SNAP_H",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:102"
+   ],
+   "sect_old": ".text",
+   "new": "0x2270de0",
+   "sect_new": ".text",
+   "new_bytes": "0000f043488d8d700100004c",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x25976b6": {
+   "name": "RVA_D_SNAP_W",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2596e20->0x2270560 off 0x896(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:103"
+   ],
+   "sect_old": ".text",
+   "new": "0x2270df6",
+   "sect_new": ".text",
+   "new_bytes": "36918501e8618cf4fd90498b",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2598502": {
+   "name": "RVA_D_ZIG_X1",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2596e20->0x2270560 off 0x16e2(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:108"
+   ],
+   "sect_old": ".text",
+   "new": "0x2271c42",
+   "sect_new": ".text",
+   "new_bytes": "5a809e01440f58d8410fc6fb",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2598be0": {
+   "name": "RVA_D_ZIG_X2",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2596e20->0x2270560 off 0x1dc0(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:109"
+   ],
+   "sect_old": ".text",
+   "new": "0x2272320",
+   "sect_new": ".text",
+   "new_bytes": "7c799e010f58d50fc6da010f",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x1ffd3f0": {
+   "name": "RVA_ILLUST_GET",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:31"
+   ],
+   "sect_old": ".text",
+   "new": "0x21542d0",
+   "sect_new": ".text",
+   "new_bytes": "5541565657534881ec800000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2fb35a0": {
+   "name": "RVA_GAME_ALLOC",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 60->60",
+   "locs": [
+    "src/showcase.rs:52"
+   ],
+   "sect_old": ".text",
+   "new": "0x2f99a60",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec20488d6c2420",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x3c4dd70": {
+   "name": "RVA_C_CARD_RECT",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:90"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3c59c10",
+   "sect_new": ".rdata",
+   "new_bytes": "000034c3000070c30000b443",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c4dd90": {
+   "name": "RVA_C_SNAP_RECT",
+   "kind": "BYTES_UNIQUE(20B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:91"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3c59c40",
+   "sect_new": ".rdata",
+   "new_bytes": "00000000000000000000b443",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c4dda0": {
+   "name": "RVA_C_NORMAL",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:95"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3c59c50",
+   "sect_new": ".rdata",
+   "new_bytes": "90c62f3f891d3a3f00000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c4ddc0": {
+   "name": "RVA_C_LINE_DIR",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:92"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3c59c70",
+   "sect_new": ".rdata",
+   "new_bytes": "0000b4430000aa4300000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c4ddd0": {
+   "name": "RVA_C_LINE_START",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:93"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3c59c80",
+   "sect_new": ".rdata",
+   "new_bytes": "000034c300002a4300000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c4dde0": {
+   "name": "RVA_C_LINE_ANCHOR",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:94"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3c59c90",
+   "sect_new": ".rdata",
+   "new_bytes": "0000000000002a4300000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  }
+ },
+ "tfm2_comptest_unlock": {
+  "0xd0dc9": {
+   "name": "RPLY_RVA",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_MULTI owner=0xd0d60 off=0x69 12후보 | cg 판별실패 (1위 9.00 2위 9.00, 후보 12)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1500"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_ALIGNED_EXACT",
+    "how": "A:ALIGN 0.77 (2위 0.30) size 496->496",
+    "new": "0xd0e99",
+    "insn": "mov rbx, xffffffffffff(7B) -> mov rbx, xffffffffffff(7B)"
+   },
+   "new_aligned": "0xd0e99",
+   "new_repin": null,
+   "manual": "MED owner 0xd0d60(496B)->0xd0e30(496B) 바이트동일 함수 +0x69 유지(sitealign EXACT). 구값부터 명령 중간(mov rbx,-1 7B 내부)·RPLY_ORIG 0.5.5부터 불일치 — RPLY_ON=false라 install_mid fail-safe, 0.6.2 선례대로 정렬값.",
+   "new": "0xd0e99"
+  },
+  "0xd0dd4": {
+   "name": "RPLY_RESUME_RVA",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_MULTI owner=0xd0d60 off=0x74 12후보 | cg 판별실패 (1위 9.00 2위 9.00, 후보 12)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1504"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_ALIGNED_EXACT",
+    "how": "A:ALIGN 0.77 (2위 0.30) size 496->496",
+    "new": "0xd0ea4",
+    "insn": "mov rcx, r(3B) -> mov rcx, r(3B)"
+   },
+   "new_aligned": "0xd0ea4",
+   "new_repin": null,
+   "manual": "MED 동 owner +0x74(mov rcx,r9 3B 내부 — 구값도 명령 중간). RPLY_ON=false inert, 정렬값 채택.",
+   "new": "0xd0ea4"
+  },
+  "0x1a5c30": {
+   "name": "PARSER_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/ui_inject.rs:37"
+   ],
+   "sect_old": ".text",
+   "new": "0x1ac1d0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1e5f40": {
+   "name": "FN_DD_SETOPT_RVA",
+   "kind": "BYTES_UNIQUE(20B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3423"
+   ],
+   "sect_old": ".text",
+   "new": "0x1e61d0",
+   "sect_new": ".text",
+   "new_bytes": "415741565657534883ec3048",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x3381e0": {
+   "name": "LOADER_RVA",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x3381e0->0x337df0 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/ui_inject.rs:36"
+   ],
+   "sect_old": ".text",
+   "new": "0x337df0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x337df0",
+   "manual": "HIGH 동형 skel 28멤버 중 콜러 279→285 유일 대형, 구 콜러 사영 187/187 일치(타 멤버 ≤7), 멤버 순서·콜러수 패턴 보존, 정규화 명령열 동일. serpen UILOADER 와 동일 주소."
+  },
+  "0x45df20": {
+   "name": "ATH_GET_RVA",
+   "kind": "BYTES_UNIQUE(64B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:4058"
+   ],
+   "sect_old": ".text",
+   "new": "0x45da40",
+   "sect_new": ".text",
+   "new_bytes": "020000440f2995b002000044",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x45dfdb": {
+   "name": "ATH_GET_JE_TARGET_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:4059"
+   ],
+   "sect_old": ".text",
+   "new": "0x45dafb",
+   "sect_new": ".text",
+   "new_bytes": "0f84970000004183f87b0f85",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x79a3e0": {
+   "name": "A15E20_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2892"
+   ],
+   "sect_old": ".text",
+   "new": "0x79a450",
+   "sect_new": ".text",
+   "new_bytes": "80000000488d4dc0e8b376fa",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "FAIL_OWNER",
+    "how": "POOL_SMALL"
+   },
+   "new_repin": "0x79a450",
+   "manual": "LOW 소스에서 정의만 있고 참조 0(미사용). 구값은 39B EH funclet 0x79a3d0 의 lea rbp 명령 중간 = 이미 무의미 값. 바이트동일 funclet 0x79a440 +0x10 → 0x79a450(12B 유일)."
+  },
+  "0x9f7bfa": {
+   "name": "DRIVE_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x9f7b90->0xcd6d80 off 0x6a(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2887"
+   ],
+   "sect_old": ".text",
+   "new": "0xcd6dea",
+   "sect_new": ".text",
+   "new_bytes": "48c785b86c0100ffffffff48",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE_GAP"
+   }
+  },
+  "0x9f7c0d": {
+   "name": "DRIVE_RESUME_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x9f7b90->0xcd6d80 off 0x7d(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2891"
+   ],
+   "sect_old": ".text",
+   "new": "0xcd6dfd",
+   "sect_new": ".text",
+   "new_bytes": "48c78530380000ffffffff48",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE_GAP"
+   }
+  },
+  "0xe208f0": {
+   "name": "DEDUP_INS_RVA",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0xe20750->0xde7d40 본문검색 off 0x1a0->0x1a0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3220"
+   ],
+   "sect_old": ".text",
+   "new": "0xde7ee0",
+   "sect_new": ".text",
+   "new_bytes": "4889c14d89c74989f0e8d2a0",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0xfeb260": {
+   "name": "FORGE_CALLERS",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0xfeaf50 off=0x310 skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:480"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_OWNER",
+    "how": "NO_CAND"
+   },
+   "new_repin": null,
+   "manual": "LOW 소비처 insert_detour가 죽은 INSERT_RVA로만 설치(프롤로그 불일치)→inert. 구값=owner 0xfeaf50 의 call 0x611f0 명령 +2(리턴주소 아님). 니모닉정렬 1위 0xe24c50(0.99, 2위 0.964·콜러 3→0)의 동위치 call 0x61780 +2.",
+   "new": "0xe24f62"
+  },
+  "0xe85be0": {
+   "name": "ENQ_RVA",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0xe85b80 off=0x60 skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:565"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_OWNER",
+    "how": "POOL_SMALL"
+   },
+   "new_repin": null,
+   "manual": "LOW install_enq_hook 호출처 0(완전 미사용)+ENQ_PROLOGUE 검증 fail-safe. 구값=해시함수 0xe85b80 명령 중간. 신 exe 에서 owner 대응 후보 0(크기700~1800 정렬비 0.6 이상 없음) → 판정불가, 구값 유지해도 무해."
+  },
+  "0xfee560": {
+   "name": "INSERT_RVA",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0xfee4f0->0xe50720 off 0x70(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:451"
+   ],
+   "sect_old": ".text",
+   "new": "0xe50790",
+   "sect_new": ".text",
+   "new_bytes": "89442420488d1509f0c90241",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x1aa0cf0": {
+   "name": "HPUSH_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1288"
+   ],
+   "sect_old": ".text",
+   "new": "0x1603330",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec60488d6c2460",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x121cba8": {
+   "name": "PUSH_RVA",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x121c2f0->0x11b4f40 본문검색 off 0x8b8->0x8b8",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3281"
+   ],
+   "sect_old": ".text",
+   "new": "0x11b57f8",
+   "sect_new": ".text",
+   "new_bytes": "0000488b8d387b000048898d",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE"
+   },
+   "new_repin": "0x11b57f8",
+   "manual": "HIGH ChampionInfoSheet clone 동형 5클론(60198B) 중 콜러수 10 유일 멤버 0x121c2f0->0x11b4f40, +0x8b8 바이트동일. 단 install_push_probe 미호출(let _ =)·구값도 명령 중간."
+  },
+  "0x1322870": {
+   "name": "ATH_GET_SC_RVA",
+   "kind": "BYTES_UNIQUE(20B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3676"
+   ],
+   "sect_old": ".text",
+   "new": "0x15501f0",
+   "sect_new": ".text",
+   "new_bytes": "7048c74500feffffff4989d2",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x1983c50": {
+   "name": "SRV_RVA",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0x19832d0 off=0x980 skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:619"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_OWNER",
+    "how": "ALIGN_AMBIG 0.42/0.08"
+   },
+   "new_repin": null,
+   "manual": "LOW let _ = (SRV_RVA,..) 훅 비활성. owner 0x19832d0(3417B·콜러1·callee7)->0x1257980(3318B·1·7) 콜그래프 이웃투표 1위, 명령정렬 EXACT(mov r9,[rbp+0x28] 마지막 바이트 = 구값도 명령 중간).",
+   "new": "0x125829d"
+  },
+  "0x14bbf10": {
+   "name": "CT_ARM_LO",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:4191"
+   ],
+   "sect_old": ".text",
+   "new": "0x19f4fe0",
+   "sect_new": ".text",
+   "new_bytes": "48895130c3cccccccccccccc",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x1a260c0": {
+   "name": "DROP_CHAMP_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1512"
+   ],
+   "sect_old": ".text",
+   "new": "0x129f360",
+   "sect_new": ".text",
+   "new_bytes": "004181397469636b0f85b200",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x1725360": {
+   "name": "ORACLE_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x1725360->0x13ed440 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3738"
+   ],
+   "sect_old": ".text",
+   "new": "0x13ed440",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x13ed440",
+   "manual": "HIGH DRIVE(0x9f7b90->0xcd6d80) 안 호출 1035=1035, ORACLE 순번 252/412/427 동일·이웃호출(ALLOC 0x2fb35a0->0x2f99a60 독립재핀) 동일, 콜러 15=15. 크기 6070->20786(인라인 변화). ⚠a2+0x1dc0 → 0x1ba0 (12/12) — 축② 이동."
+  },
+  "0x194d1e0": {
+   "name": "CT_ARM_HI",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x194d0c0->0x147ffe0 본문검색 off 0x120->0x120",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:4192"
+   ],
+   "sect_old": ".text",
+   "new": "0x1480100",
+   "sect_new": ".text",
+   "new_bytes": "584889442428488d0553bbbe",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x14022f0": {
+   "name": "SLOT_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3929"
+   ],
+   "sect_old": ".text",
+   "new": "0x136ee30",
+   "sect_new": ".text",
+   "new_bytes": "e88bffffff4889c74901f649",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x12d4bce": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:192",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x12d4520->0x18b9040 본문검색 off 0x6ae->0x6ae",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:192"
+   ],
+   "sect_old": ".text",
+   "new": "0x18b96ee",
+   "sect_new": ".text",
+   "new_bytes": "0f28e1660f15e1f20f592543",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x1d6f880": {
+   "name": "CTX_DROP_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x1d6f880->0x23fb940 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1771"
+   ],
+   "sect_old": ".text",
+   "new": "0x23fb940",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534883",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x23fb940",
+   "manual": "HIGH size 886=886·head 동일·ARRIVE(0x244ea30) 2회 호출 유지·callee 10=10. 헤드 [rcx+0x1dc0]/[+0x1dc8]→[rcx+0x1ba0]/[+0x1ba8], maxoff 0x2080→0x1e50(ctx −0x220 축② 이동)."
+  },
+  "0x296fe50": {
+   "name": "WARN_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 458->458",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2340"
+   ],
+   "sect_old": ".text",
+   "new": "0x2410340",
+   "sect_new": ".text",
+   "new_bytes": "5541565657534881ecb00000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x297e980": {
+   "name": "REFRESH_RVA",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 8663->8568",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2477"
+   ],
+   "sect_old": ".text",
+   "new": "0x241f940",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x297eae6": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:98",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:98"
+   ],
+   "sect_old": ".text",
+   "new": "0x241faa4",
+   "sect_new": ".text",
+   "new_bytes": "4c0f44e248c7853002000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2985310": {
+   "name": "CSEND_RVA",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 2661->2677",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1287"
+   ],
+   "sect_old": ".text",
+   "new": "0x2426240",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2985b3c": {
+   "name": "PAGE_IMM_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x2985310->0x2426240 off 0x82c(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2384"
+   ],
+   "sect_old": ".text",
+   "new": "0x2426a6c",
+   "sect_new": ".text",
+   "new_bytes": "0580bd98200000000f84b000",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2989540": {
+   "name": "CGATE_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1186"
+   ],
+   "sect_old": ".text",
+   "new": "0x242a480",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2989746": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:103",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:103"
+   ],
+   "sect_old": ".text",
+   "new": "0x242a676",
+   "sect_new": ".text",
+   "new_bytes": "4120c54489551c740f488d15",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2989bf1": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:176",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:176"
+   ],
+   "sect_old": ".text",
+   "new": "0x242ab21",
+   "sect_new": ".text",
+   "new_bytes": "75474885c0742c488d0cc517",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x298a80a": {
+   "name": "TAKE_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2382"
+   ],
+   "sect_old": ".text",
+   "new": "0x242b6e3",
+   "sect_new": ".text",
+   "new_bytes": "14000000c685d60500000148",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x29968e0": {
+   "name": "RUN_RVA",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NONE skel 후보0 / head후보 0 / mid:OWNER_NONE owner=0x29968e0 off=0x0 skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:622"
+   ],
+   "sect_old": ".text",
+   "new_repin": null,
+   "manual": "HIGH size 3720→3726, 콜러 1=1, 호출 27=27 피호출 크기열 1:1 일치(1개 1928→1912만 차), 진입 12B(HOOK_PROLOGUE12) 동일. 내부 4 게이트 정렬 EXACT.",
+   "new": "0x24377c0"
+  },
+  "0x2996bba": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:277",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0x29968e0 off=0x2da skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:277"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_ALIGNED_MNEM",
+    "how": "C:CALLEE 9/9 (2위 6) size 3720->3726",
+    "new": "0x2437a93",
+    "insn": "je xcb(2B) -> je xaf(2B)"
+   },
+   "new_aligned": "0x2437a93",
+   "new_repin": null,
+   "manual": "HIGH RUN+0x2d3: call 0x2439330; cmp [rbp-0x60],-1; je 다음 문맥 동일. 신 바이트 74 5f = 소스 orig 그대로(je 타깃 cmp [rbp+0x1f68],0 대응) → 바이트 변경 없음.",
+   "new": "0x2437a93"
+  },
+  "0x2996be4": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:272",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0x29968e0 off=0x304 skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:272"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_ALIGNED_MNEM",
+    "how": "C:CALLEE 9/9 (2위 6) size 3720->3726",
+    "new": "0x2437abd",
+    "insn": "jne xbf(2B) -> jne xacf(2B)"
+   },
+   "new_aligned": "0x2437abd",
+   "new_repin": null,
+   "manual": "HIGH cmp rax,r14; jne +0x10 — 신 바이트 75 10 = 소스 orig 그대로.",
+   "new": "0x2437abd"
+  },
+  "0x2996bf0": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:265",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0x29968e0 off=0x310 skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:265"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_ALIGNED_MNEM",
+    "how": "C:CALLEE 9/9 (2위 6) size 3720->3726",
+    "new": "0x2437ac9",
+    "insn": "jae xd(6B) -> jae xc(6B)"
+   },
+   "new_aligned": "0x2437ac9",
+   "new_repin": null,
+   "manual": "HIGH mov r13,[rbp+0x1f90]; cmp r13,r14; jae → 타깃 0x2437c38(빌드경로, 구 0x2996d68 대응). jae disp 0x172→0x169 ⟹ fixed jmp rel32 = 0x2437c38-(0x2437ac9+5)=0x16a.",
+   "new": "0x2437ac9"
+  },
+  "0x2997325": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:284",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0x29968e0 off=0xa45 skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:284"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_ALIGNED_LOOSE_GAP",
+    "how": "C:CALLEE 9/9 (2위 6) size 3720->3726",
+    "new": "0x2438205",
+    "insn": "je xcfc(6B) -> je xbcc(6B)"
+   },
+   "new_aligned": "0x2438205",
+   "new_repin": null,
+   "manual": "HIGH cmp r13,-1; je → 0x2437bcc(lea rdx,[rip..]; mov r8d,0x38 = 구 0x2996cfc 대응). je disp f9d1→f9c1, fixed 6×NOP 불변.",
+   "new": "0x2438205"
+  },
+  "0x2998280": {
+   "name": "COLLECT_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3585"
+   ],
+   "sect_old": ".text",
+   "new": "0x2439330",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x299c360": {
+   "name": "RPLY3_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x299c360->0x243d410 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1748"
+   ],
+   "sect_old": ".text",
+   "new": "0x243d410",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x243d410",
+   "manual": "HIGH 콜러 2/2 사영 일치·callee 22=22·push8 진입 12B 동일·CLONE_CHAMP(24콜러 멤버) 콜러 목록에 0x299c360↔0x243d410 대응. 크기 3078→29166(인라인)."
+  },
+  "0x299efc0": {
+   "name": "RPLY2_RVA",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 1344->1345",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1682"
+   ],
+   "sect_old": ".text",
+   "new": "0x244e1c0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x299f820": {
+   "name": "ARRIVE_RVA",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 0후보 / skel0/head유일 size 2288->2270",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2168",
+    "src/tfm2_comptest_unlock.rs:2884"
+   ],
+   "sect_old": ".text",
+   "new": "0x244ea30",
+   "sect_new": ".text",
+   "new_bytes": "55415741564154565753b840",
+   "bytes_same": false,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x299f834": {
+   "name": "DELAY_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 9후보 / owner 0x299f820->0x244ea30 본문검색 off 0x14->0x14",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2879"
+   ],
+   "sect_old": ".text",
+   "new": "0x244ea44",
+   "sect_new": ".text",
+   "new_bytes": "4829c4488dac248000000048",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x299f843": {
+   "name": "DELAY_RESUME_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x299f820->0x244ea30 off 0x23(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2882"
+   ],
+   "sect_old": ".text",
+   "new": "0x244ea53",
+   "sect_new": ".text",
+   "new_bytes": "4889e34889ab303e000048c7",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x29a00aa": {
+   "name": "EPILOG_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x299f820->0x244ea30 off 0x88a(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2883"
+   ],
+   "sect_old": ".text",
+   "new": "0x244f2a8",
+   "sect_new": ".text",
+   "new_bytes": "5dc34889c1e85b15430190eb",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_EXACT",
+    "repin": "0x244f2ba",
+    "new": "0x244f2a8",
+    "insn": "xor eax, eax(2B) -> xor eax, eax(2B)",
+    "repin_note": "12B 0후보 / owner 0x299f820->0x244ea30 off 0x88a(동일오프셋 가정)"
+   },
+   "new_aligned": "0x244f2a8",
+   "new_repin": "0x244f2ba",
+   "manual": "HIGH ARRIVE 0x244ea30 의 유일 에필로그: jmp; xor eax,eax(0x244f2a8); lea rsp,[rbp+0x3dc0]; pop×7; ret. repin 0x244f2ba 는 pop rbp(오답). ⚠프레임 0x42c0→0x3e40·rbp오프 0x4240→0x3dc0 — par_delay shim 상수 수정 필요."
+  },
+  "0x29c3b40": {
+   "name": "RESULT_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1263"
+   ],
+   "sect_old": ".text",
+   "new": "0x2907980",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x29c5210": {
+   "name": "LIVEB_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x29c5210->0x2909050 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1749"
+   ],
+   "sect_old": ".text",
+   "new": "0x2909050",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x2909050",
+   "manual": "HIGH 콜러 1/1 사영 일치·callee 21=21·push8 진입 동일·CLONE_CHAMP 콜러 대응. 크기 4312→30277(인라인)."
+  },
+  "0x2a2069f": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:110",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:110"
+   ],
+   "sect_old": ".text",
+   "new": "0x2522a8f",
+   "sect_new": ".text",
+   "new_bytes": "4c0f44f8488d8d9007000048",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2a206df": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:221",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:221"
+   ],
+   "sect_old": ".text",
+   "new": "0x2522acf",
+   "sect_new": ".text",
+   "new_bytes": "4883ff0ab838000000b93200",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2a20ac2": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:123",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:123"
+   ],
+   "sect_old": ".text",
+   "new": "0x2522eb2",
+   "sect_new": ".text",
+   "new_bytes": "20c14883fb0a0fb6f9b80100",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2a20ac4": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:212",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:212"
+   ],
+   "sect_old": ".text",
+   "new": "0x2522eb4",
+   "sect_new": ".text",
+   "new_bytes": "4883fb0a0fb6f9b801000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2a2a810": {
+   "name": "CT_CLIENT_HI",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 9후보 / owner 0x2a2a800->0x252cbb0 본문검색 off 0x10->0x10",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:463"
+   ],
+   "sect_old": ".text",
+   "new": "0x252cbc0",
+   "sect_new": ".text",
+   "new_bytes": "534881ecf8000000488daa80",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x202d510": {
+   "name": "CLONE_CHAMP_RVA",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x202d510->0x1cd2ee0 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1511"
+   ],
+   "sect_old": ".text",
+   "new": "0x1cd2ee0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x1cd2ee0",
+   "manual": "HIGH 동형 5클론(60198B) 중 콜러 24 유일 멤버(구 콜러 CT_REGION_LO·RPLY3·LIVEB↔신 0x1c34b20·0x243d410·0x2909050 포함). snap_take(SNAP_ON=false) 전용이라 inert."
+  },
+  "0x22ab310": {
+   "name": "CT_REGION_LO",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x22ab310->0x1c34b20 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:460"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c34b20",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x1c34b20",
+   "manual": "HIGH 서버 comp_test 핸들러: 콜러 1/1 사영 일치·callee 478→486·size 181568→183939, server_pregate/daily_inc_gate 시그 본문 내 1히트. insert_detour(inert) 범위상수."
+  },
+  "0x22bd0b3": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:147",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 0후보 / owner 0x22ab310->0x1c34b20 off 0x11da3(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:147"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c46968",
+   "sect_new": ".text",
+   "new_bytes": "28aa0100488d95802e000041",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_WLOOSE_GAP",
+    "repin": "0x1c468c3",
+    "new": "0x1c46968",
+    "insn": "cmp qword ptr [rax + x(8B) -> cmp qword ptr [rax + x(8B)",
+    "repin_note": "12B 0후보 / owner 0x22ab310->0x1c34b20 off 0x11da3(동일오프셋 가정)"
+   },
+   "new_aligned": "0x1c46968",
+   "new_repin": "0x1c468c3",
+   "manual": "HIGH 시그 48 83 b8 d0 01 00 00 04 0f 86 전역 1히트 @0x1c46961(+7=imm8), 직후 mov byte [rsp+0x20],1 동일. orig 04 일치."
+  },
+  "0x22c0580": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:137",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 0후보 / owner 0x22ab310->0x1c34b20 off 0x15270(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:137"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c49f97",
+   "sect_new": ".text",
+   "new_bytes": "0400488b8578b80400488d04",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_WLOOSE_GAP",
+    "repin": "0x1c49d90",
+    "new": "0x1c49f97",
+    "insn": "cmp rax, (4B) -> cmp rax, (4B)",
+    "repin_note": "12B 0후보 / owner 0x22ab310->0x1c34b20 off 0x15270(동일오프셋 가정)"
+   },
+   "new_aligned": "0x1c49f97",
+   "new_repin": "0x1c49d90",
+   "manual": "HIGH mov rax,[r14+0x1d0]; cmp rax,4(0x1c49f94); jbe; mov byte [rbp+..],1; mov ecx,1; mov edx,1; call — 구 0x22c0576~ 동일 문맥, imm8 +3. orig 04 일치. repin 0x1c49d90 은 오답."
+  },
+  "0x22c55e9": {
+   "name": "PATCHES",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:78"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c4f01e",
+   "sect_new": ".text",
+   "new_bytes": "05490f42c548898268070000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE"
+   }
+  },
+  "0x22d7850": {
+   "name": "CT_REGION_HI",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NONE skel 후보0 / head후보 0 / mid:OWNER_NONE owner=0x22d7850 off=0x0 skel 후보0 / head후보 0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:461"
+   ],
+   "sect_old": ".text",
+   "new_repin": null,
+   "manual": "HIGH .pdata 0x1c34b20 엔트리 end=0x1c619a3 (= LO + 0x2ce83; 0.6.2 선례 LO+pdata size 규칙).",
+   "new": "0x1c619a3"
+  },
+  "0x23014c0": {
+   "name": "SREG_RVA",
+   "kind": "BYTES_UNIQUE(64B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1187"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c8f450",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x23018f5": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:251",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:251"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c8f885",
+   "sect_new": ".text",
+   "new_bytes": "4b8d043fb3024839c20f8234",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x23019d4": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:171",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:171"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c8f964",
+   "sect_new": ".text",
+   "new_bytes": "0f85d30000004c897d304883",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2314170": {
+   "name": "ITEMCONV_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3488"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c9d5b0",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x23332d0": {
+   "name": "SIMBODY_RVA",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x23331f0->0x1cc44d0 off 0xe0(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:789"
+   ],
+   "sect_old": ".text",
+   "new": "0x1cc45b0",
+   "sect_new": ".text",
+   "new_bytes": "08488b4008488d158c49d101",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x1f58530": {
+   "name": "MFORGE_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x1f57d60->0x23bb600 본문검색 off 0x7d0->0x7d0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1234"
+   ],
+   "sect_old": ".text",
+   "new": "0x23bbdd0",
+   "sect_new": ".text",
+   "new_bytes": "4728488d8d30020000e80260",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2167c60": {
+   "name": "CTX_CLONE_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x2167c60->0x2540940 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1770"
+   ],
+   "sect_old": ".text",
+   "new": "0x2540940",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x2540940",
+   "manual": "HIGH 구 콜러 2(0x20fdf30 44217B/0x2114eb0 79953B)↔신 콜러 0x24c35b0(44187)/0x24da140(80906) 포함, callee 11=11, head 동일, ctx disp 0x1dc0→0x1ba0·0x2080→0x1e50 가 DROP 과 일치."
+  },
+  "0x1d9986f": {
+   "name": "CT_CLIENT_LO",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x1d98aa0->0x25915e0 off 0xdcf(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:462"
+   ],
+   "sect_old": ".text",
+   "new": "0x25923c0",
+   "sect_new": ".text",
+   "new_bytes": "89e948c1e10448893c084c89",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_EXACT",
+    "repin": "0x25923af",
+    "new": "0x25923c0",
+    "insn": "inc r(3B) -> inc r(3B)",
+    "repin_note": "12B 0후보 / owner 0x1d98aa0->0x25915e0 off 0xdcf(동일오프셋 가정)"
+   },
+   "new_aligned": "0x25923c0",
+   "new_repin": "0x25923af",
+   "manual": "MED 구값=inc r14(3B) +2(명령 중간·범위하한이라 무해). 신 owner 0x25915e0 의 대응 inc r13 0x25923be +2(sitealign EXACT). repin 동일오프셋 0x25923af 는 크기 6606→8405 변화로 오답."
+  },
+  "0x2eed670": {
+   "name": "RUST_ALLOC_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3945"
+   ],
+   "sect_old": ".text",
+   "new": "0x2ed3740",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534881ec48",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2fb35a0": {
+   "name": "ALLOC_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 60->60",
+   "locs": [
+    "src/ui_inject.rs:40"
+   ],
+   "sect_old": ".text",
+   "new": "0x2f99a60",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec20488d6c2420",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x3b514e4": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:2354",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2354"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3b3c087",
+   "sect_new": ".rdata",
+   "new_bytes": "696f6e2876c00c293a3a636f",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3b5151c": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:2355",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2355"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3b3c0bf",
+   "sect_new": ".rdata",
+   "new_bytes": "3a64616d6167655f73686172",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c029a8": {
+   "name": "RUNNER_VT_RVA",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:NO_OWNER 구 exe owner 없음",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2165"
+   ],
+   "sect_old": ".rdata",
+   "new_repin": null,
+   "manual": "HIGH repin.py rdata 표 2/2 + 수동 슬롯대조: [-2]/[-1]/drop/size/align/[3]/[4]=0x2513890/[5]=.rdata+(-0x48) 레이아웃 동일, size 슬롯 0x2410→0x21e0(−0x230, 러너 disp 0x240b→0x21db 와 정합).",
+   "new": "0x3c1f2f0"
+  }
+ },
+ "tfm2_elemental_serpen": {
+  "0x1a5c30": {
+   "name": "UIPARSER_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:626"
+   ],
+   "sect_old": ".text",
+   "new": "0x1ac1d0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x3381e0": {
+   "name": "UILOADER_RVA",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x3381e0->0x337df0 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/lib.rs:625"
+   ],
+   "sect_old": ".text",
+   "new": "0x337df0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x337df0",
+   "manual": "HIGH 같은 skel 425B 제네릭 클론 28개 중 pcmpeqb TypeId 16B 상수(ae232dbf…a8e5) 일치 유일 + 구 콜러 사영 185/185 일치(차순위 7)"
+  },
+  "0x994a26": {
+   "name": "LAUNCHER_RET_A",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x988030->0xc67340 off 0xc9f6(동일오프셋 가정)",
+   "locs": [
+    "src/lib.rs:511"
+   ],
+   "sect_old": ".text",
+   "new": "0xc73d36",
+   "sect_new": ".text",
+   "new_bytes": "90488b85e8e7030048ff4810",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE_GAP"
+   },
+   "new_repin": "0xc73d36",
+   "manual": "HIGH LAUNCHER 0x13f3950 E8 콜사이트 9/9 전수: 씬빌더 0x988030→0xc67340 같은 오프셋 0xc9f1 콜사이트 0xc73d31+5 (repin 값 일치)"
+  },
+  "0x999b61": {
+   "name": "LAUNCHER_RET_B",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x988030->0xc67340 off 0x11b31(동일오프셋 가정)",
+   "locs": [
+    "src/lib.rs:513"
+   ],
+   "sect_old": ".text",
+   "new": "0xc78e41",
+   "sect_new": ".text",
+   "new_bytes": "8d8d700c0200488d9550e303",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_WLOOSE_GAP",
+    "repin": "0xc78e71",
+    "new": "0xc78e41",
+    "insn": "nop (1B) -> nop (1B)",
+    "repin_note": "12B 0후보 / owner 0x988030->0xc67340 off 0x11b31(동일오프셋 가정)"
+   },
+   "new_aligned": "0xc78e41",
+   "new_repin": "0xc78e71",
+   "manual": "HIGH 같은 씬빌더 0xc67340 의 두 번째 LAUNCHER 콜사이트 0xc78e3c+5 (정렬값 채택; repin 0xc78e71 은 콜 리턴 아님=오답)"
+  },
+  "0xbe42b0": {
+   "name": "SPAWN_HOOKS",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 1929->1929",
+   "locs": [
+    "src/lib.rs:490"
+   ],
+   "sect_old": ".text",
+   "new": "0xbfc320",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0xbe4d40": {
+   "name": "SPAWN_HOOKS",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 1929->1929",
+   "locs": [
+    "src/lib.rs:490"
+   ],
+   "sect_old": ".text",
+   "new": "0xbfcdb0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0xa8b090": {
+   "name": "RENDER_STEP_RVA",
+   "kind": "BYTES_UNIQUE(64B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:928"
+   ],
+   "sect_old": ".text",
+   "new": "0x930640",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x17187d0": {
+   "name": "SERPEN_RVA",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NONE skel 후보0 / head후보 0 / mid:OWNER_NONE owner=0x17187d0 off=0x0 skel 후보0 / head후보 0",
+   "locs": [
+    "src/lib.rs:39"
+   ],
+   "sect_old": ".text",
+   "new_repin": null,
+   "manual": "HIGH 유일콜러 0x15b53e0→0x16f6cc0(콜러의 콜러 3개=MOBATICK 포함 대응). 프레임 0x358·5번째 인자 [rbp+0x340]·call [rdx+0x28]→리졸버 call 구조 동일, 크기 4185→3813. ★진입 비교가 `cmp [rax+0x68],6;jne` → `cmp [rax+0x68],2;jae`(kind<2)로 바뀜: 세르펜이 niche 변형이 되고 나머지 kind 전부 +2(0x125dbf0 의 cmp 6 은 구 kind4 정글 클론 — 오답)",
+   "new": "0x19bcdb0"
+  },
+  "0x16b3af0": {
+   "name": "DMGB_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:1953"
+   ],
+   "sect_old": ".text",
+   "new": "0x1273a20",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x15c28f0": {
+   "name": "DMGA_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x15c28f0->0x17026c0 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/lib.rs:1950"
+   ],
+   "sect_old": ".text",
+   "new": "0x17026c0",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x17026c0",
+   "manual": "HIGH 콜러 4/4 정확 사영(0x1273160·0x1273a20·0x1323090·0x2e18eb0), 콜리 2/2, 프롤로그 12B 동일(프레임 0x88→0x98), 크기 1175→1293, 엔티티 HP/ID 필드 접근 동형(-8 이동)"
+  },
+  "0x17277c0": {
+   "name": "LAUNCHER_RVA",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 4490->4367",
+   "locs": [
+    "src/lib.rs:502"
+   ],
+   "sect_old": ".text",
+   "new": "0x13f3950",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1729490": {
+   "name": "RUNNER_CTOR_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x1729490->0x13f55c0 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/lib.rs:955"
+   ],
+   "sect_old": ".text",
+   "new": "0x13f55c0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x13f55c0",
+   "manual": "HIGH 콜러 5/5(0xc56e60·0xcae950·0xcb0bc0·0xcb1e30·0xcd6d80), 콜리 사영 9/10, 크기 3698→3637, 명령정렬 0.82, 프롤로그 12B 동일; LAUNCHER(0x13f3950)와 인접 배치도 구판과 같음"
+  },
+  "0x1782760": {
+   "name": "MOBATICK_RVA",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NONE skel 후보0 / head후보 0 / mid:OWNER_NONE owner=0x1782760 off=0x0 skel 후보0 / head후보 0",
+   "locs": [
+    "src/lib.rs:416"
+   ],
+   "sect_old": ".text",
+   "new_repin": null,
+   "manual": "HIGH 'd_serpen' 즉시값 조립 소유함수 구/신 각 유일(0x1782760/0x14402c0), SERPEN 콜러 0x16f6cc0 의 콜러, 크기 49484→49909, 프롤로그 12B 동일(chkstk 0x1bd8→0x1bc8), kind 비교 2/3/0xb/0xd → 4/5/0xd/0xf 일관 +2",
+   "new": "0x14402c0"
+  },
+  "0x123bff0": {
+   "name": "ARG_STR_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 359->359",
+   "locs": [
+    "src/lib.rs:2688"
+   ],
+   "sect_old": ".text",
+   "new": "0x1815610",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534881ec88",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x299c8be": {
+   "name": "LAUNCHER_RET_D",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 0후보 / owner 0x299c360->0x243d410 off 0x55e(동일오프셋 가정)",
+   "locs": [
+    "src/lib.rs:526"
+   ],
+   "sect_old": ".text",
+   "new": "0x2443bea",
+   "sect_new": ".text",
+   "new_bytes": "a10000410f109e00a200000f",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_EXACT",
+    "repin": "0x243d96e",
+    "new": "0x2443d20",
+    "insn": "nop (1B) -> nop (1B)",
+    "repin_note": "12B 0후보 / owner 0x299c360->0x243d410 off 0x55e(동일오프셋 가정)"
+   },
+   "new_aligned": "0x2443d20",
+   "new_repin": "0x243d96e",
+   "manual": "HIGH 구 재생빌더 0x299c360(콜러 0x23f9590·0x299efc0)가 신 0x243d410(29166B, 콜러 0x2a55830·0x244e1c0 = 구 콜러의 head 사영과 일치)에 인라인됨 → 그 안 콜사이트 0x2443be5+5. 문맥(movzx edx,byte / 0x7aa8 alloc / 후속 +0xe528) 동일. repin 0x243d96e·정렬 0x2443d20 둘 다 오답. 다른 클론 0x290f6d5 는 구 0x29c5210(콜러 0x9ce250→0xcad410) 쪽"
+  },
+  "0x2445ce4": {
+   "name": "LAUNCHER_RET_C",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x24453d0->0x2aa1f50 off 0x914(동일오프셋 가정)",
+   "locs": [
+    "src/lib.rs:518"
+   ],
+   "sect_old": ".text",
+   "new": "0x2aa2864",
+   "sect_new": ".text",
+   "new_bytes": "90488b85e8d70100488d9010",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   },
+   "new_repin": "0x2aa2864",
+   "manual": "HIGH 리플레이핸들러 0x24453d0→0x2aa1f50(크기 4445 동일) 오프셋 0x90f 콜사이트 0x2aa285f+5 (repin 값 일치)"
+  },
+  "0x1fbaa80": {
+   "name": "KEYRES_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:2145"
+   ],
+   "sect_old": ".text",
+   "new": "0x230ab20",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec70488d6c2470",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2fb35a0": {
+   "name": "UIALLOC_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 60->60",
+   "locs": [
+    "src/lib.rs:633"
+   ],
+   "sect_old": ".text",
+   "new": "0x2f99a60",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec20488d6c2420",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ },
+ "tfm2_champ_pos_lock": {
+  "0x1a894d0": {
+   "name": "RVA_POS_MASK",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 2569->2569",
+   "locs": [
+    "src/legacy_assign.rs:14"
+   ],
+   "sect_old": ".text",
+   "new": "0x195ad50",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x24f3d70": {
+   "name": "RVA_SELECT_SWAP",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/auto_swap.rs:10"
+   ],
+   "sect_old": ".text",
+   "new": "0x21be9b0",
+   "sect_new": ".text",
+   "new_bytes": "4883ec2880b969040000000f",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x240ac30": {
+   "name": "RVA_PICK_CLICK",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 1810->1816",
+   "locs": [
+    "src/pick_click_hook.rs:14"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a67040",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x240b4f0": {
+   "name": "RVA_SWAP_CONFIRM",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 1191->1197",
+   "locs": [
+    "src/swap_confirm_hook.rs:8"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a67900",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2139980": {
+   "name": "RVA_COMPUTE_RULE_SWAP_ORDER",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 2921->2921",
+   "locs": [
+    "src/ai_swap.rs:12"
+   ],
+   "sect_old": ".text",
+   "new": "0x24ff1a0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ },
+ "training_view_plus": {},
+ "facility_view_plus": {},
+ "custom_tier_assignment": {},
+ "ui_kit": {
+  "0x1e7d60": {
+   "name": "DD_SETOPT_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "ui_kit.rs:939"
+   ],
+   "sect_old": ".text",
+   "new": "0x1e7ff0",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534883ec58",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2f6ac0": {
+   "name": "RVA_DROP_MAP",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x2f6ac0->0x2f6650 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:15"
+   ],
+   "sect_old": ".text",
+   "new": "0x2f6650",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x2f6650",
+   "manual": "HIGH skel 클론 16개 중 정규화 명령열 완전일치 유일, 콜러 사영 strict 89(차순위 4)/loose 423, 프롤로그 12B 동일"
+  },
+  "0x307070": {
+   "name": "RVA_DROP_PLAN",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x307070->0x306c50 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:14"
+   ],
+   "sect_old": ".text",
+   "new": "0x306c50",
+   "sect_new": ".text",
+   "new_bytes": "555657534883ec48488d6c24",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x306c50",
+   "manual": "HIGH 정규화 일치 2개(0x306c50·0x22e3ec0) 중 콜러 97=97·strict 17 vs 0, 프롤로그 8B 동일"
+  },
+  "0xc8e4e0": {
+   "name": "RVA_INSERT",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0xc8e4e0->0x9aa700 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:16"
+   ],
+   "sect_old": ".text",
+   "new": "0x9aa700",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534883",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x9aa700",
+   "manual": "HIGH 정규화 일치 4개 중 콜러 16=16·strict 8/loose 15 vs 나머지 0, 프롤로그 12B 동일"
+  },
+  "0x2341ab0": {
+   "name": "RVA_CLONE",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x2341ab0->0x1ce9f20 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:13"
+   ],
+   "sect_old": ".text",
+   "new": "0x1ce9f20",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true,
+   "new_repin": "0x1ce9f20",
+   "manual": "HIGH 정규화 일치 2개(0x1ce9f20·0x2aec3c0) 중 콜러 strict 6/loose 13 vs 0, 프롤로그 12B 동일"
+  },
+  "0x224ff70": {
+   "name": "RVA_DROP",
+   "kind": "FAIL",
+   "note": "12B 2후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:NO_OWNER 구 exe owner 없음",
+   "locs": [
+    "team_sync_stable.rs:17",
+    "training_plan_stable.rs:20"
+   ],
+   "sect_old": ".text",
+   "new_repin": null,
+   "manual": "HIGH rel32 마스킹 패턴(`sub rdx,0x56`·cmovae·jmp) 신 클론 2개 중 신 대핸들러 0x1c34b20(183939B, RVA_SEND·RVA_BUILD 신값을 콜리로 가짐)가 243회 호출하는 쪽(구 0x224ff70 = 대핸들러 241회). 바이트 rel32 외 동일. 다른 클론 0x23f3a90 은 구 0x205c140 대응",
+   "new": "0x1bd9e80"
+  },
+  "0x1da43f0": {
+   "name": "RVA_SEND",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "team_sync_stable.rs:16",
+    "training_plan_stable.rs:19"
+   ],
+   "sect_old": ".text",
+   "new": "0x231b9f0",
+   "sect_new": ".text",
+   "new_bytes": "555657534881ec180f000048",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x22fdd10": {
+   "name": "RVA_BUILD",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "team_sync_stable.rs:15"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c8bca0",
+   "sect_new": ".text",
+   "new_bytes": "555657534881ece808000048",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2317950": {
+   "name": "RVA_SANITIZE",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "training_plan_stable.rs:17"
+   ],
+   "sect_old": ".text",
+   "new": "0x1ca56f0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x25997d0": {
+   "name": "RVA_UPDATE",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NONE skel 후보0 / head후보 4 / mid:OWNER_NONE owner=0x25997d0 off=0x0 skel 후보0 / head후보 4",
+   "locs": [
+    "draft_scene_stable.rs:14"
+   ],
+   "sect_old": ".text",
+   "new_repin": null,
+   "manual": "HIGH head 동일 후보 4 + 대형함수 중 니모닉 코사인 0.999998·disp 코사인 0.9987(차순위 0.996/0.83), 크기 132470→132485, 씬 disp 0xce/0x168/0x180/0x198/0x1b0/0x3a8/0x3f8/0x400/0x466 전부 불변, 프롤로그 12B 동일(프레임 0x1468→0x1448)",
+   "new": "0x2272f20"
+  },
+  "0x1dbcdd0": {
+   "name": "RVA_RESPONSE",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "training_plan_stable.rs:18"
+   ],
+   "sect_old": ".text",
+   "new": "0x1d6c980",
+   "sect_new": ".text",
+   "new_bytes": "555657534883ec38488d6c24",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ }
+}

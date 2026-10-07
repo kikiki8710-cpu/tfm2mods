@@ -12,7 +12,7 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 pub const GAME_VER: &str = "0.6.2";
-pub const RVA_UPDATE: usize = 0x25997d0;
+pub const RVA_UPDATE: usize = 0x2272f20;
 pub const PROL_UPDATE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 pub const OFF_RULE: usize = 0xce;
 pub const OFF_PICK1: usize = 0x168;

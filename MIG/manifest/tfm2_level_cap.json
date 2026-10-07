@@ -9,8 +9,8 @@
  "entries": [
   {
    "name": "RVA_UI_CMP",
-   "value": "0xa84374",
-   "ver": "0.6.2",
+   "value": "0x929924",
+   "ver": "0.6.3",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:124"
@@ -21,8 +21,8 @@
   },
   {
    "name": "RVA_LEN_LOAD",
-   "value": "0x16b5e14",
-   "ver": "0.6.2",
+   "value": "0x1275d64",
+   "ver": "0.6.3",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:112"

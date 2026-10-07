@@ -22,7 +22,7 @@ MIGD = os.path.join(ROOT, 'MIG')
 MAND = os.path.join(MIGD, 'manifest')
 GAME_EXE = r'C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\TeamfightManager2.exe'
 RVA_LO, RVA_HI = 0x80000, 0x4800000   # .text + RVA vtable(.rdata ~0x34e6a20) 포함
-GAME_VER = '0.6.2'   # gen 이 새 엔트리에 박는 버전 라벨(패치마다 갱신) — 2026-09-30 0.6.2
+GAME_VER = '0.6.3'   # gen 이 새 엔트리에 박는 버전 라벨(패치마다 갱신) — 2026-10-07 0.6.3
 
 NBYTES = 12                            # 엔트리당 채록 바이트
 

@@ -10,14 +10,14 @@
 use mod_api_stable::StableServerCtx;
 
 pub const GAME_VER: &str = "0.6.2";
-const RVA_CLONE: usize = 0x2341ab0;
-const RVA_DROP_PLAN: usize = 0x307070;
-const RVA_DROP_MAP: usize = 0x2f6ac0;
-const RVA_INSERT: usize = 0xc8e4e0;
-const RVA_SANITIZE: usize = 0x2317950;
-const RVA_RESPONSE: usize = 0x1dbcdd0;
-const RVA_SEND: usize = 0x1da43f0;
-const RVA_DROP_RES: usize = 0x224ff70;
+const RVA_CLONE: usize = 0x1ce9f20;
+const RVA_DROP_PLAN: usize = 0x306c50;
+const RVA_DROP_MAP: usize = 0x2f6650;
+const RVA_INSERT: usize = 0x9aa700;
+const RVA_SANITIZE: usize = 0x1ca56f0;
+const RVA_RESPONSE: usize = 0x1d6c980;
+const RVA_SEND: usize = 0x231b9f0;
+const RVA_DROP_RES: usize = 0x1bd9e80;
 const OFF_TRAINING_PLANS: usize = 0x16f08;
 const OFF_MAP_SENTINEL: usize = 0x30;
 const NODE_NEXT: usize = 0x1f8;
