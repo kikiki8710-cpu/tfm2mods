@@ -400,7 +400,7 @@ const O_DMG_WINDOW: usize = 0x680;  // ★0.6.3 −8 // 0.5.5: 구 0x670 → 신
 const CHAMP_KIND: u64 = 0xf;  // ★0.6.3 엔티티 kind +2(MOBATICK cmp 0xd→0xf)
 // World 슬롯맵 (0.5.1 확정, find_player 0x21f7570 근거)
 const W_CHAMP_DENSE: usize = 0x730;  // ★0.6.3 −8 // 0.5.5: 구 0x720 → 신 0x738 (+0x18). ptr / +8 len (stride 0x6c0). 챔프루프 `mov rcx,[rdx+0x738]` 직접.
-const W_CHAMP_SLOTS: usize = 0x748;  // ★0.6.3 −8 // 0.5.5: 구 0x738 → 신 0x750 (+0x18). ptr / +8 len (stride 0x10). MOBATICK 0x750/0x758 정렬.
+const W_CHAMP_SLOTS: usize = 0x748;  // ★0.6.3 −8 · ★원소 = u32 dense 인덱스(stride 4, −1=빈칸) // 0.5.5: 구 0x738 → 신 0x750 (+0x18). ptr / +8 len (stride 0x10). MOBATICK 0x750/0x758 정렬.
 const W_PLAYER_DENSE: usize = 0x850;  // ★0.6.3 −8 · ★원소 = Box<Player> 포인터(8B) // 0.5.5: 구 0x840 → 신 0x858 (+0x18). ptr / +8 len (stride 0x9e0). 플레이어루프 `mov rax,[rbx+0x858]` 직접.
 const P_TEAM: usize = 0x800;  // ★0.6.3 Box<Player> 기준(MOBATICK [r9+0x800] 23회) // ★0.6.0: Player ≥0x928 대역 Δ+0xd0 (MOBATICK 0x930(7)→0xa00(7)·DMGB 동일). ~~0.5.8=0x930~~ // 0.5.5: 구 0x810 → 신 0x930 (+0x120). player struct 대폭 성장. 플레이어루프 `mov rcx,[rax+r8+0x930]; cmp rcx,2` 직접 1:1.
 const P_CHAMP_TAG: usize = 0x898;  // ★0.6.3 〃 17회 // ★0.6.0: Δ+0xd0 (MOBATICK 플레이어루프 정렬 0x9c8→0xa98). ~~0.5.8=0x9c8~~ // 0.5.5: 구 0x8a8 → 신 0x9c8 (+0x120). Option tag(0=챔피언 없음). 앵커쌍 5/6 확인.
@@ -428,7 +428,7 @@ const KILLS_RED_OFF: usize = 0xf2e0;  // ★0.6.3 +0x378 // ★0.5.8: Δ+0x38 (M
 // ⬜0.5.2 정적 미검증(값 유지) — ClientDatabase raw 오프셋군. disp 센서스로는 판정 불가(위 SEED_OFF 주석).
 //   런타임 불변식으로 자기검증됨: 0 ≤ PLAYED_TICK ≤ events.len(EV_LEN_OFF). 어긋나면 조용히 미채택.
 //   ★교차확인 권장: crm·Spectator_Chat 이 같은 ClientDatabase 오프셋군을 쓰므로 그쪽 0.5.2 마이그 결과와 대조.
-const GAME_PROVIDER_OFF: usize = 0x48a0; // Game + 0x48a0 = provider data ptr (== detour rcx) ★0.6.0 런타임 자동스캔 확정(09-19 replay: 소스 0x1dc0 틀림 → 폴백 스캔이 0x48a0 적중·SEED_OFF=0xec90). 0.5.x = 0x1dc0
+const GAME_PROVIDER_OFF: usize = 0x1ba0; // ★0.6.3 런타임 자동스캔 확정(10-07 라이브: "Game+0x1ba0 → prov, SEED_OFF=0xec88" · 0x48a0 틀림) // Game + 0x48a0 = provider data ptr (== detour rcx) ★0.6.0 런타임 자동스캔 확정(09-19 replay: 소스 0x1dc0 틀림 → 폴백 스캔이 0x48a0 적중·SEED_OFF=0xec90). 0.5.x = 0x1dc0
 // ★게임이 직접 관리하는 세르펜 처치 이력 (ghidra-re 0.5.1 확정, 리워드 배포 FUN@0x21fcf90 분석):
 //   provider + 0xed18/0xed20/0xed28 = Vec<{team:u64, tick:u64}> 의 cap/ptr/len. team 0=blue 1=red.
 //   처치 tick이 함께 저장되므로 played_tick 이하만 집계하면 sim 선행·뒤로감기가 자동 정합된다.
@@ -1721,9 +1721,12 @@ unsafe fn team_champions(w: usize, team: u64, out: &mut Vec<usize>) {
         if safe_read_u64(p + P_CHAMP_TAG).unwrap_or(0) == 0 { continue; } // 챔피언 없음
         let key = safe_read_u64(p + P_CHAMP_KEY).unwrap_or(u64::MAX) as usize;
         if key >= cs_len as usize { continue; }
-        let slot = cs as usize + key * 0x10;
-        if safe_read_i32(slot).unwrap_or(0) != 1 { continue; } // 빈 슬롯
-        let d = safe_read_u64(slot + 8).unwrap_or(u64::MAX) as usize;
+        // ★0.6.3: 슬롯맵 원소 = u32 dense 인덱스(−1 = 빈 칸 · MOBATICK `mov edx,dword [rdx+r12*4]; cmp edx,-1`).
+        //   ~~0.6.2: 16B {i32 태그==1, u64 dense@+8} (`shl 4; cmp dword [..],1; mov rdx,[..+8]`)~~ — 안 고치면 팀 챔피언 목록이 비어 장로 처형 0회.
+        let slot = cs as usize + key * 4;
+        let d32 = safe_read_i32(slot).unwrap_or(-1);
+        if d32 == -1 { continue; } // 빈 슬롯
+        let d = d32 as u32 as usize;
         if d >= cd_len as usize { continue; }
         let e = cd as usize + d * CHAMP_STRIDE;
         if safe_read_u64(e + ENTITY_KIND_OFF) != Some(CHAMP_KIND) { continue; }
