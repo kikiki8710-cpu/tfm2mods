@@ -1,8 +1,8 @@
 {
  "mod": "tfm2_champ_pos_lock",
- "game_ver": "0.6.2",
+ "game_ver": "0.6.3",
  "fns": {
-  "0x1a894d0": {
+  "0x195ad50": {
    "name": "RVA_POS_MASK",
    "size": 2569,
    "offs": {
@@ -43,7 +43,7 @@
     "0x1c": 1
    }
   },
-  "0x24f3d70": {
+  "0x21be9b0": {
    "name": "RVA_SELECT_SWAP",
    "size": 423,
    "offs": {
@@ -64,9 +64,9 @@
     "0x1b8": 1
    }
   },
-  "0x240ac30": {
+  "0x2a67040": {
    "name": "RVA_PICK_CLICK",
-   "size": 1810,
+   "size": 1816,
    "offs": {
     "0x18": 6,
     "0x28": 2,
@@ -97,9 +97,9 @@
     "0x3f8": 1
    }
   },
-  "0x240b4f0": {
+  "0x2a67900": {
    "name": "RVA_SWAP_CONFIRM",
-   "size": 1191,
+   "size": 1197,
    "offs": {
     "0x68": 1,
     "0x10": 7,
@@ -127,7 +127,7 @@
     "0x261": 1
    }
   },
-  "0x2139980": {
+  "0x24ff1a0": {
    "name": "RVA_COMPUTE_RULE_SWAP_ORDER",
    "size": 2921,
    "offs": {
