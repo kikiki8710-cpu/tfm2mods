@@ -1623,7 +1623,7 @@ fn parse_attr(name: &str, txt: &str) -> Attr {
             "sprite" => a.sprite = v.to_string(),
             "weight" => a.weight = v.parse().unwrap_or(1),
             "execute_hp_threshold_percent" => a.execute_hp_pct = v.parse().unwrap_or(0),
-            // 처형 능력 지속시간(sim tick, 30틱=1초). 장로 처치 tick부터 이만큼 동안만 처형이 발동.
+            // 처형 능력 지속시간(sim tick, ~~30틱~~ → 60틱=1초 · 10-08 실측). 장로 처치 tick부터 이만큼 동안만 처형이 발동.
             "execute_duration_tick" => a.execute_duration = v.parse().unwrap_or(0),
             _ => {
                 if let Some(&(_, idx)) = STAT_KEYS.iter().find(|(key, _)| *key == k) {
@@ -2781,7 +2781,10 @@ fn kill_counts() -> (u32, u32) {
     (b, r)
 }
 // ★"06:42" → 재생 tick. 화면 game_time 라벨 = 지금 재생 중인 경기 시각이라 가장 확실한 재생 지표다.
-//   tick = 초 × 30 (sim 30틱/초 — 세르펜 첫 스폰 7200tick = 240초 = 4분으로 검증됨).
+//   ~~tick = 초 × 30 (sim 30틱/초 — 세르펜 첫 스폰 7200tick = 240초 = 4분으로 검증됨)~~
+//   → ★2026-10-08(0.6.3 인게임 실측): **sim 60틱/초**(SIM_TPS) — 첫 스폰 7200tick 이 **2:00** 에 나오고,
+//     렌더스텝 played_tick 19401 @ 경기 5:23(323초) = 60.07/초 · item_build RE 「World.tick 60틱=1초」와 일치.
+const SIM_TPS: u64 = 60;
 //   ⚠db+0x1598(구 played_tick)은 실측상 sim_tick보다 앞서 나와(비율 1.03) 재생 커서가 아니었다
 //   → 그걸로 필터하니 미래 처치가 안 걸러졌다(일시정지 중 2→3 증가).
 fn parse_game_time(s: &str) -> Option<u64> {
@@ -2790,7 +2793,7 @@ fn parse_game_time(s: &str) -> Option<u64> {
     let m: u64 = m.trim().trim_start_matches(|c: char| !c.is_ascii_digit()).parse().ok()?;
     let sec: u64 = sec.trim().chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().ok()?;
     if sec >= 60 { return None; }
-    Some((m * 60 + sec) * 30)
+    Some((m * 60 + sec) * SIM_TPS)
 }
 // "현재 누적 효과(2스택): " → 2. 게임 툴팁이 보여주는 스택수 = 그 팀의 세르펜 처치수.
 fn parse_stacks(s: &str) -> Option<u32> {
@@ -2987,7 +2990,7 @@ fn update_elder_buff_ui(ctx: &mut StableClient<'_>) {
         // 노드 = 위에서 스폰한 blue/red_elder_buff (경로 = ingame.<id>; 없으면 인덱스 폴백)
         let path = if ctx.ui_exists(&format!("{}.{}", UI_ROOT, id)) { format!("{}.{}", UI_ROOT, id) } else { match uk::find_or_rebuild(ctx, id, UI_ROOT) { Some(p) => p, None => { ELDER_NODE_MISS.fetch_add(1, Ordering::Relaxed); continue } } };
         if left[team] == 0 { uk::set_props_if_changed(ctx, &path, "visible", "false"); continue; }
-        let secs = left[team] / 30; // sim 30틱 = 1초
+        let secs = left[team] / SIM_TPS; // ★10-08: ~~/30~~ → /60 — /30 이면 장로 칸이 2배 시간으로 뜨고 2배 속도로 줄었다(종료 시점은 맞음 · 모르가드 버프 칸과 대조 실측)
         let txt = if dur == 0 { tr("ui.elder") } else { format!("{} {}:{:02}", tr("ui.elder"), secs / 60, secs % 60) };
         let tp = format!("{}.text", path);
         if ctx.ui_text(&tp).as_deref() != Some(txt.as_str()) { ctx.ui_set_text(&tp, &txt); }

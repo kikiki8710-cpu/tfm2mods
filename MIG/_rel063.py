@@ -10,6 +10,12 @@ G = r'C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods'
 SRC = r'C:\tfm2mods\release\0.6.2'
 DST = r'C:\tfm2mods\release\0.6.3'
 DRY = '--dry' in sys.argv
+ONLY = [x for x in sys.argv[1:] if not x.startswith('--')]  # ★10-08: 지정한 zip 만 재생성(나머지 zip 바이트 보존)
+# ★10-08: zip 안 텍스트 정정(라이브 cfg 복사가 아니라 0.6.2 zip 엔트리에 문자열 치환만) — (zip, 엔트리) -> [(old, new)]
+TEXT_FIX = {
+    ('tfm2_elemental_serpen', 'tfm2_elemental_serpen/config/elder.cfg'):
+        [(b'(30 ticks = 1s; 0 = unlimited)', b'(60 ticks = 1s, so 3600 = 60s; 0 = unlimited)')],
+}
 REWORK_DLL = r'C:\tfm2mods\tfm2_champ_pos_lock_rework\target\release\tfm2_champ_pos_lock.dll'
 REWORK_INFO = r'C:\tfm2mods\tfm2_champ_pos_lock_rework\mod.mod_info'
 DEPS = '>=0.6.3, <0.6.4'
@@ -51,6 +57,8 @@ def new_bytes(zipname, top, fname):
 os.makedirs(DST, exist_ok=True)
 now = time.localtime()[:6]
 for name, repl in PLAN.items():
+    if ONLY and name not in ONLY:
+        continue
     src = os.path.join(SRC, name + '.zip')
     dst = os.path.join(DST, name + '.zip')
     if repl is None:
@@ -70,6 +78,10 @@ for name, repl in PLAN.items():
             if nb is not None and nb != data:
                 tag = 'REPLACED %s→%s' % (h(data), h(nb))
                 data = nb
+        for old, new in TEXT_FIX.get((name, zi.filename), []):
+            if old in data:
+                data = data.replace(old, new)
+                tag = 'TEXTFIX'
         if tag != 'keep':
             print('%-28s %s %s' % (name, zi.filename, tag))
         if out:
