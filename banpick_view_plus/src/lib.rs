@@ -24,6 +24,7 @@ mod cdb; // ★09-28: 출시분 챔피언 목록 raw 읽기(champion_names() 는
 mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카드 일러) 통합 — 게임 훅 RVA 29(패치마다 재핀)
 
 const MOD_ID: &str = "banpick_view_plus";
+const RADAR_DUMP: bool = false; // ★10-07 레이더 실측 덤프(mods\banpick_view_plus\radar_dump.txt) — 릴리스 false
 const DBG: bool = false; // 09-23 확정 배포(진단 시 true — rects/layout/swap/카드덤프 로그)
 const ROOT: &str = "main";
 const DISC: &str = "main.header.bp_settings";
@@ -253,15 +254,25 @@ fn compute_axes(ctx: &StableClient<'_>) -> HashMap<String, [f32; 8]> {
     //   멈춘 채 보이던 원인 · 실측 98종 577ms) → 출시분 raw 목록(0.07ms). 전체 13ms(시트 10ms 포함).
     let names = cdb::champion_ids_fast(ctx);
     let mut out = HashMap::new(); let lv = (MAX_LEVEL - 1) as f32;
+    let mut dump: Vec<String> = Vec::new(); // ★10-07 RADAR_DUMP(진단) — 기준(번들 시트)·현재(champion_brief)·축
     for name in names {
-        let Some(b) = ctx.champion_brief(&name) else { continue };
+        let Some(b) = ctx.champion_brief(&name) else { if RADAR_DUMP { dump.push(format!("{}\tNO_BRIEF", name)); } continue };
         let mut axes = [0f32; 8];
+        let cur = [b.stat.attack, b.stat.magic_power, b.stat.hp, b.stat.defence, b.stat.magic_resistance, b.stat.move_speed].map(|x| x as f32);
+        let cg = [b.growth.attack, b.growth.magic_power, b.growth.hp, b.growth.defence, b.growth.magic_resistance, b.growth.move_speed].map(|x| x as f32);
         if let Some(e) = sh.get(&name) {
-            let cur = [b.stat.attack, b.stat.magic_power, b.stat.hp, b.stat.defence, b.stat.magic_resistance, b.stat.move_speed].map(|x| x as f32);
-            let cg = [b.growth.attack, b.growth.magic_power, b.growth.hp, b.growth.defence, b.growth.magic_resistance, b.growth.move_speed].map(|x| x as f32);
             for k in 0..6 { let isum = e.stat[k] + (e.stat[k] + e.growth[k] * lv); if isum > 0.0 { axes[k] = (cur[k] + (cur[k] + cg[k] * lv) - isum) / isum; } }
+            if RADAR_DUMP {
+                dump.push(format!("{}\tbase_stat={:?}\tbase_grow={:?}\tcur_stat={:?}\tcur_grow={:?}\taxes%={:?}\tnet%={:.2}\trange={}\tcooltime={}",
+                    name, e.stat, e.growth, cur, cg, axes.map(|a| (a * 10000.0).round() / 100.0), axes.iter().sum::<f32>() * 100.0, e.range, e.cooltime));
+            }
+        } else if RADAR_DUMP {
+            dump.push(format!("{}\tNO_SHEET\tcur_stat={:?}\tcur_grow={:?}", name, cur, cg));
         }
         out.insert(name, axes);
+    }
+    if RADAR_DUMP {
+        if let Some(d) = mod_dir() { let _ = std::fs::write(format!(r"{}\radar_dump.txt", d), dump.join("\n")); }
     }
     out
 }
