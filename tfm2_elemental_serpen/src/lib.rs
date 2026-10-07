@@ -42,10 +42,10 @@ const SERPEN_RVA: usize = 0x19bcdb0; // 0.5.6 재핀(구값→신값) // 0.5.5: 
 // ★0.5.2 kind6 확증: 스켈레톤 L1 UNIQUE(크기 0xf17 동일, 전 mem-disp/imm 일치) + 함수 내 상대오프셋
 //   +0x73 에 `cmp dword ptr [rax+0x68], 6` 존재(구/신 동일 위치). 엔티티오프셋 참조 15개 전부 일치.
 const SERPEN_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
-const ENTITY_KIND_OFF: usize = 0x68; // ==6 → 세르펜
-const SERPEN_KIND: i32 = 6;
-const O_ENTITY_ID: usize = 0x5c0; // 0.5.5: 구 0x5a8 → 신 0x5c0 (+0x18). 엔티티 ≥0x5a8 대역 +0x18 시프트(≤0x258 불변). DMGA 직접 `mov rdi,[rsi+0x5a8]`→`[r15+0x5c0]`.
-const O_CUR_HP: usize = 0x670;    // 0.5.5: 구 0x658 → 신 0x670 (+0x18). DMGA 직접 `mov [rsi+0x658],r8`→`[r15+0x670]`.
+const ENTITY_KIND_OFF: usize = 0x68; // ★0.6.3 <2 → 세르펜 (~~0.6.2 ==6~~)
+const SERPEN_KIND_LT: u32 = 2; // ★0.6.3: 구 `==6` → `(u32)<2` (niche 인코딩). ~~0.6.2 SERPEN_KIND=6~~
+const O_ENTITY_ID: usize = 0x5b8;  // ★0.6.3 엔티티 0x240↑ −8(DMGA·챔프빌더 정렬) // 0.5.5: 구 0x5a8 → 신 0x5c0 (+0x18). 엔티티 ≥0x5a8 대역 +0x18 시프트(≤0x258 불변). DMGA 직접 `mov rdi,[rsi+0x5a8]`→`[r15+0x5c0]`.
+const O_CUR_HP: usize = 0x668;  // ★0.6.3 −8 // 0.5.5: 구 0x658 → 신 0x670 (+0x18). DMGA 직접 `mov [rsi+0x658],r8`→`[r15+0x670]`.
 // ★0.5.3 이동 확정(2026-07-29): SERPEN 함수 +77 에서 `mov rax,[rbx+0x1b8]` → `[rbx+0x1c8]` 로 바뀜
 //   (앞뒤 명령 문맥 동일 = 같은 명령의 disp만 변경). DMGB 콜러 사상에서도 +0x10 일치.
 //   ⚠이 값은 읽어서 **함수포인터로 호출**하므로 틀리면 즉시 크래시 — 엔티티 구조체 나머지는 전부 불변.
@@ -53,16 +53,16 @@ const O_CUR_HP: usize = 0x670;    // 0.5.5: 구 0x658 → 신 0x670 (+0x18). DMG
 //   ⟹ SEED_OFF(0xec90)·SIM_TICK_OFF(0xec98) 은 경계 아래라 **불변**이다. 일괄 +0x38 금지.
 //   엔티티 저대역(0x5c0/0x670/0x628/0x688/0x738/0x750/0x858/0x930/0x9c8/0x9d0/스트라이드) 도 불변.
 //   도구 = MIG\posdiff.py (같은 명령 인덱스끼리 disp 비교) · 축 검사 = MIG\offsets.py
-const O_ENTITY_ACCESSOR: usize = 0x1f0;  // ★0.5.8: WorldOps 표 Δ+0x10 (SERPEN_RVA 0x14a263d `[rbx+0x1e0]` -> 0x14448ad `[rbx+0x1f0]` 위치대조). ~~0.5.7=0x1e0~~ ⚠이 값을 함수포인터로 읽어 호출한다 = 틀리면 즉시 AV(0.5.8 크래시 원인) // 0.5.5: 구 0.5.3~0.5.4 ~~0x1c8~~ → **0x1e0** (+0x18, 정정 2026-08-12 인게임결함).
+const O_ENTITY_ACCESSOR: usize = 0x208;  // ★0.6.3 리졸버 표 +0x18(SERPEN 0x19bcdb0 `call [rdx+0x28]`계열 정렬) // ★0.5.8: WorldOps 표 Δ+0x10 (SERPEN_RVA 0x14a263d `[rbx+0x1e0]` -> 0x14448ad `[rbx+0x1f0]` 위치대조). ~~0.5.7=0x1e0~~ ⚠이 값을 함수포인터로 읽어 호출한다 = 틀리면 즉시 AV(0.5.8 크래시 원인) // 0.5.5: 구 0.5.3~0.5.4 ~~0x1c8~~ → **0x1e0** (+0x18, 정정 2026-08-12 인게임결함).
 //   ★근거(ghidra 직접 대조): 0.5.5 SERPEN 0x16be600 @+0x4d `mov rax,[rbx+0x1e0]; call rax`(rbx=rdx) ↔
 //   0.5.4 0x1328950 디컴 `pcStack_98 = *(param_2+0x1c8); (*pcStack_98)(param_1,param_5)` — 같은 자리 +0x18.
 //   리졸버 테이블(rdx) 슬롯 전역 +0x18 이동(0x1d0→0x1e8 등 동반 관측). 08-12 재핀이 "0x1c8 불변"으로 오판한
 //   원인 = 엔티티 **필드** 0x1c8 센서스와 이 **리졸버 슬롯**을 혼동(둘은 다른 구조체). 이 값이 틀리면
 //   잘못된 슬롯을 함수포인터로 호출/조기반환 → 속성 배정 전면 무동작(0.5.5 "세르펜 안 나옴" 결함의 근본원인).
 //   (구0.5.2/0.5.1=0x1b8) rdx+O_ENTITY_ACCESSOR = id→entity 리졸버 함수포인터
-const O_SERPEN_TEMPLATE: usize = 0xb0;  // 세르펜 엔티티+0xb0 = 처치 시 뿌릴 이펙트 템플릿(0x120)
-const O_SPRITE_NAME_PTR: usize = 0x250; // 세르펜 엔티티+0x250 = 스프라이트 이름 (ptr, len@+0x258) "serpen_monster"
-const O_SPRITE_NAME_LEN: usize = 0x258;
+const O_SERPEN_TEMPLATE: usize = 0xa8;  // ★0.6.3 `add rdx,0xa8`+memcpy 0x120 // 세르펜 엔티티+0xb0 = 처치 시 뿌릴 이펙트 템플릿(0x120)
+const O_SPRITE_NAME_PTR: usize = 0x248;  // ★0.6.3 −8 // 세르펜 엔티티+0x250 = 스프라이트 이름 (ptr, len@+0x258) "serpen_monster"
+const O_SPRITE_NAME_LEN: usize = 0x250;  // ★0.6.3 −8
 
 static SERPEN_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static SERPEN_HOOK_INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -152,7 +152,7 @@ unsafe fn stat_read(base: usize, i: usize) -> Option<i32> {
 //   SIM_TICK 은 사용함수 11개 중 10개가 +0x40 확증(+0 은 0개) = 단독으로도 결정적.
 //   ⚠ 그 아래 대역(엔티티 0x40~0x400 n=4852 / World 슬롯맵 0x400~0x1000 n=1024 / db·Game)은 **전부 불변**
 //     ⇒ 0x40 삽입 지점은 0xe000~0xea00 사이. 저역까지 같이 밀지 말 것.
-const SEED_OFF: usize = 0xec90; // 0.5.5: 구 0xeb28 → 신 0xec90 (+0x168). provider 상위대역 3패치 연속 이동(0.5.2→3 +0x40, 3→4 +0x30, 4→5 +0x168). 직접근거=seedctor 0x14c2380 @0xecd `mov [rsi+0xec90],rax`(구 0.5.4 0x14e16d0 @0xecd `[rsi+0xeb28]`와 동일 명령위치).
+const SEED_OFF: usize = 0xec88;  // ★0.6.3 World −8(sim init mov [rsi+0xec88],rax) // 0.5.5: 구 0xeb28 → 신 0xec90 (+0x168). provider 상위대역 3패치 연속 이동(0.5.2→3 +0x40, 3→4 +0x30, 4→5 +0x168). 직접근거=seedctor 0x14c2380 @0xecd `mov [rsi+0xec90],rax`(구 0.5.4 0x14e16d0 @0xecd `[rsi+0xeb28]`와 동일 명령위치).
 
 // config key → 이펙트 스탯블록 i32 인덱스 (엔트리+0x58 기준, idx*4)
 const STAT_KEYS: &[(&str, usize)] = &[
@@ -225,8 +225,8 @@ struct WorldState {
 //   이라 **죽은 선수가 지문에서 빠져** 시각마다 fp 가 달라졌다(실측: 웨이브#0 8b19 ≠ 웨이브#1 b5d7 → 웨이브#0 처치가 다른 파티션에 묻혀 툴팁 "(없음)").
 //   0.5.8 도 같은 결함이나 fp 캐시가 첫 값을 붙들어 숨어 있었다. 이제 **Player+0xa00(team) + Player+0x4e0/0x4e8(챔피언 이름 String, 엔티티 이름의 원천 ·
 //   생사 무관 상주)** 만 해시한다 = 시간불변. 미배정 = len 0. (엔티티 경로 상수들은 다른 곳에서 계속 쓰므로 유지.)
-const P_CHAMP_NAME_PTR: usize = 0x4e0; // Player+0x4e0 ptr / +0x4e8 len (챔프 엔티티 빌더 FUN_1416f68a0 이 여기서 복사 · 0.6.0 Δ 대역(≥0x928) 밖이라 0.5.8 과 동일)
-const P_CHAMP_NAME_LEN: usize = 0x4e8;
+const P_CHAMP_NAME_PTR: usize = 0x2e0;  // ★0.6.3 Player 재배치(Box<Player>) // Player+0x4e0 ptr / +0x4e8 len (챔프 엔티티 빌더 FUN_1416f68a0 이 여기서 복사 · 0.6.0 Δ 대역(≥0x928) 밖이라 0.5.8 과 동일)
+const P_CHAMP_NAME_LEN: usize = 0x2e8;  // ★0.6.3 〃
 static FP_NAME_LOGGED: AtomicBool = AtomicBool::new(false);
 unsafe fn world_fingerprint(w: usize) -> Option<u64> {
     let pp = safe_read_u64(w + W_PLAYER_DENSE)? as usize;
@@ -236,7 +236,7 @@ unsafe fn world_fingerprint(w: usize) -> Option<u64> {
     let mut np_cnt = 0usize;
     let mut names: Vec<String> = Vec::new();
     for i in 0..pn {
-        let p = pp + i * PLAYER_STRIDE;
+        let Some(p) = player_at(pp, i) else { continue };
         let Some(team) = safe_read_u64(p + P_TEAM) else { continue };
         if team > 1 { continue; }
         let Some(nl) = safe_read_u64(p + P_CHAMP_NAME_LEN) else { continue };
@@ -297,7 +297,7 @@ fn resolve_render_fp() {
     //   Game 상대변위를 훑어 *(cand+SEED_OFF)==RENDER_SEED 인 지점을 1회 찾는다.
     //   ⇒ 다음 패치에도 상수 수정 없이 자동 적응한다.
     let dynoff = GAME_PROV_OFF_DYN.load(Ordering::Relaxed);
-    let mut cands: Vec<usize> = vec![GAME_PROVIDER_OFF, 0x1660usize];
+    let mut cands: Vec<usize> = vec![GAME_PROVIDER_OFF, 0x4680usize, 0x1660usize]; // ★0.6.3 0x4680 = 0x48a0−0x220 추정 후보(seed 자가검증)
     if dynoff != 0 { cands.insert(0, dynoff); }
     for off in cands {
         let Some(prov) = (unsafe { safe_read_u64(game + off) }) else { continue };
@@ -378,13 +378,13 @@ fn pick_live<'a>(m: &'a HashMap<(u64, u64), WorldState>, ls: u64) -> Option<&'a 
 //   웨이브가 매 틱 폭증 → elder_after 초과 → 전부 장로 → 색 깨짐. 재시도 금지.
 // ★sim tick = provider+0xeac0 (seed +0xeab8 바로 옆. GameCtx::tick()이 읽는 그 필드 — 단 vtable
 //   호출은 detour서 AV라 raw read만). 0.5.1 유효(인접 seed가 실증됨).
-const SIM_TICK_OFF: usize = 0xec98; // 0.5.5: 구 0xeb30 → 신 0xec98 (+0x168). seedctor @0xed4 `mov [rsi+0xec98],0`(구 @0xed4 `[rsi+0xeb30]`).
+const SIM_TICK_OFF: usize = 0xec90;  // ★0.6.3 World −8 // 0.5.5: 구 0xeb30 → 신 0xec98 (+0x168). seedctor @0xed4 `mov [rsi+0xec98],0`(구 @0xed4 `[rsi+0xeb30]`).
 // ★★2026-07-17 행단위 RE 정본 (0.5.1 실측) — 추측 heuristic 전면 대체.
 //   provider = `World`(0xeaf0) + 인라인 `MobaMode`(@+0xeaf0). 아래는 전부 provider(=detour rcx) 기준.
 //   세르펜 캠프 = JungleCampState(0x30) @ +0xecb8 (jungle_runner 10슬롯 중 serpen, ty=5).
 //   ⇒ 세르펜은 **경기당 정확히 1마리**(ty5 스폰좌표 1개로 정적 확증) → "여러 마리" 가정 불필요.
-const CAMP_SPAWN_TICK: usize = 0xeee0;  // ★0.5.8: World 고대역 Δ+0x38 (MOBATICK 0x10bb195 `[r12+0xeea8]` -> 0x185db75 `[r12+0xeee0]`). ~~0.5.7=0xeea8~~ // 0.5.5: 구 0xed40 → 신 0xeea8 (+0x168). next_respawn_tick(웨이브 스폰 tick). MOBATICK +0x168 정렬 확인.
-const CAMP_WAVE_IDX: usize = 0xeee8;  // ★0.5.8: World 고대역 Δ+0x38. ~~0.5.7=0xeeb0~~ (이웃 0xeea8·0xeec0 이 둘 다 +0x38)   // 0.5.5: 구 0xed48 → 신 0xeeb0 (+0x168). respawn_count = 웨이브 인덱스(0-based).
+const CAMP_SPAWN_TICK: usize = 0xf258;  // ★0.6.3 World 고대역 +0x378 // ★0.5.8: World 고대역 Δ+0x38 (MOBATICK 0x10bb195 `[r12+0xeea8]` -> 0x185db75 `[r12+0xeee0]`). ~~0.5.7=0xeea8~~ // 0.5.5: 구 0xed40 → 신 0xeea8 (+0x168). next_respawn_tick(웨이브 스폰 tick). MOBATICK +0x168 정렬 확인.
+const CAMP_WAVE_IDX: usize = 0xf260;  // ★0.6.3 +0x378(MED·대역 추론) // ★0.5.8: World 고대역 Δ+0x38. ~~0.5.7=0xeeb0~~ (이웃 0xeea8·0xeec0 이 둘 다 +0x38)   // 0.5.5: 구 0xed48 → 신 0xeeb0 (+0x168). respawn_count = 웨이브 인덱스(0-based).
 // 처치 로그: serpen_logs[i] = **웨이브 i의 죽음**(1:1) → 처치↔웨이브 순서 매칭 로직 불필요.
 //   entry 16B { team:u64, tick:u64 }, tick 축 = World.tick(+0xeac0) = played_tick과 1:1.
 // ★★장로 처형 (2026-07-17 RE). 게임의 처형 = 전용 kill 함수 없이 **entity+0x658 = 0** raw write.
@@ -393,20 +393,27 @@ const CAMP_WAVE_IDX: usize = 0xeee8;  // ★0.5.8: World 고대역 Δ+0x38. ~~0.
 //   ★킬 크레딧: 처형 자체엔 없다. 데미지 적용(0x1f147e0)이 남기는 **entity+0x670 + team*8 = 180틱
 //   윈도우**가 원천 → "그 팀이 최근 때렸을 때만" 처형해야 킬/골드가 그 팀에 정상 귀속된다
 //   (= 게임 계약 "처형은 가해자의 데미지 기록 뒤에 온다" + LoL 장로 시맨틱과도 일치).
-const O_EXEC_MAXHP: usize = 0x628;      // 0.5.5: 구 0x610 → 신 0x628 (+0x18). 처형 판정 기준 HP. 엔티티 +0x18 대역(0x5c0~0x670 사이 강체 시프트).
+const O_EXEC_MAXHP: usize = 0x620;  // ★0.6.3 −8 // 0.5.5: 구 0x610 → 신 0x628 (+0x18). 처형 판정 기준 HP. 엔티티 +0x18 대역(0x5c0~0x670 사이 강체 시프트).
 //   ★HP write만으론 부족했던 필드 ①: baseHP를 안 깎으면 regen/재계산이 curHP를 되살려 사망 무효화.
 //   ★HP write만으론 부족했던 필드 ②: 죽음 pass가 "이번 틱 피격됨" 마커로 소비. 누락=무한 재시뮬.
-const O_DMG_WINDOW: usize = 0x688;      // 0.5.5: 구 0x670 → 신 0x688 (+0x18). +team*8, 0이 아니면 그 팀이 최근 180틱 내 피해. DMGA 직접 `mov [rsi+rcx*8+0x670],0xb4`→`[r15+rcx*8+0x688],0xb4`(0xb4=180).
-const CHAMP_KIND: u64 = 0xd;
+const O_DMG_WINDOW: usize = 0x680;  // ★0.6.3 −8 // 0.5.5: 구 0x670 → 신 0x688 (+0x18). +team*8, 0이 아니면 그 팀이 최근 180틱 내 피해. DMGA 직접 `mov [rsi+rcx*8+0x670],0xb4`→`[r15+rcx*8+0x688],0xb4`(0xb4=180).
+const CHAMP_KIND: u64 = 0xf;  // ★0.6.3 엔티티 kind +2(MOBATICK cmp 0xd→0xf)
 // World 슬롯맵 (0.5.1 확정, find_player 0x21f7570 근거)
-const W_CHAMP_DENSE: usize = 0x738;     // 0.5.5: 구 0x720 → 신 0x738 (+0x18). ptr / +8 len (stride 0x6c0). 챔프루프 `mov rcx,[rdx+0x738]` 직접.
-const W_CHAMP_SLOTS: usize = 0x750;     // 0.5.5: 구 0x738 → 신 0x750 (+0x18). ptr / +8 len (stride 0x10). MOBATICK 0x750/0x758 정렬.
-const W_PLAYER_DENSE: usize = 0x858;    // 0.5.5: 구 0x840 → 신 0x858 (+0x18). ptr / +8 len (stride 0x9e0). 플레이어루프 `mov rax,[rbx+0x858]` 직접.
-const P_TEAM: usize = 0xa00;            // ★0.6.0: Player ≥0x928 대역 Δ+0xd0 (MOBATICK 0x930(7)→0xa00(7)·DMGB 동일). ~~0.5.8=0x930~~ // 0.5.5: 구 0x810 → 신 0x930 (+0x120). player struct 대폭 성장. 플레이어루프 `mov rcx,[rax+r8+0x930]; cmp rcx,2` 직접 1:1.
-const P_CHAMP_TAG: usize = 0xa98;       // ★0.6.0: Δ+0xd0 (MOBATICK 플레이어루프 정렬 0x9c8→0xa98). ~~0.5.8=0x9c8~~ // 0.5.5: 구 0x8a8 → 신 0x9c8 (+0x120). Option tag(0=챔피언 없음). 앵커쌍 5/6 확인.
-const P_CHAMP_KEY: usize = 0xaa0;       // ★0.6.0: Δ+0xd0 (MOBATICK 0x9d0(7)→0xaa0(6)). ~~0.5.8=0x9d0~~ // 0.5.5: 구 0x8b0 → 신 0x9d0 (+0x120). champion slotmap key.
-const CHAMP_STRIDE: usize = 0x6c0; // 0.5.5: 구 0x6a8 → 신 0x6c0 (+0x18). MOBATICK 챔프루프 `imul rax,rax,0x6c0` 직접.
-const PLAYER_STRIDE: usize = 0xab0; // ★0.6.0: MOBATICK `imul ..,0xab0` 39곳(구 0x9e0 41곳) — Player 구조체 +0xd0(2026-09-16 fieldmap). ~~0.5.8=0x9e0~~ // 0.5.5: 구 0x8c0 → 신 0x9e0 (+0x120). MOBATICK 플레이어루프 `imul rdx,rcx,0x9e0` 직접(1:1).
+const W_CHAMP_DENSE: usize = 0x730;  // ★0.6.3 −8 // 0.5.5: 구 0x720 → 신 0x738 (+0x18). ptr / +8 len (stride 0x6c0). 챔프루프 `mov rcx,[rdx+0x738]` 직접.
+const W_CHAMP_SLOTS: usize = 0x748;  // ★0.6.3 −8 // 0.5.5: 구 0x738 → 신 0x750 (+0x18). ptr / +8 len (stride 0x10). MOBATICK 0x750/0x758 정렬.
+const W_PLAYER_DENSE: usize = 0x850;  // ★0.6.3 −8 · ★원소 = Box<Player> 포인터(8B) // 0.5.5: 구 0x840 → 신 0x858 (+0x18). ptr / +8 len (stride 0x9e0). 플레이어루프 `mov rax,[rbx+0x858]` 직접.
+const P_TEAM: usize = 0x800;  // ★0.6.3 Box<Player> 기준(MOBATICK [r9+0x800] 23회) // ★0.6.0: Player ≥0x928 대역 Δ+0xd0 (MOBATICK 0x930(7)→0xa00(7)·DMGB 동일). ~~0.5.8=0x930~~ // 0.5.5: 구 0x810 → 신 0x930 (+0x120). player struct 대폭 성장. 플레이어루프 `mov rcx,[rax+r8+0x930]; cmp rcx,2` 직접 1:1.
+const P_CHAMP_TAG: usize = 0x898;  // ★0.6.3 〃 17회 // ★0.6.0: Δ+0xd0 (MOBATICK 플레이어루프 정렬 0x9c8→0xa98). ~~0.5.8=0x9c8~~ // 0.5.5: 구 0x8a8 → 신 0x9c8 (+0x120). Option tag(0=챔피언 없음). 앵커쌍 5/6 확인.
+const P_CHAMP_KEY: usize = 0x8a0;  // ★0.6.3 〃 // ★0.6.0: Δ+0xd0 (MOBATICK 0x9d0(7)→0xaa0(6)). ~~0.5.8=0x9d0~~ // 0.5.5: 구 0x8b0 → 신 0x9d0 (+0x120). champion slotmap key.
+const CHAMP_STRIDE: usize = 0x6b8;  // ★0.6.3 엔티티 −8 // 0.5.5: 구 0x6a8 → 신 0x6c0 (+0x18). MOBATICK 챔프루프 `imul rax,rax,0x6c0` 직접.
+const PLAYER_STRIDE: usize = 8;  // ★0.6.3 Vec<Box<Player>> — imul 0xab0 0회(구 38) · 원소=포인터 → player_at() 로 역참조 // ★0.6.0: MOBATICK `imul ..,0xab0` 39곳(구 0x9e0 41곳) — Player 구조체 +0xd0(2026-09-16 fieldmap). ~~0.5.8=0x9e0~~ // 0.5.5: 구 0x8c0 → 신 0x9e0 (+0x120). MOBATICK 플레이어루프 `imul rdx,rcx,0x9e0` 직접(1:1).
+/// ★0.6.3: World 플레이어 배열 = `Vec<Box<Player>>` → 원소(8B)를 역참조해야 Player 본체.
+#[inline]
+unsafe fn player_at(base: usize, i: usize) -> Option<usize> {
+    let p = safe_read_u64(base.wrapping_add(i * PLAYER_STRIDE))? as usize;
+    if p < 0x10000 || p >= (1usize << 48) { return None; }
+    Some(p)
+}
 // 0.5.4 (구0.5.3=0x8d0) MobaMode::tick — 매 틱 호출(rcx=World). 프롤로그 12B 순수 push(그 뒤 mov eax,imm 5B까지 17B 안전,
 //   단 그 다음 `call __chkstk`는 상대콜이라 스틸 금지) → 12B 스틸.
 // ★0.5.3 확정(2026-07-29, 독립 2방법 일치): ①문자열 `"game_core::simulation::game"` 를 LEA하는 함수가
@@ -415,8 +422,8 @@ const PLAYER_STRIDE: usize = 0xab0; // ★0.6.0: MOBATICK `imul ..,0xab0` 39곳(
 //   프롤로그 12B 바이트 동일(chkstk imm만 0x19c8→0x1b08). 크기 48761→42668.
 const MOBATICK_RVA: usize = 0x14402c0; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x13ee0a0 → 신 0x14f7e40. 투표 35표(2위 22)+head-unique+문자열 `game_core::simulation::game` xref. 본문 41740→51450(+23%). (구0.5.3=0xeeeac0)
 const MOBATICK_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
-const KILLS_BLUE_OFF: usize = 0xef60;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d8e 위치대조). ~~0.5.7=0xef28~~  // 0.5.5: 구 0xedc0 → 신 0xef28 (+0x168). serpen_count[0]
-const KILLS_RED_OFF: usize = 0xef68;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d95 위치대조). ~~0.5.7=0xef30~~   // 0.5.5: 구 0xedc8 → 신 0xef30 (+0x168). serpen_count[1]
+const KILLS_BLUE_OFF: usize = 0xf2d8;  // ★0.6.3 +0x378 // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d8e 위치대조). ~~0.5.7=0xef28~~  // 0.5.5: 구 0xedc0 → 신 0xef28 (+0x168). serpen_count[0]
+const KILLS_RED_OFF: usize = 0xf2e0;  // ★0.6.3 +0x378 // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d95 위치대조). ~~0.5.7=0xef30~~   // 0.5.5: 구 0xedc8 → 신 0xef30 (+0x168). serpen_count[1]
 // ★db → 화면 경기 provider 정석 3-deref (db 128KB 스캔 폐기: VEH 폴트 25만의 주범이었음)
 // ⬜0.5.2 정적 미검증(값 유지) — ClientDatabase raw 오프셋군. disp 센서스로는 판정 불가(위 SEED_OFF 주석).
 //   런타임 불변식으로 자기검증됨: 0 ≤ PLAYED_TICK ≤ events.len(EV_LEN_OFF). 어긋나면 조용히 미채택.
@@ -426,8 +433,8 @@ const GAME_PROVIDER_OFF: usize = 0x48a0; // Game + 0x48a0 = provider data ptr (=
 //   provider + 0xed18/0xed20/0xed28 = Vec<{team:u64, tick:u64}> 의 cap/ptr/len. team 0=blue 1=red.
 //   처치 tick이 함께 저장되므로 played_tick 이하만 집계하면 sim 선행·뒤로감기가 자동 정합된다.
 //   (+0xed50/+0xed58 = 팀별 처치수, +0xed30/+0xed38 = 팀별 버프 잔여틱)
-const KILLS_PTR_OFF: usize = 0xef30;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b3803 위치대조) · cap = 0xef28. ~~0.5.7=0xeef8(cap 0xeef0)~~ // 0.5.5: 구 0xed90 → 신 0xeef8 (+0x168) — cap=0xeef0
-const KILLS_LEN_OFF: usize = 0xef38;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b37df 위치대조). ~~0.5.7=0xef00~~ // 0.5.5: 구 0xed98 → 신 ~~0xf000~~ **0xef00** (+0x168 정정 2026-08-12 인게임결함). 0xed98+0x168=0xef00이고 Vec{cap 0xeef0, ptr 0xeef8, len 0xef00} 인접 8B 정합 — 08-12 재핀 때 0xf000으로 오기입(+0x268)돼 kills len이 항상 쓰레기 → track_kills/장로버프/툴팁 전멸이었다.
+const KILLS_PTR_OFF: usize = 0xf2a8;  // ★0.6.3 +0x378 // ★0.5.8: Δ+0x38 (MOBATICK 0x10b3803 위치대조) · cap = 0xef28. ~~0.5.7=0xeef8(cap 0xeef0)~~ // 0.5.5: 구 0xed90 → 신 0xeef8 (+0x168) — cap=0xeef0
+const KILLS_LEN_OFF: usize = 0xf2b0;  // ★0.6.3 +0x378 // ★0.5.8: Δ+0x38 (MOBATICK 0x10b37df 위치대조). ~~0.5.7=0xef00~~ // 0.5.5: 구 0xed98 → 신 ~~0xf000~~ **0xef00** (+0x168 정정 2026-08-12 인게임결함). 0xed98+0x168=0xef00이고 Vec{cap 0xeef0, ptr 0xeef8, len 0xef00} 인접 8B 정합 — 08-12 재핀 때 0xf000으로 오기입(+0x268)돼 kills len이 항상 쓰레기 → track_kills/장로버프/툴팁 전멸이었다.
 // ★실측 확정(2026-07-16): played_tick과 sim tick은 **같은 축(1:1)**.
 //   근거: 첫 웨이브 sim_tick=7200 → played=7281에 화면에 세르펜이 보였고(유저 확인), 다음 웨이브
 //   16185는 아직 안 보였음. sim_tick=16382가 played=7281보다 앞선 건 sim이 재생을 앞질러 계산하기 때문.
@@ -558,7 +565,7 @@ static LOG_N: AtomicU64 = AtomicU64::new(0); // detour 로그 총량 제한(다�
 //   tag표: 3=Main 4=Lineup 5=StadiumEntrance 6=MatchResult 7=LockerRoom 9=Prologue …
 //   (구 "InGame==9"는 Prologue 분기를 오독한 것. 실측 tag=7=LockerRoom = 경기 끝난 뒤라 정상이었음.)
 //   ⚠mod_api의 `Scene::InGame`은 별개 enum(세션 진행중) — 경기 화면 여부가 아니다.
-const LIVE_PLAYED_OFF: usize = 0x15c8; // ★0.6.0 = 0x15c8 (구 0x1598, +0x30; RE 2026-09-17). 라이브 played_tick(진단용)
+const LIVE_PLAYED_OFF: usize = 0x1658;  // ★0.6.3 db+0x1658(RcBox+0x1670) — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락) // ★0.6.0 = 0x15c8 (구 0x1598, +0x30; RE 2026-09-17). 라이브 played_tick(진단용)
 // ★★현재 재생 tick 정본(2026-07-18 seek 역추적 RE 확정):
 //   ClientScene::Game payload(db+0x1340) 안에 활성 재생뷰 view#2가 임베드(payload+0x13d8=db+0x2718).
 //   그 view.played_tick(+0x258) = **db+0x2970** — seek/앞뒤가 전진시키는 정밀 tick. seconds=+0x258/tickrate=db+0x2968.
@@ -573,10 +580,10 @@ const LIVE_PLAYED_OFF: usize = 0x15c8; // ★0.6.0 = 0x15c8 (구 0x1598, +0x30; 
 //   ⬜단 EV_PTR_OFF(0x1678)만 사용처 5개로 표본이 얇고 +0x10:5 vs +0:4 로 근소 — 읽기전용이고
 //     불변식(0 ≤ played ≤ events.len)으로 자기검증되므로 틀려도 조용히 미채택. 인게임서 재생커서 동기가
 //     안 맞으면 여기부터 의심할 것.
-const VIEW2_TICK_OFF: usize = 0x1660; // ★0.6.0 **추정**(구 0x1630: GameClient 시작 +0x28 이동·내부 +8 = +0x30). 라벨 ±90틱 대조로만 채택 → 틀려도 조용히 미채택
-const EV_PTR_OFF: usize = 0x16a8;      // ★0.6.0 (구 0x1678, +0x30). events Vec ptr (cap@0x16a0 / len@0x16b0)
-const EV_LEN_OFF: usize = 0x16b0;      // ★0.6.0 (구 0x1680, +0x30)
-const SCENE_TAG_OFF: usize = 0x1360;   // ★0.6.0 (구 0x1338, +0x28). u64, InGame = 0xb (cdb::SCENE_TAG_INGAME)
+const VIEW2_TICK_OFF: usize = 0x16f0;  // ★0.6.3 추정(MED) // ★0.6.0 **추정**(구 0x1630: GameClient 시작 +0x28 이동·내부 +8 = +0x30). 라벨 ±90틱 대조로만 채택 → 틀려도 조용히 미채택
+const EV_PTR_OFF: usize = 0x1738;  // ★0.6.3 +0x90 — 0.6.2 누락분 // ★0.6.0 (구 0x1678, +0x30). events Vec ptr (cap@0x16a0 / len@0x16b0)
+const EV_LEN_OFF: usize = 0x1740;  // ★0.6.3 +0x90 — 0.6.2 누락분 // ★0.6.0 (구 0x1680, +0x30)
+const SCENE_TAG_OFF: usize = 0x13c0;  // ★0.6.3 +0x60 — 0.6.2 누락분(cmp [rdx+0x13d8],2) // ★0.6.0 (구 0x1338, +0x28). u64, InGame = 0xb (cdb::SCENE_TAG_INGAME)
 static PLAYED_TICK: AtomicU64 = AtomicU64::new(0);
 static PLAYED_SRC: AtomicU64 = AtomicU64::new(0); // 0=미확보 1=SDK game_view 2=raw(라이브)
 static SCENE_TAG: AtomicU64 = AtomicU64::new(0xffff);
@@ -964,7 +971,7 @@ unsafe extern "C" fn cap_runner_ctor(saved: *mut u64, _rsp: usize) -> u64 {
         if game < 0x10000 || game >= (1usize << 47) { return; }
         RCTOR_N.fetch_add(1, Ordering::Relaxed);
         LIVE_TID.store(GetCurrentThreadId() as u64, Ordering::Relaxed); // ★화면 sim 전용 스레드
-        if let Some(prov) = safe_read_u64(game + 0x1dc0) {
+        if let Some(prov) = safe_read_u64(game + 0x1ba0) { // ★0.6.3 Game 대역 −0x220 (~~0x1dc0~~)
             if prov > 0x10000 && (prov as usize) < (1usize << 47) {
                 LIVE_PROVIDER.store(prov as usize, Ordering::Relaxed);
             }
@@ -1709,7 +1716,7 @@ unsafe fn team_champions(w: usize, team: u64, out: &mut Vec<usize>) {
     let (Some(cd), Some(cd_len)) = (safe_read_u64(w + W_CHAMP_DENSE), safe_read_u64(w + W_CHAMP_DENSE + 8)) else { return };
     if p_ptr < 0x10000 || cs < 0x10000 || cd < 0x10000 { return; }
     for i in 0..(p_len as usize).min(32) {
-        let p = p_ptr as usize + i * PLAYER_STRIDE;
+        let Some(p) = player_at(p_ptr as usize, i) else { continue };
         if safe_read_u64(p + P_TEAM) != Some(team) { continue; }
         if safe_read_u64(p + P_CHAMP_TAG).unwrap_or(0) == 0 { continue; } // 챔피언 없음
         let key = safe_read_u64(p + P_CHAMP_KEY).unwrap_or(u64::MAX) as usize;
@@ -2286,7 +2293,8 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     let resolver: extern "win64" fn(u64, u64) -> u64 = core::mem::transmute(acc as usize);
     let ent = resolver(rcx, a5) as usize;
     if ent < 0x10000 { return; }
-    if safe_read_i32(ent + ENTITY_KIND_OFF) != Some(SERPEN_KIND) { return; }
+    // ★0.6.3: 세르펜 = niche 변형(+0x68 ∈ {0,1} · 신 SERPEN 진입 `cmp dword [rax+0x68],2; jae`). 나머지 kind 는 +2.
+    match safe_read_i32(ent + ENTITY_KIND_OFF) { Some(k) if (k as u32) < SERPEN_KIND_LT => {}, _ => return }
     // 템플릿 이름이 serpen_permanent_buff(len 21)인지 = 안전 게이트
     if safe_read_i32(ent + O_SERPEN_TEMPLATE) != Some(21) { return; }
 

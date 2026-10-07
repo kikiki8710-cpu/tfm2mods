@@ -17,10 +17,10 @@ const RVA_SEND: usize = 0x231b9f0;  // FUN_14220ce30(out*, &Sender, &OutMsg) -> 
 const RVA_DROP: usize = 0x1bd9e80;  // FUN_1421ce320(&out)
 /// 세 함수 공통 프롤로그(push rbp,r15,r14,r13,r12,rsi,rdi,rbx) — RE 확인은 0x2259320/0x220f040 기준. build/send/drop 은 첫 바이트만 느슨히 검사.
 const PROLOGUE_PUSH: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
-const OFF_SERVER_IN_LOOP: usize = 0xa08; // 0.6.2 재핀(0.6.1=0x6c0 · 0.6.0=0x9d8) — 콜 루프 직전 lea r13,[rbx+0xa08] → rdx=r13 — 서버 루프 콜사이트 lea rdx,[rbx+..]
-const OFF_SENDER_IN_LOOP: usize = 0x3e0; // 0.6.2(0.6.1=0x290 · 0.6.0=0x3f0) lea r9
-const OFF_ADDR_IN_LOOP: usize = 0x2c0; // 0.6.2(0.6.1=0x1c0 · 0.6.0=0x1a0) [rsp+0x28]
-const OFF_STATE_IN_LOOP: usize = 0x68; // 0.6.2(0.6.1=0x60 · 0.6.0=0x50) mov r12,[rbx+..] 콜 직전
+const OFF_SERVER_IN_LOOP: usize = 0xa28;  // ★0.6.3 대핸들러 콜사이트 0x1db2bbb `lea rdx,[rbx+0xa28]` // 0.6.2 재핀(0.6.1=0x6c0 · 0.6.0=0x9d8) — 콜 루프 직전 lea r13,[rbx+0xa08] → rdx=r13 — 서버 루프 콜사이트 lea rdx,[rbx+..]
+const OFF_SENDER_IN_LOOP: usize = 0x430;  // ★0.6.3 `lea r9,[rbx+0x430]` // 0.6.2(0.6.1=0x290 · 0.6.0=0x3f0) lea r9
+const OFF_ADDR_IN_LOOP: usize = 0x1b0;  // ★0.6.3 `[rsp+0x28]=lea [rbx+0x1b0]` // 0.6.2(0.6.1=0x1c0 · 0.6.0=0x1a0) [rsp+0x28]
+const OFF_STATE_IN_LOOP: usize = 0xa0;  // ★0.6.3 `mov r12,[rbx+0xa0]` // 0.6.2(0.6.1=0x60 · 0.6.0=0x50) mov r12,[rbx+..] 콜 직전
 const PKT_SIZE: usize = 0x740;
 const MSG_SIZE: usize = 0x768;
 const ADDR_SIZE: usize = 0x20;

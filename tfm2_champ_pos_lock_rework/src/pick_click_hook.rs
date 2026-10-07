@@ -11,7 +11,7 @@ use std::collections::HashSet;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::RwLock;
 
-pub const RVA_PICK_CLICK: usize = 0x240ac30; // 0.6.1
+pub const RVA_PICK_CLICK: usize = 0x2a67040;  // ★0.6.3 재핀(원본 매니페스트 동일값 · 구 0x240ac30) // 0.6.1
 const PROL: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 const PREFIX: &[u8] = b"champions.contents.";
 

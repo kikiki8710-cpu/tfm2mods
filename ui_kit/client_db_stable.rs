@@ -9,17 +9,17 @@
 use mod_api_stable::StableClient;
 
 pub const GAME_VER: &str = "0.6.2"; // ★0.6.2(09-30): ClientDatabase 0x16b0~0x23b0 사이에 +0xa8 삽입 — 0x16b0 이하(재생 커서·이벤트·씬태그) 불변(ctx=0xf178 함수 정렬 투표) · 0xe740/0xe750/0xf178 은 +0xa8. ~~0.6.1: 0.6.0 오프셋 전부 불변 확인(참조 함수 0x291b10→0x2929c0 disp 7/7 동일 · 0xf178 11/11 · 2026-09-22)~~
-pub const OFF_SCENE_TAG: usize = 0x1360;
+pub const OFF_SCENE_TAG: usize = 0x13c0;  // ★0.6.3 cmp [rdx+0x13d8],2 — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
 pub const SCENE_TAG_INGAME: u64 = 0xb;
-pub const OFF_LIVE_PLAYED: usize = 0x15c8;
-pub const OFF_LIVE_EV_CAP: usize = 0x16a0;
-pub const OFF_LIVE_EV_PTR: usize = 0x16a8;
-pub const OFF_LIVE_EV_LEN: usize = 0x16b0;
+pub const OFF_LIVE_PLAYED: usize = 0x1658;  // ★0.6.3 [r8+0x1670] — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
+pub const OFF_LIVE_EV_CAP: usize = 0x1730;  // ★0.6.3 +0x90 — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
+pub const OFF_LIVE_EV_PTR: usize = 0x1738;  // ★0.6.3 [r8+0x1750] — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
+pub const OFF_LIVE_EV_LEN: usize = 0x1740;  // ★0.6.3 [r8+0x1758] — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
 pub const OFF_GAME_VIEW: usize = 0x948;
-pub const OFF_REPLAY_PLAYED: usize = 0xba8;
-pub const OFF_REPLAY_EV_CAP: usize = 0xc80;
-pub const OFF_REPLAY_EV_PTR: usize = 0xc88;
-pub const OFF_REPLAY_EV_LEN: usize = 0xc90;
+pub const OFF_REPLAY_PLAYED: usize = 0xbd8;  // ★0.6.3 [r8+0xbf0] — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
+pub const OFF_REPLAY_EV_CAP: usize = 0xcb0;  // ★0.6.3 +0x30 — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
+pub const OFF_REPLAY_EV_PTR: usize = 0xcb8;  // ★0.6.3 [r8+0xcd0] — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
+pub const OFF_REPLAY_EV_LEN: usize = 0xcc0;  // ★0.6.3 [r8+0xcd8] — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
 pub const OFF_PLAYER_TEAM: usize = 0xf220; // ★0.6.2(0.6.1=0xf178) +0xa8 · 153/155 함수 정렬 투표
 const OFF_CTX_STATE: usize = 0x30;
 

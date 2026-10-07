@@ -891,14 +891,14 @@ fn tick_count(tid: u32) {
 // ⚠이 detour는 **sim 스레드**에서 3만+회 돈다 — alloc·lock·format!·파일IO 절대 금지, 원시 read +
 //   원자 store만. 로깅은 UI 스레드(post_update)에서 값이 변할 때만.
 // 목적 2가지: ①실시간 표시가 실효 있는지 가를 **sim 벽시계 소요시간** 실측 ②스코어 배선 검증.
-const G_OFF: usize = 0x1dc0;        // ctrl → game (0.5.5 불변)
+const G_OFF: usize = 0x1ba0;  // ★0.6.3 Game 대역 −0x220(run_tick mov rcx,[rdx+0x1ba0] 12표) // ctrl → game (0.5.5 불변)
 // ★0.5.5(2026-08-12): provider(=game) 대역 +0x168 균일 시프트(serpen 세션 실측 + ghidra-re 명령확정).
 //   킬증가 @0.5.4 0x140982d↔0.5.5 0x14fe3aa `inc [rdx+0xeca0]/[rdx+0xeca8]` + 동시read @0x14ed5f3 등 5쌍 일관.
 //   game(ctrl+0x1dc0)=serpen provider 동일 구조체. SEED+0x10=팀0·SEED+0x18=팀1 상대배치 유지.
-const G_SCORE0: usize = 0xeca0;     // ★0.5.5(구0.5.4=0xeb38) 킬스코어 팀0/blue
-const G_SCORE1: usize = 0xeca8;     // ★0.5.5(구0.5.4=0xeb40) 킬스코어 팀1/red
-const G_TICK: usize = 0xec98;       // ★0.5.5(구0.5.4=0xeb30) 진행 틱
-const G_SEED: usize = 0xec90;       // ★0.5.5(구0.5.4=0xeb28) 시드(경기 식별키)
+const G_SCORE0: usize = 0xec98;  // ★0.6.3 World −8 // ★0.5.5(구0.5.4=0xeb38) 킬스코어 팀0/blue
+const G_SCORE1: usize = 0xeca0;  // ★0.6.3 World −8 // ★0.5.5(구0.5.4=0xeb40) 킬스코어 팀1/red
+const G_TICK: usize = 0xec90;  // ★0.6.3 World −8 // ★0.5.5(구0.5.4=0xeb30) 진행 틱
+const G_SEED: usize = 0xec88;  // ★0.6.3 World −8 // ★0.5.5(구0.5.4=0xeb28) 시드(경기 식별키)
 // ★v14 정정 — **"RUN 직후 처음 도는 sim = 내 경기"는 틀렸다.** 실측(2026-08-08): 게임은 배경에서
 //   리그 경기 등 **다른 sim을 상시 돌린다**(한 번의 조합테스트 실행에 경기 종료 로그가 수십 건).
 //   게다가 경기가 끝난 game을 계속 읽어 `최종 3 : 1871880210880 · 1875663913472틱` 같은
@@ -1080,8 +1080,8 @@ const CONC_RUNS_MAX: u64 = 10;
 //   순차(0) = 기록 1건 끝날 때마다 1발(동시 sim 없음). 병렬(1) = 클릭 시 N발 동시.
 static PAR_RT: AtomicU64 = AtomicU64::new(1);
 #[inline] fn par_on() -> bool { PARALLEL_ON && PAR_RT.load(Ordering::Relaxed) != 0 }
-const CMD_STRIDE: usize = 0x2120;      // 커맨드 Vec 원소 크기
-const CMD_TAG: usize = 0x16;           // 커맨드 tag(검증용)
+const CMD_STRIDE: usize = 0x1ef0;  // ★0.6.3 RUN imul 0x1ef0 // 커맨드 Vec 원소 크기
+const CMD_TAG: usize = 0x8000_0000_0000_0014;  // ★0.6.3 niche 인코딩(RUN movabs 0x8000000000000014) // 커맨드 tag(검증용)
 const PKT_DISC: usize = 0x1e;          // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) RUN 0x1c65b6c `mov qword [rax],0x1e` (구0.5.8=0x1c) — 틀리면 시드변조·match_register 전부 스킵          // 패킷 discriminant = comp_test RUN(검증용)
 const PKT_SEED_OFF: usize = 0x68;      // 패킷 내 seed(u64) 위치
 static CONC_SALT: AtomicU64 = AtomicU64::new(0);
@@ -1302,11 +1302,11 @@ static HPUSH_HITS: AtomicU64 = AtomicU64::new(0);
 //   러너 포인터를 확보해야 v6의 "결과 큐잉"(슬롯을 매 프레임 비워 덮어쓰기 방지)이 가능하다.
 fn runner_probe(p: usize) -> String {
     unsafe {
-        if p < 0x10000 || !readable(p + 0x240c, 1) || !readable(p + 0x21a0, 8) {
+        if p < 0x10000 || !readable(p + 0x21dc, 1) || !readable(p + 0x1f70, 8) {
             return "-".into();
         }
-        let st = core::ptr::read_unaligned((p + 0x240c) as *const u8);
-        let slot = core::ptr::read_unaligned((p + 0x21a0) as *const u64);
+        let st = core::ptr::read_unaligned((p + 0x21dc) as *const u8);
+        let slot = core::ptr::read_unaligned((p + 0x1f70) as *const u64);
         // 상태머신은 0..=5, 슬롯은 -1(빈칸) 또는 유효 데이터
         let plausible = st <= 5;
         format!("st={}{} slot=0x{:x}", st, if plausible { "★" } else { "" }, slot)
@@ -1319,7 +1319,7 @@ fn runner_probe(p: usize) -> String {
 //   읽는다. comp_test를 한 판 더 돌리면 그 중 하나가 바뀌어 앞 경기 재시뮬이 달라진다(= 관측 증상).
 //   ⟹ **어느 덩어리가 바뀌는지**만 확정하면 수정 범위가 그 하나로 좁혀진다. 이 프로브는 **읽기 전용**.
 const CD_PROBE_ON: bool = false;     // 릴리스(지문 계산이 매 경기 도는 부하 제거). 재조사 시 true
-const CD_RC_OFF: usize = 0x23c8;     // runner → Rc<RefCell<ClientData>>
+const CD_RC_OFF: usize = 0x2198;  // ★0.6.3 러너 −0x230 // runner → Rc<RefCell<ClientData>>
 
 fn fnv1a(addr: usize, len: usize) -> u64 {
     unsafe {
@@ -1600,7 +1600,7 @@ unsafe fn snap_take(runner: usize, seed: u64) {
     SNAP_SEED[slot].store(seed, Ordering::Release);
     if RPLY_LOGS.fetch_add(1, Ordering::Relaxed) < 12 {
         // ★기록 시점의 엔트리 지문도 함께 남긴다 — 다시보기 시점과 대조하기 위해.
-        let (ei, ep, en) = entry_fp(runner + 0x21a0);
+        let (ei, ep, en) = entry_fp(runner + 0x1f70);
         log(&format!("[rply] 사본 확보 seed=0x{:x} slot={} | 엔트리 inline={:016x} 선수{}명={:016x}\n",
             seed, slot, ei, en, ep));
     }
@@ -1770,7 +1770,7 @@ static LIVEB_HITS: AtomicU64 = AtomicU64::new(0);
 //   **보관할 때도 넘겨줄 때도 반드시 클론을 거쳐야** 하고(단순 memcpy 금지 = 이중 해제),
 //   보관본은 오직 우리만 게임 drop 함수로 해제한다.
 const CTXSNAP_ON: bool = true;
-const CTX_SZ: usize = 0x20a0;
+const CTX_SZ: usize = 0x1e70;  // ★0.6.3 ARRIVE memcpy 0x1e70 
 const CTX_CLONE_RVA: usize = 0x2540940; // 0.5.6 재핀     // ★0.5.5(구0.5.4=0x23e11e0) skeleton UNIQUE size5570·push8 확인 // (rcx=dst 0x20A0, rdx=src) -> rax=dst, 논리적 딥클론
 const CTX_DROP_RVA: usize = 0x23fb940;      // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) ARRIVE 2회 호출·size 0x376·maxoff 0x2080·헤드 [rcx+0x1dc0]/[+0x1dc8] = 0.5.8 0x1bc2e10 바이트동일 (자동값 0x1d07790 = CLONE_CHAMP 중간 → 크래시)      // ★0.5.5(구0.5.4=0x22df620) ghidra-re 2방법: ARRIVE(0x1aab950) 실호출 대상 + 러너 vtable drop 타입짝(원소drop FUN_141851730 공유)·최고접근오프셋 0x2080<0x20A0 // (rcx=&ctx) 정식 drop
 const LIVE_SEED_OFF: usize = 0x258;         // request+0x258 = 시드
@@ -2034,9 +2034,9 @@ unsafe fn cd_probe(tag: &str, node: usize) {
 extern "win64" fn csend_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> usize {
     // 진입 시 러너 상태(+0x240c)·미소비 슬롯(+0x21a0) 스냅샷 — 4가 아니면 원본도 즉시 exit.
     let (st, slot) = unsafe {
-        if readable(rcx + 0x240c, 1) && readable(rcx + 0x21a0, 8) {
-            (core::ptr::read_unaligned((rcx + 0x240c) as *const u8) as i64,
-             core::ptr::read_unaligned((rcx + 0x21a0) as *const u64) as i64)
+        if readable(rcx + 0x21dc, 1) && readable(rcx + 0x1f70, 8) {
+            (core::ptr::read_unaligned((rcx + 0x21dc) as *const u8) as i64,
+             core::ptr::read_unaligned((rcx + 0x1f70) as *const u64) as i64)
         } else { (-1, 0) }
     };
     let stub = CSEND_TRAMP.load(Ordering::Relaxed);
@@ -2053,9 +2053,9 @@ extern "win64" fn csend_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> 
         //   ⚠v70 결함: 러너를 `rcx`(인자)에서 찾았는데 **러너는 인자가 아니라 `node(rdx)+0x230`**이다
         //   (이 함수 아래쪽 주석에 이미 적혀 있던 사실 — 그래서 사본이 0건이었다).
         if let Some(rn) = runner_of(rdx) {
-            if readable(rn + 0x21a0 + E_SEED_OFF, 8)
-                && core::ptr::read_unaligned((rn + 0x21a0) as *const u64) != u64::MAX {
-                let seed = core::ptr::read_unaligned((rn + 0x21a0 + E_SEED_OFF) as *const u64);
+            if readable(rn + 0x1f70 + E_SEED_OFF, 8)
+                && core::ptr::read_unaligned((rn + 0x1f70) as *const u64) != u64::MAX {
+                let seed = core::ptr::read_unaligned((rn + 0x1f70 + E_SEED_OFF) as *const u64);
                 snap_take(rn, seed);
             }
         }
@@ -2171,11 +2171,11 @@ extern "win64" fn hpush_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> 
 const QUEUE_ON: bool = false;
 const ARRIVE_RVA: usize = 0x244ea30; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2327080) 다중앵커 투표 37/37·ARRIVE_PROLOGUE 15B 실측 MATCH (QUEUE_ON=false inert)
 const ARRIVE_PROLOGUE: [u8; 15] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53,
-                                   0xb8, 0xc0, 0x42, 0x00, 0x00];
+                                   0xb8, 0x40, 0x3e, 0x00, 0x00];  // ★0.6.3 mov eax,0x3e40 
 const RUNNER_VT_RVA: usize = 0x3c1f2f0; // 0.5.7 재핀(ctor lea 참조 유일 0x22c3072→0x257a392 + vtable 슬롯지문 0/4 match_fn 일치) // 0.5.6=0x34afda8(구0.5.5=0x348db28, slot4 매핑 일치·ctor lea 참조 1곳@0x22c3072)   // ★0.5.5(구0.5.4=0x33b91f8) ghidra-re 2방법: vtable 구조지문(size 0x2410·중복슬롯) .rdata 전수유일 + ctor lea rdx 참조 1곳(@0x21121e5)·R_STATE +0x240c 유지 // node+0x238 == base+이 값 이어야 comp_test 러너
 const NODE_RUNNER_OFF: usize = 0x230;     // runner = *(node + 0x230)
-const R_STATE: usize = 0x240c;            // 0 idle/1 setup/2 tactics/3 running/4 도착/5 기록완료
-const DETAIL_SZ: usize = 0x20a0;          // arg3
+const R_STATE: usize = 0x21dc;  // ★0.6.3 러너 −0x230(0x240c→0x21dc) // 0 idle/1 setup/2 tactics/3 running/4 도착/5 기록완료
+const DETAIL_SZ: usize = 0x1e70;  // ★0.6.3 0x20a0→0x1e70 // arg3
 const ENTRY_SZ: usize = 0xe0;             // arg4
 const QUEUE_CAP: usize = 16;              // 폭주 방지 상한(초과분은 원본 동작 = 덮어쓰기)
 
@@ -2314,9 +2314,9 @@ fn watch_tick() {
     if node == 0 { return; }
     unsafe {
         let runner = match runner_of(node) { Some(r) => r, None => return };
-        if !readable(runner + 0x21a0, 8) { return; }
+        if !readable(runner + 0x1f70, 8) { return; }
         let st = runner_state(runner) as u64;
-        let slot = core::ptr::read_unaligned((runner + 0x21a0) as *const u64);
+        let slot = core::ptr::read_unaligned((runner + 0x1f70) as *const u64);
         let prev_st = WATCH_LAST_ST.swap(st, Ordering::Relaxed);
         let prev_slot = WATCH_LAST_SLOT.swap(slot, Ordering::Relaxed);
         if st == prev_st && slot == prev_slot { return; }          // 변화 없으면 침묵
@@ -2399,7 +2399,7 @@ static RV_SETUP_FRAMES: AtomicU64 = AtomicU64::new(0);   // 준비화면 연속 
 //   마이그 누락 시 엉뚟한 명령을 훼손한다. (0.5.7 실사고: TAKE/PAGE_IMM가 0.5.6 RVA로 남아
 //   결과목록 화면이 빈 채 남았다.) ⇒ 쓰기 전 명령 오프코드를 대조하고 틀리면 포기한다.
 const TAKE_SIG: [u8; 6] = [0xc7, 0x85, 0x78, 0x02, 0x00, 0x00];        // mov dword[rbp+0x278], imm32
-const PAGE_SIG: [u8; 7] = [0x41, 0xc6, 0x86, 0x0c, 0x24, 0x00, 0x00];  // mov byte[r14+0x240c], imm8
+const PAGE_SIG: [u8; 7] = [0x41, 0xc6, 0x86, 0xdc, 0x21, 0x00, 0x00];  // ★0.6.3 R_STATE 0x21dc // mov byte[r14+0x240c], imm8
 static POKE_NG_LOGGED: AtomicU64 = AtomicU64::new(0);
 unsafe fn poke_site_ok(rva: usize, sig: &[u8], tag: &str) -> bool {
     let base = exe_base(); if base == 0 { return false; }
@@ -2886,11 +2886,11 @@ const DELAY_ORIG: [u8; 15] = [0x48,0x29,0xc4, 0x48,0x8d,0xac,0x24,0x80,0x00,0x00
 const DELAY_RESUME_RVA: usize = 0x244ea53; // 0.5.7 재핀(mov rbx,rsp 확인) // 0.5.6=0x1ac4bd3   // ★0.5.5(구0.5.4=0x23270a3) 컨테이너 difflib(mov rbx,rsp)
 const EPILOG_RVA: usize = 0x244f2a8; // 0.5.7 재핀(xor eax,eax + lea rsp,[rbp+0x4240] 확인) // 0.5.6=0x1ac5409     // ★0.5.5(구0.5.4=0x232790a) 컨테이너 difflib(xor eax,eax) // → lea rsp,[rbp+..] → pop×7 → ret
 const ARRIVE_FN_RVA: usize = 0x244ea30; // 0.5.6 재핀  // ★0.5.5(구0.5.4=0x2327080) 투표 37/37 // 재주입 시 직접 호출할 결과 도착 함수
-const DETAIL_SZ2: usize = 0x20a0;
+const DETAIL_SZ2: usize = 0x1e70;  // ★0.6.3 0x20a0→0x1e70 
 const ENTRY_SZ2: usize = 0xe0;
 const DRIVE_RVA: usize = 0xcd6dea; // 0.5.7 재핀(owner 0x888cc0->0xb62c80 HEAD_UNIQUE, off=0x60) // 0.5.6=0x888d20   // ★0.5.5(구0.5.4=0xa289c0) 컨테이너델타 UNIQUE(off=0x60)·DRIVE_ORIG 22B 실측 MATCH
 // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 0.6.0 진입부 19B: mov [rbp+0x16e90],-1 (11B) + mov [rbp+0x18],-1 (8B; 구 [rbp+0x2070] 11B 가 8B 인코딩으로)
-const DRIVE_ORIG: [u8; 19] = [0x48,0xc7,0x85,0xe8,0x6e,0x01,0x00,0xff,0xff,0xff,0xff, // ★0.6.2: 프레임 0x18248→0x18308(+0xc0) ⟹ [rbp+0x16e80]→[rbp+0x16ee8] (2026-09-30 실측 +0x6a) // ~~★0.6.1: 프레임 0x18258→0x18248(−0x10) ⟹ [rbp+0x16e90]→[rbp+0x16e80] (2026-09-22 실측 +0x6a)
+const DRIVE_ORIG: [u8; 19] = [0x48,0xc7,0x85,0xb8,0x6c,0x01,0x00,0xff,0xff,0xff,0xff,  // ★0.6.3: 프레임 0x18308→0x180d8 ⟹ [rbp+0x16cb8] // ★0.6.2: 프레임 0x18248→0x18308(+0xc0) ⟹ [rbp+0x16e80]→[rbp+0x16ee8] (2026-09-30 실측 +0x6a) // ~~★0.6.1: 프레임 0x18258→0x18248(−0x10) ⟹ [rbp+0x16e90]→[rbp+0x16e80] (2026-09-22 실측 +0x6a)
                               0x48,0xc7,0x45,0x18,0xff,0xff,0xff,0xff];
 const DRIVE_RESUME_RVA: usize = 0xcd6dfd; // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) = DRIVE+0x13 (구 +0x16 규칙 폐기; 구0.5.8=0x8e6a96) // 0.5.7 재핀(DRIVE+0x16) // 0.5.6=0x888d36   // ★0.5.5(구0.5.4=0xa289d6) 컨테이너델타(off=0x76)
 const A15E20_RVA: usize = 0x79a450;   // ★0.5.5(구0.5.4=0xa15e20) 다중앵커 투표 50/50 size974→988
@@ -2911,9 +2911,9 @@ static PAR_OUTBUF: AtomicUsize = AtomicUsize::new(0);   // 재주입용 0x740 ou
 //   v32는 엔트리만 되돌려서, 두 번째부터 `+0x2280`을 만들 수 없었다(팝업 draw가 그걸
 //   `+0x20f0`에서 만드는데 그 Rc는 **첫 결과 때 이미 소비**됨) ⟹ `0x230c910`이 즉시 bail = 기록 1건.
 //   ⟹ 세 조각을 함께 빼돌리고 함께 되돌린다.
-const DETAIL_B_OFF: usize = 0x2280;
+const DETAIL_B_OFF: usize = 0x2050;  // ★0.6.3 0x2280→0x2050 
 const DETAIL_B_SZ: usize = 0xa0;
-const RCH_OFF: usize = 0x20f0;
+const RCH_OFF: usize = 0x50;  // ★0.6.3 0x20f0→0x50(재배치·ARRIVE cmp [r15+0x50],-1) 
 // ⛔`0x1a18460`은 **결과상세 생성기가 아니다** — RE 확정(2026-08-08): crossbeam bounded(1) 채널의
 //   **`try_recv`**(= 메시지를 꺼내 비우는 함수, 실체 `0x20d4190`)다. v58이 이걸 "만드는 함수"로
 //   오해하고 미리 부르는 바람에 **게임이 열어볼 편지를 모드가 먼저 꺼내가** 이후 영원히 None →
@@ -2966,8 +2966,8 @@ unsafe fn par_runner() -> usize {
 #[inline] unsafe fn par_busy(runner: usize) -> bool {
     if runner == 0 { return false; }
     if runner_state(runner) == 4 { return true; }
-    if readable(runner + 0x21a0, 8) {
-        return core::ptr::read_unaligned((runner + 0x21a0) as *const u64) != u64::MAX;
+    if readable(runner + 0x1f70, 8) {
+        return core::ptr::read_unaligned((runner + 0x1f70) as *const u64) != u64::MAX;
     }
     false
 }
@@ -3004,8 +3004,8 @@ extern "win64" fn par_delay_check(a1: usize, node: usize, pd: usize, pe: usize) 
         // ★comp_test 러너인지 확인 = 타입태그 검사(`*(node+0x238)==base+0x33b91f8`).
         //   이 훅 지점은 도착 함수의 다운캐스트 게이트보다 **앞**이라, 이 검사를 우리가 대신 한다.
         let runner = match runner_of(node) { Some(r) => r, None => return };
-        if !readable(runner + 0x21a0, ENTRY_SZ2) || !readable(runner + RCH_OFF, 16) { return; }
-        let e_head = core::ptr::read_unaligned((runner + 0x21a0) as *const u64);
+        if !readable(runner + 0x1f70, ENTRY_SZ2) || !readable(runner + RCH_OFF, 16) { return; }
+        let e_head = core::ptr::read_unaligned((runner + 0x1f70) as *const u64);
         let rc_tag = core::ptr::read_unaligned((runner + RCH_OFF) as *const u32);   // ★dword 니치
         if e_head == u64::MAX && rc_tag == u32::MAX { return; }   // 실을 게 없음(첫 도착)
         let mut q = par_lock();
@@ -3014,8 +3014,8 @@ extern "win64" fn par_delay_check(a1: usize, node: usize, pd: usize, pe: usize) 
         let mut e: Box<[u8; ENTRY_SZ2]> = Box::new([0u8; ENTRY_SZ2]);
         let has_e = e_head != u64::MAX;
         if has_e {
-            core::ptr::copy_nonoverlapping((runner + 0x21a0) as *const u8, e.as_mut_ptr(), ENTRY_SZ2);
-            core::ptr::write_unaligned((runner + 0x21a0) as *mut u64, u64::MAX);
+            core::ptr::copy_nonoverlapping((runner + 0x1f70) as *const u8, e.as_mut_ptr(), ENTRY_SZ2);
+            core::ptr::write_unaligned((runner + 0x1f70) as *mut u64, u64::MAX);
         }
         // ② Receiver(16B) move-out — **열지 않고 그대로** 보관한다
         let mut rc = [u64::MAX, 0u64];
@@ -3071,16 +3071,16 @@ extern "win64" fn par_drive_rust(p2: usize, p3: usize, p4: usize) {
         //   ⟹ 모드는 결과를 만들지도 꺼내지도 않으므로 **짝이 어긋날 경로가 원천적으로 없다**.
         let runner = par_runner();
         if runner == 0 { return; }
-        if !readable(runner + 0x21a0, ENTRY_SZ2) || !readable(runner + RCH_OFF, 16)
-            || !readable(runner + DETAIL_B_OFF, DETAIL_B_SZ) || !readable(runner + 0x240c, 1) { return; }
+        if !readable(runner + 0x1f70, ENTRY_SZ2) || !readable(runner + RCH_OFF, 16)
+            || !readable(runner + DETAIL_B_OFF, DETAIL_B_SZ) || !readable(runner + 0x21dc, 1) { return; }
         // 러너가 완전히 비었을 때만 싣는다(진행 중인 결과를 밀어내면 그게 곧 소멸이다).
         //   기록이 끝나면 `0x230d0c7`이 `+0x21a0`을 -1로, draw가 `+0x20f0`을 -1로 되돌려 게이트가 열린다.
-        if core::ptr::read_unaligned((runner + 0x21a0) as *const u64) != u64::MAX { return; }
+        if core::ptr::read_unaligned((runner + 0x1f70) as *const u64) != u64::MAX { return; }
         if core::ptr::read_unaligned((runner + RCH_OFF) as *const u32) != u32::MAX { return; }
         if core::ptr::read_unaligned((runner + DETAIL_B_OFF) as *const u64) != u64::MAX { return; }
         let item = { let mut q = par_lock(); if q.is_empty() { return; } q.remove(0) };
         if item.has_e {
-            core::ptr::copy_nonoverlapping(item.e.as_ptr(), (runner + 0x21a0) as *mut u8, ENTRY_SZ2);
+            core::ptr::copy_nonoverlapping(item.e.as_ptr(), (runner + 0x1f70) as *mut u8, ENTRY_SZ2);
         }
         if item.rc[0] != u64::MAX {
             core::ptr::write_unaligned((runner + RCH_OFF) as *mut u64, item.rc[0]);
@@ -3089,9 +3089,9 @@ extern "win64" fn par_drive_rust(p2: usize, p3: usize, p4: usize) {
         if item.has_d2 {
             core::ptr::copy_nonoverlapping(item.d2.as_ptr(), (runner + DETAIL_B_OFF) as *mut u8, DETAIL_B_SZ);
         }
-        core::ptr::write_unaligned((runner + 0x240a) as *mut u8, 1);      // 신규결과 플래그
-        core::ptr::write_unaligned((runner + 0x2404) as *mut f32, 0.0);   // 진행도 리셋
-        core::ptr::write_unaligned((runner + 0x240c) as *mut u8, 4);      // 상태 = 결과 대기/도착
+        core::ptr::write_unaligned((runner + 0x21da) as *mut u8, 1);      // 신규결과 플래그
+        core::ptr::write_unaligned((runner + 0x21d4) as *mut f32, 0.0);   // 진행도 리셋
+        core::ptr::write_unaligned((runner + 0x21dc) as *mut u8, 4);      // 상태 = 결과 대기/도착
         core::mem::forget(item);                              // 내부 힙 소유권이 게임으로
         let k = PAR_REPLAYED.fetch_add(1, Ordering::Relaxed);
         if k < 12 { log(&format!("[par] 되돌림 #{} (남은 큐={})\n", k, par_lock().len())); }
@@ -3121,14 +3121,14 @@ unsafe extern "win64" fn par_delay_shim() {
         //   `48 81 E4 80 FF FF FF` = `and rsp, 0xFFFFFF80` **상위 32비트가 0으로 잘려** rsp가
         //   4GB 아래로 날아간다 ⟹ 즉사(VEH도 못 돎, 세이브 로드만으로도 죽는 증상과 정합).
         //   ⟹ **원본과 동일한 바이트를 직접 박는다.**
-        "sub rsp, 0x42c0",
+        "sub rsp, 0x3e40",  // ★0.6.3 ARRIVE 프레임 0x42c0→0x3e40 
         "lea rbp, [rsp+0x80]",
         ".byte 0x48, 0x83, 0xe4, 0x80",   // and rsp, -0x80  (원본 바이트 그대로)
         "jmp qword ptr [rip + {res}]",
         // 보류 = 에필로그가 요구하는 rbp만 세팅하고 함수의 유일한 리턴 경로로 점프.
         //   이 시점은 detail/entry가 러너에 등록되기 **전**이라 게임이 drop하지 않는다 = 소유권이 우리 것.
         "2:",
-        "lea rbp, [rsp-0x4240]",
+        "lea rbp, [rsp-0x3dc0]",  // ★0.6.3 rbp 0x4240→0x3dc0(EPILOG lea rsp,[rbp+0x3dc0]) 
         "jmp qword ptr [rip + {epi}]",
         chk = sym par_delay_check,
         res = sym PAR_RESUME,
@@ -3146,13 +3146,13 @@ unsafe extern "win64" fn par_drive_shim() {
         //   ⟹ `sub 0x20`(shadow space만, %16=0)이 정답. 지연 shim은 push 4 + sub 0x30으로 이미 맞았고,
         //   그래서 v19(지연만)는 멀쩡했는데 v20(드라이버 켬)만 죽었다.
         "push rcx", "push rdx", "push r8", "push r9", "push r10", "push r11",
-        "mov r8, [rbp+0x18300]",   // ★0.6.2 frame: 0x18308 → p4 = [rbp+0x18300] (신 함수 본문 사용처 6/6 동일위치) // ~~0.6.1 frame: sub rsp,0x18248 → p4 = [rbp+0x18240]~~ (0.6.0 0x18258→0x18250 · 구 0x17480)
+        "mov r8, [rbp+0x180d0]",  // ★0.6.3 frame 0x180d8 → p4 [rbp+0x180d0] // ★0.6.2 frame: 0x18308 → p4 = [rbp+0x18300] (신 함수 본문 사용처 6/6 동일위치) // ~~0.6.1 frame: sub rsp,0x18248 → p4 = [rbp+0x18240]~~ (0.6.0 0x18258→0x18250 · 구 0x17480)
         "sub rsp, 0x20",
         "call {drv}",
         "add rsp, 0x20",
         "pop r11", "pop r10", "pop r9", "pop r8", "pop rdx", "pop rcx",
         // 스틸한 원본 2명령 재현
-        "mov qword ptr [rbp+0x16ee8], -1",   // ★0.6.2 (0.6.1 0x16e80) (0.6.0 0x16e90 · 구 0x16bb8)
+        "mov qword ptr [rbp+0x16cb8], -1",  // ★0.6.3 0x16ee8→0x16cb8 // ★0.6.2 (0.6.1 0x16e80) (0.6.0 0x16e90 · 구 0x16bb8)
         "mov qword ptr [rbp+0x18], -1",      // ★0.6.0 (구 0x2070)
         "jmp qword ptr [rip + {res}]",
         drv = sym par_drive_rust,
@@ -3761,8 +3761,8 @@ extern "win64" fn oracle_detour(rcx: usize, rdx: usize, r8: usize, r9: usize, a5
             let game = rdx;
             let rd = |p: usize| -> u64 { if readable(p, 8) { *(p as *const u64) } else { 0 } };
             ORACLE_GAME.store(game as u64, Ordering::Relaxed);
-            ORACLE_MODEVT.store(rd(game + 0x1dd8), Ordering::Relaxed);
-            ORACLE_ENGVT.store(rd(game + 0x1dc8), Ordering::Relaxed);
+            ORACLE_MODEVT.store(rd(game + 0x1bb8), Ordering::Relaxed);
+            ORACLE_ENGVT.store(rd(game + 0x1ba8), Ordering::Relaxed);
             ORACLE_SEED.store(r8 as u64, Ordering::Relaxed);
         }));
     }
@@ -3774,9 +3774,9 @@ extern "win64" fn oracle_detour(rcx: usize, rdx: usize, r8: usize, r9: usize, a5
     if ORACLE_GATE.load(Ordering::Relaxed) && !ORACLE_ENT_LOGGED.load(Ordering::Relaxed) {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
             let game = rdx;
-            if !readable(game + 0x208a, 1) || *((game + 0x208a) as *const u8) != 1 { return; }   // init 완료
-            if !readable(game + 0x1dc0, 8) { return; }
-            let engine = *((game + 0x1dc0) as *const usize);
+            if !readable(game + 0x1e5a, 1) || *((game + 0x1e5a) as *const u8) != 1 { return; }   // init 완료
+            if !readable(game + 0x1ba0, 8) { return; }
+            let engine = *((game + 0x1ba0) as *const usize);
             if engine < 0x10000 || !readable(engine + 0x848, 8) { return; }
             let base = *((engine + 0x840) as *const usize);
             let count = *((engine + 0x848) as *const usize);
@@ -3812,9 +3812,9 @@ extern "win64" fn oracle_detour(rcx: usize, rdx: usize, r8: usize, r9: usize, a5
     if ORACLE_GATE.load(Ordering::Relaxed) && A2_WRITE_ON.load(Ordering::Relaxed) {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
             let game = rdx;
-            if !readable(game + 0x208a, 1) || *((game + 0x208a) as *const u8) != 1 { return; }
-            if !readable(game + 0x1dc0, 8) { return; }
-            let engine = *((game + 0x1dc0) as *const usize);
+            if !readable(game + 0x1e5a, 1) || *((game + 0x1e5a) as *const u8) != 1 { return; }
+            if !readable(game + 0x1ba0, 8) { return; }
+            let engine = *((game + 0x1ba0) as *const usize);
             if engine < 0x10000 || !readable(engine + 0x848, 8) { return; }
             let base = *((engine + 0x840) as *const usize);
             let count = *((engine + 0x848) as *const usize);
