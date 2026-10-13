@@ -1,13 +1,13 @@
-//! tfm2_lane_tactics — 라인전 이후 포지션 전술(0.6.2 · stable 껍데기 + 네이티브 wrap detour).
+//! tfm2_lane_tactics — 라인전 이후 포지션 전술(0.6.3 · stable 껍데기 + 네이티브 wrap detour).
 //!
 //! 게임 `LegacyPlanHandler::passive_plan`(라인전 이후 소극 플랜 = "지금 어느 라인에 설까")을 wrap 으로 감싸
 //! **원본 실행 → 반환된 PassiveLine 의 line 을 포지션별 규칙으로 교체**한다. 규칙 = `lane_tactics.cfg`(모드 폴더).
 //!   규칙(왼쪽부터 시도 · 첫 성립이 채택): `top|mid|bot` 고정 / `pushed[:임계]` 가장 밀린 라인 /
 //!   `push[:임계]` 가장 밀고 있는 라인 / `ally:<pos>` 그 아군과 같은 라인(점유 → 그 아군 규칙 → 위치(기지 제외)) / `game` 게임 원래 선택 유지(여기서 중단).
-//! 설계·RE 원문 = mods_report\tfm2_lane_tactics\ (RE\2026-09-30_G1~G4 · 0.6.1 기준, 0.6.2 재핀).
+//! 설계·RE 원문 = mods_report\tfm2_lane_tactics\ (RE\2026-09-30_G1~G4 · 0.6.1 기준, 0.6.2 재핀 G5, 0.6.3 재핀 RE\2026-10-14_G6).
 //!
 //! 안전: wrap 본문 = catch_unwind · 원본은 항상 먼저 실행하고 반환값을 그대로 돌려준다(모드 로직 실패 = 게임 원래 동작).
-//!   RVA 는 게임 버전 0.6.2 에서만 설치(다른 버전이면 설치 안 함). 진입부 12B 가 기대값과 다르면(다른 모드 훅 포함) 설치 안 함.
+//!   RVA 는 게임 버전 0.6.3 에서만 설치(다른 버전이면 설치 안 함). 진입부 12B 가 기대값과 다르면(다른 모드 훅 포함) 설치 안 함.
 use mod_api_stable::{declare_stable_mod, LogLevel, StableClient, StableExtension, StableHost, StableMod};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::atomic::{AtomicU64, AtomicU8, AtomicUsize, Ordering};
@@ -15,27 +15,32 @@ use std::sync::{Mutex, OnceLock};
 
 const MOD_ID: &str = "tfm2_lane_tactics";
 
-// ── 0.6.2 상수(값 정본 = MODS\MIG\manifest\tfm2_lane_tactics.json) ──
-const GAME_VER: (u32, u32, u32) = (0, 6, 2);
-/// LegacyPlanHandler::passive_plan (0.6.1 0xd40310 → 0.6.2 재핀)
-const RVA_PASSIVE_PLAN: usize = 0xd3a0f0;
-/// 진입부 12B = push rbp,r15,r14,r13,r12,rsi,rdi,rbx (RIP 상대 없음 · 명령 경계 12)
+// ── 0.6.3 상수(근거 = mods_report\tfm2_lane_tactics\RE\2026-10-14_G6) ──
+const GAME_VER: (u32, u32, u32) = (0, 6, 3);
+/// passive_plan (0.6.1 0xd40310 → 0.6.2 0xd3a0f0 → 0.6.3 0xd5d860 · 소스 plan\handler\assign.rs)
+const RVA_PASSIVE_PLAN: usize = 0xd5d860;
+/// 진입부 12B(0.6.2 와 동일) = push rbp,r15,r14,r13,r12,rsi,rdi,rbx (RIP 상대 없음 · 명령 경계 12)
 const PROLOG_PASSIVE_PLAN: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 
-// ── 구조체 오프셋(0.6.2 · RE6-09-30_G5 검증) ──
-const PLAN_TAG: usize = 0x0;          // BigPlan tag dword · 3 = PassiveLine
-const PL_WAIT: usize = 0x11f;         // 1 = sub_plan 즉시 LineWait(서포터 hold)
-const PL_FLAGS: usize = 0x120;        // u32 packed 플래그(0.6.2) · bit0 = 고정(웨이브 우선·SplitEpic 등) — 건드리지 않음
+// ── 구조체 오프셋(0.6.3 · RE 2026-10-14_G6 · 괄호 = 0.6.2) ──
+const PLAN_TAG: usize = 0x0;          // BigPlan tag(qword · u32 비교 안전) · 3 = PassiveLine
+const PL_WAIT: usize = 0x11e;         // 1 = sub_plan 즉시 LineWait(서포터 hold) (0x11f)
+const PL_FLAGS: usize = 0x120;        // byte != 0 = 고정(웨이브 우선·SplitEpic 등) — 건드리지 않음 (0.6.2 = u32 bit0)
 const PL_LINE: usize = 0x124;         // LineType u8 (Top0 Mid1 Bottom2) · ⚠0.6.1 은 +0x123(0.6.2 에선 플래그 바이트)
-const RET_CODE: usize = 0x370;        // 발원 코드 u8 (BigPlan 0x370B 뒤)
-const LPH_PLAN_TAG: usize = 0xfc0;    // 현재 커밋된 plan
-const LPH_PLAN_LINE: usize = 0x10e4;  // = +0xfc0 + 0x124
-const LPH_DEST_TAG: usize = 0xe70;    // v3 목적지 hold Option(bit0)
-const LPH_LATCH_LINE: usize = 0x26bf; // v2_assign 래치 라인(0xff = None)
-const PS_TEAM: usize = 0xa00;
-const PS_POS: usize = 0xa90;
-const BB_STRIDE: usize = 0x5e0;       // 0.6.1 0x5c8
-const BB_CLAIM: usize = 0x318;        // 라인 점유 tag u8(0=Line) · +1 = line · +pos*0x20 (0.6.1 +0x300)
+const RET_CODE: usize = 0x348;        // 발원 코드 u8 (BigPlan 0x348B 뒤) (0x370)
+const LPH_PLAN_TAG: usize = 0x1598;   // 현재 커밋된 plan (0xfc0)
+const LPH_PLAN_LINE: usize = 0x16bc;  // = +0x1598 + 0x124 (0x10e4)
+const LPH_DEST_TAG: usize = 0x1408;   // 목적지 hold Option(bit0) (0xe70) · ⚠0.6.3 은 hold 가 커밋을 막지 않음 → 진단 읽기만
+const LPH_LATCH_LINE: usize = 0x297f; // v2_apply 래치 라인(0xff = None) (0x26bf)
+const PS_TEAM: usize = 0x800;         // (0xa00)
+const PS_POS: usize = 0x890;          // (0xa90)
+const BB_STRIDE: usize = 0xac8;       // (0.6.2 0x5e0 · 0.6.1 0x5c8)
+const BB_CLAIM: usize = 0x7f0;        // 라인 점유 tag u8(0=Line) · +1 = line · +pos*0x20 (0.6.2 +0x318 · 0.6.1 +0x300)
+const CACHE_TICK: usize = 0x1b8;      // 게임 line_phase 가 읽는 tick 필드(0.6.3 · 0.6.2 는 vt+0x28 호출)
+const CACHE_CHAMP: usize = 0x238;     // player_champion[team*0x28 + pos*8] (0x1e0)
+const MINION_LIST: [usize; 3] = [0x10, 0x90, 0xd0]; // 라인별 미니언 리스트 + t*0x20 · len +0x18 (0.6.2 = 0x10+line*0x40)
+const ENT_X: usize = 0x658;           // 엔티티 x (0x660)
+const ENT_Y: usize = 0x660;           // 엔티티 y (0x668)
 
 #[link(name = "kernel32")]
 extern "system" {
@@ -94,14 +99,14 @@ bot=mid
 sup=ally:bot, game
 
 # 게임이 이 발원 코드로 라인을 골랐을 때만 덮어쓴다(오브젝트·웨이브 우선·스플릿 등 목적 있는 이동은 건드리지 않음).
-# 18/19 = 리드 폴백(평소 라인) · 30/31 = 서포터 재선택 · 29 = 오브젝트 쪽 앰비언트 라인 · 6 = 에고 웨이브 · 13 = 커버
+# 18/19 = 리드 폴백(평소 라인) · 30/31 = 서포터 재선택 · 29 = 오브젝트 쪽 앰비언트 라인(0.6.3 에선 안 나옴) · 6 = 에고 웨이브 · 13 = 커버
 override_codes=18,19,29,30,31
 # 적용 진영: both / 0 / 1   (진영 = 경기 내 블루0·레드1, 백그라운드 리그 경기 포함)
 teams=both
 # 게임이 기억해 둔 라인 래치를 지워 되돌림을 막는다(1 권장)
 clear_latch=1
-# 이동 중 목적지 hold 를 풀어 라인 변경을 즉시 반영(1 권장)
-clear_hold=1
+# (0.6.2 전용 · 0.6.3 은 게임이 hold 중에도 라인 변경을 반영하므로 무시됨)
+clear_hold=0
 # 1 = 처음 200건의 교체 내역을 로그에 남김(진단용)
 trace=0
 ";
@@ -164,14 +169,8 @@ fn cfg() -> &'static Cfg { CFG.get_or_init(load_cfg) }
 #[inline(always)] unsafe fn r8(p: usize, off: usize) -> u8 { *((p + off) as *const u8) }
 #[inline(always)] unsafe fn w8(p: usize, off: usize, v: u8) { *((p + off) as *mut u8) = v; }
 
-/// AbstractGame vt+0x28 tick getter (game = cache+0, vtable = cache+8)
-unsafe fn tick(cache: usize) -> Option<u64> {
-    let game = r64(cache, 0) as usize; let vt = r64(cache, 8) as usize;
-    if !ok(game) || !ok(vt) { return None; }
-    let f = r64(vt, 0x28) as usize; if !ok(f) { return None; }
-    let f: unsafe extern "C" fn(usize) -> u64 = core::mem::transmute(f);
-    Some(f(game))
-}
+/// 현재 tick — 0.6.3 게임 line_phase 와 같은 필드를 읽는다(0.6.2 의 vt+0x28 getter 호출 제거 · 게임함수 호출 없음)
+unsafe fn tick(cache: usize) -> Option<u64> { Some(r64(cache, CACHE_TICK)) }
 
 /// map_regions::is_near_line(ctx, x, y, line) 재현(0.6.0 judge_verify060 helpers.rs · 0.6.1 G1 §4 와 동일 규칙 · 게임 헬퍼 호출 안 함)
 /// strict = 기지 모서리(모든 라인에 속한다고 보는 구역)를 제외 — 아군 위치로 라인을 추정할 때 기지에 있으면 Top 으로 오판하던 v0.1.0 버그 방지
@@ -204,7 +203,7 @@ unsafe fn in_lane_region(ctx: usize, x: u64, y: u64, line: u8, strict: bool) -> 
 unsafe fn from_mid(cache: usize, bbs: usize, team: usize, line: usize) -> i64 {
     let ms = bbs + team * BB_STRIDE + line * 0x28;
     let raw = r64(ms, 0x10) as i64;
-    let list = |t: usize| cache + 0x10 + line * 0x40 + t * 0x20;
+    let list = |t: usize| cache + MINION_LIST[line] + t * 0x20;
     let (my, en) = (r64(list(team), 0x18), r64(list(1 - team), 0x18));
     if my == 0 && en > 0 { raw.wrapping_neg().wrapping_sub(10000) } else { raw }
 }
@@ -233,16 +232,16 @@ unsafe fn eval_in(rules: &[Rule], pos: usize, team: usize, cache: usize, ctx: us
             Rule::Ally(p) => {
                 if !count { continue; }                                        // 아군 의도 추정 중에는 Ally 재귀 금지
                 let p = p as usize; if p == pos || p > 4 { continue; }
-                let champ = |q: usize| r64(cache, 0x1e0 + team * 0x28 + q * 8) as usize;
+                let champ = |q: usize| r64(cache, CACHE_CHAMP + team * 0x28 + q * 8) as usize;
                 if ok(champ(p)) {
                     if let Some(l) = ally_line(p, team, cache, ctx, bbs) { return hit(l); }
                 } else {
                     // 그 아군이 죽었으면 → 나와 가장 가까운 살아 있는 아군의 라인(라인을 알 수 있는 아군 중)
                     let me = champ(pos);
                     if ok(me) {
-                        let (mx, my) = (r64(me, 0x660), r64(me, 0x668));
+                        let (mx, my) = (r64(me, ENT_X), r64(me, ENT_Y));
                         let mut cand: Vec<(u64, usize)> = (0..5).filter(|&q| q != pos && q != p && ok(champ(q)))
-                            .map(|q| { let e = champ(q); let (dx, dy) = (r64(e, 0x660).abs_diff(mx), r64(e, 0x668).abs_diff(my)); (dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)), q) }).collect();
+                            .map(|q| { let e = champ(q); let (dx, dy) = (r64(e, ENT_X).abs_diff(mx), r64(e, ENT_Y).abs_diff(my)); (dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)), q) }).collect();
                         cand.sort();
                         for (_, q) in cand { if let Some(l) = ally_line(q, team, cache, ctx, bbs) { C_ALLY[fg()][4].fetch_add(1, Ordering::Relaxed); return hit(l); } }
                     }
@@ -262,9 +261,9 @@ unsafe fn ally_line(q: usize, team: usize, cache: usize, ctx: usize, bbs: usize)
         let l = r8(bb, BB_CLAIM + 1 + q * 0x20); if l <= 2 { C_ALLY[fg()][0].fetch_add(1, Ordering::Relaxed); return Some(l); }
     }
     if let Some(l) = eval_in(&cfg().rules[q], q, team, cache, ctx, bbs, false) { C_ALLY[fg()][1].fetch_add(1, Ordering::Relaxed); return Some(l); }
-    let e = r64(cache, 0x1e0 + team * 0x28 + q * 8) as usize;
+    let e = r64(cache, CACHE_CHAMP + team * 0x28 + q * 8) as usize;
     if ok(e) {
-        let (x, y) = (r64(e, 0x660), r64(e, 0x668));
+        let (x, y) = (r64(e, ENT_X), r64(e, ENT_Y));
         for l in 0..3u8 { if in_lane_region(ctx, x, y, l, true) { C_ALLY[fg()][2].fetch_add(1, Ordering::Relaxed); return Some(l); } }
     }
     None
@@ -321,7 +320,7 @@ unsafe fn post(sret: usize, lph: usize, player: usize, data: usize) {
 #[allow(clippy::too_many_arguments)]
 unsafe fn decide(c: &Cfg, sret: usize, lph: usize, cache: usize, ctx: usize, bbs: usize, team: usize, pos: usize, code: usize, is_pl: bool, now: u64) {
     if !is_pl || !c.codes[code] || c.rules[pos].is_empty() { return; }      // PassiveLine · 교체 대상 코드만
-    if r32(sret, PL_FLAGS) & 1 != 0 { return; }
+    if r8(sret, PL_FLAGS) != 0 { return; }
     C_ELIG[fg()].fetch_add(1, Ordering::Relaxed);
 
     // 직전 교체가 실제로 커밋됐는지(래치/hold 되돌림 감시)
@@ -341,8 +340,8 @@ unsafe fn decide(c: &Cfg, sret: usize, lph: usize, cache: usize, ctx: usize, bbs
     w8(sret, PL_LINE, want);
     w8(sret, PL_WAIT, 0);
     C_OVR[fg()].fetch_add(1, Ordering::Relaxed); C_POS_OVR[fg()][pos].fetch_add(1, Ordering::Relaxed);
-    if c.clear_hold && r32(lph, LPH_PLAN_TAG) == 3 && r8(lph, LPH_PLAN_LINE) != want && r8(lph, LPH_DEST_TAG) & 1 != 0 {
-        w8(lph, LPH_DEST_TAG, r8(lph, LPH_DEST_TAG) & !1);
+    // 0.6.3: 목적지 hold 는 커밋을 막지 않는다(RE G6 §4) → 쓰기 없이 "hold 중이던 교체" 진단 카운트만(clear_hold 는 무시)
+    if r32(lph, LPH_PLAN_TAG) == 3 && r8(lph, LPH_PLAN_LINE) != want && r8(lph, LPH_DEST_TAG) & 1 != 0 {
         C_HOLD[fg()].fetch_add(1, Ordering::Relaxed);
     }
     if c.trace && TRACE_N.fetch_add(1, Ordering::Relaxed) < 200 {
@@ -419,7 +418,7 @@ fn snapshot() {
         let tag = if k == 0 { "관전" } else { "배경" };
         let c = C_CALLS[k].load(Ordering::Relaxed); if c == 0 { continue; }
         let per: Vec<String> = (0..5).map(|p| format!("{}:{}", POS_NAMES[p], C_POS_OVR[k][p].load(Ordering::Relaxed))).collect();
-        w(&format!("[stat {}] calls={} eligible={} override={} same={} keep(game)={} hold_clear={} commit ok/bad={}/{} panic(전체)={} | {}", tag,
+        w(&format!("[stat {}] calls={} eligible={} override={} same={} keep(game)={} hold중교체={} commit ok/bad={}/{} panic(전체)={} | {}", tag,
             c, C_ELIG[k].load(Ordering::Relaxed), C_OVR[k].load(Ordering::Relaxed), C_SAME[k].load(Ordering::Relaxed), C_KEEP[k].load(Ordering::Relaxed), C_HOLD[k].load(Ordering::Relaxed),
             C_COMMIT_OK[k].load(Ordering::Relaxed), C_COMMIT_BAD[k].load(Ordering::Relaxed), C_PAN.load(Ordering::Relaxed), per.join(" ")));
         let a = &C_ALLY[k];
