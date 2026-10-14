@@ -39,13 +39,6 @@ fn mask_of_id(ctx: &StableDraftContext<'_>, id: usize) -> u8 {
     ctx.champion_name(id).map(|n| crate::mask_of(&n.to_ascii_lowercase())).unwrap_or(MASK_ALL)
 }
 
-/// 모델 인덱스 공간 이름표(champion_briefs 순서) → legacy_assign(hookA). 길이가 바뀔 때만 게시.
-fn publish_model(ctx: &StableDraftContext<'_>) {
-    let briefs = ctx.champion_briefs();
-    if briefs.is_empty() || briefs.len() == crate::legacy_assign::model_len() { return; }
-    let names: Vec<String> = briefs.iter().map(|b| unsafe { b.name.as_str() }.to_ascii_lowercase()).collect();
-    crate::legacy_assign::publish_model_names(names);
-}
 
 pub struct PosLockDraft;
 impl StableDraftHook for PosLockDraft {
@@ -54,7 +47,6 @@ impl StableDraftHook for PosLockDraft {
     fn score_pick(&self, ctx: &StableDraftContext<'_>, candidate: usize, base_score: f32) -> StableDraftDecision {
         CNT_SCORE.fetch_add(1, Ordering::Relaxed);
         let _s = crate::perf::sec(crate::perf::SCORE);
-        publish_model(ctx);
         let key = ctx_key(ctx);
         SCORE_KEY.with(|k| { let mut k = k.borrow_mut(); if *k != key { *k = key; SCORES.with(|s| s.borrow_mut().clear()); } });
         SCORES.with(|s| { let mut s = s.borrow_mut(); if let Some(e) = s.iter_mut().find(|e| e.0 == candidate) { e.1 = base_score; } else if s.len() < 512 { s.push((candidate, base_score)); } });
@@ -63,6 +55,11 @@ impl StableDraftHook for PosLockDraft {
     fn decide_pick(&self, ctx: &StableDraftContext<'_>) -> Option<usize> {
         let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| decide(ctx)));
         match r { Ok(v) => v, Err(_) => { qlog("decide_pick 패닉".into()); None } }
+    }
+    /// ★0.6.4(ABI 10): AI 팀 포지션 배정 — 구 RVA 2축(legacy_assign·ai_swap) 대체 = `ai_position.rs`.
+    fn decide_positions(&self, ctx: &StableDraftContext<'_>) -> Option<Vec<usize>> {
+        let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::ai_position::decide(ctx)));
+        match r { Ok(v) => v, Err(_) => { qlog("decide_positions 패닉".into()); None } }
     }
 }
 

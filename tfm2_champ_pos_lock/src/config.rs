@@ -34,13 +34,13 @@ pub struct Cfg {
     pub debug: bool,
     /// ★모든 매치(백그라운드 포함)의 완성된 5인 라인업을 champ_pos_lock_lineups.txt 에 기록.
     pub log_lineups: bool,
-    /// 스왑 order 강제(0=끔 / 1=order[포지션]=픽인덱스 / 2=order[픽인덱스]=포지션). 방향 확정용.
+    /// AI 팀 포지션 배정 강제(0=끔 · 그 외=켬). ★0.6.4: stable ABI 10 `decide_positions`(ai_position.rs) — 구 compute_rule_swap_order detour 대체.
     pub swap_force: u32,
     /// ★09-20 내 팀 자동 스왑: 스왑 단계 진입 시 내 배치가 규칙 위반이면 합법 최적 순열로 1회 자동 재배치(게임 select_swap 호출 = 유저 클릭과 같은 경로). 이후 수동 스왑은 존중.
     pub swap_auto: bool,
     /// AI 픽 차단 (DraftScoreHook)
     pub ai_pick_gate: bool,
-    /// AI 배정 마스크 강제 (hookA)
+    /// ~~AI 배정 마스크 강제 (hookA)~~ → ★0.6.4 폐지(swap_force 로 통합 · 키는 호환용으로 읽기만)
     pub ai_assign_mask: bool,
     /// 유저 픽 차단 (hookC — 피어리스처럼 회색+클릭불가)
     pub user_pick_block: bool,
@@ -913,7 +913,6 @@ const DEFAULT_CFG: &str = "\
     debug=0\r\n\
     # Restrict AI teams too (their picks and their position assignment).\r\n\
     ai_pick_gate=1\r\n\
-    ai_assign_mask=1\r\n\
     # In your own draft, grey out champions that would break the position assignment\r\n\
     #   (like fearless does). Automatically lifted when nothing legal is left.\r\n\
     user_pick_block=1\r\n\
@@ -923,9 +922,9 @@ const DEFAULT_CFG: &str = "\
     #   For bug reports; keep it off normally.\r\n\
     log_lineups=0\r\n\
     # Force AI teams (opponents and every background league match) to seat their picks
-    #   on allowed positions in the swap phase: the server-side swap order returned by
-    #   compute_rule_swap_order is re-ordered to the best legal permutation (game 0.6.0 detour).
-    #   0 = leave AI swap orders untouched.
+    #   on allowed positions after the draft (stable mod API decide_positions, game 0.6.4+):
+    #   most champions on allowed positions first, then the athletes' champion proficiency.
+    #   0 = leave AI position assignment to the game.
     swap_force=1\r\n\
     # Auto-arrange YOUR line-up when the swap stage begins (game 0.6.0): if the arrangement
     #   violates your position rules it is re-seated once to the best legal order (same code

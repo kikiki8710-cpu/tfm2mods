@@ -317,7 +317,7 @@ fn fill_grid(ctx: &mut StableClient<'_>, pop: &str) {
         let onoff = |v: bool| if v { i18n::tr("status_on") } else { i18n::tr("status_off") };
         let user_status = onoff(cfg.user_pick_block);
         let ai_status = onoff(cfg.ai_pick_gate);
-        let assign_status = onoff(cfg.ai_assign_mask);
+        let assign_status = onoff(cfg.swap_force != 0); // ★0.6.4: AI 배정 = decide_positions(swap_force) · ai_assign_mask 폐지
         let swap_status = onoff(cfg.swap_force != 0 && cfg.swap_auto);
         let rules_status = i18n::trf("rules_status", &[
             ("user", &user_status),

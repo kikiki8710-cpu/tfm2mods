@@ -8,7 +8,7 @@
 //!   · 설정 UI            = 환경설정 게임플레이 탭에 행 스폰 + 팝업 스폰(`assets\*.ui` 임베드, `ui_spawn_source`) — `ui_popup.rs`
 //!   · 설정 저장          = 세이브 mod save data(`save_get/set_string`) — 클래식과 같은 텍스트 형식(`config.rs`)
 //!   · 밴픽 룰 관측       = 옵션 화면 `banpick_style`/`ban_count` 선택값 + 밴픽 화면 밴 슬롯 수
-//!   · (선택) AI 팀 포지션 배정 강제 = 클래식 detour 2축(hookA 마스크·cprod 스왑 order) — `legacy_assign.rs`(cfg `ai_assign_mask`/`swap_force`)
+//!   · AI 팀 포지션 배정 강제 = ★0.6.4 stable ABI 10 `decide_positions`(`ai_position.rs` · cfg `swap_force`) — ~~클래식 detour 2축 legacy_assign(hookA)·ai_swap~~ 폐기
 //! 마스크·최소 선택 수·정확식(`config.rs`)·배정 순수 로직(`assign.rs`)은 클래식 그대로.
 #![allow(dead_code)]
 use mod_api_stable::{declare_stable_mod, LogLevel, SceneKindV1, StableClient, StableExtension, StableHost, StableMod};
@@ -20,11 +20,10 @@ pub mod assign;
 pub mod config;
 pub mod draft;
 pub mod i18n;
-pub mod legacy_assign;
 pub mod ui_block;
 pub mod swap_confirm_hook;
 pub mod pick_click_hook;
-pub mod ai_swap;
+pub mod ai_position; // ★0.6.4 ABI 10 decide_positions — 구 legacy_assign(hookA)·ai_swap(compute_rule_swap_order) RVA 2축 대체
 pub mod auto_swap; // ★09-20 내 팀 자동 스왑(select_swap 호출)
 pub mod ui_popup;
 pub mod perf; // ★09-28 구간 계측(cfg perf_log)
@@ -38,7 +37,7 @@ pub mod draft_scene;
 pub mod dd;
 
 pub const MOD_ID: &str = "tfm2_champ_pos_lock"; // ★2026-09-30 유저 지시: 원본과 같은 mod_id(중복 설치 방지 · 세이브 설정 형식 동일=parse_state_text 원본과 바이트 동일)
-pub const VERSION: &str = "1.0.0";
+pub const VERSION: &str = "1.0.2";
 
 #[link(name = "kernel32")]
 extern "system" { fn GetModuleFileNameW(module: usize, buf: *mut u16, size: u32) -> u32; fn GetModuleHandleExW(flags: u32, addr: *const u16, h: *mut usize) -> i32; }
@@ -332,15 +331,14 @@ impl StableExtension for Ext {
             { let _s = perf::sec(perf::SAVE); save_tick(ctx); }
             { let _s = perf::sec(perf::MASKS); let _ = masks(); }
             let _hk = perf::sec(perf::HOOKS);
-            legacy_assign::install_once();
             // 밴픽 씬 포인터 캡처(update 진입 detour · 09-18 RE) — 스왑 order raw 읽기용. 설치 결과 1회 로그.
             if let Some(msg) = draft_scene::install_once() { config::dlog(&msg); config::llog(&msg); }
             draft_scene::tick();
             if let Some(msg) = swap_confirm_hook::install_once() { config::dlog(&msg); config::llog(&msg); }
             if let Some(msg) = pick_click_hook::install_once() { config::dlog(&msg); config::llog(&msg); }
-            if let Some(msg) = ai_swap::install_once() { config::dlog(&msg); config::llog(&msg); }
-            if let Some(msg) = ai_swap::drain_log() { config::llog(&msg); config::dlog(&msg); }
-            if FRAME.load(Ordering::Relaxed) % 600 == 0 { let f = ai_swap::CNT_FIRE.load(Ordering::Relaxed); if f != AISWAP_LAST_FIRE.swap(f, Ordering::Relaxed) { config::llog(&format!("aiswap counters: fire={} rewrite={} skip={}", f, ai_swap::CNT_REWRITE.load(Ordering::Relaxed), ai_swap::CNT_SKIP.load(Ordering::Relaxed))); } }
+            ai_position::cache_tick(ctx, FRAME.load(Ordering::Relaxed));
+            if let Some(msg) = ai_position::drain_log() { config::llog(&msg); config::dlog(&msg); }
+            if FRAME.load(Ordering::Relaxed) % 600 == 0 { let f = ai_position::CNT_CALL.load(Ordering::Relaxed); if f != AISWAP_LAST_FIRE.swap(f, Ordering::Relaxed) { config::llog(&ai_position::counters()); } }
             drop(_hk);
             let _op = perf::sec(perf::OPTION);
             // 옵션 화면(환경설정): 행/팝업 + 룰 관측

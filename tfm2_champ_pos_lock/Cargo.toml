@@ -10,7 +10,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+mod-api-stable = { path = "../sdk_064_stable/mod-api-stable" }
 
 [workspace]
 

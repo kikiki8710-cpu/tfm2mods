@@ -5,7 +5,8 @@
  "notes": [
   "0.6.1(09-22): 매니페스트 _classic_058 오염 제거(48→4 엔트리, 미등록 2 해소). COMPUTE_RULE_SWAP_ORDER 본문 2948→2921(scorer+0x22d1 플래그 분기 신설·callees 11/11·시그니처 동일 → 반환 Vec 후처리 계약 불변). draft_scene(ui_kit) 오프셋 히스토그램 불변. 인게임: INIT/룰 확정/스왑 단계 정상·크래시 0",
   "RVA_PANIC_HOOK 0x2aaf154 = banpick_order 와 공유.",
-  "GY_CALLSITE 는 전역 콜러 인덱스로 고르면 오프바이원(사고) — owner 내부 오프셋 + je 타깃 오프셋 판별자 사용."
+  "GY_CALLSITE 는 전역 콜러 인덱스로 고르면 오프바이원(사고) — owner 내부 오프셋 + je 타깃 오프셋 판별자 사용.",
+  "2026-10-14 0.6.4: RVA_POS_MASK(legacy_assign hookA)·RVA_COMPUTE_RULE_SWAP_ORDER(ai_swap) 제거 — stable ABI 10 decide_positions(ai_position.rs)로 완전 대체(유저 결정). 남은 RVA = auto_swap·pick_click·swap_confirm 3."
  ],
  "offsets": [
   {
@@ -17,18 +18,6 @@
   }
  ],
  "entries": [
-  {
-   "name": "RVA_POS_MASK",
-   "value": "0x18b0850",
-   "ver": "0.6.4",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/legacy_assign.rs:14"
-   ],
-   "sect": ".text",
-   "bytes": "415741564155415456575553",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
   {
    "name": "RVA_SELECT_SWAP",
    "value": "0x2084c60",
@@ -60,18 +49,6 @@
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/swap_confirm_hook.rs:8"
-   ],
-   "sect": ".text",
-   "bytes": "554157415641554154565753",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "RVA_COMPUTE_RULE_SWAP_ORDER",
-   "value": "0x15b5700",
-   "ver": "0.6.4",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/ai_swap.rs:12"
    ],
    "sect": ".text",
    "bytes": "554157415641554154565753",
