@@ -8,7 +8,8 @@
       "hoverbg_toggle": "배경 표시",
       "follow_toggle": "호버 챔피언 배경",
       "bgcycle_label": "기본 배경",
-      "pack_caption": "스플래시 아트 팩 일괄 적용"    }
+      "pack_caption": "스플래시 아트 팩 일괄 적용",
+      "zoom_toggle": "확대 그림(-1) 사용"    }
   },
   "en": {
     "banpick_view_plus": {
@@ -19,7 +20,8 @@
       "hoverbg_toggle": "Show background",
       "follow_toggle": "Hover champ background",
       "bgcycle_label": "Default background",
-      "pack_caption": "Apply art pack in bulk"    }
+      "pack_caption": "Apply art pack in bulk",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "ja": {
     "banpick_view_plus": {
@@ -30,7 +32,8 @@
       "hoverbg_toggle": "Show background",
       "follow_toggle": "Hover champ background",
       "bgcycle_label": "Default background",
-      "pack_caption": "Apply art pack in bulk"    }
+      "pack_caption": "Apply art pack in bulk",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "de": {
     "banpick_view_plus": {
@@ -41,7 +44,8 @@
       "hoverbg_toggle": "Show background",
       "follow_toggle": "Hover champ background",
       "bgcycle_label": "Default background",
-      "pack_caption": "Apply art pack in bulk"    }
+      "pack_caption": "Apply art pack in bulk",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "vi": {
     "banpick_view_plus": {
@@ -52,7 +56,8 @@
       "hoverbg_toggle": "Show background",
       "follow_toggle": "Hover champ background",
       "bgcycle_label": "Default background",
-      "pack_caption": "Apply art pack in bulk"    }
+      "pack_caption": "Apply art pack in bulk",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "tr": {
     "banpick_view_plus": {
@@ -63,7 +68,8 @@
       "hoverbg_toggle": "Show background",
       "follow_toggle": "Hover champ background",
       "bgcycle_label": "Default background",
-      "pack_caption": "Apply art pack in bulk"    }
+      "pack_caption": "Apply art pack in bulk",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "nl": {
     "banpick_view_plus": {
@@ -74,7 +80,8 @@
       "hoverbg_toggle": "Show background",
       "follow_toggle": "Hover champ background",
       "bgcycle_label": "Default background",
-      "pack_caption": "Apply art pack in bulk"    }
+      "pack_caption": "Apply art pack in bulk",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "ru": {
     "banpick_view_plus": {
@@ -85,7 +92,8 @@
       "hoverbg_toggle": "Show background",
       "follow_toggle": "Hover champ background",
       "bgcycle_label": "Default background",
-      "pack_caption": "Apply art pack in bulk"    }
+      "pack_caption": "Apply art pack in bulk",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "fr": {
     "banpick_view_plus": {
@@ -96,7 +104,8 @@
       "hoverbg_toggle": "Show background",
       "follow_toggle": "Hover champ background",
       "bgcycle_label": "Default background",
-      "pack_caption": "Apply art pack in bulk"    }
+      "pack_caption": "Apply art pack in bulk",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "zh-hans": {
     "banpick_view_plus": {
@@ -107,7 +116,8 @@
       "hoverbg_toggle": "显示背景",
       "follow_toggle": "悬停英雄背景",
       "bgcycle_label": "默认背景",
-      "pack_caption": "原画包批量应用"    }
+      "pack_caption": "原画包批量应用",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "zh-hant": {
     "banpick_view_plus": {
@@ -118,7 +128,8 @@
       "hoverbg_toggle": "顯示背景",
       "follow_toggle": "懸停英雄背景",
       "bgcycle_label": "預設背景",
-      "pack_caption": "原畫包批量應用"    }
+      "pack_caption": "原畫包批量應用",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "zh-CN": {
     "banpick_view_plus": {
@@ -129,7 +140,8 @@
       "hoverbg_toggle": "显示背景",
       "follow_toggle": "悬停英雄背景",
       "bgcycle_label": "默认背景",
-      "pack_caption": "原画包批量应用"    }
+      "pack_caption": "原画包批量应用",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "zh": {
     "banpick_view_plus": {
@@ -140,7 +152,8 @@
       "hoverbg_toggle": "显示背景",
       "follow_toggle": "悬停英雄背景",
       "bgcycle_label": "默认背景",
-      "pack_caption": "原画包批量应用"    }
+      "pack_caption": "原画包批量应用",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "schinese": {
     "banpick_view_plus": {
@@ -151,7 +164,8 @@
       "hoverbg_toggle": "显示背景",
       "follow_toggle": "悬停英雄背景",
       "bgcycle_label": "默认背景",
-      "pack_caption": "原画包批量应用"    }
+      "pack_caption": "原画包批量应用",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "zh-TW": {
     "banpick_view_plus": {
@@ -162,7 +176,8 @@
       "hoverbg_toggle": "顯示背景",
       "follow_toggle": "懸停英雄背景",
       "bgcycle_label": "預設背景",
-      "pack_caption": "原畫包批量應用"    }
+      "pack_caption": "原畫包批量應用",
+      "zoom_toggle": "Zoomed art (-1)"    }
   },
   "tchinese": {
     "banpick_view_plus": {
@@ -173,6 +188,7 @@
       "hoverbg_toggle": "顯示背景",
       "follow_toggle": "懸停英雄背景",
       "bgcycle_label": "預設背景",
-      "pack_caption": "原畫包批量應用"    }
+      "pack_caption": "原畫包批量應用",
+      "zoom_toggle": "Zoomed art (-1)"    }
   }
 }

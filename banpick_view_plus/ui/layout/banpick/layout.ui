@@ -4068,7 +4068,7 @@ main:match_ui {
     y: 55px;
 
     width: 320px;
-    height: 436px;
+    height: 412px;
 
     back_color: #161721ff;
     color: #4a4c56ff;
@@ -4504,7 +4504,7 @@ main:match_ui {
         width: 16px;
         height: 16px;
 
-        source: "asset/base/ui/icons/refresh";
+        source: "asset/base/ui/icons/dropdown";
         color: #d7dbe4ff;
       }
     }
@@ -4558,6 +4558,110 @@ main:match_ui {
 
         source: "asset/base/ui/icons/refresh";
         color: #d7dbe4ff;
+      }
+    }
+
+    #bp_zoom_toggle:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      z: 901;
+      x: 12px;
+      y: 366px;
+      width: 296px;
+      height: 36px;
+
+      #label:label {
+        @"asset/base/style/main#label";
+        z: 902;
+        ignore_event: true;
+        x: 12px;
+        width: 220px;
+        height: 100%;
+
+        size: 15;
+        color: #e8e8e8ff;
+        align_y: Center;
+        text: "#asset/base/text/ui?banpick_view_plus.zoom_toggle";
+      }
+
+      #on:label {
+        @"asset/base/style/main#bold_label";
+        z: 902;
+        ignore_event: true;
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -12px;
+        width: 44px;
+        height: 100%;
+
+        size: 14;
+        color: #f2c14eff;
+        align_x: Right;
+        align_y: Center;
+        text: "ON";
+        visible: false;
+      }
+
+      #off:label {
+        @"asset/base/style/main#bold_label";
+        z: 902;
+        ignore_event: true;
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -12px;
+        width: 44px;
+        height: 100%;
+
+        size: 14;
+        color: #5a5e68ff;
+        align_x: Right;
+        align_y: Center;
+        text: "OFF";
+      }
+    }
+
+    #bp_pack_list:color {
+      z: 950;
+      visible: false;
+      x: 12px;
+      y: 362px;
+      width: 296px;
+      height: 280px;
+
+      back_color: #0f1017ff;
+      color: #4a4c56ff;
+      stroke: 1;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      #list:scroll_view {
+        z: 951;
+        x: 4px;
+        y: 4px;
+        width: 288px;
+        height: 272px;
+
+        speed: 60;
+        bar_width: 6;
+        bar_padding: {
+          top: 4px;
+          bottom: 4px;
+          right: 2px;
+        }
+        bar: {
+          source: "asset/base/sprite/white";
+          color: #37d5b3ff;
+
+          hover: {
+          color: #ecfbf8ff;
+          }
+        }
+
+        back: {
+          source: "asset/base/sprite/white";
+          color: #4a4c56ff;
+        }
       }
     }
   }

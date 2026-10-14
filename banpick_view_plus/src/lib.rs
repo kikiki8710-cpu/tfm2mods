@@ -67,8 +67,8 @@ const DIM_NODES: [(&str, &str, &str); 5] = [
 
 // ───────── 설정 ─────────
 #[derive(Clone, Copy)]
-struct Cfg { show_panel: bool, name_color: bool, red_noflip: bool, show_bg: bool, hero_bg: bool, showcase: bool }
-static CFG: Mutex<Cfg> = Mutex::new(Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false, showcase: true });
+struct Cfg { show_panel: bool, name_color: bool, red_noflip: bool, show_bg: bool, hero_bg: bool, showcase: bool, zoom: bool }
+static CFG: Mutex<Cfg> = Mutex::new(Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false, showcase: true, zoom: false });
 fn cfg() -> Cfg { *CFG.lock().unwrap_or_else(|e| e.into_inner()) }
 fn cfg_mut(f: impl FnOnce(&mut Cfg)) { let mut g = CFG.lock().unwrap_or_else(|e| e.into_inner()); f(&mut g); let c = *g; drop(g); save_cfg(&c); }
 /// ★설정 저장소 = 원작과 같은 공용 파일 `<게임>\ModData\config.txt`(키: show_panel/banpick_name_color/banpick_red_noflip/banpick_show_bg/banpick_hero_bg).
@@ -78,17 +78,17 @@ fn shared_cfg_path() -> Option<String> { exe_dir().map(|d| format!(r"{}\ModData\
 fn cfg_apply_line(c: &mut Cfg, l: &str) {
     let Some((k, v)) = l.split_once('=') else { return };
     let b = matches!(v.trim().to_ascii_lowercase().as_str(), "true" | "1" | "on" | "yes");
-    match k.trim() { "show_panel" => c.show_panel = b, "banpick_name_color" => c.name_color = b, "banpick_red_noflip" => c.red_noflip = b, "banpick_show_bg" => c.show_bg = b, "banpick_hero_bg" => c.hero_bg = b, "banpick_showcase" => c.showcase = b, _ => {} }
+    match k.trim() { "show_panel" => c.show_panel = b, "banpick_name_color" => c.name_color = b, "banpick_red_noflip" => c.red_noflip = b, "banpick_show_bg" => c.show_bg = b, "banpick_hero_bg" => c.hero_bg = b, "banpick_showcase" => c.showcase = b, "banpick_zoom" => c.zoom = b, _ => {} }
 }
 fn load_cfg() -> Cfg {
-    let mut c = Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false, showcase: true };
+    let mut c = Cfg { show_panel: true, name_color: true, red_noflip: false, show_bg: false, hero_bg: false, showcase: true, zoom: false };
     if let Some(t) = shared_cfg_path().and_then(|p| std::fs::read_to_string(p).ok()) { for l in t.lines() { cfg_apply_line(&mut c, l); } }
     c
 }
 fn save_cfg(c: &Cfg) {
     let Some(p) = shared_cfg_path() else { return };
     let mut lines: Vec<String> = std::fs::read_to_string(&p).map(|t| t.lines().map(|l| l.to_string()).collect()).unwrap_or_default();
-    let pairs = [("show_panel", c.show_panel), ("banpick_name_color", c.name_color), ("banpick_red_noflip", c.red_noflip), ("banpick_show_bg", c.show_bg), ("banpick_hero_bg", c.hero_bg), ("banpick_showcase", c.showcase)];
+    let pairs = [("show_panel", c.show_panel), ("banpick_name_color", c.name_color), ("banpick_red_noflip", c.red_noflip), ("banpick_show_bg", c.show_bg), ("banpick_hero_bg", c.hero_bg), ("banpick_showcase", c.showcase), ("banpick_zoom", c.zoom)];
     for (k, v) in pairs {
         let line = format!("{} = {}", k, v);
         match lines.iter_mut().find(|l| l.split_once('=').map(|(a, _)| a.trim() == k).unwrap_or(false)) { Some(l) => *l = line, None => lines.push(line) }
@@ -119,7 +119,10 @@ static FRAME: AtomicU64 = AtomicU64::new(0);
 static ACTIVE: AtomicBool = AtomicBool::new(false);
 static CLICKS_REGISTERED: AtomicBool = AtomicBool::new(false);
 static SETTINGS_OPEN: AtomicBool = AtomicBool::new(false);
-static STAGED: Mutex<Option<usize>> = Mutex::new(None);
+static STAGED: Mutex<Option<usize>> = Mutex::new(None); // 풀다운 행(pack_rows) 인덱스 — 마지막으로 일괄 적용한 팩
+/// ★10-14(Flover 요청 「옆으로 넘기기 말고 아래로 스크롤」): 팩 일괄 적용 = 좌우 순환 → 풀다운 목록. 행은 첫 펼침 때 스폰(밴픽 씬마다 재생성).
+static PACK_LIST_OPEN: AtomicBool = AtomicBool::new(false);
+static PACK_ROW_CLICKS: Mutex<Option<BTreeSet<String>>> = Mutex::new(None); // 클릭 등록한 행 경로(경로 키 영구 → 경로당 1회)
 static PENDING_CLICKS: Mutex<Vec<String>> = Mutex::new(Vec::new());
 /// 픽 슬롯 → 챔프 id (is_blue, n)
 static SLOT_CHAMP: Mutex<Option<HashMap<(bool, usize), String>>> = Mutex::new(None);
@@ -410,7 +413,57 @@ fn flat_cands(il: &Illust, base: &str) -> Vec<String> {
 fn chosen_key(il: &Illust, base: &str) -> Option<String> {
     let c = flat_cands(il, base); if c.is_empty() { return None; }
     let sel = splash_sel().get(base).cloned();
-    Some(match sel { Some(k) if c.contains(&k) => k, _ => c[0].clone() })
+    Some(match sel {
+        Some(k) if c.contains(&k) => k,
+        // 선택 없음 + 확대 ON = 첫 팩의 -1 그림(없으면 기본)
+        _ if cfg().zoom => { let p0 = c[0].split('/').next().unwrap_or(""); c.iter().find(|k| k.split_once('/').map(|(p, st)| p == p0 && stem_layer(st) == 1).unwrap_or(false)).cloned().unwrap_or_else(|| c[0].clone()) }
+        _ => c[0].clone(),
+    })
+}
+/// 팩 안에서 base 의 그림 stem 들 (layer, stem) — layer 오름차순
+fn pack_stems(il: &Illust, pack: &str, base: &str) -> Vec<(u32, String)> {
+    layers_of(il, base).into_iter().filter(|st| il.packs.get(st).map(|l| l.iter().any(|p| p == pack)).unwrap_or(false)).map(|st| (stem_layer(&st), st)).collect()
+}
+/// 풀다운 행 = (pack, 표시명, layer). layer None = 기본 행(확대 토글을 따름: ON → -1 · OFF → 기본 · 없으면 기본 그림 유지).
+///   -2 이상 그림이 있는 팩은 그 층을 별도 행 `(대체n)` 으로 둔다(확대 토글은 일반/-1 만 오간다 — Flover 요청 10-14).
+fn pack_rows(il: &Illust) -> Vec<(String, String, Option<u32>)> {
+    let mut out: Vec<(String, String, Option<u32>)> = Vec::new();
+    for (pack, name, n) in &il.vpacks {
+        if *n <= 1 { if !out.iter().any(|r| r.0 == *pack && r.2.is_none()) { out.push((pack.clone(), name.clone(), None)); } }
+        else { out.push((pack.clone(), name.clone(), Some(*n))); }
+    }
+    out
+}
+fn pack_row_label(row: &(String, String, Option<u32>), ko: bool) -> String {
+    let (_, raw, n) = row;
+    let base = if raw.is_empty() { (if ko { "내 그림" } else { "My art" }).to_string() } else { raw.split(" (").next().unwrap_or(raw).trim().to_string() };
+    match n { Some(n) if ko => format!("{} (대체{})", base, n), Some(n) => format!("{} (alt{})", base, n), None => base }
+}
+fn apply_pack_row(il: &Illust, row: &(String, String, Option<u32>)) {
+    let (pack, _, n) = row;
+    let want = n.unwrap_or(if cfg().zoom { 1 } else { 0 });
+    let mut bases: BTreeSet<String> = BTreeSet::new();
+    for (stem, list) in &il.packs { if list.contains(pack) { let b = stem_base(stem); if b != "bg" { bases.insert(b); } } }
+    for base in bases {
+        let st = pack_stems(il, pack, &base);
+        // 원하는 층 → 없으면 기본(0) → 그래도 없으면 그 팩의 가장 낮은 층
+        let pick = st.iter().find(|(l, _)| *l == want).or_else(|| st.iter().find(|(l, _)| *l == 0)).or_else(|| st.first());
+        if let Some((_, stem)) = pick { set_splash(&base, &format!("{}/{}", pack, stem)); }
+    }
+}
+/// 확대 토글: 챔피언마다 지금 쓰는 팩 안에서 일반(0) ↔ 확대(-1) 로만 바꾼다. 그 팩에 -1 이 없으면 그대로(기본 그림 유지).
+fn apply_zoom(il: &Illust, on: bool) {
+    let mut bases: BTreeSet<String> = BTreeSet::new();
+    for stem in il.packs.keys() { let b = stem_base(stem); if b != "bg" { bases.insert(b); } }
+    let (from, to) = if on { (0, 1) } else { (1, 0) };
+    let mut n = 0usize;
+    for base in bases {
+        let Some(cur) = chosen_key(il, &base) else { continue };
+        let Some((pack, stem)) = cur.split_once('/') else { continue };
+        if stem_layer(stem) != from { continue; }
+        if let Some((_, st)) = pack_stems(il, pack, &base).into_iter().find(|(l, _)| *l == to) { set_splash(&base, &format!("{}/{}", pack, st)); n += 1; }
+    }
+    log(&format!("확대 {} — {}종 전환", if on { "ON" } else { "OFF" }, n));
 }
 /// 진영별 아트 = (에셋 경로, flip). 레드: red_noflip=0 → `illust\red\<stem>` / =1 → `illust\red_noflip\<stem>` 가 있으면 그것을 반전 없이,
 ///   없으면 blue 그림을 엔진 flip(`red_noflip` 이면 안 뒤집음). (구 tfm2_banpick_illust 규칙)
@@ -434,10 +487,6 @@ fn cycle_illust(base: &str) {
     let cur = chosen_key(&il, base).unwrap_or_default();
     let i = c.iter().position(|k| *k == cur).unwrap_or(0);
     set_splash(base, &c[(i + 1) % c.len()]);
-}
-fn apply_vpack(idx: usize) {
-    let il = illust(); let Some((pack, _, n)) = il.vpacks.get(idx).cloned() else { return };
-    for (stem, list) in &il.packs { if stem_layer(stem) != n { continue; } let base = stem_base(stem); if base == "bg" { continue; } if list.contains(&pack) { set_splash(&base, &format!("{}/{}", pack, stem)); } }
 }
 fn asset_of(key: &str) -> String { format!("asset/{}/illust/raw/{}", MOD_ID, key) }
 
@@ -545,7 +594,7 @@ impl StableExtension for Ext {
             // ── 클릭 등록(프로세스당 1회, 경로 키 영구)
             if !CLICKS_REGISTERED.swap(true, Ordering::Relaxed) {
                 ctx.ui_register_click(DISC, "", |_| push_click("settings"));
-                for k in ["bp_panel_toggle", "bp_namecolor_toggle", "bp_redflip_toggle", "bp_hoverbg_toggle", "bp_follow_toggle", "bp_bg_cycle", "bp_pack_cycle"] {
+                for k in ["bp_panel_toggle", "bp_namecolor_toggle", "bp_redflip_toggle", "bp_hoverbg_toggle", "bp_follow_toggle", "bp_bg_cycle", "bp_pack_cycle", "bp_zoom_toggle"] {
                     let kk: &'static str = k;
                     ctx.ui_register_click(&format!("{}.{}", PANEL, k), "", move |_| push_click(kk));
                 }
@@ -570,14 +619,20 @@ impl StableExtension for Ext {
             let clicks: Vec<String> = std::mem::take(&mut *PENDING_CLICKS.lock().unwrap_or_else(|e| e.into_inner()));
             for c in clicks {
                 match c.as_str() {
-                    "settings" => { let v = !SETTINGS_OPEN.load(Ordering::Relaxed); SETTINGS_OPEN.store(v, Ordering::Relaxed); }
+                    "settings" => { let v = !SETTINGS_OPEN.load(Ordering::Relaxed); SETTINGS_OPEN.store(v, Ordering::Relaxed); if !v { PACK_LIST_OPEN.store(false, Ordering::Relaxed); } }
                     "bp_panel_toggle" => cfg_mut(|c| c.show_panel = !c.show_panel),
                     "bp_namecolor_toggle" => cfg_mut(|c| c.name_color = !c.name_color),
                     "bp_redflip_toggle" => cfg_mut(|c| c.red_noflip = !c.red_noflip),
                     "bp_hoverbg_toggle" => cfg_mut(|c| c.show_bg = !c.show_bg),
                     "bp_follow_toggle" => cfg_mut(|c| c.hero_bg = !c.hero_bg),
                     "bp_bg_cycle" => cycle_illust("bg"),
-                    "bp_pack_cycle" => { if !il.vpacks.is_empty() { let mut s = STAGED.lock().unwrap_or_else(|e| e.into_inner()); let n = match *s { Some(i) => (i + 1) % il.vpacks.len(), None => 0 }; *s = Some(n); drop(s); apply_vpack(n); } }
+                    "bp_pack_cycle" => { if !pack_rows(&il).is_empty() { let v = !PACK_LIST_OPEN.load(Ordering::Relaxed); PACK_LIST_OPEN.store(v, Ordering::Relaxed); } }
+                    "bp_zoom_toggle" => { cfg_mut(|c| c.zoom = !c.zoom); apply_zoom(&il, cfg().zoom); }
+                    s if s.starts_with("packrow:") => {
+                        let rows = pack_rows(&il);
+                        if let Some(i) = s["packrow:".len()..].parse::<usize>().ok().filter(|i| *i < rows.len()) { *STAGED.lock().unwrap_or_else(|e| e.into_inner()) = Some(i); apply_pack_row(&il, &rows[i]); }
+                        PACK_LIST_OPEN.store(false, Ordering::Relaxed);
+                    }
                     s if s.starts_with("illust:") => {
                         let parts: Vec<&str> = s.split(':').collect();
                         if parts.len() == 3 { let is_blue = parts[1] == "blue"; if let Ok(n) = parts[2].parse::<usize>() { if let Some(id) = SLOT_CHAMP.lock().unwrap_or_else(|e| e.into_inner()).as_ref().and_then(|m| m.get(&(is_blue, n)).cloned()) { cycle_illust(&id); } } }
@@ -620,8 +675,9 @@ impl StableExtension for Ext {
             // ── 설정 패널
             let panel_open = chrome && SETTINGS_OPEN.load(Ordering::Relaxed);
             set_vis(ctx, PANEL, panel_open);
+            if !panel_open { PACK_LIST_OPEN.store(false, Ordering::Relaxed); }
             if panel_open {
-                for (btn, on) in [("bp_panel_toggle", c.show_panel), ("bp_namecolor_toggle", c.name_color), ("bp_redflip_toggle", c.red_noflip), ("bp_hoverbg_toggle", c.show_bg), ("bp_follow_toggle", c.show_bg && c.hero_bg)] {
+                for (btn, on) in [("bp_panel_toggle", c.show_panel), ("bp_namecolor_toggle", c.name_color), ("bp_redflip_toggle", c.red_noflip), ("bp_hoverbg_toggle", c.show_bg), ("bp_follow_toggle", c.show_bg && c.hero_bg), ("bp_zoom_toggle", c.zoom)] {
                     set_vis(ctx, &format!("{}.{}.on", PANEL, btn), on); set_vis(ctx, &format!("{}.{}.off", PANEL, btn), !on);
                 }
                 let bg_cands = flat_cands(&il, "bg").len();
@@ -630,15 +686,17 @@ impl StableExtension for Ext {
                 let bg_label = if bg_cands == 0 { "0".to_string() } else { let cur = chosen_key(&il, "bg"); let c = flat_cands(&il, "bg"); let pos = cur.as_deref().and_then(|k| c.iter().position(|x| x == k)).unwrap_or(0); format!("{}/{}", pos + 1, c.len()) };
                 ctx.ui_set_text(&format!("{}.bp_bg_cycle.idx", PANEL), &bg_label);
                 let staged = *STAGED.lock().unwrap_or_else(|e| e.into_inner());
+                let rows = pack_rows(&il);
                 let pack_label = match staged {
-                    Some(i) => match il.vpacks.get(i) { Some((_, raw, n)) if raw.is_empty() => format!("{}{}", if ko { "내 그림" } else { "My art" }, if *n == 0 { String::new() } else if ko { format!(" (대체{})", n) } else { format!(" (alt{})", n) }), Some((_, raw, n)) => format!("{}{}", raw.split(" (").next().unwrap_or(raw).trim(), if *n == 0 { String::new() } else if ko { format!(" (대체{})", n) } else { format!(" (alt{})", n) }), None => String::new() },
-                    None if il.vpacks.is_empty() => (if ko { "적용 가능한 팩 없음" } else { "No packs available" }).to_string(),
+                    Some(i) => rows.get(i).map(|r| pack_row_label(r, ko)).unwrap_or_default(),
+                    None if rows.is_empty() => (if ko { "적용 가능한 팩 없음" } else { "No packs available" }).to_string(),
                     None => (if ko { "스플래시 아트 팩 선택..." } else { "Select pack..." }).to_string(),
                 };
                 ctx.ui_set_text(&format!("{}.bp_pack_cycle.label", PANEL), &pack_label);
                 set_vis(ctx, &format!("{}.skin_pack_caption", PANEL), false);
                 set_vis(ctx, &format!("{}.bp_skin_pack_cycle", PANEL), false);
-                for (btn, dis) in [("bp_follow_toggle", !c.show_bg), ("bp_bg_cycle", !(c.show_bg && bg_cands >= 2)), ("bp_pack_cycle", il.vpacks.len() < 2)] { ctx.ui_set_properties(&format!("{}.{}", PANEL, btn), &format!("disabled: {};", dis)); }
+                for (btn, dis) in [("bp_follow_toggle", !c.show_bg), ("bp_bg_cycle", !(c.show_bg && bg_cands >= 2)), ("bp_pack_cycle", rows.len() < 2)] { ctx.ui_set_properties(&format!("{}.{}", PANEL, btn), &format!("disabled: {};", dis)); }
+                draw_pack_list(ctx, &rows, staged, ko);
             }
             // ── 픽 슬롯 챔피언: done.name 은 **선수 이름**이라 못 쓴다(0.6.0 실측). 카드 그리드의 `blue`/`red` 오버레이(픽 표시)가 새로 켜진
             //    챔피언과 새로 `done` 이 된 슬롯을 같은 틱에서 짝지운다(픽 순서 = 슬롯 완료 순서). 늦게 켠 경우엔 남은 것끼리 순서대로.
@@ -927,9 +985,55 @@ impl StableExtension for Ext {
         }));
     }
 }
+/// 팩 풀다운(10-14): `bp_pack_list`(.ui 정적 · 패널 안 y=362) 안 `list` 스크롤뷰에 행을 첫 펼침 때 스폰한다.
+///   스크롤 범위 = 스페이서 바닥 − 뷰 높이 − bar_padding(4+4) (메인 그리드와 같은 관계식 — `spacer_y` 주석).
+///   펼치면 패널 높이를 목록 아래까지 늘린다(패널 밖으로 삐져나온 자식의 클릭 판정을 믿지 않는다).
+const PACK_ROW_H: usize = 34;
+const PACK_LIST_MAX_ROWS: usize = 8;
+const PACK_LIST_Y: usize = 362;
+const PANEL_H: usize = 412;
+fn draw_pack_list(ctx: &mut StableClient<'_>, rows: &[(String, String, Option<u32>)], staged: Option<usize>, ko: bool) {
+    let lp = format!("{}.bp_pack_list", PANEL);
+    let sv = format!("{}.list", lp);
+    let open = PACK_LIST_OPEN.load(Ordering::Relaxed) && rows.len() >= 2;
+    if open {
+        if !ctx.ui_exists(&format!("{}.bp_pack_row_0", sv)) {
+            let mut ok = 0;
+            for (i, r) in rows.iter().enumerate() {
+                let t = pack_row_label(r, ko).replace('\\', "").replace('"', "'");
+                let src = format!("bp_pack_row_{i}:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; z: 952; x: 0px; y: {y}px; width: 276px; height: 32px;\n  #label:label {{ @\"asset/base/style/main#label\"; z: 953; ignore_event: true; x: 10px; width: 256px; height: 100%; size: 14; color: #e8e8e8ff; align_y: Center; text: \"{t}\"; }}\n}}", i = i, y = i * PACK_ROW_H, t = t);
+                if ctx.ui_spawn_source(&sv, &src) { ok += 1; }
+            }
+            let sp = ctx.ui_spawn_source(&sv, &format!("bp_pack_spacer:empty {{ x: 0px; y: {}px; width: 8px; height: 10px; }}", rows.len() * PACK_ROW_H - 2));
+            log(&format!("팩 풀다운 행 스폰 {}/{} spacer={}", ok, rows.len(), sp));
+        }
+        {
+            let mut g = PACK_ROW_CLICKS.lock().unwrap_or_else(|e| e.into_inner());
+            let set = g.get_or_insert_with(BTreeSet::new);
+            for i in 0..rows.len() {
+                let p = format!("{}.bp_pack_row_{}", sv, i);
+                if set.contains(&p) || !ctx.ui_exists(&p) { continue; }
+                let tag = format!("packrow:{}", i);
+                if ctx.ui_register_click(&p, "", move |_| push_click(&tag)) { set.insert(p); }
+            }
+        }
+        let h = rows.len().min(PACK_LIST_MAX_ROWS) * PACK_ROW_H + 8;
+        let _ = ctx.ui_set_properties(&lp, &format!("height: {}px;", h));
+        let _ = ctx.ui_set_properties(&sv, &format!("height: {}px;", h - 8));
+        let _ = ctx.ui_set_properties(PANEL, &format!("height: {}px;", (PACK_LIST_Y + h + 12).max(PANEL_H)));
+        for i in 0..rows.len() {
+            let col = if staged == Some(i) { "#f2c14eff" } else { "#e8e8e8ff" };
+            let _ = ctx.ui_set_properties(&format!("{}.bp_pack_row_{}.label", sv, i), &format!("color: {};", col));
+        }
+    } else {
+        let _ = ctx.ui_set_properties(PANEL, &format!("height: {}px;", PANEL_H));
+    }
+    set_vis(ctx, &lp, open);
+    let _ = ctx.ui_set_properties(&format!("{}.bp_pack_cycle.next", PANEL), if open { "source: \"asset/base/ui/icons/dropdown_up\";" } else { "source: \"asset/base/ui/icons/dropdown\";" });
+}
 fn deactivate() {
     SWAP_ACTIVE.store(false, Ordering::Relaxed);
-    if ACTIVE.swap(false, Ordering::Relaxed) { SETTINGS_OPEN.store(false, Ordering::Relaxed); *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER_BG_KEY.lock().unwrap_or_else(|e| e.into_inner()) = None; }
+    if ACTIVE.swap(false, Ordering::Relaxed) { SETTINGS_OPEN.store(false, Ordering::Relaxed); PACK_LIST_OPEN.store(false, Ordering::Relaxed); *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER_BG_KEY.lock().unwrap_or_else(|e| e.into_inner()) = None; }
 }
 /// 원작 draw_radar_octagon 재현(UI 맵 드로잉). 카드 오른쪽/왼쪽 옆에 그린다(게임 자체 포지션 툴팁은 카드 위·아래).
 fn draw_radar(ctx: &mut StableClient<'_>, axes: &[f32; 8], card: (f32, f32, f32, f32)) {
