@@ -3946,6 +3946,29 @@ main:match_ui {
         size: 24;
       }
     }
+
+    #instant:color_icon_button {
+      @"asset/base/style/main#primary_button";
+      visible: false;
+
+      width: 320px;
+      height: 40px;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+
+      anchor_y: 0.5;
+      pivot_y: 0;
+      y: 30px;
+
+      text: {
+        font: "asset/base/font/set/bold";
+        text: "#asset/base/text/ui?banpick.coach_delegation_instant";
+        align_x: Center;
+        align_y: Center;
+        size: 24;
+      }
+    }
   }
 
   #fade:color {
