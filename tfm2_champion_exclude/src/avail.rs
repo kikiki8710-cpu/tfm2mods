@@ -10,7 +10,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 /// ClientDatabase 기준 available_champions Vec<String> 의 cap 오프셋(ptr=+8, len=+0x10). 0 = 미확정.
 /// ★0.6.0 = 0xe740 (ptr 0xe748 / len 0xe750) — ghidra-re 2026-09-17: champion_info_ui FUN_1423f5680·챔피언 탭 FUN_1423843e0 교차(0.5.8 tcx 0xdcc0 대응).
-pub const OFF_AVAIL_CAP: usize = 0xe7e8; // ★0.6.2(0.6.1=0xe740) ClientDatabase +0xa8 삽입
+pub const OFF_AVAIL_CAP: usize = 0xe6b0; // ★0.6.4 ClientDatabase −0x138(0.6.2~0.6.3=0xe7e8) // ★0.6.2(0.6.1=0xe740) ClientDatabase +0xa8 삽입
 static SCAN_DONE: AtomicBool = AtomicBool::new(false);
 static FAIL_LOGGED: AtomicBool = AtomicBool::new(false);
 

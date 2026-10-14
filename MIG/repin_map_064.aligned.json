@@ -1,0 +1,2306 @@
+{
+ "tfm2_level_cap": {
+  "0x929924": {
+   "name": "RVA_UI_CMP",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:124"
+   ],
+   "sect_old": ".text",
+   "new": "0xd078d4",
+   "sect_new": ".text",
+   "new_bytes": "483b88100d00000f87570800",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE_GAP"
+   }
+  },
+  "0x1275d64": {
+   "name": "RVA_LEN_LOAD",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:112"
+   ],
+   "sect_old": ".text",
+   "new": "0x13ecdd4",
+   "sect_new": ".text",
+   "new_bytes": "488b90100d00004939d60f87",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  }
+ },
+ "tfm2_champion_exclude": {
+  "0x1b2ea80": {
+   "name": "HOOK_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 331->331",
+   "locs": [
+    "src/hook.rs:10"
+   ],
+   "sect_old": ".text",
+   "new": "0x1b5b4b0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534881",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ },
+ "banpick_view_plus": {
+  "0x16d040": {
+   "name": "RVA_ASSET_GET",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x16d040->0x16cf80 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/showcase.rs:46"
+   ],
+   "sect_old": ".text",
+   "new": "0x16cf80",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c6430": {
+   "name": "RVA_SUBMIT",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:32"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c6370",
+   "sect_new": ".text",
+   "new_bytes": "5541565657534881ec200100",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c66b0": {
+   "name": "RVA_SUBMIT_TEXT",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:33"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c65f0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534881",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c7100": {
+   "name": "RVA_TEXT_BUILD",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 830->830",
+   "locs": [
+    "src/showcase.rs:39"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c7040",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c76e0": {
+   "name": "RVA_IMG_UV",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:35"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c7620",
+   "sect_new": ".text",
+   "new_bytes": "564883ec2048b80000000000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c7880": {
+   "name": "RVA_IMG_BUILD",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:34"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c77c0",
+   "sect_new": ".text",
+   "new_bytes": "5541565657534881ecc00000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c7b90": {
+   "name": "RVA_IMG_FLAG",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:36"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c7ad0",
+   "sect_new": ".text",
+   "new_bytes": "564883ec2048b80000000000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c91f0": {
+   "name": "RVA_IMG_SHADER",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:38"
+   ],
+   "sect_old": ".text",
+   "new": "0x1c9130",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x224bc0": {
+   "name": "RVA_IMG_COLOR",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 2107->2107",
+   "locs": [
+    "src/showcase.rs:37"
+   ],
+   "sect_old": ".text",
+   "new": "0x224b00",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x20fc10": {
+   "name": "RVA_ANIM_GET",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x20fc10->0x20fb50 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/showcase.rs:47"
+   ],
+   "sect_old": ".text",
+   "new": "0x20fb50",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x21d2fe0": {
+   "name": "RVA_FX_SET",
+   "kind": "BYTES_UNIQUE(64B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:29"
+   ],
+   "sect_old": ".text",
+   "new": "0x2099090",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x21e8960": {
+   "name": "RVA_CARD_DRAW",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 2979->2979",
+   "locs": [
+    "src/showcase.rs:30"
+   ],
+   "sect_old": ".text",
+   "new": "0x20aea10",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x21f2cf8": {
+   "name": "RVA_D_CUT_LO",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x21f2c70->0x20b8b40 off 0x88(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:104"
+   ],
+   "sect_old": ".text",
+   "new": "0x20b8bc8",
+   "sect_new": ".text",
+   "new_bytes": "b891a201f3450f58c2f3440f",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x21f2d06": {
+   "name": "RVA_D_CUT_HI",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x21f2c70->0x20b8b40 off 0x96(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:105"
+   ],
+   "sect_old": ".text",
+   "new": "0x20b8bd6",
+   "sect_new": ".text",
+   "new_bytes": "5ae9b101f3450f58d941b820",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2212a20": {
+   "name": "RVA_NAME_GET",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:40"
+   ],
+   "sect_old": ".text",
+   "new": "0x20ddd40",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534883ec78",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2217df0": {
+   "name": "RVA_SPRITE_CALC",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:48"
+   ],
+   "sect_old": ".text",
+   "new": "0x20e3120",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2270de0": {
+   "name": "RVA_I_SNAP_H",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:102"
+   ],
+   "sect_old": ".text",
+   "new": "0x2143670",
+   "sect_new": ".text",
+   "new_bytes": "0000f043488d8d700100004c",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2270df6": {
+   "name": "RVA_D_SNAP_W",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2270560->0x2142df0 off 0x896(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:103"
+   ],
+   "sect_old": ".text",
+   "new": "0x2143686",
+   "sect_new": ".text",
+   "new_bytes": "bee89901e8116307fe90498b",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2271c42": {
+   "name": "RVA_D_ZIG_X1",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2270560->0x2142df0 off 0x16e2(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:108"
+   ],
+   "sect_old": ".text",
+   "new": "0x21444d2",
+   "sect_new": ".text",
+   "new_bytes": "eae5b501440f58d8410fc6fb",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2272320": {
+   "name": "RVA_D_ZIG_X2",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2270560->0x2142df0 off 0x1dc0(동일오프셋 가정)",
+   "locs": [
+    "src/showcase.rs:109"
+   ],
+   "sect_old": ".text",
+   "new": "0x2144bb0",
+   "sect_new": ".text",
+   "new_bytes": "0cdfb5010f58d50fc6da010f",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x21542d0": {
+   "name": "RVA_ILLUST_GET",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:31"
+   ],
+   "sect_old": ".text",
+   "new": "0x2add940",
+   "sect_new": ".text",
+   "new_bytes": "5541565657534881ec800000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2f99a60": {
+   "name": "RVA_GAME_ALLOC",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 60->60",
+   "locs": [
+    "src/showcase.rs:52"
+   ],
+   "sect_old": ".text",
+   "new": "0x2fe7a70",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec20488d6c2420",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x3c59c10": {
+   "name": "RVA_C_CARD_RECT",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:90"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3ca2a40",
+   "sect_new": ".rdata",
+   "new_bytes": "000034c3000070c30000b443",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c59c40": {
+   "name": "RVA_C_SNAP_RECT",
+   "kind": "BYTES_UNIQUE(20B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:91"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3ca2a60",
+   "sect_new": ".rdata",
+   "new_bytes": "00000000000000000000b443",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c59c50": {
+   "name": "RVA_C_NORMAL",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:95"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3ca2a70",
+   "sect_new": ".rdata",
+   "new_bytes": "90c62f3f891d3a3f00000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c59c70": {
+   "name": "RVA_C_LINE_DIR",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:92"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3ca2a90",
+   "sect_new": ".rdata",
+   "new_bytes": "0000b4430000aa4300000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c59c80": {
+   "name": "RVA_C_LINE_START",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:93"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3ca2aa0",
+   "sect_new": ".rdata",
+   "new_bytes": "000034c300002a4300000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c59c90": {
+   "name": "RVA_C_LINE_ANCHOR",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/showcase.rs:94"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3ca2ab0",
+   "sect_new": ".rdata",
+   "new_bytes": "0000000000002a4300000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  }
+ },
+ "tfm2_comptest_unlock": {
+  "0xd0e99": {
+   "name": "RPLY_RVA",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_MULTI owner=0xd0e30 off=0x69 12후보 | cg 판별실패 (1위 9.00 2위 9.00, 후보 12)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1500"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_ALIGNED_EXACT",
+    "how": "A:ALIGN 0.78 (2위 0.30) size 496->496",
+    "new": "0xd0dd9",
+    "insn": "mov rbx, xffffffffffff(7B) -> mov rbx, xffffffffffff(7B)"
+   },
+   "new_aligned": "0xd0dd9"
+  },
+  "0xd0ea4": {
+   "name": "RPLY_RESUME_RVA",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_MULTI owner=0xd0e30 off=0x74 12후보 | cg 판별실패 (1위 9.00 2위 9.00, 후보 12)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1504"
+   ],
+   "sect_old": ".text",
+   "align": {
+    "verdict": "FAIL_ALIGNED_EXACT",
+    "how": "A:ALIGN 0.78 (2위 0.30) size 496->496",
+    "new": "0xd0de4",
+    "insn": "mov rcx, r(3B) -> mov rcx, r(3B)"
+   },
+   "new_aligned": "0xd0de4"
+  },
+  "0x1ac1d0": {
+   "name": "PARSER_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/ui_inject.rs:37"
+   ],
+   "sect_old": ".text",
+   "new": "0x1ac110",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1e61d0": {
+   "name": "FN_DD_SETOPT_RVA",
+   "kind": "BYTES_UNIQUE(20B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3423"
+   ],
+   "sect_old": ".text",
+   "new": "0x1e6110",
+   "sect_new": ".text",
+   "new_bytes": "415741565657534883ec3048",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x337df0": {
+   "name": "LOADER_RVA",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x337df0->0x337d70 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/ui_inject.rs:36"
+   ],
+   "sect_old": ".text",
+   "new": "0x337d70",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x45da40": {
+   "name": "ATH_GET_RVA",
+   "kind": "BYTES_UNIQUE(64B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:4058"
+   ],
+   "sect_old": ".text",
+   "new": "0x45d9d0",
+   "sect_new": ".text",
+   "new_bytes": "020000440f2995b002000044",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x45dafb": {
+   "name": "ATH_GET_JE_TARGET_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:4059"
+   ],
+   "sect_old": ".text",
+   "new": "0x45da8b",
+   "sect_new": ".text",
+   "new_bytes": "0f84970000004183f87b0f85",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x79a450": {
+   "name": "A15E20_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2892"
+   ],
+   "sect_old": ".text",
+   "new": "0x79a560",
+   "sect_new": ".text",
+   "new_bytes": "80000000488d4dc0e8b376fa",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "FAIL_OWNER",
+    "how": "POOL_SMALL"
+   }
+  },
+  "0xcd6dea": {
+   "name": "DRIVE_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0xcd6d80->0x8593d0 off 0x6a(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2887"
+   ],
+   "sect_old": ".text",
+   "new": "0x85943a",
+   "sect_new": ".text",
+   "new_bytes": "48c785a06c0100ffffffff48",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE_GAP"
+   }
+  },
+  "0xcd6dfd": {
+   "name": "DRIVE_RESUME_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0xcd6d80->0x8593d0 off 0x7d(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2891"
+   ],
+   "sect_old": ".text",
+   "new": "0x85944d",
+   "sect_new": ".text",
+   "new_bytes": "48c785c0370000ffffffff48",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE_GAP"
+   }
+  },
+  "0xde7ee0": {
+   "name": "DEDUP_INS_RVA",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0xde7d40->0xe1c400 본문검색 off 0x1a0->0x1a0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3220"
+   ],
+   "sect_old": ".text",
+   "new": "0xe1c5a0",
+   "sect_new": ".text",
+   "new_bytes": "4889c14d89c74989f0e81238",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0xe24f62": {
+   "name": "FORGE_CALLERS",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0xe24c50->0xf26d40 off 0x312(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:480"
+   ],
+   "sect_old": ".text",
+   "new": "0xf27052",
+   "sect_new": ".text",
+   "new_bytes": "a713ff48897c2420488d150c",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0xe85be0": {
+   "name": "ENQ_RVA",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 9후보 / owner 0xe85920->0x1015b10 본문검색 off 0x2c0->0x2c0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:565"
+   ],
+   "sect_old": ".text",
+   "new": "0x1015dd0",
+   "sect_new": ".text",
+   "new_bytes": "00000001b8000000000f42c8",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0xe50790": {
+   "name": "INSERT_RVA",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0xe50720->0xecaea0 off 0x70(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:451"
+   ],
+   "sect_old": ".text",
+   "new": "0xecaf10",
+   "sect_new": ".text",
+   "new_bytes": "89442420488d15bf10c80241",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x1603330": {
+   "name": "HPUSH_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1288"
+   ],
+   "sect_old": ".text",
+   "new": "0x1acf2f0",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec60488d6c2460",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x11b57f8": {
+   "name": "PUSH_RVA",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x11b4f40->0x11c6640 본문검색 off 0x8b8->0x8b8",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3281"
+   ],
+   "sect_old": ".text",
+   "new": "0x11c6ef8",
+   "sect_new": ".text",
+   "new_bytes": "0000488b8d387b000048898d",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WLOOSE"
+   }
+  },
+  "0x15501f0": {
+   "name": "ATH_GET_SC_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3676"
+   ],
+   "sect_old": ".text",
+   "new": "0x23b3724",
+   "sect_new": ".text",
+   "new_bytes": "7048c74500feffffff4989d2",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_EXACT",
+    "repin": "0x23b3724",
+    "new": "0x1902e80",
+    "insn": "lea rbp, [rsp + x](5B) -> lea rbp, [rsp + x](5B)",
+    "repin_note": ""
+   },
+   "new_aligned": "0x1902e80"
+  },
+  "0x125829d": {
+   "name": "SRV_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:619"
+   ],
+   "sect_old": ".text",
+   "new": "0x178d6dd",
+   "sect_new": ".text",
+   "new_bytes": "384c894c2430488974242848",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x19f4fe0": {
+   "name": "CT_ARM_LO",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:4191"
+   ],
+   "sect_old": ".text",
+   "new": "0x17d3b60",
+   "sect_new": ".text",
+   "new_bytes": "48895130c3cccccccccccccc",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x129f360": {
+   "name": "DROP_CHAMP_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1512"
+   ],
+   "sect_old": ".text",
+   "new": "0x1692200",
+   "sect_new": ".text",
+   "new_bytes": "004181397469636b0f85b200",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x13ed440": {
+   "name": "ORACLE_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3738"
+   ],
+   "sect_old": ".text",
+   "new": "0x16ccbe0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1480100": {
+   "name": "CT_ARM_HI",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x147ffe0->0x1a18eb0 본문검색 off 0x120->0x120",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:4192"
+   ],
+   "sect_old": ".text",
+   "new": "0x1a18fd0",
+   "sect_new": ".text",
+   "new_bytes": "584889442428488d05832c65",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x136ee30": {
+   "name": "SLOT_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3929"
+   ],
+   "sect_old": ".text",
+   "new": "0x21ccf10",
+   "sect_new": ".text",
+   "new_bytes": "e88bffffff4889c74901f649",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "FAIL_OWNER",
+    "how": "POOL_SMALL"
+   }
+  },
+  "0x18b96ee": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:192",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x18b9040->0x12aa190 본문검색 off 0x6ae->0x6ae",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:192"
+   ],
+   "sect_old": ".text",
+   "new": "0x12aa83e",
+   "sect_new": ".text",
+   "new_bytes": "0f28e1660f15e1f20f5925c3",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x23fb940": {
+   "name": "CTX_DROP_RVA",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x23fb940->0x2409520 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1771"
+   ],
+   "sect_old": ".text",
+   "new": "0x2409520",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534883",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2410340": {
+   "name": "WARN_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 458->458",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2340"
+   ],
+   "sect_old": ".text",
+   "new": "0x2429610",
+   "sect_new": ".text",
+   "new_bytes": "5541565657534881ecb00000",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x241f940": {
+   "name": "REFRESH_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2477"
+   ],
+   "sect_old": ".text",
+   "new": "0x2438c10",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x241faa4": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:98",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:98"
+   ],
+   "sect_old": ".text",
+   "new": "0x2438d74",
+   "sect_new": ".text",
+   "new_bytes": "4c0f44e248c7853002000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2426240": {
+   "name": "CSEND_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 2677->2677",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1287"
+   ],
+   "sect_old": ".text",
+   "new": "0x243f500",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2426a6c": {
+   "name": "PAGE_IMM_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2384"
+   ],
+   "sect_old": ".text",
+   "new": "0x243fd2c",
+   "sect_new": ".text",
+   "new_bytes": "0580bd98200000000f84b000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x242a480": {
+   "name": "CGATE_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1186"
+   ],
+   "sect_old": ".text",
+   "new": "0x2443740",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x242a676": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:103",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:103"
+   ],
+   "sect_old": ".text",
+   "new": "0x2443936",
+   "sect_new": ".text",
+   "new_bytes": "4120c54489551c740f488d15",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x242ab21": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:176",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:176"
+   ],
+   "sect_old": ".text",
+   "new": "0x2443de1",
+   "sect_new": ".text",
+   "new_bytes": "75474885c0742c488d0cc517",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x242b6e3": {
+   "name": "TAKE_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2382"
+   ],
+   "sect_old": ".text",
+   "new": "0x24449a3",
+   "sect_new": ".text",
+   "new_bytes": "14000000c685d60500000148",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x24377c0": {
+   "name": "RUN_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 3726->3726",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:622"
+   ],
+   "sect_old": ".text",
+   "new": "0x2450a90",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2437a93": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:277",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:277"
+   ],
+   "sect_old": ".text",
+   "new": "0x2450d63",
+   "sect_new": ".text",
+   "new_bytes": "745f4489ad30200000899dd8",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2437abd": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:272",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:272"
+   ],
+   "sect_old": ".text",
+   "new": "0x2450d8d",
+   "sect_new": ".text",
+   "new_bytes": "75104c8bad901f00004d39f5",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2437ac9": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:265",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:265"
+   ],
+   "sect_old": ".text",
+   "new": "0x2450d99",
+   "sect_new": ".text",
+   "new_bytes": "0f83690100004883bde01f00",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2438205": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:284",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:284"
+   ],
+   "sect_old": ".text",
+   "new": "0x24514d5",
+   "sect_new": ".text",
+   "new_bytes": "0f84c1f9ffff41c1ec044181",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "LOOSE_GAP"
+   }
+  },
+  "0x2439330": {
+   "name": "COLLECT_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3585"
+   ],
+   "sect_old": ".text",
+   "new": "0x2452600",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x243d410": {
+   "name": "RPLY3_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 29166->29166",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1748"
+   ],
+   "sect_old": ".text",
+   "new": "0x24566e0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x244e1c0": {
+   "name": "RPLY2_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 1345->1345",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1682"
+   ],
+   "sect_old": ".text",
+   "new": "0x2467490",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x244ea30": {
+   "name": "ARRIVE_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 6후보 / owner 0x244ea30->0x2467d00 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2168",
+    "src/tfm2_comptest_unlock.rs:2884"
+   ],
+   "sect_old": ".text",
+   "new": "0x2467d00",
+   "sect_new": ".text",
+   "new_bytes": "55415741564154565753b840",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x244ea44": {
+   "name": "DELAY_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2879"
+   ],
+   "sect_old": ".text",
+   "new": "0x2467d14",
+   "sect_new": ".text",
+   "new_bytes": "4829c4488dac248000000048",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x244ea53": {
+   "name": "DELAY_RESUME_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2882"
+   ],
+   "sect_old": ".text",
+   "new": "0x2467d23",
+   "sect_new": ".text",
+   "new_bytes": "4889e34889ab303e000048c7",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x244f2a8": {
+   "name": "EPILOG_RVA",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2883"
+   ],
+   "sect_old": ".text",
+   "new": "0x2468514",
+   "sect_new": ".text",
+   "new_bytes": "31c0488da5c03d00005b5f5e",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2907980": {
+   "name": "RESULT_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1263"
+   ],
+   "sect_old": ".text",
+   "new": "0x1de2150",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2909050": {
+   "name": "LIVEB_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 30277->30277",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1749"
+   ],
+   "sect_old": ".text",
+   "new": "0x1de3820",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2522a8f": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:110",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:110"
+   ],
+   "sect_old": ".text",
+   "new": "0x252c82f",
+   "sect_new": ".text",
+   "new_bytes": "4c0f44f8488d8d9007000048",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2522acf": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:221",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:221"
+   ],
+   "sect_old": ".text",
+   "new": "0x252c86f",
+   "sect_new": ".text",
+   "new_bytes": "4883ff0ab838000000b93200",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2522eb2": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:123",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:123"
+   ],
+   "sect_old": ".text",
+   "new": "0x252cc52",
+   "sect_new": ".text",
+   "new_bytes": "20c14883fb0a0fb6f9b80100",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2522eb4": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:212",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:212"
+   ],
+   "sect_old": ".text",
+   "new": "0x252cc54",
+   "sect_new": ".text",
+   "new_bytes": "4883fb0a0fb6f9b801000000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x252cbc0": {
+   "name": "CT_CLIENT_HI",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 9후보 / owner 0x252cbb0->0x2536950 본문검색 off 0x10->0x10",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:463"
+   ],
+   "sect_old": ".text",
+   "new": "0x2536960",
+   "sect_new": ".text",
+   "new_bytes": "534881ecf8000000488daa80",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x1cd2ee0": {
+   "name": "CLONE_CHAMP_RVA",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x1cd2ee0->0x1ece0e0 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1511"
+   ],
+   "sect_old": ".text",
+   "new": "0x1ece0e0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c34b20": {
+   "name": "CT_REGION_LO",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 183939->185888",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:460"
+   ],
+   "sect_old": ".text",
+   "new": "0x29baa40",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c46968": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:147",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x1c34b20->0x29baa40 off 0x11e48(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:147"
+   ],
+   "sect_old": ".text",
+   "new": "0x29cc888",
+   "sect_new": ".text",
+   "new_bytes": "12f00048c78520aa01005600",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_WLOOSE_GAP",
+    "repin": "0x29cc888",
+    "new": "0x29cc91a",
+    "insn": "cmp qword ptr [rax + x(8B) -> cmp qword ptr [rax + x(8B)",
+    "repin_note": "12B 0후보 / owner 0x1c34b20->0x29baa40 off 0x11e48(동일오프셋 가정)"
+   },
+   "new_aligned": "0x29cc91a"
+  },
+  "0x1c49f97": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:137",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x1c34b20->0x29baa40 off 0x15477(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:137"
+   ],
+   "sect_old": ".text",
+   "new": "0x29cfeb7",
+   "sect_new": ".text",
+   "new_bytes": "000000488d050f3c34014889",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_WMNEM",
+    "repin": "0x29cfeb7",
+    "new": "0x29d024c",
+    "insn": "cmp rax, (4B) -> cmp rax, (4B)",
+    "repin_note": "12B 0후보 / owner 0x1c34b20->0x29baa40 off 0x15477(동일오프셋 가정)"
+   },
+   "new_aligned": "0x29d024c"
+  },
+  "0x1c4f01e": {
+   "name": "PATCHES",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:78"
+   ],
+   "sect_old": ".text",
+   "new": "0x29d4399",
+   "sect_new": ".text",
+   "new_bytes": "05490f42c548898268070000",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "WMNEM"
+   }
+  },
+  "0x1c619a3": {
+   "name": "CT_REGION_HI",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:NO_OWNER 구 exe owner 없음",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:461"
+   ],
+   "sect_old": ".text"
+  },
+  "0x1c8f450": {
+   "name": "SREG_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x1c8f450->0x2a16490 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1187"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a16490",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c8f885": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:251",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 0후보 / owner 0x1c8f450->0x2a16490 off 0x435(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:251"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a168c5",
+   "sect_new": ".text",
+   "new_bytes": "b0887001004c8da890700100",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "NO_ALIGN",
+    "how": "REPIN",
+    "nown": "0x2a16490",
+    "st": "NO_ALIGN"
+   }
+  },
+  "0x1c8f964": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:171",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 0후보 / owner 0x1c8f450->0x2a16490 off 0x514(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:171"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a169a4",
+   "sect_new": ".text",
+   "new_bytes": "d7d185d275444801c84883c0",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_MNEM",
+    "repin": "0x2a169a4",
+    "new": "0x2a16920",
+    "insn": "jne xcfad(6B) -> jne xafe(6B)",
+    "repin_note": "12B 0후보 / owner 0x1c8f450->0x2a16490 off 0x514(동일오프셋 가정)"
+   },
+   "new_aligned": "0x2a16920"
+  },
+  "0x1c9d5b0": {
+   "name": "ITEMCONV_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3488"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a25530",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1cc45b0": {
+   "name": "SIMBODY_RVA",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x1cc44d0->0x2a5ce00 off 0xe0(동일오프셋 가정)",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:789"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a5cee0",
+   "sect_new": ".text",
+   "new_bytes": "08488b4008488d155ce0fc00",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x23bbdd0": {
+   "name": "MFORGE_RVA",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0x23bb600->0x23722d0 본문검색 off 0x7d0->0x7d0",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1234"
+   ],
+   "sect_old": ".text",
+   "new": "0x2372aa0",
+   "sect_new": ".text",
+   "new_bytes": "4728488d8d30020000e832f3",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2540940": {
+   "name": "CTX_CLONE_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 4947->4947",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:1770"
+   ],
+   "sect_old": ".text",
+   "new": "0x254a550",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x25923c0": {
+   "name": "CT_CLIENT_LO",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:462"
+   ],
+   "sect_old": ".text",
+   "new": "0x2894f40",
+   "sect_new": ".text",
+   "new_bytes": "c54c89add811000048837db0",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2ed3740": {
+   "name": "RUST_ALLOC_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:3945"
+   ],
+   "sect_old": ".text",
+   "new": "0x2f21750",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534881ec48",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2f99a60": {
+   "name": "ALLOC_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 60->60",
+   "locs": [
+    "src/ui_inject.rs:40"
+   ],
+   "sect_old": ".text",
+   "new": "0x2fe7a70",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec20488d6c2420",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x3b3c087": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:2354",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2354"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3b9f40b",
+   "sect_new": ".rdata",
+   "new_bytes": "696f6e2876c00c293a3a636f",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3b3c0bf": {
+   "name": "INLINE@src/tfm2_comptest_unlock.rs:2355",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2355"
+   ],
+   "sect_old": ".rdata",
+   "new": "0x3b9f443",
+   "sect_new": ".rdata",
+   "new_bytes": "3a64616d6167655f73686172",
+   "bytes_same": true,
+   "fn_start_new": false,
+   "fn_start_old": false
+  },
+  "0x3c1f2f0": {
+   "name": "RUNNER_VT_RVA",
+   "kind": "FAIL",
+   "note": "12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:NO_OWNER 구 exe owner 없음",
+   "locs": [
+    "src/tfm2_comptest_unlock.rs:2165"
+   ],
+   "sect_old": ".rdata"
+  }
+ },
+ "tfm2_elemental_serpen": {
+  "0x1ac1d0": {
+   "name": "UIPARSER_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:626"
+   ],
+   "sect_old": ".text",
+   "new": "0x1ac110",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x337df0": {
+   "name": "UILOADER_RVA",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x337df0->0x337d70 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/lib.rs:625"
+   ],
+   "sect_old": ".text",
+   "new": "0x337d70",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0xc73d36": {
+   "name": "LAUNCHER_RET_A",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0xc67340->0x7eaa50 off 0xc9f6(동일오프셋 가정)",
+   "locs": [
+    "src/lib.rs:511"
+   ],
+   "sect_old": ".text",
+   "new": "0x7f7446",
+   "sect_new": ".text",
+   "new_bytes": "e815a00a00904889c6488d95",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_WLOOSE_GAP",
+    "repin": "0x7f7446",
+    "new": "0x7f74a6",
+    "insn": "nop (1B) -> nop (1B)",
+    "repin_note": "12B 0후보 / owner 0xc67340->0x7eaa50 off 0xc9f6(동일오프셋 가정)"
+   },
+   "new_aligned": "0x7f74a6"
+  },
+  "0xc78e41": {
+   "name": "LAUNCHER_RET_B",
+   "kind": "MID_OWNER_HEAD_UNIQUE",
+   "note": "12B 0후보 / owner 0xc67340->0x7eaa50 off 0x11b01(동일오프셋 가정)",
+   "locs": [
+    "src/lib.rs:513"
+   ],
+   "sect_old": ".text",
+   "new": "0x7fc551",
+   "sect_new": ".text",
+   "new_bytes": "e8b3150d0390b908000000ba",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "DISAGREE_WLOOSE_GAP",
+    "repin": "0x7fc551",
+    "new": "0x7fc5c1",
+    "insn": "nop (1B) -> nop (1B)",
+    "repin_note": "12B 0후보 / owner 0xc67340->0x7eaa50 off 0x11b01(동일오프셋 가정)"
+   },
+   "new_aligned": "0x7fc5c1"
+  },
+  "0xbfc320": {
+   "name": "SPAWN_HOOKS",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 1929->1929",
+   "locs": [
+    "src/lib.rs:490"
+   ],
+   "sect_old": ".text",
+   "new": "0xc526a0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0xbfcdb0": {
+   "name": "SPAWN_HOOKS",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 1929->1929",
+   "locs": [
+    "src/lib.rs:490"
+   ],
+   "sect_old": ".text",
+   "new": "0xc53130",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x930640": {
+   "name": "RENDER_STEP_RVA",
+   "kind": "BYTES_UNIQUE(64B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:928"
+   ],
+   "sect_old": ".text",
+   "new": "0xd0e5e0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x19bcdb0": {
+   "name": "SERPEN_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:39"
+   ],
+   "sect_old": ".text",
+   "new": "0x1792080",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1273a20": {
+   "name": "DMGB_RVA",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:1953"
+   ],
+   "sect_old": ".text",
+   "new": "0x13eaaa0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x17026c0": {
+   "name": "DMGA_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x17026c0->0x1a62f20 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/lib.rs:1950"
+   ],
+   "sect_old": ".text",
+   "new": "0x1a62f20",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x13f3950": {
+   "name": "LAUNCHER_RVA",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 4367->4350",
+   "locs": [
+    "src/lib.rs:502"
+   ],
+   "sect_old": ".text",
+   "new": "0x16d3140",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x13f55c0": {
+   "name": "RUNNER_CTOR_RVA",
+   "kind": "MID_OWNER_CG_NONE",
+   "note": "12B 9후보 / owner 0x13f55c0->0x16d4d30 본문검색 off 0x0->0x0",
+   "locs": [
+    "src/lib.rs:955"
+   ],
+   "sect_old": ".text",
+   "new": "0x16d4d30",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x14402c0": {
+   "name": "MOBATICK_RVA",
+   "kind": "FN_HEAD_UNIQUE",
+   "note": "12B 9후보 / skel0/head유일 size 49909->49773",
+   "locs": [
+    "src/lib.rs:416"
+   ],
+   "sect_old": ".text",
+   "new": "0x171bbd0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1815610": {
+   "name": "ARG_STR_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 359->359",
+   "locs": [
+    "src/lib.rs:2688"
+   ],
+   "sect_old": ".text",
+   "new": "0x11e6900",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534881ec88",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2443bea": {
+   "name": "LAUNCHER_RET_D",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x243d410->0x24566e0 off 0x67da(동일오프셋 가정)",
+   "locs": [
+    "src/lib.rs:526"
+   ],
+   "sect_old": ".text",
+   "new": "0x245ceba",
+   "sect_new": ".text",
+   "new_bytes": "90488b8560c70100488d90f0",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x2aa2864": {
+   "name": "LAUNCHER_RET_C",
+   "kind": "MID_OWNER_UNIQUE",
+   "note": "12B 0후보 / owner 0x2aa1f50->0x264bc20 off 0x914(동일오프셋 가정)",
+   "locs": [
+    "src/lib.rs:518"
+   ],
+   "sect_old": ".text",
+   "new": "0x264c534",
+   "sect_new": ".text",
+   "new_bytes": "90488b85e8d70100488d90d8",
+   "bytes_same": false,
+   "fn_start_new": false,
+   "fn_start_old": false,
+   "align": {
+    "verdict": "AGREE",
+    "st": "EXACT"
+   }
+  },
+  "0x230ab20": {
+   "name": "KEYRES_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:2145"
+   ],
+   "sect_old": ".text",
+   "new": "0x2aab520",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec70488d6c2470",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2f99a60": {
+   "name": "UIALLOC_RVA",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 60->60",
+   "locs": [
+    "src/lib.rs:633"
+   ],
+   "sect_old": ".text",
+   "new": "0x2fe7a70",
+   "sect_new": ".text",
+   "new_bytes": "5556574883ec20488d6c2420",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ },
+ "tfm2_champ_pos_lock": {
+  "0x195ad50": {
+   "name": "RVA_POS_MASK",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 2569->2569",
+   "locs": [
+    "src/legacy_assign.rs:14"
+   ],
+   "sect_old": ".text",
+   "new": "0x18b0850",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x21be9b0": {
+   "name": "RVA_SELECT_SWAP",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "src/auto_swap.rs:10"
+   ],
+   "sect_old": ".text",
+   "new": "0x2084c60",
+   "sect_new": ".text",
+   "new_bytes": "4883ec2880b969040000000f",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2a67040": {
+   "name": "RVA_PICK_CLICK",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 1816->1816",
+   "locs": [
+    "src/pick_click_hook.rs:14"
+   ],
+   "sect_old": ".text",
+   "new": "0x2611050",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2a67900": {
+   "name": "RVA_SWAP_CONFIRM",
+   "kind": "FN_UNIQUE",
+   "note": "12B 9후보 / size 1197->1197",
+   "locs": [
+    "src/swap_confirm_hook.rs:8"
+   ],
+   "sect_old": ".text",
+   "new": "0x2611910",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x24ff1a0": {
+   "name": "RVA_COMPUTE_RULE_SWAP_ORDER",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "src/ai_swap.rs:12"
+   ],
+   "sect_old": ".text",
+   "new": "0x15b5700",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ },
+ "training_view_plus": {},
+ "facility_view_plus": {},
+ "custom_tier_assignment": {},
+ "tfm2_lane_tactics": {
+  "0xd5d860": {
+   "name": "RVA_PASSIVE_PLAN",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "src/lib.rs:21"
+   ],
+   "sect_old": ".text",
+   "new": "0xd5c300",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ },
+ "ui_kit": {
+  "0x1e7ff0": {
+   "name": "DD_SETOPT_RVA",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "ui_kit.rs:939"
+   ],
+   "sect_old": ".text",
+   "new": "0x1e7f30",
+   "sect_new": ".text",
+   "new_bytes": "55415741565657534883ec58",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2f6650": {
+   "name": "RVA_DROP_MAP",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x2f6650->0x2f65d0 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:15"
+   ],
+   "sect_old": ".text",
+   "new": "0x2f65d0",
+   "sect_new": ".text",
+   "new_bytes": "415741564155415456575553",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x306c50": {
+   "name": "RVA_DROP_PLAN",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x306c50->0x1d31de0 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:14"
+   ],
+   "sect_old": ".text",
+   "new": "0x1d31de0",
+   "sect_new": ".text",
+   "new_bytes": "555657534883ec48488d6c24",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x9aa700": {
+   "name": "RVA_INSERT",
+   "kind": "MID_OWNER_CG_MULTI_caller",
+   "note": "12B 9후보 / owner 0x9aa700->0xa20890 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:16"
+   ],
+   "sect_old": ".text",
+   "new": "0xa20890",
+   "sect_new": ".text",
+   "new_bytes": "554157415641545657534883",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1ce9f20": {
+   "name": "RVA_CLONE",
+   "kind": "MID_OWNER_CG_MULTI",
+   "note": "12B 9후보 / owner 0x1ce9f20->0x254c4b0 본문검색 off 0x0->0x0",
+   "locs": [
+    "training_plan_stable.rs:13"
+   ],
+   "sect_old": ".text",
+   "new": "0x254c4b0",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1bd9e80": {
+   "name": "RVA_DROP",
+   "kind": "FAIL",
+   "note": "12B 2후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:NO_OWNER 구 exe owner 없음",
+   "locs": [
+    "team_sync_stable.rs:17",
+    "training_plan_stable.rs:20"
+   ],
+   "sect_old": ".text"
+  },
+  "0x231b9f0": {
+   "name": "RVA_SEND",
+   "kind": "BYTES_UNIQUE(12B)",
+   "note": "",
+   "locs": [
+    "team_sync_stable.rs:16",
+    "training_plan_stable.rs:19"
+   ],
+   "sect_old": ".text",
+   "new": "0x2abc080",
+   "sect_new": ".text",
+   "new_bytes": "555657534881ec180f000048",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1c8bca0": {
+   "name": "RVA_BUILD",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "team_sync_stable.rs:15"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a12b80",
+   "sect_new": ".text",
+   "new_bytes": "555657534881ece808000048",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x1ca56f0": {
+   "name": "RVA_SANITIZE",
+   "kind": "BYTES_UNIQUE(48B)",
+   "note": "",
+   "locs": [
+    "training_plan_stable.rs:17"
+   ],
+   "sect_old": ".text",
+   "new": "0x2a2d120",
+   "sect_new": ".text",
+   "new_bytes": "554157415641554154565753",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  },
+  "0x2272f20": {
+   "name": "RVA_UPDATE",
+   "kind": "FAIL",
+   "note": "12B 9후보 / fn:NONE skel 후보0 / head후보 4 / mid:OWNER_NONE owner=0x2272f20 off=0x0 skel 후보0 / head후보 4",
+   "locs": [
+    "draft_scene_stable.rs:14"
+   ],
+   "sect_old": ".text"
+  },
+  "0x1d6c980": {
+   "name": "RVA_RESPONSE",
+   "kind": "BYTES_UNIQUE(32B)",
+   "note": "",
+   "locs": [
+    "training_plan_stable.rs:18"
+   ],
+   "sect_old": ".text",
+   "new": "0x2701db0",
+   "sect_new": ".text",
+   "new_bytes": "555657534883ec38488d6c24",
+   "bytes_same": true,
+   "fn_start_new": true,
+   "fn_start_old": true
+  }
+ }
+}

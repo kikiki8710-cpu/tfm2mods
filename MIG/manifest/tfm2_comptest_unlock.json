@@ -41,8 +41,8 @@
  "entries": [
   {
    "name": "RPLY_RVA",
-   "value": "0xd0e99",
-   "ver": "0.6.3",
+   "value": "0xd0dd9",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1500"
@@ -55,8 +55,8 @@
   },
   {
    "name": "RPLY_RESUME_RVA",
-   "value": "0xd0ea4",
-   "ver": "0.6.3",
+   "value": "0xd0de4",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1504"
@@ -77,7 +77,7 @@
     "src/tfm2_comptest_unlock.rs:1334"
    ],
    "sect": ".text",
-   "bytes": "20ff4c897b50740e488b4350",
+   "bytes": "000f1083400100000f1183e8",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "curated": true,
@@ -85,8 +85,8 @@
   },
   {
    "name": "PARSER_RVA",
-   "value": "0x1ac1d0",
-   "ver": "0.6.3",
+   "value": "0x1ac110",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/ui_inject.rs:37"
@@ -97,8 +97,8 @@
   },
   {
    "name": "FN_DD_SETOPT_RVA",
-   "value": "0x1e61d0",
-   "ver": "0.6.3",
+   "value": "0x1e6110",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:3423"
@@ -116,15 +116,15 @@
     "src/tfm2_comptest_unlock.rs:1322"
    ],
    "sect": ".text",
-   "bytes": "60440f286c2450440f287424",
+   "bytes": "0380e301889df20200000f28",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "0.6.2(09-30): RVA 아님 — fnv1a 길이 상한(≈2MB) 리터럴. 0.6.2 repin 이 0x202230 으로 오치환한 것을 원복. 재핀 금지"
   },
   {
    "name": "LOADER_RVA",
-   "value": "0x337df0",
-   "ver": "0.6.3",
+   "value": "0x337d70",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/ui_inject.rs:36"
@@ -135,8 +135,8 @@
   },
   {
    "name": "ATH_GET_RVA",
-   "value": "0x45da40",
-   "ver": "0.6.3",
+   "value": "0x45d9d0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:4058"
@@ -147,8 +147,8 @@
   },
   {
    "name": "ATH_GET_JE_TARGET_RVA",
-   "value": "0x45dafb",
-   "ver": "0.6.3",
+   "value": "0x45da8b",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:4059"
@@ -159,8 +159,8 @@
   },
   {
    "name": "A15E20_RVA",
-   "value": "0x79a450",
-   "ver": "0.6.3",
+   "value": "0x79a560",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2892"
@@ -172,57 +172,57 @@
   },
   {
    "name": "DRIVE_RVA",
-   "value": "0xcd6dea",
-   "ver": "0.6.3",
+   "value": "0x85943a",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2887"
    ],
    "sect": ".text",
-   "bytes": "48c785b86c0100ffffffff48",
+   "bytes": "48c785a06c0100ffffffff48",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "DRIVE_RESUME_RVA",
-   "value": "0xcd6dfd",
-   "ver": "0.6.3",
+   "value": "0x85944d",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2891"
    ],
    "sect": ".text",
-   "bytes": "48c78530380000ffffffff48",
+   "bytes": "48c785c0370000ffffffff48",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "DRIVE_RESUME = DRIVE+0x13 (ghidra-re 09-17)"
   },
   {
    "name": "DEDUP_INS_RVA",
-   "value": "0xde7ee0",
-   "ver": "0.6.3",
+   "value": "0xe1c5a0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:3220"
    ],
    "sect": ".text",
-   "bytes": "4889c14d89c74989f0e8d2a0",
+   "bytes": "4889c14d89c74989f0e81238",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "FORGE_CALLERS",
-   "value": "0xe24f62",
-   "ver": "0.6.3",
+   "value": "0xf27052",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:480"
    ],
    "sect": ".text",
-   "bytes": "c823ff48897c2420488d15e4",
+   "bytes": "a713ff48897c2420488d150c",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "ENQ_RVA",
-   "value": "0xe85be0",
-   "ver": "0.6.2",
+   "value": "0x1015dd0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:565"
@@ -243,7 +243,7 @@
     "src/tfm2_comptest_unlock.rs:2820"
    ],
    "sect": ".text",
-   "bytes": "415741564155415456575553",
+   "bytes": "0100c6851e0100000248c745",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "curated": true,
@@ -251,20 +251,20 @@
   },
   {
    "name": "INSERT_RVA",
-   "value": "0xe50790",
-   "ver": "0.6.3",
+   "value": "0xecaf10",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:451"
    ],
    "sect": ".text",
-   "bytes": "89442420488d1509f0c90241",
+   "bytes": "89442420488d15bf10c80241",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "HPUSH_RVA",
-   "value": "0x1603330",
-   "ver": "0.6.3",
+   "value": "0x1acf2f0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1288"
@@ -275,8 +275,8 @@
   },
   {
    "name": "PUSH_RVA",
-   "value": "0x11b57f8",
-   "ver": "0.6.3",
+   "value": "0x11c6ef8",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:3281"
@@ -288,20 +288,20 @@
   },
   {
    "name": "ATH_GET_SC_RVA",
-   "value": "0x15501f0",
-   "ver": "0.6.3",
+   "value": "0x1902e80",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:3676"
    ],
    "sect": ".text",
-   "bytes": "7048c74500feffffff4989d2",
+   "bytes": "7048c74500feffffff4989d7",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "SRV_RVA",
-   "value": "0x125829d",
-   "ver": "0.6.3",
+   "value": "0x178d6dd",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:619"
@@ -322,7 +322,7 @@
     "src/tfm2_comptest_unlock.rs:3273"
    ],
    "sect": ".text",
-   "bytes": "545657534883ec38488daa80",
+   "bytes": "b00100000048c745b8010000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "curated": true,
    "note": "[0.5.8 owner 0x13c6fe0→0x13f7a90(지역창 유일) + 사이트 문맥 10B] | ⬜0.6.0 미해결: 12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_MULTI owner=0x13f7a90 off=0x1ed 5후보 | cg 판별실패 (1위 6.00 2위 6.00, 후보 5) ⛔죽은 상수(0.6.1 확정): SPAWN_CP=inert 진단훅·POLLER=CONC_PROBE_ON=false. 신 exe 프롤로그 불일치로 install fail-safe. 재핀 불가(owner = 44/1516 클론 thunk)",
@@ -338,15 +338,15 @@
     "src/tfm2_comptest_unlock.rs:821"
    ],
    "sect": ".text",
-   "bytes": "bd08010000ff15450b5a0248",
+   "bytes": "488b45f0488d888804000048",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "⬜0.6.0 미해결: 12B 9후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0x142a150 off=0x60 skel 후보0 / head후보 0 ⛔죽은 상수(0.6.1 확정): SPAWN_CP=inert 진단훅·POLLER=CONC_PROBE_ON=false. 신 exe 프롤로그 불일치로 install fail-safe. 재핀 불가(owner = 44/1516 클론 thunk)",
    "ignore": true
   },
   {
    "name": "CT_ARM_LO",
-   "value": "0x19f4fe0",
-   "ver": "0.6.3",
+   "value": "0x17d3b60",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:4191"
@@ -360,8 +360,8 @@
   },
   {
    "name": "DROP_CHAMP_RVA",
-   "value": "0x129f360",
-   "ver": "0.6.3",
+   "value": "0x1692200",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1512"
@@ -372,8 +372,8 @@
   },
   {
    "name": "ORACLE_RVA",
-   "value": "0x13ed440",
-   "ver": "0.6.3",
+   "value": "0x16ccbe0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:3738"
@@ -384,14 +384,14 @@
   },
   {
    "name": "CT_ARM_HI",
-   "value": "0x1480100",
-   "ver": "0.6.3",
+   "value": "0x1a18fd0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:4192"
    ],
    "sect": ".text",
-   "bytes": "584889442428488d0553bbbe",
+   "bytes": "584889442428488d05832c65",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "curated": true,
    "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서. | 0.6.0: 구값이 0.5.7 기준(0.5.8 재핀실패)이라 자동 재핀값 무의미 — inert(HYBRID 비활성) 라 방치",
@@ -406,27 +406,27 @@
     "src/tfm2_comptest_unlock.rs:3929"
    ],
    "sect": ".text",
-   "bytes": "e88bffffff4889c74901f649",
+   "bytes": "b685a00000008885f0000000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "⬜0.6.0 미해결: 12B 0후보 / fn:NOT_FN_START 구 exe 함수시작 아님 / mid:OWNER_NONE owner=0x1954fb0 off=0xc0 skel 후보0 / head후보 0"
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:192",
-   "value": "0x18b96ee",
-   "ver": "0.6.3",
+   "value": "0x12aa83e",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:192"
    ],
    "sect": ".text",
-   "bytes": "0f28e1660f15e1f20f592543",
+   "bytes": "0f28e1660f15e1f20f5925c3",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "⬜0.6.0 미해결: server_dedup 0.5.8 orig MISMATCH"
   },
   {
    "name": "CTX_DROP_RVA",
-   "value": "0x23fb940",
-   "ver": "0.6.3",
+   "value": "0x2409520",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1771"
@@ -438,8 +438,8 @@
   },
   {
    "name": "WARN_RVA",
-   "value": "0x2410340",
-   "ver": "0.6.3",
+   "value": "0x2429610",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2340"
@@ -450,8 +450,8 @@
   },
   {
    "name": "REFRESH_RVA",
-   "value": "0x241f940",
-   "ver": "0.6.3",
+   "value": "0x2438c10",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2477"
@@ -462,8 +462,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:98",
-   "value": "0x241faa4",
-   "ver": "0.6.3",
+   "value": "0x2438d74",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:98"
@@ -474,8 +474,8 @@
   },
   {
    "name": "CSEND_RVA",
-   "value": "0x2426240",
-   "ver": "0.6.3",
+   "value": "0x243f500",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1287"
@@ -486,8 +486,8 @@
   },
   {
    "name": "PAGE_IMM_RVA",
-   "value": "0x2426a6c",
-   "ver": "0.6.3",
+   "value": "0x243fd2c",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2384"
@@ -498,8 +498,8 @@
   },
   {
    "name": "CGATE_RVA",
-   "value": "0x242a480",
-   "ver": "0.6.3",
+   "value": "0x2443740",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1186"
@@ -510,8 +510,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:103",
-   "value": "0x242a676",
-   "ver": "0.6.3",
+   "value": "0x2443936",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:103"
@@ -522,8 +522,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:176",
-   "value": "0x242ab21",
-   "ver": "0.6.3",
+   "value": "0x2443de1",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:176"
@@ -534,8 +534,8 @@
   },
   {
    "name": "TAKE_RVA",
-   "value": "0x242b6e3",
-   "ver": "0.6.3",
+   "value": "0x24449a3",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2382"
@@ -546,8 +546,8 @@
   },
   {
    "name": "RUN_RVA",
-   "value": "0x24377c0",
-   "ver": "0.6.3",
+   "value": "0x2450a90",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:622"
@@ -558,8 +558,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:277",
-   "value": "0x2437a93",
-   "ver": "0.6.3",
+   "value": "0x2450d63",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:277"
@@ -571,8 +571,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:272",
-   "value": "0x2437abd",
-   "ver": "0.6.3",
+   "value": "0x2450d8d",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:272"
@@ -583,8 +583,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:265",
-   "value": "0x2437ac9",
-   "ver": "0.6.3",
+   "value": "0x2450d99",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:265"
@@ -595,8 +595,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:284",
-   "value": "0x2438205",
-   "ver": "0.6.3",
+   "value": "0x24514d5",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:284"
@@ -608,8 +608,8 @@
   },
   {
    "name": "COLLECT_RVA",
-   "value": "0x2439330",
-   "ver": "0.6.3",
+   "value": "0x2452600",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:3585"
@@ -620,8 +620,8 @@
   },
   {
    "name": "RPLY3_RVA",
-   "value": "0x243d410",
-   "ver": "0.6.3",
+   "value": "0x24566e0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1748"
@@ -632,8 +632,8 @@
   },
   {
    "name": "RPLY2_RVA",
-   "value": "0x244e1c0",
-   "ver": "0.6.3",
+   "value": "0x2467490",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1682"
@@ -644,8 +644,8 @@
   },
   {
    "name": "ARRIVE_RVA",
-   "value": "0x244ea30",
-   "ver": "0.6.3",
+   "value": "0x2467d00",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2168",
@@ -657,8 +657,8 @@
   },
   {
    "name": "DELAY_RVA",
-   "value": "0x244ea44",
-   "ver": "0.6.3",
+   "value": "0x2467d14",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2879"
@@ -669,8 +669,8 @@
   },
   {
    "name": "DELAY_RESUME_RVA",
-   "value": "0x244ea53",
-   "ver": "0.6.3",
+   "value": "0x2467d23",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2882"
@@ -681,8 +681,8 @@
   },
   {
    "name": "EPILOG_RVA",
-   "value": "0x244f2a8",
-   "ver": "0.6.3",
+   "value": "0x2468514",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2883"
@@ -693,8 +693,8 @@
   },
   {
    "name": "RESULT_RVA",
-   "value": "0x2907980",
-   "ver": "0.6.3",
+   "value": "0x1de2150",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1263"
@@ -705,8 +705,8 @@
   },
   {
    "name": "LIVEB_RVA",
-   "value": "0x2909050",
-   "ver": "0.6.3",
+   "value": "0x1de3820",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1749"
@@ -717,8 +717,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:110",
-   "value": "0x2522a8f",
-   "ver": "0.6.3",
+   "value": "0x252c82f",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:110"
@@ -729,8 +729,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:221",
-   "value": "0x2522acf",
-   "ver": "0.6.3",
+   "value": "0x252c86f",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:221"
@@ -741,8 +741,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:123",
-   "value": "0x2522eb2",
-   "ver": "0.6.3",
+   "value": "0x252cc52",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:123"
@@ -753,8 +753,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:212",
-   "value": "0x2522eb4",
-   "ver": "0.6.3",
+   "value": "0x252cc54",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:212"
@@ -765,8 +765,8 @@
   },
   {
    "name": "CT_CLIENT_HI",
-   "value": "0x252cbc0",
-   "ver": "0.6.3",
+   "value": "0x2536960",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:463"
@@ -777,8 +777,8 @@
   },
   {
    "name": "CLONE_CHAMP_RVA",
-   "value": "0x1cd2ee0",
-   "ver": "0.6.3",
+   "value": "0x1ece0e0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1511"
@@ -789,8 +789,8 @@
   },
   {
    "name": "CT_REGION_LO",
-   "value": "0x1c34b20",
-   "ver": "0.6.3",
+   "value": "0x29baa40",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:460"
@@ -801,34 +801,34 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:147",
-   "value": "0x1c46968",
-   "ver": "0.6.3",
+   "value": "0x29cc91a",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:147"
    ],
    "sect": ".text",
-   "bytes": "040f868d350000c644242001",
+   "bytes": "040f8690380000c644242001",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "server_pregate 0.6.0 (ghidra-re 09-17)"
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:137",
-   "value": "0x1c49f97",
-   "ver": "0.6.3",
+   "value": "0x29d024c",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:137"
    ],
    "sect": ".text",
-   "bytes": "040f86264f0000c68584c504",
+   "bytes": "040f86ec3f0000c68593c504",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "daily_inc_gate 0.6.0 (ghidra-re 09-17)"
   },
   {
    "name": "PATCHES",
-   "value": "0x1c4f01e",
-   "ver": "0.6.3",
+   "value": "0x29d4399",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:78"
@@ -839,21 +839,21 @@
   },
   {
    "name": "CT_REGION_HI",
-   "value": "0x1c619a3",
-   "ver": "0.6.3",
+   "value": "0x29e8060",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:461"
    ],
    "sect": ".text",
-   "bytes": "666666662e0f1f8400000000",
+   "bytes": "488954241055415741564155",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "CT_REGION_HI 0.6.0 pdata 끝 (ghidra-re 09-17)"
   },
   {
    "name": "SREG_RVA",
-   "value": "0x1c8f450",
-   "ver": "0.6.3",
+   "value": "0x2a16490",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1187"
@@ -864,33 +864,33 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:251",
-   "value": "0x1c8f885",
-   "ver": "0.6.3",
+   "value": "0x2a16881",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:251"
    ],
    "sect": ".text",
-   "bytes": "4b8d043fb3024839c20f8234",
+   "bytes": "4801db4889d8b3024839c20f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:171",
-   "value": "0x1c8f964",
-   "ver": "0.6.3",
+   "value": "0x2a16920",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:171"
    ],
    "sect": ".text",
-   "bytes": "0f85d30000004c897d304883",
+   "bytes": "0f85d80000004c897dd04885",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "server_dedup_real 0.6.0 (ghidra-re 09-17 · SREG 0x2265f40 등록루프 · jne d8)"
   },
   {
    "name": "ITEMCONV_RVA",
-   "value": "0x1c9d5b0",
-   "ver": "0.6.3",
+   "value": "0x2a25530",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:3488"
@@ -902,32 +902,32 @@
   },
   {
    "name": "SIMBODY_RVA",
-   "value": "0x1cc45b0",
-   "ver": "0.6.3",
+   "value": "0x2a5cee0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:789"
    ],
    "sect": ".text",
-   "bytes": "08488b4008488d158c49d101",
+   "bytes": "08488b4008488d155ce0fc00",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "MFORGE_RVA",
-   "value": "0x23bbdd0",
-   "ver": "0.6.3",
+   "value": "0x2372aa0",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1234"
    ],
    "sect": ".text",
-   "bytes": "4728488d8d30020000e80260",
+   "bytes": "4728488d8d30020000e832f3",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "CTX_CLONE_RVA",
-   "value": "0x2540940",
-   "ver": "0.6.3",
+   "value": "0x254a550",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:1770"
@@ -938,8 +938,8 @@
   },
   {
    "name": "CT_CLIENT_LO",
-   "value": "0x25923c0",
-   "ver": "0.6.3",
+   "value": "0x2894f40",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:462"
@@ -950,8 +950,8 @@
   },
   {
    "name": "RUST_ALLOC_RVA",
-   "value": "0x2ed3740",
-   "ver": "0.6.3",
+   "value": "0x2f21750",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:3945"
@@ -962,8 +962,8 @@
   },
   {
    "name": "ALLOC_RVA",
-   "value": "0x2f99a60",
-   "ver": "0.6.3",
+   "value": "0x2fe7a70",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/ui_inject.rs:40"
@@ -974,8 +974,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:2354",
-   "value": "0x3b3c087",
-   "ver": "0.6.3",
+   "value": "0x3b9f40b",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2354"
@@ -986,8 +986,8 @@
   },
   {
    "name": "INLINE@src/tfm2_comptest_unlock.rs:2355",
-   "value": "0x3b3c0bf",
-   "ver": "0.6.3",
+   "value": "0x3b9f443",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2355"
@@ -998,14 +998,14 @@
   },
   {
    "name": "RUNNER_VT_RVA",
-   "value": "0x3c1f2f0",
-   "ver": "0.6.3",
+   "value": "0x3d0b9f8",
+   "ver": "0.6.4",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/tfm2_comptest_unlock.rs:2165"
    ],
    "sect": ".rdata",
-   "bytes": "6077d04101000000e0210000",
+   "bytes": "80f1954201000000e0210000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "curated": true,
    "note": "[0.5.8 포인터 사영 6/6 + size 0x2410·자기참조 +0x28=base-0x48 일치]"

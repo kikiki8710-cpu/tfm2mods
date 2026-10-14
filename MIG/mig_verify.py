@@ -22,7 +22,7 @@ MIGD = os.path.join(ROOT, 'MIG')
 MAND = os.path.join(MIGD, 'manifest')
 GAME_EXE = r'C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\TeamfightManager2.exe'
 RVA_LO, RVA_HI = 0x80000, 0x4800000   # .text + RVA vtable(.rdata ~0x34e6a20) 포함
-GAME_VER = '0.6.3'   # gen 이 새 엔트리에 박는 버전 라벨(패치마다 갱신) — 2026-10-07 0.6.3
+GAME_VER = '0.6.4'   # gen 이 새 엔트리에 박는 버전 라벨(패치마다 갱신) — 2026-10-14 0.6.4
 
 NBYTES = 12                            # 엔트리당 채록 바이트
 
@@ -34,6 +34,7 @@ MODS = [
   'tfm2_level_cap', 'tfm2_champion_exclude', 'banpick_view_plus',
   'tfm2_comptest_unlock', 'tfm2_elemental_serpen', 'tfm2_champ_pos_lock',
   'training_view_plus', 'facility_view_plus', 'custom_tier_assignment',  # 자체 RVA 0 이지만 ui_kit RE 헬퍼(#[path]) 소비 = 재빌드 대상(0.6.1 발견)
+  'tfm2_lane_tactics',   # 2026-10-14 0.6.4 회차 편입(0.6.3 v0.1.4 마이그분 · passive_plan wrap)
   'ui_kit',   # 공유모듈(dll 없음) — 0.5.7 사고 1·2 의 근원
 ]
 # 제외 모드 매니페스트는 manifest\ 에 보존(값 = 마지막 마이그 버전). 재개 시 여기 다시 넣고 check.

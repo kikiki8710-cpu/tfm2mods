@@ -1,0 +1,40 @@
+{
+ "mod": "tfm2_lane_tactics",
+ "game_ver": "0.6.3",
+ "build": "",
+ "notes": [
+  "2026-10-14 0.6.4 마이그 착수 시 신설(0.6.3 exe 기준 gen). 구조체 오프셋 15종은 소스 const(PL_*·LPH_*·PS_*·BB_*·CACHE_*) — passive_plan 문맥에서 RE 로 재확인(REPORT tfm2_lane_tactics RE G6)."
+ ],
+ "offsets": [],
+ "entries": [
+  {
+   "name": "INLINE@src/lib.rs:186",
+   "value": "0xabe00",
+   "ver": "0.6.3",
+   "kind": "NOT_RVA",
+   "locs": [
+    "src/lib.rs:186",
+    "src/lib.rs:187",
+    "src/lib.rs:188",
+    "src/lib.rs:188"
+   ],
+   "sect": ".text",
+   "bytes": "4d89f84929c876224d8b7424",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "note": "맵 좌표 상수(line_zone 판정 폭 0xabe00) — RVA 아님"
+  },
+  {
+   "name": "RVA_PASSIVE_PLAN",
+   "value": "0xd5c300",
+   "ver": "0.6.4",
+   "kind": "FN_START",
+   "locs": [
+    "src/lib.rs:21"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  }
+ ]
+}

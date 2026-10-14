@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """deploy_stable.py — stable ABI 껍데기 모드(0.6.0+) 빌드 산출물을 게임 mods\ 에 배포한다.
-  python deploy_stable.py <MOD_ID> [--dll <cargo 산출 dll>] [--ver <mod_info version>] [--base ">=0.6.3, <0.6.4"]
+  python deploy_stable.py <MOD_ID> [--dll <cargo 산출 dll>] [--ver <mod_info version>] [--base ">=0.6.4, <0.6.5"]
 하는 일: ① export 검사(tfm2_mod_entry_stable 필수 · 클래식 export 있으면 거부)
         ② <게임설치>\mods\<MOD_ID>\<MOD_ID>.dll 로 복사(크레이트 이름과 무관 · 파일명 = MOD_ID)
         ③ 소스·게임측 mod.mod_info 의 base 대역/version/last_updated 갱신(BOM 없는 UTF-8 · 첫 바이트 7b 검증)
@@ -39,7 +39,7 @@ def main():
     ap.add_argument('mod')
     ap.add_argument('--dll', default=None)
     ap.add_argument('--ver', default=None)
-    ap.add_argument('--base', default='>=0.6.3, <0.6.4')
+    ap.add_argument('--base', default='>=0.6.4, <0.6.5')
     a = ap.parse_args()
     dll = a.dll or (glob.glob(os.path.join(ROOT, a.mod, 'target', 'release', '*.dll')) or [None])[0]
     if not dll or not os.path.isfile(dll):

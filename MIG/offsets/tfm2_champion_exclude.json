@@ -1,8 +1,8 @@
 {
  "mod": "tfm2_champion_exclude",
- "game_ver": "0.6.3",
+ "game_ver": "0.6.4",
  "fns": {
-  "0x1b2ea80": {
+  "0x1b5b4b0": {
    "name": "HOOK_RVA",
    "size": 331,
    "offs": {

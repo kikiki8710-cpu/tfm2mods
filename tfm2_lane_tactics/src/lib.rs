@@ -1,13 +1,13 @@
-//! tfm2_lane_tactics — 라인전 이후 포지션 전술(0.6.3 · stable 껍데기 + 네이티브 wrap detour).
+//! tfm2_lane_tactics — 라인전 이후 포지션 전술(0.6.4 · stable 껍데기 + 네이티브 wrap detour).
 //!
 //! 게임 `LegacyPlanHandler::passive_plan`(라인전 이후 소극 플랜 = "지금 어느 라인에 설까")을 wrap 으로 감싸
 //! **원본 실행 → 반환된 PassiveLine 의 line 을 포지션별 규칙으로 교체**한다. 규칙 = `lane_tactics.cfg`(모드 폴더).
 //!   규칙(왼쪽부터 시도 · 첫 성립이 채택): `top|mid|bot` 고정 / `pushed[:임계]` 가장 밀린 라인 /
 //!   `push[:임계]` 가장 밀고 있는 라인 / `ally:<pos>` 그 아군과 같은 라인(점유 → 그 아군 규칙 → 위치(기지 제외)) / `game` 게임 원래 선택 유지(여기서 중단).
-//! 설계·RE 원문 = mods_report\tfm2_lane_tactics\ (RE\2026-09-30_G1~G4 · 0.6.1 기준, 0.6.2 재핀 G5, 0.6.3 재핀 RE\2026-10-14_G6).
+//! 설계·RE 원문 = mods_report\tfm2_lane_tactics\ (RE\2026-09-30_G1~G4 · 0.6.1 기준, 0.6.2 재핀 G5, 0.6.3 재핀 RE\2026-10-14_G6, 0.6.4 재핀 RE\2026-10-14_G7).
 //!
 //! 안전: wrap 본문 = catch_unwind · 원본은 항상 먼저 실행하고 반환값을 그대로 돌려준다(모드 로직 실패 = 게임 원래 동작).
-//!   RVA 는 게임 버전 0.6.3 에서만 설치(다른 버전이면 설치 안 함). 진입부 12B 가 기대값과 다르면(다른 모드 훅 포함) 설치 안 함.
+//!   RVA 는 게임 버전 0.6.4 에서만 설치(다른 버전이면 설치 안 함). 진입부 12B 가 기대값과 다르면(다른 모드 훅 포함) 설치 안 함.
 use mod_api_stable::{declare_stable_mod, LogLevel, StableClient, StableExtension, StableHost, StableMod};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::atomic::{AtomicU64, AtomicU8, AtomicUsize, Ordering};
@@ -15,23 +15,23 @@ use std::sync::{Mutex, OnceLock};
 
 const MOD_ID: &str = "tfm2_lane_tactics";
 
-// ── 0.6.3 상수(근거 = mods_report\tfm2_lane_tactics\RE\2026-10-14_G6) ──
-const GAME_VER: (u32, u32, u32) = (0, 6, 3);
-/// passive_plan (0.6.1 0xd40310 → 0.6.2 0xd3a0f0 → 0.6.3 0xd5d860 · 소스 plan\handler\assign.rs)
-const RVA_PASSIVE_PLAN: usize = 0xd5d860;
+// ── 0.6.4 상수(근거 = mods_report\tfm2_lane_tactics\RE\2026-10-14_G7 · 0.6.3 = G6) ──
+const GAME_VER: (u32, u32, u32) = (0, 6, 4);
+/// passive_plan (0.6.1 0xd40310 → 0.6.2 0xd3a0f0 → 0.6.3 0xd5d860 → 0.6.4 0xd5c300(진입 32B 유일) · 소스 plan\handler\assign.rs)
+const RVA_PASSIVE_PLAN: usize = 0xd5c300;
 /// 진입부 12B(0.6.2 와 동일) = push rbp,r15,r14,r13,r12,rsi,rdi,rbx (RIP 상대 없음 · 명령 경계 12)
 const PROLOG_PASSIVE_PLAN: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 
-// ── 구조체 오프셋(0.6.3 · RE 2026-10-14_G6 · 괄호 = 0.6.2) ──
+// ── 구조체 오프셋(0.6.4 · RE 2026-10-14_G7 · 0.6.3→0.6.4 = LPH 필드만 +0xa8 · 괄호 = 0.6.3 / 0.6.2) ──
 const PLAN_TAG: usize = 0x0;          // BigPlan tag(qword · u32 비교 안전) · 3 = PassiveLine
 const PL_WAIT: usize = 0x11e;         // 1 = sub_plan 즉시 LineWait(서포터 hold) (0x11f)
 const PL_FLAGS: usize = 0x120;        // byte != 0 = 고정(웨이브 우선·SplitEpic 등) — 건드리지 않음 (0.6.2 = u32 bit0)
 const PL_LINE: usize = 0x124;         // LineType u8 (Top0 Mid1 Bottom2) · ⚠0.6.1 은 +0x123(0.6.2 에선 플래그 바이트)
 const RET_CODE: usize = 0x348;        // 발원 코드 u8 (BigPlan 0x348B 뒤) (0x370)
-const LPH_PLAN_TAG: usize = 0x1598;   // 현재 커밋된 plan (0xfc0)
-const LPH_PLAN_LINE: usize = 0x16bc;  // = +0x1598 + 0x124 (0x10e4)
-const LPH_DEST_TAG: usize = 0x1408;   // 목적지 hold Option(bit0) (0xe70) · ⚠0.6.3 은 hold 가 커밋을 막지 않음 → 진단 읽기만
-const LPH_LATCH_LINE: usize = 0x297f; // v2_apply 래치 라인(0xff = None) (0x26bf)
+const LPH_PLAN_TAG: usize = 0x1640;   // 현재 커밋된 plan (0.6.3 0x1598 · 0.6.2 0xfc0)
+const LPH_PLAN_LINE: usize = 0x1764;  // = +0x1640 + 0x124 (0.6.3 0x16bc · 0.6.2 0x10e4)
+const LPH_DEST_TAG: usize = 0x14b0;   // 목적지 hold Option(bit0) (0.6.3 0x1408 · 0.6.2 0xe70) · ⚠0.6.3 은 hold 가 커밋을 막지 않음 → 진단 읽기만
+const LPH_LATCH_LINE: usize = 0x2a27; // v2_apply 래치 라인(0xff = None) (0.6.3 0x297f · 0.6.2 0x26bf)
 const PS_TEAM: usize = 0x800;         // (0xa00)
 const PS_POS: usize = 0x890;          // (0xa90)
 const BB_STRIDE: usize = 0xac8;       // (0.6.2 0x5e0 · 0.6.1 0x5c8)
