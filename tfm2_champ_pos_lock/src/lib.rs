@@ -23,7 +23,8 @@ pub mod i18n;
 pub mod ui_block;
 pub mod swap_confirm_hook;
 pub mod pick_click_hook;
-pub mod ai_position; // ★0.6.4 ABI 10 decide_positions — 구 legacy_assign(hookA)·ai_swap(compute_rule_swap_order) RVA 2축 대체
+pub mod legacy_assign; // AI 마스크 hookA — ★0.6.4 대체 시도 후 복구(픽 단계 적합도에 필요 · legacy_assign.rs 머리 주석)
+pub mod ai_position; // ★0.6.4 ABI 10 decide_positions — 구 ai_swap(compute_rule_swap_order) RVA 대체
 pub mod auto_swap; // ★09-20 내 팀 자동 스왑(select_swap 호출)
 pub mod ui_popup;
 pub mod perf; // ★09-28 구간 계측(cfg perf_log)
@@ -327,6 +328,7 @@ impl StableExtension for Ext {
             { let _s = perf::sec(perf::SAVE); save_tick(ctx); }
             { let _s = perf::sec(perf::MASKS); let _ = masks(); }
             let _hk = perf::sec(perf::HOOKS);
+            legacy_assign::install_once();
             // 밴픽 씬 포인터 캡처(update 진입 detour · 09-18 RE) — 스왑 order raw 읽기용. 설치 결과 1회 로그.
             if let Some(msg) = draft_scene::install_once() { config::dlog(&msg); config::llog(&msg); }
             draft_scene::tick();

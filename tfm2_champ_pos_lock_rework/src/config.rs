@@ -40,7 +40,7 @@ pub struct Cfg {
     pub swap_auto: bool,
     /// AI 픽 차단 (DraftScoreHook)
     pub ai_pick_gate: bool,
-    /// ~~AI 배정 마스크 강제 (hookA)~~ → ★0.6.4 폐지(swap_force 로 통합 · 키는 호환용으로 읽기만)
+    /// AI 배정 마스크 강제 (hookA) — ★0.6.4 「폐지」 시도 후 복구(AI 픽 단계 포지션 적합도에 필요)
     pub ai_assign_mask: bool,
     /// 유저 픽 차단 (hookC — 피어리스처럼 회색+클릭불가)
     pub user_pick_block: bool,
@@ -850,6 +850,7 @@ const DEFAULT_CFG: &str = "\
     debug=0\r\n\
     # Restrict AI teams too (their picks and their position assignment).\r\n\
     ai_pick_gate=1\r\n\
+    ai_assign_mask=1\r\n\
     # In your own draft, grey out champions that would break the position assignment\r\n\
     #   (like fearless does). Automatically lifted when nothing legal is left.\r\n\
     user_pick_block=1\r\n\

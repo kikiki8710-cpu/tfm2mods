@@ -40,6 +40,14 @@ fn mask_of_id(ctx: &StableDraftContext<'_>, id: usize) -> u8 {
 }
 
 
+/// 모델 인덱스 공간 이름표(champion_briefs 순서) → legacy_assign(hookA). 길이가 바뀔 때만 게시.
+fn publish_model(ctx: &StableDraftContext<'_>) {
+    let briefs = ctx.champion_briefs();
+    if briefs.is_empty() || briefs.len() == crate::legacy_assign::model_len() { return; }
+    let names: Vec<String> = briefs.iter().map(|b| unsafe { b.name.as_str() }.to_ascii_lowercase()).collect();
+    crate::legacy_assign::publish_model_names(names);
+}
+
 pub struct PosLockDraft;
 impl StableDraftHook for PosLockDraft {
     fn id(&self) -> String { "tfm2_champ_pos_lock.pick_gate".into() }
@@ -47,6 +55,7 @@ impl StableDraftHook for PosLockDraft {
     fn score_pick(&self, ctx: &StableDraftContext<'_>, candidate: usize, base_score: f32) -> StableDraftDecision {
         CNT_SCORE.fetch_add(1, Ordering::Relaxed);
         let _s = crate::perf::sec(crate::perf::SCORE);
+        publish_model(ctx);
         let key = ctx_key(ctx);
         SCORE_KEY.with(|k| { let mut k = k.borrow_mut(); if *k != key { *k = key; SCORES.with(|s| s.borrow_mut().clear()); } });
         SCORES.with(|s| { let mut s = s.borrow_mut(); if let Some(e) = s.iter_mut().find(|e| e.0 == candidate) { e.1 = base_score; } else if s.len() < 512 { s.push((candidate, base_score)); } });

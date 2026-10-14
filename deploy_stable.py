@@ -72,6 +72,23 @@ def main():
     st = os.stat(dst)
     print('OK: deployed %s  Length=%d  LastWriteTime=%s  exports=%s'
           % (dst, st.st_size, time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime)), ex))
+    # ★2026-10-14: 이 스크립트는 dll·mod_info 만 옮긴다. ui/·text/ 를 고친 모드는 게임 쪽이 옛판으로 남는다
+    #   (banpick_view_plus 풀다운·확대 토글이 인게임에서 안 보인 실사고) ⟹ 다르면 경고만(자동 덮어쓰기 안 함 — 게임 쪽 수동 수정본 보호).
+    stale = []
+    for sub in ('ui', 'text'):
+        sroot = os.path.join(ROOT, a.mod, sub)
+        if not os.path.isdir(sroot):
+            continue
+        for dp, _, fns in os.walk(sroot):
+            for fn in fns:
+                if '.bak' in fn:
+                    continue
+                sp = os.path.join(dp, fn); rel = os.path.relpath(sp, os.path.join(ROOT, a.mod))
+                gp = os.path.join(dst_dir, rel)
+                if not os.path.isfile(gp) or open(sp, 'rb').read() != open(gp, 'rb').read():
+                    stale.append(rel)
+    if stale:
+        print('⚠ui/text 가 게임 쪽과 다름(직접 복사 필요): %s' % ', '.join(stale))
 
 
 if __name__ == '__main__':

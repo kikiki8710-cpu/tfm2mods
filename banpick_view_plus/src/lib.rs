@@ -199,8 +199,12 @@ fn mod_dir() -> Option<String> {
     let p = String::from_utf16_lossy(&buf[..n]);
     p.rfind(|c| c == '\\' || c == '/').map(|i| p[..i].to_string())
 }
+/// ★10-14 레드 ⚙ 클릭 불가 진단: 모드 폴더에 `bp_diag.flag` 가 있으면(밴픽 화면 진입 때 확인) DBG 없이도 debug.log 기록 + ⚙ 위치 히트 노드 덤프.
+static DIAG: AtomicBool = AtomicBool::new(false);
+static DIAG_LAST: Mutex<String> = Mutex::new(String::new());
+static ZTEST_LOGGED: AtomicBool = AtomicBool::new(false);
 fn log(s: &str) {
-    if !DBG { return; }
+    if !DBG && !DIAG.load(Ordering::Relaxed) { return; }
     if let Some(d) = mod_dir() {
         use std::io::Write;
         if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", d)) { let _ = writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s); }
@@ -581,6 +585,7 @@ impl StableExtension for Ext {
             if !ctx.ui_exists(DISC) { deactivate(); return; }
             let il = illust();
             if !ACTIVE.swap(true, Ordering::Relaxed) {
+                DIAG.store(mod_dir().map(|d| std::path::Path::new(&format!(r"{}\bp_diag.flag", d)).exists()).unwrap_or(false), Ordering::Relaxed);
                 log("밴픽 화면 활성");
                 *AXES.lock().unwrap_or_else(|e| e.into_inner()) = Some(compute_axes(ctx));
                 *NAME_COLOR.lock().unwrap_or_else(|e| e.into_inner()) = None;
@@ -591,7 +596,7 @@ impl StableExtension for Ext {
                 // 스킨 관련 버튼은 이 판에서 제외 → 숨김
                 for p in [format!("{}.bp_skin_pack_cycle", PANEL)] { set_vis(ctx, &p, false); }
             }
-            // ── 클릭 등록(프로세스당 1회, 경로 키 영구)
+            // ── 클릭 등록(밴픽 진입마다 1회 — ★10-14: 씬 재생성 시 등록 소실 실측 · ~~프로세스당 1회, 경로 키 영구~~)
             if !CLICKS_REGISTERED.swap(true, Ordering::Relaxed) {
                 ctx.ui_register_click(DISC, "", |_| push_click("settings"));
                 for k in ["bp_panel_toggle", "bp_namecolor_toggle", "bp_redflip_toggle", "bp_hoverbg_toggle", "bp_follow_toggle", "bp_bg_cycle", "bp_pack_cycle", "bp_zoom_toggle"] {
@@ -600,6 +605,15 @@ impl StableExtension for Ext {
                 }
                 for team in ["blue", "red"] { for n in 0..5 { let tag: String = format!("illust:{}:{}", team, n); let p = format!("main.{}_picks.pick_slot_{}.done.bp_illust_cycle", team, n); let t2 = tag.clone(); ctx.ui_register_click(&p, "", move |_| push_click(&t2)); let _ = tag; } }
                 log("클릭 핸들러 등록");
+                // ★10-14 진단 v2: ⚙ 자리 클릭을 누가 받는지 — 후보 노드마다 경로 이벤트 리스너(클릭류)
+                if DIAG.load(Ordering::Relaxed) {
+                    let roots = ctx.ui_child_names("");
+                    log(&format!("diag 루트 노드 = {:?} · main 자식 = {:?}", roots, ctx.ui_child_names(ROOT)));
+                    let cands = ["main", "main.header", "main.header.next_turn", "main.header.step", "main.header.bp_settings", "main.header.bp_settings.icon", "main.phase_indicator", "main.phase_indicator.text", "main.coach_delegation_indicator", "main.coach_dialogue_toast", "main.coach_dialogue_button_tooltip", "main.tooltip", "main.background", "main.bp_hover_bg", "main.champion_pool_wait_overlay"];
+                    let mut regd = Vec::new();
+                    for p in cands { let pp: &'static str = p; if ctx.ui_register_path_events(pp, move |c| { if let Some(e) = c.ui_current_event() { log(&format!("diag 이벤트 [{}] kind={:?} path={} payload={}", pp, e.kind, e.path, e.payload_json)); } }) { regd.push(pp); } }
+                    log(&format!("diag 리스너 등록 {:?}", regd));
+                }
             }
             if let Some(msg) = draft_scene::install_once() { log(&msg); }
             draft_scene::tick();
@@ -616,7 +630,12 @@ impl StableExtension for Ext {
                 }
             }
             // ── 클릭 처리
-            let clicks: Vec<String> = std::mem::take(&mut *PENDING_CLICKS.lock().unwrap_or_else(|e| e.into_inner()));
+            let clicks_raw: Vec<String> = std::mem::take(&mut *PENDING_CLICKS.lock().unwrap_or_else(|e| e.into_inner()));
+            // ★10-14: 같은 처리 묶음(3프레임) 안 같은 클릭 태그는 1회만 — 한 번 누른 클릭이 두 번 전달되면 토글(⚙ 열기)이 열림→닫힘으로 상쇄된다(레드 ⚙ 클릭 불가 가설).
+            if !clicks_raw.is_empty() { log(&format!("클릭 묶음 raw={:?} settings_open={}", clicks_raw, SETTINGS_OPEN.load(Ordering::Relaxed))); }
+            let mut seen_click: BTreeSet<String> = BTreeSet::new();
+            let clicks: Vec<String> = clicks_raw.into_iter().filter(|c| seen_click.insert(c.clone())).collect();
+            if DIAG.load(Ordering::Relaxed) && f % 60 == 0 { diag_hit(ctx); }
             for c in clicks {
                 match c.as_str() {
                     "settings" => { let v = !SETTINGS_OPEN.load(Ordering::Relaxed); SETTINGS_OPEN.store(v, Ordering::Relaxed); if !v { PACK_LIST_OPEN.store(false, Ordering::Relaxed); } }
@@ -1031,8 +1050,35 @@ fn draw_pack_list(ctx: &mut StableClient<'_>, rows: &[(String, String, Option<u3
     set_vis(ctx, &lp, open);
     let _ = ctx.ui_set_properties(&format!("{}.bp_pack_cycle.next", PANEL), if open { "source: \"asset/base/ui/icons/dropdown_up\";" } else { "source: \"asset/base/ui/icons/dropdown\";" });
 }
+/// 진단: ⚙(DISC) 중심점을 rect 로 포함하는 보이는 노드(main 이하 깊이 4 · 카드 그리드 제외) — 바뀔 때만 기록.
+fn diag_hit(ctx: &mut StableClient<'_>) {
+    // z 시험: bp_ztest.flag 가 있으면 ⚙ 를 z 5000 으로(덮개가 z 우선이면 이것만으로 풀린다)
+    if mod_dir().map(|d| std::path::Path::new(&format!(r"{}\bp_ztest.flag", d)).exists()).unwrap_or(false) { let ok = ctx.ui_set_properties(DISC, "z: 5000;"); if !ZTEST_LOGGED.swap(true, Ordering::Relaxed) { log(&format!("diag ⚙ z=5000 적용 {}", ok)); } }
+    let Some((gx, gy, gw, gh)) = ctx.ui_node_rect(DISC) else { log("diag: ⚙ rect 없음"); return };
+    let (cx, cy) = (gx + gw * 0.5, gy + gh * 0.5);
+    let mut hits: Vec<String> = Vec::new();
+    let mut stack: Vec<(String, usize)> = vec![(ROOT.to_string(), 0)];
+    let mut n = 0usize;
+    while let Some((p, d)) = stack.pop() {
+        n += 1; if n > 4000 { break; }
+        if p == CARDS { continue; }
+        if let Some((x, y, w, h)) = ctx.ui_node_rect(&p) {
+            if cx >= x && cx <= x + w && cy >= y && cy <= y + h && ctx.ui_visible(&p) == Some(true) {
+                hits.push(format!("{} [{:.0},{:.0},{:.0},{:.0}] {}", p, x, y, w, h, ctx.ui_runner_name(&p).unwrap_or_default()));
+            }
+        }
+        if d < 6 { for c in ctx.ui_child_names(&p) { stack.push((format!("{}.{}", p, c), d + 1)); } }
+    }
+    let side = draft_scene::read().map(|r| format!("phase={}", r.phase)).unwrap_or_default();
+    let line = format!("diag ⚙ center=({:.0},{:.0}) visible={:?} open={} {} hits={}\n  {}", cx, cy, ctx.ui_visible(DISC), SETTINGS_OPEN.load(Ordering::Relaxed), side, hits.len(), hits.join("\n  "));
+    let mut g = DIAG_LAST.lock().unwrap_or_else(|e| e.into_inner());
+    if *g != line { *g = line.clone(); drop(g); log(&line); }
+}
 fn deactivate() {
     SWAP_ACTIVE.store(false, Ordering::Relaxed);
+    // ★10-14 레드/2세트 ⚙ 클릭 불가 진범: 밴픽 씬이 다시 만들어지면 ui_register_click 등록이 사라진다(인게임 진단 — 2번째 밴픽부터 ⚙·리스너 이벤트 0건).
+    //   ⟹ 밴픽을 벗어날 때 등록 플래그를 풀어 다음 진입에서 다시 등록. 등록이 살아 있어 이중 발화해도 클릭 묶음 중복 제거가 상쇄를 막는다.
+    if ACTIVE.load(Ordering::Relaxed) { CLICKS_REGISTERED.store(false, Ordering::Relaxed); *PACK_ROW_CLICKS.lock().unwrap_or_else(|e| e.into_inner()) = None; }
     if ACTIVE.swap(false, Ordering::Relaxed) { SETTINGS_OPEN.store(false, Ordering::Relaxed); PACK_LIST_OPEN.store(false, Ordering::Relaxed); *PICK_STATE.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER.lock().unwrap_or_else(|e| e.into_inner()) = None; *HOVER_BG_KEY.lock().unwrap_or_else(|e| e.into_inner()) = None; }
 }
 /// 원작 draw_radar_octagon 재현(UI 맵 드로잉). 카드 오른쪽/왼쪽 옆에 그린다(게임 자체 포지션 툴팁은 카드 위·아래).
