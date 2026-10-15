@@ -93,6 +93,10 @@ sylas `+0x1e0→0x1f0` 5개 함수, serpen MOBATICK Δ+0x38 등)
 ⑪ ★python MIG\env.py                       = 버전게이트 상수·빌드 SDK 경로·apply 누락·stale dll
 ⑫ ★python MIG\run.py 가 종료코드 0 → 그때만 "마이그 완료"
 ⑬ 오프셋 작업이 끝났으면 python MIG\offsets.py snap  (다음 회차 기준선 채록)
+⑬b ★전체 오버라이드 .ui 를 싣는 모드(banpick_view_plus 등) = 「번들 원본 버전간 바이트 동일」만 보지 말고
+     「게임 원본 .ui 노드 ID − 모드 .ui 노드 ID」 차집합(comm -23)이 0 인지 볼 것 (버전무관 교훈 · 2026-10-15)
+     ⚠실사고: 0.6.3 신규 #instant(즉시 완료) 가 view_plus layout.ui 에 없어 위임 취소 버튼이 치우침 —
+       0.6.3·0.6.4 두 회차가 바이트 동일 확인만 하고 놓침 (REPORT\daram2_view_plus\03_시행착오.md 10-15 · 953f0b1)
 ⑭ 인게임 검증 → REPORT 검증표 갱신 → rel_commit
      ★검증 기준 = REPORT\_검증_체크리스트.md 「★★현행 표준 체크리스트」(8묶음, 유저 지정 2026-10-07)
        → REPORT\_검증_체크리스트_<버전>.md 로 복사해 항목마다 근거와 함께 체크 · 전 항목 [x]/[-] 일 때만 릴리스
