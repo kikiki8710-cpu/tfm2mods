@@ -38,7 +38,7 @@ pub mod draft_scene;
 pub mod dd;
 
 pub const MOD_ID: &str = "tfm2_champ_pos_lock";
-pub const VERSION: &str = "0.7.7";
+pub const VERSION: &str = "0.7.8";
 
 #[link(name = "kernel32")]
 extern "system" { fn GetModuleFileNameW(module: usize, buf: *mut u16, size: u32) -> u32; fn GetModuleHandleExW(flags: u32, addr: *const u16, h: *mut usize) -> i32; }
@@ -184,6 +184,12 @@ pub static PLAYER_TEAM: AtomicU64 = AtomicU64::new(u64::MAX);
 pub static FRAME: AtomicU64 = AtomicU64::new(0);
 static AISWAP_LAST_FIRE: AtomicU64 = AtomicU64::new(0);
 
+/// ★10-15: `champ_pos_lock_state.txt` = 현재 세이브의 포지션 목록 덤프. 외부 모드(Terminator Draft AI)가 이 파일로 목록을 읽는다
+///   ⟹ 세이브 로드 때 1회만 쓰면 플레이 중 수정·설정 없는 세이브·세이브 이탈이 반영되지 않는다(Terminator 제작자 지적)
+///   → 목록이 바뀌는 모든 지점(저장 성공·설정 없음 판정·세이브 이탈)에서 갱신·비움.
+fn write_state_file(txt: &str) {
+    if let Some(d) = mod_dir() { let _ = std::fs::write(format!("{}\\champ_pos_lock_state.txt", d), txt); }
+}
 fn save_tick(ctx: &mut StableClient<'_>) {
     // ① UI 확인이 이월한 기록 대기분
     let pending = PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()).take();
@@ -192,7 +198,7 @@ fn save_tick(ctx: &mut StableClient<'_>) {
             ctx.save_set_version(SAVE_NS_VERSION);
             let ok = ctx.save_set_string(SAVE_KEY, &body);
             config::slog(&format!("세이브 기록 {}: {}B", if ok { "OK" } else { "거부(FALSE)" }, body.len()));
-            if ok { config::apply_state_text(&body); SAVE_LOADED.store(true, Ordering::Relaxed); }
+            if ok { config::apply_state_text(&body); SAVE_LOADED.store(true, Ordering::Relaxed); write_state_file(&body); }
         } else {
             config::slog("세이브 기록 불가: save_can_write=false — 이번 저장은 반영 안 됨");
             *PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()) = Some(body); // 다음 프레임 재시도
@@ -207,13 +213,14 @@ fn save_tick(ctx: &mut StableClient<'_>) {
                 let miss = SAVE_MISS.swap(0, Ordering::Relaxed);
                 config::slog(&format!("세이브 설정 로드: {}B / 포지션별 {:?} (대기 {miss}프레임)", txt.len(), (0..5).map(config::pos_count).collect::<Vec<_>>()));
                 // ★09-17: 현재 세이브의 설정 본문을 파일로도 덤프(사용자 문의·지원용 — 세이브 안에만 있어 밖에서 볼 수 없었다)
-                if let Some(d) = mod_dir() { let _ = std::fs::write(format!("{}\\champ_pos_lock_state.txt", d), &txt); }
+                write_state_file(&txt);
             }
             None => {
                 let n = SAVE_MISS.fetch_add(1, Ordering::Relaxed) + 1;
                 if n >= SAVE_MISS_GRACE {
                     config::apply_state_text("");
                     SAVE_LOADED.store(true, Ordering::Relaxed);
+                    write_state_file(""); // 이전 세이브 목록이 파일에 남지 않게
                     config::slog(&format!("이 세이브엔 설정 없음({n}프레임 확인) → 제한 없음 / 로스터 {}종", roster().map(|r| r.ids.len()).unwrap_or(0)));
                 }
             }
@@ -224,6 +231,7 @@ fn leave_save() {
     SAVE_MISS.store(0, Ordering::Relaxed);
     if SAVE_LOADED.swap(false, Ordering::Relaxed) {
         config::clear_state();
+        write_state_file("");
         ROSTER_DIRTY.store(true, Ordering::Relaxed);
         PLAYER_TEAM.store(u64::MAX, Ordering::Relaxed);
         ui_block::reset();
