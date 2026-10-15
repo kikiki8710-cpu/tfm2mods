@@ -27,6 +27,14 @@ TEXT_FIX = {
     ('tfm2_elemental_serpen', 'tfm2_elemental_serpen/config/serpen.cfg'):
         [(b'\nelder_after = 3\n', b'\nelder_after = 5\n')],
 }
+# ★10-15 추가: 빈 mod.override_info(`{}`) 동봉 — 0.5.x zip 이 이 5모드에 override_info + 옛 ui/*.ui 를 실었고
+#   0.6.0 부터 안 싣는다 ⟹ 기존 폴더 위에 풀면 옛 override_info 가 남아 옛 레이아웃이 0.6.x 화면을 덮는다
+#   (영입 화면 안 뜸 · 시설 버튼 중복 제보). 빈 파일을 실어 압축 해제만으로 덮어쓰게 한다(선례 = level_cap `{}`).
+ADD_ENTRIES = {
+    'daram2_viewplus': {m + '/mod.override_info': os.path.join(REPO, m, 'mod.override_info') for m in
+                        ('recruitment_view_plus', 'roster_view_plus', 'coaching_staff_view_plus',
+                         'facility_view_plus', 'custom_tier_assignment')},
+}
 ENTRY_FROM = {
     ('tfm2_elemental_serpen', 'tfm2_elemental_serpen/serpen_probe.cfg'):
         (r'C:\tfm2mods\release\0.5.7\tfm2_elemental_serpen.zip', 'tfm2_elemental_serpen/serpen_probe.cfg'),
@@ -137,6 +145,17 @@ for name, repl in PLAN.items():
             ni.external_attr = zi.external_attr
             out.writestr(ni, data)
         n += 1
+    # 명시 추가 엔트리(빈 override_info 등) — 이미 있으면 위 루프에서 원본 유지됨
+    for rel, ap in sorted(ADD_ENTRIES.get(name, {}).items()):
+        if rel in names:
+            continue
+        print('%-28s %s ADD %dB' % (name, rel, os.path.getsize(ap)))
+        if out:
+            ni = zipfile.ZipInfo(rel, date_time=now)
+            ni.compress_type = zipfile.ZIP_DEFLATED
+            ni.external_attr = 0o644 << 16
+            out.writestr(ni, open(ap, 'rb').read())
+            n += 1
     # 소스에만 있는 ui/text 파일
     for rel, ap in sorted(ui_src.items()):
         if rel in names:
@@ -199,5 +218,15 @@ pc = z.read('tfm2_elemental_serpen/serpen_probe.cfg')
 print('   serpen.cfg elder_after=5:', b'\nelder_after = 5\n' in sc, ' BOM:', sc[:3] == b'\xef\xbb\xbf', ' 0x3f:', sc.count(b'?'))
 print('   serpen_probe.cfg', len(pc), 'B  buff_show_delay_tick=90:', b'buff_show_delay_tick = 90' in pc)
 if b'\nelder_after = 5\n' not in sc or len(pc) != 280:
+    bad += 1
+z = zipfile.ZipFile(os.path.join(DST, 'daram2_viewplus.zip'))
+for rel in ADD_ENTRIES['daram2_viewplus']:
+    ok = rel in z.namelist() and z.read(rel) == b'{}'
+    print('   %-48s {}=%s' % (rel, ok))
+    if not ok:
+        bad += 1
+tv = z.read('training_view_plus/mod.override_info')
+print('   training_view_plus/mod.override_info 유지(%dB, remapping 있음=%s)' % (len(tv), b'remapping' in tv))
+if b'remapping' not in tv:
     bad += 1
 print('검증 이상', bad, '건')
