@@ -1,0 +1,39 @@
+{
+  "status": "PASS_OFFLINE_TOOLS_NOT_RUNTIME",
+  "catalog_functions": 741,
+  "body_bytes": 1609795,
+  "instructions": 355436,
+  "python_tests_passed": 20,
+  "runtime_samples": 0,
+  "model_implemented": 8,
+  "entry_ready": 5,
+  "paired_wrapper_prepared": 0,
+  "new_analysis_functions": 0,
+  "game_executed": false,
+  "deployed": false,
+  "source_analysis_modified": false,
+  "files_sha256": {
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\src\\generated.rs": "a5ff3371aa5ef3967964d17eaaab4e15a6f2ff7c54ff0ad0e22169c7c99e64fd",
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\catalog.json": "54b504b03a003b7016935966691e32d728f76e62ea59cd84aab4f9ce43fae84f",
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\evidence_manifest.json": "91501a47a94cf49f03c306bcc1684dfef0e0ff8b0b211ccb3f94715e16618681",
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\tools\\generate_catalog.py": "20c4b8544e08d93deb544db6c9678e608a8b93c0cdf138506a12893fc0a50511",
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\tools\\analyze_logs.py": "ce6a147ef432bfc619fe586d1698b217caf24e78e29a60bb998b433cd6b56b87",
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\tools\\validate_catalog.py": "909b37ad9517c2e14163f91d159c3fa48f69213ae0b0e045d3b0263ef62d69ee",
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\tools\\README.md": "d6a01a537703e440ca4c2c288dfa8eb66c3b036b42af54629a6b418177786fed",
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\tools\\catalog_validation.json": "1d4c426f9920511e7238efbd381e7db3f774f50170df4162b268d706d3bb0f0f",
+    "C:\\tfm2mods\\tfm2_ai_analysis_verify\\tests\\python_tools_test.py": "d1209c22744cb14cbc7fc1aea04507230d6405ceba6231fad95583f87b0e45d8"
+  },
+  "limits": [
+    "로컬빌드/paired준비영수증은아직대기",
+    "PROBES id3..7만노출;id0..2는12B전branch로제외",
+    "각MATCH/metric은제한관측이며전체분기/실provider/runtime완료아님",
+    "foreign·불안정·읽기실패·IO손실분리;샘플0은성공아님",
+    "processing/unlogged/IOuncertain상한/counter-log차이는불완전판정;nullSKIP는기대값0아님"
+  ],
+  "commands": [
+    "python -B -X utf8 tools/generate_catalog.py --model-scope <probe_scope.json> --model-preparation <model_preparation.json>",
+    "python -B -X utf8 tools/validate_catalog.py",
+    "python -B -X utf8 -m unittest discover -s tests -p python*.py -v",
+    "python -B -X utf8 tools/analyze_logs.py --summary <summary.json> --observations <observations_run.jsonl> --catalog catalog.json --output-dir <out>"
+  ]
+}

@@ -1,0 +1,18 @@
+[package]
+name = "tfm2_ai_analysis_verify"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_064_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+opt-level = 1
+overflow-checks = false
+panic = "unwind"
+

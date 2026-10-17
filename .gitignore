@@ -179,3 +179,6 @@ sylas/.gemini_key
 *.bak[0-9]*
 *.bak-*
 *.bak_*
+
+# AI 함수 원본 비교 검증 모드 (2026-10-18)
+!/tfm2_ai_analysis_verify/

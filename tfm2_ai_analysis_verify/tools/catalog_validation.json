@@ -1,0 +1,26 @@
+{
+  "status": "PASS_STATIC_CATALOG_AUDIT_NOT_RUNTIME",
+  "census_functions": 741,
+  "bytes": 1609795,
+  "instructions": 355436,
+  "audited_sha_entries": 5621,
+  "counts": {
+    "unsupported": 1,
+    "spec_only": 735,
+    "paired_wrapper_prepared": 5,
+    "entry_ready": 5,
+    "model_implemented": 8
+  },
+  "entry_ready_rvas": [
+    "0xe49c00",
+    "0xe9eb70",
+    "0xf51e50",
+    "0xfa9dc0",
+    "0xfdb9a0"
+  ],
+  "independent_game_samples": 0,
+  "new_analysis_functions": 0,
+  "source_analysis_modified": false,
+  "catalog_sha256": "50f8a25688b6af925149e174def0cd837e4926de4a5c7842a9235f6cdbbfa2cf",
+  "evidence_manifest_sha256": "e25729f8c3b6ae6b872d34c681a866a94a1483da2b51f243192778fbf2aa34d3"
+}
