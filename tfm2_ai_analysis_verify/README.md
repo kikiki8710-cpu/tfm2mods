@@ -1,8 +1,8 @@
-# AI 분석 검증 v0.2.2
+# AI 분석 검증 v0.2.3
 
 실제 게임 호출은 원본을 한 번 실행하고 반환값을 유지합니다. 별도 Rust 모델이 같은 입력을 읽어 예상값을 계산합니다. 게임 헬퍼를 예상값 계산에 호출하거나 계수를 변경하지 않습니다.
 
-고정 버전은 0.6.4 SHA `a1d05045405a12e2bed182daeafcad8c8a40cf29ab68ba6ea5bfd30257439582`입니다. 추적 집합은 741개이며 이번 실험 배선은 19개입니다. 옛 catalog.json/evidence_manifest.json은 첫 준비시점 동결 자료입니다. 현 배선은 `round02_scope.json`과 REPORT/runtime_20261018_round02를 따릅니다. 로컬 시험은 실게임 검증에 합산하지 않습니다.
+고정 버전은 0.6.4 SHA `a1d05045405a12e2bed182daeafcad8c8a40cf29ab68ba6ea5bfd30257439582`입니다. 추적 집합은 741개이며 이번 실험 배선은 27개입니다. 옛 catalog.json/evidence_manifest.json은 첫 준비시점 동결 자료입니다. 현 배선은 `round02_scope.json`과 REPORT/runtime_20261018_round02를 따릅니다. 로컬 시험은 실게임 검증에 합산하지 않습니다.
 
 |함수|비교 내용|
 |---|---|
@@ -22,6 +22,11 @@
 |fd19f0|태그1일 때 동적 배율/나눗값/상한의 정수 계산|
 |fd37f0|동적 배율/나눗값/차감값 계산의 양수부|
 |fe8f30|라인 레코드의 byte 플래그와 상대 구조물 존재|
+|e1b430 / e1ede0|별도 예측 레코드 ID 조회와5tick 보간|
+|d81ce0 / d81bd0|자기ID 제외 팀 슬롯 수와 상대팀 슬롯 수|
+|e54190|라인 압력의 signed progress·count 문턱|
+|ffa970 / fd4260|라인 슬롯 개방과 후보 HP30%·상태 게이트|
+|dc0d80|HP50%·방향별192000/64000 영역 개수|
 
 ## 설치와 수집
 
@@ -41,6 +46,10 @@ python -B -X utf8 tools/capture_control.py stop --summary <모드폴더>/summary
 처음64개 적격 호출은 모두 채집하고 이후4096호출 간격, 함수당5000개 상한입니다. 파일 작업자는 UI 프레임과 별개로 owned event만 기록합니다. v0.2.2는 실행별 append-only summaries_<run_id>.jsonl을 정본으로 쓰며, 관측 원문 flush 뒤 완전한 요약 레코드를 append·flush합니다. summary.json은 호환 별칭이며 교체 실패는 별도 오류로 남깁니다. 정본 기록 실패는 수집을 닫습니다. stop은 같은 run의 새 완전 레코드에서 새 예약 차단·진행 중 비교0·enqueued=persisted를 확인해야 종료로 인정합니다. queue_full/queue_disconnected/io_errors/io_lost_or_uncertain_events는 각각 남기며 유실0을 가정하지 않습니다.
 
 ## 판독
+
+v0.2.3의 probe_strides는 함수별 채집 간격입니다. 지정하지 않으면 전역 sample_stride를 쓰고 첫64/함수별 상한/큐 상한은 유지합니다. 실제 간격은 각 probe의 effective_sample_stride에 남깁니다. 고빈도 조회·예측은4096을 유지하고 저빈도 HP·영역 조건은 더 자주 관측합니다. 이는 게임 계수를 변경하는 설정이 아닙니다.
+
+추가8개도 제한된 caller·프롤로그 검수에 근거한 실험 연결입니다. FFA970/FD4260의 역할표0,2,3은 고정 .rdata FILE 값이며 로드된 table 값 직접 동일성은 별도 미검증입니다. 출력 일치를 모든 정적 상수의 직접 관측으로 승격하지 않습니다.
 
 `summaries_<run_id>.jsonl`과 같은 run_id의 `observations_<run_id>.jsonl`을 함께 보존합니다. MATCH는 관측 입력에 대한 예상 출력과 원본 출력의 비트 일치입니다. AL 반환은 AL만 비교하고 전체 RAX는 원본 그대로 반환합니다. 입력 변동은 UNSTABLE, 읽기/모델 실패는 SKIP, 외부 체인 결과는 FOREIGN으로 분리합니다.
 

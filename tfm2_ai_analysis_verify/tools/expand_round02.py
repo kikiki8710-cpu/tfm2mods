@@ -16,6 +16,11 @@ if wave03.exists():
     approval=REPORT/'wave03_entry_selection.json'
     allowed=set(json.loads(approval.read_text(encoding='utf-8'))['selected_model_ids']) if approval.exists() else set()
     proposals += [p for p in json.loads(wave03.read_text(encoding='utf-8'))['probes'] if p['model_id'] in allowed]
+wave04=REPORT/'model_wave04/entry_proposals.json'
+if wave04.exists():
+    approval=REPORT/'wave04_entry_selection.json'
+    allowed=set(json.loads(approval.read_text(encoding='utf-8'))['selected_model_ids']) if approval.exists() else set()
+    proposals += [p for p in json.loads(wave04.read_text(encoding='utf-8'))['probes'] if p['model_id'] in allowed]
 for p in proposals:
     rva=int(p['rva'],16);f=rows[rva];pid=p['model_id']
     path=ROOT/'tools/data'/f'probe_{rva:x}.bin'

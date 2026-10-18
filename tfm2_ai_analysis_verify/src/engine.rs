@@ -11,7 +11,7 @@ use std::time::Duration;
 use crate::{config::Config, generated, hook, models, platform};
 
 pub const MAX_FIELDS: usize = 96;
-pub const MODEL_COUNT: usize = 19;
+pub const MODEL_COUNT: usize = 27;
 pub trait Memory { fn read(&mut self, address: u64, width: u8) -> Result<u64, &'static str>; }
 #[derive(Clone, Debug)]
 pub struct Metric {
@@ -68,7 +68,7 @@ struct Event {
 }
 struct State {
     dir:PathBuf, run_id:String, config:Config, identity_verified:bool, actual_sha256:String,
-    stats:[Stats;MODEL_COUNT], install:Mutex<Vec<InstallStatus>>,
+    stats:[Stats;MODEL_COUNT], probe_strides:[u64;MODEL_COUNT], install:Mutex<Vec<InstallStatus>>,
     queue:SyncSender<Event>, receiver:Mutex<Receiver<Event>>,writer:Mutex<BufWriter<File>>,summary_journal:Mutex<BufWriter<File>>,flush_lock:Mutex<()>,
     frames:AtomicU64, sequence:AtomicU64, install_tried:AtomicUsize, io_errors:AtomicU64,
     init_ready:AtomicUsize, io_lost_or_uncertain_events:AtomicU64,summary_retries:AtomicU64,last_io_error:Mutex<String>,
@@ -125,7 +125,26 @@ fn record_io_failure(s:&State,stage:&str,error:&std::io::Error,retries:u64){
     s.io_errors.fetch_add(1,Ordering::Relaxed);close_capture(s);
 }
 
+fn resolve_probe_strides(config:&Config)->Result<[u64;MODEL_COUNT],String> {
+    if !(1..=1_000_000).contains(&config.sample_stride) { return Err("sample_stride 범위 오류".into()); }
+    let mut strides=[config.sample_stride;MODEL_COUNT];
+    for (&rva,&stride) in &config.probe_strides {
+        if !config.probes.contains(&rva) { return Err(format!("선택되지 않은 probe_strides RVA: 0x{rva:x}")); }
+        if !(1..=1_000_000).contains(&stride) { return Err("probe_strides 범위 오류".into()); }
+        let p=generated::PROBES.iter().find(|p|p.rva==rva).ok_or("probe_strides 미지원 RVA")?;
+        if p.id>=MODEL_COUNT { return Err("probe_strides model id 범위 오류".into()); }
+        strides[p.id]=stride;
+    }
+    Ok(strides)
+}
+
 pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verified:bool)->Result<(),String> {
+    let mut ids=std::collections::BTreeSet::new();let mut rvas=std::collections::BTreeSet::new();
+    if generated::PROBES.len()!=MODEL_COUNT{return Err("모델/진입정의 개수 불일치".into());}
+    for p in generated::PROBES {
+        if p.id>=MODEL_COUNT||!ids.insert(p.id)||!rvas.insert(p.rva){return Err("진입정의 id/RVA 중복 또는 범위 오류".into());}
+    }
+    let probe_strides=resolve_probe_strides(&config)?;
     for rva in &config.probes {
         if !generated::PROBES.iter().any(|p|p.rva==*rva) {return Err(format!("미지원/진입불가 probe: 0x{rva:x}"));}
     }
@@ -139,7 +158,7 @@ pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verif
     let capacity=config.queue_capacity;
     let (queue,receiver)=sync_channel(capacity);
     STATE.set(State{dir,run_id,config,identity_verified,actual_sha256,
-        stats:std::array::from_fn(|_|Stats::default()),install:Mutex::new(Vec::new()),
+        stats:std::array::from_fn(|_|Stats::default()),probe_strides,install:Mutex::new(Vec::new()),
         queue,receiver:Mutex::new(receiver),writer:Mutex::new(BufWriter::new(f)),summary_journal:Mutex::new(BufWriter::new(journal)),flush_lock:Mutex::new(()),
         frames:AtomicU64::new(0),sequence:AtomicU64::new(0),install_tried:AtomicUsize::new(0),io_errors:AtomicU64::new(0),
         init_ready:AtomicUsize::new(0),io_lost_or_uncertain_events:AtomicU64::new(0),
@@ -331,7 +350,7 @@ unsafe fn observe(id:usize,args:[u64;4])->u64 {
     }
     let eligible=stats.eligible_calls.fetch_add(1,Ordering::Relaxed);
     // 드문 함수는 수집 시작 뒤 첫64호출을 모두 관측하고, 고빈도 함수는 그 뒤 간격을 둔다.
-    if eligible>=64&&eligible%state.config.sample_stride!=0 {return function(args[0],args[1],args[2],args[3]);}
+    if eligible>=64&&eligible%state.probe_strides[id]!=0 {return function(args[0],args[1],args[2],args[3]);}
     let ticket=stats.sample_attempts.fetch_add(1,Ordering::Relaxed);
     if ticket>=state.config.max_samples_per_probe {return function(args[0],args[1],args[2],args[3]);}
     let capture_label=state.capture_label.get().cloned().unwrap_or_default();
@@ -409,11 +428,12 @@ wrapper!(hook4,4);wrapper!(hook5,5);wrapper!(hook6,6);wrapper!(hook7,7);
 wrapper!(hook8,8);wrapper!(hook9,9);wrapper!(hook10,10);wrapper!(hook11,11);
 wrapper!(hook12,12);wrapper!(hook13,13);wrapper!(hook14,14);wrapper!(hook15,15);
 wrapper!(hook16,16);wrapper!(hook17,17);wrapper!(hook18,18);
+wrapper!(hook19,19);wrapper!(hook20,20);wrapper!(hook21,21);wrapper!(hook22,22);wrapper!(hook23,23);wrapper!(hook24,24);wrapper!(hook25,25);wrapper!(hook26,26);
 fn wrappers()->[usize;MODEL_COUNT] {[hook0 as *const () as usize,hook1 as *const () as usize,hook2 as *const () as usize,hook3 as *const () as usize,
     hook4 as *const () as usize,hook5 as *const () as usize,hook6 as *const () as usize,hook7 as *const () as usize,
     hook8 as *const () as usize,hook9 as *const () as usize,hook10 as *const () as usize,hook11 as *const () as usize,
     hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize,
-    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize]}
+    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize]}
 
 pub fn post_update() {
     let Some(state)=STATE.get() else {return;};
@@ -499,7 +519,7 @@ pub fn flush()->std::io::Result<()> {
             hexadecimal(status.map(|x|x.original as u64).unwrap_or(0)),hexadecimal(status.map(|x|x.target as u64).unwrap_or(0)),
             counter(&s.calls),counter(&s.sample_attempts),counter(&s.compared),counter(&s.matches),counter(&s.mismatches),counter(&s.skipped),counter(&s.unstable),counter(&s.model_panics),counter(&s.dropped),counter(&s.foreign_matches),counter(&s.foreign_mismatches),counter(&s.processing_errors),counter(&s.unlogged_errors),
             json_quote(if counter(&s.compared)==0 {"NO_SAMPLES"} else if counter(&s.mismatches)>0 {"MISMATCH_OBSERVED"} else {"OBSERVED_SAMPLES_MATCH_ONLY"}));
-        format!("{},\"persisted\":{},\"enqueued\":{},\"eligible_calls\":{},\"queue_full\":{},\"queue_disconnected\":{}}}",original.trim_end_matches('}'),counter(&s.persisted),counter(&s.enqueued),counter(&s.eligible_calls),counter(&s.queue_full),counter(&s.queue_disconnected))
+        format!("{},\"persisted\":{},\"enqueued\":{},\"eligible_calls\":{},\"queue_full\":{},\"queue_disconnected\":{},\"effective_sample_stride\":{}}}",original.trim_end_matches('}'),counter(&s.persisted),counter(&s.enqueued),counter(&s.eligible_calls),counter(&s.queue_full),counter(&s.queue_disconnected),state.probe_strides[p.id])
     }).collect::<Vec<_>>().join(",");
     let summary=format!("{{\"schema_version\":1,\"run_id\":{},\"baseline_sha256\":{},\"actual_sha256\":{},\"identity_verified\":{},\"armed\":{},\"catalog_total\":{},\"prepared_probes\":{},\"io_errors\":{},\"io_lost_or_uncertain_events\":{},\"sample_stride\":{},\"max_samples_per_probe\":{},\"probes\":[{}],\"scope\":\"관측표본의출력대조만. 실제표본0은검증불성립; 전체분기·모든도메인·임계값독립조절가능성증명아님\"}}\n",
         json_quote(&state.run_id),json_quote(generated::BASELINE_EXE_SHA256),json_quote(&state.actual_sha256),state.identity_verified,state.config.armed,generated::CENSUS_FUNCTIONS,generated::PROBES.len(),counter(&state.io_errors),counter(&state.io_lost_or_uncertain_events),state.config.sample_stride,state.config.max_samples_per_probe,probes);
@@ -540,6 +560,13 @@ pub fn flush()->std::io::Result<()> {
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn per_probe_resolution_rejects_invalid_programmatic_config() {
+        let c=crate::config::parse("probes=deadbeef\nprobe_strides=deadbeef:1").unwrap();
+        assert!(resolve_probe_strides(&c).is_err()); // 선택됐어도 generated에없음
+        let mut c=crate::config::parse("probes=dc0bb0\nprobe_strides=dc0bb0:1").unwrap();
+        c.probe_strides.insert(0xdc0bb0,0);assert!(resolve_probe_strides(&c).is_err());
+        c.probe_strides.insert(0xdc0bb0,1);c.probes.clear();assert!(resolve_probe_strides(&c).is_err());
+    }
     #[test] fn quotes_cover_json_controls() {
         assert_eq!(json_quote("\"\\\n\t\u{1}가"),"\"\\\"\\\\\\n\\t\\u0001가\"");
     }
@@ -595,6 +622,10 @@ pub fn flush()->std::io::Result<()> {
         }
         0
     }
+    static FAKE_SAMPLING_CALLS:AtomicU64=AtomicU64::new(0);
+    unsafe extern "system-unwind" fn fake_sampling_original(_a:u64,_b:u64,_c:u64,_d:u64)->u64 {
+        FAKE_SAMPLING_CALLS.fetch_add(1,Ordering::Relaxed);FAKE_RESULT
+    }
     static FAKE_CALLS:AtomicU64=AtomicU64::new(0);
     static FAKE_BOOLEAN_CALLS:AtomicU64=AtomicU64::new(0);
     const FAKE_RESULT:u64=0x1122_3344_5566_7788;
@@ -613,7 +644,8 @@ pub fn flush()->std::io::Result<()> {
         let dir=std::env::temp_dir().join(format!("tfm2_aiav_engine_selftest_{}_{}",std::process::id(),
             std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
         std::fs::create_dir_all(dir.join("summary.json")).unwrap();
-        let configuration=Config{armed:true,sample_stride:1,max_samples_per_probe:20,queue_capacity:8,..Config::default()};
+        let mut configuration=crate::config::parse("armed=true\nprobes=fdb9a0,dc0bb0,dc0f80,f27690,f27860,ef2410,fa9600,1019890,fe2700\nsample_stride=4096\nprobe_strides=dc0f80:1,f27690:2,f27860:3,ef2410:1,fa9600:1,1019890:1,fe2700:1").unwrap();
+        configuration.max_samples_per_probe=20;configuration.queue_capacity=8;
         initialize(dir.clone(),configuration,"ENGINE_SELFTEST_NOT_A_GAME_SESSION".into(),true).unwrap();
         let state=STATE.get().unwrap();
         assert_eq!(state.install_tried.load(Ordering::Acquire),0);
@@ -694,6 +726,41 @@ pub fn flush()->std::io::Result<()> {
         assert_eq!(unsafe{observe(6,[0,player.as_ptr()as u64,data.as_ptr()as u64,0])},0x1122_3344_5566_7700);
         assert_eq!(FAKE_BOOLEAN_CALLS.load(Ordering::Relaxed),2);
         assert_eq!(counter(&state.stats[6].matches),1); // AL=0 일치, 상위56비트는 비교하지 않고 그대로 반환.
+        // sampler 8경계: 실제 parse→초기배열→observe→가짜원본이며 게임/추가shadow CALL은 없다.
+        flush().unwrap();
+        assert_eq!(state.probe_strides[8],4096);assert_eq!(state.probe_strides[9],1);
+        let run_sampling=|id:usize,n:u64| {
+            ORIGINALS[id].store(fake_sampling_original as *const () as usize,Ordering::Release);
+            DOMAINS[id].store(2,Ordering::Release);
+            let before=FAKE_SAMPLING_CALLS.load(Ordering::Relaxed);
+            for _ in 0..n {assert_eq!(unsafe{observe(id,[0,0,0,0])},FAKE_RESULT);}
+            assert_eq!(FAKE_SAMPLING_CALLS.load(Ordering::Relaxed)-before,n);
+            assert_eq!(in_flight(state),0);
+        };
+        run_sampling(8,64);assert_eq!(counter(&state.stats[8].sample_attempts),64); // 첫64 샘플후보 전부
+        run_sampling(8,1);assert_eq!(counter(&state.stats[8].sample_attempts),64);  // eligible64 skip
+        run_sampling(8,4031);assert_eq!(counter(&state.stats[8].eligible_calls),4096);
+        assert_eq!(counter(&state.stats[8].sample_attempts),64);                 // eligible4095까지skip
+        run_sampling(8,1);assert_eq!(counter(&state.stats[8].sample_attempts),65); // eligible4096관측
+        flush().unwrap();
+        run_sampling(9,67);assert_eq!(counter(&state.stats[9].sample_attempts),67);flush().unwrap();
+        run_sampling(10,68);assert_eq!(counter(&state.stats[10].sample_attempts),66);flush().unwrap();
+        run_sampling(11,70);assert_eq!(counter(&state.stats[11].sample_attempts),66);flush().unwrap();
+        // 수집off:예산0/원본1회. test전용으로기존한세션의admission만되돌린다.
+        close_capture(state);run_sampling(12,3);assert_eq!(counter(&state.stats[12].sample_attempts),0);
+        state.admission.store(0,Ordering::Release);state.capture_enabled.store(1,Ordering::Release);
+        set_scene(1);run_sampling(13,3);assert_eq!(counter(&state.stats[13].eligible_calls),0);set_scene(4);
+        ORIGINALS[14].store(fake_sampling_original as *const () as usize,Ordering::Release);
+        DOMAINS[14].store(1,Ordering::Release);let before=FAKE_SAMPLING_CALLS.load(Ordering::Relaxed);
+        for _ in 0..3 {assert_eq!(unsafe{observe(14,[0;4])},FAKE_RESULT);}
+        assert_eq!(FAKE_SAMPLING_CALLS.load(Ordering::Relaxed)-before,3);
+        assert_eq!(counter(&state.stats[14].eligible_calls),0);assert_eq!(counter(&state.stats[14].sample_attempts),0);
+        run_sampling(15,25);let s15=&state.stats[15];assert_eq!(counter(&s15.sample_attempts),25);
+        assert_eq!(counter(&s15.compared)+counter(&s15.skipped)+counter(&s15.unstable),20); // 상한유지
+        flush().unwrap();
+        // 기존 I/O실패fixture의기록1개를다시만들어 sampler배치flush와분리한다.
+        assert_eq!(unsafe{observe(6,[0,player.as_ptr()as u64,data.as_ptr()as u64,0])},0x1122_3344_5566_7700);
+        assert_eq!(counter(&state.queued_events),1);
         // 쓰기 불가능한 테스트 파일에 writer를 연결해 flush 실패·유실상한을 실제 시험한다.
         *state.writer.lock().unwrap()=BufWriter::new(File::open(dir.join("summary.json")).unwrap());
         assert!(flush().is_err());

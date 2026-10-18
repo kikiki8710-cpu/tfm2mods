@@ -8,6 +8,7 @@ mod hook;
 mod models;
 mod models_extra;
 mod models_wave03;
+mod models_wave04;
 mod platform;
 mod sha256;
 

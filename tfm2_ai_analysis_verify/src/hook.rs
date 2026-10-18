@@ -98,6 +98,15 @@ pub fn install_once(spec: &HookSpec, original: &AtomicUsize) -> Result<Installed
 struct InstallBehavior {
     #[cfg(test)] fail_after_partial_tail: bool,
     #[cfg(test)] wait_for_gate_hits: u64,
+    #[cfg(test)] outside_prefix: Option<&'static PrefixSafepoint>,
+}
+// 자기소유 native 시험만의 장벽이다. 실제 설치 경로나 가드를 대체하지 않는다.
+#[cfg(test)]
+struct PrefixSafepoint {
+    request: std::sync::atomic::AtomicBool,
+    release: std::sync::atomic::AtomicBool,
+    acknowledged: AtomicUsize,
+    completed: AtomicUsize,
 }
 fn install_at(spec: &HookSpec, base: usize, original: &AtomicUsize, behavior: InstallBehavior) -> Result<InstalledHook, &'static str> {
     let _ = &behavior;
@@ -152,6 +161,18 @@ fn install_at(spec: &HookSpec, base: usize, original: &AtomicUsize, behavior: In
             if std::time::Instant::now() >= deadline {
                 unsafe { platform::publish_code_byte(entry, 0xcc, before[0]) }.result?;
                 return Err("fixture breakpoint worker progress timeout; tail not written");
+            }
+            std::thread::yield_now();
+        }
+    }
+    #[cfg(test)]
+    if let Some(point) = behavior.outside_prefix {
+        point.request.store(true, Ordering::Release);
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        while point.acknowledged.load(Ordering::Acquire) != 4 {
+            if std::time::Instant::now() >= deadline {
+                unsafe { platform::publish_code_byte(entry, 0xcc, before[0]) }.result?;
+                return Err("fixture prefix-outside acknowledgement timeout; tail not written");
             }
             std::thread::yield_now();
         }
@@ -226,6 +247,13 @@ fn install_at(spec: &HookSpec, base: usize, original: &AtomicUsize, behavior: In
     static NATIVE_PATCH_TEST: Mutex<()> = Mutex::new(());
     static TEST_ORIGINAL: AtomicUsize = AtomicUsize::new(0);
     static WRAPPER_CALLS: AtomicUsize = AtomicUsize::new(0);
+    static COMMIT_ORIGINAL: AtomicUsize = AtomicUsize::new(0);
+    static COMMIT_WRAPPER_CALLS: AtomicUsize = AtomicUsize::new(0);
+    static COMMIT_SAFEPOINT: PrefixSafepoint = PrefixSafepoint {
+        request: std::sync::atomic::AtomicBool::new(false),
+        release: std::sync::atomic::AtomicBool::new(false),
+        acknowledged: AtomicUsize::new(0), completed: AtomicUsize::new(0),
+    };
     static FAILURE_ORIGINAL: AtomicUsize = AtomicUsize::new(0);
     static FIXTURE_BODY: &[u8] = &[0x48,0x89,0xc8,0x48,0x83,0xc0,7,0x90,0x90,0x90,0x90,0x90,0xc3];
     unsafe extern "system" fn native_wrapper(a:u64,b:u64,c:u64,d:u64)->u64 {
@@ -237,47 +265,133 @@ fn install_at(spec: &HookSpec, base: usize, original: &AtomicUsize, behavior: In
         let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=std::mem::transmute(FAILURE_ORIGINAL.load(Ordering::Acquire));
         f(a,b,c,d)
     }
+    unsafe extern "system" fn commit_wrapper(a:u64,b:u64,c:u64,d:u64)->u64 {
+        let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=std::mem::transmute(COMMIT_ORIGINAL.load(Ordering::Acquire));
+        COMMIT_WRAPPER_CALLS.fetch_add(1,Ordering::Relaxed); f(a,b,c,d)
+    }
     fn native_spec(wrapper:usize)->HookSpec { HookSpec { rva:0,prologue:&FIXTURE_BODY[..12],body:FIXTURE_BODY,wrapper,allow_foreign_chain:false,branches:&[] } }
+    // assertion/설치 panic에서도 worker를 먼저 풀고 모두 join한다. 실제 게임 스레드에는 사용하지 않는다.
+    struct FixtureWorkers {
+        stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+        calls: std::sync::Arc<AtomicUsize>,
+        point: Option<&'static PrefixSafepoint>,
+        handles: Vec<std::thread::JoinHandle<()>>,
+    }
+    impl FixtureWorkers {
+        fn start(entry:usize, point:Option<&'static PrefixSafepoint>)->Self {
+            let stop=std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+            let ready=std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+            let calls=std::sync::Arc::new(AtomicUsize::new(0));
+            let mut workers=Self{stop:stop.clone(),calls:calls.clone(),point,handles:Vec::new()};
+            for worker in 0..4 {
+                let stop=stop.clone();let ready=ready.clone();let calls=calls.clone();
+                workers.handles.push(std::thread::spawn(move|| {
+                    let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=unsafe{std::mem::transmute(entry)};
+                    // 부분 spawn 실패에서도 stop으로 빠져나오게 고정 Barrier를 쓰지 않는다.
+                    let deadline=std::time::Instant::now()+std::time::Duration::from_secs(5);
+                    while !ready.load(Ordering::Acquire)&&!stop.load(Ordering::Acquire) {
+                        assert!(std::time::Instant::now()<deadline,"fixture worker start timeout");
+                        std::thread::yield_now();
+                    }
+                    if stop.load(Ordering::Acquire){return;}
+                    let mut i=worker as u64;
+                    while !stop.load(Ordering::Acquire) {
+                        if let Some(point)=point {
+                            if point.request.load(Ordering::Acquire) {
+                                // 앞 f가 반환하고 출력검사까지 끝난 위치: stolen prefix 밖이다.
+                                point.acknowledged.fetch_add(1,Ordering::AcqRel);
+                                let deadline=std::time::Instant::now()+std::time::Duration::from_secs(5);
+                                while !point.release.load(Ordering::Acquire)&&!stop.load(Ordering::Acquire) {
+                                    assert!(std::time::Instant::now()<deadline,"fixture worker release timeout");
+                                    std::thread::yield_now();
+                                }
+                                if stop.load(Ordering::Acquire){break;}
+                                assert_eq!(unsafe{f(i,0,0,0)},i.wrapping_add(7));
+                                calls.fetch_add(1,Ordering::Relaxed);
+                                point.completed.fetch_add(1,Ordering::Release);
+                                break;
+                            }
+                        }
+                        assert_eq!(unsafe{f(i,0,0,0)},i.wrapping_add(7));
+                        calls.fetch_add(1,Ordering::Relaxed);i=i.wrapping_add(4);
+                        std::thread::yield_now();
+                    }
+                }));
+            }
+            ready.store(true,Ordering::Release);workers
+        }
+        fn finish(&mut self)->bool {
+            self.stop.store(true,Ordering::Release);
+            if let Some(point)=self.point {point.release.store(true,Ordering::Release);}
+            let mut success=true;
+            for worker in self.handles.drain(..){success &= worker.join().is_ok();}
+            success
+        }
+    }
+    impl Drop for FixtureWorkers {fn drop(&mut self){let _=self.finish();}}
     #[test]
     fn native_int3_gate_four_workers_preserve_outputs_during_commit() {
         let _serial=NATIVE_PATCH_TEST.lock().unwrap_or_else(|e|e.into_inner());
         let entry=platform::allocate_code(FIXTURE_BODY).unwrap();
-        let stop=std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
-        let ready=std::sync::Arc::new(std::sync::Barrier::new(5));
-        let calls=std::sync::Arc::new(AtomicUsize::new(0));
-        let workers:Vec<_>=(0..4).map(|worker| {
-            let stop=stop.clone();let ready=ready.clone();let calls=calls.clone();
-            std::thread::spawn(move|| {
-                let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=unsafe{std::mem::transmute(entry)};
-                ready.wait();let mut i=worker as u64;
-                while !stop.load(Ordering::Acquire) {
-                    assert_eq!(unsafe{f(i,0,0,0)},i.wrapping_add(7));
-                    calls.fetch_add(1,Ordering::Relaxed);i=i.wrapping_add(4);
-                    std::thread::yield_now();
-                }
-            })
-        }).collect();
-        ready.wait();
+        let mut workers=FixtureWorkers::start(entry,None);
         let result=install_at(&native_spec(native_wrapper as *const () as usize),entry,&TEST_ORIGINAL,
-            InstallBehavior{fail_after_partial_tail:false,wait_for_gate_hits:128});
-        stop.store(true,Ordering::Release);
-        for worker in workers { worker.join().unwrap(); }
-        let installed=result.expect("self-owned concurrent fixture must commit");
-        assert_eq!(installed.original,TEST_ORIGINAL.load(Ordering::Acquire));
+            InstallBehavior{wait_for_gate_hits:128,..InstallBehavior::default()});
+        assert!(workers.finish(),"모든 worker 출력과 정상 join 필요");
         assert!(platform::breakpoint_gate_hits(entry)>=128);
-        assert!(calls.load(Ordering::Relaxed)>=128);
+        assert!(workers.calls.load(Ordering::Relaxed)>=128);
+        assert_ne!(TEST_ORIGINAL.load(Ordering::Acquire),0);
+        let committed=match result {
+            Ok(installed)=>{assert_eq!(installed.original,TEST_ORIGINAL.load(Ordering::Acquire));true},
+            Err("thread RIP inside patch range; refusing patch")=>{
+                // 무제어 진입에서 보수 가드 거절은 허용하되 skip하지 않고 원문/꼬리를 검사한다.
+                let mut body=vec![0;FIXTURE_BODY.len()];platform::safe_read_bytes(entry,&mut body).unwrap();
+                assert_eq!(body,FIXTURE_BODY);assert_eq!(&body[1..12],&FIXTURE_BODY[1..12]);
+                false
+            },
+            Err(reason)=>panic!("예상하지 않은 동시 설치 실패: {reason}"),
+        };
         let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=unsafe{std::mem::transmute(entry)};
         for i in [0,1,42,u64::MAX] {assert_eq!(unsafe{f(i,0,0,0)},i.wrapping_add(7));}
-        assert!(WRAPPER_CALLS.load(Ordering::Relaxed)>=4);
-        let mut byte=[0];platform::safe_read_bytes(entry,&mut byte).unwrap();assert_eq!(byte[0],0x48);
+        if committed {
+            assert!(WRAPPER_CALLS.load(Ordering::Relaxed)>=4);
+            let mut byte=[0];platform::safe_read_bytes(entry,&mut byte).unwrap();assert_eq!(byte[0],0x48);
+        }else{assert_eq!(WRAPPER_CALLS.load(Ordering::Relaxed),0);}
+        println!("무제어4worker 결과: {} / gatehits={} / outputs={}",
+            if committed{"COMMITTED"}else{"REFUSED_RIP_INSIDE_ORIGINAL_INTACT"},
+            platform::breakpoint_gate_hits(entry),workers.calls.load(Ordering::Relaxed));
         // entry/stub/descriptor는 실제 설치와 같이 회수하지 않는다.
+    }
+    #[test]
+    fn native_four_workers_outside_prefix_must_commit_then_enter_wrapper() {
+        let _serial=NATIVE_PATCH_TEST.lock().unwrap_or_else(|e|e.into_inner());
+        let entry=platform::allocate_code(FIXTURE_BODY).unwrap();
+        let mut workers=FixtureWorkers::start(entry,Some(&COMMIT_SAFEPOINT));
+        let result=install_at(&native_spec(commit_wrapper as *const () as usize),entry,&COMMIT_ORIGINAL,
+            InstallBehavior{wait_for_gate_hits:128,outside_prefix:Some(&COMMIT_SAFEPOINT),..InstallBehavior::default()});
+        // 설치 실패도 먼저 worker를 해제한다. 실제 commit 성공 여부는 join 이후 판정한다.
+        COMMIT_SAFEPOINT.release.store(true,Ordering::Release);
+        let deadline=std::time::Instant::now()+std::time::Duration::from_secs(5);
+        while COMMIT_SAFEPOINT.completed.load(Ordering::Acquire)!=4&&std::time::Instant::now()<deadline {
+            std::thread::yield_now();
+        }
+        let completed=COMMIT_SAFEPOINT.completed.load(Ordering::Acquire);
+        assert!(workers.finish(),"모든 worker 출력과 정상 join 필요");
+        let installed=result.expect("prefix밖4ack 뒤 실제 commit 필수");
+        assert_eq!(COMMIT_SAFEPOINT.acknowledged.load(Ordering::Acquire),4);assert_eq!(completed,4);
+        assert_eq!(installed.original,COMMIT_ORIGINAL.load(Ordering::Acquire));
+        assert!(platform::breakpoint_gate_hits(entry)>=128);
+        assert!(workers.calls.load(Ordering::Relaxed)>=132);
+        assert_eq!(COMMIT_WRAPPER_CALLS.load(Ordering::Relaxed),4);
+        let mut head=[0;12];platform::safe_read_bytes(entry,&mut head).unwrap();
+        assert_eq!(&head[..2],&[0x48,0xb8]);assert_eq!(&head[10..],&[0xff,0xe0]);
+        assert_eq!(u64::from_le_bytes(head[2..10].try_into().unwrap()),commit_wrapper as *const () as u64);
     }
     #[test]
     fn native_partial_tail_failure_keeps_int3_original_fallback() {
         let _serial=NATIVE_PATCH_TEST.lock().unwrap_or_else(|e|e.into_inner());
         let entry=platform::allocate_code(FIXTURE_BODY).unwrap();
         let result=install_at(&native_spec(failure_wrapper as *const () as usize),entry,&FAILURE_ORIGINAL,
-            InstallBehavior{fail_after_partial_tail:true,wait_for_gate_hits:0});
+            InstallBehavior{fail_after_partial_tail:true,..InstallBehavior::default()});
         assert_eq!(result.unwrap_err(),"fixture injected partial tail failure; permanent INT3 fallback retained");
         assert_ne!(FAILURE_ORIGINAL.load(Ordering::Acquire),0);
         let mut head=[0;3];platform::safe_read_bytes(entry,&mut head).unwrap();
