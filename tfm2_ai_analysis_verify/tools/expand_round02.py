@@ -10,13 +10,19 @@ proposal=json.loads((REPORT/'model_expansion/entry_proposals.json').read_text(en
 original=(REPORT/'source_before/generated.rs').read_text(encoding='utf-8')
 lines=[line for line in original.splitlines() if 'ProbeDef { id:' in line]
 defs={int(line.split('id: ')[1].split(',')[0]):line.replace(' },',', branches:&[] },') for line in lines}
-for p in proposal['probes']:
+wave03=REPORT/'model_wave03/entry_proposals.json'
+proposals=proposal['probes'][:]
+if wave03.exists():
+    approval=REPORT/'wave03_entry_selection.json'
+    allowed=set(json.loads(approval.read_text(encoding='utf-8'))['selected_model_ids']) if approval.exists() else set()
+    proposals += [p for p in json.loads(wave03.read_text(encoding='utf-8'))['probes'] if p['model_id'] in allowed]
+for p in proposals:
     rva=int(p['rva'],16);f=rows[rva];pid=p['model_id']
     path=ROOT/'tools/data'/f'probe_{rva:x}.bin'
     body=path.read_bytes()
     assert hashlib.sha256(body).hexdigest()==p['body_sha256']==f['body_sha256']
     assert body.startswith(bytes.fromhex(p['prologue_hex']))
-    branches=','.join('crate::hook::BranchFixup{offset:%d,len:%d,target_rva:%s}'%(b['offset'],b['length'],b['target_rva']) for b in p['jcc_fixups'])
+    branches=','.join('crate::hook::BranchFixup{offset:%d,len:%d,target_rva:%s}'%(b['offset'],b.get('length',b.get('len')),b['target_rva']) for b in p.get('jcc_fixups',p.get('branch_fixups',[])))
     defs[pid]=' ProbeDef { id: %d, rva: 0x%x, semantic_id: %s, name: %s, body: include_bytes!("../tools/data/probe_%x.bin"), prologue: &[%s], source: %s, branches:&[%s] },'%(pid,rva,json.dumps(f['semantic_id'],ensure_ascii=False),json.dumps(f['name'],ensure_ascii=False),rva,','.join('0x%02x'%b for b in bytes.fromhex(p['prologue_hex'])),json.dumps(f['source'],ensure_ascii=False),branches)
 prefix=original.split('pub static PROBES:')[0].replace("pub source: &'static str }","pub source: &'static str, pub branches: &'static [crate::hook::BranchFixup] }")
 (ROOT/'src/generated.rs').write_text(prefix+'pub static PROBES: &[ProbeDef] = &[\n'+'\n'.join(defs[k] for k in sorted(defs))+'\n];\n',encoding='utf-8')

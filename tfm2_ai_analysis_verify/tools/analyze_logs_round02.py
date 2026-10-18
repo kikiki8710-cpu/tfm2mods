@@ -273,7 +273,8 @@ def load_base():
 def analyze(summary_path,observations_path,session_path=None,catalog_path=None,input_origin='unknown'):
     if input_origin not in ('unknown','runtime','native_fixture','python_fixture'):raise ValueError('input_origin 오류')
     summary=json.loads(Path(summary_path).read_text(encoding='utf-8-sig'))
-    if summary.get('baseline_sha256')!=BASELINE or summary.get('actual_sha256')!=BASELINE:raise ValueError('baseline/actual EXE SHA 불일치')
+    native_selftest=(input_origin=='native_fixture' and summary.get('actual_sha256')=='ENGINE_SELFTEST_NOT_A_GAME_SESSION')
+    if summary.get('baseline_sha256')!=BASELINE or (summary.get('actual_sha256')!=BASELINE and not native_selftest):raise ValueError('baseline/actual EXE SHA 불일치')
     if type(summary.get('identity_verified')) is not bool or type(summary.get('armed')) is not bool:raise ValueError('identity/armed bool 누락')
     base,base_path=load_base()
     original=base.analyze(summary_path,observations_path,session_path,catalog_path)
@@ -315,7 +316,7 @@ def analyze(summary_path,observations_path,session_path=None,catalog_path=None,i
                 except ModelDomainError:outcome=kind+'_NOT_RECOMPUTABLE_OR_DOMAIN_REJECTED'
                 p['independent_counts'][outcome]+=1
                 continue
-            if not summary['identity_verified'] or not summary['armed']:raise ValueError('identity/armed없는비교표본')
+            if not summary['identity_verified'] or not summary['armed'] or summary.get('init_ready') is False:raise ValueError('identity/armed/init_ready없는비교표본')
             ev=evaluate(pid,x['args'],snap);snap.exact_consumption()
             if u64(x['expected'])!=ev['expected'] or u64(x['mask'])!=ev['mask']:raise ValueError('독립 expected/mask 재계산 차이')
             check_metrics(x.get('metrics',[]),ev['metrics'])
@@ -332,6 +333,17 @@ def analyze(summary_path,observations_path,session_path=None,catalog_path=None,i
         except (ValueError,KeyError,TypeError,OverflowError,AssertionError) as error:
             if 'run_id' in str(error):raise ValueError(f'{line_no}행: {error}') from error
             errors.append(dict(line=line_no,error=str(error)))
+    # 최종 summary보다 로그가 많은 경우도 성공으로 덮지 않는다. 진행 중 snapshot이나
+    # 자기시험의 수동 counter reset일 수 있으므로 실제 손실량으로 단정하지 않는다.
+    counter_excesses=[]
+    for p in original['probes']:
+        emitted=p['emitted_counts'];c=p['summary_counts']
+        mapping={'compared':emitted['MATCH']+emitted['MISMATCH'],'matches':emitted['MATCH'],
+            'mismatches':emitted['MISMATCH'],'skipped':emitted['SKIP'],'unstable':emitted['UNSTABLE'],
+            'foreign_matches':emitted['FOREIGN_MATCH'],'foreign_mismatches':emitted['FOREIGN_MISMATCH'],
+            'calls':sum(emitted.values()),'sample_attempts':sum(emitted.values())}
+        excess={k:logged-c[k] for k,logged in mapping.items() if logged>c[k]}
+        if excess:counter_excesses.append(dict(probe_id=p['id'],log_exceeds_summary=excess))
     total=collections.Counter()
     for p in probes.values():
         total.update(p['independent_counts'])
@@ -345,15 +357,19 @@ def analyze(summary_path,observations_path,session_path=None,catalog_path=None,i
     elif original['summary_counts']['mismatches']:status='VANILLA_MISMATCH_REPORTED_MISSING_RAW_CONFIRMATION'
     elif not summary['identity_verified']:status='IDENTITY_NOT_VERIFIED'
     elif not summary['armed']:status='NOT_ARMED'
+    elif summary.get('init_ready') is False:status='INITIALIZATION_NOT_READY'
+    elif counter_excesses:status='COUNTER_LOG_INCONSISTENCY'
     elif original['evidence_incomplete']:status='INDEPENDENT_RECOMPUTED_WITH_INCOMPLETE_EVIDENCE'
     elif total['VANILLA_MATCH']==0:status='NO_INDEPENDENT_VANILLA_COMPARISON'
     else:status='SAVED_VANILLA_SAMPLES_INDEPENDENTLY_MATCH_LIMITED_SCOPE'
     return dict(schema_version=1,status=status,run_id=summary['run_id'],input_origin=input_origin,
-        original_analysis=original,independent_counts=dict(total),independent_errors=errors,
+        identity_scope='EXPLICIT_NATIVE_SELFTEST_SENTINEL_NO_GAME_IDENTITY' if native_selftest else 'SUMMARY_EXE_SHA_PIN_MATCH',
+        original_analysis=original,independent_counts=dict(total),independent_errors=errors,counter_log_excesses=counter_excesses,
         probes=list(probes.values()),supported_model_ids=list(range(16)),
         actual_runtime_comparisons_rechecked=(total['VANILLA_MATCH']+total['VANILLA_MISMATCH'])if input_origin=='runtime'else 0,
         synthetic_fixture_comparisons=(total['VANILLA_MATCH']+total['VANILLA_MISMATCH'])if input_origin in ('native_fixture','python_fixture')else 0,
         whole_runtime_verified=False,new_game_calls=0,
+        loaded_dll_identity_independently_verified=False,
         source_files={str(Path(p).resolve()):hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in
             [summary_path,observations_path,base_path,Path(__file__)]},
         limits=['로그expected를정답으로쓰지않고저장read에서재계산',
@@ -362,6 +378,7 @@ def analyze(summary_path,observations_path,session_path=None,catalog_path=None,i
             'SKIP/UNSTABLE/FOREIGN은vanilla일치분모밖이며미저장표본을재계산하지않는다.',
             'summary/JSONL건수합산금지. stride·예산·큐/IO유실·진행중snapshot은서로구분한다.',
             'native/python fixture는실제게임관측이아니다. input_origin=runtime도외부실행맥락/DLL신원입증은별도다.',
+            'summary의EXE SHA선언대조가실제로로드된DLL/sourceSHA를독립입증하지는않는다. 배포/세션영수증은별도연결해야한다.',
             '전후read재확인이통과해도ABA·객체수명·coherent동시snapshot·설치quiescence/안전성증명이아니다.',
             '모든저장표본일치도전체함수/전체입력/전체계수·문턱/741함수런타임완료가아니다.'])
 

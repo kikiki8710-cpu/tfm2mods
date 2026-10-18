@@ -2,7 +2,7 @@
   "name": "AI 분석 검증",
   "mod_id": "tfm2_ai_analysis_verify",
   "author": "tfm2mods",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "mod_type": "native",
   "contains_code": true,
   "description": "실제 AI 호출의 원본 출력과 독립 계산값을 비교해 기록합니다. 판단 결과를 교체하지 않습니다. 지원 함수와 미연결 함수, 표본 없음과 불일치를 구분합니다.",

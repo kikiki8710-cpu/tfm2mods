@@ -11,7 +11,7 @@ use std::time::Duration;
 use crate::{config::Config, generated, hook, models, platform};
 
 pub const MAX_FIELDS: usize = 96;
-pub const MODEL_COUNT: usize = 16;
+pub const MODEL_COUNT: usize = 19;
 pub trait Memory { fn read(&mut self, address: u64, width: u8) -> Result<u64, &'static str>; }
 #[derive(Clone, Debug)]
 pub struct Metric {
@@ -71,7 +71,7 @@ struct State {
     stats:[Stats;MODEL_COUNT], install:Mutex<Vec<InstallStatus>>,
     queue:SyncSender<Event>, receiver:Mutex<Receiver<Event>>,writer:Mutex<BufWriter<File>>,flush_lock:Mutex<()>,
     frames:AtomicU64, sequence:AtomicU64, install_tried:AtomicUsize, io_errors:AtomicU64,
-    init_ready:AtomicUsize, io_lost_or_uncertain_events:AtomicU64,
+    init_ready:AtomicUsize, io_lost_or_uncertain_events:AtomicU64,summary_retries:AtomicU64,last_io_error:Mutex<String>,
     capture_enabled:AtomicUsize,capture_label:OnceLock<String>,control_sequence:AtomicU64,
     scene_code:AtomicUsize,admission:AtomicU64,queued_events:AtomicU64,stop_pending_sequence:AtomicU64,stop_worker:AtomicUsize,worker_state:AtomicUsize,
     worker:Mutex<Option<JoinHandle<()>>>,control_error:Mutex<String>,
@@ -90,10 +90,38 @@ pub fn json_quote(s:&str)->String {
     }} out.push('"');out
 }
 fn hexadecimal(x:u64)->String {format!("\"0x{x:x}\"")}
-fn write_atomic(path:&Path,text:&str)->std::io::Result<()> {
+#[derive(Debug)]
+struct AtomicWriteError{stage:&'static str,error:std::io::Error,retries:u64}
+fn atomic_error(stage:&'static str,error:std::io::Error)->AtomicWriteError{
+    AtomicWriteError{stage,error,retries:0}
+}
+// 공유 위반성 rename만 최초 시도+최대20회 재시도한다. 예정 sleep 합계 최대100ms이며
+// 파일 IO/OS 스케줄링까지 포함한 실제 wall-clock 상한을 보장하는 것은 아니다.
+fn write_atomic(path:&Path,text:&str,retry_counter:&AtomicU64)->Result<(),AtomicWriteError>{
     let temp=path.with_extension("json.tmp");
-    {let mut f=File::create(&temp)?;f.write_all(text.as_bytes())?;f.sync_all()?;}
-    std::fs::rename(&temp,path)
+    {
+        let mut f=File::create(&temp).map_err(|e|atomic_error("summary_create_temp",e))?;
+        f.write_all(text.as_bytes()).map_err(|e|atomic_error("summary_write_temp",e))?;
+        f.sync_all().map_err(|e|atomic_error("summary_sync_temp",e))?;
+    }
+    let mut retries=0;
+    loop{
+        match std::fs::rename(&temp,path){
+            Ok(())=>{
+                // 최종 성공한 교체의 추가 시도만 누계한다. 최종 실패는 io_errors로 별도 기록.
+                retry_counter.fetch_add(retries,Ordering::Relaxed);return Ok(());
+            },
+            Err(error) if cfg!(windows)&&retries<20&&matches!(error.raw_os_error(),Some(5|32|33))=>{
+                retries+=1;std::thread::sleep(Duration::from_millis(5));
+            },
+            Err(error)=>return Err(AtomicWriteError{stage:"summary_rename",error,retries}),
+        }
+    }
+}
+fn record_io_failure(s:&State,stage:&str,error:&std::io::Error,retries:u64){
+    *s.last_io_error.lock().unwrap_or_else(|e|e.into_inner())=format!(
+        "stage={stage};os_error={:?};retries={retries};message={error}",error.raw_os_error());
+    s.io_errors.fetch_add(1,Ordering::Relaxed);close_capture(s);
 }
 
 pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verified:bool)->Result<(),String> {
@@ -112,6 +140,7 @@ pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verif
         queue,receiver:Mutex::new(receiver),writer:Mutex::new(BufWriter::new(f)),flush_lock:Mutex::new(()),
         frames:AtomicU64::new(0),sequence:AtomicU64::new(0),install_tried:AtomicUsize::new(0),io_errors:AtomicU64::new(0),
         init_ready:AtomicUsize::new(0),io_lost_or_uncertain_events:AtomicU64::new(0),
+        summary_retries:AtomicU64::new(0),last_io_error:Mutex::new(String::new()),
         capture_enabled:AtomicUsize::new(0),capture_label:OnceLock::new(),control_sequence:AtomicU64::new(0),
         scene_code:AtomicUsize::new(usize::MAX),admission:AtomicU64::new(ADMISSION_CLOSED),queued_events:AtomicU64::new(0),
         stop_pending_sequence:AtomicU64::new(0),stop_worker:AtomicUsize::new(0),worker_state:AtomicUsize::new(0),
@@ -159,7 +188,10 @@ fn start_worker(s:&'static State)->Result<(),String>{
             if catch_unwind(AssertUnwindSafe(||{
                 if s.stop_worker.load(Ordering::Acquire)==0{process_control();}
                 let _=flush();
-            })).is_err(){close_capture(s);s.io_errors.fetch_add(1,Ordering::Relaxed);}
+            })).is_err(){
+                close_capture(s);s.io_errors.fetch_add(1,Ordering::Relaxed);
+                *s.last_io_error.lock().unwrap_or_else(|e|e.into_inner())="stage=worker_panic;os_error=None".into();
+            }
             std::thread::sleep(Duration::from_millis(100));
         }
         let _=flush();
@@ -372,10 +404,12 @@ wrapper!(hook0,0);wrapper!(hook1,1);wrapper!(hook2,2);wrapper!(hook3,3);
 wrapper!(hook4,4);wrapper!(hook5,5);wrapper!(hook6,6);wrapper!(hook7,7);
 wrapper!(hook8,8);wrapper!(hook9,9);wrapper!(hook10,10);wrapper!(hook11,11);
 wrapper!(hook12,12);wrapper!(hook13,13);wrapper!(hook14,14);wrapper!(hook15,15);
+wrapper!(hook16,16);wrapper!(hook17,17);wrapper!(hook18,18);
 fn wrappers()->[usize;MODEL_COUNT] {[hook0 as *const () as usize,hook1 as *const () as usize,hook2 as *const () as usize,hook3 as *const () as usize,
     hook4 as *const () as usize,hook5 as *const () as usize,hook6 as *const () as usize,hook7 as *const () as usize,
     hook8 as *const () as usize,hook9 as *const () as usize,hook10 as *const () as usize,hook11 as *const () as usize,
-    hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize]}
+    hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize,
+    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize]}
 
 pub fn post_update() {
     let Some(state)=STATE.get() else {return;};
@@ -392,7 +426,7 @@ pub fn post_update() {
             if !state.config.armed {entry.text="DISARMED".into();}
             else if !state.identity_verified {entry.text="EXE_IDENTITY_MISMATCH".into();}
             else if state.config.probes.contains(&p.rva) {
-                // ABI가 검토된 모델 8개 한정. 범위 밖 id는 거절한다.
+                // 고정 원문/ABI가 검토된 모델만 연결하며 범위 밖 id는 거절한다.
                 if p.id>=MODEL_COUNT {entry.text="UNSUPPORTED_MODEL_ID".into();statuses.push(entry);continue;}
                 let spec=hook::HookSpec{rva:p.rva,prologue:p.prologue,body:p.body,wrapper:wrapper[p.id],
                     allow_foreign_chain:state.config.allow_foreign_chain,branches:p.branches};
@@ -438,8 +472,7 @@ pub fn flush()->std::io::Result<()> {
         writer.flush()
     })();
     if let Err(error)=written {
-        close_capture(state);
-        state.io_errors.fetch_add(1,Ordering::Relaxed);
+        record_io_failure(state,"observations_write_flush",&error,0);
         state.io_lost_or_uncertain_events.fetch_add(events.len() as u64,Ordering::Relaxed);
         return Err(error);
     }
@@ -470,9 +503,15 @@ pub fn flush()->std::io::Result<()> {
     let queue_pending=counter(&state.queued_events);
     let summary=format!("{},\"queued_events\":{},\"queue_pending\":{},\"stop_pending_sequence\":{},\"worker_state\":{}}}\n",
         summary.trim().trim_end_matches('}'),queue_pending,queue_pending,counter(&state.stop_pending_sequence),state.worker_state.load(Ordering::Acquire));
-    let written=write_atomic(&state.dir.join("summary.json"),&summary);
-    if written.is_err() {close_capture(state);state.io_errors.fetch_add(1,Ordering::Relaxed);}
-    written
+    let summary=format!("{},\"summary_retries\":{},\"last_io_error\":{},\"init_ready\":{}}}\n",
+        summary.trim().trim_end_matches('}'),counter(&state.summary_retries),
+        json_quote(&state.last_io_error.lock().unwrap_or_else(|e|e.into_inner())),state.init_ready.load(Ordering::Acquire)!=0);
+    match write_atomic(&state.dir.join("summary.json"),&summary,&state.summary_retries){
+        Ok(())=>Ok(()),
+        Err(failure)=>{
+            record_io_failure(state,failure.stage,&failure.error,failure.retries);Err(failure.error)
+        },
+    }
 }
 
 #[cfg(test)] mod tests {
@@ -494,6 +533,30 @@ pub fn flush()->std::io::Result<()> {
         for bad in ["sequence=1\ncommand=stop","run_id=x\ncommand=stop","run_id=x\nsequence=1","run_id=x\nsequence=no\ncommand=stop"]{
             assert!(parse_control(bad).is_err());
         }
+    }
+    #[cfg(windows)]
+    #[test] fn summary_share_conflict_retry_success_and_bounded_failure(){
+        use std::os::windows::fs::OpenOptionsExt;
+        let dir=std::env::temp_dir().join(format!("aiav_summary_retry_{}_{}",std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        std::fs::create_dir_all(&dir).unwrap();let summary=dir.join("summary.json");
+        std::fs::write(&summary,"old").unwrap();let retries=AtomicU64::new(0);
+        // Rust 기본 open의 share-delete 대신 READ|WRITE만 주어 Python reader 충돌을 재현.
+        let held=OpenOptions::new().read(true).share_mode(1|2).open(&summary).unwrap();
+        let release=std::thread::spawn(move||{std::thread::sleep(Duration::from_millis(25));drop(held);});
+        write_atomic(&summary,"replaced",&retries).unwrap();release.join().unwrap();
+        assert!(counter(&retries)>0&&counter(&retries)<=20);
+        assert_eq!(std::fs::read_to_string(&summary).unwrap(),"replaced");
+        let successful_retries=counter(&retries);
+        let held=OpenOptions::new().read(true).share_mode(1|2).open(&summary).unwrap();
+        let began=std::time::Instant::now();let failure=write_atomic(&summary,"must_not_replace",&retries).unwrap_err();
+        assert_eq!(failure.stage,"summary_rename");assert_eq!(failure.retries,20);
+        assert!(matches!(failure.error.raw_os_error(),Some(5|32|33)));
+        assert!(began.elapsed()>=Duration::from_millis(100));
+        assert_eq!(counter(&retries),successful_retries); // 실패의20회는 성공retry누계에 섞지 않는다.
+        drop(held);assert_eq!(std::fs::read_to_string(&summary).unwrap(),"replaced");
+        assert!(summary.with_extension("json.tmp").exists());
+        std::fs::remove_dir_all(&dir).unwrap();
     }
     static BLOCK_ENTERED:AtomicUsize=AtomicUsize::new(0);
     static BLOCK_RELEASE:AtomicUsize=AtomicUsize::new(0);
@@ -595,6 +658,7 @@ pub fn flush()->std::io::Result<()> {
         *state.writer.lock().unwrap()=BufWriter::new(File::open(dir.join("summary.json")).unwrap());
         assert!(flush().is_err());
         assert_eq!(counter(&state.io_lost_or_uncertain_events),1);
+        assert!(state.last_io_error.lock().unwrap().contains("stage=observations_write_flush;os_error="));
         assert_eq!(state.capture_enabled.load(Ordering::Acquire),0);assert!(admit(state).is_none());
         let path=dir.join(format!("observations_{}.jsonl",state.run_id));
         *state.writer.lock().unwrap()=BufWriter::new(OpenOptions::new().append(true).open(path).unwrap());

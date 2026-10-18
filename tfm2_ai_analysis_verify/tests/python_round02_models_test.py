@@ -138,6 +138,22 @@ class Round02ModelsTests(unittest.TestCase):
         a,f,_=fixture(8);f.q(0x2620,A.MASK);f.q(0x2668,A.MASK);self.assertEqual(A.evaluate(8,a,f)['expected'],0)
         a,f,_=fixture(2);a[1]=(1<<63)|1;self.assertEqual(A.evaluate(2,a,f)['expected'],1)
         a,f,_=fixture(0);f.q(0x1098,10);f.q(0x1000,(-11)&A.MASK);self.assertEqual(A.evaluate(0,a,f)['expected'],6)
+    def test_initialization_false_cannot_compare(self):
+        e=event(8);s=summary([e]);s['init_ready']=False
+        r=analyze([e],s);self.assertTrue(r['independent_errors']);self.assertEqual(r['synthetic_fixture_comparisons'],0)
+        r=analyze([],dict(summary([],ids=[8]),init_ready=False));self.assertEqual(r['status'],'INITIALIZATION_NOT_READY')
+    def test_log_exceeding_summary_cannot_pass(self):
+        e=event(8);s=summary([],ids=[8]);r=analyze([e],s)
+        self.assertEqual(r['status'],'COUNTER_LOG_INCONSISTENCY');self.assertTrue(r['counter_log_excesses'])
+    def test_native_selftest_sentinel_never_game_identity(self):
+        e=event(7);s=summary([e]);s['actual_sha256']='ENGINE_SELFTEST_NOT_A_GAME_SESSION'
+        self.assertRaises(ValueError,analyze,[e],s)
+        with tempfile.TemporaryDirectory()as temp:
+            p=Path(temp);(p/'s.json').write_text(json.dumps(s));(p/'e.jsonl').write_text(json.dumps(e)+'\n')
+            r=A.analyze(p/'s.json',p/'e.jsonl',input_origin='native_fixture')
+            self.assertEqual(r['actual_runtime_comparisons_rechecked'],0)
+            self.assertEqual(r['identity_scope'],'EXPLICIT_NATIVE_SELFTEST_SENTINEL_NO_GAME_IDENTITY')
+            self.assertRaises(ValueError,A.analyze,p/'s.json',p/'e.jsonl',input_origin='runtime')
 
 
 if __name__=='__main__':unittest.main()
