@@ -1,0 +1,700 @@
+{
+  "status": "SOURCE_NUMERICS_SEPARATE_FROM_METRIC_EVALUATIONS",
+  "previous44_ledger_source": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\analyzer_wave08\\numeric_consumption_ledger.json",
+  "inherited44_ledger_sha256": "a46c4d5e8dc3f3dcefab25541141c0535129472b23319800a110d4e9d97beb75",
+  "new_stacked_parameters": [
+    {
+      "function_rva": "0xfe0160",
+      "semantic_id": "move.allow.spawn_rect",
+      "original_value": "Config+6D70+team32",
+      "meaning": "팀별동적사각형포함비교",
+      "adjustment": "Config producer·좌표계와함께조정.",
+      "classification": "DYNAMIC_INPUT",
+      "consumer_sites": [
+        "0xfe01b9",
+        "0xfe01c3",
+        "0xfe01cd",
+        "0xfe01e1"
+      ],
+      "instruction_evidence": [
+        {
+          "site": "0xfe01b9",
+          "bytes": "4b3b9413786d0000",
+          "instruction": "cmp rdx, qword ptr [r11 + r10 + 0x6d78]"
+        },
+        {
+          "site": "0xfe01c3",
+          "bytes": "4f3b8413706d0000",
+          "instruction": "cmp r8, qword ptr [r11 + r10 + 0x6d70]"
+        },
+        {
+          "site": "0xfe01cd",
+          "bytes": "4f3b8413806d0000",
+          "instruction": "cmp r8, qword ptr [r11 + r10 + 0x6d80]"
+        },
+        {
+          "site": "0xfe01e1",
+          "bytes": "483b5018",
+          "instruction": "cmp rdx, qword ptr [rax + 0x18]"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "move.allow.spawn_rect",
+        "original_value": "Config+6D70+team32",
+        "sites": [
+          "0xfe01b9",
+          "0xfe01c3",
+          "0xfe01cd",
+          "0xfe01e1"
+        ],
+        "meaning": "팀별동적사각형포함비교",
+        "adjustment": "Config producer·좌표계와함께조정.",
+        "kind": "DYNAMIC_INPUT",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xfe01b9",
+            "bytes": "4b3b9413786d0000",
+            "instruction": "cmp rdx, qword ptr [r11 + r10 + 0x6d78]"
+          },
+          {
+            "site": "0xfe01c3",
+            "bytes": "4f3b8413706d0000",
+            "instruction": "cmp r8, qword ptr [r11 + r10 + 0x6d70]"
+          },
+          {
+            "site": "0xfe01cd",
+            "bytes": "4f3b8413806d0000",
+            "instruction": "cmp r8, qword ptr [r11 + r10 + 0x6d80]"
+          },
+          {
+            "site": "0xfe01e1",
+            "bytes": "483b5018",
+            "instruction": "cmp rdx, qword ptr [rax + 0x18]"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "apply_allowed": false,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xfe0160",
+      "semantic_id": "move.allow.previous_distance_squared",
+      "original_value": 100000000,
+      "meaning": "wrap거리²가1e8이하이면허용",
+      "adjustment": "거리반경10000에상응하나wrap도메인/단위를확인후조정.",
+      "classification": "STATIC_THRESHOLD",
+      "consumer_sites": [
+        "0xfe0226",
+        "0xfe022d"
+      ],
+      "instruction_evidence": [
+        {
+          "site": "0xfe0226",
+          "bytes": "4881f901e1f505",
+          "instruction": "cmp rcx, 0x5f5e101"
+        },
+        {
+          "site": "0xfe022d",
+          "bytes": "7302",
+          "instruction": "jae 0xfe0231"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "move.allow.previous_distance_squared",
+        "original_value": 100000000,
+        "sites": [
+          "0xfe0226",
+          "0xfe022d"
+        ],
+        "meaning": "wrap거리²가1e8이하이면허용",
+        "adjustment": "거리반경10000에상응하나wrap도메인/단위를확인후조정.",
+        "kind": "STATIC_THRESHOLD",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xfe0226",
+            "bytes": "4881f901e1f505",
+            "instruction": "cmp rcx, 0x5f5e101"
+          },
+          {
+            "site": "0xfe022d",
+            "bytes": "7302",
+            "instruction": "jae 0xfe0231"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "apply_allowed": false,
+      "all_coefficients_verified": false,
+      "encoded_cmp": 100000001,
+      "effective_inclusive": 100000000,
+      "boundary_domain_note": "T-1=99999999 mod8=7,T-2 mod8=6는두정수제곱합불가능.64wrap도mod8보존.가장가까운아래T-3=1346²+9909².불가능한정확경계를발명하지않음."
+    },
+    {
+      "function_rva": "0xfe0160",
+      "semantic_id": "move.allow.expiry",
+      "original_value": "now >= wrap(capture60+78)",
+      "meaning": "기록시각+유효기간가산문턱",
+      "adjustment": "두필드producer·tick단위/overflow정책과함께조정.",
+      "classification": "DYNAMIC_COMPARISON",
+      "consumer_sites": [
+        "0xfe01e8",
+        "0xfe01ec",
+        "0xfe01f0",
+        "0xfe01f7"
+      ],
+      "instruction_evidence": [
+        {
+          "site": "0xfe01e8",
+          "bytes": "4c8b5178",
+          "instruction": "mov r10, qword ptr [rcx + 0x78]"
+        },
+        {
+          "site": "0xfe01ec",
+          "bytes": "4c035160",
+          "instruction": "add r10, qword ptr [rcx + 0x60]"
+        },
+        {
+          "site": "0xfe01f0",
+          "bytes": "4d3991b8010000",
+          "instruction": "cmp qword ptr [r9 + 0x1b8], r10"
+        },
+        {
+          "site": "0xfe01f7",
+          "bytes": "7336",
+          "instruction": "jae 0xfe022f"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "move.allow.expiry",
+        "original_value": "now >= wrap(capture60+78)",
+        "sites": [
+          "0xfe01e8",
+          "0xfe01ec",
+          "0xfe01f0",
+          "0xfe01f7"
+        ],
+        "meaning": "기록시각+유효기간가산문턱",
+        "adjustment": "두필드producer·tick단위/overflow정책과함께조정.",
+        "kind": "DYNAMIC_COMPARISON",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xfe01e8",
+            "bytes": "4c8b5178",
+            "instruction": "mov r10, qword ptr [rcx + 0x78]"
+          },
+          {
+            "site": "0xfe01ec",
+            "bytes": "4c035160",
+            "instruction": "add r10, qword ptr [rcx + 0x60]"
+          },
+          {
+            "site": "0xfe01f0",
+            "bytes": "4d3991b8010000",
+            "instruction": "cmp qword ptr [r9 + 0x1b8], r10"
+          },
+          {
+            "site": "0xfe01f7",
+            "bytes": "7336",
+            "instruction": "jae 0xfe022f"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "apply_allowed": false,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xf98e60",
+      "semantic_id": "ganker.selector.table_policy",
+      "original_value": {
+        "lane0": [
+          [
+            16,
+            6,
+            3,
+            3,
+            3,
+            2,
+            2
+          ],
+          [
+            2,
+            3,
+            6,
+            6,
+            6,
+            16,
+            16
+          ]
+        ],
+        "laneOther": [
+          [
+            21,
+            20,
+            15,
+            15,
+            15,
+            9,
+            7
+          ],
+          [
+            9,
+            15,
+            20,
+            20,
+            20,
+            21,
+            23
+          ]
+        ],
+        "lane1": "a=11+3side,b=17+4side,c=4+5side;team0=[b,a,a,a,a,c,c],team1=[c,a,a,a,a,b,b]"
+      },
+      "meaning": "테이블값은후속위치선택ID. mode별다른ID목록.",
+      "adjustment": "f990c0의ID실명·맵producer와함께조정. 독립시간/점수노브로계상하지않음.",
+      "classification": "ENUM_TABLE_POLICY",
+      "consumer_sites": [
+        "0xf98ec9",
+        "0xf98ece",
+        "0xf98ed6",
+        "0xf98f1f",
+        "0xf98fe6",
+        "0xf98f87",
+        "0xf9902f"
+      ],
+      "instruction_evidence": [
+        {
+          "site": "0xf98ec9",
+          "bytes": "4b8d44400b",
+          "instruction": "lea rax, [r8 + r8*2 + 0xb]"
+        },
+        {
+          "site": "0xf98ece",
+          "bytes": "4a8d0c8511000000",
+          "instruction": "lea rcx, [r8*4 + 0x11]"
+        },
+        {
+          "site": "0xf98ed6",
+          "bytes": "4f8d448004",
+          "instruction": "lea r8, [r8 + r8*4 + 4]"
+        },
+        {
+          "site": "0xf98f1f",
+          "bytes": "48c744242002000000",
+          "instruction": "mov qword ptr [rsp + 0x20], 2"
+        },
+        {
+          "site": "0xf98fe6",
+          "bytes": "48c744242010000000",
+          "instruction": "mov qword ptr [rsp + 0x20], 0x10"
+        },
+        {
+          "site": "0xf98f87",
+          "bytes": "48c744242009000000",
+          "instruction": "mov qword ptr [rsp + 0x20], 9"
+        },
+        {
+          "site": "0xf9902f",
+          "bytes": "48c744242015000000",
+          "instruction": "mov qword ptr [rsp + 0x20], 0x15"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "ganker.selector.table_policy",
+        "original_value": {
+          "lane0": [
+            [
+              16,
+              6,
+              3,
+              3,
+              3,
+              2,
+              2
+            ],
+            [
+              2,
+              3,
+              6,
+              6,
+              6,
+              16,
+              16
+            ]
+          ],
+          "laneOther": [
+            [
+              21,
+              20,
+              15,
+              15,
+              15,
+              9,
+              7
+            ],
+            [
+              9,
+              15,
+              20,
+              20,
+              20,
+              21,
+              23
+            ]
+          ],
+          "lane1": "a=11+3side,b=17+4side,c=4+5side;team0=[b,a,a,a,a,c,c],team1=[c,a,a,a,a,b,b]"
+        },
+        "consumer_sites": [
+          "0xf98ec9",
+          "0xf98ece",
+          "0xf98ed6",
+          "0xf98f1f",
+          "0xf98fe6",
+          "0xf98f87",
+          "0xf9902f"
+        ],
+        "meaning": "테이블값은후속위치선택ID. mode별다른ID목록.",
+        "adjustment": "f990c0의ID실명·맵producer와함께조정. 독립시간/점수노브로계상하지않음.",
+        "classification": "ENUM_TABLE_POLICY",
+        "state": "STATIC_CONFIRMED_LOCAL_CONSUMPTION",
+        "runtime_verified": false,
+        "original_instructions": [
+          {
+            "site": "0xf98ec9",
+            "bytes": "4b8d44400b",
+            "instruction": "lea rax, [r8 + r8*2 + 0xb]"
+          },
+          {
+            "site": "0xf98ece",
+            "bytes": "4a8d0c8511000000",
+            "instruction": "lea rcx, [r8*4 + 0x11]"
+          },
+          {
+            "site": "0xf98ed6",
+            "bytes": "4f8d448004",
+            "instruction": "lea r8, [r8 + r8*4 + 4]"
+          },
+          {
+            "site": "0xf98f1f",
+            "bytes": "48c744242002000000",
+            "instruction": "mov qword ptr [rsp + 0x20], 2"
+          },
+          {
+            "site": "0xf98fe6",
+            "bytes": "48c744242010000000",
+            "instruction": "mov qword ptr [rsp + 0x20], 0x10"
+          },
+          {
+            "site": "0xf98f87",
+            "bytes": "48c744242009000000",
+            "instruction": "mov qword ptr [rsp + 0x20], 9"
+          },
+          {
+            "site": "0xf9902f",
+            "bytes": "48c744242015000000",
+            "instruction": "mov qword ptr [rsp + 0x20], 0x15"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "apply_allowed": false,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xf98e60",
+      "semantic_id": "ganker.selector.index_cap",
+      "original_value": 6,
+      "meaning": "진행index상한6과7entry.",
+      "adjustment": "World진행producer·표길이와함께검토.",
+      "classification": "STRUCTURAL_DOMAIN",
+      "consumer_sites": [
+        "0xf99076",
+        "0xf9907a",
+        "0xf9907f"
+      ],
+      "instruction_evidence": [
+        {
+          "site": "0xf99076",
+          "bytes": "4883f806",
+          "instruction": "cmp rax, 6"
+        },
+        {
+          "site": "0xf9907a",
+          "bytes": "b906000000",
+          "instruction": "mov ecx, 6"
+        },
+        {
+          "site": "0xf9907f",
+          "bytes": "480f42c8",
+          "instruction": "cmovb rcx, rax"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "ganker.selector.index_cap",
+        "original_value": 6,
+        "consumer_sites": [
+          "0xf99076",
+          "0xf9907a",
+          "0xf9907f"
+        ],
+        "meaning": "진행index상한6과7entry.",
+        "adjustment": "World진행producer·표길이와함께검토.",
+        "classification": "STRUCTURAL_DOMAIN",
+        "state": "STATIC_CONFIRMED_LOCAL_CONSUMPTION",
+        "runtime_verified": false,
+        "original_instructions": [
+          {
+            "site": "0xf99076",
+            "bytes": "4883f806",
+            "instruction": "cmp rax, 6"
+          },
+          {
+            "site": "0xf9907a",
+            "bytes": "b906000000",
+            "instruction": "mov ecx, 6"
+          },
+          {
+            "site": "0xf9907f",
+            "bytes": "480f42c8",
+            "instruction": "cmovb rcx, rax"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "apply_allowed": false,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xe3fa20",
+      "semantic_id": "team.nearby.hp_percent_scale",
+      "original_value": 100,
+      "meaning": "wrap64(HP*100)/maxHP의정규화",
+      "adjustment": "5사본모두percent단위와함께검토. maxHP0panic유지.",
+      "classification": "FORMULA_POLICY_CANDIDATE",
+      "consumer_sites": [
+        "0xe3fa6a",
+        "0xe3fab2",
+        "0xe3fb6a",
+        "0xe3fc1e",
+        "0xe3fd2d"
+      ],
+      "instruction_evidence": [
+        {
+          "site": "0xe3fa6a",
+          "bytes": "486b816806000064",
+          "instruction": "imul rax, qword ptr [rcx + 0x668], 0x64"
+        },
+        {
+          "site": "0xe3fab2",
+          "bytes": "486b876806000064",
+          "instruction": "imul rax, qword ptr [rdi + 0x668], 0x64"
+        },
+        {
+          "site": "0xe3fb6a",
+          "bytes": "486b876806000064",
+          "instruction": "imul rax, qword ptr [rdi + 0x668], 0x64"
+        },
+        {
+          "site": "0xe3fc1e",
+          "bytes": "486b876806000064",
+          "instruction": "imul rax, qword ptr [rdi + 0x668], 0x64"
+        },
+        {
+          "site": "0xe3fd2d",
+          "bytes": "486b866806000064",
+          "instruction": "imul rax, qword ptr [rsi + 0x668], 0x64"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "team.nearby.hp_percent_scale",
+        "original_value": 100,
+        "sites": [
+          "0xe3fa6a",
+          "0xe3fab2",
+          "0xe3fb6a",
+          "0xe3fc1e",
+          "0xe3fd2d"
+        ],
+        "meaning": "wrap64(HP*100)/maxHP의정규화",
+        "adjustment": "5사본모두percent단위와함께검토. maxHP0panic유지.",
+        "classification": "FORMULA_POLICY_CANDIDATE",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "evidencebytes": {
+          "0xe3fa6a": "486b816806000064",
+          "0xe3fab2": "486b876806000064",
+          "0xe3fb6a": "486b876806000064",
+          "0xe3fc1e": "486b876806000064",
+          "0xe3fd2d": "486b866806000064"
+        }
+      },
+      "actual_runtime_samples": 0,
+      "apply_allowed": false,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xe3fa20",
+      "semantic_id": "team.nearby.radius_input",
+      "original_value": {
+        "source": "entry+28",
+        "known_prior_caller_value": 180000
+      },
+      "meaning": "입력radius의wrap64제곱이포함거리문턱",
+      "adjustment": "현재본문상수패치아님. caller인자및radius²overflow를함께재현.",
+      "classification": "DYNAMIC_CALLER_PARAMETER",
+      "consumer_sites": [
+        "0xe3fa3d",
+        "0xe3fa49"
+      ],
+      "instruction_evidence": [
+        {
+          "site": "0xe3fa3d",
+          "bytes": "4c8b542460",
+          "instruction": "mov r10, qword ptr [rsp + 0x60]"
+        },
+        {
+          "site": "0xe3fa49",
+          "bytes": "4d0fafd2",
+          "instruction": "imul r10, r10"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "team.nearby.radius_input",
+        "original_value": {
+          "source": "entry+28",
+          "known_prior_caller_value": 180000
+        },
+        "sites": [
+          "0xe3fa3d",
+          "0xe3fa49"
+        ],
+        "meaning": "입력radius의wrap64제곱이포함거리문턱",
+        "adjustment": "현재본문상수패치아님. caller인자및radius²overflow를함께재현.",
+        "classification": "DYNAMIC_CALLER_PARAMETER",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "evidencebytes": {
+          "0xe3fa3d": "4c8b542460",
+          "0xe3fa49": "4d0fafd2"
+        }
+      },
+      "actual_runtime_samples": 0,
+      "apply_allowed": false,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xe3fa20",
+      "semantic_id": "team.nearby.hp_threshold_input",
+      "original_value": {
+        "source": "entry+30",
+        "known_prior_caller_value": 40
+      },
+      "meaning": "각floorHP%>=입력문턱",
+      "adjustment": "DIV32/64경로비교와caller단위확인. dynamic입력,본문40즉치없음.",
+      "classification": "DYNAMIC_CALLER_PARAMETER",
+      "consumer_sites": [
+        "0xe3fa38",
+        "0xe3fa83",
+        "0xe3facf",
+        "0xe3fb87",
+        "0xe3fc3b",
+        "0xe3fd46"
+      ],
+      "instruction_evidence": [
+        {
+          "site": "0xe3fa38",
+          "bytes": "4c8b5c2468",
+          "instruction": "mov r11, qword ptr [rsp + 0x68]"
+        },
+        {
+          "site": "0xe3fa83",
+          "bytes": "4c39d8",
+          "instruction": "cmp rax, r11"
+        },
+        {
+          "site": "0xe3facf",
+          "bytes": "4c39d8",
+          "instruction": "cmp rax, r11"
+        },
+        {
+          "site": "0xe3fb87",
+          "bytes": "4c39d8",
+          "instruction": "cmp rax, r11"
+        },
+        {
+          "site": "0xe3fc3b",
+          "bytes": "4c39d8",
+          "instruction": "cmp rax, r11"
+        },
+        {
+          "site": "0xe3fd46",
+          "bytes": "4c39d8",
+          "instruction": "cmp rax, r11"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "team.nearby.hp_threshold_input",
+        "original_value": {
+          "source": "entry+30",
+          "known_prior_caller_value": 40
+        },
+        "sites": [
+          "0xe3fa38",
+          "0xe3fa83",
+          "0xe3facf",
+          "0xe3fb87",
+          "0xe3fc3b",
+          "0xe3fd46"
+        ],
+        "meaning": "각floorHP%>=입력문턱",
+        "adjustment": "DIV32/64경로비교와caller단위확인. dynamic입력,본문40즉치없음.",
+        "classification": "DYNAMIC_CALLER_PARAMETER",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "evidencebytes": {
+          "0xe3fa38": "4c8b5c2468",
+          "0xe3fa83": "4c39d8",
+          "0xe3facf": "4c39d8",
+          "0xe3fb87": "4c39d8",
+          "0xe3fc3b": "4c39d8",
+          "0xe3fd46": "4c39d8"
+        }
+      },
+      "actual_runtime_samples": 0,
+      "apply_allowed": false,
+      "all_coefficients_verified": false
+    }
+  ],
+  "new_named_metrics": 13,
+  "old_named_metrics_preserved": 111,
+  "total_named_metrics": 124,
+  "new_parameter_groups": 8,
+  "arities": {
+    "0..43": 4,
+    "44": 5,
+    "45": 5,
+    "46": 6
+  },
+  "stack_argument_semantics": {
+    "44": "args[4]=Data*",
+    "45": "args[4]=Context* (Context+8→Config)",
+    "46": "args[4]=radiusQ,args[5]=HPthresholdQ"
+  },
+  "reading_order_limits": "argv를순서대로저장하는것과원문이stackHP6→radius5를먼저읽는명령순서는다르다. Memory에는stack인수read를위조추가하지않음.",
+  "denominator_separation": [
+    "함수표본",
+    "지표평가포함표본",
+    "반복metric평가",
+    "고정계수/문턱소비점",
+    "동적입력·enum·ADT비교"
+  ],
+  "actual_runtime_samples": 0,
+  "new_numeric_records": 0,
+  "all_coefficients_verified": false
+}

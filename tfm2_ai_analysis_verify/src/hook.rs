@@ -403,3 +403,7 @@ fn install_at(spec: &HookSpec, base: usize, original: &AtomicUsize, behavior: In
     }
 
 }
+
+#[cfg(test)]
+#[path="hook_wave09_tests.rs"]
+mod wave09_tests;

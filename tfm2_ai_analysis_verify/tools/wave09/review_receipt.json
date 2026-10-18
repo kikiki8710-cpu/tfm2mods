@@ -1,0 +1,55 @@
+{
+  "status": "PASS_OFFLINE_TYPED47_ANALYZER_124_METRIC_PREPARATION",
+  "prepared_models": 47,
+  "named_metric_entries": 124,
+  "old41_regression_tests": 89,
+  "old44_extension_regression_tests": 43,
+  "new_stacked_tests": 44,
+  "matrix_tests": 40,
+  "new_normal_fixture_events": 418,
+  "new_game_panic_guard_skip_events": 19,
+  "old44_helper_files": 11,
+  "old44_helpers_byte_identical": true,
+  "old44_formula_ast_exact": true,
+  "inherited111_metric_rows_exact": true,
+  "inherited_metric_aggregation_definition_exact": true,
+  "exact_event_arities": {
+    "0..43": 4,
+    "44": 5,
+    "45": 5,
+    "46": 6
+  },
+  "planned_selection_count": 13,
+  "unselected_expected_if_all_selected13": 34,
+  "selected13_installed12_refused1_fixture_tested": true,
+  "source_freeze_sha256": "d8e0e9fa0ea983cad69002e581bc6b05280dd41229121bbd713929ba5ceeb7e5",
+  "new_model_freeze_sha256": "66c8ad2eb033b2d39814baa0b21b194e883abf377480c25afb11a2fe049c4978",
+  "adapter_freeze_sha256": "f6ab7c544558b5d3ba24f3e2b804be457b27a6731ae5fb201a51e8a07fef92bc",
+  "entry_freeze_sha256": "e043815c7bd9f0aa9c3db14c823533e6c4ed9a6ef92bdfe1667feadd7c90bf75",
+  "blocked_rvas": [
+    "0xe1b5b0",
+    "0x1016b00",
+    "0xe53290"
+  ],
+  "blocked_not_routed": true,
+  "native_executed": 0,
+  "actual_runtime_samples": 0,
+  "new_game_calls": 0,
+  "new_raw_execution_cases": 0,
+  "new_function_analysis": 0,
+  "added_main_cases": 0,
+  "added_functions": 0,
+  "M_source_changes": 0,
+  "correction_requests": {
+    "resolved": [],
+    "unresolved": []
+  },
+  "limits": [
+    "정확arity오류는SKIP/UNSTABLE으로감출수없음. 4/5/6번째인수를생략하거나zero-padding하지않음",
+    "FE는ALmask255/나머지2는fullRAX. 모든output_fields[]이며실제output을예상값oracle로사용하지않음",
+    "guardSKIP19는실게임정상반환증거아님. 원본panic/EH/특정caller도달성은별도",
+    "typedstack전달/Entry BranchFixup/native/실게임승인은독립analyzer의fixture성공과다름",
+    "정본journal과선택subset/거절·未선택분리를유지. journal없으면runtime freshness미확정",
+    "loaded/foreign/privateLTO/ABA·수명/동시snapshot/전체함수·계수완료증명은아님"
+  ]
+}

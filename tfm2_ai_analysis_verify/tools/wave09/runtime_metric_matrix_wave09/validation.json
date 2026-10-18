@@ -1,0 +1,287 @@
+{
+  "status": "PASS_FIXTURE_MATRIX_PREPARATION_ONLY",
+  "tests": 40,
+  "results": [
+    {
+      "name": "normal255_fixture_only",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "new41_two_429",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "wave08_all_routes",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "new47_stacked418",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "new47_guard19",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "new47_selected13",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "new47_selected13_installed12",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "wave08_selected10_scope",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "wave08_selected10_installed9_refused1",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "new_insert_nowrite",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "new_insert_written_words",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "new_peer_seed_QQBYTE",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "domain_reject26_no_comparison",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "None_RAX_arbitrary_mask0",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "Some_exact_fields",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "iterator_empty_partial",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "iterator_exhausted_cursor",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "iterator_some_exact_order",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "old10_route990",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "empty_fixture_no_fake_pass",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "native_sentinel_not_game",
+      "status": "PASS",
+      "error": null,
+      "expectation": "valid",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "wrong_expected_run",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "fixture_not_runtime",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "wrong_analysis_run",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "wrong_analysis_expected_run",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "analysis_supported_old37",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "summary_capture_still_on",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "summary_inflight_nonzero",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "summary_pending_queue",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "stop_ack_mismatch",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "stop_control_error",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "analysis_missing_analyzer_pin",
+      "status": "PASS",
+      "error": "'C:\\\\Users\\\\jungs\\\\Desktop\\\\claude\\\\tfm2\\\\mods_report\\\\tfm2_ai_analysis_verify\\\\runtime_20261018_auto24\\\\batch05\\\\analyzer_wave09\\\\analyze_logs_wave09.py'",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "analysis_summary_sha_stale",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "analysis_raw_sha_stale",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "analysis_error_not_pass",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "analysis_counter_excess",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "analysis_expected_not_oracle",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "blocked_runtime38_RVA",
+      "status": "PASS",
+      "error": "gate 거절",
+      "expectation": "reject",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "aggregate_exact_boundary_and_repeated_sample_denominator",
+      "status": "PASS",
+      "actual_runtime_samples": 0
+    },
+    {
+      "name": "old_v024_reused_aggregation_definition_equal",
+      "status": "PASS",
+      "actual_runtime_samples": 0
+    }
+  ],
+  "actual_runtime_samples": 0,
+  "native_executed": 0,
+  "new_game_calls": 0,
+  "added_main_cases": 0,
+  "fixture_event_source": "기존동결255정상/26SKIP 및990회귀의후처리시험. 새모델증명사례로중복계상하지않는다."
+}

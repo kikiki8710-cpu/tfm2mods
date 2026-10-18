@@ -11,7 +11,7 @@ use std::time::Duration;
 use crate::{config::Config, generated, hook, models, platform};
 
 pub const MAX_FIELDS: usize = 96;
-pub const MODEL_COUNT: usize = 44;
+pub const MODEL_COUNT: usize = 47;
 pub trait Memory { fn read(&mut self, address: u64, width: u8) -> Result<u64, &'static str>; }
 #[derive(Clone, Debug)]
 pub struct Metric {
@@ -61,7 +61,7 @@ struct Stats {
 struct InstallStatus { id:usize, text:String, foreign_chain:bool, original:usize, target:usize }
 #[derive(Clone)]
 struct Event {
-    id:usize,seq:u64,thread_id:u32,args:[u64;4],actual:u64,
+    id:usize,seq:u64,thread_id:u32,args:Vec<u64>,actual:u64,
     evaluation:Option<Evaluation>,reads:Vec<Field>,output_fields:Vec<(u64,u8,u64,u64)>,
     comparison:&'static str,reason:&'static str,foreign_chain:bool,
     capture_label:String,scene_code:usize,
@@ -614,7 +614,7 @@ unsafe fn observe(id:usize,args:[u64;4])->u64 {
     let actual=function(args[0],args[1],args[2],args[3]);
     let completed=catch_unwind(AssertUnwindSafe(|| {
         let mut event=Event{id,seq:state.sequence.fetch_add(1,Ordering::Relaxed),thread_id:current_thread_id(),
-            args,actual,evaluation:None,reads:Vec::new(),output_fields:Vec::new(),
+            args:args.to_vec(),actual,evaluation:None,reads:Vec::new(),output_fields:Vec::new(),
             comparison:"SKIP",reason:"",foreign_chain:DOMAINS[id].load(Ordering::Acquire)==3,
             capture_label:capture_label.clone(),scene_code:scene};
         match prepared {
@@ -665,7 +665,134 @@ unsafe fn observe(id:usize,args:[u64;4])->u64 {
     let failure=match completed {Ok(Ok(()))=>None,Ok(Err(e))=>Some(e),Err(_)=>Some("POSTPROCESSING_PANIC")};
     if let Some(reason)=failure {
         stats.skipped.fetch_add(1,Ordering::Relaxed);stats.processing_errors.fetch_add(1,Ordering::Relaxed);
-        let event=Event{id,seq:state.sequence.fetch_add(1,Ordering::Relaxed),thread_id:current_thread_id(),args,actual,
+        let event=Event{id,seq:state.sequence.fetch_add(1,Ordering::Relaxed),thread_id:current_thread_id(),args:args.to_vec(),actual,
+            evaluation:None,reads:Vec::new(),output_fields:Vec::new(),comparison:"SKIP",reason,
+            foreign_chain:DOMAINS[id].load(Ordering::Acquire)==3,capture_label,scene_code:scene};
+        if !enqueue(state,event){stats.unlogged_errors.fetch_add(1,Ordering::Relaxed);}
+    }
+    actual
+}
+
+// SAFETY: 실제 entry는 이 파일의 정확한 typed wrapper44/45/46만 연결한다.
+// 임의 stack을 읽지 않는다. id/arity가 다르면 원본의 올바른 호출규약을 알 수 없으므로
+// 이 private unsafe 함수의 호출 전제가 깨진 것이다. 그런 입력을 게임의 정상0으로 꾸미지 않는다.
+unsafe fn call_stacked_original(id:usize,original:usize,args:&[u64])->u64{
+    match(id,args){
+        (44|45,[a,b,c,d,e])=>{
+            let f:unsafe extern "system-unwind" fn(u64,u64,u64,u64,u64)->u64=std::mem::transmute(original);
+            f(*a,*b,*c,*d,*e)
+        },
+        (46,[a,b,c,d,e,f])=>{
+            let original6:unsafe extern "system-unwind" fn(u64,u64,u64,u64,u64,u64)->u64=std::mem::transmute(original);
+            original6(*a,*b,*c,*d,*e,*f)
+        },
+        _=>panic!("INTERNAL_TYPED_STACKED_WRAPPER_ARITY_CONTRACT"),
+    }
+}
+fn validate_stacked_scalar(id:usize,args:&[u64],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
+    let(arity,mask)=match id{44=>(5,255),45=>(5,u64::MAX),46=>(6,u64::MAX),_=>return Err("STACKED_SCALAR_UNREGISTERED_ID")};
+    if args.len()!=arity{return Err("STACKED_SCALAR_ARITY");}
+    if e.mask!=mask||e.output_ptr.is_some()||!e.output_fields.is_empty(){return Err("STACKED_SCALAR_MASK_OR_WRITES");}
+    if id==44&&e.expected>1{return Err("STACKED_BOOL_RANGE");}
+    if id==46&&e.expected>5{return Err("STACKED_COUNT_RANGE");}
+    // 이3함수는입력을쓰지않는다. output/mutable-byte 안정성예외는전혀없다.
+    for f in reads{
+        if !matches!(f.width,1|2|4|8){return Err("STACKED_INPUT_WIDTH");}
+        checked_span(f.address,f.width as u64)?;
+    }
+    Ok(())
+}
+
+unsafe extern "system-unwind" fn hook44(a:u64,b:u64,c:u64,d:u64,e:u64)->u64{observe_stacked(44,&[a,b,c,d,e])}
+unsafe extern "system-unwind" fn hook45(a:u64,b:u64,c:u64,d:u64,e:u64)->u64{observe_stacked(45,&[a,b,c,d,e])}
+unsafe extern "system-unwind" fn hook46(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(46,&[a,b,c,d,e,f])}
+
+unsafe fn observe_stacked(id:usize,args:&[u64])->u64 {
+    let original=ORIGINALS[id].load(Ordering::Acquire);
+    // 설치 측에서 유효한 trampoline을 선게시한다. 이 불변조건 이전에는 wrapper에 도달할 수 없다.
+    let function=||call_stacked_original(id,original,args);
+    let Some(state)=STATE.get() else {return function();};
+    let stats=&state.stats[id];
+    stats.calls.fetch_add(1,Ordering::Relaxed);
+    // 화면 타이틀/Loading/정보없음은 수집하지 않고 상한도 소비하지 않는다.
+    let scene=state.scene_code.load(Ordering::Acquire);
+    if !matches!(scene,4|5){return function();}
+    let Some(_flight)=admit(state) else{return function();};
+    // scene 전환을 진입 예약 뒤 다시 확인한다. off/Title은 eligible/상한을 소비하지 않는다.
+    if state.scene_code.load(Ordering::Acquire)!=scene{return function();}
+    if DOMAINS[id].load(Ordering::Acquire)<2 {
+        stats.skipped.fetch_add(1,Ordering::Relaxed);
+        return function();
+    }
+    let eligible=stats.eligible_calls.fetch_add(1,Ordering::Relaxed);
+    // 드문 함수는 수집 시작 뒤 첫64호출을 모두 관측하고, 고빈도 함수는 그 뒤 간격을 둔다.
+    if eligible>=64&&eligible%state.probe_strides[id]!=0 {return function();}
+    let ticket=stats.sample_attempts.fetch_add(1,Ordering::Relaxed);
+    if ticket>=state.config.max_samples_per_probe {return function();}
+    let capture_label=state.capture_label.get().cloned().unwrap_or_default();
+    let prepared=catch_unwind(AssertUnwindSafe(|| {
+        let mut capture=Capture{reads:Vec::with_capacity(MAX_FIELDS)};
+        let evaluation=crate::models_stacked09::evaluate(id,args,&mut capture).and_then(|value|{
+            validate_stacked_scalar(id,args,&value,&capture.reads)?;Ok(value)
+        });
+        (evaluation,capture.reads)
+    }));
+    // 원본 예외는 잡아서 재호출하지 않는다. 모델 panic도 원본 1회 규칙에 영향을 주지 않는다.
+    let actual=function();
+    let completed=catch_unwind(AssertUnwindSafe(|| {
+        let mut event=Event{id,seq:state.sequence.fetch_add(1,Ordering::Relaxed),thread_id:current_thread_id(),
+            args:args.to_vec(),actual,evaluation:None,reads:Vec::new(),output_fields:Vec::new(),
+            comparison:"SKIP",reason:"",foreign_chain:DOMAINS[id].load(Ordering::Acquire)==3,
+            capture_label:capture_label.clone(),scene_code:scene};
+        match prepared {
+            Err(_)=> {event.reason="MODEL_PANIC";stats.model_panics.fetch_add(1,Ordering::Relaxed);}
+            Ok((Err(reason),reads))=> {event.reason=reason;event.reads=reads;}
+            Ok((Ok(evaluation),reads))=> {
+                let mut replay=Replay(&reads);
+                let second=crate::models_stacked09::evaluate(id,args,&mut replay)?;
+                if second.expected!=evaluation.expected||second.mask!=evaluation.mask||second.output_ptr!=evaluation.output_ptr||second.output_fields!=evaluation.output_fields {
+                    return Err("MODEL_SNAPSHOT_REPLAY_DIFFERENCE");
+                }
+                event.evaluation=Some(evaluation.clone()); event.reads=reads;
+                for field in &event.reads {
+                    match live_read(field.address,field.width) {
+                        Ok(now) if unchanged_outside_registered_writes(field.address,field.width,field.value,now,&evaluation.output_fields)?=>{},
+                        Ok(_)=> {event.comparison="UNSTABLE";event.reason="INPUT_CHANGED_DURING_ORIGINAL";break;},
+                        Err(_)=> {event.comparison="UNSTABLE";event.reason="INPUT_UNREADABLE_AFTER_ORIGINAL";break;},
+                    }
+                }
+                if event.comparison!="UNSTABLE" {
+                    let mut equal=(actual&evaluation.mask)==(evaluation.expected&evaluation.mask);
+                    for &(address,width,expected) in &evaluation.output_fields {
+                        let value=live_read(address,width)?;equal&=value==expected;
+                        event.output_fields.push((address,width,expected,value));
+                    }
+                    event.comparison=match (event.foreign_chain,equal) {
+                        (false,true)=>"MATCH",(false,false)=>"MISMATCH",(true,true)=>"FOREIGN_MATCH",(true,false)=>"FOREIGN_MISMATCH",
+                    };
+                }
+            }
+        }
+        match event.comparison {
+            "MATCH"=>{stats.compared.fetch_add(1,Ordering::Relaxed);stats.matches.fetch_add(1,Ordering::Relaxed);},
+            "MISMATCH"=>{
+                // 관측된 첫 vanilla 차이에서 새 admission을 닫는다. 기존 in-flight는 원본1회 뒤 drain.
+                close_capture(state);
+                if state.first_mismatch.get().is_none(){let _=state.first_mismatch.set(event.clone());}
+                stats.compared.fetch_add(1,Ordering::Relaxed);stats.mismatches.fetch_add(1,Ordering::Relaxed);
+            },
+            "FOREIGN_MATCH"=>{stats.foreign_matches.fetch_add(1,Ordering::Relaxed);},
+            "FOREIGN_MISMATCH"=>{stats.foreign_mismatches.fetch_add(1,Ordering::Relaxed);},
+            "UNSTABLE"=>{stats.unstable.fetch_add(1,Ordering::Relaxed);},
+            _=>{stats.skipped.fetch_add(1,Ordering::Relaxed);},
+        }
+        enqueue(state,event);
+        Ok::<(),&'static str>(())
+    }));
+    let failure=match completed {Ok(Ok(()))=>None,Ok(Err(e))=>Some(e),Err(_)=>Some("POSTPROCESSING_PANIC")};
+    if let Some(reason)=failure {
+        stats.skipped.fetch_add(1,Ordering::Relaxed);stats.processing_errors.fetch_add(1,Ordering::Relaxed);
+        let event=Event{id,seq:state.sequence.fetch_add(1,Ordering::Relaxed),thread_id:current_thread_id(),args:args.to_vec(),actual,
             evaluation:None,reads:Vec::new(),output_fields:Vec::new(),comparison:"SKIP",reason,
             foreign_chain:DOMAINS[id].load(Ordering::Acquire)==3,capture_label,scene_code:scene};
         if !enqueue(state,event){stats.unlogged_errors.fetch_add(1,Ordering::Relaxed);}
@@ -706,7 +833,7 @@ fn wrappers()->[usize;MODEL_COUNT] {[hook0 as *const () as usize,hook1 as *const
     hook4 as *const () as usize,hook5 as *const () as usize,hook6 as *const () as usize,hook7 as *const () as usize,
     hook8 as *const () as usize,hook9 as *const () as usize,hook10 as *const () as usize,hook11 as *const () as usize,
     hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize,
-    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize,hook39 as *const () as usize,hook40 as *const () as usize,hook41 as *const () as usize,hook42 as *const () as usize,hook43 as *const () as usize]}
+    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize,hook39 as *const () as usize,hook40 as *const () as usize,hook41 as *const () as usize,hook42 as *const () as usize,hook43 as *const () as usize,hook44 as *const () as usize,hook45 as *const () as usize,hook46 as *const () as usize]}
 
 pub fn post_update() {
     let Some(state)=STATE.get() else {return;};
@@ -839,6 +966,257 @@ pub fn flush()->std::io::Result<()> {
 }
 
 #[cfg(test)] mod tests {
+#[test]fn stacked_scalar_registry_exact_arity_and_masks(){
+    for(id,n,mask,value)in[(44,5,255,1),(45,5,u64::MAX,17),(46,6,u64::MAX,5)]{
+        let args=vec![0; n];let mut e=Evaluation{expected:value,mask,output_ptr:None,output_fields:vec![],metrics:vec![]};
+        assert!(validate_stacked_scalar(id,&args,&e,&[]).is_ok());
+        for bad in [0,4,7]{assert!(validate_stacked_scalar(id,&vec![0;bad],&e,&[]).is_err());}
+        e.mask^=1;assert!(validate_stacked_scalar(id,&args,&e,&[]).is_err());e.mask=mask;
+        e.output_ptr=Some(0x10000);assert!(validate_stacked_scalar(id,&args,&e,&[]).is_err());e.output_ptr=None;
+        e.output_fields.push((0x10000,8,0));assert!(validate_stacked_scalar(id,&args,&e,&[]).is_err());e.output_fields.clear();
+        assert!(validate_stacked_scalar(43,&args,&e,&[]).is_err());
+    }
+}
+#[test]fn stacked_scalar_bool_count_ranges_and_readonly_validation(){
+    let mut e=Evaluation{expected:2,mask:255,output_ptr:None,output_fields:vec![],metrics:vec![]};
+    assert!(validate_stacked_scalar(44,&[0;5],&e,&[]).is_err());
+    e.expected=6;e.mask=u64::MAX;assert!(validate_stacked_scalar(46,&[0;6],&e,&[]).is_err());
+    e.expected=1;e.mask=255;
+    let f=Field{address:0x10000,width:8,value:9};assert!(validate_stacked_scalar(44,&[0;5],&e,&[f]).is_ok());
+    assert!(validate_stacked_scalar(44,&[0;5],&e,&[Field{address:u64::MAX-3,width:8,value:0}]).is_err());
+    assert!(validate_stacked_scalar(44,&[0;5],&e,&[Field{address:0x10000,width:3,value:0}]).is_err());
+    assert!(!unchanged_outside_registered_writes(0x10000,8,1,2,&[]).unwrap());
+}
+#[test]fn stacked_owned_argument_serialization_preserves_four_and_expands_only_arity(){
+    let a=[1u64,0x1_0000_0002,3,u64::MAX];let owned=a.to_vec();
+    assert_eq!(a.iter().map(|&v|hexadecimal(v)).collect::<Vec<_>>().join(","),owned.iter().map(|&v|hexadecimal(v)).collect::<Vec<_>>().join(","));
+    assert_eq!(owned.iter().map(|&v|hexadecimal(v)).collect::<Vec<_>>().join(","),"\"0x1\",\"0x100000002\",\"0x3\",\"0xffffffffffffffff\"");
+    for n in [5,6]{let args=(0..n).map(|i|0x100000000u64+i).collect::<Vec<_>>();assert_eq!(args.len(),n as usize);assert_eq!(args.iter().map(|&v|hexadecimal(v)).count(),n as usize);}
+}
+#[test]fn stacked_first_difference_slot_owns_five_arguments_without_replacement(){
+    let slot=OnceLock::<Event>::new();let mut args=vec![1,2,3,4,0xabc000000005];
+    let mut first=Event{id:44,seq:500,thread_id:1,args:args.clone(),actual:0x1234567800000000,
+        evaluation:None,reads:vec![],output_fields:vec![],comparison:"MISMATCH",reason:"",foreign_chain:false,capture_label:"native".into(),scene_code:4};
+    assert!(slot.set(first.clone()).is_ok());args[4]=0;first.args[4]=7;
+    assert_eq!(slot.get().unwrap().args,vec![1,2,3,4,0xabc000000005]);
+    assert_eq!(slot.get().unwrap().actual,0x1234567800000000);
+    let mut second=first;second.id=46;second.seq=501;second.args=vec![1,2,3,4,5,6];
+    assert!(slot.set(second).is_err());assert_eq!(slot.get().unwrap().seq,500);assert_eq!(slot.get().unwrap().args.len(),5);
+}
+
+// cfg(test)/Windows x64 한정. 기존 유일 STATE 축에만 삽입한다. 새 STATE/게임 실행은 없다.
+static STACKED_FAKE_CALLS:AtomicU64=AtomicU64::new(0);
+static STACKED_FAKE_ARGS:[AtomicU64;6]=[const{AtomicU64::new(0)};6];
+static STACKED_FAKE_RETURN:AtomicU64=AtomicU64::new(0);
+static STACKED_MUTATE:AtomicUsize=AtomicUsize::new(0);
+static STACKED_ENTRY_SP:AtomicU64=AtomicU64::new(0);
+fn stacked_record_args(args:&[u64]){for(i,v)in args.iter().enumerate(){STACKED_FAKE_ARGS[i].store(*v,Ordering::Relaxed);}STACKED_FAKE_CALLS.fetch_add(1,Ordering::Relaxed);}
+unsafe extern "system-unwind" fn stacked_fake_original5(a:u64,b:u64,c:u64,d:u64,e:u64)->u64{
+    stacked_record_args(&[a,b,c,d,e]);let mutate=STACKED_MUTATE.load(Ordering::Relaxed);
+    if mutate!=0{let p=mutate as *mut u64;let old=std::ptr::read_unaligned(p);std::ptr::write_unaligned(p,old^1);}
+    STACKED_FAKE_RETURN.load(Ordering::Relaxed)
+}
+unsafe extern "system-unwind" fn stacked_fake_original6(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{
+    stacked_record_args(&[a,b,c,d,e,f]);let mutate=STACKED_MUTATE.load(Ordering::Relaxed);
+    if mutate!=0{let p=mutate as *mut u64;let old=std::ptr::read_unaligned(p);std::ptr::write_unaligned(p,old^1);}
+    STACKED_FAKE_RETURN.load(Ordering::Relaxed)
+}
+#[repr(C)]struct StackedAbiAudit{before_sp:u64,after_sp:u64,gpr:[u64;8],xmm:[[u32;4];10]}
+std::arch::global_asm!(
+    ".text",
+    ".global tfm2_aiav_stacked_probe5",
+    "tfm2_aiav_stacked_probe5:",
+    "mov qword ptr [rip + {entry_sp}], rsp",
+    "jmp {original5}",
+    ".global tfm2_aiav_stacked_probe6",
+    "tfm2_aiav_stacked_probe6:",
+    "mov qword ptr [rip + {entry_sp}], rsp",
+    "jmp {original6}",
+    ".global tfm2_aiav_stacked_harness",
+    "tfm2_aiav_stacked_harness:",
+    "push rbx",
+    "push rbp",
+    "push rsi",
+    "push rdi",
+    "push r12",
+    "push r13",
+    "push r14",
+    "push r15",
+    "sub rsp, 0x118",
+    "mov qword ptr [rsp + 0x40], rcx",
+    "mov qword ptr [rsp + 0x48], rdx",
+    "mov qword ptr [rsp + 0x50], r8",
+    "movdqu xmmword ptr [rsp + 0x60], xmm6",
+    "movdqu xmmword ptr [rsp + 0x70], xmm7",
+    "movdqu xmmword ptr [rsp + 0x80], xmm8",
+    "movdqu xmmword ptr [rsp + 0x90], xmm9",
+    "movdqu xmmword ptr [rsp + 0xa0], xmm10",
+    "movdqu xmmword ptr [rsp + 0xb0], xmm11",
+    "movdqu xmmword ptr [rsp + 0xc0], xmm12",
+    "movdqu xmmword ptr [rsp + 0xd0], xmm13",
+    "movdqu xmmword ptr [rsp + 0xe0], xmm14",
+    "movdqu xmmword ptr [rsp + 0xf0], xmm15",
+    "mov rbx, 0x1122334455667700",
+    "mov rbp, 0x1122334455667701",
+    "mov rsi, 0x1122334455667702",
+    "mov rdi, 0x1122334455667703",
+    "mov r12, 0x1122334455667704",
+    "mov r13, 0x1122334455667705",
+    "mov r14, 0x1122334455667706",
+    "mov r15, 0x1122334455667707",
+    "mov eax, 0x60000006",
+    "movd xmm6, eax",
+    "pshufd xmm6, xmm6, 0",
+    "mov eax, 0x60000007",
+    "movd xmm7, eax",
+    "pshufd xmm7, xmm7, 0",
+    "mov eax, 0x60000008",
+    "movd xmm8, eax",
+    "pshufd xmm8, xmm8, 0",
+    "mov eax, 0x60000009",
+    "movd xmm9, eax",
+    "pshufd xmm9, xmm9, 0",
+    "mov eax, 0x6000000a",
+    "movd xmm10, eax",
+    "pshufd xmm10, xmm10, 0",
+    "mov eax, 0x6000000b",
+    "movd xmm11, eax",
+    "pshufd xmm11, xmm11, 0",
+    "mov eax, 0x6000000c",
+    "movd xmm12, eax",
+    "pshufd xmm12, xmm12, 0",
+    "mov eax, 0x6000000d",
+    "movd xmm13, eax",
+    "pshufd xmm13, xmm13, 0",
+    "mov eax, 0x6000000e",
+    "movd xmm14, eax",
+    "pshufd xmm14, xmm14, 0",
+    "mov eax, 0x6000000f",
+    "movd xmm15, eax",
+    "pshufd xmm15, xmm15, 0",
+    "mov r10, qword ptr [rsp + 0x50]",
+    "mov qword ptr [r10], rsp",
+    "mov rax, qword ptr [rsp + 0x48]",
+    "mov r10, qword ptr [rax + 0x20]",
+    "mov qword ptr [rsp + 0x20], r10",
+    "mov r10, qword ptr [rax + 0x28]",
+    "mov qword ptr [rsp + 0x28], r10",
+    "mov rcx, qword ptr [rax]",
+    "mov rdx, qword ptr [rax + 8]",
+    "mov r8, qword ptr [rax + 0x10]",
+    "mov r9, qword ptr [rax + 0x18]",
+    "call qword ptr [rsp + 0x40]",
+    "mov qword ptr [rsp + 0x58], rax",
+    "mov r10, qword ptr [rsp + 0x50]",
+    "mov qword ptr [r10 + 8], rsp",
+    "mov qword ptr [r10 + 0x10], rbx",
+    "mov qword ptr [r10 + 0x18], rbp",
+    "mov qword ptr [r10 + 0x20], rsi",
+    "mov qword ptr [r10 + 0x28], rdi",
+    "mov qword ptr [r10 + 0x30], r12",
+    "mov qword ptr [r10 + 0x38], r13",
+    "mov qword ptr [r10 + 0x40], r14",
+    "mov qword ptr [r10 + 0x48], r15",
+    "movdqu xmmword ptr [r10 + 0x50], xmm6",
+    "movdqu xmmword ptr [r10 + 0x60], xmm7",
+    "movdqu xmmword ptr [r10 + 0x70], xmm8",
+    "movdqu xmmword ptr [r10 + 0x80], xmm9",
+    "movdqu xmmword ptr [r10 + 0x90], xmm10",
+    "movdqu xmmword ptr [r10 + 0xa0], xmm11",
+    "movdqu xmmword ptr [r10 + 0xb0], xmm12",
+    "movdqu xmmword ptr [r10 + 0xc0], xmm13",
+    "movdqu xmmword ptr [r10 + 0xd0], xmm14",
+    "movdqu xmmword ptr [r10 + 0xe0], xmm15",
+    "movdqu xmm6, xmmword ptr [rsp + 0x60]",
+    "movdqu xmm7, xmmword ptr [rsp + 0x70]",
+    "movdqu xmm8, xmmword ptr [rsp + 0x80]",
+    "movdqu xmm9, xmmword ptr [rsp + 0x90]",
+    "movdqu xmm10, xmmword ptr [rsp + 0xa0]",
+    "movdqu xmm11, xmmword ptr [rsp + 0xb0]",
+    "movdqu xmm12, xmmword ptr [rsp + 0xc0]",
+    "movdqu xmm13, xmmword ptr [rsp + 0xd0]",
+    "movdqu xmm14, xmmword ptr [rsp + 0xe0]",
+    "movdqu xmm15, xmmword ptr [rsp + 0xf0]",
+    "mov rax, qword ptr [rsp + 0x58]",
+    "add rsp, 0x118",
+    "pop r15",
+    "pop r14",
+    "pop r13",
+    "pop r12",
+    "pop rdi",
+    "pop rsi",
+    "pop rbp",
+    "pop rbx",
+    "ret",
+    entry_sp=sym STACKED_ENTRY_SP,original5=sym stacked_fake_original5,original6=sym stacked_fake_original6,
+);
+extern "system-unwind"{
+    fn tfm2_aiav_stacked_probe5(a:u64,b:u64,c:u64,d:u64,e:u64)->u64;
+    fn tfm2_aiav_stacked_probe6(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64;
+    fn tfm2_aiav_stacked_harness(function:usize,args:*const u64,audit:*mut StackedAbiAudit)->u64;
+}
+
+fn stacked_harness_call(id:usize,args:&[u64],want:u64){
+    let arity=if id==46{6}else{5};assert_eq!(args.len(),arity);
+    let mut padded=[0u64;6];padded[..arity].copy_from_slice(args);
+    let wrapper=match id{44=>hook44 as *const()as usize,45=>hook45 as *const()as usize,46=>hook46 as *const()as usize,_=>panic!("test id")};
+    let mut audit=StackedAbiAudit{before_sp:0,after_sp:0,gpr:[0;8],xmm:[[0;4];10]};
+    let count=counter(&STACKED_FAKE_CALLS);
+    let actual=unsafe{tfm2_aiav_stacked_harness(wrapper,padded.as_ptr(),&mut audit)};
+    assert_eq!(actual,want);assert_eq!(counter(&STACKED_FAKE_CALLS),count+1);
+    assert_eq!(audit.before_sp,audit.after_sp);assert_eq!(audit.before_sp%16,0);assert_eq!(counter(&STACKED_ENTRY_SP)%16,8);
+    for i in 0..8{assert_eq!(audit.gpr[i],0x1122334455667700+i as u64);}
+    for i in 0..10{assert_eq!(audit.xmm[i],[0x60000006+i as u32;4]);}
+    for(i,v)in args.iter().enumerate(){assert_eq!(counter(&STACKED_FAKE_ARGS[i]),*v);}
+}
+fn stacked_last_event(state:&State,id:usize,args:&[u64],comparison:&str,actual:u64){
+    flush().unwrap();let text=std::fs::read_to_string(state.dir.join(format!("observations_{}.jsonl",state.run_id))).unwrap();
+    let row=text.lines().rev().find(|line|line.contains(&format!("\"probe_id\":{id},"))).unwrap();
+    assert!(row.contains(&format!("\"args\":[{}]",args.iter().map(|&x|hexadecimal(x)).collect::<Vec<_>>().join(","))));
+    assert!(row.contains(&format!("\"comparison\":\"{comparison}\"")));assert!(row.contains(&format!("\"actual\":{}",hexadecimal(actual))));
+}
+fn stacked_actual_observe_axis(state:&'static State){
+    set_scene(4);STACKED_MUTATE.store(0,Ordering::Relaxed);
+    for id in [44,45]{ORIGINALS[id].store(tfm2_aiav_stacked_probe5 as *const()as usize,Ordering::Release);DOMAINS[id].store(2,Ordering::Release);}
+    ORIGINALS[46].store(tfm2_aiav_stacked_probe6 as *const()as usize,Ordering::Release);DOMAINS[46].store(2,Ordering::Release);
+    let initial_first=state.first_mismatch.get().map(|e|e.seq);let calls=counter(&STACKED_FAKE_CALLS);
+    // OFF는모델메모리를읽지않는다. 여섯word상위bit·stack5/6은그대로원본에전달된다.
+    close_capture(state);let arbitrary=[0x1111111100000001,0x2222222200000002,0x3333333300000003,0x4444444400000004,0x5555555500000005,0x6666666600000006];
+    STACKED_FAKE_RETURN.store(0x123456789abcdef0,Ordering::Relaxed);
+    for id in [44,45,46]{let before=counter(&state.stats[id].sample_attempts);stacked_harness_call(id,&arbitrary[..if id==46{6}else{5}],0x123456789abcdef0);assert_eq!(counter(&state.stats[id].sample_attempts),before);}
+    reopen_for_independent_fixture(state);
+    let(mut capture,mut player,mut data,mut cache,mut context,mut config,mut entity)=
+        (vec![0u64;0x80/8],vec![0u64;0x898/8],[0u64;2],vec![0u64;0x300/8],vec![0u64;0x30/8],vec![0u64;0x6db0/8],vec![0u64;0x670/8]);
+    data[0]=cache.as_mut_ptr()as u64;data[1]=context.as_mut_ptr()as u64;context[0x20/8]=config.as_mut_ptr()as u64;
+    cache[0x238/8]=entity.as_mut_ptr()as u64;entity[0x658/8]=1;entity[0x660/8]=1;
+    config[0x6d70/8]=0;config[0x6d78/8]=0;config[0x6d80/8]=10;config[0x6d88/8]=10;
+    capture[0x60/8]=1;capture[0x78/8]=2;cache[0x1b8/8]=3;
+    let args44=[capture.as_mut_ptr()as u64,0xdeadbeef00000002,0xcafebabe00000003,player.as_mut_ptr()as u64,data.as_mut_ptr()as u64];
+    let upper_true=0xfedcba9800000001u64;STACKED_FAKE_RETURN.store(upper_true,Ordering::Relaxed);
+    let matches=counter(&state.stats[44].matches);stacked_harness_call(44,&args44,upper_true);assert_eq!(counter(&state.stats[44].matches),matches+1);stacked_last_event(state,44,&args44,"MATCH",upper_true);
+    // input変更は比較差ではなくUNSTABLE。登録output例外は一切ない。
+    let unstable=counter(&state.stats[44].unstable);STACKED_MUTATE.store((&mut capture[0x60/8])as *mut u64 as usize,Ordering::Relaxed);
+    stacked_harness_call(44,&args44,upper_true);assert_eq!(counter(&state.stats[44].unstable),unstable+1);STACKED_MUTATE.store(0,Ordering::Relaxed);capture[0x60/8]=1;stacked_last_event(state,44,&args44,"UNSTABLE",upper_true);
+    // 실제게임team오류는noreturn영역이다. 여기서는fakeoriginal정상반환으로SKIP배선만시험한다.
+    player[0x800/8]=2;let skips=counter(&state.stats[44].skipped);stacked_harness_call(44,&args44,upper_true);assert_eq!(counter(&state.stats[44].skipped),skips+1);player[0x800/8]=0;stacked_last_event(state,44,&args44,"SKIP",upper_true);
+    let bad=counter(&state.stats[44].mismatches);STACKED_FAKE_RETURN.store(upper_true^1,Ordering::Relaxed);stacked_harness_call(44,&args44,upper_true^1);assert_eq!(counter(&state.stats[44].mismatches),bad+1);assert!(admit(state).is_none());stacked_last_event(state,44,&args44,"MISMATCH",upper_true^1);
+    let attempts=counter(&state.stats[44].sample_attempts);STACKED_FAKE_RETURN.store(upper_true,Ordering::Relaxed);stacked_harness_call(44,&args44,upper_true);assert_eq!(counter(&state.stats[44].sample_attempts),attempts);reopen_for_independent_fixture(state);
+    // F98 lane의lowBYTE만0: Context와position은이경로에서읽지않아도인수전체word는전달/기록한다.
+    cache[0x2d8/8+1]=0;let args45=[0x1234567800000100,1,0xabcdef1200000003,cache.as_mut_ptr()as u64,0x5555555500000005];
+    STACKED_FAKE_RETURN.store(2,Ordering::Relaxed);let matches=counter(&state.stats[45].matches);stacked_harness_call(45,&args45,2);assert_eq!(counter(&state.stats[45].matches),matches+1);stacked_last_event(state,45,&args45,"MATCH",2);
+    let bad=counter(&state.stats[45].mismatches);STACKED_FAKE_RETURN.store(0x100000002,Ordering::Relaxed);stacked_harness_call(45,&args45,0x100000002);assert_eq!(counter(&state.stats[45].mismatches),bad+1);assert!(admit(state).is_none());stacked_last_event(state,45,&args45,"MISMATCH",0x100000002);reopen_for_independent_fixture(state);
+    // E3의물리argv5=radius/6=HP문턱. 원문이메모리에서6→5로읽는순서를이시험이증명한다고주장하지않는다.
+    entity[0x620/8]=100;entity[0x668/8]=100;let mut args46=[player.as_mut_ptr()as u64,data.as_mut_ptr()as u64,1,1,0x100000001,50];
+    STACKED_FAKE_RETURN.store(1,Ordering::Relaxed);let matches=counter(&state.stats[46].matches);stacked_harness_call(46,&args46,1);assert_eq!(counter(&state.stats[46].matches),matches+1);stacked_last_event(state,46,&args46,"MATCH",1);
+    args46[5]=0x100000032;STACKED_FAKE_RETURN.store(0,Ordering::Relaxed);stacked_harness_call(46,&args46,0);assert_eq!(counter(&state.stats[46].matches),matches+2);stacked_last_event(state,46,&args46,"MATCH",0);
+    args46[5]=50;let bad=counter(&state.stats[46].mismatches);STACKED_FAKE_RETURN.store(0x100000001,Ordering::Relaxed);stacked_harness_call(46,&args46,0x100000001);assert_eq!(counter(&state.stats[46].mismatches),bad+1);assert!(admit(state).is_none());stacked_last_event(state,46,&args46,"MISMATCH",0x100000001);
+    let attempts=counter(&state.stats[46].sample_attempts);stacked_harness_call(46,&arbitrary,0x100000001);assert_eq!(counter(&state.stats[46].sample_attempts),attempts);
+    assert_eq!(counter(&STACKED_FAKE_CALLS)-calls,14);
+    if let Some(seq)=initial_first{assert_eq!(state.first_mismatch.get().unwrap().seq,seq);}
+    assert_eq!(in_flight(state),0);assert_eq!(counter(&state.queued_events),0);assert_eq!(counter(&state.io_errors),0);
+    // 호출자는 직후 기존 test전용 reopen을 유지한다. production 재개경로는 추가하지 않는다.
+}
+
 #[test]fn merge_policy_even_odd_cap_and_exact_word_order(){
     for n in 2u64..=16{
         let a=[0x10000,n,0x20000,0x30000];let half=n/2;
@@ -1502,7 +1880,7 @@ fn output_fake_original_observe_axis(state:&'static State){
         }
 
         // 실제 observe에서 첫 차이/큐full/원본1회/닫힌뒤추가모델0/별도원문보존을 시험한다.
-        let filler=Event{id:7,seq:900000,thread_id:0,args:[0;4],actual:0,evaluation:None,reads:Vec::new(),output_fields:Vec::new(),
+        let filler=Event{id:7,seq:900000,thread_id:0,args:vec![0;4],actual:0,evaluation:None,reads:Vec::new(),output_fields:Vec::new(),
             comparison:"SKIP",reason:"QUEUE_FILLER",foreign_chain:false,capture_label:"SELFTEST".into(),scene_code:4};
         for _ in 0..state.config.queue_capacity{assert!(enqueue(state,filler.clone()));}
         let first_seq=counter(&state.sequence);let calls=counter(&FAKE_CALLS);
@@ -1605,6 +1983,7 @@ fn output_fake_original_observe_axis(state:&'static State){
         wave06_actual_observe_axis(state);
         next_output_actual_observe_axis(state);
         merge_actual_observe_axis(state);
+        stacked_actual_observe_axis(state);
         reopen_for_independent_fixture(state);
         // 기존 I/O실패fixture의기록1개를다시만들어 sampler배치flush와분리한다.
         assert_eq!(unsafe{observe(6,[0,player.as_ptr()as u64,data.as_ptr()as u64,0])},0x1122_3344_5566_7700);
@@ -1661,7 +2040,7 @@ fn output_fake_original_observe_axis(state:&'static State){
         for _ in 0..8{assert_eq!(unsafe{observe(7,[address,99,0,0])},0);}
         assert_eq!(counter(&state.stats[7].sample_attempts),attempts);assert_eq!(counter(&state.queued_events),0);
         // enqueue의 자기 송신 결과만으로 unlogged를 판정한다. 다른 발화의 drop 증가는 읽지 않는다.
-        let event=Event{id:7,seq:9999,thread_id:0,args:[0;4],actual:0,evaluation:None,reads:Vec::new(),
+        let event=Event{id:7,seq:9999,thread_id:0,args:vec![0;4],actual:0,evaluation:None,reads:Vec::new(),
             output_fields:Vec::new(),comparison:"SKIP",reason:"SELFTEST",foreign_chain:false,capture_label:"SELFTEST".into(),scene_code:4};
         assert!(enqueue(state,event.clone()));
         state.stats[7].dropped.fetch_add(1,Ordering::Relaxed); // 독립 다른 발화의 유실
