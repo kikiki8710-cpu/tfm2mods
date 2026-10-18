@@ -1,6 +1,6 @@
 [package]
 name = "tfm2_ai_analysis_verify"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 
 [lib]

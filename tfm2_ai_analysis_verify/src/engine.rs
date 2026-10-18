@@ -11,7 +11,7 @@ use std::time::Duration;
 use crate::{config::Config, generated, hook, models, platform};
 
 pub const MAX_FIELDS: usize = 96;
-pub const MODEL_COUNT: usize = 37;
+pub const MODEL_COUNT: usize = 39;
 pub trait Memory { fn read(&mut self, address: u64, width: u8) -> Result<u64, &'static str>; }
 #[derive(Clone, Debug)]
 pub struct Metric {
@@ -87,7 +87,62 @@ fn checked_span(address:u64,width:u64)->Result<(u64,u64),&'static str>{
     Ok((address,end))
 }
 fn spans_overlap(a:(u64,u64),b:(u64,u64))->bool{a.0<b.1&&b.0<a.1}
+
+// wave06 typed policy: output schema support와 entry ABI 승인은 별개다.
+fn validate_wave06_outputs(id:usize,args:[u64;4],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
+    if !matches!(id,37|38){return Err("W06_OUTPUT_ID");}
+    if e.output_ptr!=Some(args[0]){return Err("W06_OUTPUT_PTR");}
+    let out=checked_span(args[0],if id==37{24}else{32})?;
+    let fields=&e.output_fields;
+    let mut cursor=None;
+    let shape:Vec<(u64,u8)>=if id==37{
+        if fields.len()==1{
+            if fields[0].2!=2||e.mask!=0{return Err("W06_EFFECT_NONE_TAG_OR_MASK");}
+            vec![(args[0]+16,1)]
+        }else{
+            if fields.len()!=3||fields[2].2>1||e.mask!=u64::MAX||e.expected!=fields[0].2{return Err("W06_EFFECT_SOME_FIELDS");}
+            vec![(args[0],8),(args[0]+8,8),(args[0]+16,1)]
+        }
+    }else{
+        if e.mask!=u64::MAX||e.expected!=args[0]{return Err("W06_ITER_RETURN_CONTRACT");}
+        let cur=args[1].checked_add(8).ok_or("W06_CURSOR_ADDRESS_OVERFLOW")?;
+        let cs=checked_span(cur,8)?;if spans_overlap(cs,out){return Err("W06_OUT_CURSOR_ALIAS");}
+        if reads.first().map(|f|(f.address,f.width))!=Some((cur,8)){return Err("W06_CURSOR_FIRST_READ");}
+        let start=reads[0].value;
+        let end_address=args[1].checked_add(16).ok_or("W06_END_ADDRESS_OVERFLOW")?;
+        let end=reads.iter().find(|f|f.address==end_address&&f.width==8).ok_or("W06_END_READ")?.value;
+        match fields.len(){
+            1=>{if start!=end||fields[0].2!=0{return Err("W06_EMPTY_ITERATOR_SHAPE");}vec![(args[0],8)]},
+            2=>{
+                if start>=end||fields[0].2!=end||fields[1].2!=0{return Err("W06_EXHAUSTED_ITERATOR_SHAPE");}
+                cursor=Some(cur);vec![(cur,8),(args[0],8)]
+            },
+            5=>{
+                if start>=end||fields[0].2<=start||fields[0].2>end||fields[4].2!=1{return Err("W06_SOME_ITERATOR_SHAPE");}
+                cursor=Some(cur);vec![(cur,8),(args[0]+8,8),(args[0]+16,8),(args[0]+24,8),(args[0],8)]
+            },
+            _=>return Err("W06_ITERATOR_FIELD_COUNT"),
+        }
+    };
+    if fields.len()!=shape.len(){return Err("W06_FIELD_COUNT");}
+    for(&(address,width,_),&(expected_address,expected_width))in fields.iter().zip(shape.iter()){
+        if address!=expected_address||width!=expected_width{return Err("W06_TYPED_FIELD_ADDRESS_WIDTH_ORDER");}
+        checked_span(address,width as u64)?;
+    }
+    // 실제등록된byte만쓰기다. None미작성payload/padding은안정성검사에서제외하지않는다.
+    for(j,f)in reads.iter().enumerate(){
+        if !matches!(f.width,1|2|4|8){return Err("W06_INPUT_WIDTH");}
+        let span=checked_span(f.address,f.width as u64)?;
+        for &(a,w,_)in fields{
+            if spans_overlap(span,checked_span(a,w as u64)?)
+                && !(j==0&&cursor==Some(f.address)&&f.width==8&&a==f.address&&w==8){return Err("W06_REGISTERED_WRITE_INPUT_ALIAS");}
+        }
+    }
+    Ok(())
+}
+
 fn validate_registered_outputs(id:usize,args:[u64;4],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
+    if id>=37{return validate_wave06_outputs(id,args,e,reads);}
     let (base,count)=match id{
         0..=28=>{if e.output_ptr.is_some()||!e.output_fields.is_empty(){return Err("UNREGISTERED_OUTPUT");}return Ok(());},
         29=>(args[0],3),30|31=>(args[1],4),
@@ -202,6 +257,12 @@ fn resolve_probe_strides(config:&Config)->Result<[u64;MODEL_COUNT],String> {
     Ok(strides)
 }
 
+fn validate_probe_selection(config:&Config)->Result<(),String>{
+    for rva in &config.probes {
+        if !generated::PROBES.iter().any(|p|p.rva==*rva){return Err(format!("미지원/진입불가 probe: 0x{rva:x}"));}
+    }Ok(())
+}
+
 pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verified:bool)->Result<(),String> {
     let mut ids=std::collections::BTreeSet::new();let mut rvas=std::collections::BTreeSet::new();
     if generated::PROBES.len()!=MODEL_COUNT{return Err("모델/진입정의 개수 불일치".into());}
@@ -209,9 +270,7 @@ pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verif
         if p.id>=MODEL_COUNT||!ids.insert(p.id)||!rvas.insert(p.rva){return Err("진입정의 id/RVA 중복 또는 범위 오류".into());}
     }
     let probe_strides=resolve_probe_strides(&config)?;
-    for rva in &config.probes {
-        if !generated::PROBES.iter().any(|p|p.rva==*rva) {return Err(format!("미지원/진입불가 probe: 0x{rva:x}"));}
-    }
+    validate_probe_selection(&config)?;
     std::fs::create_dir_all(&dir).map_err(|e|e.to_string())?;
     let stamp=std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_err(|e|e.to_string())?.as_nanos();
     let run_id=format!("{}_{stamp}",std::process::id());
@@ -514,11 +573,13 @@ wrapper!(hook33,33);
 wrapper!(hook34,34);
 wrapper!(hook35,35);
 wrapper!(hook36,36);
+wrapper!(hook37,37);
+wrapper!(hook38,38);
 fn wrappers()->[usize;MODEL_COUNT] {[hook0 as *const () as usize,hook1 as *const () as usize,hook2 as *const () as usize,hook3 as *const () as usize,
     hook4 as *const () as usize,hook5 as *const () as usize,hook6 as *const () as usize,hook7 as *const () as usize,
     hook8 as *const () as usize,hook9 as *const () as usize,hook10 as *const () as usize,hook11 as *const () as usize,
     hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize,
-    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize]}
+    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize]}
 
 pub fn post_update() {
     let Some(state)=STATE.get() else {return;};
@@ -651,6 +712,161 @@ pub fn flush()->std::io::Result<()> {
 }
 
 #[cfg(test)] mod tests {
+
+// root만 단일 STATE native 시험에 통합한다. 실제 게임 호출/실행 증거가 아니다.
+static WAVE06_FAKE_CALLS:AtomicU64=AtomicU64::new(0);
+const W06_POISON:u64=0xaaaa_bbbb_cccc_dddd;
+const W06_EFFECT_WRONG_RETURN:u64=0xe012;
+unsafe extern "system-unwind" fn fake_effect_option(out:u64,actor:u64,kind:u64,opaque:u64)->u64{
+    WAVE06_FAKE_CALLS.fetch_add(1,Ordering::Relaxed);
+    if kind==99{std::ptr::write((out+16)as *mut u8,2);return 0x1234_5678_9abc_def0;}
+    // 이 fixture는 kind6의 자기소유 actor만 전달한다.
+    assert_eq!(kind,6);let effect=actor+0x488;
+    let current_kind=std::ptr::read_unaligned((actor+0x68)as *const u64);
+    let current_state=std::ptr::read_unaligned((actor+0x70)as *const u64);
+    let bit=u8::from(current_kind==15&&current_state==3);
+    std::ptr::write_unaligned(out as *mut u64,effect);
+    std::ptr::write_unaligned((out+8)as *mut u64,opaque);
+    std::ptr::write((out+16)as *mut u8,bit);
+    if opaque==W06_EFFECT_WRONG_RETURN{effect^8}else{effect}
+}
+// mode는 원문에서 미입력인 R9를 시험용 선택자로만 쓰며 production ABI를 확장하지 않는다.
+// 0=정상Some,1=고갈None,2=empty의뜻밖cursor쓰기,3=Some뒤readonly셀변조,
+// 4=Some ID오류,5=Some 반환오류. 아래 setup별로만 사용한다.
+unsafe extern "system-unwind" fn fake_cell_option(out:u64,it:u64,_refs:u64,mode:u64)->u64{
+    WAVE06_FAKE_CALLS.fetch_add(1,Ordering::Relaxed);
+    let start=std::ptr::read_unaligned((it+8)as *const u64);
+    let end=std::ptr::read_unaligned((it+16)as *const u64);
+    if start==end{
+        if mode==2{std::ptr::write_unaligned((it+8)as *mut u64,start+1);}
+        std::ptr::write_unaligned(out as *mut u64,0);return out;
+    }
+    if mode==1{
+        std::ptr::write_unaligned((it+8)as *mut u64,end);
+        std::ptr::write_unaligned(out as *mut u64,0);return out;
+    }
+    assert_eq!((start,end),(0,1));
+    std::ptr::write_unaligned((it+8)as *mut u64,1);
+    // 원문과 같은 cursor→payload→tag 순서. 관측기는 최종값만 읽으므로 순서 직접관측 주장은 금지.
+    std::ptr::write_unaligned((out+8)as *mut u64,if mode==4{43}else{42});
+    std::ptr::write_unaligned((out+16)as *mut u64,16000);
+    std::ptr::write_unaligned((out+24)as *mut u64,16000);
+    std::ptr::write_unaligned(out as *mut u64,1);
+    if mode==3{
+        let root=std::ptr::read_unaligned(it as *const u64);
+        std::ptr::write_unaligned((root+0x1c98)as *mut u64,0);
+    }
+    if mode==5{out^8}else{out}
+}
+fn wave06_actual_observe_axis(state:&'static State){
+    reopen_for_independent_fixture(state);set_scene(4);
+    let first_before=state.first_mismatch.get().map(|e|e.seq);
+    let all_calls_before=counter(&WAVE06_FAKE_CALLS);
+    // 매 호출 직전·직후 가짜 원본 1회를 검사한다. 게임 함수는 사용하지 않는다.
+    let call=|id:usize,args:[u64;4],expected_return:u64|{
+        let before=counter(&WAVE06_FAKE_CALLS);
+        assert_eq!(unsafe{observe(id,args)},expected_return);
+        assert_eq!(counter(&WAVE06_FAKE_CALLS),before+1);
+        assert_eq!(in_flight(state),0);
+    };
+    let mut out=[W06_POISON;4];let base=out.as_mut_ptr()as u64;
+    ORIGINALS[37].store(fake_effect_option as *const ()as usize,Ordering::Release);DOMAINS[37].store(2,Ordering::Release);
+    let m37=counter(&state.stats[37].matches);
+    call(37,[base,0,99,0],0x1234_5678_9abc_def0);
+    assert_eq!(out,[W06_POISON,W06_POISON,0xaaaa_bbbb_cccc_dd02,W06_POISON]);
+    assert_eq!(counter(&state.stats[37].matches),m37+1);flush().unwrap();
+    let mut actor=vec![0u64;0x700/8];actor[0x68/8]=15;actor[0x70/8]=3;
+    let actorptr=actor.as_mut_ptr()as u64;out.fill(W06_POISON);
+    call(37,[base,actorptr,6,7],actorptr+0x488);
+    assert_eq!(out,[actorptr+0x488,7,0xaaaa_bbbb_cccc_dd01,W06_POISON]);
+    assert_eq!(counter(&state.stats[37].matches),m37+2);flush().unwrap();
+    // Some matchbool0은 payload/정상RAX가같아도 BYTE0을 독립 비교한다.
+    actor[0x70/8]=4;out.fill(W06_POISON);
+    call(37,[base,actorptr,6,9],actorptr+0x488);
+    assert_eq!(out,[actorptr+0x488,9,0xaaaa_bbbb_cccc_dd00,W06_POISON]);
+    assert_eq!(counter(&state.stats[37].matches),m37+3);actor[0x70/8]=3;flush().unwrap();
+    ORIGINALS[38].store(fake_cell_option as *const ()as usize,Ordering::Release);DOMAINS[38].store(2,Ordering::Release);
+    let mut it=vec![0u64;0x490/8];let ip=it.as_mut_ptr()as u64;let m38=counter(&state.stats[38].matches);
+    out.fill(W06_POISON);call(38,[base,ip,0,0],base);
+    assert_eq!(out,[0,W06_POISON,W06_POISON,W06_POISON]);assert_eq!(it[1],0);
+    assert_eq!(counter(&state.stats[38].matches),m38+1);flush().unwrap();
+    let mut check=vec![0u64;0x1ca0/8];let mut output=vec![0u64;0x1ca0/8];
+    let mut x=16000u64;let y=16000u64;let refs=[&x as *const u64 as u64,&y as *const u64 as u64];
+    it[0]=check.as_mut_ptr()as u64;it[0x488/8]=output.as_mut_ptr()as u64;
+    it[1]=0;it[2]=1;it[3]=0;it[4]=0;check[0x1c98/8]=1;output[0x1c98/8]=42;
+    out.fill(W06_POISON);call(38,[base,ip,refs.as_ptr()as u64,0],base);
+    assert_eq!(out,[1,42,16000,16000]);assert_eq!(it[1],1);
+    assert_eq!(counter(&state.stats[38].matches),m38+2);flush().unwrap();
+    // 음수 좌표 입력도 signed Q 비트패턴 그대로 전달한다. 중심출력은 양수 셀중심이다.
+    it[1]=0;x=(-100000i64)as u64;out.fill(W06_POISON);
+    call(38,[base,ip,refs.as_ptr()as u64,0],base);
+    assert_eq!(out,[1,42,16000,16000]);assert_eq!(it[1],1);
+    assert_eq!(counter(&state.stats[38].matches),m38+3);x=16000;flush().unwrap();
+    // 고갈None은empty와달리cursor를쓴다. payload를포이즌으로재설정해미쓰기도검사한다.
+    it[1]=0;it[2]=1;check[0x1c98/8]=0;out.fill(W06_POISON);
+    call(38,[base,ip,refs.as_ptr()as u64,1],base);
+    assert_eq!(out,[0,W06_POISON,W06_POISON,W06_POISON]);assert_eq!(it[1],1);
+    assert_eq!(counter(&state.stats[38].matches),m38+4);flush().unwrap();
+    // Empty에서예상되지않은cursor쓰기: mutable-span통째예외를주면이시험이거짓MATCH된다.
+    it[1]=0;it[2]=0;out.fill(W06_POISON);let u38=counter(&state.stats[38].unstable);
+    call(38,[base,ip,0,2],base);
+    assert_eq!(counter(&state.stats[38].unstable),u38+1);
+    assert_eq!(out,[0,W06_POISON,W06_POISON,W06_POISON]);assert_eq!(it[1],1);flush().unwrap();
+    // Some의정상cursor쓰기외readonly입력cell변동은계속UNSTABLE이다.
+    it[1]=0;it[2]=1;check[0x1c98/8]=1;out.fill(W06_POISON);
+    call(38,[base,ip,refs.as_ptr()as u64,3],base);
+    assert_eq!(counter(&state.stats[38].unstable),u38+2);assert_eq!(out,[1,42,16000,16000]);flush().unwrap();
+    // 같은예상output/tag에서ID만틀리는경우에도첫차이닫힘. 그뒤호출은original-only이다.
+    it[1]=0;check[0x1c98/8]=1;out.fill(W06_POISON);let bad38=counter(&state.stats[38].mismatches);
+    call(38,[base,ip,refs.as_ptr()as u64,4],base);
+    assert_eq!(out,[1,43,16000,16000]);assert_eq!(counter(&state.stats[38].mismatches),bad38+1);assert!(admit(state).is_none());
+    let attempts=counter(&state.stats[38].sample_attempts);let eligible=counter(&state.stats[38].eligible_calls);
+    call(38,[base,ip,0,0],base); // cursor==end이므로가짜원본만None을쓴다. model/read/attempt는추가0.
+    assert_eq!(counter(&state.stats[38].sample_attempts),attempts);assert_eq!(counter(&state.stats[38].eligible_calls),eligible);flush().unwrap();
+    // 독립된 다음 시험만 gate를 다시 연다. production의 재개 허용이 아니다.
+    reopen_for_independent_fixture(state);it[1]=0;it[2]=1;check[0x1c98/8]=1;out.fill(W06_POISON);
+    call(38,[base,ip,refs.as_ptr()as u64,5],base^8);
+    assert_eq!(out,[1,42,16000,16000]);assert_eq!(counter(&state.stats[38].mismatches),bad38+2);assert!(admit(state).is_none());flush().unwrap();
+    // Effect Some는mask0이아니다. 출력이완전히맞아도원래RAX가틀리면차이로닫힌다.
+    reopen_for_independent_fixture(state);out.fill(W06_POISON);let bad37=counter(&state.stats[37].mismatches);
+    call(37,[base,actorptr,6,W06_EFFECT_WRONG_RETURN],(actorptr+0x488)^8);
+    assert_eq!(out,[actorptr+0x488,W06_EFFECT_WRONG_RETURN,0xaaaa_bbbb_cccc_dd01,W06_POISON]);
+    assert_eq!(counter(&state.stats[37].mismatches),bad37+1);assert!(admit(state).is_none());flush().unwrap();
+    assert_eq!(counter(&WAVE06_FAKE_CALLS)-all_calls_before,13);
+    if let Some(seq)=first_before{assert_eq!(state.first_mismatch.get().unwrap().seq,seq);}
+    assert_eq!(in_flight(state),0);assert_eq!(counter(&state.queued_events),0);
+    assert_eq!(counter(&state.io_errors),0);
+    // 호출자는다음독립I/Ofixture앞에서reopen_for_independent_fixture(state)를한번수행해야한다.
+}
+
+    #[test]fn wave06_effect_none_is_byte_only_and_scalar_mask_zero(){
+        let a=[0x10000,0x20000,99,0];
+        let mut e=Evaluation{expected:0,mask:0,output_ptr:Some(a[0]),output_fields:vec![(a[0]+16,1,2)],metrics:vec![]};
+        assert!(validate_registered_outputs(37,a,&e,&[]).is_ok());
+        e.mask=u64::MAX;assert!(validate_registered_outputs(37,a,&e,&[]).is_err());
+        e.mask=0;e.output_fields[0].1=8;assert!(validate_registered_outputs(37,a,&e,&[]).is_err());
+        e.output_fields=vec![(a[0],8,0x30000),(a[0]+8,8,4),(a[0]+16,1,1)];e.expected=0x30000;e.mask=u64::MAX;
+        assert!(validate_registered_outputs(37,a,&e,&[]).is_ok());
+        assert!(!unchanged_outside_registered_writes(a[0]+16,8,0,1u64<<8,&e.output_fields).unwrap());
+    }
+    #[test]fn wave06_iterator_partial_none_and_cursor_contract(){
+        let a=[0x10000,0x20000,0x30000,0];let cur=a[1]+8;
+        let mut reads=vec![Field{address:cur,width:8,value:2},Field{address:a[1]+16,width:8,value:4}];
+        let mut e=Evaluation{expected:a[0],mask:u64::MAX,output_ptr:Some(a[0]),output_fields:vec![(cur,8,4),(a[0],8,0)],metrics:vec![]};
+        assert!(validate_registered_outputs(38,a,&e,&reads).is_ok());
+        assert!(!unchanged_outside_registered_writes(a[0]+8,8,3,4,&e.output_fields).unwrap());
+        e.output_fields=vec![(cur,8,3),(a[0]+8,8,99),(a[0]+16,8,16000),(a[0]+24,8,48000),(a[0],8,1)];
+        assert!(validate_registered_outputs(38,a,&e,&reads).is_ok());
+        reads.push(Field{address:cur+4,width:4,value:0});assert!(validate_registered_outputs(38,a,&e,&reads).is_err());reads.pop();
+        reads[1].value=2;e.output_fields=vec![(a[0],8,0)];assert!(validate_registered_outputs(38,a,&e,&reads).is_ok());
+        assert!(!unchanged_outside_registered_writes(cur,8,2,3,&e.output_fields).unwrap());
+    }
+    #[test]fn wave06_rdx_return_candidate_remains_entry_unsupported(){
+        let mut c=Config::default();c.probes=[0x1016b00].into_iter().collect();
+        assert!(validate_probe_selection(&c).unwrap_err().contains("미지원/진입불가"));
+        c.probes=[0xe20d00,0x1014470].into_iter().collect();assert!(validate_probe_selection(&c).is_ok());
+    }
+
 
     #[test]fn first_mismatch_create_new_refuses_existing_evidence(){
         let dir=std::env::temp_dir().join(format!("aiav_first_difference_{}_{}",std::process::id(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
@@ -972,6 +1188,7 @@ fn output_fake_original_observe_axis(state:&'static State){
         assert_eq!(counter(&s15.compared)+counter(&s15.skipped)+counter(&s15.unstable),20); // 상한유지
         flush().unwrap();
         output_fake_original_observe_axis(state);
+        wave06_actual_observe_axis(state);
         reopen_for_independent_fixture(state);
         // 기존 I/O실패fixture의기록1개를다시만들어 sampler배치flush와분리한다.
         assert_eq!(unsafe{observe(6,[0,player.as_ptr()as u64,data.as_ptr()as u64,0])},0x1122_3344_5566_7700);

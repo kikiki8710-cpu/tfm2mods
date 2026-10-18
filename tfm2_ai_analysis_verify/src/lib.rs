@@ -11,6 +11,8 @@ mod models_wave03;
 mod models_wave04;
 mod models_wave05_direct;
 mod models_wave05_outputs;
+mod models_wave06_direct;
+mod models_wave06_iterator;
 mod loaded_constants;
 mod platform;
 mod sha256;
