@@ -1,0 +1,67 @@
+{
+  "status": "PASS_TYPED53_PARTIAL_OUTPUT_ANALYZER_162_METRIC_PREPARATION",
+  "prepared_models": 53,
+  "planned_selection_count": 19,
+  "named_metric_entries": 162,
+  "old50_analyzer_regression_tests": 220,
+  "new_outputs11_tests": 84,
+  "analyzer_tests_total": 304,
+  "matrix_regression_tests": 46,
+  "matrix_protocol_tests": 2,
+  "total_python_tests": 352,
+  "normal_fixture_events": 658,
+  "guard_fixture_events": 7,
+  "source_counts": {
+    "50": {
+      "normal": 223,
+      "guard": 0
+    },
+    "51": {
+      "normal": 300,
+      "guard": 3
+    },
+    "52": {
+      "normal": 135,
+      "guard": 4
+    }
+  },
+  "old50_formula_AST_exact_except_routing_arity": true,
+  "unchanged_helper_files": 13,
+  "inherited142_rows_exact": true,
+  "aggregate_function_exact": true,
+  "check_outputs_function_exact": true,
+  "exact_arities": {
+    "0..43": 4,
+    "44/45": 5,
+    "46..49": 6,
+    "50": 5,
+    "51": 6,
+    "52": 3
+  },
+  "legacy4arg_byte_preserved_not_applied_to_typed": true,
+  "typed_full_diagnostic_scope": "FULL_TYPED53_FORMAT_MASKED_LOG_AND_COUNTER_AUDIT",
+  "output_value_expected_from_input_model_only": true,
+  "actual_output_never_oracle": true,
+  "word_width": 2,
+  "input_alias_exemptions": 0,
+  "model_freeze_sha256": "ad93ad979485a14e3f52edd11e5ed8fad6d78f35dc5a7cedc4c76f3cca9ddf24",
+  "entry_freeze_sha256": "d010ac3b24fc1dba037cf64e97ff1ecfd664efcbaa2a010f76c91f1b08d8e286",
+  "adapter_freeze_sha256": "8a8010230134b896fa20aa252168fa076e2e8e864b470bbe491a5693e9e355ce",
+  "native_executed": 0,
+  "actual_runtime_samples": 0,
+  "new_game_calls": 0,
+  "added_main_cases": 0,
+  "added_functions": 0,
+  "M_source_changes": 0,
+  "correction_requests": {
+    "resolved": [],
+    "unresolved": []
+  },
+  "limits": [
+    "658정상·7원문guard는 A 고정fixture의후처리 재사용이며 새rawVM/native/게임 사례가 아니다",
+    "부분출력은실제초기화field만검사하며패딩과Nonepayload의전체동작증명은아니다",
+    "mask0 actualRAX는정답발명없이원래반환그대로보존한다",
+    "caller전역LTO/간접foreign/alias/EH·실모델provider·loaded상수지속불변/실게임전체분기·계수완료미확정",
+    "준비53·선택계획19·설치/거절·미선택/관측은각각별도분모"
+  ]
+}

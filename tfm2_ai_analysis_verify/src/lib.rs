@@ -19,6 +19,7 @@ mod models_candidates;
 mod models_wave08_direct;
 mod models_stacked09;
 mod models_stacked10;
+mod models_outputs11;
 mod loaded_constants;
 mod platform;
 mod sha256;

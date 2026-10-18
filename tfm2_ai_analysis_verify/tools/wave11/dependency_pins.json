@@ -1,0 +1,31 @@
+{
+  "status": "PREPARATION_ONLY",
+  "prepared_models": 53,
+  "new_arities": {
+    "50": 5,
+    "51": 6,
+    "52": 3
+  },
+  "unchanged_formula_helpers": {
+    "audit_journal.py": "02ce1b0efd0a7efffa7053409de2dc58604893cfa8537bac27691c35c0d44de5",
+    "legacy_base_analyze_logs.py": "ce6a147ef432bfc619fe586d1698b217caf24e78e29a60bb998b433cd6b56b87",
+    "models_wave05_direct.py": "e34f8101f550cb77d51ccf9f89ceb2de609c7243091b9a672a4a282db9e34de5",
+    "models_wave05_outputs.py": "1bdf343d91024ea88de6ba297be41b25f258848c83ecbe1748eed7d48752c1c4",
+    "models_wave04.py": "3ca5666fae562c7dfb527caba023033ae91608e06a8c16ad2f5b8695717283c1",
+    "models_wave06_direct.py": "d2ef12cbc5e0ea644c6380fd8731e3c01b92de82ef4691ab3eed801789997605",
+    "models_wave06_iterator.py": "e918353874f76614d1924ab1b22bc4917a8cbb1690a0ddb325fba0c41fc693e7",
+    "models_d8a1f0.py": "a962172d64cb93124f649e49aff20f89f3e5dfd2a948f8da14f88ad53df6eba4",
+    "models_next.py": "8b76b7f57eb355b769059fe05ffbd16170cf9fdc16663d438c1c9c9435796652",
+    "models_candidates.py": "1b7d7a6a224a0f09b3a31d91221cf90490fe4645d085ac9a1582280801c8dc0c",
+    "models_wave08_direct.py": "bdc88e67183b8720c487a7950d1870f19cd7f19a7ed5b0f68878968834917c03",
+    "models_stacked09.py": "a5b89fc35f7c4df2cc762c38383b6e0ee718db001c027446fc0e817b9b121a40",
+    "models_stacked10.py": "d04836afb2f21ff52bbaa2456129a45de37570e371f3fe8c15830d4b744b8a73"
+  },
+  "legacy_base_original_sha256": "ce6a147ef432bfc619fe586d1698b217caf24e78e29a60bb998b433cd6b56b87",
+  "new_typed_diagnostic_sha256": "f70f4c8bcb7363d3cbf92632152eb0578d730b643a6745811d08e7e8e20cd272",
+  "diagnostic_scope": "FULL_TYPED53_NOT_LEGACY4ARG",
+  "old50_formula_AST_exact_except_routing_and_arity": true,
+  "new_helper_sha256": "c6d134c08cd0a5f6bc1e4ade931191189b741d88c2fb75978cb388f7b77a266e",
+  "native_executed": 0,
+  "actual_runtime_samples": 0
+}

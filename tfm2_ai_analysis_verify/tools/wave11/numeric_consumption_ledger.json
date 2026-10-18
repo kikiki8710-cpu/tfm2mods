@@ -1,0 +1,819 @@
+{
+  "status": "STATIC_NUMERICS_AND_NAMED_METRICS_DISTINCT",
+  "previous50_ledger_sha256": "aa9e64cd2b2b8a092b0e8077f48c800965c24b5a298e08bbfe34c87a961639fb",
+  "previous50_named_metrics": 142,
+  "new_named_metrics": 20,
+  "named_metric_total": 162,
+  "new_parameters": {
+    "records": [
+      {
+        "runtime_id": 50,
+        "function_rva": "0xe60c20",
+        "semantic_id": "runtime.outputs11.entity_identity_domain",
+        "original_value": 0,
+        "classification": "ENUM_DISCRIMINANT",
+        "meaning": "entity BYTE0만canonicalActor",
+        "consumer_sites": [
+          "0xe60c31",
+          "0xe60d24"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xe60c31",
+            "bytes": "41803800",
+            "instruction": "cmp byte ptr [r8], 0"
+          },
+          {
+            "site": "0xe60d24",
+            "bytes": "41803e00",
+            "instruction": "cmp byte ptr [r14], 0"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 50,
+        "function_rva": "0xe60c20",
+        "semantic_id": "runtime.outputs11.team_slot_layout",
+        "original_value": {
+          "teams": 2,
+          "scan_slots_per_team": 5,
+          "pointer_stride": 8,
+          "world_offset": 568
+        },
+        "classification": "STRUCTURAL_LAYOUT",
+        "meaning": "teamQ<2와team*5. 5는LEA/전개5비교. type15position에는상한없음.",
+        "consumer_sites": [
+          "0xe60c4c",
+          "0xe60d47",
+          "0xe60c76",
+          "0xe60d71",
+          "0xe60cab",
+          "0xe60cde",
+          "0xe60d9e",
+          "0xe60dc0"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xe60c4c",
+            "bytes": "4883f902",
+            "instruction": "cmp rcx, 2"
+          },
+          {
+            "site": "0xe60d47",
+            "bytes": "4883f902",
+            "instruction": "cmp rcx, 2"
+          },
+          {
+            "site": "0xe60c76",
+            "bytes": "4c8d1489",
+            "instruction": "lea r10, [rcx + rcx*4]"
+          },
+          {
+            "site": "0xe60d71",
+            "bytes": "4c8d0489",
+            "instruction": "lea r8, [rcx + rcx*4]"
+          },
+          {
+            "site": "0xe60cab",
+            "bytes": "4c3984ca38020000",
+            "instruction": "cmp qword ptr [rdx + rcx*8 + 0x238], r8"
+          },
+          {
+            "site": "0xe60cde",
+            "bytes": "4d394220",
+            "instruction": "cmp qword ptr [r10 + 0x20], r8"
+          },
+          {
+            "site": "0xe60d9e",
+            "bytes": "4c3934ca",
+            "instruction": "cmp qword ptr [rdx + rcx*8], r14"
+          },
+          {
+            "site": "0xe60dc0",
+            "bytes": "4d397720",
+            "instruction": "cmp qword ptr [r15 + 0x20], r14"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 50,
+        "function_rva": "0xe60c20",
+        "semantic_id": "runtime.outputs11.direct_slot_type15",
+        "original_value": 15,
+        "classification": "ENUM_DISCRIMINANT",
+        "meaning": "DWORD type15이면positionD8직접slot우선",
+        "consumer_sites": [
+          "0xe60c5e",
+          "0xe60d59",
+          "0xe60c6f",
+          "0xe60d6a"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xe60c5e",
+            "bytes": "418378680f",
+            "instruction": "cmp dword ptr [r8 + 0x68], 0xf"
+          },
+          {
+            "site": "0xe60d59",
+            "bytes": "41837e680f",
+            "instruction": "cmp dword ptr [r14 + 0x68], 0xf"
+          },
+          {
+            "site": "0xe60c6f",
+            "bytes": "458b98d8000000",
+            "instruction": "mov r11d, dword ptr [r8 + 0xd8]"
+          },
+          {
+            "site": "0xe60d6a",
+            "bytes": "458bbed8000000",
+            "instruction": "mov r15d, dword ptr [r14 + 0xd8]"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 50,
+        "function_rva": "0xe60c20",
+        "semantic_id": "runtime.outputs11.duplicate_mask32_output16",
+        "original_value": {
+          "bit_width": 32,
+          "stored_width": 16
+        },
+        "classification": "INTEGER_WIDTH_PROTOCOL",
+        "meaning": "BT/SHL modulo32,마지막WORD low16. index를0..9로clamp하지않음.",
+        "consumer_sites": [
+          "0xe60df8",
+          "0xe60dfb",
+          "0xe60dfd",
+          "0xe60e36"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xe60df8",
+            "bytes": "4489c1",
+            "instruction": "mov ecx, r8d"
+          },
+          {
+            "site": "0xe60dfb",
+            "bytes": "d3e5",
+            "instruction": "shl ebp, cl"
+          },
+          {
+            "site": "0xe60dfd",
+            "bytes": "440fa3c3",
+            "instruction": "bt ebx, r8d"
+          },
+          {
+            "site": "0xe60e36",
+            "bytes": "66896810",
+            "instruction": "mov word ptr [rax + 0x10], bp"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 50,
+        "function_rva": "0xe60c20",
+        "semantic_id": "runtime.outputs11.slice_iteration_stride8",
+        "original_value": {
+          "stride": 8,
+          "termination": "wrap64(len*8)"
+        },
+        "classification": "STRUCTURAL_ITERATION",
+        "meaning": "비어있지않으면do-while. 초대형len도조기실패가능.",
+        "consumer_sites": [
+          "0xe60d07",
+          "0xe60d20",
+          "0xe60e05",
+          "0xe60e0b"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xe60d07",
+            "bytes": "48c1e603",
+            "instruction": "shl rsi, 3"
+          },
+          {
+            "site": "0xe60d20",
+            "bytes": "4d8b3439",
+            "instruction": "mov r14, qword ptr [r9 + rdi]"
+          },
+          {
+            "site": "0xe60e05",
+            "bytes": "4883c708",
+            "instruction": "add rdi, 8"
+          },
+          {
+            "site": "0xe60e0b",
+            "bytes": "4839fe",
+            "instruction": "cmp rsi, rdi"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 50,
+        "function_rva": "0xe60c20",
+        "semantic_id": "runtime.outputs11.option_output_protocol",
+        "original_value": {
+          "none": 0,
+          "some": 1,
+          "bytes": 24
+        },
+        "classification": "STRUCTURE_PROTOCOL",
+        "meaning": "NoneQ만쓰기,Some+8Q/+10WORD/tagQ마지막. padding보존.",
+        "consumer_sites": [
+          "0xe60ce8",
+          "0xe60e32",
+          "0xe60e36",
+          "0xe60e3a",
+          "0xe60e40"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xe60ce8",
+            "bytes": "4531db",
+            "instruction": "xor r11d, r11d"
+          },
+          {
+            "site": "0xe60e32",
+            "bytes": "4c895008",
+            "instruction": "mov qword ptr [rax + 8], r10"
+          },
+          {
+            "site": "0xe60e36",
+            "bytes": "66896810",
+            "instruction": "mov word ptr [rax + 0x10], bp"
+          },
+          {
+            "site": "0xe60e3a",
+            "bytes": "41bb01000000",
+            "instruction": "mov r11d, 1"
+          },
+          {
+            "site": "0xe60e40",
+            "bytes": "4c8918",
+            "instruction": "mov qword ptr [rax], r11"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 51,
+        "function_rva": "0xf2c3c0",
+        "semantic_id": "runtime.outputs11.team_role_layout",
+        "original_value": {
+          "teams": 2,
+          "actor_stride": 8,
+          "team_stride": 40
+        },
+        "classification": "STRUCTURAL_LAYOUT",
+        "meaning": "PlayerteamQguard,roleDWORD상한없음.",
+        "consumer_sites": [
+          "0xf2c3d3",
+          "0xf2c3e2",
+          "0xf2c3ec",
+          "0xf2c3f4",
+          "0xf2c476"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xf2c3d3",
+            "bytes": "4883f802",
+            "instruction": "cmp rax, 2"
+          },
+          {
+            "site": "0xf2c3e2",
+            "bytes": "458b8090080000",
+            "instruction": "mov r8d, dword ptr [r8 + 0x890]"
+          },
+          {
+            "site": "0xf2c3ec",
+            "bytes": "4c8d1480",
+            "instruction": "lea r10, [rax + rax*4]"
+          },
+          {
+            "site": "0xf2c3f4",
+            "bytes": "4f8b94c238020000",
+            "instruction": "mov r10, qword ptr [r10 + r8*8 + 0x238]"
+          },
+          {
+            "site": "0xf2c476",
+            "bytes": "4129c2",
+            "instruction": "sub r10d, eax"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 51,
+        "function_rva": "0xf2c3c0",
+        "semantic_id": "runtime.outputs11.dynamic_rectangle_hp",
+        "original_value": {
+          "rect": "Root[6D70+team32..+24]",
+          "hp": "own668Q",
+          "max_hp": "own620Q"
+        },
+        "classification": "DYNAMIC_THRESHOLD",
+        "meaning": "포함사각형AND HP<maxHP. 고정percent문턱없음.",
+        "consumer_sites": [
+          "0xf2c425",
+          "0xf2c436",
+          "0xf2c440",
+          "0xf2c454",
+          "0xf2c461"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xf2c425",
+            "bytes": "4c3b9c3e786d0000",
+            "instruction": "cmp r11, qword ptr [rsi + rdi + 0x6d78]"
+          },
+          {
+            "site": "0xf2c436",
+            "bytes": "483b9c3e706d0000",
+            "instruction": "cmp rbx, qword ptr [rsi + rdi + 0x6d70]"
+          },
+          {
+            "site": "0xf2c440",
+            "bytes": "483b9c3e806d0000",
+            "instruction": "cmp rbx, qword ptr [rsi + rdi + 0x6d80]"
+          },
+          {
+            "site": "0xf2c454",
+            "bytes": "4c3b5e18",
+            "instruction": "cmp r11, qword ptr [rsi + 0x18]"
+          },
+          {
+            "site": "0xf2c461",
+            "bytes": "4d3b9a20060000",
+            "instruction": "cmp r11, qword ptr [r10 + 0x620]"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 51,
+        "function_rva": "0xf2c3c0",
+        "semantic_id": "runtime.outputs11.opponent_nexus_guard",
+        "original_value": {
+          "flag_exact": 1,
+          "or_zero": 0
+        },
+        "classification": "ENUM_AND_DYNAMIC_COMPARISON",
+        "meaning": "NexusflagBYTE정확1과두Q OR==0.",
+        "consumer_sites": [
+          "0xf2c481",
+          "0xf2c486",
+          "0xf2c493",
+          "0xf2c49b"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xf2c481",
+            "bytes": "4885c0",
+            "instruction": "test rax, rax"
+          },
+          {
+            "site": "0xf2c486",
+            "bytes": "80b8b106000001",
+            "instruction": "cmp byte ptr [rax + 0x6b1], 1"
+          },
+          {
+            "site": "0xf2c493",
+            "bytes": "4f8b8c1188010000",
+            "instruction": "mov r9, qword ptr [r9 + r10 + 0x188]"
+          },
+          {
+            "site": "0xf2c49b",
+            "bytes": "4c0b8898060000",
+            "instruction": "or r9, qword ptr [rax + 0x698]"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 51,
+        "function_rva": "0xf2c3c0",
+        "semantic_id": "runtime.outputs11.output_highbit_tags",
+        "original_value": {
+          "base": 9223372036854775808,
+          "hurt": 9223372036854775811,
+          "clear_opponent": 9223372036854775822,
+          "payload_byte": 2
+        },
+        "classification": "STRUCTURE_PROTOCOL",
+        "meaning": "HIGH/HIGH+3/HIGH+14. payload일부만정의.",
+        "consumer_sites": [
+          "0xf2c405",
+          "0xf2c46a",
+          "0xf2c4c1",
+          "0xf2c4c5",
+          "0xf2c4d3"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xf2c405",
+            "bytes": "49b80000000000000080",
+            "instruction": "movabs r8, 0x8000000000000000"
+          },
+          {
+            "site": "0xf2c46a",
+            "bytes": "4983c003",
+            "instruction": "add r8, 3"
+          },
+          {
+            "site": "0xf2c4c1",
+            "bytes": "c6412302",
+            "instruction": "mov byte ptr [rcx + 0x23], 2"
+          },
+          {
+            "site": "0xf2c4c5",
+            "bytes": "4c8901",
+            "instruction": "mov qword ptr [rcx], r8"
+          },
+          {
+            "site": "0xf2c4d3",
+            "bytes": "4983c00e",
+            "instruction": "add r8, 0xe"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 51,
+        "function_rva": "0xf2c3c0",
+        "semantic_id": "runtime.outputs11.partial_output_widths",
+        "original_value": {
+          "qwords": [
+            8,
+            24
+          ],
+          "word": 32,
+          "bytes": [
+            34,
+            35
+          ]
+        },
+        "classification": "STRUCTURAL_WIDTH",
+        "meaning": "general만QQWORD/BYTE/BYTE→tagQ. +16Q와끝4B미쓰기.",
+        "consumer_sites": [
+          "0xf2c4a8",
+          "0xf2c4b0",
+          "0xf2c4b8",
+          "0xf2c4be",
+          "0xf2c4c1",
+          "0xf2c4c5"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xf2c4a8",
+            "bytes": "48c7410800000000",
+            "instruction": "mov qword ptr [rcx + 8], 0"
+          },
+          {
+            "site": "0xf2c4b0",
+            "bytes": "48c7411800000000",
+            "instruction": "mov qword ptr [rcx + 0x18], 0"
+          },
+          {
+            "site": "0xf2c4b8",
+            "bytes": "66c741200000",
+            "instruction": "mov word ptr [rcx + 0x20], 0"
+          },
+          {
+            "site": "0xf2c4be",
+            "bytes": "884122",
+            "instruction": "mov byte ptr [rcx + 0x22], al"
+          },
+          {
+            "site": "0xf2c4c1",
+            "bytes": "c6412302",
+            "instruction": "mov byte ptr [rcx + 0x23], 2"
+          },
+          {
+            "site": "0xf2c4c5",
+            "bytes": "4c8901",
+            "instruction": "mov qword ptr [rcx], r8"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 52,
+        "function_rva": "0xd8a830",
+        "semantic_id": "runtime.outputs11.fixed_four_layout",
+        "original_value": {
+          "count": 4,
+          "index_stride": 8,
+          "header_pointer_offset": 0,
+          "header_len_offset": 24
+        },
+        "classification": "STRUCTURAL_LAYOUT",
+        "meaning": "고정4index/read순서1,0,3,2와Header비표준배치.",
+        "consumer_sites": [
+          "0xd8a840",
+          "0xd8a844",
+          "0xd8a847",
+          "0xd8a854",
+          "0xd8a8de",
+          "0xd8a8f0"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xd8a840",
+            "bytes": "4c8b5108",
+            "instruction": "mov r10, qword ptr [rcx + 8]"
+          },
+          {
+            "site": "0xd8a844",
+            "bytes": "498b00",
+            "instruction": "mov rax, qword ptr [r8]"
+          },
+          {
+            "site": "0xd8a847",
+            "bytes": "4c8b4818",
+            "instruction": "mov r9, qword ptr [rax + 0x18]"
+          },
+          {
+            "site": "0xd8a854",
+            "bytes": "488b31",
+            "instruction": "mov rsi, qword ptr [rcx]"
+          },
+          {
+            "site": "0xd8a8de",
+            "bytes": "488b7118",
+            "instruction": "mov rsi, qword ptr [rcx + 0x18]"
+          },
+          {
+            "site": "0xd8a8f0",
+            "bytes": "4c8b5110",
+            "instruction": "mov r10, qword ptr [rcx + 0x10]"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 52,
+        "function_rva": "0xd8a830",
+        "semantic_id": "runtime.outputs11.wrapped_squared_key",
+        "original_value": {
+          "word_bits": 64,
+          "coordinate_offsets": [
+            1624,
+            1632
+          ]
+        },
+        "classification": "INTEGER_ARITHMETIC",
+        "meaning": "차/제곱/합low64wrap,unsigned비교.isqrt없음.",
+        "consumer_sites": [
+          "0xd8a8c1",
+          "0xd8a8c7",
+          "0xd8a8fd",
+          "0xd8a901",
+          "0xd8a905",
+          "0xd8a918",
+          "0xd8a9a1"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xd8a8c1",
+            "bytes": "4d29fe",
+            "instruction": "sub r14, r15"
+          },
+          {
+            "site": "0xd8a8c7",
+            "bytes": "4829f7",
+            "instruction": "sub rdi, rsi"
+          },
+          {
+            "site": "0xd8a8fd",
+            "bytes": "4d0fafdb",
+            "instruction": "imul r11, r11"
+          },
+          {
+            "site": "0xd8a901",
+            "bytes": "4d0fafc0",
+            "instruction": "imul r8, r8"
+          },
+          {
+            "site": "0xd8a905",
+            "bytes": "4d01d8",
+            "instruction": "add r8, r11"
+          },
+          {
+            "site": "0xd8a918",
+            "bytes": "4d39c6",
+            "instruction": "cmp r14, r8"
+          },
+          {
+            "site": "0xd8a9a1",
+            "bytes": "4839fe",
+            "instruction": "cmp rsi, rdi"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 52,
+        "function_rva": "0xd8a830",
+        "semantic_id": "runtime.outputs11.strict_network_tie",
+        "original_value": {
+          "comparisons": 5,
+          "index_pair_swap_xor": 3
+        },
+        "classification": "SORT_PROTOCOL",
+        "meaning": "전개CMOVBnetwork의동률처리. 가변balance계수아님.",
+        "consumer_sites": [
+          "0xd8a9d3",
+          "0xd8ab09",
+          "0xd8ab1c",
+          "0xd8ab27",
+          "0xd8ab4f",
+          "0xd8ab56",
+          "0xd8abdb"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xd8a9d3",
+            "bytes": "83f203",
+            "instruction": "xor edx, 3"
+          },
+          {
+            "site": "0xd8ab09",
+            "bytes": "4939fd",
+            "instruction": "cmp r13, rdi"
+          },
+          {
+            "site": "0xd8ab1c",
+            "bytes": "4939f6",
+            "instruction": "cmp r14, rsi"
+          },
+          {
+            "site": "0xd8ab27",
+            "bytes": "4939fd",
+            "instruction": "cmp r13, rdi"
+          },
+          {
+            "site": "0xd8ab4f",
+            "bytes": "4939fd",
+            "instruction": "cmp r13, rdi"
+          },
+          {
+            "site": "0xd8ab56",
+            "bytes": "4939f6",
+            "instruction": "cmp r14, rsi"
+          },
+          {
+            "site": "0xd8abdb",
+            "bytes": "4c39c8",
+            "instruction": "cmp rax, r9"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      },
+      {
+        "runtime_id": 52,
+        "function_rva": "0xd8a830",
+        "semantic_id": "runtime.outputs11.output_four_qwords",
+        "original_value": {
+          "bytes": 32,
+          "qword_offsets": [
+            0,
+            8,
+            16,
+            24
+          ]
+        },
+        "classification": "STRUCTURE_PROTOCOL",
+        "meaning": "고정4Q출력,RAXvoid잔류는비교mask0.",
+        "consumer_sites": [
+          "0xd8abee",
+          "0xd8abf4",
+          "0xd8abfb",
+          "0xd8ac02"
+        ],
+        "instruction_evidence": [
+          {
+            "site": "0xd8abee",
+            "bytes": "488931",
+            "instruction": "mov qword ptr [rcx], rsi"
+          },
+          {
+            "site": "0xd8abf4",
+            "bytes": "48894108",
+            "instruction": "mov qword ptr [rcx + 8], rax"
+          },
+          {
+            "site": "0xd8abfb",
+            "bytes": "48894110",
+            "instruction": "mov qword ptr [rcx + 0x10], rax"
+          },
+          {
+            "site": "0xd8ac02",
+            "bytes": "48894118",
+            "instruction": "mov qword ptr [rcx + 0x18], rax"
+          }
+        ],
+        "adjustment": "동적threshold는생산자/단위/경계소비를함께재검토. enum/layout/폭/sortprotocol은단독balance노브로조정금지.",
+        "actual_runtime_samples": 0,
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "unknown": "실producer/loaded상태/전체callee전이/런타임미확인"
+      }
+    ],
+    "semantic_groups": 15,
+    "raw_count_separate": true,
+    "all_coefficients_verified": false
+  },
+  "new_arities": {
+    "50": 5,
+    "51": 6,
+    "52": 3
+  },
+  "return_masks": {
+    "50": "0xffffffffffffffff",
+    "51": "0xffffffffffffffff",
+    "52": "0x0"
+  },
+  "new_output_field_shapes": {
+    "50": "None tagQ0 / Some indexQ,maskWORD,tagQ1",
+    "51": "short tagQ only / general +8Q,+24Q,+32WORD,+34BYTE,+35BYTE,tagQ",
+    "52": "four output QWORDs in 0/8/16/24 order; actualfullRAX residue preserved"
+  },
+  "input_stability_exemptions": 0,
+  "alias_domain": "모든 nominal output24/40/32 vs 실제 inputread overlap 지원 밖",
+  "actual_runtime_samples": 0,
+  "all_coefficients_verified": false,
+  "denominators": [
+    "함수 raw표본",
+    "비교가능표본/지원밖SKIP",
+    "metric포함표본",
+    "반복metric평가",
+    "정적수치·구조·동적정렬키"
+  ],
+  "limits": [
+    "WORD2·Nonepayload·F2out+16Q·padding미쓰기는등록필드로만구분한다",
+    "typed argv의 물리저장은 원문 stack read순서 증명이 아니다",
+    "mask0는 actual fullRAX 반환변경 허가가 아니다"
+  ]
+}

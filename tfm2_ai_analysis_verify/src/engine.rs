@@ -11,7 +11,7 @@ use std::time::Duration;
 use crate::{config::Config, generated, hook, models, platform};
 
 pub const MAX_FIELDS: usize = 96;
-pub const MODEL_COUNT: usize = 50;
+pub const MODEL_COUNT: usize = 53;
 pub trait Memory { fn read(&mut self, address: u64, width: u8) -> Result<u64, &'static str>; }
 #[derive(Clone, Debug)]
 pub struct Metric {
@@ -673,18 +673,22 @@ unsafe fn observe(id:usize,args:[u64;4])->u64 {
     actual
 }
 
-// SAFETY: 실제 entry는 이 파일의 정확한 typed wrapper44..49만 연결한다.
+// SAFETY: 실제 entry는 이 파일의 정확한 typed wrapper44..52만 연결한다.
 // 임의 stack을 읽지 않는다. id/arity가 다르면 원본의 올바른 호출규약을 알 수 없으므로
 // 이 private unsafe 함수의 호출 전제가 깨진 것이다. 그런 입력을 게임의 정상0으로 꾸미지 않는다.
 unsafe fn call_stacked_original(id:usize,original:usize,args:&[u64])->u64{
     match(id,args){
-        (44|45,[a,b,c,d,e])=>{
+        (44|45|50,[a,b,c,d,e])=>{
             let f:unsafe extern "system-unwind" fn(u64,u64,u64,u64,u64)->u64=std::mem::transmute(original);
             f(*a,*b,*c,*d,*e)
         },
-        (46|47|48|49,[a,b,c,d,e,f])=>{
+        (46|47|48|49|51,[a,b,c,d,e,f])=>{
             let original6:unsafe extern "system-unwind" fn(u64,u64,u64,u64,u64,u64)->u64=std::mem::transmute(original);
             original6(*a,*b,*c,*d,*e,*f)
+        },
+        (52,[a,b,c])=>{
+            let original3:unsafe extern "system-unwind" fn(u64,u64,u64)->u64=std::mem::transmute(original);
+            original3(*a,*b,*c)
         },
         _=>panic!("INTERNAL_TYPED_STACKED_WRAPPER_ARITY_CONTRACT"),
     }
@@ -703,11 +707,79 @@ fn validate_stacked_scalar(id:usize,args:&[u64],e:&Evaluation,reads:&[Field])->R
     Ok(())
 }
 
+// 경로별 실제 초기화 바이트만 등록한다. nominal output과 입력의 별칭은 초기 지원 밖이다.
+fn validate_outputs11(id:usize,args:&[u64],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
+    let(arity,base,size,mask)=match id{
+        50=>(5,args.first().copied().unwrap_or(0),24,u64::MAX),
+        51=>(6,args.first().copied().unwrap_or(0),40,u64::MAX),
+        52=>(3,args.get(1).copied().unwrap_or(0),32,0),
+        _=>return Err("W11_OUTPUT_UNREGISTERED_ID"),
+    };
+    if args.len()!=arity{return Err("W11_OUTPUT_ARITY");}
+    let out=checked_span(base,size)?;
+    if e.mask!=mask||e.output_ptr!=Some(base){return Err("W11_OUTPUT_MASK_OR_PTR");}
+    if(id==52&&e.expected!=0)||(id!=52&&e.expected!=base){return Err("W11_OUTPUT_RETURN");}
+    let f=&e.output_fields;
+    let shape:Vec<(u64,u8)>=match id{
+        50=>{
+            if f.len()==1{
+                if f[0].2!=0{return Err("W11_IDENTIFY_NONE_TAG");}
+                vec![(base,8)]
+            }else{
+                if f.len()!=3||f[1].2>u16::MAX as u64||f[2].2!=1{return Err("W11_IDENTIFY_SOME_VALUES");}
+                vec![(base+8,8),(base+16,2),(base,8)]
+            }
+        },
+        51=>{
+            if f.len()==1{
+                if !matches!(f[0].2,0x8000000000000003|0x800000000000000e){return Err("W11_OPTION_SHORT_TAG");}
+                vec![(base,8)]
+            }else{
+                if f.len()!=6||f[0].2!=0||f[1].2!=0||f[2].2!=0||f[3].2>255||f[4].2!=2||f[5].2!=0x8000000000000000{return Err("W11_OPTION_GENERAL_VALUES");}
+                let state8=args[1].checked_add(8).ok_or("W11_STATE_ADDRESS_OVERFLOW")?;
+                let state=reads.iter().find(|r|r.address==state8&&r.width==1).ok_or("W11_STATE_BYTE_READ")?;
+                if f[3].2!=state.value{return Err("W11_STATE_BYTE_VALUE");}
+                vec![(base+8,8),(base+24,8),(base+32,2),(base+34,1),(base+35,1),(base,8)]
+            }
+        },
+        52=>{
+            if f.len()!=4{return Err("W11_SORT4_COUNT");}
+            let input=checked_span(args[0],32)?;
+            if spans_overlap(input,out){return Err("W11_SORT4_INPUT_OUTPUT_ALIAS");}
+            let mut values=Vec::new();
+            for i in 0..4{
+                values.push(reads.iter().find(|r|r.address==args[0]+i*8&&r.width==8).ok_or("W11_SORT4_INPUT_WORD")?.value);
+            }
+            for value in &values{
+                if values.iter().filter(|x|*x==value).count()!=f.iter().filter(|x|x.2==*value).count(){return Err("W11_SORT4_MULTISET");}
+            }
+            vec![(base,8),(base+8,8),(base+16,8),(base+24,8)]
+        },
+        _=>unreachable!(),
+    };
+    if f.len()!=shape.len(){return Err("W11_OUTPUT_FIELD_COUNT");}
+    for(&(address,width,value),&(wanted,width_expected))in f.iter().zip(shape.iter()){
+        if address!=wanted||width!=width_expected{return Err("W11_OUTPUT_ADDRESS_WIDTH_ORDER");}
+        checked_span(address,width as u64)?;
+        if width<8&&value>=(1u64<<(width as u32*8)){return Err("W11_OUTPUT_PARTIAL_VALUE_WIDTH");}
+    }
+    // None payload·미작성 out+10·padding도 alias 예외로 허용하지 않는다.
+    for r in reads{
+        if !matches!(r.width,1|2|4|8){return Err("W11_INPUT_FIELD_WIDTH");}
+        if spans_overlap(checked_span(r.address,r.width as u64)?,out){return Err("W11_NOMINAL_OUTPUT_INPUT_ALIAS");}
+    }
+    Ok(())
+}
+fn validate_stacked_contract(id:usize,args:&[u64],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
+    if matches!(id,50..=52){validate_outputs11(id,args,e,reads)}else{validate_stacked_scalar(id,args,e,reads)}
+}
+
 // 신규 모델도 메모리 snapshot만 읽으며 게임 helper를 호출하지 않는다.
 fn evaluate_stacked(id:usize,args:&[u64],memory:&mut dyn Memory)->Result<Evaluation,&'static str>{
     match id{
         44..=46=>crate::models_stacked09::evaluate(id,args,memory),
         47..=49=>crate::models_stacked10::evaluate(id,args,memory),
+        50..=52=>crate::models_outputs11::evaluate(id,args,memory),
         _=>Err("STACKED_MODEL_UNREGISTERED_ID"),
     }
 }
@@ -718,6 +790,9 @@ unsafe extern "system-unwind" fn hook46(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u6
 unsafe extern "system-unwind" fn hook47(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(47,&[a,b,c,d,e,f])}
 unsafe extern "system-unwind" fn hook48(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(48,&[a,b,c,d,e,f])}
 unsafe extern "system-unwind" fn hook49(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(49,&[a,b,c,d,e,f])}
+unsafe extern "system-unwind" fn hook50(a:u64,b:u64,c:u64,d:u64,e:u64)->u64{observe_stacked(50,&[a,b,c,d,e])}
+unsafe extern "system-unwind" fn hook51(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(51,&[a,b,c,d,e,f])}
+unsafe extern "system-unwind" fn hook52(a:u64,b:u64,c:u64)->u64{observe_stacked(52,&[a,b,c])}
 
 unsafe fn observe_stacked(id:usize,args:&[u64])->u64 {
     let original=ORIGINALS[id].load(Ordering::Acquire);
@@ -745,7 +820,7 @@ unsafe fn observe_stacked(id:usize,args:&[u64])->u64 {
     let prepared=catch_unwind(AssertUnwindSafe(|| {
         let mut capture=Capture{reads:Vec::with_capacity(MAX_FIELDS)};
         let evaluation=evaluate_stacked(id,args,&mut capture).and_then(|value|{
-            validate_stacked_scalar(id,args,&value,&capture.reads)?;Ok(value)
+            validate_stacked_contract(id,args,&value,&capture.reads)?;Ok(value)
         });
         (evaluation,capture.reads)
     }));
@@ -845,7 +920,7 @@ fn wrappers()->[usize;MODEL_COUNT] {[hook0 as *const () as usize,hook1 as *const
     hook4 as *const () as usize,hook5 as *const () as usize,hook6 as *const () as usize,hook7 as *const () as usize,
     hook8 as *const () as usize,hook9 as *const () as usize,hook10 as *const () as usize,hook11 as *const () as usize,
     hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize,
-    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize,hook39 as *const () as usize,hook40 as *const () as usize,hook41 as *const () as usize,hook42 as *const () as usize,hook43 as *const () as usize,hook44 as *const () as usize,hook45 as *const () as usize,hook46 as *const () as usize,hook47 as *const () as usize,hook48 as *const () as usize,hook49 as *const () as usize]}
+    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize,hook39 as *const () as usize,hook40 as *const () as usize,hook41 as *const () as usize,hook42 as *const () as usize,hook43 as *const () as usize,hook44 as *const () as usize,hook45 as *const () as usize,hook46 as *const () as usize,hook47 as *const () as usize,hook48 as *const () as usize,hook49 as *const () as usize,hook50 as *const () as usize,hook51 as *const () as usize,hook52 as *const () as usize]}
 
 pub fn post_update() {
     let Some(state)=STATE.get() else {return;};
@@ -979,6 +1054,148 @@ pub fn flush()->std::io::Result<()> {
 
 #[cfg(test)] mod tests {
 // 기존 engine::tests 안에 한 번만 삽입한다. 별도 STATE나 게임 호출은 없다.
+// cfg(test) 기존 tests 모듈과 유일 STATE 안에만 삽입한다. 실행·게임 근거가 아닌 시험 정의다.
+#[test]fn outputs11_exact_partial_shapes_and_typed3(){
+    let out=0x20000;let a50=[out,0x30000,0x40000,0x50000,0];
+    let mut e=Evaluation{expected:out,mask:u64::MAX,output_ptr:Some(out),output_fields:vec![(out,8,0)],metrics:vec![]};
+    assert!(validate_outputs11(50,&a50,&e,&[]).is_ok());
+    e.output_fields=vec![(out+8,8,33),(out+16,2,2),(out,8,1)];
+    assert!(validate_outputs11(50,&a50,&e,&[]).is_ok()); // index에 원문에 없는 0..9 제한을 만들지 않는다.
+    e.output_fields[1].1=8;assert!(validate_outputs11(50,&a50,&e,&[]).is_err());e.output_fields[1].1=2;
+    e.output_fields[1].2=0x10000;assert!(validate_outputs11(50,&a50,&e,&[]).is_err());
+    e.output_fields=vec![(out,8,0),(out+8,8,0)];assert!(validate_outputs11(50,&a50,&e,&[]).is_err());
+    e.output_fields=vec![(out,8,0)];
+    assert!(validate_outputs11(50,&a50,&e,&[Field{address:out+23,width:1,value:0}]).is_err());
+    let a51=[out,0x30000,0,0,0x40000,0x50000];
+    for tag in [0x8000000000000003,0x800000000000000e]{e.output_fields=vec![(out,8,tag)];assert!(validate_outputs11(51,&a51,&e,&[]).is_ok());}
+    let reads=[Field{address:0x30008,width:1,value:7}];
+    e.output_fields=vec![(out+8,8,0),(out+24,8,0),(out+32,2,0),(out+34,1,7),(out+35,1,2),(out,8,1<<63)];
+    assert!(validate_outputs11(51,&a51,&e,&reads).is_ok());
+    e.output_fields[1].0=out+16;assert!(validate_outputs11(51,&a51,&e,&reads).is_err());e.output_fields[1].0=out+24;
+    e.output_fields[3].2=8;assert!(validate_outputs11(51,&a51,&e,&reads).is_err());
+    let a52=[0x30000,out,0x40000];let reads=(0..4).map(|i|Field{address:0x30000+i*8,width:8,value:i}).collect::<Vec<_>>();
+    e.expected=0;e.mask=0;e.output_fields=(0..4).map(|i|(out+i*8,8,3-i)).collect();
+    assert!(validate_outputs11(52,&a52,&e,&reads).is_ok());
+    assert!(validate_outputs11(52,&[0x30000,out,0x40000,0],&e,&reads).is_err());
+    e.mask=u64::MAX;assert!(validate_outputs11(52,&a52,&e,&reads).is_err());e.mask=0;
+    e.output_fields[0].2=0;assert!(validate_outputs11(52,&a52,&e,&reads).is_err());
+}
+#[test]fn outputs11_no_stability_exception_or_padding_field(){
+    let out=0x20000;let e=Evaluation{expected:out,mask:u64::MAX,output_ptr:Some(out),output_fields:vec![(out,8,0)],metrics:vec![]};
+    for width in [1,2,4,8]{assert!(validate_outputs11(50,&[out,0,0,0,0],&e,&[Field{address:0x30000,width,value:0}]).is_ok());}
+    for width in [0,3,16]{assert!(validate_outputs11(50,&[out,0,0,0,0],&e,&[Field{address:0x30000,width,value:0}]).is_err());}
+    assert!(validate_outputs11(50,&[out,0,0,0,0],&e,&[Field{address:u64::MAX-3,width:8,value:0}]).is_err());
+    assert!(!unchanged_outside_registered_writes(0x30000,8,1,2,&e.output_fields).unwrap());
+    // 범용 도우미도 WORD 두 byte 밖을 통째로 면제하지 않는지 확인한다. 새 모델 입력 별칭은 별도로 전부 거절한다.
+    assert!(unchanged_outside_registered_writes(out+16,8,0x1122334455667788,0x1122334455660002,&[(out+16,2,2)]).unwrap());
+    assert!(!unchanged_outside_registered_writes(out+16,8,0x1122334455667788,0x1122334455000002,&[(out+16,2,2)]).unwrap());
+}
+static OUTPUTS11_CALLS:AtomicU64=AtomicU64::new(0);
+static OUTPUTS11_ARGS:[AtomicU64;6]=[const{AtomicU64::new(0)};6];
+static OUTPUTS11_KIND:AtomicUsize=AtomicUsize::new(0);
+static OUTPUTS11_RETURN:AtomicU64=AtomicU64::new(0);
+static OUTPUTS11_MUTATE:AtomicUsize=AtomicUsize::new(0);
+unsafe fn outputs11_fake(args:&[u64])->u64{
+    OUTPUTS11_CALLS.fetch_add(1,Ordering::Relaxed);
+    for(i,v)in args.iter().enumerate(){OUTPUTS11_ARGS[i].store(*v,Ordering::Relaxed);}
+    let kind=OUTPUTS11_KIND.load(Ordering::Relaxed);let out=if args.len()==3{args[1]}else{args[0]};
+    // 고정 소유 fixture의 분석적 상수만 쓴다. 모델 결과나 실제 output에서 기대값을 얻지 않는다.
+    let q=|offset:usize,value:u64|std::ptr::write_unaligned((out as usize+offset)as *mut u64,value);
+    let w=|offset:usize,value:u16|std::ptr::write_unaligned((out as usize+offset)as *mut u16,value);
+    let b=|offset:usize,value:u8|std::ptr::write_unaligned((out as usize+offset)as *mut u8,value);
+    match kind{
+        0=>{}, // OFF/pending/닫힘에서는 임의 인수를 역참조하지 않는다.
+        1=>q(0,0),
+        2|3=>{q(8,0);w(16,if kind==3{0x102}else{2});q(0,1);},
+        4=>q(0,0x8000000000000003),
+        5=>q(0,0x800000000000000e),
+        6|7=>{q(8,0);q(24,0);w(32,0);b(34,if kind==7{8}else{7});b(35,2);q(0,1<<63);},
+        8=>{q(0,3);q(8,2);q(16,1);q(24,0);},
+        9=>{q(0,2);q(8,3);q(16,1);q(24,0);},
+        _=>panic!("fixture kind"),
+    }
+    let p=OUTPUTS11_MUTATE.load(Ordering::Relaxed)as *mut u64;
+    if !p.is_null(){let v=std::ptr::read_unaligned(p);std::ptr::write_unaligned(p,v^1);}
+    OUTPUTS11_RETURN.load(Ordering::Relaxed)
+}
+unsafe extern "system-unwind" fn outputs11_original3(a:u64,b:u64,c:u64)->u64{outputs11_fake(&[a,b,c])}
+unsafe extern "system-unwind" fn outputs11_original5(a:u64,b:u64,c:u64,d:u64,e:u64)->u64{outputs11_fake(&[a,b,c,d,e])}
+unsafe extern "system-unwind" fn outputs11_original6(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{outputs11_fake(&[a,b,c,d,e,f])}
+std::arch::global_asm!(
+    ".text",
+    ".global tfm2_aiav_outputs11_probe3","tfm2_aiav_outputs11_probe3:","mov qword ptr [rip + {sp}], rsp","jmp {f3}",
+    ".global tfm2_aiav_outputs11_probe5","tfm2_aiav_outputs11_probe5:","mov qword ptr [rip + {sp}], rsp","jmp {f5}",
+    ".global tfm2_aiav_outputs11_probe6","tfm2_aiav_outputs11_probe6:","mov qword ptr [rip + {sp}], rsp","jmp {f6}",
+    sp=sym STACKED_ENTRY_SP,f3=sym outputs11_original3,f5=sym outputs11_original5,f6=sym outputs11_original6,
+);
+unsafe extern "system"{fn tfm2_aiav_outputs11_probe3();fn tfm2_aiav_outputs11_probe5();fn tfm2_aiav_outputs11_probe6();}
+fn outputs11_call(id:usize,args:&[u64],want:u64){
+    assert_eq!(args.len(),match id{50=>5,51=>6,52=>3,_=>panic!("test id")});
+    let mut padded=[0;6];padded[..args.len()].copy_from_slice(args);
+    let wrapper=match id{50=>hook50 as *const()as usize,51=>hook51 as *const()as usize,52=>hook52 as *const()as usize,_=>unreachable!()};
+    let mut audit=StackedAbiAudit{before_sp:0,after_sp:0,gpr:[0;8],xmm:[[0;4];10]};let n=counter(&OUTPUTS11_CALLS);
+    let actual=unsafe{tfm2_aiav_stacked_harness(wrapper,padded.as_ptr(),&mut audit)};
+    assert_eq!(actual,want);assert_eq!(counter(&OUTPUTS11_CALLS),n+1);assert_eq!(audit.before_sp,audit.after_sp);
+    assert_eq!(audit.before_sp%16,0);assert_eq!(counter(&STACKED_ENTRY_SP)%16,8);
+    for i in 0..8{assert_eq!(audit.gpr[i],0x1122334455667700+i as u64);}
+    for i in 0..10{assert_eq!(audit.xmm[i],[0x60000006+i as u32;4]);}
+    for(i,v)in args.iter().enumerate(){assert_eq!(counter(&OUTPUTS11_ARGS[i]),*v);}
+}
+fn outputs11_case(state:&'static State,id:usize,args:&[u64],kind:usize,ret:u64,status:&str){
+    OUTPUTS11_KIND.store(kind,Ordering::Relaxed);OUTPUTS11_RETURN.store(ret,Ordering::Relaxed);
+    let stat=&state.stats[id];let before=match status{"MATCH"=>counter(&stat.matches),"UNSTABLE"=>counter(&stat.unstable),"SKIP"=>counter(&stat.skipped),"MISMATCH"=>counter(&stat.mismatches),_=>panic!("status")};
+    outputs11_call(id,args,ret);
+    let after=match status{"MATCH"=>counter(&stat.matches),"UNSTABLE"=>counter(&stat.unstable),"SKIP"=>counter(&stat.skipped),_=>counter(&stat.mismatches)};
+    assert_eq!(after,before+1);stacked_last_event(state,id,args,status,ret);
+    if status=="MISMATCH"{
+        assert!(admit(state).is_none());let n=counter(&stat.sample_attempts);let seq=counter(&state.sequence);
+        OUTPUTS11_KIND.store(0,Ordering::Relaxed);let a=[0x1111111100000001,0x2222222200000002,0x3333333300000003,0x4444444400000004,0x5555555500000005,0x6666666600000006];
+        outputs11_call(id,&a[..args.len()],ret);assert_eq!(counter(&stat.sample_attempts),n);assert_eq!(counter(&state.sequence),seq);
+        reopen_for_independent_fixture(state);
+    }
+}
+fn outputs11_actual_observe_axis(state:&'static State){
+    set_scene(4);OUTPUTS11_MUTATE.store(0,Ordering::Relaxed);let first=state.first_mismatch.get().map(|e|e.seq);let calls=counter(&OUTPUTS11_CALLS);
+    for(id,original)in[(50,tfm2_aiav_outputs11_probe5 as *const()as usize),(51,tfm2_aiav_outputs11_probe6 as *const()as usize),(52,tfm2_aiav_outputs11_probe3 as *const()as usize)]{ORIGINALS[id].store(original,Ordering::Release);DOMAINS[id].store(2,Ordering::Release);}
+    let a=[0x1111111100000001,0x2222222200000002,0x3333333300000003,0x4444444400000004,0x5555555500000005,0x6666666600000006];
+    let ret=0xfedcba9876543210;OUTPUTS11_RETURN.store(ret,Ordering::Relaxed);OUTPUTS11_KIND.store(0,Ordering::Relaxed);close_capture(state);
+    for(id,n)in[(50,5),(51,6),(52,3)]{let before=counter(&state.stats[id].sample_attempts);outputs11_call(id,&a[..n],ret);assert_eq!(counter(&state.stats[id].sample_attempts),before);}
+    reopen_for_independent_fixture(state);DOMAINS[50].store(1,Ordering::Release);let n=counter(&state.stats[50].sample_attempts);outputs11_call(50,&a[..5],ret);assert_eq!(counter(&state.stats[50].sample_attempts),n);DOMAINS[50].store(2,Ordering::Release);
+    set_scene(1);let n=counter(&state.stats[52].eligible_calls);outputs11_call(52,&a[..3],ret);assert_eq!(counter(&state.stats[52].eligible_calls),n);set_scene(4);
+    const P:u64=0xaabbccddeeff7788;
+    let(mut out50,mut world,mut main,mut extra)=([P;3],vec![0u64;0x300/8],vec![0u64;0x898/8],vec![0u64;0x898/8]);
+    let mut slice=[extra.as_mut_ptr()as u64];world[0x238/8]=main.as_mut_ptr()as u64;world[0x240/8]=extra.as_mut_ptr()as u64;
+    let args50=[out50.as_mut_ptr()as u64,world.as_mut_ptr()as u64,main.as_mut_ptr()as u64,slice.as_mut_ptr()as u64,1];
+    main[0]=1;outputs11_case(state,50,&args50,1,args50[0],"MATCH");assert_eq!(out50,[0,P,P]);main[0]=0;out50.fill(P);
+    outputs11_case(state,50,&args50,2,args50[0],"MATCH");assert_eq!(out50,[1,0,(P&!0xffff)|2]);
+    OUTPUTS11_MUTATE.store((&mut main[1])as *mut u64 as usize,Ordering::Relaxed);outputs11_case(state,50,&args50,2,args50[0],"UNSTABLE");OUTPUTS11_MUTATE.store(0,Ordering::Relaxed);main[1]=0;
+    let mut alias50=args50;alias50[0]=args50[2];outputs11_case(state,50,&alias50,1,alias50[0],"SKIP");main[0]=0;
+    outputs11_case(state,50,&args50,3,args50[0],"MISMATCH");
+    outputs11_case(state,50,&args50,2,args50[0]^(1<<32),"MISMATCH");
+    let(mut out51,mut state51,mut player,mut data,mut context,mut config,mut own,mut nexus)=([P;5],[0u64;8],vec![0u64;0x898/8],[0u64;2],[0u64;8],vec![0u64;0x6e00/8],vec![0u64;0x898/8],vec![0u64;0x898/8]);
+    state51[1]=7;data[0]=world.as_mut_ptr()as u64;data[1]=context.as_mut_ptr()as u64;context[0x20/8]=config.as_mut_ptr()as u64;
+    world[0x238/8]=own.as_mut_ptr()as u64;config[0x6d80/8]=10;config[0x6d88/8]=10;own[0x658/8]=1;own[0x660/8]=1;own[0x620/8]=100;
+    let args51=[out51.as_mut_ptr()as u64,state51.as_mut_ptr()as u64,a[2],a[3],player.as_mut_ptr()as u64,data.as_mut_ptr()as u64];
+    outputs11_case(state,51,&args51,4,args51[0],"MATCH");assert_eq!(out51,[0x8000000000000003,P,P,P,P]);out51.fill(P);own[0x668/8]=100;
+    world[0x1d0/8]=nexus.as_mut_ptr()as u64;unsafe{std::ptr::write_unaligned((nexus.as_mut_ptr()as *mut u8).add(0x6b1),1);}
+    outputs11_case(state,51,&args51,5,args51[0],"MATCH");assert_eq!(out51,[0x800000000000000e,P,P,P,P]);out51.fill(P);world[0x1d0/8]=0;
+    outputs11_case(state,51,&args51,6,args51[0],"MATCH");assert_eq!(out51,[1<<63,0,P,0,(P&0xffffffff00000000)|0x02070000]);
+    outputs11_case(state,51,&args51,7,args51[0],"MISMATCH");
+    let(mut indices,mut out52,mut header,mut capture,mut reference)=([0u64,1,2,3],[P;4],[0u64;4],[0u64;2],vec![0u64;0x898/8]);
+    let mut actors=(0..4).map(|_|vec![0u64;0x898/8]).collect::<Vec<_>>();let mut pointers=[0u64;4];
+    for i in 0..4{actors[i][0x658/8]=i as u64;pointers[i]=actors[i].as_mut_ptr()as u64;}
+    header[0]=pointers.as_mut_ptr()as u64;header[3]=4;capture[0]=header.as_mut_ptr()as u64;capture[1]=reference.as_mut_ptr()as u64;
+    let args52=[indices.as_mut_ptr()as u64,out52.as_mut_ptr()as u64,capture.as_mut_ptr()as u64];
+    outputs11_case(state,52,&args52,8,ret,"MATCH");assert_eq!(out52,[3,2,1,0]);
+    OUTPUTS11_MUTATE.store((&mut indices[0])as *mut u64 as usize,Ordering::Relaxed);outputs11_case(state,52,&args52,8,ret,"UNSTABLE");OUTPUTS11_MUTATE.store(0,Ordering::Relaxed);indices[0]=0;
+    let mut alias52=args52;alias52[1]=args52[0];outputs11_case(state,52,&alias52,0,ret,"SKIP");
+    outputs11_case(state,52,&args52,9,ret,"MISMATCH");
+    assert_eq!(counter(&OUTPUTS11_CALLS)-calls,23); // MATCH6/UNSTABLE2/SKIP2/MISMATCH4/original-only9
+    if let Some(seq)=first{assert_eq!(state.first_mismatch.get().unwrap().seq,seq);}
+    assert_eq!(in_flight(state),0);assert_eq!(counter(&state.queued_events),0);assert_eq!(counter(&state.io_errors),0);
+    // 호출자는 다음 기존 I/O 축 앞 test전용 reopen을 그대로 둔다. production 재개를 추가하지 않는다.
+}
+
 #[test]fn stacked10_exact_registry_arity_masks_and_no_output_exceptions(){
     for(id,mask,value)in[(47,u64::MAX,0x1234567800010000u64),(48,u64::MAX,0xfedcba9800020000),(49,255,1)]{
         let mut e=Evaluation{expected:value,mask,output_ptr:None,output_fields:vec![],metrics:vec![]};
@@ -2099,6 +2316,7 @@ fn output_fake_original_observe_axis(state:&'static State){
         merge_actual_observe_axis(state);
         stacked_actual_observe_axis(state);
         stacked10_actual_observe_axis(state);
+        outputs11_actual_observe_axis(state);
         reopen_for_independent_fixture(state);
         // 기존 I/O실패fixture의기록1개를다시만들어 sampler배치flush와분리한다.
         assert_eq!(unsafe{observe(6,[0,player.as_ptr()as u64,data.as_ptr()as u64,0])},0x1122_3344_5566_7700);
