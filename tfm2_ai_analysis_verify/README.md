@@ -1,4 +1,4 @@
-# AI 분석 검증 v0.2.1
+# AI 분석 검증 v0.2.2
 
 실제 게임 호출은 원본을 한 번 실행하고 반환값을 유지합니다. 별도 Rust 모델이 같은 입력을 읽어 예상값을 계산합니다. 게임 헬퍼를 예상값 계산에 호출하거나 계수를 변경하지 않습니다.
 
@@ -34,19 +34,19 @@
 수집은 매 실행 꺼진 상태입니다. 목표 경기 진입 직전 다음 명령으로 해당 run_id를 확인하고 시작합니다. 실행당 수집 세션 하나만 허용하며 타이틀(scene1)은 제외하고 InGame4/GameTest5에서만 비교합니다. 이 scene은 상위 UI 상태여서 내부 리플레이 단계 자체를 증명하지는 않습니다. CLI는 UI를 조작하지 않고 관측 제어 파일만 씁니다.
 
 ```powershell
-python -B -X utf8 tools/capture_control.py start --summary <모드폴더>/summary.json --label <경기구간명>
-python -B -X utf8 tools/capture_control.py stop --summary <모드폴더>/summary.json
+python -B -X utf8 tools/capture_control.py start --summary <모드폴더>/summary.json --run-id <현재run_id> --label <경기구간명>
+python -B -X utf8 tools/capture_control.py stop --summary <모드폴더>/summary.json --run-id <현재run_id>
 ```
 
-처음64개 적격 호출은 모두 채집하고 이후4096호출 간격, 함수당5000개 상한입니다. 파일 작업자는 UI 프레임과 별개로 owned event만 기록합니다. Windows 요약파일 교체의 공유 오류5/32/33은 5ms 간격 최대20회 재시도하며, 최종실패만 수집을 닫고 stage/errno를 기록합니다. 성공한 재시도도 별도 계수로 남깁니다. stop은 새 예약 차단·진행 중 비교0·enqueued=persisted를 확인해야 종료로 인정합니다. queue_full/queue_disconnected/io_errors/io_lost_or_uncertain_events는 각각 남기며 유실0을 가정하지 않습니다.
+처음64개 적격 호출은 모두 채집하고 이후4096호출 간격, 함수당5000개 상한입니다. 파일 작업자는 UI 프레임과 별개로 owned event만 기록합니다. v0.2.2는 실행별 append-only summaries_<run_id>.jsonl을 정본으로 쓰며, 관측 원문 flush 뒤 완전한 요약 레코드를 append·flush합니다. summary.json은 호환 별칭이며 교체 실패는 별도 오류로 남깁니다. 정본 기록 실패는 수집을 닫습니다. stop은 같은 run의 새 완전 레코드에서 새 예약 차단·진행 중 비교0·enqueued=persisted를 확인해야 종료로 인정합니다. queue_full/queue_disconnected/io_errors/io_lost_or_uncertain_events는 각각 남기며 유실0을 가정하지 않습니다.
 
 ## 판독
 
-`summary.json`과 같은 run_id의 `observations_<run_id>.jsonl`을 함께 보존합니다. MATCH는 관측 입력에 대한 예상 출력과 원본 출력의 비트 일치입니다. AL 반환은 AL만 비교하고 전체 RAX는 원본 그대로 반환합니다. 입력 변동은 UNSTABLE, 읽기/모델 실패는 SKIP, 외부 체인 결과는 FOREIGN으로 분리합니다.
+`summaries_<run_id>.jsonl`과 같은 run_id의 `observations_<run_id>.jsonl`을 함께 보존합니다. MATCH는 관측 입력에 대한 예상 출력과 원본 출력의 비트 일치입니다. AL 반환은 AL만 비교하고 전체 RAX는 원본 그대로 반환합니다. 입력 변동은 UNSTABLE, 읽기/모델 실패는 SKIP, 외부 체인 결과는 FOREIGN으로 분리합니다.
 
 함수 출력 일치와 각 임계점 아래/동일/위 관측을 별도 집계합니다. metric은 snapshot에서 계산하므로 `observed_branch=false`입니다. 내부 분기 레지스터를 직접 읽었다는 뜻이 아닙니다. 드문 전술/상황 및 데스매치 미관측은 남겨 두며, 표본0을 검증 완료로 처리하지 않습니다. 모든 계수의 독립 조절 가능성이나 전이 하위함수까지 검증됐다고 주장하지 않습니다.
 
-첫 시험은 fdb9a0 집계1000일치/차이0, 저장512건 재계산 일치였으나 타이틀에서 상한을 소진했고488건이 유실됐습니다. 이는 경기 표본 검증이 아니며 `INCOMPLETE_WITH_LOG_LOSS`로 보존합니다. v0.2.0 비활성 시험에서는 요약 I/O 오류1건이 나와 실제수집을 시작하지 않았습니다. 원문은 round02/disarmed와 release_v020에 보존하며, v0.2.1 시험은 후속 영수증을 따릅니다.
+첫 시험은 fdb9a0 집계1000일치/차이0, 저장512건 재계산 일치였으나 타이틀에서 상한을 소진했고488건이 유실됐습니다. 이는 경기 표본 검증이 아니며 `INCOMPLETE_WITH_LOG_LOSS`로 보존합니다. v0.2.0 비활성 시험에서는 요약 I/O 오류1건이 나와 실제수집을 시작하지 않았습니다. v0.2.1은17개 함수4234건 재계산 MATCH/관측유실0이지만 요약 rename 오류1로 중단됐습니다. InGame 준비+경기 혼합 관측이며 특정 리플레이 전용으로 해석하지 않습니다. 원문은 round02 각 고정 하위폴더에 보존합니다.
 
 ## 로컬 빌드
 

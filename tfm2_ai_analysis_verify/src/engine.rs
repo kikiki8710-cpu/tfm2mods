@@ -69,9 +69,10 @@ struct Event {
 struct State {
     dir:PathBuf, run_id:String, config:Config, identity_verified:bool, actual_sha256:String,
     stats:[Stats;MODEL_COUNT], install:Mutex<Vec<InstallStatus>>,
-    queue:SyncSender<Event>, receiver:Mutex<Receiver<Event>>,writer:Mutex<BufWriter<File>>,flush_lock:Mutex<()>,
+    queue:SyncSender<Event>, receiver:Mutex<Receiver<Event>>,writer:Mutex<BufWriter<File>>,summary_journal:Mutex<BufWriter<File>>,flush_lock:Mutex<()>,
     frames:AtomicU64, sequence:AtomicU64, install_tried:AtomicUsize, io_errors:AtomicU64,
     init_ready:AtomicUsize, io_lost_or_uncertain_events:AtomicU64,summary_retries:AtomicU64,last_io_error:Mutex<String>,
+    summary_record_sequence:AtomicU64,journal_failed:AtomicUsize,summary_alias_errors:AtomicU64,last_summary_alias_error:Mutex<String>,
     capture_enabled:AtomicUsize,capture_label:OnceLock<String>,control_sequence:AtomicU64,
     scene_code:AtomicUsize,admission:AtomicU64,queued_events:AtomicU64,stop_pending_sequence:AtomicU64,stop_worker:AtomicUsize,worker_state:AtomicUsize,
     worker:Mutex<Option<JoinHandle<()>>>,control_error:Mutex<String>,
@@ -95,9 +96,9 @@ struct AtomicWriteError{stage:&'static str,error:std::io::Error,retries:u64}
 fn atomic_error(stage:&'static str,error:std::io::Error)->AtomicWriteError{
     AtomicWriteError{stage,error,retries:0}
 }
-// 공유 위반성 rename만 최초 시도+최대20회 재시도한다. 예정 sleep 합계 최대100ms이며
+// 파일 교체 helper의 재시도 예산은 호출자가 정한다(runtime alias=0, 구 경계시험=20).
 // 파일 IO/OS 스케줄링까지 포함한 실제 wall-clock 상한을 보장하는 것은 아니다.
-fn write_atomic(path:&Path,text:&str,retry_counter:&AtomicU64)->Result<(),AtomicWriteError>{
+fn write_atomic(path:&Path,text:&str,retry_counter:&AtomicU64,max_retries:u64)->Result<(),AtomicWriteError>{
     let temp=path.with_extension("json.tmp");
     {
         let mut f=File::create(&temp).map_err(|e|atomic_error("summary_create_temp",e))?;
@@ -111,7 +112,7 @@ fn write_atomic(path:&Path,text:&str,retry_counter:&AtomicU64)->Result<(),Atomic
                 // 최종 성공한 교체의 추가 시도만 누계한다. 최종 실패는 io_errors로 별도 기록.
                 retry_counter.fetch_add(retries,Ordering::Relaxed);return Ok(());
             },
-            Err(error) if cfg!(windows)&&retries<20&&matches!(error.raw_os_error(),Some(5|32|33))=>{
+            Err(error) if cfg!(windows)&&retries<max_retries&&matches!(error.raw_os_error(),Some(5|32|33))=>{
                 retries+=1;std::thread::sleep(Duration::from_millis(5));
             },
             Err(error)=>return Err(AtomicWriteError{stage:"summary_rename",error,retries}),
@@ -133,14 +134,17 @@ pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verif
     let run_id=format!("{}_{stamp}",std::process::id());
     let output=dir.join(format!("observations_{run_id}.jsonl"));
     let f=OpenOptions::new().create_new(true).write(true).open(output).map_err(|e|e.to_string())?;
+    let journal_output=dir.join(format!("summaries_{run_id}.jsonl"));
+    let journal=OpenOptions::new().create_new(true).append(true).open(journal_output).map_err(|e|e.to_string())?;
     let capacity=config.queue_capacity;
     let (queue,receiver)=sync_channel(capacity);
     STATE.set(State{dir,run_id,config,identity_verified,actual_sha256,
         stats:std::array::from_fn(|_|Stats::default()),install:Mutex::new(Vec::new()),
-        queue,receiver:Mutex::new(receiver),writer:Mutex::new(BufWriter::new(f)),flush_lock:Mutex::new(()),
+        queue,receiver:Mutex::new(receiver),writer:Mutex::new(BufWriter::new(f)),summary_journal:Mutex::new(BufWriter::new(journal)),flush_lock:Mutex::new(()),
         frames:AtomicU64::new(0),sequence:AtomicU64::new(0),install_tried:AtomicUsize::new(0),io_errors:AtomicU64::new(0),
         init_ready:AtomicUsize::new(0),io_lost_or_uncertain_events:AtomicU64::new(0),
         summary_retries:AtomicU64::new(0),last_io_error:Mutex::new(String::new()),
+        summary_record_sequence:AtomicU64::new(0),journal_failed:AtomicUsize::new(0),summary_alias_errors:AtomicU64::new(0),last_summary_alias_error:Mutex::new(String::new()),
         capture_enabled:AtomicUsize::new(0),capture_label:OnceLock::new(),control_sequence:AtomicU64::new(0),
         scene_code:AtomicUsize::new(usize::MAX),admission:AtomicU64::new(ADMISSION_CLOSED),queued_events:AtomicU64::new(0),
         stop_pending_sequence:AtomicU64::new(0),stop_worker:AtomicUsize::new(0),worker_state:AtomicUsize::new(0),
@@ -247,7 +251,7 @@ fn process_control() {
             "start"=>{
                 let name=control.label.ok_or("control label 누락")?;
                 if name.is_empty()||name.len()>200{return Err("control label 길이 오류");}
-                if !s.config.armed||!s.identity_verified||s.init_ready.load(Ordering::Acquire)==0{return Err("미준비/disarmed/버전 불일치");}
+                if !s.config.armed||!s.identity_verified||s.init_ready.load(Ordering::Acquire)==0||counter(&s.io_errors)!=0{return Err("미준비/disarmed/버전 불일치");}
                 if s.stop_worker.load(Ordering::Acquire)!=0{return Err("종료 중 수집 시작 거절");}
                 if s.stop_pending_sequence.load(Ordering::Acquire)!=0{return Err("stop 요청 뒤 재시작 금지; 새 실행 필요");}
                 if s.capture_label.get().is_some(){return Err("실행당 수집 세션 한 개만 허용; 새 실행 필요");}
@@ -477,13 +481,16 @@ pub fn flush()->std::io::Result<()> {
         return Err(error);
     }
     for e in &events {state.stats[e.id].persisted.fetch_add(1,Ordering::Relaxed);}
-    // 이미 닫힌 admission에서는 새 관측 CAS가 성공하지 않는다. 진행/큐가 모두 0인
-    // 성공 flush 뒤 stop sequence를 ack하므로 ack 이후 표본이 새로 생길 수 없다.
-    let pending=state.stop_pending_sequence.load(Ordering::Acquire);
-    if state.admission.load(Ordering::Acquire)&ADMISSION_CLOSED!=0 && in_flight(state)==0
-        && counter(&state.queued_events)==0 && pending>state.control_sequence.load(Ordering::Acquire){
-        state.control_sequence.store(pending,Ordering::Release);
+    // 부분 append 실패 뒤 같은 BufWriter를 다시 flush하면 부분 줄을 중복/이어쓸 수 있다.
+    // 정본은 실행당 terminal failure로 처리하고 새 실행만 허용한다. 관측 큐 drain은 위에서 수행한다.
+    if state.journal_failed.load(Ordering::Acquire)!=0{
+        return Err(std::io::Error::other("summary journal disabled after hard failure; restart required"));
     }
+    // ack 후보는 정본 journal append+flush 성공 뒤에만 게시한다.
+    let pending=state.stop_pending_sequence.load(Ordering::Acquire);
+    let current_ack=state.control_sequence.load(Ordering::Acquire);
+    let ack=if state.admission.load(Ordering::Acquire)&ADMISSION_CLOSED!=0 && in_flight(state)==0
+        && counter(&state.queued_events)==0 && pending>current_ack{pending}else{current_ack};
     let installs=state.install.lock().unwrap_or_else(|e|e.into_inner()).clone();
     let probes=generated::PROBES.iter().map(|p| {
         let s=&state.stats[p.id];let status=installs.iter().find(|x|x.id==p.id);
@@ -498,7 +505,7 @@ pub fn flush()->std::io::Result<()> {
         json_quote(&state.run_id),json_quote(generated::BASELINE_EXE_SHA256),json_quote(&state.actual_sha256),state.identity_verified,state.config.armed,generated::CENSUS_FUNCTIONS,generated::PROBES.len(),counter(&state.io_errors),counter(&state.io_lost_or_uncertain_events),state.config.sample_stride,state.config.max_samples_per_probe,probes);
     let summary=format!("{},\"capture_enabled\":{},\"capture_label\":{},\"control_sequence\":{},\"control_error\":{},\"in_flight\":{},\"scene_code\":{}}}\n",
         summary.trim().trim_end_matches('}'),state.capture_enabled.load(Ordering::Acquire)!=0,
-        json_quote(state.capture_label.get().map(String::as_str).unwrap_or("")),counter(&state.control_sequence),
+        json_quote(state.capture_label.get().map(String::as_str).unwrap_or("")),ack,
         json_quote(&state.control_error.lock().unwrap_or_else(|e|e.into_inner())),in_flight(state),state.scene_code.load(Ordering::Acquire));
     let queue_pending=counter(&state.queued_events);
     let summary=format!("{},\"queued_events\":{},\"queue_pending\":{},\"stop_pending_sequence\":{},\"worker_state\":{}}}\n",
@@ -506,12 +513,29 @@ pub fn flush()->std::io::Result<()> {
     let summary=format!("{},\"summary_retries\":{},\"last_io_error\":{},\"init_ready\":{}}}\n",
         summary.trim().trim_end_matches('}'),counter(&state.summary_retries),
         json_quote(&state.last_io_error.lock().unwrap_or_else(|e|e.into_inner())),state.init_ready.load(Ordering::Acquire)!=0);
-    match write_atomic(&state.dir.join("summary.json"),&summary,&state.summary_retries){
-        Ok(())=>Ok(()),
-        Err(failure)=>{
-            record_io_failure(state,failure.stage,&failure.error,failure.retries);Err(failure.error)
-        },
+    let record_sequence=state.summary_record_sequence.load(Ordering::Acquire)+1;
+    let timestamp_ms=std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_millis();
+    let summary=format!("{},\"summary_source\":\"journal\",\"record_seq\":{},\"summary_timestamp_unix_ms\":{},\"summary_record_sequence\":{},\"summary_journal\":{},\"summary_alias_errors\":{},\"last_summary_alias_error\":{}}}\n",
+        summary.trim().trim_end_matches('}'),record_sequence,timestamp_ms,record_sequence,json_quote(&format!("summaries_{}.jsonl",state.run_id)),
+        counter(&state.summary_alias_errors),json_quote(&state.last_summary_alias_error.lock().unwrap_or_else(|e|e.into_inner())));
+    // observations가 먼저 flush된 뒤 정본 snapshot을 append한다. 교체/DELETE 공유권이 필요 없다.
+    let journal_written=(||{
+        let mut journal=state.summary_journal.lock().unwrap_or_else(|e|e.into_inner());
+        journal.write_all(summary.as_bytes())?;journal.flush()
+    })();
+    if let Err(error)=journal_written{
+        state.journal_failed.store(1,Ordering::Release);
+        record_io_failure(state,"summary_journal_append_flush",&error,0);return Err(error);
     }
+    state.summary_record_sequence.store(record_sequence,Ordering::Release);
+    if ack>current_ack{state.control_sequence.store(ack,Ordering::Release);}
+    // 별칭은 한 번만 시도한다. 파일 교체 경합이 정본/수집 gate를 닫거나 writer를 재시도로 막지 않는다.
+    if let Err(failure)=write_atomic(&state.dir.join("summary.json"),&summary,&state.summary_retries,0){
+        state.summary_alias_errors.fetch_add(1,Ordering::Relaxed);
+        *state.last_summary_alias_error.lock().unwrap_or_else(|e|e.into_inner())=format!(
+            "stage={};os_error={:?};retries={};message={}",failure.stage,failure.error.raw_os_error(),failure.retries,failure.error);
+    }
+    Ok(())
 }
 
 #[cfg(test)] mod tests {
@@ -544,12 +568,12 @@ pub fn flush()->std::io::Result<()> {
         // Rust 기본 open의 share-delete 대신 READ|WRITE만 주어 Python reader 충돌을 재현.
         let held=OpenOptions::new().read(true).share_mode(1|2).open(&summary).unwrap();
         let release=std::thread::spawn(move||{std::thread::sleep(Duration::from_millis(25));drop(held);});
-        write_atomic(&summary,"replaced",&retries).unwrap();release.join().unwrap();
+        write_atomic(&summary,"replaced",&retries,20).unwrap();release.join().unwrap();
         assert!(counter(&retries)>0&&counter(&retries)<=20);
         assert_eq!(std::fs::read_to_string(&summary).unwrap(),"replaced");
         let successful_retries=counter(&retries);
         let held=OpenOptions::new().read(true).share_mode(1|2).open(&summary).unwrap();
-        let began=std::time::Instant::now();let failure=write_atomic(&summary,"must_not_replace",&retries).unwrap_err();
+        let began=std::time::Instant::now();let failure=write_atomic(&summary,"must_not_replace",&retries,20).unwrap_err();
         assert_eq!(failure.stage,"summary_rename");assert_eq!(failure.retries,20);
         assert!(matches!(failure.error.raw_os_error(),Some(5|32|33)));
         assert!(began.elapsed()>=Duration::from_millis(100));
@@ -585,22 +609,24 @@ pub fn flush()->std::io::Result<()> {
     unsafe extern "system-unwind" fn fake_boolean_original(_a:u64,_b:u64,_c:u64,_d:u64)->u64 {
         FAKE_BOOLEAN_CALLS.fetch_add(1,Ordering::Relaxed);0x1122_3344_5566_7700
     }
-    #[test] fn native_fake_original_once_and_initial_io_failure_never_installs() {
+    #[test] fn native_fake_original_once_and_journal_hard_io_is_failclosed() {
         let dir=std::env::temp_dir().join(format!("tfm2_aiav_engine_selftest_{}_{}",std::process::id(),
             std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
         std::fs::create_dir_all(dir.join("summary.json")).unwrap();
         let configuration=Config{armed:true,sample_stride:1,max_samples_per_probe:20,queue_capacity:8,..Config::default()};
-        assert!(initialize(dir.clone(),configuration,"ENGINE_SELFTEST_NOT_A_GAME_SESSION".into(),true).is_err());
+        initialize(dir.clone(),configuration,"ENGINE_SELFTEST_NOT_A_GAME_SESSION".into(),true).unwrap();
         let state=STATE.get().unwrap();
-        for _ in 0..200 {post_update();}
         assert_eq!(state.install_tried.load(Ordering::Acquire),0);
+        assert_eq!(counter(&state.io_errors),0);assert_eq!(counter(&state.summary_alias_errors),1);
+        assert_eq!(state.summary_record_sequence.load(Ordering::Acquire),1);
+        assert!(dir.join(format!("summaries_{}.jsonl",state.run_id)).exists());
         assert!(ORIGINALS.iter().all(|x|x.load(Ordering::Acquire)==0));
         std::fs::remove_dir(dir.join("summary.json")).unwrap();
         platform::init_safe_reader().unwrap();
         assert!(state.worker.lock().unwrap().is_none());
         assert_eq!(state.worker_state.load(Ordering::Acquire),0);
         assert_eq!(counter(&state.queued_events),0);
-        // init I/O 실패 뒤에는 worker도 설치도 시작하지 않았다. 이후는 가짜 원본 전용 수동 fixture다.
+        // 초기 alias 실패는 soft이며 worker/실제 설치는 아직0. 이후는 가짜 원본 수동 fixture다.
         state.init_ready.store(1,Ordering::Release);
         state.install_tried.store(1,Ordering::Release); // 이후 update도 실제 게임 패치는 금지.
         let control=dir.join("capturectl.cfg");
@@ -621,6 +647,20 @@ pub fn flush()->std::io::Result<()> {
         assert_eq!(unsafe{observe(7,[address,99,0,0])},FAKE_RESULT);
         assert_eq!(counter(&state.stats[7].eligible_calls),0);assert_eq!(counter(&state.stats[7].sample_attempts),0);
         assert_eq!(in_flight(state),0);set_scene(4);
+        // alias가 잠겨도 정본 journal flush와 수집은 유지된다.
+        flush().unwrap();
+        {
+            use std::os::windows::fs::OpenOptionsExt;
+            let alias=OpenOptions::new().read(true).share_mode(1|2).open(dir.join("summary.json")).unwrap();
+            let journal_reader=OpenOptions::new().read(true).share_mode(1|2)
+                .open(dir.join(format!("summaries_{}.jsonl",state.run_id))).unwrap();
+            let before=counter(&state.summary_alias_errors);let record=counter(&state.summary_record_sequence);
+            flush().unwrap();assert_eq!(counter(&state.summary_alias_errors),before+1);
+            assert_eq!(counter(&state.summary_record_sequence),record+1);
+            assert_eq!(counter(&state.io_errors),0);assert_eq!(state.capture_enabled.load(Ordering::Acquire),1);
+            assert!(state.last_summary_alias_error.lock().unwrap().contains("stage=summary_rename;os_error="));drop(alias);drop(journal_reader);
+        }
+
         // 기존 원본1회·20표본·큐유실 fixture의 집계를 독립 구간으로 유지한다.
         FAKE_CALLS.store(0,Ordering::Relaxed);state.stats[7].calls.store(0,Ordering::Relaxed);
 
@@ -695,6 +735,11 @@ pub fn flush()->std::io::Result<()> {
         assert_eq!(in_flight(state),0);assert_eq!(counter(&state.queued_events),1);
         assert_eq!(counter(&state.control_sequence),1);flush().unwrap();
         assert_eq!(counter(&state.control_sequence),2);assert_eq!(counter(&state.queued_events),0);
+        let journal_text=std::fs::read_to_string(dir.join(format!("summaries_{}.jsonl",state.run_id))).unwrap();
+        let journal_ack=journal_text.lines().last().unwrap();
+        assert!(journal_ack.contains("\"control_sequence\":2")&&journal_ack.contains("\"queue_pending\":0")
+            &&journal_ack.contains("\"in_flight\":0")&&journal_ack.contains("\"summary_source\":\"journal\""));
+
         // stop ack 뒤 gate가 닫혀 있고, 같은 run의 오래된 제어도 다시 열지 않는다.
         std::fs::write(&control,format!("run_id={}\nsequence=1\ncommand=start\nlabel=stale",state.run_id)).unwrap();
         process_control();assert_eq!(counter(&state.control_sequence),2);assert!(admit(state).is_none());
@@ -716,6 +761,24 @@ pub fn flush()->std::io::Result<()> {
         assert!(state.worker.lock().unwrap().is_none());assert_eq!(state.worker_state.load(Ordering::Acquire),2);
         assert_eq!(in_flight(state),0);assert_eq!(counter(&state.queued_events),0);
         assert!(start_worker(state).is_err());shutdown(); // 재시작 거절/종료 멱등
+        // 정본 기록 실패에서는 ack 후보3을 게시하지 않고 hardclose한다.
+        let journal_path=dir.join(format!("summaries_{}.jsonl",state.run_id));
+        // 끝에 부분 줄을 둔 뒤 hard append 실패를 주입한다. 이후 재시도가 그 줄을 이어쓰면 안 된다.
+        {let mut f=OpenOptions::new().append(true).open(&journal_path).unwrap();f.write_all(b"{\"partial\":").unwrap();f.flush().unwrap();}
+        let failed_length=std::fs::metadata(&journal_path).unwrap().len();
+        *state.summary_journal.lock().unwrap()=BufWriter::new(File::open(&journal_path).unwrap());
+        std::fs::write(&control,format!("run_id={}\nsequence=3\ncommand=stop",state.run_id)).unwrap();process_control();
+        let errors=counter(&state.io_errors);let record=counter(&state.summary_record_sequence);
+        assert!(flush().is_err());assert_eq!(counter(&state.io_errors),errors+1);
+        assert_eq!(counter(&state.control_sequence),2);assert_eq!(counter(&state.summary_record_sequence),record);
+        assert!(state.last_io_error.lock().unwrap().contains("stage=summary_journal_append_flush;os_error="));
+        assert!(admit(state).is_none());
+        // 부분 실패 후 같은 writer 재시도/새 ack는 금지한다.
+        assert_eq!(state.journal_failed.load(Ordering::Acquire),1);
+        let errors=counter(&state.io_errors);assert!(flush().is_err());
+        assert_eq!(counter(&state.io_errors),errors);assert_eq!(counter(&state.control_sequence),2);
+        assert_eq!(std::fs::metadata(&journal_path).unwrap().len(),failed_length);
+
 
     }
 }
