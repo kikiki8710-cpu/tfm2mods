@@ -1,4 +1,5 @@
 /target/
 /prepared/
+/prepared_round02/
 __pycache__/
 *.pyc

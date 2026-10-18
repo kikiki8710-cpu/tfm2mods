@@ -48,7 +48,7 @@ pub fn evaluate(id: usize, args: [u64; 4], memory: &mut dyn Memory) -> Result<Ev
         5 => dual_timestamp(args, memory),
         6 => record_hp_gate(args, memory),
         7 => forecast_record(args, memory),
-        _ => Err("UNSUPPORTED_MODEL_ID"),
+        _ => crate::models_extra::evaluate(id,args,memory),
     }
 }
 
@@ -395,6 +395,6 @@ mod tests {
     #[test]
     fn missing_reads_are_errors_and_never_default_zero() {
         for id in 0..8 { assert!(evaluate(id,[0;4],&mut Fixture::default()).is_err()); }
-        assert!(evaluate(8,[0;4],&mut Fixture::default()).is_err());
+        assert!(evaluate(crate::engine::MODEL_COUNT,[0;4],&mut Fixture::default()).is_err());
     }
 }

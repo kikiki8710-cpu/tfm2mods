@@ -6,6 +6,7 @@ mod engine;
 mod generated;
 mod hook;
 mod models;
+mod models_extra;
 mod platform;
 mod sha256;
 
@@ -16,10 +17,14 @@ pub const MOD_ID:&str="tfm2_ai_analysis_verify";
 #[used] static SOURCE_PATH:&str=file!();
 struct Extension;
 impl StableExtension for Extension {
-    fn post_update(&self,_ctx:&mut StableClient<'_>,_dt_micros:u64) {
-        let _=catch_unwind(AssertUnwindSafe(engine::post_update));
+    fn post_update(&self,ctx:&mut StableClient<'_>,_dt_micros:u64) {
+        let _=catch_unwind(AssertUnwindSafe(||{
+            engine::set_scene(ctx.scene_kind().map(|x|x as usize).unwrap_or(usize::MAX));
+            engine::post_update();
+        }));
     }
 }
+impl Drop for Extension{fn drop(&mut self){engine::shutdown();}}
 
 fn setup()->Result<(),String> {
     let path=platform::own_module_path(init as *const () as usize).map_err(str::to_string)?;

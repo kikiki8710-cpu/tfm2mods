@@ -14,8 +14,8 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        Self { armed: false, probes: BTreeSet::new(), sample_stride: 64,
-            max_samples_per_probe: 1000, queue_capacity: 256,
+        Self { armed: false, probes: BTreeSet::new(), sample_stride: 4096,
+            max_samples_per_probe: 5000, queue_capacity: 4096,
             install_delay_frames: 120, allow_foreign_chain: false }
     }
 }

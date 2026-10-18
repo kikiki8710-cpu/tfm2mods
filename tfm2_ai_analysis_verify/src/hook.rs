@@ -1,6 +1,7 @@
 //! 검증 목록의 Win64 정수 ABI만 지원하는 실험용 inline detour.
-//! armed 설정/ABI와 relocation 없는 명령 경계 검증은 상위 manifest가 책임진다.
-//! 경기·배경 시뮬 없는 초기화 상태에서 armed를 켜는 사용자 수동 전제이며 자동 판별하지 않는다.
+//! armed 설정/ABI와 제한 Jcc 외 relocation 없는 명령 경계 검증은 상위 manifest가 책임진다.
+//! INT3는 정상 entry 진입만 중재한다. private LTO/외부 VEH/loader-lock/unwind 안전 증명은 아니다.
+//! 정상 entry 동시진입은 INT3 원본우회로 중재하며 게임장면 판별에 의존하지 않는다.
 //! 실게임 미검증.
 use crate::platform;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -12,6 +13,32 @@ pub struct HookSpec {
     pub body: &'static [u8],
     pub wrapper: usize,
     pub allow_foreign_chain: bool,
+    pub branches:&'static [BranchFixup],
+}
+#[derive(Clone,Copy)]
+pub struct BranchFixup{pub offset:usize,pub len:usize,pub target_rva:usize}
+
+// 빌드 시 전체 명령 경계를 감사한 Jcc만 허용한다. 일반 x86 디코더가 아니다.
+// 조건 반전 → 14바이트 절대 점프를 건너뛰게 하여 flags/RAX를 바꾸지 않는다.
+fn relocated_prefix(spec:&HookSpec,base:usize)->Result<Vec<u8>,&'static str>{
+    let mut out=Vec::new();let mut previous=0;
+    for b in spec.branches{
+        if b.offset<previous||b.offset.checked_add(b.len).ok_or("branch offset overflow")?>spec.prologue.len(){return Err("branch outside audited prefix");}
+        let bytes=&spec.prologue[b.offset..b.offset+b.len];
+        let (condition,delta)=match bytes{
+            [op,d] if (0x70..=0x7f).contains(op)=>(*op&15,*d as i8 as i64),
+            [0x0f,op,a,b,c,d] if (0x80..=0x8f).contains(op)=>(*op&15,i32::from_le_bytes([*a,*b,*c,*d])as i64),
+            _=>return Err("only audited rel8/rel32 Jcc relocation is supported")};
+        let next=spec.rva.checked_add(b.offset+b.len).ok_or("branch next overflow")?;
+        let target=next.checked_add_signed(delta as isize).ok_or("branch target overflow")?;
+        if target!=b.target_rva{return Err("branch target does not match pinned bytes");}
+        if target>=spec.rva&&target<spec.rva+spec.prologue.len(){return Err("internal prefix branch target refused");}
+        out.extend_from_slice(&spec.prologue[previous..b.offset]);
+        out.extend_from_slice(&[0x70|(condition^1),14]);
+        rip_jump(base.checked_add(target).ok_or("absolute branch overflow")?,&mut out);
+        previous=b.offset+b.len;
+    }
+    out.extend_from_slice(&spec.prologue[previous..]);Ok(out)
 }
 #[derive(Clone, Copy, Debug)]
 pub struct InstalledHook {
@@ -64,6 +91,17 @@ pub fn install_once(spec: &HookSpec, original: &AtomicUsize) -> Result<Installed
     }
     platform::init_safe_reader()?;
     let base = platform::module_base()?;
+    install_at(spec, base, original, InstallBehavior::default())
+}
+
+#[derive(Default)]
+struct InstallBehavior {
+    #[cfg(test)] fail_after_partial_tail: bool,
+    #[cfg(test)] wait_for_gate_hits: u64,
+}
+fn install_at(spec: &HookSpec, base: usize, original: &AtomicUsize, behavior: InstallBehavior) -> Result<InstalledHook, &'static str> {
+    let _ = &behavior;
+    if platform::debugger_present() { return Err("debugger attached; INT3 install refused"); }
     let entry = base.checked_add(spec.rva).ok_or("hook RVA overflow")?;
     platform::executable_range(entry, spec.body.len())?;
     platform::executable_range(spec.wrapper, 1)?;
@@ -88,7 +126,7 @@ pub fn install_once(spec: &HookSpec, original: &AtomicUsize) -> Result<Installed
     }
     else {
         // copied prologue에 RIP/분기/CALL/분할 명령이 없다는 근거는 고정 manifest에 둔다.
-        trampoline.extend_from_slice(spec.prologue);
+        trampoline.extend_from_slice(&relocated_prefix(spec,base)?);
         let resume = entry.checked_add(spec.prologue.len()).ok_or("trampoline resume overflow")?;
         rip_jump(resume, &mut trampoline);
     }
@@ -98,29 +136,156 @@ pub fn install_once(spec: &HookSpec, original: &AtomicUsize) -> Result<Installed
     patch[2..10].copy_from_slice(&(spec.wrapper as u64).to_le_bytes());
     patch[10..12].copy_from_slice(&[0xff, 0xe0]);
     let mut recheck = vec![0u8; spec.body.len()];
-    // 이 아래는 다른 스레드가 정지할 수 있다. Rust 할당/로그/일반 콜백 없음.
+    // 원본과 영구 descriptor를 CC 전에 게시한다. 이 시점 이후 stub은 회수하지 않는다.
+    // 지연 INT3도 terminal 상태와 무관하게 정확한 원본 trampoline으로 한 번 우회한다.
+    if let Err(reason) = platform::register_breakpoint_gate(entry, stub) {
+        unsafe { platform::free_unpublished_code(stub); }
+        return Err(reason);
+    }
+    original.store(stub, Ordering::Release);
+    let gate = unsafe { platform::publish_code_byte(entry, before[0], 0xcc) };
+    gate.result?;
+    #[cfg(test)]
+    if behavior.wait_for_gate_hits != 0 {
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        while platform::breakpoint_gate_hits(entry) < behavior.wait_for_gate_hits {
+            if std::time::Instant::now() >= deadline {
+                unsafe { platform::publish_code_byte(entry, 0xcc, before[0]) }.result?;
+                return Err("fixture breakpoint worker progress timeout; tail not written");
+            }
+            std::thread::yield_now();
+        }
+    }
+    // CC 이후 Suspend/GetContext 실패에도 tail은 아직 미수정이다. 원복 성공만 clean refusal.
     let mut stopped = match platform::SuspendedThreads::acquire(entry, patch_len) {
         Ok(g) => g,
-        Err(e) => { unsafe { platform::free_unpublished_code(stub); } return Err(e); }
+        Err(reason) => {
+            unsafe { platform::publish_code_byte(entry, 0xcc, before[0]) }.result?;
+            return Err(reason);
+        }
     };
+    // 이 구간은 Rust 할당/로그/일반 mutex/게임 CALL을 하지 않는다.
     let checked = platform::safe_read_bytes(entry, &mut recheck);
-    if checked.is_err() || recheck != before {
+    if checked.is_err() || recheck[0] != 0xcc || recheck[1..] != before[1..] {
+        let restored = unsafe { platform::publish_code_byte(entry, 0xcc, before[0]) };
         let resumed = stopped.resume_all();
-        unsafe { platform::free_unpublished_code(stub); }
+        restored.result?;
         resumed?;
-        return Err("body changed/unreadable after suspension; refusing patch");
+        return Err("body changed/unreadable after INT3 suspension; tail not written");
     }
-    // 원본을 먼저 게시한다. 패치 직후 wrapper가 실행돼도 null 원본을 볼 수 없다.
-    original.store(stub, Ordering::SeqCst);
-    let outcome = unsafe { platform::write_code(entry, &patch) };
-    if !outcome.attempted {
-        // 쓰기를 시작하지 않았고 현재 entry가 우리 wrapper로 바뀐 적 없는 경로만 철회.
-        original.store(0, Ordering::SeqCst);
+    #[cfg(test)]
+    if behavior.fail_after_partial_tail {
+        // 자기소유 native fixture 전용: 일부 tail을 실제 쓴 뒤 영구 CC fallback을 시험한다.
+        let partial = unsafe { platform::write_code(entry + 1, &patch[1..3]) };
+        let resumed = stopped.resume_all();
+        partial.result?;
+        resumed?;
+        return Err("fixture injected partial tail failure; permanent INT3 fallback retained");
     }
+    // tail 쓰기가 시도된 뒤에는 첫 byte를 원문으로 되돌리면 안 된다.
+    let tail = unsafe { platform::write_code(entry + 1, &patch[1..]) };
+    if let Err(reason) = tail.result {
+        stopped.resume_all()?;
+        return Err(reason);
+    }
+    let checked = platform::safe_read_bytes(entry, &mut recheck[..patch_len]);
+    if checked.is_err() || recheck[0] != 0xcc || recheck[1..patch_len] != patch[1..] {
+        stopped.resume_all()?;
+        return Err("tail readback failed; permanent INT3 fallback retained");
+    }
+    // write_code가 tail cache flush까지 성공한 뒤에만 1byte를 원자 게시한다.
+    let committed = unsafe { platform::publish_code_byte(entry, 0xcc, patch[0]) };
     let resumed = stopped.resume_all();
-    if !outcome.attempted { unsafe { platform::free_unpublished_code(stub); } }
-    // 쓰기 시도 뒤에는 성공/부분 실패와 관계없이 RX stub/original을 영구 유지한다.
-    outcome.result?;
+    committed.result?;
     resumed?;
     Ok(InstalledHook { original: stub, foreign_chain: foreign, target })
+}
+
+#[cfg(test)]mod tests{
+    use super::*;
+    static BRANCH:&[BranchFixup]=&[BranchFixup{offset:7,len:2,target_rva:0x1014}];
+    static PREFIX:&[u8]=&[0x48,0x89,0xc8,0x48,0x85,0xc9,0x90,0x74,0x0b,0x48,0x83,0xc0,7];
+    fn spec(branches:&'static [BranchFixup])->HookSpec{HookSpec{rva:0x1000,prologue:PREFIX,body:PREFIX,wrapper:0,allow_foreign_chain:false,branches}}
+    #[test]fn relocated_conditional_preserves_taken_and_fallthrough_outputs(){
+        let mut body=PREFIX.to_vec();body.push(0xc3);body.resize(20,0x90);body.extend_from_slice(&[0xb8,9,0,0,0,0xc3]);
+        let origin=platform::allocate_code(&body).unwrap();let base=origin-0x1000;
+        let mut prefix=relocated_prefix(&spec(BRANCH),base).unwrap();rip_jump(origin+PREFIX.len(),&mut prefix);
+        let copy=platform::allocate_code(&prefix).unwrap();
+        let original:unsafe extern "system" fn(u64)->u64=unsafe{std::mem::transmute(origin)};
+        let relocated:unsafe extern "system" fn(u64)->u64=unsafe{std::mem::transmute(copy)};
+        for input in [0,1,2,u64::MAX]{assert_eq!(unsafe{original(input)},unsafe{relocated(input)});}
+        unsafe{platform::free_unpublished_code(copy);platform::free_unpublished_code(origin);}
+    }
+    #[test]fn unsupported_or_wrong_target_relocation_is_refused(){
+        static WRONG:&[BranchFixup]=&[BranchFixup{offset:7,len:2,target_rva:0x1015}];
+        static BAD:&[BranchFixup]=&[BranchFixup{offset:0,len:2,target_rva:0x1014}];
+        assert!(relocated_prefix(&spec(WRONG),0x10000).is_err());assert!(relocated_prefix(&spec(BAD),0x10000).is_err());
+    }
+    // 이 native 시험은 자기소유 RX 버퍼만 수정한다. 게임/실 provider 실행이 아니다.
+    // 전체 테스트는 RUST_TEST_THREADS=1로 실행해 다른 시험의 OS/allocator 락과 분리한다.
+    static NATIVE_PATCH_TEST: Mutex<()> = Mutex::new(());
+    static TEST_ORIGINAL: AtomicUsize = AtomicUsize::new(0);
+    static WRAPPER_CALLS: AtomicUsize = AtomicUsize::new(0);
+    static FAILURE_ORIGINAL: AtomicUsize = AtomicUsize::new(0);
+    static FIXTURE_BODY: &[u8] = &[0x48,0x89,0xc8,0x48,0x83,0xc0,7,0x90,0x90,0x90,0x90,0x90,0xc3];
+    unsafe extern "system" fn native_wrapper(a:u64,b:u64,c:u64,d:u64)->u64 {
+        let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=std::mem::transmute(TEST_ORIGINAL.load(Ordering::Acquire));
+        WRAPPER_CALLS.fetch_add(1,Ordering::Relaxed);
+        f(a,b,c,d)
+    }
+    unsafe extern "system" fn failure_wrapper(a:u64,b:u64,c:u64,d:u64)->u64 {
+        let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=std::mem::transmute(FAILURE_ORIGINAL.load(Ordering::Acquire));
+        f(a,b,c,d)
+    }
+    fn native_spec(wrapper:usize)->HookSpec { HookSpec { rva:0,prologue:&FIXTURE_BODY[..12],body:FIXTURE_BODY,wrapper,allow_foreign_chain:false,branches:&[] } }
+    #[test]
+    fn native_int3_gate_four_workers_preserve_outputs_during_commit() {
+        let _serial=NATIVE_PATCH_TEST.lock().unwrap_or_else(|e|e.into_inner());
+        let entry=platform::allocate_code(FIXTURE_BODY).unwrap();
+        let stop=std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let ready=std::sync::Arc::new(std::sync::Barrier::new(5));
+        let calls=std::sync::Arc::new(AtomicUsize::new(0));
+        let workers:Vec<_>=(0..4).map(|worker| {
+            let stop=stop.clone();let ready=ready.clone();let calls=calls.clone();
+            std::thread::spawn(move|| {
+                let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=unsafe{std::mem::transmute(entry)};
+                ready.wait();let mut i=worker as u64;
+                while !stop.load(Ordering::Acquire) {
+                    assert_eq!(unsafe{f(i,0,0,0)},i.wrapping_add(7));
+                    calls.fetch_add(1,Ordering::Relaxed);i=i.wrapping_add(4);
+                    std::thread::yield_now();
+                }
+            })
+        }).collect();
+        ready.wait();
+        let result=install_at(&native_spec(native_wrapper as *const () as usize),entry,&TEST_ORIGINAL,
+            InstallBehavior{fail_after_partial_tail:false,wait_for_gate_hits:128});
+        stop.store(true,Ordering::Release);
+        for worker in workers { worker.join().unwrap(); }
+        let installed=result.expect("self-owned concurrent fixture must commit");
+        assert_eq!(installed.original,TEST_ORIGINAL.load(Ordering::Acquire));
+        assert!(platform::breakpoint_gate_hits(entry)>=128);
+        assert!(calls.load(Ordering::Relaxed)>=128);
+        let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=unsafe{std::mem::transmute(entry)};
+        for i in [0,1,42,u64::MAX] {assert_eq!(unsafe{f(i,0,0,0)},i.wrapping_add(7));}
+        assert!(WRAPPER_CALLS.load(Ordering::Relaxed)>=4);
+        let mut byte=[0];platform::safe_read_bytes(entry,&mut byte).unwrap();assert_eq!(byte[0],0x48);
+        // entry/stub/descriptor는 실제 설치와 같이 회수하지 않는다.
+    }
+    #[test]
+    fn native_partial_tail_failure_keeps_int3_original_fallback() {
+        let _serial=NATIVE_PATCH_TEST.lock().unwrap_or_else(|e|e.into_inner());
+        let entry=platform::allocate_code(FIXTURE_BODY).unwrap();
+        let result=install_at(&native_spec(failure_wrapper as *const () as usize),entry,&FAILURE_ORIGINAL,
+            InstallBehavior{fail_after_partial_tail:true,wait_for_gate_hits:0});
+        assert_eq!(result.unwrap_err(),"fixture injected partial tail failure; permanent INT3 fallback retained");
+        assert_ne!(FAILURE_ORIGINAL.load(Ordering::Acquire),0);
+        let mut head=[0;3];platform::safe_read_bytes(entry,&mut head).unwrap();
+        assert_eq!(head[0],0xcc);assert_eq!(head[1],0xb8);assert_ne!(head[1],FIXTURE_BODY[1]);
+        let hits=platform::breakpoint_gate_hits(entry);
+        let f:unsafe extern "system" fn(u64,u64,u64,u64)->u64=unsafe{std::mem::transmute(entry)};
+        for i in 0u64..32 {assert_eq!(unsafe{f(i,0,0,0)},i+7);}
+        assert_eq!(platform::breakpoint_gate_hits(entry),hits+32);
+    }
+
 }

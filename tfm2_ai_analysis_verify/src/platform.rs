@@ -4,6 +4,7 @@
 use std::ffi::c_void;
 use std::path::PathBuf;
 use std::sync::OnceLock;
+use std::sync::atomic::{AtomicU8, AtomicU64, AtomicUsize, Ordering};
 
 type Handle = *mut c_void;
 const MEM_COMMIT: u32 = 0x1000;
@@ -50,6 +51,7 @@ extern "system" {
     fn GetCurrentProcess() -> Handle;
     fn GetCurrentProcessId() -> u32;
     fn GetCurrentThreadId() -> u32;
+    fn IsDebuggerPresent() -> i32;
     fn GetModuleHandleW(name: *const u16) -> Handle;
     fn GetModuleHandleExW(flags: u32, address: *const u16, module: *mut Handle) -> i32;
     fn GetModuleFileNameW(module: Handle, buffer: *mut u16, capacity: u32) -> u32;
@@ -92,12 +94,60 @@ extern "C" {
     fn tfm2_aiav_read1_fault(); fn tfm2_aiav_read1_land();
 }
 
+// 자기 INT3만 원본으로 우회한다. 슬롯/트램폴린은 최초 CC 게시 뒤 영구 보존한다.
+// entry=0은 빈 슬롯, MAX는 게시 중이다. handler에는 할당/락/대기/게임 CALL이 없다.
+const MAX_BREAKPOINT_GATES: usize = 64;
+struct BreakpointGate { entry: AtomicUsize, original: AtomicUsize, hits: AtomicU64 }
+static BREAKPOINT_GATES: [BreakpointGate; MAX_BREAKPOINT_GATES] = [const {
+    BreakpointGate { entry: AtomicUsize::new(0), original: AtomicUsize::new(0), hits: AtomicU64::new(0) }
+}; MAX_BREAKPOINT_GATES];
+pub(crate) fn debugger_present() -> bool { unsafe { IsDebuggerPresent() != 0 } }
+pub(crate) fn register_breakpoint_gate(entry: usize, original: usize) -> Result<(), &'static str> {
+    checked_end(entry, 1)?;
+    executable_range(original, 1)?;
+    init_safe_reader()?;
+    if BREAKPOINT_GATES.iter().any(|g| g.entry.load(Ordering::Acquire) == entry) {
+        return Err("breakpoint gate entry already registered");
+    }
+    for gate in &BREAKPOINT_GATES {
+        if gate.entry.compare_exchange(0, usize::MAX, Ordering::AcqRel, Ordering::Acquire).is_ok() {
+            gate.original.store(original, Ordering::Relaxed);
+            gate.entry.store(entry, Ordering::Release);
+            return Ok(());
+        }
+    }
+    Err("permanent breakpoint gate capacity exhausted")
+}
+pub(crate) fn breakpoint_gate_hits(entry: usize) -> u64 {
+    BREAKPOINT_GATES.iter().find(|g| g.entry.load(Ordering::Acquire) == entry)
+        .map_or(0, |g| g.hits.load(Ordering::Relaxed))
+}
+unsafe fn handle_breakpoint(p: &ExceptionPointers, rec: &ExceptionRecord) -> bool {
+    if rec.code != 0x80000003 || rec.flags & 1 != 0 { return false; }
+    // ExceptionAddress로 고른다. 지연 dispatch는 first byte가 이미 복원된 뒤에도 온다.
+    for gate in &BREAKPOINT_GATES {
+        let entry = gate.entry.load(Ordering::Acquire);
+        if entry != 0 && entry != usize::MAX && entry == rec.address {
+            let rip = std::ptr::read_unaligned(p.context.add(0xf8) as *const usize);
+            if rip != entry && entry.checked_add(1) != Some(rip) { return false; }
+            let original = gate.original.load(Ordering::Relaxed);
+            if original == 0 { return false; }
+            // CONTEXT.Rip만 변경. Rsp/GPR/SIMD/EFlags 및 TF/RF는 보존한다.
+            std::ptr::write_unaligned(p.context.add(0xf8) as *mut usize, original);
+            gate.hits.fetch_add(1, Ordering::Relaxed);
+            return true;
+        }
+    }
+    false
+}
+
 // fault 명령은 load만이다. out store/임의 게임 RIP의 예외는 절대로 넘겨받지 않는다.
 unsafe extern "system" fn read_exception(pointers: *mut ExceptionPointers) -> i32 {
     if pointers.is_null() { return 0; }
     let p = &*pointers;
     if p.record.is_null() || p.context.is_null() { return 0; }
     let rec = &*p.record;
+    if handle_breakpoint(p, rec) { return -1; }
     if rec.code != 0xc0000005 && rec.code != 0x80000001 { return 0; }
     let rip_slot = p.context.add(0xf8) as *mut usize;
     let rip = std::ptr::read_unaligned(rip_slot);
@@ -128,6 +178,8 @@ unsafe extern "system" fn read_exception(pointers: *mut ExceptionPointers) -> i3
 static READER: OnceLock<Result<usize, &'static str>> = OnceLock::new();
 pub fn init_safe_reader() -> Result<(), &'static str> {
     match READER.get_or_init(|| {
+        // VEH/영구 descriptor 코드의 물리 unload를 막는다. 성공 시 process lifetime pin이다.
+        pin_own_module(read_exception as *const () as usize)?;
         let h = unsafe { AddVectoredExceptionHandler(1, read_exception) };
         if h.is_null() { Err("safe_read: AddVectoredExceptionHandler failed") } else { Ok(h as usize) }
     }) { Ok(_) => Ok(()), Err(e) => Err(*e) }
@@ -211,6 +263,15 @@ fn path_for_module(module: Handle) -> Result<PathBuf, &'static str> {
     Ok(PathBuf::from(std::ffi::OsString::from_wide(&buffer[..n])))
 }
 pub fn module_path() -> Result<PathBuf, &'static str> { path_for_module(std::ptr::null_mut()) }
+/// GET_MODULE_HANDLE_EX_FLAG_PIN | FROM_ADDRESS. 해제하거나 hot unload하지 않는다.
+pub(crate) fn pin_own_module(address: usize) -> Result<(), &'static str> {
+    let mut module = std::ptr::null_mut();
+    if unsafe { GetModuleHandleExW(0x00000001 | 0x00000004, address as *const u16, &mut module) } == 0
+        || module.is_null() {
+        return Err("permanent module pin failed");
+    }
+    Ok(())
+}
 pub fn own_module_path(address: usize) -> Result<PathBuf, &'static str> {
     let mut module = std::ptr::null_mut();
     // FROM_ADDRESS | UNCHANGED_REFCOUNT: 주소가 속한 DLL의 실제 로드 경로.
@@ -266,6 +327,27 @@ pub(crate) unsafe fn write_code(address: usize, patch: &[u8]) -> PatchOutcome {
     PatchOutcome { attempted: true, result }
 }
 
+/// 코드 첫 byte만 원자적으로 교환한다. descriptor/원본은 호출 전에 게시해야 한다.
+/// 성공한 교환 뒤 protection/flush 실패도 attempted=true: 안전 rollback으로 해석하지 않는다.
+pub(crate) unsafe fn publish_code_byte(address: usize, expected: u8, byte: u8) -> PatchOutcome {
+    if executable_range(address, 1).is_err() {
+        return PatchOutcome { attempted: false, result: Err("atomic code byte page refused") };
+    }
+    let mut old = 0;
+    if VirtualProtect(address as *mut c_void, 1, 0x40, &mut old) == 0 {
+        return PatchOutcome { attempted: false, result: Err("atomic code byte VirtualProtect failed") };
+    }
+    let changed = (&*(address as *const AtomicU8)).compare_exchange(expected, byte, Ordering::SeqCst, Ordering::SeqCst).is_ok();
+    let mut ignored = 0;
+    let restored = VirtualProtect(address as *mut c_void, 1, old, &mut ignored) != 0;
+    let flushed = FlushInstructionCache(GetCurrentProcess(), address as *const c_void, 1) != 0;
+    let result = if !changed { Err("atomic code byte differs from expected") }
+        else if !restored { Err("atomic code byte protection restore failed; entry unverified") }
+        else if !flushed { Err("atomic code byte cache flush failed; entry unverified") }
+        else { Ok(()) };
+    PatchOutcome { attempted: changed, result }
+}
+
 struct OwnedHandle(Handle);
 impl Drop for OwnedHandle { fn drop(&mut self) { if !self.0.is_null() { unsafe { CloseHandle(self.0); } } } }
 fn thread_ids(out: &mut Vec<u32>) -> Result<(), &'static str> {
@@ -292,7 +374,8 @@ fn thread_ids(out: &mut Vec<u32>) -> Result<(), &'static str> {
     Ok(())
 }
 struct StoppedThread { handle: OwnedHandle, suspended: bool }
-/// 기존 스레드를 잠시 정지하는 실험용 장벽. 새 스레드 생성 경쟁을 해결하지 않는다.
+/// 기존 스레드의 prefix 내 RIP를 검출하는 보수 장벽. 단독으로 새 진입을 막지 않는다.
+/// 설치자는 먼저 INT3/영구 원본우회를 게시한다. SuspendThread의 OS/loader 락 위험은 남는다.
 pub(crate) struct SuspendedThreads { threads: Vec<StoppedThread> }
 impl SuspendedThreads {
     pub(crate) fn acquire(address: usize, patch_len: usize) -> Result<Self, &'static str> {
