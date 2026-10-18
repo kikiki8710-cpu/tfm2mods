@@ -55,6 +55,8 @@ pub fn evaluate(id: usize, args: [u64; 4], memory: &mut dyn Memory) -> Result<Ev
         29..=31 => crate::models_wave05_outputs::evaluate(id,args,memory),
         37 => crate::models_wave06_direct::evaluate(37,args,memory),
         38 => crate::models_wave06_iterator::evaluate(39,args,memory),
+        39 => crate::models_d8a1f0::evaluate(args,memory),
+        40 => crate::models_next::evaluate(1000,args,memory),
         _ => Err("UNKNOWN_MODEL_ID"),
     }
 }
