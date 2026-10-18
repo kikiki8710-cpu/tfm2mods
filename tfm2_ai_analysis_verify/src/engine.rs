@@ -11,7 +11,7 @@ use std::time::Duration;
 use crate::{config::Config, generated, hook, models, platform};
 
 pub const MAX_FIELDS: usize = 96;
-pub const MODEL_COUNT: usize = 41;
+pub const MODEL_COUNT: usize = 44;
 pub trait Memory { fn read(&mut self, address: u64, width: u8) -> Result<u64, &'static str>; }
 #[derive(Clone, Debug)]
 pub struct Metric {
@@ -213,9 +213,57 @@ fn validate_seeded_peer_outputs(a:[u64;4],e:&Evaluation,reads:&[Field])->Result<
     Ok(())
 }
 
+// runtime41 제안: D8C680만 등록한다. E1B5B0는 entry 보류 상태를 유지한다.
+fn validate_merge_outputs(a:[u64;4],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
+    let(source,n,out,header)=(a[0],a[1],a[2],a[3]);
+    if !(2..=16).contains(&n){return Err("MERGE_POLICY_CAPTURE_LEN_2_TO16");}
+    let input=checked_span(source,n*8)?;let output=checked_span(out,n*8)?;
+    if spans_overlap(input,output){return Err("MERGE_POLICY_SOURCE_OUTPUT_ALIAS");}
+    if spans_overlap(checked_span(header,16)?,output){return Err("MERGE_POLICY_HEADER_OUTPUT_ALIAS");}
+    if e.expected!=0||e.mask!=u64::MAX||e.output_ptr!=Some(out)||e.output_fields.len()!=n as usize{return Err("MERGE_POLICY_RETURN_COUNT_OR_PTR");}
+    let half=n/2;
+    // Capture는 같은 address/width를 첫값으로 합친다. readonly끼리 alias인 경우도 중복을 제거한다.
+    let mut prefix=Vec::new();
+    for p in [(source+half*8,8),(header+8,8),(source,8),(header,8)]{
+        if !prefix.contains(&p){prefix.push(p);}
+    }
+    if reads.len()<prefix.len(){return Err("MERGE_POLICY_MISSING_INITIAL_READS");}
+    for(f,&(address,width))in reads.iter().zip(prefix.iter()){
+        if f.address!=address||f.width!=width{return Err("MERGE_POLICY_INITIAL_READ_ORDER");}
+    }
+    // 원본은 입력을 쓰지 않는다. 어떤 input byte도 output 안정성 예외로 빼지 않는다.
+    for f in reads{
+        if f.width!=8{return Err("MERGE_POLICY_INPUT_QWORD_WIDTH");}
+        if spans_overlap(checked_span(f.address,8)?,output){return Err("MERGE_POLICY_READONLY_OUTPUT_ALIAS");}
+    }
+    let fields=&e.output_fields;
+    for i in 0..half as usize{
+        for(j,address)in [(2*i,out+i as u64*8),(2*i+1,out+(n-1-i as u64)*8)]{
+            if fields[j].0!=address||fields[j].1!=8{return Err("MERGE_POLICY_FRONT_BACK_FIELD_ORDER");}
+        }
+    }
+    if n%2!=0{
+        let center=fields.last().unwrap();
+        if center.0!=out+half*8||center.1!=8{return Err("MERGE_POLICY_ODD_CENTER_FIELD");}
+    }
+    // 정상 두 run의 소모/출력은 모든 source word를 읽고 같은 multiset을 완전히 쓴다.
+    let mut original=Vec::with_capacity(n as usize);
+    for i in 0..n{
+        let p=source+i*8;
+        let x=reads.iter().find(|f|f.address==p&&f.width==8).ok_or("MERGE_POLICY_MISSING_SOURCE_WORD")?;
+        original.push(x.value);
+    }
+    for value in &original{
+        if original.iter().filter(|v|*v==value).count()!=fields.iter().filter(|f|f.2==*value).count(){return Err("MERGE_POLICY_OUTPUT_MULTISET");}
+    }
+    Ok(())
+}
+
 fn validate_registered_outputs(id:usize,args:[u64;4],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
+    if id==41{return validate_merge_outputs(args,e,reads);}
     if id==39{return validate_insert_outputs(args,e,reads);}
     if id==40{return validate_seeded_peer_outputs(args,e,reads);}
+    if matches!(id,42|43){if e.mask!=255||e.expected>255||e.output_ptr.is_some()||!e.output_fields.is_empty(){return Err("W08_DIRECT_SCALAR_OUTPUT_CONTRACT");}return Ok(());}
     if id>=37{return validate_wave06_outputs(id,args,e,reads);}
     let (base,count)=match id{
         0..=28=>{if e.output_ptr.is_some()||!e.output_fields.is_empty(){return Err("UNREGISTERED_OUTPUT");}return Ok(());},
@@ -651,11 +699,14 @@ wrapper!(hook37,37);
 wrapper!(hook38,38);
 wrapper!(hook39,39);
 wrapper!(hook40,40);
+wrapper!(hook41,41);
+wrapper!(hook42,42);
+wrapper!(hook43,43);
 fn wrappers()->[usize;MODEL_COUNT] {[hook0 as *const () as usize,hook1 as *const () as usize,hook2 as *const () as usize,hook3 as *const () as usize,
     hook4 as *const () as usize,hook5 as *const () as usize,hook6 as *const () as usize,hook7 as *const () as usize,
     hook8 as *const () as usize,hook9 as *const () as usize,hook10 as *const () as usize,hook11 as *const () as usize,
     hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize,
-    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize,hook39 as *const () as usize,hook40 as *const () as usize]}
+    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize,hook39 as *const () as usize,hook40 as *const () as usize,hook41 as *const () as usize,hook42 as *const () as usize,hook43 as *const () as usize]}
 
 pub fn post_update() {
     let Some(state)=STATE.get() else {return;};
@@ -788,6 +839,45 @@ pub fn flush()->std::io::Result<()> {
 }
 
 #[cfg(test)] mod tests {
+#[test]fn merge_policy_even_odd_cap_and_exact_word_order(){
+    for n in 2u64..=16{
+        let a=[0x10000,n,0x20000,0x30000];let half=n/2;
+        let f=|address,value|Field{address,width:8,value};
+        let mut reads=vec![f(a[0]+half*8,half),f(a[3]+8,n),f(a[0],0),f(a[3],0x40000)];
+        for i in 0..n{if !reads.iter().any(|x|x.address==a[0]+i*8){reads.push(f(a[0]+i*8,i));}}
+        let mut fields=Vec::new();for i in 0..half{fields.push((a[2]+i*8,8,i));fields.push((a[2]+(n-1-i)*8,8,n-1-i));}
+        if n%2!=0{fields.push((a[2]+half*8,8,half));}
+        let mut e=Evaluation{expected:0,mask:u64::MAX,output_ptr:Some(a[2]),output_fields:fields,metrics:vec![]};
+        assert!(validate_registered_outputs(41,a,&e,&reads).is_ok());
+        e.output_fields[0].1=4;assert!(validate_registered_outputs(41,a,&e,&reads).is_err());e.output_fields[0].1=8;
+        e.output_fields.swap(0,1);assert!(validate_registered_outputs(41,a,&e,&reads).is_err());e.output_fields.swap(0,1);
+        e.output_fields[0].2=99;assert!(validate_registered_outputs(41,a,&e,&reads).is_err());e.output_fields[0].2=0;
+        e.expected=1;assert!(validate_registered_outputs(41,a,&e,&reads).is_err());e.expected=0;
+        e.mask=255;assert!(validate_registered_outputs(41,a,&e,&reads).is_err());e.mask=u64::MAX;
+        e.output_ptr=Some(a[0]);assert!(validate_registered_outputs(41,a,&e,&reads).is_err());e.output_ptr=Some(a[2]);
+        e.output_fields.pop();assert!(validate_registered_outputs(41,a,&e,&reads).is_err());
+    }
+}
+#[test]fn merge_policy_alias_read_order_and_unsupported_lengths(){
+    let a=[0x10000,2,0x20000,0x30000];let f=|address,value|Field{address,width:8,value};
+    let mut reads=vec![f(a[0]+8,1),f(a[3]+8,2),f(a[0],0),f(a[3],0x40000),f(0x40000,9),f(0x40008,7)];
+    let e=Evaluation{expected:0,mask:u64::MAX,output_ptr:Some(a[2]),output_fields:vec![(a[2],8,0),(a[2]+8,8,1)],metrics:vec![]};
+    assert!(validate_registered_outputs(41,a,&e,&reads).is_ok());
+    for n in [0,1,17,u64::MAX]{let mut b=a;b[1]=n;assert!(validate_registered_outputs(41,b,&e,&reads).is_err());}
+    let mut b=a;b[2]=a[0];assert!(validate_registered_outputs(41,b,&e,&reads).is_err());
+    b=a;b[3]=a[2];assert!(validate_registered_outputs(41,b,&e,&reads).is_err());
+    reads.swap(0,1);assert!(validate_registered_outputs(41,a,&e,&reads).is_err());reads.swap(0,1);
+    reads.push(f(a[2]+8,1));assert!(validate_registered_outputs(41,a,&e,&reads).is_err());reads.pop();
+    reads[0].width=4;assert!(validate_registered_outputs(41,a,&e,&reads).is_err());
+}
+#[test]fn merge_policy_has_no_mutable_input_stability_exception(){
+    let fields=vec![(0x20000,8,0),(0x20018,8,3),(0x20008,8,1),(0x20010,8,2)];
+    assert!(!unchanged_outside_registered_writes(0x10000,8,0,1,&fields).unwrap());
+    assert!(!unchanged_outside_registered_writes(0x30000,8,0x40000,0x50000,&fields).unwrap());
+    assert!(!unchanged_outside_registered_writes(0x40000,8,9,10,&fields).unwrap());
+    assert!(unchanged_outside_registered_writes(0x20000,8,99,0,&fields).unwrap()); // output은inputread이면위정책에서거절한다.
+}
+
 #[test]fn next_insert_policy_exact_writes_and_no_write(){
     let a=[0x10000,0x10010,0x20000,0];
     let f=|address,value|Field{address,width:8,value};
@@ -1075,6 +1165,94 @@ fn next_output_actual_observe_axis(state:&'static State){
     // root는 이 호출 바로 뒤 기존 I/O 독립 축 앞에서 test 전용 reopen을 유지한다.
 }
 
+// cfg(test) 단일 STATE 안 전용. root가 count42/route41/wrapper/generated를 연결한 뒤에만 실행한다.
+static MERGE_FAKE_CALLS:AtomicU64=AtomicU64::new(0);
+static MERGE_FAKE_MODE:AtomicUsize=AtomicUsize::new(0);
+const MERGE_POISON:u64=0xa5a5_a5a5_a5a5_a5a5;
+const MERGE_WRONG_HIGH_RAX:u64=0x1_0000_0000;
+unsafe extern "system-unwind" fn fake_merge_original(source:u64,n:u64,out:u64,header:u64)->u64{
+    MERGE_FAKE_CALLS.fetch_add(1,Ordering::Relaxed);
+    assert!((2..=16).contains(&n));let n=n as usize;let half=n/2;
+    let scores=std::ptr::read_unaligned(header as *const u64);
+    let mut input=[0u64;16];let mut result=[0u64;16];
+    for i in 0..n{input[i]=std::ptr::read_unaligned((source+i as u64*8)as *const u64);}
+    // 가짜원본은 독립 선형merge로 결과를 만든다. 게임함수/게임helper를 호출하지 않는다.
+    let(mut left,mut right,mut at)=(0usize,half,0usize);
+    while left<half&&right<n{
+        let li=input[left];let ri=input[right];
+        let ls=std::ptr::read_unaligned(scores.wrapping_add(li.wrapping_mul(8))as *const u64);
+        let rs=std::ptr::read_unaligned(scores.wrapping_add(ri.wrapping_mul(8))as *const u64);
+        let use_left=(ls as i64)>(rs as i64)||(ls==rs&&li<=ri);
+        result[at]=if use_left{left+=1;li}else{right+=1;ri};at+=1;
+    }
+    while left<half{result[at]=input[left];left+=1;at+=1;}
+    while right<n{result[at]=input[right];right+=1;at+=1;}
+    // 원문과 같은 앞/뒤 번갈아 쓰기. 관측기는 최종값만 읽으므로 순서 직접실측 주장은 금지.
+    for i in 0..half{
+        std::ptr::write_unaligned((out+i as u64*8)as *mut u64,result[i]);
+        std::ptr::write_unaligned((out+(n-1-i)as u64*8)as *mut u64,result[n-1-i]);
+    }
+    if n%2!=0{std::ptr::write_unaligned((out+half as u64*8)as *mut u64,result[half]);}
+    let mode=MERGE_FAKE_MODE.load(Ordering::Relaxed);
+    if mode==1{std::ptr::write_unaligned(source as *mut u64,input[0]^64);}
+    if mode==2{let x=std::ptr::read_unaligned(scores as *const u64);std::ptr::write_unaligned(scores as *mut u64,x^1);}
+    if mode==3{std::ptr::write_unaligned((header+8)as *mut u64,n as u64+1);}
+    if mode==4{std::ptr::write_unaligned(out as *mut u64,result[0]^1);}
+    if mode==5{MERGE_WRONG_HIGH_RAX}else{0}
+}
+fn merge_fixture_call(state:&'static State,source:&mut[u64;16],guarded_out:&mut[u64;18],scores:&mut[u64;16],header:&mut[u64;2],indices:&[u64],values:&[u64],mode:usize,want:u64){
+    source.fill(MERGE_POISON);source[..indices.len()].copy_from_slice(indices);
+    scores.fill(0);scores[..values.len()].copy_from_slice(values);guarded_out.fill(MERGE_POISON);
+    header[0]=scores.as_mut_ptr()as u64;header[1]=values.len()as u64;
+    MERGE_FAKE_MODE.store(mode,Ordering::Relaxed);
+    let before=counter(&MERGE_FAKE_CALLS);
+    let args=[source.as_mut_ptr()as u64,indices.len()as u64,unsafe{guarded_out.as_mut_ptr().add(1)}as u64,header.as_mut_ptr()as u64];
+    assert_eq!(unsafe{observe(41,args)},want);assert_eq!(counter(&MERGE_FAKE_CALLS),before+1);
+    assert_eq!(in_flight(state),0);assert_eq!(guarded_out[0],MERGE_POISON);assert_eq!(guarded_out[indices.len()+1],MERGE_POISON);
+}
+fn merge_actual_observe_axis(state:&'static State){
+    reopen_for_independent_fixture(state);set_scene(4);
+    ORIGINALS[41].store(fake_merge_original as *const ()as usize,Ordering::Release);DOMAINS[41].store(2,Ordering::Release);
+    let first=state.first_mismatch.get().map(|e|e.seq);let calls=counter(&MERGE_FAKE_CALLS);
+    let(mut source,mut out,mut scores,mut header)=([0u64;16],[MERGE_POISON;18],[0u64;16],[0u64;2]);
+    let matches=counter(&state.stats[41].matches);let unstable=counter(&state.stats[41].unstable);let bad=counter(&state.stats[41].mismatches);
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&[0,1],&[7,7],0,0);
+    assert_eq!(&out[1..3],&[0,1]);assert_eq!(counter(&state.stats[41].matches),matches+1);flush().unwrap();
+    let ix=[0u64,1,2,3];let sc=[i64::MAX as u64,1,(i64::MAX-1)as u64,i64::MIN as u64];
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&ix,&sc,0,0);
+    assert_eq!(&out[1..5],&[0,2,1,3]);assert_eq!(counter(&state.stats[41].matches),matches+2);flush().unwrap();
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&[0,1,2,3,4],&[5,1,4,3,2],0,0);
+    assert_eq!(&out[1..6],&[0,2,3,4,1]);assert_eq!(counter(&state.stats[41].matches),matches+3);flush().unwrap();
+    let cap_indices=[0u64,2,4,6,8,10,12,14,1,3,5,7,9,11,13,15];
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&cap_indices,&[7u64;16],0,0);
+    assert_eq!(&out[1..17],&[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);assert_eq!(counter(&state.stats[41].matches),matches+4);flush().unwrap();
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&ix,&sc,1,0);
+    assert_eq!(&out[1..5],&[0,2,1,3]);assert_eq!(counter(&state.stats[41].unstable),unstable+1);flush().unwrap();
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&ix,&sc,2,0);
+    assert_eq!(&out[1..5],&[0,2,1,3]);assert_eq!(counter(&state.stats[41].unstable),unstable+2);flush().unwrap();
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&ix,&sc,3,0);
+    assert_eq!(&out[1..5],&[0,2,1,3]);assert_eq!(counter(&state.stats[41].unstable),unstable+3);flush().unwrap();
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&ix,&sc,4,0);
+    assert_eq!(&out[1..5],&[1,2,1,3]);assert_eq!(counter(&state.stats[41].mismatches),bad+1);assert!(admit(state).is_none());
+    let attempts=counter(&state.stats[41].sample_attempts);let eligible=counter(&state.stats[41].eligible_calls);
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&ix,&sc,0,0);
+    assert_eq!(&out[1..5],&[0,2,1,3]);assert_eq!(counter(&state.stats[41].sample_attempts),attempts);assert_eq!(counter(&state.stats[41].eligible_calls),eligible);flush().unwrap();
+    reopen_for_independent_fixture(state);
+    merge_fixture_call(state,&mut source,&mut out,&mut scores,&mut header,&ix,&sc,5,MERGE_WRONG_HIGH_RAX);
+    assert_eq!(&out[1..5],&[0,2,1,3]);assert_eq!(counter(&state.stats[41].mismatches),bad+2);assert!(admit(state).is_none());flush().unwrap();
+    assert_eq!(counter(&MERGE_FAKE_CALLS)-calls,10);
+    if let Some(seq)=first{assert_eq!(state.first_mismatch.get().unwrap().seq,seq);}
+    assert_eq!(in_flight(state),0);assert_eq!(counter(&state.queued_events),0);assert_eq!(counter(&state.io_errors),0);
+    // 마지막은 의도된 차이로 닫힌다. 호출자는 다음 독립 I/O축 앞 test전용 reopen을 유지한다.
+}
+
+    #[test]fn wave08_direct_scalar_rejects_unregistered_write_or_fullmask(){
+        for id in [42,43]{let mut e=Evaluation{expected:255,mask:255,output_ptr:None,output_fields:vec![],metrics:vec![]};
+            assert!(validate_registered_outputs(id,[0;4],&e,&[]).is_ok());e.output_ptr=Some(0x10000);
+            assert!(validate_registered_outputs(id,[0;4],&e,&[]).is_err());e.output_ptr=None;e.mask=u64::MAX;
+            assert!(validate_registered_outputs(id,[0;4],&e,&[]).is_err());e.mask=255;e.output_fields.push((0x10000,8,0));
+            assert!(validate_registered_outputs(id,[0;4],&e,&[]).is_err());}
+    }
     #[test]fn wave06_effect_none_is_byte_only_and_scalar_mask_zero(){
         let a=[0x10000,0x20000,99,0];
         let mut e=Evaluation{expected:0,mask:0,output_ptr:Some(a[0]),output_fields:vec![(a[0]+16,1,2)],metrics:vec![]};
@@ -1426,6 +1604,7 @@ fn output_fake_original_observe_axis(state:&'static State){
         output_fake_original_observe_axis(state);
         wave06_actual_observe_axis(state);
         next_output_actual_observe_axis(state);
+        merge_actual_observe_axis(state);
         reopen_for_independent_fixture(state);
         // 기존 I/O실패fixture의기록1개를다시만들어 sampler배치flush와분리한다.
         assert_eq!(unsafe{observe(6,[0,player.as_ptr()as u64,data.as_ptr()as u64,0])},0x1122_3344_5566_7700);

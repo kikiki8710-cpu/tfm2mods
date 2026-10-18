@@ -1,0 +1,1559 @@
+{
+  "status": "SOURCE_NUMERIC_AND_DYNAMIC_METRIC_SEPARATED",
+  "functions": [
+    {
+      "runtime_id": 41,
+      "rva": "0xd8c680",
+      "declared_parameters": [],
+      "raw_numeric_inventory_source": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_adjust\\analysis_064\\parallel\\batch39\\tree_a\\0xd8c680\\raw_numeric_inventory.json",
+      "raw_numeric_classification_source": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_adjust\\analysis_064\\parallel\\batch39\\tree_a\\0xd8c680\\raw_numeric_classification.json",
+      "balance_parameter_additions": 0,
+      "metric_names": [
+        "merge_signed_score_precedes",
+        "merge_unsigned_index_tie"
+      ],
+      "observation_cap": {
+        "min": 2,
+        "max": 16,
+        "is_game_bound": false
+      }
+    },
+    {
+      "runtime_id": 42,
+      "rva": "0xfcbbb0",
+      "declared_parameters": [
+        {
+          "semantic_id": "defense.opponent_wave.minimum_count",
+          "original_value": 6,
+          "sites": [
+            "0xfcbd0c",
+            "0xfcbdb0",
+            "0xfcbe6c",
+            "0xfcbe70"
+          ],
+          "meaning": "선택lane의거리²<=baseline인상대수가6이상일때true. 중간팔은5보다큼.",
+          "adjustment": "3개검사와같은거리포함정책을동시에검토한다. 호출면조건부gate와연동.",
+          "kind": "STATIC_POLICY",
+          "runtime_verified": false,
+          "apply_allowed": false,
+          "instruction_evidence": [
+            {
+              "site": "0xfcbd0c",
+              "bytes": "4983fe06",
+              "instruction": "cmp r14, 6"
+            },
+            {
+              "site": "0xfcbdac",
+              "bytes": "4983fe05",
+              "instruction": "cmp r14, 5"
+            },
+            {
+              "site": "0xfcbe6c",
+              "bytes": "4983f805",
+              "instruction": "cmp r8, 5"
+            }
+          ],
+          "source_record_preserved": {
+            "semantic_id": "defense.opponent_wave.minimum_count",
+            "original_value": 6,
+            "sites": [
+              "0xfcbd0c",
+              "0xfcbdb0",
+              "0xfcbe6c",
+              "0xfcbe70"
+            ],
+            "meaning": "선택lane의거리²<=baseline인상대수가6이상일때true. 중간팔은5보다큼.",
+            "adjustment": "3개검사와같은거리포함정책을동시에검토한다. 호출면조건부gate와연동.",
+            "kind": "STATIC_POLICY",
+            "runtime_verified": false,
+            "apply_allowed": false,
+            "instruction_evidence": [
+              {
+                "site": "0xfcbd0c",
+                "bytes": "4983fe06",
+                "instruction": "cmp r14, 6"
+              },
+              {
+                "site": "0xfcbdb0",
+                "bytes": "0f87bc000000",
+                "instruction": "ja 0xfcbe72"
+              },
+              {
+                "site": "0xfcbe6c",
+                "bytes": "4983f805",
+                "instruction": "cmp r8, 5"
+              },
+              {
+                "site": "0xfcbe70",
+                "bytes": "7604",
+                "instruction": "jbe 0xfcbe76"
+              }
+            ]
+          },
+          "consumer_sites": [
+            "0xfcbd0c",
+            "0xfcbdac",
+            "0xfcbe6c"
+          ],
+          "source_original_parameter_sha256": "6c31c8afd95c631149e7109704a54b4ceaa2c8f91ef4bab02fcef62cd96c4789",
+          "encoded_comparisons": [
+            {
+              "site": "0xfcbd0c",
+              "value": 6,
+              "relation": ">="
+            },
+            {
+              "site": "0xfcbdac",
+              "value": 5,
+              "relation": ">"
+            },
+            {
+              "site": "0xfcbe6c",
+              "value": 5,
+              "relation": ">"
+            }
+          ],
+          "context_evidence_sites": [
+            "0xfcbd10",
+            "0xfcbdb0",
+            "0xfcbe70"
+          ],
+          "actual_runtime_samples": 0,
+          "all_coefficients_verified": false
+        },
+        {
+          "semantic_id": "defense.opponent_wave.reference_radius_squared",
+          "original_value": "distanceSquared(base,firstOwnEntity)",
+          "sites": [
+            "0xfcbc4d",
+            "0xfcbc51",
+            "0xfcbc55",
+            "0xfcbcfd",
+            "0xfcbd9d",
+            "0xfcbe5d"
+          ],
+          "meaning": "동적baseline거리²를상대포함범위로사용. 고정반경아님.",
+          "adjustment": "첫ownentity생산자와좌표/정수wrap단위를확인.",
+          "kind": "DYNAMIC_THRESHOLD",
+          "runtime_verified": false,
+          "apply_allowed": false,
+          "instruction_evidence": [
+            {
+              "site": "0xfcbc4d",
+              "bytes": "480fafff",
+              "instruction": "imul rdi, rdi"
+            },
+            {
+              "site": "0xfcbc51",
+              "bytes": "4d0fafdb",
+              "instruction": "imul r11, r11"
+            },
+            {
+              "site": "0xfcbc55",
+              "bytes": "4901fb",
+              "instruction": "add r11, rdi"
+            },
+            {
+              "site": "0xfcbcfd",
+              "bytes": "4d39eb",
+              "instruction": "cmp r11, r13"
+            },
+            {
+              "site": "0xfcbd9d",
+              "bytes": "4d39eb",
+              "instruction": "cmp r11, r13"
+            },
+            {
+              "site": "0xfcbe5d",
+              "bytes": "4939db",
+              "instruction": "cmp r11, rbx"
+            }
+          ],
+          "source_record_preserved": {
+            "semantic_id": "defense.opponent_wave.reference_radius_squared",
+            "original_value": "distanceSquared(base,firstOwnEntity)",
+            "sites": [
+              "0xfcbc4d",
+              "0xfcbc51",
+              "0xfcbc55",
+              "0xfcbcfd",
+              "0xfcbd9d",
+              "0xfcbe5d"
+            ],
+            "meaning": "동적baseline거리²를상대포함범위로사용. 고정반경아님.",
+            "adjustment": "첫ownentity생산자와좌표/정수wrap단위를확인.",
+            "kind": "DYNAMIC_THRESHOLD",
+            "runtime_verified": false,
+            "apply_allowed": false,
+            "instruction_evidence": [
+              {
+                "site": "0xfcbc4d",
+                "bytes": "480fafff",
+                "instruction": "imul rdi, rdi"
+              },
+              {
+                "site": "0xfcbc51",
+                "bytes": "4d0fafdb",
+                "instruction": "imul r11, r11"
+              },
+              {
+                "site": "0xfcbc55",
+                "bytes": "4901fb",
+                "instruction": "add r11, rdi"
+              },
+              {
+                "site": "0xfcbcfd",
+                "bytes": "4d39eb",
+                "instruction": "cmp r11, r13"
+              },
+              {
+                "site": "0xfcbd9d",
+                "bytes": "4d39eb",
+                "instruction": "cmp r11, r13"
+              },
+              {
+                "site": "0xfcbe5d",
+                "bytes": "4939db",
+                "instruction": "cmp r11, rbx"
+              }
+            ]
+          },
+          "consumer_sites": [
+            "0xfcbc4d",
+            "0xfcbc51",
+            "0xfcbc55",
+            "0xfcbcfd",
+            "0xfcbd9d",
+            "0xfcbe5d"
+          ],
+          "source_original_parameter_sha256": "6c31c8afd95c631149e7109704a54b4ceaa2c8f91ef4bab02fcef62cd96c4789",
+          "actual_runtime_samples": 0,
+          "all_coefficients_verified": false
+        },
+        {
+          "semantic_id": "defense.opponent_wave.mode_lane_masks",
+          "original_value": [
+            389,
+            10,
+            48,
+            433,
+            427
+          ],
+          "sites": [
+            "0xfcbc65",
+            "0xfcbc6f",
+            "0xfcbc7d",
+            "0xfcbd21",
+            "0xfcbdc6",
+            "0xfcbdd5"
+          ],
+          "meaning": "정확한mode→lane집합을형성하는bitmask들.",
+          "adjustment": "fcde50의byte table과의미를함께확인하되결과모든조건이동일하다고공통화하지않는다.",
+          "kind": "ENUM_SET_POLICY",
+          "runtime_verified": false,
+          "apply_allowed": false,
+          "instruction_evidence": [
+            {
+              "site": "0xfcbc65",
+              "bytes": "bf85010000",
+              "instruction": "mov edi, 0x185"
+            },
+            {
+              "site": "0xfcbc6f",
+              "bytes": "bf0a000000",
+              "instruction": "mov edi, 0xa"
+            },
+            {
+              "site": "0xfcbc7d",
+              "bytes": "bf30000000",
+              "instruction": "mov edi, 0x30"
+            },
+            {
+              "site": "0xfcbd21",
+              "bytes": "bfb1010000",
+              "instruction": "mov edi, 0x1b1"
+            },
+            {
+              "site": "0xfcbdc6",
+              "bytes": "bfab010000",
+              "instruction": "mov edi, 0x1ab"
+            },
+            {
+              "site": "0xfcbdd5",
+              "bytes": "bf0a000000",
+              "instruction": "mov edi, 0xa"
+            }
+          ],
+          "source_record_preserved": {
+            "semantic_id": "defense.opponent_wave.mode_lane_masks",
+            "original_value": [
+              389,
+              10,
+              48,
+              433,
+              427
+            ],
+            "sites": [
+              "0xfcbc65",
+              "0xfcbc6f",
+              "0xfcbc7d",
+              "0xfcbd21",
+              "0xfcbdc6",
+              "0xfcbdd5"
+            ],
+            "meaning": "정확한mode→lane집합을형성하는bitmask들.",
+            "adjustment": "fcde50의byte table과의미를함께확인하되결과모든조건이동일하다고공통화하지않는다.",
+            "kind": "ENUM_SET_POLICY",
+            "runtime_verified": false,
+            "apply_allowed": false,
+            "instruction_evidence": [
+              {
+                "site": "0xfcbc65",
+                "bytes": "bf85010000",
+                "instruction": "mov edi, 0x185"
+              },
+              {
+                "site": "0xfcbc6f",
+                "bytes": "bf0a000000",
+                "instruction": "mov edi, 0xa"
+              },
+              {
+                "site": "0xfcbc7d",
+                "bytes": "bf30000000",
+                "instruction": "mov edi, 0x30"
+              },
+              {
+                "site": "0xfcbd21",
+                "bytes": "bfb1010000",
+                "instruction": "mov edi, 0x1b1"
+              },
+              {
+                "site": "0xfcbdc6",
+                "bytes": "bfab010000",
+                "instruction": "mov edi, 0x1ab"
+              },
+              {
+                "site": "0xfcbdd5",
+                "bytes": "bf0a000000",
+                "instruction": "mov edi, 0xa"
+              }
+            ]
+          },
+          "consumer_sites": [
+            "0xfcbc65",
+            "0xfcbc6f",
+            "0xfcbc7d",
+            "0xfcbd21",
+            "0xfcbdc6",
+            "0xfcbdd5"
+          ],
+          "source_original_parameter_sha256": "6c31c8afd95c631149e7109704a54b4ceaa2c8f91ef4bab02fcef62cd96c4789",
+          "actual_runtime_samples": 0,
+          "all_coefficients_verified": false
+        },
+        {
+          "semantic_id": "defense.opponent_wave.max_mode",
+          "original_value": 8,
+          "sites": [
+            "0xfcbc44",
+            "0xfcbd18",
+            "0xfcbdb8"
+          ],
+          "meaning": "mode>8 false이며6도선택lane없음.",
+          "adjustment": "9개enum집합/생산자와연동.",
+          "kind": "STRUCTURAL_CONTRACT",
+          "runtime_verified": false,
+          "apply_allowed": false,
+          "instruction_evidence": [
+            {
+              "site": "0xfcbc44",
+              "bytes": "83fe08",
+              "instruction": "cmp esi, 8"
+            },
+            {
+              "site": "0xfcbd18",
+              "bytes": "83fe08",
+              "instruction": "cmp esi, 8"
+            },
+            {
+              "site": "0xfcbdb8",
+              "bytes": "4080fe08",
+              "instruction": "cmp sil, 8"
+            }
+          ],
+          "source_record_preserved": {
+            "semantic_id": "defense.opponent_wave.max_mode",
+            "original_value": 8,
+            "sites": [
+              "0xfcbc44",
+              "0xfcbd18",
+              "0xfcbdb8"
+            ],
+            "meaning": "mode>8 false이며6도선택lane없음.",
+            "adjustment": "9개enum집합/생산자와연동.",
+            "kind": "STRUCTURAL_CONTRACT",
+            "runtime_verified": false,
+            "apply_allowed": false,
+            "instruction_evidence": [
+              {
+                "site": "0xfcbc44",
+                "bytes": "83fe08",
+                "instruction": "cmp esi, 8"
+              },
+              {
+                "site": "0xfcbd18",
+                "bytes": "83fe08",
+                "instruction": "cmp esi, 8"
+              },
+              {
+                "site": "0xfcbdb8",
+                "bytes": "4080fe08",
+                "instruction": "cmp sil, 8"
+              }
+            ]
+          },
+          "consumer_sites": [
+            "0xfcbc44",
+            "0xfcbd18",
+            "0xfcbdb8"
+          ],
+          "source_original_parameter_sha256": "6c31c8afd95c631149e7109704a54b4ceaa2c8f91ef4bab02fcef62cd96c4789",
+          "actual_runtime_samples": 0,
+          "all_coefficients_verified": false
+        }
+      ],
+      "observation_cap": {
+        "records": 24,
+        "is_game_bound": false
+      }
+    },
+    {
+      "runtime_id": 43,
+      "rva": "0xe40560",
+      "declared_parameters": [
+        {
+          "semantic_id": "objective.minimum_cost.rank_weight",
+          "original_value": 10000,
+          "consumer_sites": [
+            "0xe40770"
+          ],
+          "meaning": "rank항의곱계수",
+          "classification": "FORMULA_COEFFICIENT",
+          "formula": "wrap64(rank*10000+metadataQ+signextend(stateDWORD)*1000)",
+          "adjustment": "정렬방향·signed최소·overflow를보존하여재현식계수로조정. magic/stride와혼합하지않음.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 132,
+              "site": "0xe40770",
+              "bytes": "4d69e410270000",
+              "instruction": "imul r12, r12, 0x2710"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.state_weight",
+          "original_value": 1000,
+          "consumer_sites": [
+            "0xe4077e"
+          ],
+          "meaning": "signed32상태항의곱계수",
+          "classification": "FORMULA_COEFFICIENT",
+          "formula": "wrap64(rank*10000+metadataQ+signextend(stateDWORD)*1000)",
+          "adjustment": "DWORD부호확장·전체wrap뒤signed비교를함께보존.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 135,
+              "site": "0xe4077e",
+              "bytes": "4869ffe8030000",
+              "instruction": "imul rdi, rdi, 0x3e8"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.rank_admission",
+          "original_value": 3,
+          "consumer_sites": [
+            "0xe40636",
+            "0xe406aa",
+            "0xe40725"
+          ],
+          "meaning": "unsigned rank<3이면부가가드생략",
+          "classification": "THRESHOLD",
+          "formula": "rank<3 OR signed(metadata)<2000 OR signed32(state)<2",
+          "adjustment": "3개의실제경로및shortcircuit순서를같이검토.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 59,
+              "site": "0xe40636",
+              "bytes": "4983fc03",
+              "instruction": "cmp r12, 3"
+            },
+            {
+              "index": 83,
+              "site": "0xe406aa",
+              "bytes": "4983fc03",
+              "instruction": "cmp r12, 3"
+            },
+            {
+              "index": 113,
+              "site": "0xe40725",
+              "bytes": "4983fc03",
+              "instruction": "cmp r12, 3"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.metadata_admission",
+          "original_value": 2000,
+          "consumer_sites": [
+            "0xe40644",
+            "0xe406b8",
+            "0xe4072f"
+          ],
+          "meaning": "signed Q metadata<2000",
+          "classification": "THRESHOLD",
+          "formula": "signed64(metadata)<2000",
+          "adjustment": "signed비교와rank선행가드를보존.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 62,
+              "site": "0xe40644",
+              "bytes": "4981ffd0070000",
+              "instruction": "cmp r15, 0x7d0"
+            },
+            {
+              "index": 86,
+              "site": "0xe406b8",
+              "bytes": "4981ffd0070000",
+              "instruction": "cmp r15, 0x7d0"
+            },
+            {
+              "index": 116,
+              "site": "0xe4072f",
+              "bytes": "4981ffd0070000",
+              "instruction": "cmp r15, 0x7d0"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.state_admission",
+          "original_value": 2,
+          "consumer_sites": [
+            "0xe40651",
+            "0xe406c1",
+            "0xe40738"
+          ],
+          "meaning": "signed DWORD state<2",
+          "classification": "THRESHOLD",
+          "formula": "signed32(state)<2",
+          "adjustment": "metadata미달시이비교를읽지않는순서를보존.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 64,
+              "site": "0xe40651",
+              "bytes": "837f2002",
+              "instruction": "cmp dword ptr [rdi + 0x20], 2"
+            },
+            {
+              "index": 88,
+              "site": "0xe406c1",
+              "bytes": "837a2002",
+              "instruction": "cmp dword ptr [rdx + 0x20], 2"
+            },
+            {
+              "index": 118,
+              "site": "0xe40738",
+              "bytes": "837f2002",
+              "instruction": "cmp dword ptr [rdi + 0x20], 2"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.mode_masks",
+          "original_value": [
+            427,
+            433,
+            389
+          ],
+          "consumer_sites": [
+            "0xe405cd",
+            "0xe405f8",
+            "0xe40616",
+            "0xe40705"
+          ],
+          "meaning": "mode/candidate의허용집합bitmask",
+          "classification": "ENUM_SET_POLICY",
+          "formula": "mode2는key0,mode4는key1;general에서key0은185,key2는허용,그외1B1",
+          "adjustment": "raw candidateBYTE3..255를임의로0..2clamp하지않는다. 모드6은scan없음.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 31,
+              "site": "0xe405cd",
+              "bytes": "bfab010000",
+              "instruction": "mov edi, 0x1ab"
+            },
+            {
+              "index": 43,
+              "site": "0xe405f8",
+              "bytes": "bfb1010000",
+              "instruction": "mov edi, 0x1b1"
+            },
+            {
+              "index": 51,
+              "site": "0xe40616",
+              "bytes": "bf85010000",
+              "instruction": "mov edi, 0x185"
+            },
+            {
+              "index": 105,
+              "site": "0xe40705",
+              "bytes": "bf85010000",
+              "instruction": "mov edi, 0x185"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.mode_extent",
+          "original_value": 8,
+          "consumer_sites": [
+            "0xe405c3",
+            "0xe405f2",
+            "0xe40610",
+            "0xe406ff",
+            "0xe407b5"
+          ],
+          "meaning": "mode>8은FF반환",
+          "classification": "ENUM_DOMAIN",
+          "formula": "modeBYTE<=8",
+          "adjustment": "정상team/diagnostic JT 경로를구별. 임의상태명을붙이지않음.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 29,
+              "site": "0xe405c3",
+              "bytes": "4180fb08",
+              "instruction": "cmp r11b, 8"
+            },
+            {
+              "index": 41,
+              "site": "0xe405f2",
+              "bytes": "4180fb08",
+              "instruction": "cmp r11b, 8"
+            },
+            {
+              "index": 49,
+              "site": "0xe40610",
+              "bytes": "4180fb08",
+              "instruction": "cmp r11b, 8"
+            },
+            {
+              "index": 103,
+              "site": "0xe406ff",
+              "bytes": "4180fb08",
+              "instruction": "cmp r11b, 8"
+            },
+            {
+              "index": 149,
+              "site": "0xe407b5",
+              "bytes": "4180fb08",
+              "instruction": "cmp r11b, 8"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.none_sentinel",
+          "original_value": 255,
+          "consumer_sites": [
+            "0xe40570",
+            "0xe405be",
+            "0xe40788"
+          ],
+          "meaning": "미선택/첫후보 판정의AL FF",
+          "classification": "OPTION_SENTINEL",
+          "formula": "answer==FF OR signed(cost)<signed(best)",
+          "adjustment": "선택key도FF이면다음후보가다시첫후보처럼채택됨. 독립bool로대체금지.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 9,
+              "site": "0xe40570",
+              "bytes": "b0ff",
+              "instruction": "mov al, 0xff"
+            },
+            {
+              "index": 27,
+              "site": "0xe405be",
+              "bytes": "b0ff",
+              "instruction": "mov al, 0xff"
+            },
+            {
+              "index": 137,
+              "site": "0xe40788",
+              "bytes": "3cff",
+              "instruction": "cmp al, 0xff"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.rank_stride",
+          "original_value": 16,
+          "consumer_sites": [
+            "0xe40627",
+            "0xe40716"
+          ],
+          "meaning": "keyBYTE별World rankQ 주소간격",
+          "classification": "STRUCTURAL",
+          "formula": "World+2D8+team*8+(zeroextend(keyBYTE)<<4)",
+          "adjustment": "구조producer와동기;정책가중치로취급하지않음.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 56,
+              "site": "0xe40627",
+              "bytes": "41c1e704",
+              "instruction": "shl r15d, 4"
+            },
+            {
+              "index": 110,
+              "site": "0xe40716",
+              "bytes": "41c1e704",
+              "instruction": "shl r15d, 4"
+            }
+          ]
+        },
+        {
+          "semantic_id": "objective.minimum_cost.team_bank_stride",
+          "original_value": 2760,
+          "consumer_sites": [
+            "0xe405a3"
+          ],
+          "meaning": "team별BB뱅크간격",
+          "classification": "STRUCTURAL",
+          "formula": "BB+team*0xAC8",
+          "adjustment": "team가드/메모리배치와함께유지.",
+          "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+          "actual_runtime_samples": 0,
+          "coefficient_isolated_runtime_verified": false,
+          "all_coefficients_verified": false,
+          "instruction_evidence": [
+            {
+              "index": 21,
+              "site": "0xe405a3",
+              "bytes": "4869f9c80a0000",
+              "instruction": "imul rdi, rcx, 0xac8"
+            }
+          ]
+        }
+      ],
+      "observation_cap": {
+        "candidates": 32,
+        "is_game_bound": false
+      }
+    }
+  ],
+  "supplied_group_parameters": [
+    {
+      "function_rva": "0xfcbbb0",
+      "semantic_id": "defense.opponent_wave.minimum_count",
+      "original_value": 6,
+      "sites": [
+        "0xfcbd0c",
+        "0xfcbdb0",
+        "0xfcbe6c",
+        "0xfcbe70"
+      ],
+      "meaning": "선택lane의거리²<=baseline인상대수가6이상일때true. 중간팔은5보다큼.",
+      "adjustment": "3개검사와같은거리포함정책을동시에검토한다. 호출면조건부gate와연동.",
+      "kind": "STATIC_POLICY",
+      "runtime_verified": false,
+      "apply_allowed": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbd0c",
+          "bytes": "4983fe06",
+          "instruction": "cmp r14, 6"
+        },
+        {
+          "site": "0xfcbdac",
+          "bytes": "4983fe05",
+          "instruction": "cmp r14, 5"
+        },
+        {
+          "site": "0xfcbe6c",
+          "bytes": "4983f805",
+          "instruction": "cmp r8, 5"
+        }
+      ],
+      "source_record_preserved": {
+        "semantic_id": "defense.opponent_wave.minimum_count",
+        "original_value": 6,
+        "sites": [
+          "0xfcbd0c",
+          "0xfcbdb0",
+          "0xfcbe6c",
+          "0xfcbe70"
+        ],
+        "meaning": "선택lane의거리²<=baseline인상대수가6이상일때true. 중간팔은5보다큼.",
+        "adjustment": "3개검사와같은거리포함정책을동시에검토한다. 호출면조건부gate와연동.",
+        "kind": "STATIC_POLICY",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xfcbd0c",
+            "bytes": "4983fe06",
+            "instruction": "cmp r14, 6"
+          },
+          {
+            "site": "0xfcbdb0",
+            "bytes": "0f87bc000000",
+            "instruction": "ja 0xfcbe72"
+          },
+          {
+            "site": "0xfcbe6c",
+            "bytes": "4983f805",
+            "instruction": "cmp r8, 5"
+          },
+          {
+            "site": "0xfcbe70",
+            "bytes": "7604",
+            "instruction": "jbe 0xfcbe76"
+          }
+        ]
+      },
+      "consumer_sites": [
+        "0xfcbd0c",
+        "0xfcbdac",
+        "0xfcbe6c"
+      ],
+      "source_original_parameter_sha256": "6c31c8afd95c631149e7109704a54b4ceaa2c8f91ef4bab02fcef62cd96c4789",
+      "encoded_comparisons": [
+        {
+          "site": "0xfcbd0c",
+          "value": 6,
+          "relation": ">="
+        },
+        {
+          "site": "0xfcbdac",
+          "value": 5,
+          "relation": ">"
+        },
+        {
+          "site": "0xfcbe6c",
+          "value": 5,
+          "relation": ">"
+        }
+      ],
+      "context_evidence_sites": [
+        "0xfcbd10",
+        "0xfcbdb0",
+        "0xfcbe70"
+      ],
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xfcbbb0",
+      "semantic_id": "defense.opponent_wave.reference_radius_squared",
+      "original_value": "distanceSquared(base,firstOwnEntity)",
+      "sites": [
+        "0xfcbc4d",
+        "0xfcbc51",
+        "0xfcbc55",
+        "0xfcbcfd",
+        "0xfcbd9d",
+        "0xfcbe5d"
+      ],
+      "meaning": "동적baseline거리²를상대포함범위로사용. 고정반경아님.",
+      "adjustment": "첫ownentity생산자와좌표/정수wrap단위를확인.",
+      "kind": "DYNAMIC_THRESHOLD",
+      "runtime_verified": false,
+      "apply_allowed": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbc4d",
+          "bytes": "480fafff",
+          "instruction": "imul rdi, rdi"
+        },
+        {
+          "site": "0xfcbc51",
+          "bytes": "4d0fafdb",
+          "instruction": "imul r11, r11"
+        },
+        {
+          "site": "0xfcbc55",
+          "bytes": "4901fb",
+          "instruction": "add r11, rdi"
+        },
+        {
+          "site": "0xfcbcfd",
+          "bytes": "4d39eb",
+          "instruction": "cmp r11, r13"
+        },
+        {
+          "site": "0xfcbd9d",
+          "bytes": "4d39eb",
+          "instruction": "cmp r11, r13"
+        },
+        {
+          "site": "0xfcbe5d",
+          "bytes": "4939db",
+          "instruction": "cmp r11, rbx"
+        }
+      ],
+      "source_record_preserved": {
+        "semantic_id": "defense.opponent_wave.reference_radius_squared",
+        "original_value": "distanceSquared(base,firstOwnEntity)",
+        "sites": [
+          "0xfcbc4d",
+          "0xfcbc51",
+          "0xfcbc55",
+          "0xfcbcfd",
+          "0xfcbd9d",
+          "0xfcbe5d"
+        ],
+        "meaning": "동적baseline거리²를상대포함범위로사용. 고정반경아님.",
+        "adjustment": "첫ownentity생산자와좌표/정수wrap단위를확인.",
+        "kind": "DYNAMIC_THRESHOLD",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xfcbc4d",
+            "bytes": "480fafff",
+            "instruction": "imul rdi, rdi"
+          },
+          {
+            "site": "0xfcbc51",
+            "bytes": "4d0fafdb",
+            "instruction": "imul r11, r11"
+          },
+          {
+            "site": "0xfcbc55",
+            "bytes": "4901fb",
+            "instruction": "add r11, rdi"
+          },
+          {
+            "site": "0xfcbcfd",
+            "bytes": "4d39eb",
+            "instruction": "cmp r11, r13"
+          },
+          {
+            "site": "0xfcbd9d",
+            "bytes": "4d39eb",
+            "instruction": "cmp r11, r13"
+          },
+          {
+            "site": "0xfcbe5d",
+            "bytes": "4939db",
+            "instruction": "cmp r11, rbx"
+          }
+        ]
+      },
+      "consumer_sites": [
+        "0xfcbc4d",
+        "0xfcbc51",
+        "0xfcbc55",
+        "0xfcbcfd",
+        "0xfcbd9d",
+        "0xfcbe5d"
+      ],
+      "source_original_parameter_sha256": "6c31c8afd95c631149e7109704a54b4ceaa2c8f91ef4bab02fcef62cd96c4789",
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xfcbbb0",
+      "semantic_id": "defense.opponent_wave.mode_lane_masks",
+      "original_value": [
+        389,
+        10,
+        48,
+        433,
+        427
+      ],
+      "sites": [
+        "0xfcbc65",
+        "0xfcbc6f",
+        "0xfcbc7d",
+        "0xfcbd21",
+        "0xfcbdc6",
+        "0xfcbdd5"
+      ],
+      "meaning": "정확한mode→lane집합을형성하는bitmask들.",
+      "adjustment": "fcde50의byte table과의미를함께확인하되결과모든조건이동일하다고공통화하지않는다.",
+      "kind": "ENUM_SET_POLICY",
+      "runtime_verified": false,
+      "apply_allowed": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbc65",
+          "bytes": "bf85010000",
+          "instruction": "mov edi, 0x185"
+        },
+        {
+          "site": "0xfcbc6f",
+          "bytes": "bf0a000000",
+          "instruction": "mov edi, 0xa"
+        },
+        {
+          "site": "0xfcbc7d",
+          "bytes": "bf30000000",
+          "instruction": "mov edi, 0x30"
+        },
+        {
+          "site": "0xfcbd21",
+          "bytes": "bfb1010000",
+          "instruction": "mov edi, 0x1b1"
+        },
+        {
+          "site": "0xfcbdc6",
+          "bytes": "bfab010000",
+          "instruction": "mov edi, 0x1ab"
+        },
+        {
+          "site": "0xfcbdd5",
+          "bytes": "bf0a000000",
+          "instruction": "mov edi, 0xa"
+        }
+      ],
+      "source_record_preserved": {
+        "semantic_id": "defense.opponent_wave.mode_lane_masks",
+        "original_value": [
+          389,
+          10,
+          48,
+          433,
+          427
+        ],
+        "sites": [
+          "0xfcbc65",
+          "0xfcbc6f",
+          "0xfcbc7d",
+          "0xfcbd21",
+          "0xfcbdc6",
+          "0xfcbdd5"
+        ],
+        "meaning": "정확한mode→lane집합을형성하는bitmask들.",
+        "adjustment": "fcde50의byte table과의미를함께확인하되결과모든조건이동일하다고공통화하지않는다.",
+        "kind": "ENUM_SET_POLICY",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xfcbc65",
+            "bytes": "bf85010000",
+            "instruction": "mov edi, 0x185"
+          },
+          {
+            "site": "0xfcbc6f",
+            "bytes": "bf0a000000",
+            "instruction": "mov edi, 0xa"
+          },
+          {
+            "site": "0xfcbc7d",
+            "bytes": "bf30000000",
+            "instruction": "mov edi, 0x30"
+          },
+          {
+            "site": "0xfcbd21",
+            "bytes": "bfb1010000",
+            "instruction": "mov edi, 0x1b1"
+          },
+          {
+            "site": "0xfcbdc6",
+            "bytes": "bfab010000",
+            "instruction": "mov edi, 0x1ab"
+          },
+          {
+            "site": "0xfcbdd5",
+            "bytes": "bf0a000000",
+            "instruction": "mov edi, 0xa"
+          }
+        ]
+      },
+      "consumer_sites": [
+        "0xfcbc65",
+        "0xfcbc6f",
+        "0xfcbc7d",
+        "0xfcbd21",
+        "0xfcbdc6",
+        "0xfcbdd5"
+      ],
+      "source_original_parameter_sha256": "6c31c8afd95c631149e7109704a54b4ceaa2c8f91ef4bab02fcef62cd96c4789",
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xfcbbb0",
+      "semantic_id": "defense.opponent_wave.max_mode",
+      "original_value": 8,
+      "sites": [
+        "0xfcbc44",
+        "0xfcbd18",
+        "0xfcbdb8"
+      ],
+      "meaning": "mode>8 false이며6도선택lane없음.",
+      "adjustment": "9개enum집합/생산자와연동.",
+      "kind": "STRUCTURAL_CONTRACT",
+      "runtime_verified": false,
+      "apply_allowed": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbc44",
+          "bytes": "83fe08",
+          "instruction": "cmp esi, 8"
+        },
+        {
+          "site": "0xfcbd18",
+          "bytes": "83fe08",
+          "instruction": "cmp esi, 8"
+        },
+        {
+          "site": "0xfcbdb8",
+          "bytes": "4080fe08",
+          "instruction": "cmp sil, 8"
+        }
+      ],
+      "source_record_preserved": {
+        "semantic_id": "defense.opponent_wave.max_mode",
+        "original_value": 8,
+        "sites": [
+          "0xfcbc44",
+          "0xfcbd18",
+          "0xfcbdb8"
+        ],
+        "meaning": "mode>8 false이며6도선택lane없음.",
+        "adjustment": "9개enum집합/생산자와연동.",
+        "kind": "STRUCTURAL_CONTRACT",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xfcbc44",
+            "bytes": "83fe08",
+            "instruction": "cmp esi, 8"
+          },
+          {
+            "site": "0xfcbd18",
+            "bytes": "83fe08",
+            "instruction": "cmp esi, 8"
+          },
+          {
+            "site": "0xfcbdb8",
+            "bytes": "4080fe08",
+            "instruction": "cmp sil, 8"
+          }
+        ]
+      },
+      "consumer_sites": [
+        "0xfcbc44",
+        "0xfcbd18",
+        "0xfcbdb8"
+      ],
+      "source_original_parameter_sha256": "6c31c8afd95c631149e7109704a54b4ceaa2c8f91ef4bab02fcef62cd96c4789",
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.rank_weight",
+      "original_value": 10000,
+      "consumer_sites": [
+        "0xe40770"
+      ],
+      "meaning": "rank항의곱계수",
+      "classification": "FORMULA_COEFFICIENT",
+      "formula": "wrap64(rank*10000+metadataQ+signextend(stateDWORD)*1000)",
+      "adjustment": "정렬방향·signed최소·overflow를보존하여재현식계수로조정. magic/stride와혼합하지않음.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 132,
+          "site": "0xe40770",
+          "bytes": "4d69e410270000",
+          "instruction": "imul r12, r12, 0x2710"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.state_weight",
+      "original_value": 1000,
+      "consumer_sites": [
+        "0xe4077e"
+      ],
+      "meaning": "signed32상태항의곱계수",
+      "classification": "FORMULA_COEFFICIENT",
+      "formula": "wrap64(rank*10000+metadataQ+signextend(stateDWORD)*1000)",
+      "adjustment": "DWORD부호확장·전체wrap뒤signed비교를함께보존.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 135,
+          "site": "0xe4077e",
+          "bytes": "4869ffe8030000",
+          "instruction": "imul rdi, rdi, 0x3e8"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.rank_admission",
+      "original_value": 3,
+      "consumer_sites": [
+        "0xe40636",
+        "0xe406aa",
+        "0xe40725"
+      ],
+      "meaning": "unsigned rank<3이면부가가드생략",
+      "classification": "THRESHOLD",
+      "formula": "rank<3 OR signed(metadata)<2000 OR signed32(state)<2",
+      "adjustment": "3개의실제경로및shortcircuit순서를같이검토.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 59,
+          "site": "0xe40636",
+          "bytes": "4983fc03",
+          "instruction": "cmp r12, 3"
+        },
+        {
+          "index": 83,
+          "site": "0xe406aa",
+          "bytes": "4983fc03",
+          "instruction": "cmp r12, 3"
+        },
+        {
+          "index": 113,
+          "site": "0xe40725",
+          "bytes": "4983fc03",
+          "instruction": "cmp r12, 3"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.metadata_admission",
+      "original_value": 2000,
+      "consumer_sites": [
+        "0xe40644",
+        "0xe406b8",
+        "0xe4072f"
+      ],
+      "meaning": "signed Q metadata<2000",
+      "classification": "THRESHOLD",
+      "formula": "signed64(metadata)<2000",
+      "adjustment": "signed비교와rank선행가드를보존.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 62,
+          "site": "0xe40644",
+          "bytes": "4981ffd0070000",
+          "instruction": "cmp r15, 0x7d0"
+        },
+        {
+          "index": 86,
+          "site": "0xe406b8",
+          "bytes": "4981ffd0070000",
+          "instruction": "cmp r15, 0x7d0"
+        },
+        {
+          "index": 116,
+          "site": "0xe4072f",
+          "bytes": "4981ffd0070000",
+          "instruction": "cmp r15, 0x7d0"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.state_admission",
+      "original_value": 2,
+      "consumer_sites": [
+        "0xe40651",
+        "0xe406c1",
+        "0xe40738"
+      ],
+      "meaning": "signed DWORD state<2",
+      "classification": "THRESHOLD",
+      "formula": "signed32(state)<2",
+      "adjustment": "metadata미달시이비교를읽지않는순서를보존.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 64,
+          "site": "0xe40651",
+          "bytes": "837f2002",
+          "instruction": "cmp dword ptr [rdi + 0x20], 2"
+        },
+        {
+          "index": 88,
+          "site": "0xe406c1",
+          "bytes": "837a2002",
+          "instruction": "cmp dword ptr [rdx + 0x20], 2"
+        },
+        {
+          "index": 118,
+          "site": "0xe40738",
+          "bytes": "837f2002",
+          "instruction": "cmp dword ptr [rdi + 0x20], 2"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.mode_masks",
+      "original_value": [
+        427,
+        433,
+        389
+      ],
+      "consumer_sites": [
+        "0xe405cd",
+        "0xe405f8",
+        "0xe40616",
+        "0xe40705"
+      ],
+      "meaning": "mode/candidate의허용집합bitmask",
+      "classification": "ENUM_SET_POLICY",
+      "formula": "mode2는key0,mode4는key1;general에서key0은185,key2는허용,그외1B1",
+      "adjustment": "raw candidateBYTE3..255를임의로0..2clamp하지않는다. 모드6은scan없음.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 31,
+          "site": "0xe405cd",
+          "bytes": "bfab010000",
+          "instruction": "mov edi, 0x1ab"
+        },
+        {
+          "index": 43,
+          "site": "0xe405f8",
+          "bytes": "bfb1010000",
+          "instruction": "mov edi, 0x1b1"
+        },
+        {
+          "index": 51,
+          "site": "0xe40616",
+          "bytes": "bf85010000",
+          "instruction": "mov edi, 0x185"
+        },
+        {
+          "index": 105,
+          "site": "0xe40705",
+          "bytes": "bf85010000",
+          "instruction": "mov edi, 0x185"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.mode_extent",
+      "original_value": 8,
+      "consumer_sites": [
+        "0xe405c3",
+        "0xe405f2",
+        "0xe40610",
+        "0xe406ff",
+        "0xe407b5"
+      ],
+      "meaning": "mode>8은FF반환",
+      "classification": "ENUM_DOMAIN",
+      "formula": "modeBYTE<=8",
+      "adjustment": "정상team/diagnostic JT 경로를구별. 임의상태명을붙이지않음.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 29,
+          "site": "0xe405c3",
+          "bytes": "4180fb08",
+          "instruction": "cmp r11b, 8"
+        },
+        {
+          "index": 41,
+          "site": "0xe405f2",
+          "bytes": "4180fb08",
+          "instruction": "cmp r11b, 8"
+        },
+        {
+          "index": 49,
+          "site": "0xe40610",
+          "bytes": "4180fb08",
+          "instruction": "cmp r11b, 8"
+        },
+        {
+          "index": 103,
+          "site": "0xe406ff",
+          "bytes": "4180fb08",
+          "instruction": "cmp r11b, 8"
+        },
+        {
+          "index": 149,
+          "site": "0xe407b5",
+          "bytes": "4180fb08",
+          "instruction": "cmp r11b, 8"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.none_sentinel",
+      "original_value": 255,
+      "consumer_sites": [
+        "0xe40570",
+        "0xe405be",
+        "0xe40788"
+      ],
+      "meaning": "미선택/첫후보 판정의AL FF",
+      "classification": "OPTION_SENTINEL",
+      "formula": "answer==FF OR signed(cost)<signed(best)",
+      "adjustment": "선택key도FF이면다음후보가다시첫후보처럼채택됨. 독립bool로대체금지.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 9,
+          "site": "0xe40570",
+          "bytes": "b0ff",
+          "instruction": "mov al, 0xff"
+        },
+        {
+          "index": 27,
+          "site": "0xe405be",
+          "bytes": "b0ff",
+          "instruction": "mov al, 0xff"
+        },
+        {
+          "index": 137,
+          "site": "0xe40788",
+          "bytes": "3cff",
+          "instruction": "cmp al, 0xff"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.rank_stride",
+      "original_value": 16,
+      "consumer_sites": [
+        "0xe40627",
+        "0xe40716"
+      ],
+      "meaning": "keyBYTE별World rankQ 주소간격",
+      "classification": "STRUCTURAL",
+      "formula": "World+2D8+team*8+(zeroextend(keyBYTE)<<4)",
+      "adjustment": "구조producer와동기;정책가중치로취급하지않음.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 56,
+          "site": "0xe40627",
+          "bytes": "41c1e704",
+          "instruction": "shl r15d, 4"
+        },
+        {
+          "index": 110,
+          "site": "0xe40716",
+          "bytes": "41c1e704",
+          "instruction": "shl r15d, 4"
+        }
+      ]
+    },
+    {
+      "function_rva": "0xe40560",
+      "semantic_id": "objective.minimum_cost.team_bank_stride",
+      "original_value": 2760,
+      "consumer_sites": [
+        "0xe405a3"
+      ],
+      "meaning": "team별BB뱅크간격",
+      "classification": "STRUCTURAL",
+      "formula": "BB+team*0xAC8",
+      "adjustment": "team가드/메모리배치와함께유지.",
+      "static_source": "EXISTING_CURRENT_PROOF_AND_FIXED_BODY",
+      "actual_runtime_samples": 0,
+      "coefficient_isolated_runtime_verified": false,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 21,
+          "site": "0xe405a3",
+          "bytes": "4869f9c80a0000",
+          "instruction": "imul rdi, rcx, 0xac8"
+        }
+      ]
+    }
+  ],
+  "metric_plan": "metric_plan_wave08/matrix_plan.json",
+  "denominators": [
+    "고유함수 표본",
+    "지표 평가를 포함한 표본",
+    "동일 함수표본 안 반복 metric evaluation",
+    "고정 상수/임계 소비점",
+    "동적 captured operand 비교"
+  ],
+  "all_coefficients_verified": false,
+  "new_numeric_records": 0,
+  "actual_runtime_samples": 0
+}

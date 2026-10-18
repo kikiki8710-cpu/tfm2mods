@@ -1,0 +1,24 @@
+{
+  "status": "ROOT_FINAL_SELECTION_44",
+  "routes": [
+    {
+      "runtime_id": 41,
+      "rva": 14206592,
+      "scratch_id": 14206592,
+      "helper": "models_candidates.py"
+    },
+    {
+      "runtime_id": 42,
+      "rva": 16563120,
+      "scratch_id": 42,
+      "helper": "models_wave08_direct.py"
+    },
+    {
+      "runtime_id": 43,
+      "rva": 14943584,
+      "scratch_id": 43,
+      "helper": "models_wave08_direct.py"
+    }
+  ],
+  "entry_limit": "canonical0.6.4 static WorldOps only; loaded/foreign/provider/privateLTO unverified; no foreign chain"
+}

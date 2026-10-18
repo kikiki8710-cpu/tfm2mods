@@ -1,0 +1,5325 @@
+{
+  "status": "PREPARED_OFFLINE_NO_RUNTIME_SAMPLES",
+  "prepared_models": 44,
+  "named_metric_entries": 111,
+  "actual_runtime_samples": 0,
+  "loaded_file_constants_verified": false,
+  "direct_original_branch_observations": 0,
+  "all_coefficients_verified": false,
+  "rows": [
+    {
+      "runtime_id": 0,
+      "rva": "0xdd87a0",
+      "metric_name": "forecast_remainder_is_zero",
+      "meaning": "보간remainder==0은모델의파생관측. 원문CMP0을발명하지않음",
+      "source_consumer_sites": [
+        "0xdd8836",
+        "0xdd883a",
+        "0xdd884d"
+      ],
+      "original_value": {
+        "present": false,
+        "key": null,
+        "value": null
+      },
+      "classification": {
+        "key": null,
+        "value": "unclassified"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/existing_unchanged_model_metrics/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 3,
+      "rva": "0xe49c00",
+      "metric_name": "all_near_nexus_radius_squared",
+      "meaning": "600000²포함",
+      "source_consumer_sites": [
+        "0xe49c4d",
+        "0xe49c95",
+        "0xe49ceb",
+        "0xe49d36",
+        "0xe49d81",
+        "0xe49dc2"
+      ],
+      "original_value": {
+        "present": false,
+        "key": null,
+        "value": null
+      },
+      "classification": {
+        "key": null,
+        "value": "unclassified"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/existing_unchanged_model_metrics/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 4,
+      "rva": "0xfa9dc0",
+      "metric_name": "same_lane_radius_shift8",
+      "meaning": "원문SHIFT8뒤strict문턱",
+      "source_consumer_sites": [
+        "0xfa9e88",
+        "0xfa9e8c",
+        "0xfa9e93"
+      ],
+      "original_value": {
+        "present": false,
+        "key": null,
+        "value": null
+      },
+      "classification": {
+        "key": null,
+        "value": "unclassified"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/existing_unchanged_model_metrics/2"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 5,
+      "rva": "0xf51e50",
+      "metric_name": "first_stamp_recent",
+      "meaning": "동적시간문턱",
+      "source_consumer_sites": [
+        "0xf51f19",
+        "0xf51f1c",
+        "0xf51f26"
+      ],
+      "original_value": {
+        "present": false,
+        "key": null,
+        "value": null
+      },
+      "classification": {
+        "key": null,
+        "value": "unclassified"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/existing_unchanged_model_metrics/3"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 5,
+      "rva": "0xf51e50",
+      "metric_name": "second_stamp_expired",
+      "meaning": "동적시간문턱",
+      "source_consumer_sites": [
+        "0xf51f46",
+        "0xf51f49",
+        "0xf51f4d"
+      ],
+      "original_value": {
+        "present": false,
+        "key": null,
+        "value": null
+      },
+      "classification": {
+        "key": null,
+        "value": "unclassified"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/existing_unchanged_model_metrics/4"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 6,
+      "rva": "0xe9eb70",
+      "metric_name": "record_hp_minimum_percent",
+      "meaning": "HP25유효경계;새HPcount모델의분모0panic과다름",
+      "source_consumer_sites": [
+        "0xe9ec0f",
+        "0xe9ec28",
+        "0xe9ec3f"
+      ],
+      "original_value": {
+        "present": false,
+        "key": null,
+        "value": null
+      },
+      "classification": {
+        "key": null,
+        "value": "unclassified"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/existing_unchanged_model_metrics/5"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 8,
+      "rva": "0xdc0bb0",
+      "metric_name": "hp_percent_ge40",
+      "meaning": "nonnull각Entity의unsigned몫>=40일때count+1. maxHP0은게임panic영역/모델Err",
+      "source_consumer_sites": [
+        "0xdc0bfa",
+        "0xdc0bd5",
+        "0xdc0bd9"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "scale": 100,
+          "threshold": 40
+        }
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 9,
+      "rva": "0xdc0f80",
+      "metric_name": "hp_percent_ge50",
+      "meaning": "nonnull각Entity의unsigned몫>=50일때count+1. DIV32/64의동일몫도메인",
+      "source_consumer_sites": [
+        "0xdc0fca",
+        "0xdc0fa5",
+        "0xdc0fa9"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "scale": 100,
+          "threshold": 50
+        }
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 10,
+      "rva": "0xf27690",
+      "metric_name": "hp_percent_ge50",
+      "meaning": "nonnull각Entity의unsigned몫>=50일때count+1. DIV32/64의동일몫도메인",
+      "source_consumer_sites": [
+        "0xf276da",
+        "0xf276b5",
+        "0xf276b9"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "scale": 100,
+          "threshold": 50
+        }
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 11,
+      "rva": "0xf27860",
+      "metric_name": "hp_percent_ge40",
+      "meaning": "nonnull각Entity의unsigned몫>=40일때count+1. maxHP0은게임panic영역/모델Err",
+      "source_consumer_sites": [
+        "0xf278aa",
+        "0xf27885",
+        "0xf27889"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "scale": 100,
+          "threshold": 40
+        }
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 12,
+      "rva": "0xef2410",
+      "metric_name": "opponent_except_role1_d2",
+      "meaning": "role0/2/3/4 첫거리성공. 정수거리150000포함이며raw제곱한계는150000²+1",
+      "source_consumer_sites": [
+        "0xef243c",
+        "0xef2486",
+        "0xef24d3",
+        "0xef2520",
+        "0xef2563"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 22500000001
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/2"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 13,
+      "rva": "0xfa9600",
+      "metric_name": "same_anchor_id",
+      "meaning": "동일ID 단락은team/role/radius를읽지않는다",
+      "source_consumer_sites": [
+        "0xfa961a",
+        "0xfa9623",
+        "0xfa962a"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": "dynamic QWORD IDs"
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "dynamic_identity_not_tuning_coefficient"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/3"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 13,
+      "rva": "0xfa9600",
+      "metric_name": "role_radius_squared_inclusive",
+      "meaning": "radius포인터는XY앞,pointee는XY뒤에읽는다. 동적반경제곱의포함비교",
+      "source_consumer_sites": [
+        "0xfa96b9",
+        "0xfa96bc",
+        "0xfa96c0",
+        "0xfa96c3"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": "dynamic radiusRef QWORD; default unknown"
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "dynamic_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/4"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_minimum_hp40",
+      "meaning": "원문몫>39와동치. HP미달이면tagbyte/Settings를읽지않는다",
+      "source_consumer_sites": [
+        "0x10198ae",
+        "0x10198cb",
+        "0x10198d8"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "scale": 100,
+          "raw_compare": 39,
+          "effective_minimum": 40
+        }
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/5"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_tag4_x_le192000",
+      "meaning": "tag4의X가장자리단락",
+      "source_consumer_sites": [
+        "0x10198f5",
+        "0x10198fc"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "raw_compare": 192001,
+          "effective_max": 192000
+        }
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/6"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_tag4_x_le_q",
+      "meaning": "SUB의CF/ZF에따른unsigned X<=q. wrappedresult의signed부호와다름",
+      "source_consumer_sites": [
+        "0x1019910",
+        "0x1019913"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": "dynamic"
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "dynamic_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/7"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_tag4_q_ge_width_minus192000",
+      "meaning": "맵폭오프셋을결합한동적문턱",
+      "source_consumer_sites": [
+        "0x1019915",
+        "0x101991c",
+        "0x1019923",
+        "0x1019926"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": -192000
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "dynamic_threshold_with_static_offset"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/8"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_tag4_gap_lt64000",
+      "meaning": "앞선tag4조건을통과하지못했을때만소비",
+      "source_consumer_sites": [
+        "0x1019928",
+        "0x101992f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 64000
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/9"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_tag5_q_le_x",
+      "meaning": "tag5의SUB/SETBE이며unsigned q<=X",
+      "source_consumer_sites": [
+        "0x101995a",
+        "0x101995d"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": "dynamic"
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "dynamic_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/10"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_tag5_q_le192000",
+      "meaning": "tag5의q가장자리조건;앞의q<=X와OR",
+      "source_consumer_sites": [
+        "0x1019961",
+        "0x1019967"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "raw_compare": 192001,
+          "effective_max": 192000
+        }
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/11"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_tag5_x_ge_width_minus192000",
+      "meaning": "tag5폭오프셋의동적문턱",
+      "source_consumer_sites": [
+        "0x1019971",
+        "0x1019978",
+        "0x101997f",
+        "0x1019982"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": -192000
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "dynamic_threshold_with_static_offset"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/12"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 14,
+      "rva": "0x1019890",
+      "metric_name": "middle_tag5_gap_lt64000",
+      "meaning": "앞선tag5조건을통과하지못했을때만소비",
+      "source_consumer_sites": [
+        "0x1019984",
+        "0x101998b"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 64000
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "documented_static_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/13"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 15,
+      "rva": "0xfe2700",
+      "metric_name": "forecast_tail_index_ge_count",
+      "meaning": "마지막표본/기준값선택의동적index문턱",
+      "source_consumer_sites": [
+        "0xfe270c",
+        "0xfe2719",
+        "0xfe271c",
+        "0xfe2720",
+        "0xfe2727",
+        "0xfe272a"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "spacing": 5,
+          "count": "dynamic"
+        }
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "dynamic_index_comparison_with_static_spacing"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/14"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 15,
+      "rva": "0xfe2700",
+      "metric_name": "forecast_first_interval_lt5",
+      "meaning": "tail이아닌경우time1..4는기준값→표본0, time>=5는이웃표본보간",
+      "source_consumer_sites": [
+        "0xfe272c",
+        "0xfe2730"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 5
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "structural_sampling_comparison"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_expansion\\metric_site_mapping.json",
+        "sha256": "0d7b099cee29b693204e1382cf73641ef72765ef21870654ee4a7ba1c4327d6b",
+        "json_pointer": "/extra_metrics/15"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 16,
+      "rva": "0xfd19f0",
+      "metric_name": "optional_scale_tag_exact1",
+      "meaning": "fullQWORD 입력tag 분기. low32 비교로축소금지",
+      "source_consumer_sites": [
+        "0xfd19f4"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 1
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "enum_flag_or_existence_guard"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave03\\metric_site_mapping.json",
+        "sha256": "ad9250bbf7c50450916a7fc3bbba5c8c2d3e2c45f40eaaebe0e0701198702e1f",
+        "json_pointer": "/metrics/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 16,
+      "rva": "0xfd19f0",
+      "metric_name": "optional_scale_signed_cap",
+      "meaning": "동적비율결과의signed상한",
+      "source_consumer_sites": [
+        "0xfd1a09",
+        "0xfd1a36",
+        "0xfd1a47",
+        "0xfd1a50",
+        "0xfd1a53"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "dynamic_context_boundary"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave03\\metric_site_mapping.json",
+        "sha256": "ad9250bbf7c50450916a7fc3bbba5c8c2d3e2c45f40eaaebe0e0701198702e1f",
+        "json_pointer": "/metrics/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true,
+        "kind": "SIGNED_QUOTIENT_OR_STORED_VALUE",
+        "wrap_before_signed": false
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 17,
+      "rva": "0xfd37f0",
+      "metric_name": "scaled_delta_positive_after_wrap",
+      "meaning": "wrap후TEST의signed양수부. SUB overflow전수학적차와구분",
+      "source_consumer_sites": [
+        "0xfd3846",
+        "0xfd384b",
+        "0xfd384e"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "behavioral_output_floor"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave03\\metric_site_mapping.json",
+        "sha256": "ad9250bbf7c50450916a7fc3bbba5c8c2d3e2c45f40eaaebe0e0701198702e1f",
+        "json_pointer": "/metrics/2"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true,
+        "kind": "SIGNED_QUOTIENT_OR_STORED_VALUE",
+        "wrap_before_signed": true
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 18,
+      "rva": "0xfe8f30",
+      "metric_name": "lane_record26_nonzero",
+      "meaning": "비0이면즉시true인flag",
+      "source_consumer_sites": [
+        "0xfe8f5a",
+        "0xfe8f6c"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "enum_flag_or_existence_guard"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave03\\metric_site_mapping.json",
+        "sha256": "ad9250bbf7c50450916a7fc3bbba5c8c2d3e2c45f40eaaebe0e0701198702e1f",
+        "json_pointer": "/metrics/3"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 18,
+      "rva": "0xfe8f30",
+      "metric_name": "lane_record27_signed_positive",
+      "meaning": "signed양수이면false",
+      "source_consumer_sites": [
+        "0xfe8f73",
+        "0xfe8f78"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "enum_flag_or_existence_guard"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave03\\metric_site_mapping.json",
+        "sha256": "ad9250bbf7c50450916a7fc3bbba5c8c2d3e2c45f40eaaebe0e0701198702e1f",
+        "json_pointer": "/metrics/4"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": true,
+        "kind": "SIGN_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 18,
+      "rva": "0xfe8f30",
+      "metric_name": "lane_record25_nonzero",
+      "meaning": "비0이면false",
+      "source_consumer_sites": [
+        "0xfe8f7a",
+        "0xfe8f7f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "enum_flag_or_existence_guard"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave03\\metric_site_mapping.json",
+        "sha256": "ad9250bbf7c50450916a7fc3bbba5c8c2d3e2c45f40eaaebe0e0701198702e1f",
+        "json_pointer": "/metrics/5"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 18,
+      "rva": "0xfe8f30",
+      "metric_name": "lane_opponent_structure_present",
+      "meaning": "fullQWORD존재검사. lowBYTE0이라도Q비0이면true",
+      "source_consumer_sites": [
+        "0xfe8fa0",
+        "0xfe8fa6"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "numeric_kind",
+        "value": "enum_flag_or_existence_guard"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave03\\metric_site_mapping.json",
+        "sha256": "ad9250bbf7c50450916a7fc3bbba5c8c2d3e2c45f40eaaebe0e0701198702e1f",
+        "json_pointer": "/metrics/6"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 19,
+      "rva": "0xe1b430",
+      "metric_name": "w04_lookup_count_zero",
+      "meaning": "전체count0입구검사",
+      "source_consumer_sites": [
+        "0xe1b43e"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "structural"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id19\\parameters.json",
+        "sha256": "a0c9c757f6d22f46e5999a98f8c1fe915ba4a6a657fd44d5c781e17dd788a705",
+        "json_pointer": "/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 19,
+      "rva": "0xe1b430",
+      "metric_name": "w04_lookup_id_equal",
+      "meaning": "후보key와입력key의fullQWORD동등",
+      "source_consumer_sites": [
+        "0xe1b443",
+        "0xe1b459",
+        "0xe1b473",
+        "0xe1b48d",
+        "0xe1b4a7",
+        "0xe1b4c1",
+        "0xe1b4df",
+        "0xe1b4fd",
+        "0xe1b51b",
+        "0xe1b539",
+        "0xe1b557",
+        "0xe1b575"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_identity"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id19\\parameters.json",
+        "sha256": "a0c9c757f6d22f46e5999a98f8c1fe915ba4a6a657fd44d5c781e17dd788a705",
+        "json_pointer": "/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 19,
+      "rva": "0xe1b430",
+      "metric_name": "w04_lookup_end_equals_count",
+      "meaning": "각불일치후unroll끝의count동등",
+      "source_consumer_sites": [
+        "0xe1b44c",
+        "0xe1b46d",
+        "0xe1b487",
+        "0xe1b4a1",
+        "0xe1b4bb",
+        "0xe1b4d5",
+        "0xe1b4f3",
+        "0xe1b511",
+        "0xe1b52f",
+        "0xe1b54d",
+        "0xe1b56b",
+        "0xe1b589"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      "classification": {
+        "key": "category",
+        "value": "structural"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id19\\parameters.json",
+        "sha256": "a0c9c757f6d22f46e5999a98f8c1fe915ba4a6a657fd44d5c781e17dd788a705",
+        "json_pointer": "/2"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 20,
+      "rva": "0xe1ede0",
+      "metric_name": "w04_forecast_index_ge_count",
+      "meaning": "time//5>=sampleCountA0",
+      "source_consumer_sites": [
+        "0xe1ee07"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_structural"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id20\\parameters.json",
+        "sha256": "615ff537efe35215ed38fc416502067f4ae0d4a617a0126a56fde69f15137d37",
+        "json_pointer": "/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 20,
+      "rva": "0xe1ede0",
+      "metric_name": "w04_forecast_time_lt5",
+      "meaning": "첫표본전보간구간",
+      "source_consumer_sites": [
+        "0xe1ee0c"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 5
+      },
+      "classification": {
+        "key": "category",
+        "value": "sampling_structure"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id20\\parameters.json",
+        "sha256": "615ff537efe35215ed38fc416502067f4ae0d4a617a0126a56fde69f15137d37",
+        "json_pointer": "/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 21,
+      "rva": "0xd81ce0",
+      "metric_name": "w04_count_excluded_id",
+      "meaning": "현재ID와excludedID동등",
+      "source_consumer_sites": [
+        "0xd81d21"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_identity"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id21\\parameters.json",
+        "sha256": "d1a6c4899f6b50a0e68fc880681429478da29b97addb14ad358f953143ab0a12",
+        "json_pointer": "/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 21,
+      "rva": "0xd81ce0",
+      "metric_name": "w04_count_slot_present",
+      "meaning": "팀slotQ비0을1가산",
+      "source_consumer_sites": [
+        "0xd81d3f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "structural"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id21\\parameters.json",
+        "sha256": "d1a6c4899f6b50a0e68fc880681429478da29b97addb14ad358f953143ab0a12",
+        "json_pointer": "/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 22,
+      "rva": "0xd81bd0",
+      "metric_name": "w04_opponent_slot_present",
+      "meaning": "상대slot의fullQ비0. 후속CMP1/SBB도같은predicate",
+      "source_consumer_sites": [
+        "0xd81c1d",
+        "0xd81c34",
+        "0xd81c4d",
+        "0xd81c6d",
+        "0xd81c81"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "structural"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id22\\parameters.json",
+        "sha256": "e8e4165bdfd4847c86d82d84b487bfc0a9103f89ab86435b94b90524b9f8fc6e",
+        "json_pointer": "/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 23,
+      "rva": "0xe54190",
+      "metric_name": "w04_pressure_mode_lt9",
+      "meaning": "modeBYTE유효0..8",
+      "source_consumer_sites": [
+        "0xe541ae",
+        "0xe541c5",
+        "0xe541d9"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "encoded_max": 8,
+          "effective_lt": 9
+        }
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id23\\parameters.json",
+        "sha256": "7a492ccb9570a45c3950621bc4b9adea5b7bd8b0eafe9d0a4fd49b8e8c527f27",
+        "json_pointer": "/0"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 23,
+      "rva": "0xe54190",
+      "metric_name": "w04_pressure_mode_allowed",
+      "meaning": "line0/1/기타의mode비트선택",
+      "source_consumer_sites": [
+        "0xe541b4",
+        "0xe541ba",
+        "0xe541cb",
+        "0xe541d1",
+        "0xe541df",
+        "0xe541e5"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": [
+          389,
+          433,
+          427
+        ]
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_mask"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id23\\parameters.json",
+        "sha256": "7a492ccb9570a45c3950621bc4b9adea5b7bd8b0eafe9d0a4fd49b8e8c527f27",
+        "json_pointer": "/1"
+      },
+      "integer_operand_contract": {
+        "width": 1,
+        "signed": false,
+        "kind": "DERIVED_BOOLEAN_GROUP_COMPARISON"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 23,
+      "rva": "0xe54190",
+      "metric_name": "w04_pressure_progress_le_minus3001",
+      "meaning": "signedQprogress<=−3001(동치<−3000)",
+      "source_consumer_sites": [
+        "0xe54212",
+        "0xe5422c"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "encoded_compare": -3001,
+          "equivalent_strict_bound": -3000
+        }
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id23\\parameters.json",
+        "sha256": "7a492ccb9570a45c3950621bc4b9adea5b7bd8b0eafe9d0a4fd49b8e8c527f27",
+        "json_pointer": "/2"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true,
+        "kind": "SIGNED_QUOTIENT_OR_STORED_VALUE",
+        "wrap_before_signed": false
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 23,
+      "rva": "0xe54190",
+      "metric_name": "w04_pressure_count_lt_minus3",
+      "meaning": "signedDWORDcount<−3",
+      "source_consumer_sites": [
+        "0xe5421c",
+        "0xe54220"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": -3
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id23\\parameters.json",
+        "sha256": "7a492ccb9570a45c3950621bc4b9adea5b7bd8b0eafe9d0a4fd49b8e8c527f27",
+        "json_pointer": "/3"
+      },
+      "integer_operand_contract": {
+        "width": 32,
+        "signed": true,
+        "kind": "SIGN_EXTENDED_DWORD"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 24,
+      "rva": "0xffa970",
+      "metric_name": "w04_lane_open_first_absent",
+      "meaning": "World1D8+lineOffset fullQ0",
+      "source_consumer_sites": [
+        "0xffaa6d"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "structural"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id24\\parameters.json",
+        "sha256": "b84cd6fe2f02bb29be8fcd272b00d376eb9a1be397450cdf26ea44192231cc6d",
+        "json_pointer": "/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 24,
+      "rva": "0xffa970",
+      "metric_name": "w04_lane_open_second_absent",
+      "meaning": "World1E0+lineOffset fullQ0",
+      "source_consumer_sites": [
+        "0xffaa78"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "structural"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id24\\parameters.json",
+        "sha256": "b84cd6fe2f02bb29be8fcd272b00d376eb9a1be397450cdf26ea44192231cc6d",
+        "json_pointer": "/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 25,
+      "rva": "0xfd4260",
+      "metric_name": "w04_candidate_hp_percent_ge30",
+      "meaning": "floor_u64(wrap64(HP*100)/max(MaxHP,1))>=30",
+      "source_consumer_sites": [
+        "0xfd43d1",
+        "0xfd43d5",
+        "0xfd43d9",
+        "0xfd43f8",
+        "0xfd43fc"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "threshold": 30,
+          "scale": 100,
+          "zero_maxhp_replacement": 1
+        }
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id25\\parameters.json",
+        "sha256": "5006523e168980230467c0c69e8aaf2ceda9d3953250ab0c8c18a951e61bb3b1",
+        "json_pointer": "/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_hp_percent_ge50",
+      "meaning": "nonnull HPunsigned몫>=50",
+      "source_consumer_sites": [
+        "0xdc0dfa",
+        "0xdc0e13",
+        "0xdc0e24",
+        "0xdc0ec6",
+        "0xdc0edf",
+        "0xdc0ef4"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "threshold": 50,
+          "scale": 100
+        }
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_tag4_x_le192000",
+      "meaning": "tag4 X경계포함",
+      "source_consumer_sites": [
+        "0xdc0f06",
+        "0xdc0f0d"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "encoded_lt": 192001,
+          "effective_le": 192000
+        }
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_tag4_x_le_q",
+      "meaning": "unsignedX<=wrap(height−Y)",
+      "source_consumer_sites": [
+        "0xdc0f1d",
+        "0xdc0f20"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_geometry"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/2"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_tag4_q_ge_cut",
+      "meaning": "q>=wrap(width−192000)",
+      "source_consumer_sites": [
+        "0xdc0f22",
+        "0xdc0f29",
+        "0xdc0f2c",
+        "0xdc0f2f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 192000
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/3"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_tag4_gap_lt64000",
+      "meaning": "wrap(X−q)<64000strict",
+      "source_consumer_sites": [
+        "0xdc0f37",
+        "0xdc0f3e"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 64000
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/4"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_tag5_q_le_x",
+      "meaning": "unsignedq<=X",
+      "source_consumer_sites": [
+        "0xdc0e42",
+        "0xdc0e45"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_geometry"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/5"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_tag5_q_le192000",
+      "meaning": "tag5 q가장자리포함",
+      "source_consumer_sites": [
+        "0xdc0e49",
+        "0xdc0e4f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": {
+          "encoded_lt": 192001,
+          "effective_le": 192000
+        }
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/6"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_tag5_x_ge_cut",
+      "meaning": "X>=wrap(width−192000)",
+      "source_consumer_sites": [
+        "0xdc0e60",
+        "0xdc0e67",
+        "0xdc0e6a",
+        "0xdc0e6d"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 192000
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/7"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 26,
+      "rva": "0xdc0d80",
+      "metric_name": "w04_geometry_tag5_gap_lt64000",
+      "meaning": "wrap(q−X)<64000strict",
+      "source_consumer_sites": [
+        "0xdc0e75",
+        "0xdc0e7c"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 64000
+      },
+      "classification": {
+        "key": "category",
+        "value": "threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_round02\\model_wave04\\id26\\parameters.json",
+        "sha256": "4e768d6c13c5882df80b272a451a9954556b4e17e1725c616281fbe59df036bd",
+        "json_pointer": "/8"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 27,
+      "rva": "0xea07f0",
+      "metric_name": "w05_history_recent_after_cutoff",
+      "meaning": "stamp > sat_sub(clock,20)",
+      "source_consumer_sites": [
+        "0xea0881"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 20
+      },
+      "classification": {
+        "key": "category",
+        "value": "policy_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/0"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 27,
+      "rva": "0xea07f0",
+      "metric_name": "w05_history_row_after_cutoff",
+      "meaning": "rowtime > cutoff",
+      "source_consumer_sites": [
+        "0xea08f0"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 20
+      },
+      "classification": {
+        "key": "category",
+        "value": "policy_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/1"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 27,
+      "rva": "0xea07f0",
+      "metric_name": "w05_history_tag_equal",
+      "meaning": "선택tag/requesttag BYTE동등",
+      "source_consumer_sites": [
+        "0xea0951"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/2"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 27,
+      "rva": "0xea07f0",
+      "metric_name": "w05_history_distance_squared",
+      "meaning": "wrap D² < 250000²+1",
+      "source_consumer_sites": [
+        "0xea0a17",
+        "0xea0a21"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 62500000001
+      },
+      "classification": {
+        "key": "category",
+        "value": "policy_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/3"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 28,
+      "rva": "0xe204f0",
+      "metric_name": "w05_economy_remaining_percent_lt45",
+      "meaning": "남은HP 몫 signed<45",
+      "source_consumer_sites": [
+        "0xe20559",
+        "0xe205bf"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 45
+      },
+      "classification": {
+        "key": "category",
+        "value": "policy_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/4"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true,
+        "kind": "SIGNED_QUOTIENT_OR_STORED_VALUE",
+        "wrap_before_signed": true
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 28,
+      "rva": "0xe204f0",
+      "metric_name": "w05_economy_remaining_percent_lt25",
+      "meaning": "남은HP 몫 signed<25,앞45미만팔만",
+      "source_consumer_sites": [
+        "0xe20593"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 25
+      },
+      "classification": {
+        "key": "category",
+        "value": "policy_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/5"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true,
+        "kind": "SIGNED_QUOTIENT_OR_STORED_VALUE",
+        "wrap_before_signed": true
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 28,
+      "rva": "0xe204f0",
+      "metric_name": "w05_economy_damage_percent_gt11",
+      "meaning": "피해HP 몫 signed>11(유효12이상)",
+      "source_consumer_sites": [
+        "0xe205f8",
+        "0xe20604"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 11
+      },
+      "classification": {
+        "key": "category",
+        "value": "policy_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/6"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true,
+        "kind": "SIGNED_QUOTIENT_OR_STORED_VALUE",
+        "wrap_before_signed": true
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 29,
+      "rva": "0xdbf730",
+      "metric_name": "w05_healthy_hp_percent_ge40",
+      "meaning": "nonnull아군HP몫>=40",
+      "source_consumer_sites": [
+        "0xdbf7d0",
+        "0xdbf80d",
+        "0xdbf84a",
+        "0xdbf88b",
+        "0xdbf8c8"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 40
+      },
+      "classification": {
+        "key": "category",
+        "value": "policy_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\runtime_metric_matrix_v024\\output_metric_source_mapping.json",
+        "sha256": "c8e311ce4f758d289702ce19213d86dd2d835b50daa2c35ace0300f8e318f043",
+        "json_pointer": "/29/w05_healthy_hp_percent_ge40"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 30,
+      "rva": "0xd8acc0",
+      "metric_name": "w05_sort_score_left_lt_right",
+      "meaning": "signed64점수비교;내림차순정렬의교환predicate",
+      "source_consumer_sites": [
+        "0xd8acf8",
+        "0xd8ad2d",
+        "0xd8ad79",
+        "0xd8adbd",
+        "0xd8ae28"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_sort_order"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\runtime_metric_matrix_v024\\output_metric_source_mapping.json",
+        "sha256": "c8e311ce4f758d289702ce19213d86dd2d835b50daa2c35ace0300f8e318f043",
+        "json_pointer": "/30/w05_sort_score_left_lt_right"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true,
+        "kind": "SIGNED_QUOTIENT_OR_STORED_VALUE",
+        "wrap_before_signed": false
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 30,
+      "rva": "0xd8acc0",
+      "metric_name": "w05_sort_unsigned_index_tie",
+      "meaning": "동점시unsigned64 index오름차순",
+      "source_consumer_sites": [
+        "0xd8acef",
+        "0xd8ad23",
+        "0xd8ad70",
+        "0xd8adb4",
+        "0xd8ae1e"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_sort_order"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\runtime_metric_matrix_v024\\output_metric_source_mapping.json",
+        "sha256": "c8e311ce4f758d289702ce19213d86dd2d835b50daa2c35ace0300f8e318f043",
+        "json_pointer": "/30/w05_sort_unsigned_index_tie"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 31,
+      "rva": "0xd8aed0",
+      "metric_name": "w05_record_class_partition",
+      "meaning": "classBYTE>=5의파생BOOL그룹비교;rawclass4/5/6지표아님",
+      "source_consumer_sites": [
+        "0xd8af0c",
+        "0xd8af22",
+        "0xd8af82",
+        "0xd8af99",
+        "0xd8b008",
+        "0xd8b023",
+        "0xd8b092",
+        "0xd8b0ae",
+        "0xd8b137",
+        "0xd8b14c"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 5
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_order_protocol"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\runtime_metric_matrix_v024\\output_metric_source_mapping.json",
+        "sha256": "c8e311ce4f758d289702ce19213d86dd2d835b50daa2c35ace0300f8e318f043",
+        "json_pointer": "/31/w05_record_class_partition"
+      },
+      "integer_operand_contract": {
+        "width": 1,
+        "signed": false,
+        "kind": "DERIVED_BOOLEAN_GROUP_COMPARISON"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 31,
+      "rva": "0xd8aed0",
+      "metric_name": "w05_record_metric_left_lt_right",
+      "meaning": "record108 signedDWORD metric내림차순의비교",
+      "source_consumer_sites": [
+        "0xd8af4f",
+        "0xd8afc6",
+        "0xd8b050",
+        "0xd8b0dc",
+        "0xd8b178"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_sort_order"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\runtime_metric_matrix_v024\\output_metric_source_mapping.json",
+        "sha256": "c8e311ce4f758d289702ce19213d86dd2d835b50daa2c35ace0300f8e318f043",
+        "json_pointer": "/31/w05_record_metric_left_lt_right"
+      },
+      "integer_operand_contract": {
+        "width": 32,
+        "signed": true,
+        "kind": "SIGN_EXTENDED_DWORD"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 31,
+      "rva": "0xd8aed0",
+      "metric_name": "w05_record_signed_index_tie",
+      "meaning": "동점시signed64 index오름차순",
+      "source_consumer_sites": [
+        "0xd8af46",
+        "0xd8afbd",
+        "0xd8b047",
+        "0xd8b0d3",
+        "0xd8b16f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "dynamic_sort_order"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\runtime_metric_matrix_v024\\output_metric_source_mapping.json",
+        "sha256": "c8e311ce4f758d289702ce19213d86dd2d835b50daa2c35ace0300f8e318f043",
+        "json_pointer": "/31/w05_record_signed_index_tie"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true,
+        "kind": "SIGNED_QUOTIENT_OR_STORED_VALUE",
+        "wrap_before_signed": false
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 32,
+      "rva": "0xd3cfd0",
+      "metric_name": "w05_cursor_excluded_equal",
+      "meaning": "excluded ID Q동등",
+      "source_consumer_sites": [
+        "0xd3d01f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/7"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 32,
+      "rva": "0xd3cfd0",
+      "metric_name": "w05_cursor_entity_present",
+      "meaning": "Worldslot fullQ 비0",
+      "source_consumer_sites": [
+        "0xd3d03b"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/8"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 32,
+      "rva": "0xd3cfd0",
+      "metric_name": "w05_cursor_line_equal",
+      "meaning": "BBline/Plan11C BYTE동등",
+      "source_consumer_sites": [
+        "0xd3d066"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/9"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 33,
+      "rva": "0xd3d430",
+      "metric_name": "w05_cursor_excluded_equal",
+      "meaning": "excluded ID Q동등",
+      "source_consumer_sites": [
+        "0xd3d48f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/10"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 33,
+      "rva": "0xd3d430",
+      "metric_name": "w05_cursor_entity_present",
+      "meaning": "Worldslot fullQ 비0",
+      "source_consumer_sites": [
+        "0xd3d4ab"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/11"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 33,
+      "rva": "0xd3d430",
+      "metric_name": "w05_cursor_line_equal",
+      "meaning": "BBline/lineRef BYTE동등",
+      "source_consumer_sites": [
+        "0xd3d4c8"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/12"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 34,
+      "rva": "0xd3d0d0",
+      "metric_name": "w05_cursor_excluded_equal",
+      "meaning": "excluded ID Q동등",
+      "source_consumer_sites": [
+        "0xd3d133"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/13"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 34,
+      "rva": "0xd3d0d0",
+      "metric_name": "w05_cursor_line_equal",
+      "meaning": "BBline/lineRef BYTE동등",
+      "source_consumer_sites": [
+        "0xd3d161"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/14"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 34,
+      "rva": "0xd3d0d0",
+      "metric_name": "w05_cursor_entity_present",
+      "meaning": "Entity fullQ 비0",
+      "source_consumer_sites": [
+        "0xd3d177"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/15"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 34,
+      "rva": "0xd3d0d0",
+      "metric_name": "w05_cursor_near_distance_shift8",
+      "meaning": "wrapD²>>8 strict문턱",
+      "source_consumer_sites": [
+        "0xd3d1bd",
+        "0xd3d1c1"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 87890625
+      },
+      "classification": {
+        "key": "category",
+        "value": "policy_threshold"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/16"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 35,
+      "rva": "0xd3d230",
+      "metric_name": "w05_cursor_skip_role4",
+      "meaning": "고정ID4 skip",
+      "source_consumer_sites": [
+        "0xd3d28f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 4
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/17"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 35,
+      "rva": "0xd3d230",
+      "metric_name": "w05_cursor_excluded_equal",
+      "meaning": "excluded ID Q동등",
+      "source_consumer_sites": [
+        "0xd3d295"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/18"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 35,
+      "rva": "0xd3d230",
+      "metric_name": "w05_cursor_entity_present",
+      "meaning": "Worldslot fullQ 비0",
+      "source_consumer_sites": [
+        "0xd3d2b1"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/19"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 35,
+      "rva": "0xd3d230",
+      "metric_name": "w05_cursor_line_equal",
+      "meaning": "BBline/lineRef BYTE동등",
+      "source_consumer_sites": [
+        "0xd3d2ce"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/20"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 36,
+      "rva": "0xd3d330",
+      "metric_name": "w05_cursor_skip_role4",
+      "meaning": "고정ID4 skip",
+      "source_consumer_sites": [
+        "0xd3d38f"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 4
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/21"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 36,
+      "rva": "0xd3d330",
+      "metric_name": "w05_cursor_excluded_equal",
+      "meaning": "excluded ID Q동등",
+      "source_consumer_sites": [
+        "0xd3d395"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/22"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 36,
+      "rva": "0xd3d330",
+      "metric_name": "w05_cursor_entity_present",
+      "meaning": "Worldslot fullQ 비0",
+      "source_consumer_sites": [
+        "0xd3d3b1"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": 0
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/23"
+      },
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false,
+        "kind": "UNSIGNED_QWORD_OR_DERIVED_U64",
+        "evidence_note": "각source_record/계약의wrap·포화·shift·DIV경로를함께참조;field전부가64bit라는일반화아님"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 36,
+      "rva": "0xd3d330",
+      "metric_name": "w05_cursor_line_equal",
+      "meaning": "BBline/lineRef BYTE동등",
+      "source_consumer_sites": [
+        "0xd3d3ce"
+      ],
+      "original_value": {
+        "present": true,
+        "key": "original_value",
+        "value": null
+      },
+      "classification": {
+        "key": "category",
+        "value": "enum_identity_or_presence"
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\model_wave05_direct\\metric_site_mapping.json",
+        "sha256": "d0e1caf5e2531cfdb9f5156cdce6d12a961dccad66f27e991c7af7bb74d8fd73",
+        "json_pointer": "/metrics/24"
+      },
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false,
+        "kind": "ZERO_EXTENDED_BYTE"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "source_record_unchanged": true
+    },
+    {
+      "runtime_id": 37,
+      "rva": "0xe20d00",
+      "metric_name": "w06_effect_action_kind_allowed",
+      "meaning": "unsignedwrap(kind-6)<=3;enum집합이다",
+      "source_consumer_sites": [
+        "0xe20d04",
+        "0xe20d08"
+      ],
+      "original_value": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "classification": "ENUM_MAPPING",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_direct\\metric_site_mapping.json",
+        "sha256": "6184e237852fa4f90785a7954753233e31c2e7683d42fd754f9d4053ab66571f",
+        "json_pointer": "/metrics/0"
+      },
+      "lhs_expression": "wrap64(entryR8-6)",
+      "rhs_expression": "3",
+      "relation": "<=",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "limits": "enum 영역:원본kind6..9. metric T±1은종류숫자원값이아닌변환후operand",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "runtime_id": 37,
+      "rva": "0xe20d00",
+      "metric_name": "w06_effect_level_ge3",
+      "meaning": "kind8 descriptor실체선택문턱",
+      "source_consumer_sites": [
+        "0xe20d3f"
+      ],
+      "original_value": 3,
+      "classification": "UNLOCK_DOMAIN_THRESHOLD",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_direct\\metric_site_mapping.json",
+        "sha256": "6184e237852fa4f90785a7954753233e31c2e7683d42fd754f9d4053ab66571f",
+        "json_pointer": "/metrics/1"
+      },
+      "lhs_expression": "actor5C0Q",
+      "rhs_expression": "3",
+      "relation": ">=",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "limits": "below는정적None descriptor경로이며현재loaded descriptor미캡처로DomainError/SKIP",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "runtime_id": 37,
+      "rva": "0xe20d00",
+      "metric_name": "w06_effect_level_ge5",
+      "meaning": "kind9 descriptor실체선택문턱",
+      "source_consumer_sites": [
+        "0xe20d73"
+      ],
+      "original_value": 5,
+      "classification": "UNLOCK_DOMAIN_THRESHOLD",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_direct\\metric_site_mapping.json",
+        "sha256": "6184e237852fa4f90785a7954753233e31c2e7683d42fd754f9d4053ab66571f",
+        "json_pointer": "/metrics/2"
+      },
+      "lhs_expression": "actor5C0Q",
+      "rhs_expression": "5",
+      "relation": ">=",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "limits": "below는정적None descriptor경로이며현재loaded descriptor미캡처로DomainError/SKIP",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "runtime_id": 37,
+      "rva": "0xe20d00",
+      "metric_name": "w06_effect_kind_present",
+      "meaning": "Effect.kind DWORD != -1",
+      "source_consumer_sites": [
+        "0xe20d23",
+        "0xe20d5f",
+        "0xe20d93",
+        "0xe20da7"
+      ],
+      "original_value": 4294967295,
+      "classification": "ADT_SENTINEL",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_direct\\metric_site_mapping.json",
+        "sha256": "6184e237852fa4f90785a7954753233e31c2e7683d42fd754f9d4053ab66571f",
+        "json_pointer": "/metrics/3"
+      },
+      "lhs_expression": "Effect30DWORD",
+      "rhs_expression": "4294967295",
+      "relation": "!=",
+      "integer_operand_contract": {
+        "width": 32,
+        "signed": false
+      },
+      "limits": "equal는게임panic범위/모델DomainError,above는DWORD폭에서불가",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "runtime_id": 37,
+      "rva": "0xe20d00",
+      "metric_name": "w06_effect_action_match",
+      "meaning": "fullQ XOR/OR 결과0이면Some matchbool1",
+      "source_consumer_sites": [
+        "0xe20dbd",
+        "0xe20dc1",
+        "0xe20dc5",
+        "0xe20dc9",
+        "0xe20dcc"
+      ],
+      "original_value": {
+        "typeQ": 15,
+        "stateQ": [
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "classification": "ADT_FULL_WIDTH_IDENTITY",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_direct\\metric_site_mapping.json",
+        "sha256": "6184e237852fa4f90785a7954753233e31c2e7683d42fd754f9d4053ab66571f",
+        "json_pointer": "/metrics/4"
+      },
+      "lhs_expression": "(actor68Q XOR15) OR(actor70Q XOR(kind-3))",
+      "rhs_expression": "0",
+      "relation": "==",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "limits": "derived identity이며below0불가. 원본SETE결과는out16BYTE,내부분기trace아님",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "runtime_id": 38,
+      "scratch_model_id": 39,
+      "rva": "0x1014470",
+      "metric_name": "w06_cell_occupied",
+      "meaning": "격자 QWORD 점유 여부: 비0이면 거리 검사",
+      "source_consumer_sites": [
+        "0x1014506"
+      ],
+      "original_value": 0,
+      "classification": "PRESENCE_SENTINEL",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_iterator\\parameters.json",
+        "sha256": "7f5bc084bd14524dd9a3a5a759ea305d134439e0f50b9cf99ee157b84351b2db"
+      },
+      "lhs_expression": "checkRoot1C98[y*30+x]Q",
+      "rhs_expression": "0",
+      "relation": "!=",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "limits": "unsigned라 below0 불가. checkRoot 점유값과 별도 outputRoot ID를 같은 값으로 가정하지 않음.",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "runtime_id": 38,
+      "scratch_model_id": 39,
+      "rva": "0x1014470",
+      "metric_name": "w06_cell_radius_squared_inclusive",
+      "meaning": "cell 중심과 참조 좌표의 wrap64 거리² <=150000²",
+      "source_consumer_sites": [
+        "0x10144b7",
+        "0x1014554"
+      ],
+      "original_value": 22500000000,
+      "classification": "GEOMETRY_THRESHOLD",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_iterator\\parameters.json",
+        "sha256": "7f5bc084bd14524dd9a3a5a759ea305d134439e0f50b9cf99ee157b84351b2db"
+      },
+      "lhs_expression": "wrap64((centerX-refX)^2+(centerY-refY)^2)",
+      "rhs_expression": "22500000000",
+      "relation": "<=",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "limits": "정확T±1은 거리² operand 단위. world거리149999/150000/150001과 동일한 집계가 아님.",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "runtime_id": 39,
+      "rva": "0xd8a1f0",
+      "metric_name": "insert_predecessor_score_lt_key",
+      "meaning": "직전원소signed64 score<key score",
+      "source_consumer_sites": [
+        "0xd8a235",
+        "0xd8a239",
+        "0xd8a285",
+        "0xd8a289"
+      ],
+      "original_value": "DYNAMIC_CAPTURED_OPERAND",
+      "classification": "DYNAMIC_COMPARATOR_NOT_BALANCE_THRESHOLD",
+      "lhs_expression": "predecessorScore",
+      "rhs_expression": "keyScore",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\next_candidate_d8a1f0\\parameters.json",
+        "sha256": "54a036735f380522c8c9a6cb527f97b40c32e252abbfb5d37aeba7cb23612c36"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "limits": "동적두operand의상대값을고정계수원값으로세지않음. D8tie는score같을때만모델지표를기록하며원문SETB실행trace1:1이아님."
+    },
+    {
+      "runtime_id": 39,
+      "rva": "0xd8a1f0",
+      "metric_name": "insert_equal_score_unsigned_index_tie",
+      "meaning": "score동률에서key index<predecessor index",
+      "source_consumer_sites": [
+        "0xd8a22c",
+        "0xd8a22f",
+        "0xd8a27c",
+        "0xd8a27f"
+      ],
+      "original_value": "DYNAMIC_CAPTURED_OPERAND",
+      "classification": "DYNAMIC_COMPARATOR_NOT_BALANCE_THRESHOLD",
+      "lhs_expression": "keyIndex",
+      "rhs_expression": "predecessorIndex",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\next_candidate_d8a1f0\\parameters.json",
+        "sha256": "54a036735f380522c8c9a6cb527f97b40c32e252abbfb5d37aeba7cb23612c36"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "limits": "동적두operand의상대값을고정계수원값으로세지않음. D8tie는score같을때만모델지표를기록하며원문SETB실행trace1:1이아님."
+    },
+    {
+      "runtime_id": 40,
+      "rva": "0xd3eec0",
+      "metric_name": "next_peer_first_candidate",
+      "meaning": "bestLineBYTE==FF:첫후보판정/정책노브아님",
+      "source_consumer_sites": [
+        "0xd3ef36",
+        "0xd3ef3a"
+      ],
+      "original_value": 255,
+      "classification": "ADT_SENTINEL",
+      "lhs_expression": "bestLineBYTE",
+      "rhs_expression": "255",
+      "relation": "==",
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\next_direct_candidates\\model1000\\metric_site_mapping.json",
+        "sha256": "8f8ec10d2795aaf509a691b7635afd8661c2bd771abed43b8811abb3bafab047"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "limits": "동적두operand의상대값을고정계수원값으로세지않음. D8tie는score같을때만모델지표를기록하며원문SETB실행trace1:1이아님."
+    },
+    {
+      "runtime_id": 40,
+      "rva": "0xd3eec0",
+      "metric_name": "next_peer_cost_improves",
+      "meaning": "wrap cost의signed64엄격최솟값/동률첫ID유지",
+      "source_consumer_sites": [
+        "0xd3ef42",
+        "0xd3ef45"
+      ],
+      "original_value": "DYNAMIC_CAPTURED_OPERAND",
+      "classification": "DYNAMIC_COMPARATOR_NOT_BALANCE_THRESHOLD",
+      "lhs_expression": "candidateCost",
+      "rhs_expression": "bestCost",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\next_direct_candidates\\model1000\\metric_site_mapping.json",
+        "sha256": "8f8ec10d2795aaf509a691b7635afd8661c2bd771abed43b8811abb3bafab047"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false,
+      "limits": "동적두operand의상대값을고정계수원값으로세지않음. D8tie는score같을때만모델지표를기록하며원문SETB실행trace1:1이아님."
+    },
+    {
+      "runtime_id": 41,
+      "rva": "0xd8c680",
+      "metric_name": "merge_signed_score_precedes",
+      "meaning": "signed64 점수 내림차순 비교",
+      "source_consumer_sites": [
+        "0xd8c6ff",
+        "0xd8c703",
+        "0xd8c74f",
+        "0xd8c757"
+      ],
+      "original_value": "DYNAMIC_CAPTURED_OPERAND",
+      "classification": "DYNAMIC_COMPARATOR_NOT_BALANCE_THRESHOLD",
+      "lhs_expression": "leftScoreI64",
+      "rhs_expression": "rightScoreI64",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_adjust\\analysis_064\\parallel\\batch39\\tree_a\\0xd8c680\\capstone.txt",
+        "sha256": "1086e7d3e2757b6cfc8fd98b5be421d1971d568264faac3c7fa4cb37ca4ca40b"
+      },
+      "limits": "함수한표본안 head/tail 반복지표의 evaluation분모와 표본분모를 분리. 모델 predicate이며 원문분기 직접관측0. tie지표는 score동률 때만 발생.",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "runtime_id": 41,
+      "rva": "0xd8c680",
+      "metric_name": "merge_unsigned_index_tie",
+      "meaning": "점수동률 때 unsigned64 index 오름차순",
+      "source_consumer_sites": [
+        "0xd8c6f6",
+        "0xd8c6f9",
+        "0xd8c746",
+        "0xd8c749"
+      ],
+      "original_value": "DYNAMIC_CAPTURED_OPERAND",
+      "classification": "DYNAMIC_COMPARATOR_NOT_BALANCE_THRESHOLD",
+      "lhs_expression": "rightIndexU64",
+      "rhs_expression": "leftIndexU64",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_adjust\\analysis_064\\parallel\\batch39\\tree_a\\0xd8c680\\capstone.txt",
+        "sha256": "1086e7d3e2757b6cfc8fd98b5be421d1971d568264faac3c7fa4cb37ca4ca40b"
+      },
+      "limits": "함수한표본안 head/tail 반복지표의 evaluation분모와 표본분모를 분리. 모델 predicate이며 원문분기 직접관측0. tie지표는 score동률 때만 발생.",
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null,
+      "direct_original_branch_observations": 0,
+      "all_coefficients_verified": false
+    },
+    {
+      "semantic_id": "runtime_probe.w08_wave_own_nonempty",
+      "metric_name": "w08_wave_own_nonempty",
+      "source_consumer_sites": [
+        "0xfcbbe2"
+      ],
+      "meaning": "자기목록len비0",
+      "lhs_expression": "ownVec.len",
+      "rhs_expression": "0",
+      "relation": "!=",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "classification": "DYNAMIC_PROTOCOL",
+      "original_value": 0,
+      "formula_parameter_semantic_ids": [],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbbe2",
+          "bytes": "4a83bc0a8801000000",
+          "instruction": "cmp qword ptr [rdx + r9 + 0x188], 0"
+        }
+      ],
+      "runtime_id": 42,
+      "rva": "0xfcbbb0",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_wave_mode_le8",
+      "metric_name": "w08_wave_mode_le8",
+      "source_consumer_sites": [
+        "0xfcbc44",
+        "0xfcbd18",
+        "0xfcbdb8"
+      ],
+      "meaning": "모드BYTE정의범위",
+      "lhs_expression": "modeBYTE",
+      "rhs_expression": "8",
+      "relation": "<=",
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false
+      },
+      "classification": "ENUM_DOMAIN",
+      "original_value": 8,
+      "formula_parameter_semantic_ids": [],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbc44",
+          "bytes": "83fe08",
+          "instruction": "cmp esi, 8"
+        },
+        {
+          "site": "0xfcbd18",
+          "bytes": "83fe08",
+          "instruction": "cmp esi, 8"
+        },
+        {
+          "site": "0xfcbdb8",
+          "bytes": "4080fe08",
+          "instruction": "cmp sil, 8"
+        }
+      ],
+      "runtime_id": 42,
+      "rva": "0xfcbbb0",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_wave_lane_pair_zero",
+      "metric_name": "w08_wave_lane_pair_zero",
+      "source_consumer_sites": [
+        "0xfcbc90",
+        "0xfcbc98",
+        "0xfcbd2f",
+        "0xfcbd37",
+        "0xfcbde3",
+        "0xfcbdeb"
+      ],
+      "meaning": "각lane의두Q OR가0",
+      "lhs_expression": "pairQ0|pairQ1",
+      "rhs_expression": "0",
+      "relation": "==",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "classification": "DYNAMIC_GATE",
+      "original_value": 0,
+      "formula_parameter_semantic_ids": [],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbc90",
+          "bytes": "488b84cad8010000",
+          "instruction": "mov rax, qword ptr [rdx + rcx*8 + 0x1d8]"
+        },
+        {
+          "site": "0xfcbc98",
+          "bytes": "480b84cae8010000",
+          "instruction": "or rax, qword ptr [rdx + rcx*8 + 0x1e8]"
+        },
+        {
+          "site": "0xfcbd2f",
+          "bytes": "488b84caf8010000",
+          "instruction": "mov rax, qword ptr [rdx + rcx*8 + 0x1f8]"
+        },
+        {
+          "site": "0xfcbd37",
+          "bytes": "480b84ca08020000",
+          "instruction": "or rax, qword ptr [rdx + rcx*8 + 0x208]"
+        },
+        {
+          "site": "0xfcbde3",
+          "bytes": "488b84ca18020000",
+          "instruction": "mov rax, qword ptr [rdx + rcx*8 + 0x218]"
+        },
+        {
+          "site": "0xfcbdeb",
+          "bytes": "480b84ca28020000",
+          "instruction": "or rax, qword ptr [rdx + rcx*8 + 0x228]"
+        }
+      ],
+      "runtime_id": 42,
+      "rva": "0xfcbbb0",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_wave_distance_within_reference",
+      "metric_name": "w08_wave_distance_within_reference",
+      "source_consumer_sites": [
+        "0xfcbcfd",
+        "0xfcbd9d",
+        "0xfcbe5d"
+      ],
+      "meaning": "상대거리²<=첫own기준거리²",
+      "lhs_expression": "wrap64(dx*dx+dy*dy)",
+      "rhs_expression": "referenceSquared",
+      "relation": "<=",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "classification": "DYNAMIC_THRESHOLD",
+      "original_value": null,
+      "formula_parameter_semantic_ids": [
+        "defense.opponent_wave.reference_radius_squared"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbcfd",
+          "bytes": "4d39eb",
+          "instruction": "cmp r11, r13"
+        },
+        {
+          "site": "0xfcbd9d",
+          "bytes": "4d39eb",
+          "instruction": "cmp r11, r13"
+        },
+        {
+          "site": "0xfcbe5d",
+          "bytes": "4939db",
+          "instruction": "cmp r11, rbx"
+        }
+      ],
+      "runtime_id": 42,
+      "rva": "0xfcbbb0",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_wave_qualifying_count_ge6",
+      "metric_name": "w08_wave_qualifying_count_ge6",
+      "source_consumer_sites": [
+        "0xfcbd0c",
+        "0xfcbdac",
+        "0xfcbe6c"
+      ],
+      "meaning": "각선택lane의포함수6이상",
+      "lhs_expression": "qualifyingCount",
+      "rhs_expression": "6",
+      "relation": ">=",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "classification": "THRESHOLD",
+      "original_value": 6,
+      "formula_parameter_semantic_ids": [
+        "defense.opponent_wave.minimum_count"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "site": "0xfcbd0c",
+          "bytes": "4983fe06",
+          "instruction": "cmp r14, 6"
+        },
+        {
+          "site": "0xfcbdac",
+          "bytes": "4983fe05",
+          "instruction": "cmp r14, 5"
+        },
+        {
+          "site": "0xfcbe6c",
+          "bytes": "4983f805",
+          "instruction": "cmp r8, 5"
+        }
+      ],
+      "runtime_id": 42,
+      "rva": "0xfcbbb0",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_objective_mode_le8",
+      "metric_name": "w08_objective_mode_le8",
+      "source_consumer_sites": [
+        "0xe405c3"
+      ],
+      "meaning": "정상team의모드BYTE정의범위",
+      "lhs_expression": "modeBYTE",
+      "rhs_expression": "8",
+      "relation": "<=",
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false
+      },
+      "classification": "ENUM_DOMAIN",
+      "original_value": 8,
+      "formula_parameter_semantic_ids": [
+        "objective.minimum_cost.mode_extent"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 29,
+          "site": "0xe405c3",
+          "bytes": "4180fb08",
+          "instruction": "cmp r11b, 8"
+        }
+      ],
+      "runtime_id": 43,
+      "rva": "0xe40560",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_objective_candidate_admitted",
+      "metric_name": "w08_objective_candidate_admitted",
+      "source_consumer_sites": [
+        "0xe405e4",
+        "0xe405ec",
+        "0xe405fd",
+        "0xe4061b",
+        "0xe4069c",
+        "0xe406f0",
+        "0xe406f9",
+        "0xe4070a"
+      ],
+      "meaning": "허용집합복합predicate를0/1로정규화",
+      "lhs_expression": "int(mode/key admission)",
+      "rhs_expression": "0",
+      "relation": "!=",
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false
+      },
+      "classification": "NORMALIZED_ENUM_PREDICATE",
+      "original_value": 0,
+      "formula_parameter_semantic_ids": [
+        "objective.minimum_cost.mode_masks"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 36,
+          "site": "0xe405e4",
+          "bytes": "4585ed",
+          "instruction": "test r13d, r13d"
+        },
+        {
+          "index": 39,
+          "site": "0xe405ec",
+          "bytes": "4183fd02",
+          "instruction": "cmp r13d, 2"
+        },
+        {
+          "index": 44,
+          "site": "0xe405fd",
+          "bytes": "440fa3d7",
+          "instruction": "bt edi, r10d"
+        },
+        {
+          "index": 52,
+          "site": "0xe4061b",
+          "bytes": "440fa3d7",
+          "instruction": "bt edi, r10d"
+        },
+        {
+          "index": 80,
+          "site": "0xe4069c",
+          "bytes": "41803800",
+          "instruction": "cmp byte ptr [r8], 0"
+        },
+        {
+          "index": 98,
+          "site": "0xe406f0",
+          "bytes": "4183fd02",
+          "instruction": "cmp r13d, 2"
+        },
+        {
+          "index": 101,
+          "site": "0xe406f9",
+          "bytes": "4183fd01",
+          "instruction": "cmp r13d, 1"
+        },
+        {
+          "index": 106,
+          "site": "0xe4070a",
+          "bytes": "440fa3d7",
+          "instruction": "bt edi, r10d"
+        }
+      ],
+      "runtime_id": 43,
+      "rva": "0xe40560",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_objective_rank_below3",
+      "metric_name": "w08_objective_rank_below3",
+      "source_consumer_sites": [
+        "0xe40636",
+        "0xe406aa",
+        "0xe40725"
+      ],
+      "meaning": "후보rank unsigned<3",
+      "lhs_expression": "rankQ",
+      "rhs_expression": "3",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": false
+      },
+      "classification": "THRESHOLD",
+      "original_value": 3,
+      "formula_parameter_semantic_ids": [
+        "objective.minimum_cost.rank_admission"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 59,
+          "site": "0xe40636",
+          "bytes": "4983fc03",
+          "instruction": "cmp r12, 3"
+        },
+        {
+          "index": 83,
+          "site": "0xe406aa",
+          "bytes": "4983fc03",
+          "instruction": "cmp r12, 3"
+        },
+        {
+          "index": 113,
+          "site": "0xe40725",
+          "bytes": "4983fc03",
+          "instruction": "cmp r12, 3"
+        }
+      ],
+      "runtime_id": 43,
+      "rva": "0xe40560",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_objective_metadata_below2000",
+      "metric_name": "w08_objective_metadata_below2000",
+      "source_consumer_sites": [
+        "0xe40644",
+        "0xe406b8",
+        "0xe4072f"
+      ],
+      "meaning": "rank>=3의signed Q metadata<2000",
+      "lhs_expression": "signed64(metadataQ)",
+      "rhs_expression": "2000",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true
+      },
+      "classification": "THRESHOLD",
+      "original_value": 2000,
+      "formula_parameter_semantic_ids": [
+        "objective.minimum_cost.metadata_admission"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 62,
+          "site": "0xe40644",
+          "bytes": "4981ffd0070000",
+          "instruction": "cmp r15, 0x7d0"
+        },
+        {
+          "index": 86,
+          "site": "0xe406b8",
+          "bytes": "4981ffd0070000",
+          "instruction": "cmp r15, 0x7d0"
+        },
+        {
+          "index": 116,
+          "site": "0xe4072f",
+          "bytes": "4981ffd0070000",
+          "instruction": "cmp r15, 0x7d0"
+        }
+      ],
+      "runtime_id": 43,
+      "rva": "0xe40560",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_objective_state_below2",
+      "metric_name": "w08_objective_state_below2",
+      "source_consumer_sites": [
+        "0xe40651",
+        "0xe406c1",
+        "0xe40738"
+      ],
+      "meaning": "앞가드불통과시signed DW state<2",
+      "lhs_expression": "signed32(stateDWORD)",
+      "rhs_expression": "2",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 32,
+        "signed": true
+      },
+      "classification": "THRESHOLD",
+      "original_value": 2,
+      "formula_parameter_semantic_ids": [
+        "objective.minimum_cost.state_admission"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 64,
+          "site": "0xe40651",
+          "bytes": "837f2002",
+          "instruction": "cmp dword ptr [rdi + 0x20], 2"
+        },
+        {
+          "index": 88,
+          "site": "0xe406c1",
+          "bytes": "837a2002",
+          "instruction": "cmp dword ptr [rdx + 0x20], 2"
+        },
+        {
+          "index": 118,
+          "site": "0xe40738",
+          "bytes": "837f2002",
+          "instruction": "cmp dword ptr [rdi + 0x20], 2"
+        }
+      ],
+      "runtime_id": 43,
+      "rva": "0xe40560",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_objective_first_candidate",
+      "metric_name": "w08_objective_first_candidate",
+      "source_consumer_sites": [
+        "0xe40788",
+        "0xe4078a"
+      ],
+      "meaning": "AL FF첫후보특례",
+      "lhs_expression": "bestKeyBYTE",
+      "rhs_expression": "255",
+      "relation": "==",
+      "integer_operand_contract": {
+        "width": 8,
+        "signed": false
+      },
+      "classification": "OPTION_SENTINEL",
+      "original_value": 255,
+      "formula_parameter_semantic_ids": [
+        "objective.minimum_cost.none_sentinel"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 137,
+          "site": "0xe40788",
+          "bytes": "3cff",
+          "instruction": "cmp al, 0xff"
+        },
+        {
+          "index": 138,
+          "site": "0xe4078a",
+          "bytes": "410f94c7",
+          "instruction": "sete r15b"
+        }
+      ],
+      "runtime_id": 43,
+      "rva": "0xe40560",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    },
+    {
+      "semantic_id": "runtime_probe.w08_objective_cost_improves",
+      "metric_name": "w08_objective_cost_improves",
+      "source_consumer_sites": [
+        "0xe4078e",
+        "0xe40791"
+      ],
+      "meaning": "wrap비용의signed엄격최소/동률첫입력유지",
+      "lhs_expression": "signed64(wrap64(rank*10000+metadataQ+signextend(stateDW)*1000))",
+      "rhs_expression": "signed64(bestCost)",
+      "relation": "<",
+      "integer_operand_contract": {
+        "width": 64,
+        "signed": true
+      },
+      "classification": "DYNAMIC_COMPARATOR",
+      "original_value": null,
+      "formula_parameter_semantic_ids": [
+        "objective.minimum_cost.rank_weight",
+        "objective.minimum_cost.state_weight"
+      ],
+      "observed_branch": false,
+      "direct_original_branch_observations": 0,
+      "source_site_mapping_scope": "COMPOSITE_MODEL_PREDICATE_NOT_ONE_TO_ONE_EXECUTED_SITE_TRACE",
+      "loaded_data_value_verification": false,
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "instruction_evidence": [
+        {
+          "index": 139,
+          "site": "0xe4078e",
+          "bytes": "4c39f7",
+          "instruction": "cmp rdi, r14"
+        },
+        {
+          "index": 140,
+          "site": "0xe40791",
+          "bytes": "410f9cc4",
+          "instruction": "setl r12b"
+        }
+      ],
+      "runtime_id": 43,
+      "rva": "0xe40560",
+      "source": {
+        "path": "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch04\\next_direct_models\\metric_site_mapping.json",
+        "sha256": "931749bf820823193d1ce56bb112911acd82bb3f4961c2fb78cb2e63fa08ce02"
+      },
+      "runtime_samples": null,
+      "metric_evaluations": null,
+      "below": null,
+      "equal": null,
+      "above": null,
+      "exact_T_minus_one": null,
+      "exact_T": null,
+      "exact_T_plus_one": null,
+      "predicate_true": null,
+      "predicate_false": null
+    }
+  ],
+  "new_iterator_declared_numeric_records": [
+    {
+      "semantic_id": "jungle.occupied_cell.iterator.axis_bounds",
+      "original_value": {
+        "y_max": 29,
+        "x_exclusive": 30
+      },
+      "consumer_sites": [
+        "0x10144e3",
+        "0x10144f1"
+      ],
+      "meaning": "Y를먼저unsigned<=29 검사,이후Xunsigned<30. 실패하면cursor=index+1선쓰기후boundsnoreturn.",
+      "adjustment": "격자30×30/메모리stride/후속geometry와함께재설계. 단독정책튜닝노브아님.",
+      "evidence": [
+        {
+          "site": "0x10144e3",
+          "bytes": "4983f91d",
+          "instruction": "cmp r9, 0x1d"
+        },
+        {
+          "site": "0x10144f1",
+          "bytes": "4883f81e",
+          "instruction": "cmp rax, 0x1e"
+        }
+      ],
+      "version": "0.6.4",
+      "site_allowlist_explicit": true,
+      "automatic_patch_allowed": false
+    },
+    {
+      "semantic_id": "jungle.occupied_cell.grid_row_stride",
+      "original_value": 240,
+      "consumer_sites": [
+        "0x10144fb"
+      ],
+      "meaning": "Y*240+X*8 QWORD격자. 점유root와출력root에같은offset을각각사용.",
+      "adjustment": "행길이30과QWORD8B배치의결합구조. root producer와소비를같이검토.",
+      "evidence": [
+        {
+          "site": "0x10144fb",
+          "bytes": "4d69f9f0000000",
+          "instruction": "imul r15, r9, 0xf0"
+        }
+      ],
+      "version": "0.6.4",
+      "site_allowlist_explicit": true,
+      "automatic_patch_allowed": false
+    },
+    {
+      "semantic_id": "jungle.occupied_cell.center_cell_span",
+      "original_value": 32000,
+      "consumer_sites": [
+        "0x101450d",
+        "0x101451b"
+      ],
+      "meaning": "유효cellindex*32000의XY중심기초. 원문IMUL64.",
+      "adjustment": "기하좌표단위와격자span의연결값. center16000/반경과동시검토.",
+      "evidence": [
+        {
+          "site": "0x101450d",
+          "bytes": "4c69e0007d0000",
+          "instruction": "imul r12, rax, 0x7d00"
+        },
+        {
+          "site": "0x101451b",
+          "bytes": "4d69c9007d0000",
+          "instruction": "imul r9, r9, 0x7d00"
+        }
+      ],
+      "version": "0.6.4",
+      "site_allowlist_explicit": true,
+      "automatic_patch_allowed": false
+    },
+    {
+      "semantic_id": "jungle.occupied_cell.center_offset",
+      "original_value": 16000,
+      "consumer_sites": [
+        "0x1014514",
+        "0x1014522"
+      ],
+      "meaning": "X/Ycellcenter에16000추가.",
+      "adjustment": "32000span의중심정의와연결. 단독으로가시성/공격범위라고이름붙이지않음.",
+      "evidence": [
+        {
+          "site": "0x1014514",
+          "bytes": "4981c4803e0000",
+          "instruction": "add r12, 0x3e80"
+        },
+        {
+          "site": "0x1014522",
+          "bytes": "4981c1803e0000",
+          "instruction": "add r9, 0x3e80"
+        }
+      ],
+      "version": "0.6.4",
+      "site_allowlist_explicit": true,
+      "automatic_patch_allowed": false
+    },
+    {
+      "semantic_id": "jungle.occupied_cell.radius_squared_inclusive",
+      "original_value": 22500000000,
+      "consumer_sites": [
+        "0x10144b7",
+        "0x1014554"
+      ],
+      "meaning": "MOVABS상수→wrap64거리제곱과CMP→unsignedJA이면skip. 150000의제곱이며동일경계포함.",
+      "adjustment": "상향시같은wrap거리값의허용범위가넓어지지만비표준overflow도메인까지Euclidean단조성으로일반화하지않음. 다른함수반경과일괄조정금지.",
+      "evidence": [
+        {
+          "site": "0x10144b7",
+          "bytes": "48b900c11a3d05000000",
+          "instruction": "movabs rcx, 0x53d1ac100"
+        },
+        {
+          "site": "0x1014554",
+          "bytes": "4839cd",
+          "instruction": "cmp rbp, rcx"
+        }
+      ],
+      "version": "0.6.4",
+      "site_allowlist_explicit": true,
+      "automatic_patch_allowed": false,
+      "coefficient_producer_sites": [
+        "0x10144b7"
+      ],
+      "comparison_site": "0x1014554",
+      "branch_site": "0x1014557"
+    }
+  ],
+  "blocked_scratch38_excluded": true,
+  "source_commit": null,
+  "reported_deployed_dll_sha256": null,
+  "limits": "지표evaluation분모와함수표본분모는별개. 동적operand/명목code/sentinel은고정균형계수로자동계상하지않음.",
+  "readonly_sources": {
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch01\\runtime_metric_matrix_v024\\plan_v024\\matrix.json": "0d3dd956814fa9882648ea6085d7a1301c096bb6b0fc6b633a4162fc28ce3ce9",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_direct\\metric_site_mapping.json": "6184e237852fa4f90785a7954753233e31c2e7683d42fd754f9d4053ab66571f",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch02\\model_wave06_iterator\\parameters.json": "7f5bc084bd14524dd9a3a5a759ea305d134439e0f50b9cf99ee157b84351b2db"
+  },
+  "metric_generations": [
+    55,
+    31,
+    7,
+    4,
+    14
+  ],
+  "new_declared_numeric_records": {
+    "39": [
+      {
+        "semantic_id": "rl.rank_indices.insert_descending_score_stable_index.order",
+        "original_value": {
+          "score": "signed64_desc",
+          "tie": "unsigned_index_asc"
+        },
+        "meaning": "signed score내림차순·동률 index오름차순 삽입",
+        "consumer_sites": [
+          "0xd8a22c",
+          "0xd8a235",
+          "0xd8a239",
+          "0xd8a23d",
+          "0xd8a27c",
+          "0xd8a285",
+          "0xd8a289",
+          "0xd8a28d"
+        ],
+        "adjustment": "원producer·필드폭·비교방향·overflow·callee실소비와함께재도출. layout/enum/진단값은독립AI노브로자동patch하지않는다.",
+        "version": "0.6.4",
+        "exe_sha256": "a1d05045405a12e2bed182daeafcad8c8a40cf29ab68ba6ea5bfd30257439582",
+        "automatic_patch_allowed": false,
+        "evidence": [
+          {
+            "site": "0xd8a22c",
+            "bytes": "4839c7",
+            "instruction": "cmp rdi, rax"
+          },
+          {
+            "site": "0xd8a235",
+            "bytes": "4d3b14f9",
+            "instruction": "cmp r10, qword ptr [r9 + rdi*8]"
+          },
+          {
+            "site": "0xd8a239",
+            "bytes": "400f9cc6",
+            "instruction": "setl sil"
+          },
+          {
+            "site": "0xd8a23d",
+            "bytes": "410f44f3",
+            "instruction": "cmove esi, r11d"
+          },
+          {
+            "site": "0xd8a27c",
+            "bytes": "4839c7",
+            "instruction": "cmp rdi, rax"
+          },
+          {
+            "site": "0xd8a285",
+            "bytes": "4d3b14f9",
+            "instruction": "cmp r10, qword ptr [r9 + rdi*8]"
+          },
+          {
+            "site": "0xd8a289",
+            "bytes": "400f9cc6",
+            "instruction": "setl sil"
+          },
+          {
+            "site": "0xd8a28d",
+            "bytes": "410f44f3",
+            "instruction": "cmove esi, r11d"
+          }
+        ],
+        "unknown": "실제provider/단위/producer불변식은함수계약미확정참조"
+      }
+    ],
+    "40": [
+      {
+        "semantic_id": "lane.peer_cost.progress_weight",
+        "original_value": 2,
+        "sites": [
+          "0xd3ef2e"
+        ],
+        "meaning": "비용=거리제곱/1000000+2*라인 진행값. signed 최소 비용 선택.",
+        "adjustment": "LEA의scale2를 일반 임의정수로 byte치환할수없다. 별도 재현식에서 W*progress로 노출하고 원래 wrapping을 보존.",
+        "status": "STATIC_LOCAL_CONSUMER_CONFIRMED",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "classification": "FORMULA_COEFFICIENT"
+      },
+      {
+        "semantic_id": "lane.peer_cost.distance_divisor",
+        "original_value": 1000000,
+        "sites": [
+          "0xd3f02f",
+          "0xd3ef26"
+        ],
+        "meaning": "wrap 거리제곱을1000000으로 정수 나눈 거리 항.",
+        "adjustment": "magic곱/shift 한 쌍을 재생성하거나 재현식 분모로 노출. magic자체를 사용자계수로보여주지않음.",
+        "status": "STATIC_LOCAL_CONSUMER_CONFIRMED",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "classification": "FORMULA_COEFFICIENT"
+      }
+    ]
+  },
+  "previous41_metric_entries": 97,
+  "new_route_metric_entries": 14
+}
