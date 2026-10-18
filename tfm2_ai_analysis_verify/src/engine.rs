@@ -11,7 +11,7 @@ use std::time::Duration;
 use crate::{config::Config, generated, hook, models, platform};
 
 pub const MAX_FIELDS: usize = 96;
-pub const MODEL_COUNT: usize = 27;
+pub const MODEL_COUNT: usize = 37;
 pub trait Memory { fn read(&mut self, address: u64, width: u8) -> Result<u64, &'static str>; }
 #[derive(Clone, Debug)]
 pub struct Metric {
@@ -76,8 +76,72 @@ struct State {
     capture_enabled:AtomicUsize,capture_label:OnceLock<String>,control_sequence:AtomicU64,
     scene_code:AtomicUsize,admission:AtomicU64,queued_events:AtomicU64,stop_pending_sequence:AtomicU64,stop_worker:AtomicUsize,worker_state:AtomicUsize,
     worker:Mutex<Option<JoinHandle<()>>>,control_error:Mutex<String>,
+    first_mismatch:OnceLock<Event>,first_mismatch_file_state:AtomicUsize,
 }
 static STATE:OnceLock<State>=OnceLock::new();
+
+// 모델별 원문 쓰기 surface를 등록한다. 모델이 임의 주소를 출력이라고 선언할 수 없다.
+fn checked_span(address:u64,width:u64)->Result<(u64,u64),&'static str>{
+    let end=address.checked_add(width).ok_or("OUTPUT_ADDRESS_OVERFLOW")?;
+    if address<0x10000||width==0||end>(1u64<<48){return Err("OUTPUT_ADDRESS_RANGE");}
+    Ok((address,end))
+}
+fn spans_overlap(a:(u64,u64),b:(u64,u64))->bool{a.0<b.1&&b.0<a.1}
+fn validate_registered_outputs(id:usize,args:[u64;4],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
+    let (base,count)=match id{
+        0..=28=>{if e.output_ptr.is_some()||!e.output_fields.is_empty(){return Err("UNREGISTERED_OUTPUT");}return Ok(());},
+        29=>(args[0],3),30|31=>(args[1],4),
+        32..=36=>{
+            if e.output_fields.is_empty(){if e.output_ptr.is_some(){return Err("EMPTY_CURSOR_OUTPUT_PTR");}return Ok(());}
+            (args[0],1)
+        },
+        _=>return Err("UNREGISTERED_OUTPUT_MODEL_ID"),
+    };
+    let surface=checked_span(base,count*8)?;
+    if e.output_ptr!=Some(base)||e.output_fields.len()!=count as usize{return Err("OUTPUT_SURFACE_COUNT_OR_PTR");}
+    for(j,&(address,width,_))in e.output_fields.iter().enumerate(){
+        if width!=8||address!=base+j as u64*8{return Err("OUTPUT_SURFACE_ADDRESS_OR_WIDTH");}
+    }
+    // readonly 출력3은 입력과alias되면 미지원이다. cursor는 첫 header Q8 read만 예외다.
+    for(j,f)in reads.iter().enumerate(){
+        if !matches!(f.width,1|2|4|8){return Err("INPUT_FIELD_WIDTH");}
+        if spans_overlap(checked_span(f.address,f.width as u64)?,surface)
+            && !(((32..=36).contains(&id))&&j==0&&f.address==args[0]&&f.width==8){
+            return Err("REGISTERED_OUTPUT_READ_ALIAS");
+        }
+    }
+    Ok(())
+}
+fn unchanged_outside_registered_writes(address:u64,width:u8,before:u64,after:u64,outputs:&[(u64,u8,u64)])->Result<bool,&'static str>{
+    if !matches!(width,1|2|4|8){return Err("INPUT_FIELD_WIDTH");}
+    checked_span(address,width as u64)?;
+    for byte in 0..width{
+        let at=address+byte as u64;
+        let mut written=false;
+        for &(a,w,_)in outputs{
+            let span=checked_span(a,w as u64)?;
+            if at>=span.0&&at<span.1{written=true;break;}
+        }
+        if !written&&((before>>(byte*8))&255)!=((after>>(byte*8))&255){return Ok(false);}
+    }
+    Ok(true)
+}
+fn write_first_mismatch_new(path:&Path,text:&str)->std::io::Result<()>{
+    let mut file=OpenOptions::new().create_new(true).write(true).open(path)?;
+    writeln!(file,"{text}")?;file.flush()?;file.sync_all()
+}
+fn persist_first_mismatch(state:&State)->std::io::Result<()>{
+    match state.first_mismatch_file_state.load(Ordering::Acquire){
+        1=>return Ok(()),2=>return Err(std::io::Error::other("first mismatch file disabled after hard failure; restart required")),_=>{}
+    }
+    let Some(event)=state.first_mismatch.get()else{return Ok(());};
+    // create_new 또는 부분 write 실패 뒤 같은 파일을 이어쓰거나 덮어쓰지 않는다.
+    state.first_mismatch_file_state.store(2,Ordering::Release);
+    let result=write_first_mismatch_new(&state.dir.join(format!("first_mismatch_{}.json",state.run_id)),&event_json(state,event));
+    if let Err(error)=result{record_io_failure(state,"first_mismatch_create_write_flush",&error,0);return Err(error);}
+    state.first_mismatch_file_state.store(1,Ordering::Release);Ok(())
+}
+
 pub static ORIGINALS:[AtomicUsize;MODEL_COUNT]=[const {AtomicUsize::new(0)};MODEL_COUNT];
 static DOMAINS:[AtomicUsize;MODEL_COUNT]=[const {AtomicUsize::new(0)};MODEL_COUNT];
 
@@ -151,6 +215,9 @@ pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verif
     std::fs::create_dir_all(&dir).map_err(|e|e.to_string())?;
     let stamp=std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_err(|e|e.to_string())?.as_nanos();
     let run_id=format!("{}_{stamp}",std::process::id());
+    if config.armed && identity_verified && actual_sha256==generated::BASELINE_EXE_SHA256 {
+        crate::loaded_constants::capture(&dir,&run_id)?;
+    }
     let output=dir.join(format!("observations_{run_id}.jsonl"));
     let f=OpenOptions::new().create_new(true).write(true).open(output).map_err(|e|e.to_string())?;
     let journal_output=dir.join(format!("summaries_{run_id}.jsonl"));
@@ -168,6 +235,7 @@ pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verif
         scene_code:AtomicUsize::new(usize::MAX),admission:AtomicU64::new(ADMISSION_CLOSED),queued_events:AtomicU64::new(0),
         stop_pending_sequence:AtomicU64::new(0),stop_worker:AtomicUsize::new(0),worker_state:AtomicUsize::new(0),
         worker:Mutex::new(None),control_error:Mutex::new(String::new()),
+        first_mismatch:OnceLock::new(),first_mismatch_file_state:AtomicUsize::new(0),
     }).map_err(|_|"duplicate_initialize".to_string())?;
     flush().map_err(|e|e.to_string())?;
     STATE.get().unwrap().init_ready.store(1,Ordering::Release);
@@ -356,7 +424,9 @@ unsafe fn observe(id:usize,args:[u64;4])->u64 {
     let capture_label=state.capture_label.get().cloned().unwrap_or_default();
     let prepared=catch_unwind(AssertUnwindSafe(|| {
         let mut capture=Capture{reads:Vec::with_capacity(MAX_FIELDS)};
-        let evaluation=models::evaluate(id,args,&mut capture);
+        let evaluation=models::evaluate(id,args,&mut capture).and_then(|value|{
+            validate_registered_outputs(id,args,&value,&capture.reads)?;Ok(value)
+        });
         (evaluation,capture.reads)
     }));
     // 원본 예외는 잡아서 재호출하지 않는다. 모델 panic도 원본 1회 규칙에 영향을 주지 않는다.
@@ -372,13 +442,13 @@ unsafe fn observe(id:usize,args:[u64;4])->u64 {
             Ok((Ok(evaluation),reads))=> {
                 let mut replay=Replay(&reads);
                 let second=models::evaluate(id,args,&mut replay)?;
-                if second.expected!=evaluation.expected||second.mask!=evaluation.mask||second.output_fields!=evaluation.output_fields {
+                if second.expected!=evaluation.expected||second.mask!=evaluation.mask||second.output_ptr!=evaluation.output_ptr||second.output_fields!=evaluation.output_fields {
                     return Err("MODEL_SNAPSHOT_REPLAY_DIFFERENCE");
                 }
                 event.evaluation=Some(evaluation.clone()); event.reads=reads;
                 for field in &event.reads {
                     match live_read(field.address,field.width) {
-                        Ok(now) if now==field.value=>{},
+                        Ok(now) if unchanged_outside_registered_writes(field.address,field.width,field.value,now,&evaluation.output_fields)?=>{},
                         Ok(_)=> {event.comparison="UNSTABLE";event.reason="INPUT_CHANGED_DURING_ORIGINAL";break;},
                         Err(_)=> {event.comparison="UNSTABLE";event.reason="INPUT_UNREADABLE_AFTER_ORIGINAL";break;},
                     }
@@ -397,7 +467,12 @@ unsafe fn observe(id:usize,args:[u64;4])->u64 {
         }
         match event.comparison {
             "MATCH"=>{stats.compared.fetch_add(1,Ordering::Relaxed);stats.matches.fetch_add(1,Ordering::Relaxed);},
-            "MISMATCH"=>{stats.compared.fetch_add(1,Ordering::Relaxed);stats.mismatches.fetch_add(1,Ordering::Relaxed);},
+            "MISMATCH"=>{
+                // 관측된 첫 vanilla 차이에서 새 admission을 닫는다. 기존 in-flight는 원본1회 뒤 drain.
+                close_capture(state);
+                if state.first_mismatch.get().is_none(){let _=state.first_mismatch.set(event.clone());}
+                stats.compared.fetch_add(1,Ordering::Relaxed);stats.mismatches.fetch_add(1,Ordering::Relaxed);
+            },
             "FOREIGN_MATCH"=>{stats.foreign_matches.fetch_add(1,Ordering::Relaxed);},
             "FOREIGN_MISMATCH"=>{stats.foreign_mismatches.fetch_add(1,Ordering::Relaxed);},
             "UNSTABLE"=>{stats.unstable.fetch_add(1,Ordering::Relaxed);},
@@ -429,11 +504,21 @@ wrapper!(hook8,8);wrapper!(hook9,9);wrapper!(hook10,10);wrapper!(hook11,11);
 wrapper!(hook12,12);wrapper!(hook13,13);wrapper!(hook14,14);wrapper!(hook15,15);
 wrapper!(hook16,16);wrapper!(hook17,17);wrapper!(hook18,18);
 wrapper!(hook19,19);wrapper!(hook20,20);wrapper!(hook21,21);wrapper!(hook22,22);wrapper!(hook23,23);wrapper!(hook24,24);wrapper!(hook25,25);wrapper!(hook26,26);
+wrapper!(hook27,27);
+wrapper!(hook28,28);
+wrapper!(hook29,29);
+wrapper!(hook30,30);
+wrapper!(hook31,31);
+wrapper!(hook32,32);
+wrapper!(hook33,33);
+wrapper!(hook34,34);
+wrapper!(hook35,35);
+wrapper!(hook36,36);
 fn wrappers()->[usize;MODEL_COUNT] {[hook0 as *const () as usize,hook1 as *const () as usize,hook2 as *const () as usize,hook3 as *const () as usize,
     hook4 as *const () as usize,hook5 as *const () as usize,hook6 as *const () as usize,hook7 as *const () as usize,
     hook8 as *const () as usize,hook9 as *const () as usize,hook10 as *const () as usize,hook11 as *const () as usize,
     hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize,
-    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize]}
+    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize]}
 
 pub fn post_update() {
     let Some(state)=STATE.get() else {return;};
@@ -501,6 +586,7 @@ pub fn flush()->std::io::Result<()> {
         return Err(error);
     }
     for e in &events {state.stats[e.id].persisted.fetch_add(1,Ordering::Relaxed);}
+    persist_first_mismatch(state)?;
     // 부분 append 실패 뒤 같은 BufWriter를 다시 flush하면 부분 줄을 중복/이어쓸 수 있다.
     // 정본은 실행당 terminal failure로 처리하고 새 실행만 허용한다. 관측 큐 drain은 위에서 수행한다.
     if state.journal_failed.load(Ordering::Acquire)!=0{
@@ -510,7 +596,8 @@ pub fn flush()->std::io::Result<()> {
     let pending=state.stop_pending_sequence.load(Ordering::Acquire);
     let current_ack=state.control_sequence.load(Ordering::Acquire);
     let ack=if state.admission.load(Ordering::Acquire)&ADMISSION_CLOSED!=0 && in_flight(state)==0
-        && counter(&state.queued_events)==0 && pending>current_ack{pending}else{current_ack};
+        && counter(&state.queued_events)==0 && pending>current_ack
+        && (state.first_mismatch.get().is_none()||state.first_mismatch_file_state.load(Ordering::Acquire)==1){pending}else{current_ack};
     let installs=state.install.lock().unwrap_or_else(|e|e.into_inner()).clone();
     let probes=generated::PROBES.iter().map(|p| {
         let s=&state.stats[p.id];let status=installs.iter().find(|x|x.id==p.id);
@@ -533,6 +620,11 @@ pub fn flush()->std::io::Result<()> {
     let summary=format!("{},\"summary_retries\":{},\"last_io_error\":{},\"init_ready\":{}}}\n",
         summary.trim().trim_end_matches('}'),counter(&state.summary_retries),
         json_quote(&state.last_io_error.lock().unwrap_or_else(|e|e.into_inner())),state.init_ready.load(Ordering::Acquire)!=0);
+    let first=state.first_mismatch.get();
+    let first_name=if first.is_some(){json_quote(&format!("first_mismatch_{}.json",state.run_id))}else{"null".into()};
+    let first_seq=first.map(|e|e.seq.to_string()).unwrap_or_else(||"null".into());
+    let summary=format!("{},\"first_mismatch_present\":{},\"first_mismatch_seq\":{},\"first_mismatch_file\":{},\"first_mismatch_persisted\":{}}}\n",
+        summary.trim().trim_end_matches('}'),first.is_some(),first_seq,first_name,state.first_mismatch_file_state.load(Ordering::Acquire)==1);
     let record_sequence=state.summary_record_sequence.load(Ordering::Acquire)+1;
     let timestamp_ms=std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_millis();
     let summary=format!("{},\"summary_source\":\"journal\",\"record_seq\":{},\"summary_timestamp_unix_ms\":{},\"summary_record_sequence\":{},\"summary_journal\":{},\"summary_alias_errors\":{},\"last_summary_alias_error\":{}}}\n",
@@ -559,6 +651,44 @@ pub fn flush()->std::io::Result<()> {
 }
 
 #[cfg(test)] mod tests {
+
+    #[test]fn first_mismatch_create_new_refuses_existing_evidence(){
+        let dir=std::env::temp_dir().join(format!("aiav_first_difference_{}_{}",std::process::id(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        std::fs::create_dir_all(&dir).unwrap();let file=dir.join("first.json");
+        write_first_mismatch_new(&file,"{\"first\":true}").unwrap();
+        let original=std::fs::read(&file).unwrap();
+        assert!(write_first_mismatch_new(&file,"replacement").is_err());assert_eq!(std::fs::read(&file).unwrap(),original);
+        assert!(write_first_mismatch_new(&dir,"not a file").is_err());std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test] fn registered_outputs_are_exact_and_not_generic_abi(){
+        let a=[0x10000,0x20000,0x30000,4];
+        let mut e=Evaluation{expected:0,mask:u64::MAX,output_ptr:Some(a[0]),output_fields:vec![(a[0],8,1),(a[0]+8,8,2),(a[0]+16,8,3)],metrics:Vec::new()};
+        assert!(validate_registered_outputs(29,a,&e,&[]).is_ok());
+        assert!(validate_registered_outputs(28,a,&e,&[]).is_err());
+        e.output_fields[1].0=a[0];assert!(validate_registered_outputs(29,a,&e,&[]).is_err());
+        e.output_fields[1].0=a[0]+8;e.output_fields[1].1=4;assert!(validate_registered_outputs(29,a,&e,&[]).is_err());
+        e.output_fields[1].1=8;e.output_fields.pop();assert!(validate_registered_outputs(29,a,&e,&[]).is_err());
+        let bad=[u64::MAX-7,0,0,0];e.output_ptr=Some(bad[0]);e.output_fields=vec![(bad[0],8,0);3];
+        assert!(validate_registered_outputs(29,bad,&e,&[]).is_err());
+    }
+    #[test] fn partial_write_never_exempts_the_other_bytes(){
+        let outputs=[(0x10000,4,0x44443333)];let before=0xaaaabbbb11112222;
+        assert!(unchanged_outside_registered_writes(0x10000,8,before,0xaaaabbbb44443333,&outputs).unwrap());
+        assert!(!unchanged_outside_registered_writes(0x10000,8,before,0xaaaabbbc44443333,&outputs).unwrap());
+        assert!(!unchanged_outside_registered_writes(0x10000,8,before,0xaaaabbbb44443333,&[]).unwrap());
+        assert!(unchanged_outside_registered_writes(u64::MAX-3,8,0,0,&outputs).is_err());
+    }
+    #[test] fn cursor_only_first_header_is_a_registered_mutable_input(){
+        let a=[0x10000,0,0,0];let header=Field{address:0x10000,width:8,value:3};
+        let mut e=Evaluation{expected:1,mask:255,output_ptr:Some(a[0]),output_fields:vec![(a[0],8,4)],metrics:Vec::new()};
+        for id in 32..=36 {assert!(validate_registered_outputs(id,a,&e,&[header.clone()]).is_ok());}
+        assert!(validate_registered_outputs(33,a,&e,&[header.clone(),Field{address:0x10004,width:4,value:0}]).is_err());
+        assert!(validate_registered_outputs(29,a,&e,&[header.clone()]).is_err());
+        e.output_fields.clear();e.output_ptr=None;for id in 32..=36 {assert!(validate_registered_outputs(id,a,&e,&[header.clone()]).is_ok());}
+        assert!(!unchanged_outside_registered_writes(header.address,header.width,3,4,&e.output_fields).unwrap());
+    }
+
     use super::*;
     #[test] fn per_probe_resolution_rejects_invalid_programmatic_config() {
         let c=crate::config::parse("probes=deadbeef\nprobe_strides=deadbeef:1").unwrap();
@@ -609,6 +739,9 @@ pub fn flush()->std::io::Result<()> {
         assert!(summary.with_extension("json.tmp").exists());
         std::fs::remove_dir_all(&dir).unwrap();
     }
+    fn reopen_for_independent_fixture(state:&State){
+        assert_eq!(in_flight(state),0);state.admission.store(0,Ordering::Release);state.capture_enabled.store(1,Ordering::Release);
+    }
     static BLOCK_ENTERED:AtomicUsize=AtomicUsize::new(0);
     static BLOCK_RELEASE:AtomicUsize=AtomicUsize::new(0);
     unsafe extern "system-unwind" fn fake_blocking_original(_a:u64,_b:u64,c:u64,_d:u64)->u64{
@@ -640,6 +773,51 @@ pub fn flush()->std::io::Result<()> {
     unsafe extern "system-unwind" fn fake_boolean_original(_a:u64,_b:u64,_c:u64,_d:u64)->u64 {
         FAKE_BOOLEAN_CALLS.fetch_add(1,Ordering::Relaxed);0x1122_3344_5566_7700
     }
+// root가 MODEL_COUNT34/dispatch와 함께 기존 단일 STATE native 시험에 통합할 조각.
+// 이 파일 자체를 실행하거나 production 모델을 가짜로 대체하지 않았다.
+// 테스트 모듈 상단에 둘 항목:
+static OUTPUT_FIXTURE_CALLS:AtomicU64=AtomicU64::new(0);
+unsafe extern "system-unwind" fn fake_population_output(out:u64,_team:u64,cache:u64,mode:u64)->u64{
+    OUTPUT_FIXTURE_CALLS.fetch_add(1,Ordering::Relaxed);
+    for (j,value) in [2u64,1,if mode==1{999}else{1}].into_iter().enumerate(){
+        std::ptr::write_unaligned((out as usize+j*8)as *mut u64,value);
+    }
+    if mode==2{
+        let entity=std::ptr::read_unaligned((cache as usize+0x238)as *const u64);
+        std::ptr::write_unaligned((entity as usize+0x668)as *mut u64,0);
+    }
+    2 // outptr가 아닌 원문 RAX ownCount를 그대로 모사한다.
+}
+
+// 실제 observe→원본1회→실출력 safe_read 비교 축. cfg(test)의 기존 한 STATE 안에서 호출한다.
+fn output_fake_original_observe_axis(state:&'static State){
+    let mut out=[0x5555_aaaa_9999_7777u64;5];let output=out[1..].as_mut_ptr()as u64;
+    let mut first=vec![0u64;0x670/8];let mut second=vec![0u64;0x670/8];
+    first[0x620/8]=100;first[0x668/8]=40;second[0x620/8]=100;second[0x668/8]=39;
+    let mut cache=vec![0u64;0x288/8];cache[0x238/8]=first.as_ptr()as u64;
+    cache[0x240/8]=second.as_ptr()as u64;cache[0x260/8]=first.as_ptr()as u64;
+    ORIGINALS[29].store(fake_population_output as *const () as usize,Ordering::Release);
+    DOMAINS[29].store(2,Ordering::Release);set_scene(4);
+    let args=[output,0,cache.as_ptr()as u64,0];
+    reopen_for_independent_fixture(state);
+    let calls=counter(&OUTPUT_FIXTURE_CALLS);let matches=counter(&state.stats[29].matches);
+    assert_eq!(unsafe{observe(29,args)},2);assert_eq!(counter(&OUTPUT_FIXTURE_CALLS),calls+1);
+    assert_eq!(&out[1..4],&[2,1,1]);assert_eq!(out[0],0x5555_aaaa_9999_7777);
+    assert_eq!(out[4],0x5555_aaaa_9999_7777);assert_eq!(counter(&state.stats[29].matches),matches+1);
+    flush().unwrap();
+    // 등록 출력과 다른 입력 변화를 숨기지 않는다.
+    let unstable=counter(&state.stats[29].unstable);
+    assert_eq!(unsafe{observe(29,[args[0],args[1],args[2],2])},2);
+    assert_eq!(counter(&state.stats[29].unstable),unstable+1);first[0x668/8]=40;flush().unwrap();
+    // 예상과 다른 output[2]만으로도 차이/수집닫힘이 발생한다. 원반환2는 유지한다.
+    let mismatch=counter(&state.stats[29].mismatches);
+    assert_eq!(unsafe{observe(29,[args[0],args[1],args[2],1])},2);
+    assert_eq!(counter(&state.stats[29].mismatches),mismatch+1);assert!(admit(state).is_none());
+    let attempts=counter(&state.stats[29].sample_attempts);let calls=counter(&OUTPUT_FIXTURE_CALLS);
+    assert_eq!(unsafe{observe(29,args)},2);assert_eq!(counter(&OUTPUT_FIXTURE_CALLS),calls+1);
+    assert_eq!(counter(&state.stats[29].sample_attempts),attempts);flush().unwrap();
+}
+
     #[test] fn native_fake_original_once_and_journal_hard_io_is_failclosed() {
         let dir=std::env::temp_dir().join(format!("tfm2_aiav_engine_selftest_{}_{}",std::process::id(),
             std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
@@ -693,18 +871,43 @@ pub fn flush()->std::io::Result<()> {
             assert!(state.last_summary_alias_error.lock().unwrap().contains("stage=summary_rename;os_error="));drop(alias);drop(journal_reader);
         }
 
+        // 실제 observe에서 첫 차이/큐full/원본1회/닫힌뒤추가모델0/별도원문보존을 시험한다.
+        let filler=Event{id:7,seq:900000,thread_id:0,args:[0;4],actual:0,evaluation:None,reads:Vec::new(),output_fields:Vec::new(),
+            comparison:"SKIP",reason:"QUEUE_FILLER",foreign_chain:false,capture_label:"SELFTEST".into(),scene_code:4};
+        for _ in 0..state.config.queue_capacity{assert!(enqueue(state,filler.clone()));}
+        let first_seq=counter(&state.sequence);let calls=counter(&FAKE_CALLS);
+        assert_eq!(unsafe{observe(7,[address,99,0,0])},FAKE_RESULT);
+        assert_eq!(counter(&FAKE_CALLS),calls+1);assert!(admit(state).is_none());
+        assert_eq!(counter(&state.stats[7].dropped),1);assert_eq!(state.first_mismatch.get().unwrap().seq,first_seq);
+        assert_eq!(state.first_mismatch.get().unwrap().actual,FAKE_RESULT);
+        assert_eq!(state.first_mismatch.get().unwrap().reads[0].value,0);
+        let attempts=counter(&state.stats[7].sample_attempts);
+        assert_eq!(unsafe{observe(7,[0,99,0,0])},FAKE_RESULT); // 모델이실행되면NULL read지만닫혔으므로original만1회
+        assert_eq!(counter(&FAKE_CALLS),calls+2);assert_eq!(counter(&state.stats[7].sample_attempts),attempts);
+        assert_eq!(counter(&state.queued_events),8);flush().unwrap();assert_eq!(counter(&state.queued_events),0);
+        let first_path=dir.join(format!("first_mismatch_{}.json",state.run_id));
+        let first_text=std::fs::read_to_string(&first_path).unwrap();
+        assert_eq!(first_text,format!("{}\n",event_json(state,state.first_mismatch.get().unwrap())));
+        assert_eq!(state.first_mismatch_file_state.load(Ordering::Acquire),1);
+        let first_bytes=std::fs::read(&first_path).unwrap();flush().unwrap();assert_eq!(std::fs::read(&first_path).unwrap(),first_bytes);
+        assert_eq!(counter(&state.io_errors),0);reopen_for_independent_fixture(state);
+        // 아래집계를독립fixture로초기화하되 first_mismatch 슬롯/원문은영구첫것을유지한다.
+        let s=&state.stats[7];
+        for value in [&s.calls,&s.sample_attempts,&s.compared,&s.matches,&s.mismatches,&s.skipped,&s.unstable,&s.model_panics,&s.dropped,
+            &s.foreign_matches,&s.foreign_mismatches,&s.processing_errors,&s.unlogged_errors,&s.persisted,&s.enqueued,&s.eligible_calls,&s.queue_full,&s.queue_disconnected]{value.store(0,Ordering::Relaxed);}
         // 기존 원본1회·20표본·큐유실 fixture의 집계를 독립 구간으로 유지한다.
         FAKE_CALLS.store(0,Ordering::Relaxed);state.stats[7].calls.store(0,Ordering::Relaxed);
 
         assert_eq!(unsafe{observe(7,[address,99,0,0])},FAKE_RESULT); // 예상0과 불일치
-        assert_eq!(unsafe{observe(7,[address,99,1,0])},FAKE_RESULT); // 원본 중 입력변경
+        reopen_for_independent_fixture(state);assert_eq!(unsafe{observe(7,[address,99,1,0])},FAKE_RESULT); // 원본 중 입력변경
         own[0x840/8]=0;
         assert_eq!(unsafe{observe(7,[0,99,0,0])},FAKE_RESULT);       // 읽기실패여도 원반환 유지
         DOMAINS[7].store(3,Ordering::Release);
         assert_eq!(unsafe{observe(7,[address,99,0,0])},FAKE_RESULT); // 외부 체인은 별도
         DOMAINS[7].store(2,Ordering::Release);
         assert_eq!(unsafe{observe(7,[address,99,2,0])},0);           // 예상0과 일치
-        for _ in 0..30 {assert_eq!(unsafe{observe(7,[address,99,0,0])},FAKE_RESULT);}
+        for _ in 0..30 {reopen_for_independent_fixture(state);assert_eq!(unsafe{observe(7,[address,99,0,0])},FAKE_RESULT);}
+        reopen_for_independent_fixture(state);
         let s=&state.stats[7];
         assert_eq!(FAKE_CALLS.load(Ordering::Relaxed),35);
         assert_eq!(counter(&s.calls),35);
@@ -733,7 +936,17 @@ pub fn flush()->std::io::Result<()> {
             ORIGINALS[id].store(fake_sampling_original as *const () as usize,Ordering::Release);
             DOMAINS[id].store(2,Ordering::Release);
             let before=FAKE_SAMPLING_CALLS.load(Ordering::Relaxed);
-            for _ in 0..n {assert_eq!(unsafe{observe(id,[0,0,0,0])},FAKE_RESULT);}
+            for _ in 0..n {
+                let before_mismatches=counter(&state.stats[id].mismatches);
+                assert_eq!(unsafe{observe(id,[0,0,0,0])},FAKE_RESULT);
+                if counter(&state.stats[id].mismatches)>before_mismatches {
+                    // 고의로다른가짜원본반환을사용하는서로독립된sampler fixture만재개한다.
+                    assert_eq!(counter(&state.stats[id].mismatches),before_mismatches+1);
+                    assert_eq!(state.capture_enabled.load(Ordering::Acquire),0);
+                    assert!(admit(state).is_none());assert_eq!(counter(&state.io_errors),0);
+                    reopen_for_independent_fixture(state);
+                }
+            }
             assert_eq!(FAKE_SAMPLING_CALLS.load(Ordering::Relaxed)-before,n);
             assert_eq!(in_flight(state),0);
         };
@@ -758,6 +971,8 @@ pub fn flush()->std::io::Result<()> {
         run_sampling(15,25);let s15=&state.stats[15];assert_eq!(counter(&s15.sample_attempts),25);
         assert_eq!(counter(&s15.compared)+counter(&s15.skipped)+counter(&s15.unstable),20); // 상한유지
         flush().unwrap();
+        output_fake_original_observe_axis(state);
+        reopen_for_independent_fixture(state);
         // 기존 I/O실패fixture의기록1개를다시만들어 sampler배치flush와분리한다.
         assert_eq!(unsafe{observe(6,[0,player.as_ptr()as u64,data.as_ptr()as u64,0])},0x1122_3344_5566_7700);
         assert_eq!(counter(&state.queued_events),1);

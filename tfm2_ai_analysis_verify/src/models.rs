@@ -50,7 +50,10 @@ pub fn evaluate(id: usize, args: [u64; 4], memory: &mut dyn Memory) -> Result<Ev
         7 => forecast_record(args, memory),
         8..=15 => crate::models_extra::evaluate(id,args,memory),
         16..=18 => crate::models_wave03::evaluate(id,args,memory),
-        _ => crate::models_wave04::evaluate(id,args,memory),
+        19..=26 => crate::models_wave04::evaluate(id,args,memory),
+        27|28|32..=36 => crate::models_wave05_direct::evaluate(id,args,memory),
+        29..=31 => crate::models_wave05_outputs::evaluate(id,args,memory),
+        _ => Err("UNKNOWN_MODEL_ID"),
     }
 }
 

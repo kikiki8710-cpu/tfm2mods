@@ -1,8 +1,8 @@
-# AI 분석 검증 v0.2.3
+# AI 분석 검증 v0.2.4
 
 실제 게임 호출은 원본을 한 번 실행하고 반환값을 유지합니다. 별도 Rust 모델이 같은 입력을 읽어 예상값을 계산합니다. 게임 헬퍼를 예상값 계산에 호출하거나 계수를 변경하지 않습니다.
 
-고정 버전은 0.6.4 SHA `a1d05045405a12e2bed182daeafcad8c8a40cf29ab68ba6ea5bfd30257439582`입니다. 추적 집합은 741개이며 이번 실험 배선은 27개입니다. 옛 catalog.json/evidence_manifest.json은 첫 준비시점 동결 자료입니다. 현 배선은 `round02_scope.json`과 REPORT/runtime_20261018_round02를 따릅니다. 로컬 시험은 실게임 검증에 합산하지 않습니다.
+고정 버전은 0.6.4 SHA `a1d05045405a12e2bed182daeafcad8c8a40cf29ab68ba6ea5bfd30257439582`입니다. 추적 집합은 741개이며 이번 실험 배선은 37개입니다. 옛 catalog.json/evidence_manifest.json은 첫 준비시점 동결 자료입니다. 현 배선은 `wave05_scope.json`과 REPORT/runtime_20261018_auto24/batch01를 따릅니다. 로컬 시험은 실게임 검증에 합산하지 않습니다.
 
 |함수|비교 내용|
 |---|---|
@@ -47,9 +47,9 @@ python -B -X utf8 tools/capture_control.py stop --summary <모드폴더>/summary
 
 ## 판독
 
-v0.2.3의 probe_strides는 함수별 채집 간격입니다. 지정하지 않으면 전역 sample_stride를 쓰고 첫64/함수별 상한/큐 상한은 유지합니다. 실제 간격은 각 probe의 effective_sample_stride에 남깁니다. 고빈도 조회·예측은4096을 유지하고 저빈도 HP·영역 조건은 더 자주 관측합니다. 이는 게임 계수를 변경하는 설정이 아닙니다.
+v0.2.4의 probe_strides는 함수별 채집 간격입니다. 지정하지 않으면 전역 sample_stride를 쓰고 첫64/함수별 상한/큐 상한은 유지합니다. 실제 간격은 각 probe의 effective_sample_stride에 남깁니다. 고빈도 조회·예측은4096을 유지하고 저빈도 HP·영역 조건은 더 자주 관측합니다. 이는 게임 계수를 변경하는 설정이 아닙니다.
 
-추가8개도 제한된 caller·프롤로그 검수에 근거한 실험 연결입니다. FFA970/FD4260의 역할표0,2,3은 고정 .rdata FILE 값이며 로드된 table 값 직접 동일성은 별도 미검증입니다. 출력 일치를 모든 정적 상수의 직접 관측으로 승격하지 않습니다.
+v0.2.3의 추가8개도 제한된 caller·프롤로그 검수에 근거한 실험 연결입니다. FFA970/FD4260의 역할표0,2,3은 고정 .rdata FILE 값이며 v0.2.3에서 로드된 table 값 직접 동일성은 별도 미검증이었고 v0.2.4는 시작 시 별도 읽기 영수증을 남깁니다. 출력 일치를 모든 정적 상수의 직접 관측으로 승격하지 않습니다.
 
 `summaries_<run_id>.jsonl`과 같은 run_id의 `observations_<run_id>.jsonl`을 함께 보존합니다. MATCH는 관측 입력에 대한 예상 출력과 원본 출력의 비트 일치입니다. AL 반환은 AL만 비교하고 전체 RAX는 원본 그대로 반환합니다. 입력 변동은 UNSTABLE, 읽기/모델 실패는 SKIP, 외부 체인 결과는 FOREIGN으로 분리합니다.
 
@@ -61,9 +61,13 @@ v0.2.3의 probe_strides는 함수별 채집 간격입니다. 지정하지 않으
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File build_local.ps1 -RunTests
-python -B -X utf8 tools/stage_round02.py
+python -B -X utf8 tools/stage_wave05.py --report <이번회차REPORT경로>
 ```
 
 고정 nightly-2026-05-24/stable SDK, opt1/overflow off로 빌드합니다. 로컬 명령은 게임을 실행하지 않습니다. 배포는 기존 폴더 백업·설치본 SHA·독립 검수를 거칩니다.
 
 추가3개는 고정본문·제한caller 두 단계의 명시적 추가volatile 소비 미발견에 근거한 총괄 실험선택입니다. 더 깊은 opaque call의 private LTO 계약은 미확정이며, 전역 ABI가 증명됐다는 의미로 승격하지 않습니다. wave03_entry_selection.json에 원근거와 판단 범위를 남깁니다.
+
+## 0.2.4 추가 관측
+
+이력 선택·250k 거리, HP25/45·피해12%, HP40 집계 출력24B, 점수4개 안정정렬 출력32B, 커서5함수의 AL 및8B 변경을 대조합니다. 출력이 입력과 겹치는 미지원 경우는 SKIP하며 보호를 완화하지 않습니다. 첫 차이는 수집을 닫고 별도 원문을 보존합니다. 시작 시 loaded 상수6곳을2회 읽지만 전체 실행의 불변성·각호출 실제분기 trace를 증명하지 않습니다.
