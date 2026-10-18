@@ -11,7 +11,7 @@ use std::time::Duration;
 use crate::{config::Config, generated, hook, models, platform};
 
 pub const MAX_FIELDS: usize = 96;
-pub const MODEL_COUNT: usize = 47;
+pub const MODEL_COUNT: usize = 50;
 pub trait Memory { fn read(&mut self, address: u64, width: u8) -> Result<u64, &'static str>; }
 #[derive(Clone, Debug)]
 pub struct Metric {
@@ -673,7 +673,7 @@ unsafe fn observe(id:usize,args:[u64;4])->u64 {
     actual
 }
 
-// SAFETY: 실제 entry는 이 파일의 정확한 typed wrapper44/45/46만 연결한다.
+// SAFETY: 실제 entry는 이 파일의 정확한 typed wrapper44..49만 연결한다.
 // 임의 stack을 읽지 않는다. id/arity가 다르면 원본의 올바른 호출규약을 알 수 없으므로
 // 이 private unsafe 함수의 호출 전제가 깨진 것이다. 그런 입력을 게임의 정상0으로 꾸미지 않는다.
 unsafe fn call_stacked_original(id:usize,original:usize,args:&[u64])->u64{
@@ -682,7 +682,7 @@ unsafe fn call_stacked_original(id:usize,original:usize,args:&[u64])->u64{
             let f:unsafe extern "system-unwind" fn(u64,u64,u64,u64,u64)->u64=std::mem::transmute(original);
             f(*a,*b,*c,*d,*e)
         },
-        (46,[a,b,c,d,e,f])=>{
+        (46|47|48|49,[a,b,c,d,e,f])=>{
             let original6:unsafe extern "system-unwind" fn(u64,u64,u64,u64,u64,u64)->u64=std::mem::transmute(original);
             original6(*a,*b,*c,*d,*e,*f)
         },
@@ -690,12 +690,12 @@ unsafe fn call_stacked_original(id:usize,original:usize,args:&[u64])->u64{
     }
 }
 fn validate_stacked_scalar(id:usize,args:&[u64],e:&Evaluation,reads:&[Field])->Result<(),&'static str>{
-    let(arity,mask)=match id{44=>(5,255),45=>(5,u64::MAX),46=>(6,u64::MAX),_=>return Err("STACKED_SCALAR_UNREGISTERED_ID")};
+    let(arity,mask)=match id{44=>(5,255),45=>(5,u64::MAX),46=>(6,u64::MAX),47|48=>(6,u64::MAX),49=>(6,255),_=>return Err("STACKED_SCALAR_UNREGISTERED_ID")};
     if args.len()!=arity{return Err("STACKED_SCALAR_ARITY");}
     if e.mask!=mask||e.output_ptr.is_some()||!e.output_fields.is_empty(){return Err("STACKED_SCALAR_MASK_OR_WRITES");}
-    if id==44&&e.expected>1{return Err("STACKED_BOOL_RANGE");}
+    if matches!(id,44|49)&&e.expected>1{return Err("STACKED_BOOL_RANGE");}
     if id==46&&e.expected>5{return Err("STACKED_COUNT_RANGE");}
-    // 이3함수는입력을쓰지않는다. output/mutable-byte 안정성예외는전혀없다.
+    // 이6함수는입력을쓰지않는다. output/mutable-byte 안정성예외는전혀없다.
     for f in reads{
         if !matches!(f.width,1|2|4|8){return Err("STACKED_INPUT_WIDTH");}
         checked_span(f.address,f.width as u64)?;
@@ -703,9 +703,21 @@ fn validate_stacked_scalar(id:usize,args:&[u64],e:&Evaluation,reads:&[Field])->R
     Ok(())
 }
 
+// 신규 모델도 메모리 snapshot만 읽으며 게임 helper를 호출하지 않는다.
+fn evaluate_stacked(id:usize,args:&[u64],memory:&mut dyn Memory)->Result<Evaluation,&'static str>{
+    match id{
+        44..=46=>crate::models_stacked09::evaluate(id,args,memory),
+        47..=49=>crate::models_stacked10::evaluate(id,args,memory),
+        _=>Err("STACKED_MODEL_UNREGISTERED_ID"),
+    }
+}
+
 unsafe extern "system-unwind" fn hook44(a:u64,b:u64,c:u64,d:u64,e:u64)->u64{observe_stacked(44,&[a,b,c,d,e])}
 unsafe extern "system-unwind" fn hook45(a:u64,b:u64,c:u64,d:u64,e:u64)->u64{observe_stacked(45,&[a,b,c,d,e])}
 unsafe extern "system-unwind" fn hook46(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(46,&[a,b,c,d,e,f])}
+unsafe extern "system-unwind" fn hook47(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(47,&[a,b,c,d,e,f])}
+unsafe extern "system-unwind" fn hook48(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(48,&[a,b,c,d,e,f])}
+unsafe extern "system-unwind" fn hook49(a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)->u64{observe_stacked(49,&[a,b,c,d,e,f])}
 
 unsafe fn observe_stacked(id:usize,args:&[u64])->u64 {
     let original=ORIGINALS[id].load(Ordering::Acquire);
@@ -732,7 +744,7 @@ unsafe fn observe_stacked(id:usize,args:&[u64])->u64 {
     let capture_label=state.capture_label.get().cloned().unwrap_or_default();
     let prepared=catch_unwind(AssertUnwindSafe(|| {
         let mut capture=Capture{reads:Vec::with_capacity(MAX_FIELDS)};
-        let evaluation=crate::models_stacked09::evaluate(id,args,&mut capture).and_then(|value|{
+        let evaluation=evaluate_stacked(id,args,&mut capture).and_then(|value|{
             validate_stacked_scalar(id,args,&value,&capture.reads)?;Ok(value)
         });
         (evaluation,capture.reads)
@@ -749,7 +761,7 @@ unsafe fn observe_stacked(id:usize,args:&[u64])->u64 {
             Ok((Err(reason),reads))=> {event.reason=reason;event.reads=reads;}
             Ok((Ok(evaluation),reads))=> {
                 let mut replay=Replay(&reads);
-                let second=crate::models_stacked09::evaluate(id,args,&mut replay)?;
+                let second=evaluate_stacked(id,args,&mut replay)?;
                 if second.expected!=evaluation.expected||second.mask!=evaluation.mask||second.output_ptr!=evaluation.output_ptr||second.output_fields!=evaluation.output_fields {
                     return Err("MODEL_SNAPSHOT_REPLAY_DIFFERENCE");
                 }
@@ -833,7 +845,7 @@ fn wrappers()->[usize;MODEL_COUNT] {[hook0 as *const () as usize,hook1 as *const
     hook4 as *const () as usize,hook5 as *const () as usize,hook6 as *const () as usize,hook7 as *const () as usize,
     hook8 as *const () as usize,hook9 as *const () as usize,hook10 as *const () as usize,hook11 as *const () as usize,
     hook12 as *const () as usize,hook13 as *const () as usize,hook14 as *const () as usize,hook15 as *const () as usize,
-    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize,hook39 as *const () as usize,hook40 as *const () as usize,hook41 as *const () as usize,hook42 as *const () as usize,hook43 as *const () as usize,hook44 as *const () as usize,hook45 as *const () as usize,hook46 as *const () as usize]}
+    hook16 as *const () as usize,hook17 as *const () as usize,hook18 as *const () as usize,hook19 as *const () as usize,hook20 as *const () as usize,hook21 as *const () as usize,hook22 as *const () as usize,hook23 as *const () as usize,hook24 as *const () as usize,hook25 as *const () as usize,hook26 as *const () as usize,hook27 as *const () as usize,hook28 as *const () as usize,hook29 as *const () as usize,hook30 as *const () as usize,hook31 as *const () as usize,hook32 as *const () as usize,hook33 as *const () as usize,hook34 as *const () as usize,hook35 as *const () as usize,hook36 as *const () as usize,hook37 as *const () as usize,hook38 as *const () as usize,hook39 as *const () as usize,hook40 as *const () as usize,hook41 as *const () as usize,hook42 as *const () as usize,hook43 as *const () as usize,hook44 as *const () as usize,hook45 as *const () as usize,hook46 as *const () as usize,hook47 as *const () as usize,hook48 as *const () as usize,hook49 as *const () as usize]}
 
 pub fn post_update() {
     let Some(state)=STATE.get() else {return;};
@@ -966,6 +978,108 @@ pub fn flush()->std::io::Result<()> {
 }
 
 #[cfg(test)] mod tests {
+// 기존 engine::tests 안에 한 번만 삽입한다. 별도 STATE나 게임 호출은 없다.
+#[test]fn stacked10_exact_registry_arity_masks_and_no_output_exceptions(){
+    for(id,mask,value)in[(47,u64::MAX,0x1234567800010000u64),(48,u64::MAX,0xfedcba9800020000),(49,255,1)]{
+        let mut e=Evaluation{expected:value,mask,output_ptr:None,output_fields:vec![],metrics:vec![]};
+        assert!(validate_stacked_scalar(id,&[0;6],&e,&[]).is_ok());
+        for n in [0,4,5,7]{assert!(validate_stacked_scalar(id,&vec![0;n],&e,&[]).is_err());}
+        e.mask^=1;assert!(validate_stacked_scalar(id,&[0;6],&e,&[]).is_err());e.mask=mask;
+        e.output_ptr=Some(0x10000);assert!(validate_stacked_scalar(id,&[0;6],&e,&[]).is_err());e.output_ptr=None;
+        e.output_fields.push((0x10000,8,0));assert!(validate_stacked_scalar(id,&[0;6],&e,&[]).is_err());
+    }
+    let e=Evaluation{expected:2,mask:255,output_ptr:None,output_fields:vec![],metrics:vec![]};
+    assert!(validate_stacked_scalar(49,&[0;6],&e,&[]).is_err());
+    assert!(validate_stacked_scalar(50,&[0;6],&e,&[]).is_err());
+}
+#[test]fn stacked10_readonly_width_overflow_and_byte_change_reject(){
+    for id in [47,48,49]{
+        let e=Evaluation{expected:0,mask:if id==49{255}else{u64::MAX},output_ptr:None,output_fields:vec![],metrics:vec![]};
+        for width in [1,2,4,8]{assert!(validate_stacked_scalar(id,&[0;6],&e,&[Field{address:0x10000,width,value:0}]).is_ok());}
+        for width in [0,3,16]{assert!(validate_stacked_scalar(id,&[0;6],&e,&[Field{address:0x10000,width,value:0}]).is_err());}
+        assert!(validate_stacked_scalar(id,&[0;6],&e,&[Field{address:u64::MAX-3,width:8,value:0}]).is_err());
+        assert!(!unchanged_outside_registered_writes(0x10000,8,0x123456789abcdef0,0x123456789abcdef1,&[]).unwrap());
+    }
+}
+#[test]fn stacked10_six_argument_owned_serialization_and_first_slot(){
+    let a=vec![0x1111111100000001,0x2222222200000002,0x3333333300000003,0x4444444400000004,0x5555555500000005,0x6666666600000006];
+    let text=a.iter().map(|&x|hexadecimal(x)).collect::<Vec<_>>().join(",");
+    assert_eq!(text,"\"0x1111111100000001\",\"0x2222222200000002\",\"0x3333333300000003\",\"0x4444444400000004\",\"0x5555555500000005\",\"0x6666666600000006\"");
+    let slot=OnceLock::<Event>::new();let mut e=Event{id:47,seq:700,thread_id:1,args:a.clone(),actual:0xfedcba9800000000,evaluation:None,reads:vec![],output_fields:vec![],comparison:"MISMATCH",reason:"",foreign_chain:false,capture_label:"native".into(),scene_code:4};
+    assert!(slot.set(e.clone()).is_ok());e.args[5]=0;e.actual=0;
+    assert_eq!(slot.get().unwrap().args,a);assert_eq!(slot.get().unwrap().actual,0xfedcba9800000000);
+    assert!(slot.set(e).is_err());
+}
+
+fn stacked10_harness_call(id:usize,args:&[u64;6],want:u64){
+    let wrapper=match id{47=>hook47 as *const()as usize,48=>hook48 as *const()as usize,49=>hook49 as *const()as usize,_=>panic!("typed6 fixture id")};
+    let mut audit=StackedAbiAudit{before_sp:0,after_sp:0,gpr:[0;8],xmm:[[0;4];10]};
+    let count=counter(&STACKED_FAKE_CALLS);
+    let actual=unsafe{tfm2_aiav_stacked_harness(wrapper,args.as_ptr(),&mut audit)};
+    assert_eq!(actual,want);assert_eq!(counter(&STACKED_FAKE_CALLS),count+1);
+    assert_eq!(audit.before_sp,audit.after_sp);assert_eq!(audit.before_sp%16,0);assert_eq!(counter(&STACKED_ENTRY_SP)%16,8);
+    for i in 0..8{assert_eq!(audit.gpr[i],0x1122334455667700+i as u64);}
+    for i in 0..10{assert_eq!(audit.xmm[i],[0x60000006+i as u32;4]);}
+    for(i,v)in args.iter().enumerate(){assert_eq!(counter(&STACKED_FAKE_ARGS[i]),*v);}
+}
+fn stacked10_actual_observe_axis(state:&'static State){
+    set_scene(4);STACKED_MUTATE.store(0,Ordering::Relaxed);
+    for id in [47,48,49]{ORIGINALS[id].store(tfm2_aiav_stacked_probe6 as *const()as usize,Ordering::Release);DOMAINS[id].store(2,Ordering::Release);}
+    let first=state.first_mismatch.get().map(|e|e.seq);let calls=counter(&STACKED_FAKE_CALLS);
+    let arbitrary=[0x1111111100000001,0x2222222200000002,0x3333333300000003,0x4444444400000004,0x5555555500000005,0x6666666600000006];
+    let original_return=0x123456789abcdef0;STACKED_FAKE_RETURN.store(original_return,Ordering::Relaxed);
+    // OFF 세 호출은 모델을 읽지 않고 상위 bit를 포함한 인수6과 실제 반환을 보존한다.
+    close_capture(state);
+    for id in [47,48,49]{let n=counter(&state.stats[id].sample_attempts);stacked10_harness_call(id,&arbitrary,original_return);assert_eq!(counter(&state.stats[id].sample_attempts),n);}
+    reopen_for_independent_fixture(state);
+    DOMAINS[47].store(1,Ordering::Release);let n=counter(&state.stats[47].sample_attempts);
+    stacked10_harness_call(47,&arbitrary,original_return);assert_eq!(counter(&state.stats[47].sample_attempts),n);DOMAINS[47].store(2,Ordering::Release);
+    set_scene(1);let n=counter(&state.stats[48].eligible_calls);stacked10_harness_call(48,&arbitrary,original_return);assert_eq!(counter(&state.stats[48].eligible_calls),n);set_scene(4);
+    let(mut player,mut cache,mut context,mut config,mut data)=(vec![0u64;0x898/8],vec![0u64;0x300/8],vec![0u64;0x30/8],vec![0u64;0x1300/8],[0u64;2]);
+    player[0x1f8/8]=50;player[0x7f8/8]=0x1122334455667788;cache[0x1b8/8]=10;
+    data[0]=cache.as_mut_ptr()as u64;data[1]=context.as_mut_ptr()as u64;context[1]=config.as_mut_ptr()as u64;config[0x12f8/8]=1;
+    let mut records24=[0u64;3];let mut records16=[0u64;2];
+    let args47=[arbitrary[0],player.as_mut_ptr()as u64,data.as_mut_ptr()as u64,records24.as_mut_ptr()as u64,1,0x5555555500000002];
+    let args48=[arbitrary[0],player.as_mut_ptr()as u64,data.as_mut_ptr()as u64,records16.as_mut_ptr()as u64,1,0x6666666600000000];
+    // len1은 어떤 정상 rankband라도 유일한 index0. 예상값을 모델에서 받아 원본값으로 사용하지 않는다.
+    for(id,args)in[(47,&args47),(48,&args48)]{
+        let good=args[3];STACKED_FAKE_RETURN.store(good,Ordering::Relaxed);let n=counter(&state.stats[id].matches);
+        stacked10_harness_call(id,args,good);assert_eq!(counter(&state.stats[id].matches),n+1);stacked_last_event(state,id,args,"MATCH",good);
+    }
+    // 모델이 읽은 stat을 가짜원본에서 바꾸면 UNSTABLE이며 output 예외로 숨기지 않는다.
+    STACKED_FAKE_RETURN.store(args47[3],Ordering::Relaxed);STACKED_MUTATE.store((&mut player[0x1f8/8])as *mut u64 as usize,Ordering::Relaxed);
+    let n=counter(&state.stats[47].unstable);stacked10_harness_call(47,&args47,args47[3]);assert_eq!(counter(&state.stats[47].unstable),n+1);STACKED_MUTATE.store(0,Ordering::Relaxed);player[0x1f8/8]=50;stacked_last_event(state,47,&args47,"UNSTABLE",args47[3]);
+    let mut invalid=args47;invalid[4]=0;let n=counter(&state.stats[47].skipped);
+    stacked10_harness_call(47,&invalid,args47[3]);assert_eq!(counter(&state.stats[47].skipped),n+1);stacked_last_event(state,47,&invalid,"SKIP",args47[3]);
+    // 실제 len0은 원문 panic 영역이다. fake원본의 정상반환은 SKIP 배선 시험만이다.
+    for(id,args)in[(47,&args47),(48,&args48)]{
+        let wrong=args[3]^(1u64<<32);STACKED_FAKE_RETURN.store(wrong,Ordering::Relaxed);let n=counter(&state.stats[id].mismatches);
+        stacked10_harness_call(id,args,wrong);assert_eq!(counter(&state.stats[id].mismatches),n+1);assert!(admit(state).is_none());stacked_last_event(state,id,args,"MISMATCH",wrong);
+        let attempts=counter(&state.stats[id].sample_attempts);let sequence=counter(&state.sequence);
+        stacked10_harness_call(id,&arbitrary,wrong);assert_eq!(counter(&state.stats[id].sample_attempts),attempts);assert_eq!(counter(&state.sequence),sequence);
+        reopen_for_independent_fixture(state);
+    }
+    // EED870의 selector0 cutoff는 A의 기존 계약을 따르는 넉넉한 설정 버퍼에 둔다.
+    let(mut env,mut settings,mut world,mut champion,mut structure)=(vec![0u64;0x40/8],vec![0u64;0x10000/8],vec![0u64;0x300/8],vec![0u64;0x898/8],vec![0u64;0x898/8]);
+    env[1]=settings.as_mut_ptr()as u64;
+    let args49=[env.as_mut_ptr()as u64,world.as_mut_ptr()as u64,player.as_mut_ptr()as u64,0,0,0];
+    // 모든 cutoff0/tick0은 조기 false. 상위 RAX는 비교하지 않지만 반환은 그대로 유지한다.
+    let upper_false=0xfedcba9800000000;STACKED_FAKE_RETURN.store(upper_false,Ordering::Relaxed);let n=counter(&state.stats[49].matches);
+    stacked10_harness_call(49,&args49,upper_false);assert_eq!(counter(&state.stats[49].matches),n+1);stacked_last_event(state,49,&args49,"MATCH",upper_false);
+    // 모든 설정을 MAX로 채워 selector cutoff를 통과. 상대 첫 고정slot만 존재하고 후보거리0이다.
+    settings.fill(u64::MAX);world[0x238/8]=champion.as_mut_ptr()as u64;world[0x1e0/8]=structure.as_mut_ptr()as u64;
+    let upper_true=0xabcdeff000000001;STACKED_FAKE_RETURN.store(upper_true,Ordering::Relaxed);
+    stacked10_harness_call(49,&args49,upper_true);assert_eq!(counter(&state.stats[49].matches),n+2);stacked_last_event(state,49,&args49,"MATCH",upper_true);
+    STACKED_FAKE_RETURN.store(upper_true^1,Ordering::Relaxed);let n=counter(&state.stats[49].mismatches);
+    stacked10_harness_call(49,&args49,upper_true^1);assert_eq!(counter(&state.stats[49].mismatches),n+1);assert!(admit(state).is_none());stacked_last_event(state,49,&args49,"MISMATCH",upper_true^1);
+    let attempts=counter(&state.stats[49].sample_attempts);let sequence=counter(&state.sequence);
+    stacked10_harness_call(49,&arbitrary,upper_true^1);assert_eq!(counter(&state.stats[49].sample_attempts),attempts);assert_eq!(counter(&state.sequence),sequence);
+    assert_eq!(counter(&STACKED_FAKE_CALLS)-calls,17);
+    if let Some(seq)=first{assert_eq!(state.first_mismatch.get().unwrap().seq,seq);}
+    assert_eq!(in_flight(state),0);assert_eq!(counter(&state.queued_events),0);assert_eq!(counter(&state.io_errors),0);
+    // 뒤의 기존 test전용 reopen을 그대로 둔다. production 재개 경로를 추가하지 않는다.
+}
+
 #[test]fn stacked_scalar_registry_exact_arity_and_masks(){
     for(id,n,mask,value)in[(44,5,255,1),(45,5,u64::MAX,17),(46,6,u64::MAX,5)]{
         let args=vec![0; n];let mut e=Evaluation{expected:value,mask,output_ptr:None,output_fields:vec![],metrics:vec![]};
@@ -1984,6 +2098,7 @@ fn output_fake_original_observe_axis(state:&'static State){
         next_output_actual_observe_axis(state);
         merge_actual_observe_axis(state);
         stacked_actual_observe_axis(state);
+        stacked10_actual_observe_axis(state);
         reopen_for_independent_fixture(state);
         // 기존 I/O실패fixture의기록1개를다시만들어 sampler배치flush와분리한다.
         assert_eq!(unsafe{observe(6,[0,player.as_ptr()as u64,data.as_ptr()as u64,0])},0x1122_3344_5566_7700);

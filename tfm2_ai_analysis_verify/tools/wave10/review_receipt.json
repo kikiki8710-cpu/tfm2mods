@@ -1,0 +1,64 @@
+{
+  "status": "PASS_TYPED50_ANALYZER_142_METRIC_OFFLINE_PREPARATION",
+  "prepared_models": 50,
+  "named_metric_entries": 142,
+  "old41_regression_tests": 89,
+  "old44_extension_tests": 43,
+  "oldtyped47_tests": 44,
+  "newtyped50_tests": 41,
+  "typed_diagnostic_negative_tests": 3,
+  "analyzer_tests_total": 220,
+  "matrix_regression_tests": 43,
+  "matrix_denominator_protocol_tests": 2,
+  "total_python_tests": 265,
+  "normal_fixture_events": 360,
+  "panic_guard_fixture_events": 6,
+  "unsupported_capture_prefix_fixture_events": 3,
+  "model_only_rejection_metadata_not_fabricated_events": 14,
+  "old47_formula_AST_exact_except_routing_arity": true,
+  "unchanged_helper_files": 11,
+  "legacy4arg_base_byte_preserved": true,
+  "legacy4arg_not_applied_to_typed": true,
+  "typed_full_diagnostic_scope": "FULL_TYPED50_FORMAT_MASKED_LOG_AND_COUNTER_AUDIT",
+  "new_typed_positive_and_SKIP_invalid_lines": 0,
+  "inherited124_metric_rows_exact": true,
+  "aggregate_function_exact": true,
+  "actual_runtime_samples_field_updated_from_fixed_raw_records": true,
+  "fixture_runtime_sample_count_stays_zero": true,
+  "metric_denominator_rows_separate_from_evaluated_rows": true,
+  "exact_arities": {
+    "0..43": 4,
+    "44/45": 5,
+    "46..49": 6
+  },
+  "original_model_freeze_sha256": "1041af5c787256379120b5c3a6b8f05f653c6b9ba8ab5d56196d31aed1412370",
+  "entry_freeze_sha256": "b4255e110d3b05a557b42ff0a6609cea9f00f529ad51ae367f7dbf1c7f9d40f9",
+  "adapter_freeze_sha256": "3fdb49a9f639b32ac021d910c7c467b9b429367658be506d8f87d98ad33189fd",
+  "blocked_unrouted": [
+    "0x1016b00",
+    "0xe53290",
+    "0xe1b5b0"
+  ],
+  "native_executed": 0,
+  "actual_runtime_samples": 0,
+  "new_raw_execution_cases": 0,
+  "new_game_calls": 0,
+  "added_main_cases": 0,
+  "added_functions": 0,
+  "M_source_changes": 0,
+  "correction_requests": {
+    "resolved": [
+      "구4인수base의typed5/6가짜손실 진단을 별도typed형식진단으로교체하고원본격리",
+      "matrix템플릿실측0을고정raw표본수로갱신",
+      "source표본분모가있는metric행과실제평가된행을명시분리"
+    ],
+    "unresolved": []
+  },
+  "limits": [
+    "미지원CAP3은96필드prefix만 대조한SKIP이며정상whole360에합산하지 않는다",
+    "loaded상수/DLL실신원·privateLTO·alias/동시스냅샷·EH·원본전체분기·전체계수완료미확정",
+    "matrix분모runtime protocol2축은명시PYTHON_PROTOCOL_FIXTURE50_NO_GAME 합성정본으로실제함수의필드갱신을시험한것이며실게임표본0",
+    "준비50/선택/설치/관측은별도. 선택subset를고정숫자로강제하지 않는다",
+    "A의360raw/guard자료는새후처리회귀로재사용했으며새rawVM/native/게임증거로가산하지 않는다"
+  ]
+}

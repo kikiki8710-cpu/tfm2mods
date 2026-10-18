@@ -1,0 +1,21 @@
+{
+  "status": "IMMUTABLE_LOCAL_ANALYZER_AND_SPEC_PINS",
+  "files": {
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\analyze_logs_wave10.py": "85a3cb5658a3fb67bb8d999bb0d17e6d38ab2e8b50ea24519e87d892dea3ee5e",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\audit_journal.py": "02ce1b0efd0a7efffa7053409de2dc58604893cfa8537bac27691c35c0d44de5",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\metric_plan_wave10\\matrix_plan.json": "78a5cb0ea335602b00c0eb845923d4c984da7363b7fe68935fb78a0d0ed738e5",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\base_analyze_logs.py": "93dbbd92f2ea0c32be4bbfdc451906280a056073724e6c0815410bb965a02e46",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\legacy_base_analyze_logs.py": "ce6a147ef432bfc619fe586d1698b217caf24e78e29a60bb998b433cd6b56b87",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_wave05_direct.py": "e34f8101f550cb77d51ccf9f89ceb2de609c7243091b9a672a4a282db9e34de5",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_wave05_outputs.py": "1bdf343d91024ea88de6ba297be41b25f258848c83ecbe1748eed7d48752c1c4",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_wave04.py": "3ca5666fae562c7dfb527caba023033ae91608e06a8c16ad2f5b8695717283c1",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_wave06_direct.py": "d2ef12cbc5e0ea644c6380fd8731e3c01b92de82ef4691ab3eed801789997605",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_wave06_iterator.py": "e918353874f76614d1924ab1b22bc4917a8cbb1690a0ddb325fba0c41fc693e7",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_d8a1f0.py": "a962172d64cb93124f649e49aff20f89f3e5dfd2a948f8da14f88ad53df6eba4",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_next.py": "8b76b7f57eb355b769059fe05ffbd16170cf9fdc16663d438c1c9c9435796652",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_candidates.py": "1b7d7a6a224a0f09b3a31d91221cf90490fe4645d085ac9a1582280801c8dc0c",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_wave08_direct.py": "bdc88e67183b8720c487a7950d1870f19cd7f19a7ed5b0f68878968834917c03",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_stacked09.py": "a5b89fc35f7c4df2cc762c38383b6e0ee718db001c027446fc0e817b9b121a40",
+    "C:\\Users\\jungs\\Desktop\\claude\\tfm2\\mods_report\\tfm2_ai_analysis_verify\\runtime_20261018_auto24\\batch06\\analyzer_wave10\\models_stacked10.py": "d04836afb2f21ff52bbaa2456129a45de37570e371f3fe8c15830d4b744b8a73"
+  }
+}

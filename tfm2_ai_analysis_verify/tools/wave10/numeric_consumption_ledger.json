@@ -1,0 +1,1518 @@
+{
+  "status": "STATIC_NUMERIC_RECORDS_DISTINCT_FROM_RUNTIME_METRIC_COUNTS",
+  "previous47_ledger_sha256": "ae7947a571191d2156c23b1316163347b80dc7b0b2f1b593b211fe21959eab71",
+  "previous47_named_metrics": 124,
+  "new_stacked10_named_metrics": 18,
+  "named_metric_total": 142,
+  "new_parameter_groups": 12,
+  "new_parameters": [
+    {
+      "function_rva": "0xdc5850",
+      "runtime_id": 47,
+      "semantic_id": "small_action.band24.stat_coefficients",
+      "original_value": {
+        "clamp": 100,
+        "midpoint": 50,
+        "mode1": {
+          "lowBase": 200,
+          "highBase": 400,
+          "lowSlope": 2,
+          "highSlope": 4
+        },
+        "mode0": {
+          "lowSlope": 6,
+          "highBase": 300,
+          "highSlope": 5
+        }
+      },
+      "meaning": "스탯과mode에따라후보순위대역양끝을만드는계수",
+      "formula": null,
+      "adjustment": "호출자의정렬방향/스탯의실의미확인후양끝모두같이조정.",
+      "consumer_sites": [
+        "0xdc5872",
+        "0xdc587f",
+        "0xdc5882",
+        "0xdc588a",
+        "0xdc5891",
+        "0xdc589c",
+        "0xdc58a8",
+        "0xdc58bf",
+        "0xdc58cb",
+        "0xdc58cf",
+        "0xdc58d3",
+        "0xdc58d7",
+        "0xdc58e6"
+      ],
+      "classification": "STATIC_COEFFICIENT",
+      "instruction_evidence": [
+        {
+          "site": "0xdc5872",
+          "bytes": "4883f864",
+          "instruction": "cmp rax, 0x64"
+        },
+        {
+          "site": "0xdc587f",
+          "bytes": "8d0412",
+          "instruction": "lea eax, [rdx + rdx]"
+        },
+        {
+          "site": "0xdc5882",
+          "bytes": "b9c8000000",
+          "instruction": "mov ecx, 0xc8"
+        },
+        {
+          "site": "0xdc588a",
+          "bytes": "8d049500000000",
+          "instruction": "lea eax, [rdx*4]"
+        },
+        {
+          "site": "0xdc5891",
+          "bytes": "41bb90010000",
+          "instruction": "mov r11d, 0x190"
+        },
+        {
+          "site": "0xdc589c",
+          "bytes": "b832000000",
+          "instruction": "mov eax, 0x32"
+        },
+        {
+          "site": "0xdc58a8",
+          "bytes": "4883ea32",
+          "instruction": "sub rdx, 0x32"
+        },
+        {
+          "site": "0xdc58bf",
+          "bytes": "4929c3",
+          "instruction": "sub r11, rax"
+        },
+        {
+          "site": "0xdc58cb",
+          "bytes": "4b8d0c1b",
+          "instruction": "lea rcx, [r11 + r11]"
+        },
+        {
+          "site": "0xdc58cf",
+          "bytes": "488d0c49",
+          "instruction": "lea rcx, [rcx + rcx*2]"
+        },
+        {
+          "site": "0xdc58d3",
+          "bytes": "4f8d1c9b",
+          "instruction": "lea r11, [r11 + r11*4]"
+        },
+        {
+          "site": "0xdc58d7",
+          "bytes": "4981c32c010000",
+          "instruction": "add r11, 0x12c"
+        },
+        {
+          "site": "0xdc58e6",
+          "bytes": "b832000000",
+          "instruction": "mov eax, 0x32"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "small_action.band24.stat_coefficients",
+        "original_value": {
+          "clamp": 100,
+          "midpoint": 50,
+          "mode1": {
+            "lowBase": 200,
+            "highBase": 400,
+            "lowSlope": 2,
+            "highSlope": 4
+          },
+          "mode0": {
+            "lowSlope": 6,
+            "highBase": 300,
+            "highSlope": 5
+          }
+        },
+        "sites": [
+          "0xdc5872",
+          "0xdc587f",
+          "0xdc5882",
+          "0xdc588a",
+          "0xdc5891",
+          "0xdc589c",
+          "0xdc58a8",
+          "0xdc58bf",
+          "0xdc58cb",
+          "0xdc58cf",
+          "0xdc58d3",
+          "0xdc58d7",
+          "0xdc58e6"
+        ],
+        "meaning": "스탯과mode에따라후보순위대역양끝을만드는계수",
+        "adjustment": "호출자의정렬방향/스탯의실의미확인후양끝모두같이조정.",
+        "kind": "STATIC_COEFFICIENT",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xdc5872",
+            "bytes": "4883f864",
+            "instruction": "cmp rax, 0x64"
+          },
+          {
+            "site": "0xdc587f",
+            "bytes": "8d0412",
+            "instruction": "lea eax, [rdx + rdx]"
+          },
+          {
+            "site": "0xdc5882",
+            "bytes": "b9c8000000",
+            "instruction": "mov ecx, 0xc8"
+          },
+          {
+            "site": "0xdc588a",
+            "bytes": "8d049500000000",
+            "instruction": "lea eax, [rdx*4]"
+          },
+          {
+            "site": "0xdc5891",
+            "bytes": "41bb90010000",
+            "instruction": "mov r11d, 0x190"
+          },
+          {
+            "site": "0xdc589c",
+            "bytes": "b832000000",
+            "instruction": "mov eax, 0x32"
+          },
+          {
+            "site": "0xdc58a8",
+            "bytes": "4883ea32",
+            "instruction": "sub rdx, 0x32"
+          },
+          {
+            "site": "0xdc58bf",
+            "bytes": "4929c3",
+            "instruction": "sub r11, rax"
+          },
+          {
+            "site": "0xdc58cb",
+            "bytes": "4b8d0c1b",
+            "instruction": "lea rcx, [r11 + r11]"
+          },
+          {
+            "site": "0xdc58cf",
+            "bytes": "488d0c49",
+            "instruction": "lea rcx, [rcx + rcx*2]"
+          },
+          {
+            "site": "0xdc58d3",
+            "bytes": "4f8d1c9b",
+            "instruction": "lea r11, [r11 + r11*4]"
+          },
+          {
+            "site": "0xdc58d7",
+            "bytes": "4981c32c010000",
+            "instruction": "add r11, 0x12c"
+          },
+          {
+            "site": "0xdc58e6",
+            "bytes": "b832000000",
+            "instruction": "mov eax, 0x32"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xdc5850",
+      "runtime_id": 47,
+      "semantic_id": "small_action.band24.normalization",
+      "original_value": 1000,
+      "meaning": "wrap계수*len을1000분율로절삭",
+      "formula": null,
+      "adjustment": "magic상수/shift순서와두대역소비동시대응.",
+      "consumer_sites": [
+        "0xdc5912",
+        "0xdc5916",
+        "0xdc591a",
+        "0xdc5924",
+        "0xdc592a",
+        "0xdc593c",
+        "0xdc5944",
+        "0xdc5947",
+        "0xdc594a"
+      ],
+      "classification": "STRUCTURE_PROTOCOL",
+      "instruction_evidence": [
+        {
+          "site": "0xdc5912",
+          "bytes": "490fafc0",
+          "instruction": "imul rax, r8"
+        },
+        {
+          "site": "0xdc5916",
+          "bytes": "48c1e803",
+          "instruction": "shr rax, 3"
+        },
+        {
+          "site": "0xdc591a",
+          "bytes": "48bbcff753e3a59bc420",
+          "instruction": "movabs rbx, 0x20c49ba5e353f7cf"
+        },
+        {
+          "site": "0xdc5924",
+          "bytes": "48f7e3",
+          "instruction": "mul rbx"
+        },
+        {
+          "site": "0xdc592a",
+          "bytes": "48c1ef04",
+          "instruction": "shr rdi, 4"
+        },
+        {
+          "site": "0xdc593c",
+          "bytes": "4d0fafd8",
+          "instruction": "imul r11, r8"
+        },
+        {
+          "site": "0xdc5944",
+          "bytes": "4c89d8",
+          "instruction": "mov rax, r11"
+        },
+        {
+          "site": "0xdc5947",
+          "bytes": "48f7e3",
+          "instruction": "mul rbx"
+        },
+        {
+          "site": "0xdc594a",
+          "bytes": "48c1ea04",
+          "instruction": "shr rdx, 4"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "small_action.band24.normalization",
+        "original_value": 1000,
+        "sites": [
+          "0xdc5912",
+          "0xdc5916",
+          "0xdc591a",
+          "0xdc5924",
+          "0xdc592a",
+          "0xdc593c",
+          "0xdc5944",
+          "0xdc5947",
+          "0xdc594a"
+        ],
+        "meaning": "wrap계수*len을1000분율로절삭",
+        "adjustment": "magic상수/shift순서와두대역소비동시대응.",
+        "kind": "STRUCTURE_PROTOCOL",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xdc5912",
+            "bytes": "490fafc0",
+            "instruction": "imul rax, r8"
+          },
+          {
+            "site": "0xdc5916",
+            "bytes": "48c1e803",
+            "instruction": "shr rax, 3"
+          },
+          {
+            "site": "0xdc591a",
+            "bytes": "48bbcff753e3a59bc420",
+            "instruction": "movabs rbx, 0x20c49ba5e353f7cf"
+          },
+          {
+            "site": "0xdc5924",
+            "bytes": "48f7e3",
+            "instruction": "mul rbx"
+          },
+          {
+            "site": "0xdc592a",
+            "bytes": "48c1ef04",
+            "instruction": "shr rdi, 4"
+          },
+          {
+            "site": "0xdc593c",
+            "bytes": "4d0fafd8",
+            "instruction": "imul r11, r8"
+          },
+          {
+            "site": "0xdc5944",
+            "bytes": "4c89d8",
+            "instruction": "mov rax, r11"
+          },
+          {
+            "site": "0xdc5947",
+            "bytes": "48f7e3",
+            "instruction": "mul rbx"
+          },
+          {
+            "site": "0xdc594a",
+            "bytes": "48c1ea04",
+            "instruction": "shr rdx, 4"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xdc5850",
+      "runtime_id": 47,
+      "semantic_id": "small_action.band24.seed_bucket",
+      "original_value": {
+        "factor": 6,
+        "minimum": 1,
+        "shift": 32,
+        "xor": 20942,
+        "mix": 11400714819323198485,
+        "shifts": [
+          33,
+          29
+        ]
+      },
+      "meaning": "rate6구간에시각bucket고정/Playerseed와mix",
+      "formula": null,
+      "adjustment": "time단위/결정론/리플레이시드와동기.",
+      "consumer_sites": [
+        "0xdc5997",
+        "0xdc599e",
+        "0xdc59a1",
+        "0xdc59a5",
+        "0xdc59a9",
+        "0xdc59c9",
+        "0xdc59d3",
+        "0xdc59da",
+        "0xdc59e1",
+        "0xdc59f2"
+      ],
+      "classification": "STATIC_COEFFICIENT",
+      "instruction_evidence": [
+        {
+          "site": "0xdc5997",
+          "bytes": "488b92f8120000",
+          "instruction": "mov rdx, qword ptr [rdx + 0x12f8]"
+        },
+        {
+          "site": "0xdc599e",
+          "bytes": "4801d2",
+          "instruction": "add rdx, rdx"
+        },
+        {
+          "site": "0xdc59a1",
+          "bytes": "4c8d1452",
+          "instruction": "lea r10, [rdx + rdx*2]"
+        },
+        {
+          "site": "0xdc59a5",
+          "bytes": "4983fa01",
+          "instruction": "cmp r10, 1"
+        },
+        {
+          "site": "0xdc59a9",
+          "bytes": "4983d200",
+          "instruction": "adc r10, 0"
+        },
+        {
+          "site": "0xdc59c9",
+          "bytes": "48c1e020",
+          "instruction": "shl rax, 0x20"
+        },
+        {
+          "site": "0xdc59d3",
+          "bytes": "48c1ea21",
+          "instruction": "shr rdx, 0x21"
+        },
+        {
+          "site": "0xdc59da",
+          "bytes": "4881f2ce510000",
+          "instruction": "xor rdx, 0x51ce"
+        },
+        {
+          "site": "0xdc59e1",
+          "bytes": "49b8157c4a7fb979379e",
+          "instruction": "movabs r8, 0x9e3779b97f4a7c15"
+        },
+        {
+          "site": "0xdc59f2",
+          "bytes": "48c1e81d",
+          "instruction": "shr rax, 0x1d"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "small_action.band24.seed_bucket",
+        "original_value": {
+          "factor": 6,
+          "minimum": 1,
+          "shift": 32,
+          "xor": 20942,
+          "mix": 11400714819323198485,
+          "shifts": [
+            33,
+            29
+          ]
+        },
+        "sites": [
+          "0xdc5997",
+          "0xdc599e",
+          "0xdc59a1",
+          "0xdc59a5",
+          "0xdc59a9",
+          "0xdc59c9",
+          "0xdc59d3",
+          "0xdc59da",
+          "0xdc59e1",
+          "0xdc59f2"
+        ],
+        "meaning": "rate6구간에시각bucket고정/Playerseed와mix",
+        "adjustment": "time단위/결정론/리플레이시드와동기.",
+        "kind": "STATIC_COEFFICIENT",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xdc5997",
+            "bytes": "488b92f8120000",
+            "instruction": "mov rdx, qword ptr [rdx + 0x12f8]"
+          },
+          {
+            "site": "0xdc599e",
+            "bytes": "4801d2",
+            "instruction": "add rdx, rdx"
+          },
+          {
+            "site": "0xdc59a1",
+            "bytes": "4c8d1452",
+            "instruction": "lea r10, [rdx + rdx*2]"
+          },
+          {
+            "site": "0xdc59a5",
+            "bytes": "4983fa01",
+            "instruction": "cmp r10, 1"
+          },
+          {
+            "site": "0xdc59a9",
+            "bytes": "4983d200",
+            "instruction": "adc r10, 0"
+          },
+          {
+            "site": "0xdc59c9",
+            "bytes": "48c1e020",
+            "instruction": "shl rax, 0x20"
+          },
+          {
+            "site": "0xdc59d3",
+            "bytes": "48c1ea21",
+            "instruction": "shr rdx, 0x21"
+          },
+          {
+            "site": "0xdc59da",
+            "bytes": "4881f2ce510000",
+            "instruction": "xor rdx, 0x51ce"
+          },
+          {
+            "site": "0xdc59e1",
+            "bytes": "49b8157c4a7fb979379e",
+            "instruction": "movabs r8, 0x9e3779b97f4a7c15"
+          },
+          {
+            "site": "0xdc59f2",
+            "bytes": "48c1e81d",
+            "instruction": "shr rax, 0x1d"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xdc5850",
+      "runtime_id": 47,
+      "semantic_id": "small_action.band24.stride",
+      "original_value": 24,
+      "meaning": "후보원소레이아웃주소산술",
+      "formula": null,
+      "adjustment": "구조상수/배열producer동기.",
+      "consumer_sites": [
+        "0xdc598f",
+        "0xdc59ad",
+        "0xdc59fe",
+        "0xdc5a02"
+      ],
+      "classification": "STRUCTURE_PROTOCOL",
+      "instruction_evidence": [
+        {
+          "site": "0xdc598f",
+          "bytes": "488d0c49",
+          "instruction": "lea rcx, [rcx + rcx*2]"
+        },
+        {
+          "site": "0xdc59ad",
+          "bytes": "498d0cc9",
+          "instruction": "lea rcx, [r9 + rcx*8]"
+        },
+        {
+          "site": "0xdc59fe",
+          "bytes": "488d0452",
+          "instruction": "lea rax, [rdx + rdx*2]"
+        },
+        {
+          "site": "0xdc5a02",
+          "bytes": "488d04c1",
+          "instruction": "lea rax, [rcx + rax*8]"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "small_action.band24.stride",
+        "original_value": 24,
+        "sites": [
+          "0xdc598f",
+          "0xdc59ad",
+          "0xdc59fe",
+          "0xdc5a02"
+        ],
+        "meaning": "후보원소레이아웃주소산술",
+        "adjustment": "구조상수/배열producer동기.",
+        "kind": "STRUCTURE_PROTOCOL",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xdc598f",
+            "bytes": "488d0c49",
+            "instruction": "lea rcx, [rcx + rcx*2]"
+          },
+          {
+            "site": "0xdc59ad",
+            "bytes": "498d0cc9",
+            "instruction": "lea rcx, [r9 + rcx*8]"
+          },
+          {
+            "site": "0xdc59fe",
+            "bytes": "488d0452",
+            "instruction": "lea rax, [rdx + rdx*2]"
+          },
+          {
+            "site": "0xdc5a02",
+            "bytes": "488d04c1",
+            "instruction": "lea rax, [rcx + rax*8]"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xdc5a30",
+      "runtime_id": 48,
+      "semantic_id": "small_action.band16.stat_coefficients",
+      "original_value": {
+        "clamp": 100,
+        "midpoint": 50,
+        "mode1": {
+          "lowBase": 200,
+          "highBase": 400,
+          "lowSlope": 2,
+          "highSlope": 4
+        },
+        "mode0": {
+          "lowSlope": 6,
+          "highBase": 300,
+          "highSlope": 5
+        }
+      },
+      "meaning": "스탯과mode에따라후보순위대역양끝을만드는계수",
+      "formula": null,
+      "adjustment": "호출자의정렬방향/스탯의실의미확인후양끝모두같이조정.",
+      "consumer_sites": [
+        "0xdc5a52",
+        "0xdc5a5f",
+        "0xdc5a62",
+        "0xdc5a6a",
+        "0xdc5a71",
+        "0xdc5a7c",
+        "0xdc5a88",
+        "0xdc5a9f",
+        "0xdc5aab",
+        "0xdc5aaf",
+        "0xdc5ab3",
+        "0xdc5ab7",
+        "0xdc5ac6"
+      ],
+      "classification": "STATIC_COEFFICIENT",
+      "instruction_evidence": [
+        {
+          "site": "0xdc5a52",
+          "bytes": "4883f864",
+          "instruction": "cmp rax, 0x64"
+        },
+        {
+          "site": "0xdc5a5f",
+          "bytes": "8d0412",
+          "instruction": "lea eax, [rdx + rdx]"
+        },
+        {
+          "site": "0xdc5a62",
+          "bytes": "b9c8000000",
+          "instruction": "mov ecx, 0xc8"
+        },
+        {
+          "site": "0xdc5a6a",
+          "bytes": "8d049500000000",
+          "instruction": "lea eax, [rdx*4]"
+        },
+        {
+          "site": "0xdc5a71",
+          "bytes": "41bb90010000",
+          "instruction": "mov r11d, 0x190"
+        },
+        {
+          "site": "0xdc5a7c",
+          "bytes": "b832000000",
+          "instruction": "mov eax, 0x32"
+        },
+        {
+          "site": "0xdc5a88",
+          "bytes": "4883ea32",
+          "instruction": "sub rdx, 0x32"
+        },
+        {
+          "site": "0xdc5a9f",
+          "bytes": "4929c3",
+          "instruction": "sub r11, rax"
+        },
+        {
+          "site": "0xdc5aab",
+          "bytes": "4b8d0c1b",
+          "instruction": "lea rcx, [r11 + r11]"
+        },
+        {
+          "site": "0xdc5aaf",
+          "bytes": "488d0c49",
+          "instruction": "lea rcx, [rcx + rcx*2]"
+        },
+        {
+          "site": "0xdc5ab3",
+          "bytes": "4f8d1c9b",
+          "instruction": "lea r11, [r11 + r11*4]"
+        },
+        {
+          "site": "0xdc5ab7",
+          "bytes": "4981c32c010000",
+          "instruction": "add r11, 0x12c"
+        },
+        {
+          "site": "0xdc5ac6",
+          "bytes": "b832000000",
+          "instruction": "mov eax, 0x32"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "small_action.band16.stat_coefficients",
+        "original_value": {
+          "clamp": 100,
+          "midpoint": 50,
+          "mode1": {
+            "lowBase": 200,
+            "highBase": 400,
+            "lowSlope": 2,
+            "highSlope": 4
+          },
+          "mode0": {
+            "lowSlope": 6,
+            "highBase": 300,
+            "highSlope": 5
+          }
+        },
+        "sites": [
+          "0xdc5a52",
+          "0xdc5a5f",
+          "0xdc5a62",
+          "0xdc5a6a",
+          "0xdc5a71",
+          "0xdc5a7c",
+          "0xdc5a88",
+          "0xdc5a9f",
+          "0xdc5aab",
+          "0xdc5aaf",
+          "0xdc5ab3",
+          "0xdc5ab7",
+          "0xdc5ac6"
+        ],
+        "meaning": "스탯과mode에따라후보순위대역양끝을만드는계수",
+        "adjustment": "호출자의정렬방향/스탯의실의미확인후양끝모두같이조정.",
+        "kind": "STATIC_COEFFICIENT",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xdc5a52",
+            "bytes": "4883f864",
+            "instruction": "cmp rax, 0x64"
+          },
+          {
+            "site": "0xdc5a5f",
+            "bytes": "8d0412",
+            "instruction": "lea eax, [rdx + rdx]"
+          },
+          {
+            "site": "0xdc5a62",
+            "bytes": "b9c8000000",
+            "instruction": "mov ecx, 0xc8"
+          },
+          {
+            "site": "0xdc5a6a",
+            "bytes": "8d049500000000",
+            "instruction": "lea eax, [rdx*4]"
+          },
+          {
+            "site": "0xdc5a71",
+            "bytes": "41bb90010000",
+            "instruction": "mov r11d, 0x190"
+          },
+          {
+            "site": "0xdc5a7c",
+            "bytes": "b832000000",
+            "instruction": "mov eax, 0x32"
+          },
+          {
+            "site": "0xdc5a88",
+            "bytes": "4883ea32",
+            "instruction": "sub rdx, 0x32"
+          },
+          {
+            "site": "0xdc5a9f",
+            "bytes": "4929c3",
+            "instruction": "sub r11, rax"
+          },
+          {
+            "site": "0xdc5aab",
+            "bytes": "4b8d0c1b",
+            "instruction": "lea rcx, [r11 + r11]"
+          },
+          {
+            "site": "0xdc5aaf",
+            "bytes": "488d0c49",
+            "instruction": "lea rcx, [rcx + rcx*2]"
+          },
+          {
+            "site": "0xdc5ab3",
+            "bytes": "4f8d1c9b",
+            "instruction": "lea r11, [r11 + r11*4]"
+          },
+          {
+            "site": "0xdc5ab7",
+            "bytes": "4981c32c010000",
+            "instruction": "add r11, 0x12c"
+          },
+          {
+            "site": "0xdc5ac6",
+            "bytes": "b832000000",
+            "instruction": "mov eax, 0x32"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xdc5a30",
+      "runtime_id": 48,
+      "semantic_id": "small_action.band16.normalization",
+      "original_value": 1000,
+      "meaning": "wrap계수*len을1000분율로절삭",
+      "formula": null,
+      "adjustment": "magic상수/shift순서와두대역소비동시대응.",
+      "consumer_sites": [
+        "0xdc5af2",
+        "0xdc5af6",
+        "0xdc5afa",
+        "0xdc5b04",
+        "0xdc5b0a",
+        "0xdc5b1c",
+        "0xdc5b24",
+        "0xdc5b27",
+        "0xdc5b2a"
+      ],
+      "classification": "STRUCTURE_PROTOCOL",
+      "instruction_evidence": [
+        {
+          "site": "0xdc5af2",
+          "bytes": "490fafc0",
+          "instruction": "imul rax, r8"
+        },
+        {
+          "site": "0xdc5af6",
+          "bytes": "48c1e803",
+          "instruction": "shr rax, 3"
+        },
+        {
+          "site": "0xdc5afa",
+          "bytes": "48bbcff753e3a59bc420",
+          "instruction": "movabs rbx, 0x20c49ba5e353f7cf"
+        },
+        {
+          "site": "0xdc5b04",
+          "bytes": "48f7e3",
+          "instruction": "mul rbx"
+        },
+        {
+          "site": "0xdc5b0a",
+          "bytes": "48c1ef04",
+          "instruction": "shr rdi, 4"
+        },
+        {
+          "site": "0xdc5b1c",
+          "bytes": "4d0fafd8",
+          "instruction": "imul r11, r8"
+        },
+        {
+          "site": "0xdc5b24",
+          "bytes": "4c89d8",
+          "instruction": "mov rax, r11"
+        },
+        {
+          "site": "0xdc5b27",
+          "bytes": "48f7e3",
+          "instruction": "mul rbx"
+        },
+        {
+          "site": "0xdc5b2a",
+          "bytes": "48c1ea04",
+          "instruction": "shr rdx, 4"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "small_action.band16.normalization",
+        "original_value": 1000,
+        "sites": [
+          "0xdc5af2",
+          "0xdc5af6",
+          "0xdc5afa",
+          "0xdc5b04",
+          "0xdc5b0a",
+          "0xdc5b1c",
+          "0xdc5b24",
+          "0xdc5b27",
+          "0xdc5b2a"
+        ],
+        "meaning": "wrap계수*len을1000분율로절삭",
+        "adjustment": "magic상수/shift순서와두대역소비동시대응.",
+        "kind": "STRUCTURE_PROTOCOL",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xdc5af2",
+            "bytes": "490fafc0",
+            "instruction": "imul rax, r8"
+          },
+          {
+            "site": "0xdc5af6",
+            "bytes": "48c1e803",
+            "instruction": "shr rax, 3"
+          },
+          {
+            "site": "0xdc5afa",
+            "bytes": "48bbcff753e3a59bc420",
+            "instruction": "movabs rbx, 0x20c49ba5e353f7cf"
+          },
+          {
+            "site": "0xdc5b04",
+            "bytes": "48f7e3",
+            "instruction": "mul rbx"
+          },
+          {
+            "site": "0xdc5b0a",
+            "bytes": "48c1ef04",
+            "instruction": "shr rdi, 4"
+          },
+          {
+            "site": "0xdc5b1c",
+            "bytes": "4d0fafd8",
+            "instruction": "imul r11, r8"
+          },
+          {
+            "site": "0xdc5b24",
+            "bytes": "4c89d8",
+            "instruction": "mov rax, r11"
+          },
+          {
+            "site": "0xdc5b27",
+            "bytes": "48f7e3",
+            "instruction": "mul rbx"
+          },
+          {
+            "site": "0xdc5b2a",
+            "bytes": "48c1ea04",
+            "instruction": "shr rdx, 4"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xdc5a30",
+      "runtime_id": 48,
+      "semantic_id": "small_action.band16.seed_bucket",
+      "original_value": {
+        "factor": 6,
+        "minimum": 1,
+        "shift": 32,
+        "xor": 20942,
+        "mix": 11400714819323198485,
+        "shifts": [
+          33,
+          29
+        ]
+      },
+      "meaning": "rate6구간에시각bucket고정/Playerseed와mix",
+      "formula": null,
+      "adjustment": "time단위/결정론/리플레이시드와동기.",
+      "consumer_sites": [
+        "0xdc5b73",
+        "0xdc5b7a",
+        "0xdc5b7d",
+        "0xdc5b81",
+        "0xdc5b85",
+        "0xdc5ba8",
+        "0xdc5bb2",
+        "0xdc5bb9",
+        "0xdc5bc0",
+        "0xdc5bd1"
+      ],
+      "classification": "STATIC_COEFFICIENT",
+      "instruction_evidence": [
+        {
+          "site": "0xdc5b73",
+          "bytes": "488b89f8120000",
+          "instruction": "mov rcx, qword ptr [rcx + 0x12f8]"
+        },
+        {
+          "site": "0xdc5b7a",
+          "bytes": "4801c9",
+          "instruction": "add rcx, rcx"
+        },
+        {
+          "site": "0xdc5b7d",
+          "bytes": "4c8d0449",
+          "instruction": "lea r8, [rcx + rcx*2]"
+        },
+        {
+          "site": "0xdc5b81",
+          "bytes": "4983f801",
+          "instruction": "cmp r8, 1"
+        },
+        {
+          "site": "0xdc5b85",
+          "bytes": "4983d000",
+          "instruction": "adc r8, 0"
+        },
+        {
+          "site": "0xdc5ba8",
+          "bytes": "48c1e020",
+          "instruction": "shl rax, 0x20"
+        },
+        {
+          "site": "0xdc5bb2",
+          "bytes": "48c1e921",
+          "instruction": "shr rcx, 0x21"
+        },
+        {
+          "site": "0xdc5bb9",
+          "bytes": "4881f1ce510000",
+          "instruction": "xor rcx, 0x51ce"
+        },
+        {
+          "site": "0xdc5bc0",
+          "bytes": "48ba157c4a7fb979379e",
+          "instruction": "movabs rdx, 0x9e3779b97f4a7c15"
+        },
+        {
+          "site": "0xdc5bd1",
+          "bytes": "48c1e81d",
+          "instruction": "shr rax, 0x1d"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "small_action.band16.seed_bucket",
+        "original_value": {
+          "factor": 6,
+          "minimum": 1,
+          "shift": 32,
+          "xor": 20942,
+          "mix": 11400714819323198485,
+          "shifts": [
+            33,
+            29
+          ]
+        },
+        "sites": [
+          "0xdc5b73",
+          "0xdc5b7a",
+          "0xdc5b7d",
+          "0xdc5b81",
+          "0xdc5b85",
+          "0xdc5ba8",
+          "0xdc5bb2",
+          "0xdc5bb9",
+          "0xdc5bc0",
+          "0xdc5bd1"
+        ],
+        "meaning": "rate6구간에시각bucket고정/Playerseed와mix",
+        "adjustment": "time단위/결정론/리플레이시드와동기.",
+        "kind": "STATIC_COEFFICIENT",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xdc5b73",
+            "bytes": "488b89f8120000",
+            "instruction": "mov rcx, qword ptr [rcx + 0x12f8]"
+          },
+          {
+            "site": "0xdc5b7a",
+            "bytes": "4801c9",
+            "instruction": "add rcx, rcx"
+          },
+          {
+            "site": "0xdc5b7d",
+            "bytes": "4c8d0449",
+            "instruction": "lea r8, [rcx + rcx*2]"
+          },
+          {
+            "site": "0xdc5b81",
+            "bytes": "4983f801",
+            "instruction": "cmp r8, 1"
+          },
+          {
+            "site": "0xdc5b85",
+            "bytes": "4983d000",
+            "instruction": "adc r8, 0"
+          },
+          {
+            "site": "0xdc5ba8",
+            "bytes": "48c1e020",
+            "instruction": "shl rax, 0x20"
+          },
+          {
+            "site": "0xdc5bb2",
+            "bytes": "48c1e921",
+            "instruction": "shr rcx, 0x21"
+          },
+          {
+            "site": "0xdc5bb9",
+            "bytes": "4881f1ce510000",
+            "instruction": "xor rcx, 0x51ce"
+          },
+          {
+            "site": "0xdc5bc0",
+            "bytes": "48ba157c4a7fb979379e",
+            "instruction": "movabs rdx, 0x9e3779b97f4a7c15"
+          },
+          {
+            "site": "0xdc5bd1",
+            "bytes": "48c1e81d",
+            "instruction": "shr rax, 0x1d"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xdc5a30",
+      "runtime_id": 48,
+      "semantic_id": "small_action.band16.stride",
+      "original_value": 16,
+      "meaning": "후보원소레이아웃주소산술",
+      "formula": null,
+      "adjustment": "구조상수/배열producer동기.",
+      "consumer_sites": [
+        "0xdc5b68",
+        "0xdc5b6c",
+        "0xdc5bdd",
+        "0xdc5be1"
+      ],
+      "classification": "STRUCTURE_PROTOCOL",
+      "instruction_evidence": [
+        {
+          "site": "0xdc5b68",
+          "bytes": "48c1e104",
+          "instruction": "shl rcx, 4"
+        },
+        {
+          "site": "0xdc5b6c",
+          "bytes": "4901c9",
+          "instruction": "add r9, rcx"
+        },
+        {
+          "site": "0xdc5bdd",
+          "bytes": "48c1e204",
+          "instruction": "shl rdx, 4"
+        },
+        {
+          "site": "0xdc5be1",
+          "bytes": "4901d1",
+          "instruction": "add r9, rdx"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "small_action.band16.stride",
+        "original_value": 16,
+        "sites": [
+          "0xdc5b68",
+          "0xdc5b6c",
+          "0xdc5bdd",
+          "0xdc5be1"
+        ],
+        "meaning": "후보원소레이아웃주소산술",
+        "adjustment": "구조상수/배열producer동기.",
+        "kind": "STRUCTURE_PROTOCOL",
+        "runtime_verified": false,
+        "apply_allowed": false,
+        "instruction_evidence": [
+          {
+            "site": "0xdc5b68",
+            "bytes": "48c1e104",
+            "instruction": "shl rcx, 4"
+          },
+          {
+            "site": "0xdc5b6c",
+            "bytes": "4901c9",
+            "instruction": "add r9, rcx"
+          },
+          {
+            "site": "0xdc5bdd",
+            "bytes": "48c1e204",
+            "instruction": "shl rdx, 4"
+          },
+          {
+            "site": "0xdc5be1",
+            "bytes": "4901d1",
+            "instruction": "add r9, rdx"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xeed870",
+      "runtime_id": 49,
+      "semantic_id": "tower.position_in_enemy_attack_reach.safety_distance",
+      "original_value": 15000,
+      "meaning": "reach += pad + 15000",
+      "formula": "reach += pad + 15000",
+      "adjustment": "재현 함수의 safetyDistance 설정으로 분리. 정상 비오버플로 입력에서 값을 늘리면 위험 위치 영역이 넓어진다. 극단 wrapping 입력에는 단조성 보장 없음.",
+      "consumer_sites": [
+        "0xeed9ab",
+        "0xeedb13",
+        "0xeedb26",
+        "0xeedb34",
+        "0xeedb74"
+      ],
+      "classification": "STATIC_THRESHOLD",
+      "instruction_evidence": [
+        {
+          "site": "0xeed9ab",
+          "bytes": "4981c2983a0000",
+          "instruction": "add r10, 0x3a98"
+        },
+        {
+          "site": "0xeedb13",
+          "bytes": "4c01d0",
+          "instruction": "add rax, r10"
+        },
+        {
+          "site": "0xeedb26",
+          "bytes": "48ffc0",
+          "instruction": "inc rax"
+        },
+        {
+          "site": "0xeedb34",
+          "bytes": "48f7e0",
+          "instruction": "mul rax"
+        },
+        {
+          "site": "0xeedb74",
+          "bytes": "4839cd",
+          "instruction": "cmp rbp, rcx"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "tower.position_in_enemy_attack_reach.safety_distance",
+        "value": 15000,
+        "producer_sites": [
+          "0xeed9ab"
+        ],
+        "consumer_sites": [
+          "0xeedb13",
+          "0xeedb26",
+          "0xeedb34",
+          "0xeedb74"
+        ],
+        "formula": "reach += pad + 15000",
+        "adjustment": "재현 함수의 safetyDistance 설정으로 분리. 정상 비오버플로 입력에서 값을 늘리면 위험 위치 영역이 넓어진다. 극단 wrapping 입력에는 단조성 보장 없음.",
+        "status": "STATIC_LOCAL_CONSUMER_CONFIRMED",
+        "runtime_verified": false,
+        "apply_ready": false,
+        "evidence": [
+          {
+            "site": "0xeed9ab",
+            "instruction": "add r10, 0x3a98",
+            "raw_hex": "4981c2983a0000"
+          },
+          {
+            "site": "0xeedb13",
+            "instruction": "add rax, r10",
+            "raw_hex": "4c01d0"
+          },
+          {
+            "site": "0xeedb26",
+            "instruction": "inc rax",
+            "raw_hex": "48ffc0"
+          },
+          {
+            "site": "0xeedb34",
+            "instruction": "mul rax",
+            "raw_hex": "48f7e0"
+          },
+          {
+            "site": "0xeedb74",
+            "instruction": "cmp rbp, rcx",
+            "raw_hex": "4839cd"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xeed870",
+      "runtime_id": 49,
+      "semantic_id": "tower.position_in_enemy_attack_reach.caller_distance_pad",
+      "original_value": "dynamic entry_rsp+0x30",
+      "meaning": "reach += callerPad",
+      "formula": "reach += callerPad",
+      "adjustment": "콜러별 pad override로 전투/이동 판단의 추가 여유를 조절. 호출자별 실제 원본값 생산은 아직 미분석.",
+      "consumer_sites": [
+        "0xeed9ab",
+        "0xeedb13"
+      ],
+      "classification": "DYNAMIC_ARGUMENT",
+      "instruction_evidence": [
+        {
+          "site": "0xeed9ab",
+          "bytes": "4981c2983a0000",
+          "instruction": "add r10, 0x3a98"
+        },
+        {
+          "site": "0xeedb13",
+          "bytes": "4c01d0",
+          "instruction": "add rax, r10"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "tower.position_in_enemy_attack_reach.caller_distance_pad",
+        "value": "dynamic entry_rsp+0x30",
+        "consumer_sites": [
+          "0xeed9ab",
+          "0xeedb13"
+        ],
+        "formula": "reach += callerPad",
+        "adjustment": "콜러별 pad override로 전투/이동 판단의 추가 여유를 조절. 호출자별 실제 원본값 생산은 아직 미분석.",
+        "status": "STATIC_LOCAL_CONSUMER_CONFIRMED",
+        "runtime_verified": false,
+        "apply_ready": false,
+        "evidence": [
+          {
+            "site": "0xeed9ab",
+            "instruction": "add r10, 0x3a98",
+            "raw_hex": "4981c2983a0000"
+          },
+          {
+            "site": "0xeedb13",
+            "instruction": "add rax, r10",
+            "raw_hex": "4c01d0"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xeed870",
+      "runtime_id": 49,
+      "semantic_id": "tower.position_in_enemy_attack_reach.radius_percent_unit",
+      "original_value": 100,
+      "meaning": "baseRadius*(modifier+100)/100",
+      "formula": "baseRadius*(modifier+100)/100",
+      "adjustment": "100은 백분율 단위이므로 독립 밸런스 계수처럼 변경하지 않는다. 반경 보정이 필요하면 별도 로컬 scale을 적용하고 양 객체 계산을 일관되게 유지.",
+      "consumer_sites": [
+        "0xeeda84",
+        "0xeedab4",
+        "0xeeda88",
+        "0xeedab8"
+      ],
+      "classification": "STRUCTURAL_PERCENT",
+      "instruction_evidence": [
+        {
+          "site": "0xeeda84",
+          "bytes": "4883c064",
+          "instruction": "add rax, 0x64"
+        },
+        {
+          "site": "0xeedab4",
+          "bytes": "4883c064",
+          "instruction": "add rax, 0x64"
+        },
+        {
+          "site": "0xeeda88",
+          "bytes": "480faf8578060000",
+          "instruction": "imul rax, qword ptr [rbp + 0x678]"
+        },
+        {
+          "site": "0xeedab8",
+          "bytes": "490faf8078060000",
+          "instruction": "imul rax, qword ptr [r8 + 0x678]"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "tower.position_in_enemy_attack_reach.radius_percent_unit",
+        "value": 100,
+        "producer_sites": [
+          "0xeeda84",
+          "0xeedab4"
+        ],
+        "consumer_sites": [
+          "0xeeda88",
+          "0xeedab8"
+        ],
+        "formula": "baseRadius*(modifier+100)/100",
+        "adjustment": "100은 백분율 단위이므로 독립 밸런스 계수처럼 변경하지 않는다. 반경 보정이 필요하면 별도 로컬 scale을 적용하고 양 객체 계산을 일관되게 유지.",
+        "status": "STATIC_LOCAL_CONSUMER_CONFIRMED",
+        "runtime_verified": false,
+        "apply_ready": false,
+        "evidence": [
+          {
+            "site": "0xeeda84",
+            "instruction": "add rax, 0x64",
+            "raw_hex": "4883c064"
+          },
+          {
+            "site": "0xeedab4",
+            "instruction": "add rax, 0x64",
+            "raw_hex": "4883c064"
+          },
+          {
+            "site": "0xeeda88",
+            "instruction": "imul rax, qword ptr [rbp + 0x678]",
+            "raw_hex": "480faf8578060000"
+          },
+          {
+            "site": "0xeedab8",
+            "instruction": "imul rax, qword ptr [r8 + 0x678]",
+            "raw_hex": "490faf8078060000"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    },
+    {
+      "function_rva": "0xeed870",
+      "runtime_id": 49,
+      "semantic_id": "tower.position_in_enemy_attack_reach.mode_time_cutoff",
+      "original_value": "dynamic setting qword",
+      "meaning": "tick<setting[modeOffset[mode]]",
+      "formula": "tick<setting[modeOffset[mode]]",
+      "adjustment": "위의 focused_action_count_risk와 동일한 setting table 소비. 로컬 override는 공유 setting 수정과 영향 범위가 다르다.",
+      "consumer_sites": [
+        "0xeed89e",
+        "0xeed8a2"
+      ],
+      "classification": "DYNAMIC_ARGUMENT",
+      "instruction_evidence": [
+        {
+          "site": "0xeed89e",
+          "bytes": "4a3b0411",
+          "instruction": "cmp rax, qword ptr [rcx + r10]"
+        },
+        {
+          "site": "0xeed8a2",
+          "bytes": "0f83e4020000",
+          "instruction": "jae 0xeedb8c"
+        }
+      ],
+      "original_record": {
+        "semantic_id": "tower.position_in_enemy_attack_reach.mode_time_cutoff",
+        "value": "dynamic setting qword",
+        "consumer_sites": [
+          "0xeed89e",
+          "0xeed8a2"
+        ],
+        "formula": "tick<setting[modeOffset[mode]]",
+        "adjustment": "위의 focused_action_count_risk와 동일한 setting table 소비. 로컬 override는 공유 setting 수정과 영향 범위가 다르다.",
+        "status": "STATIC_LOCAL_CONSUMER_CONFIRMED",
+        "runtime_verified": false,
+        "apply_ready": false,
+        "evidence": [
+          {
+            "site": "0xeed89e",
+            "instruction": "cmp rax, qword ptr [rcx + r10]",
+            "raw_hex": "4a3b0411"
+          },
+          {
+            "site": "0xeed8a2",
+            "instruction": "jae 0xeedb8c",
+            "raw_hex": "0f83e4020000"
+          }
+        ]
+      },
+      "actual_runtime_samples": 0,
+      "all_coefficients_verified": false,
+      "apply_allowed": false
+    }
+  ],
+  "new_arities": {
+    "47": 6,
+    "48": 6,
+    "49": 6
+  },
+  "return_masks": {
+    "47": "0xffffffffffffffff",
+    "48": "0xffffffffffffffff",
+    "49": "0xff"
+  },
+  "input_stability_exemptions": 0,
+  "output_fields": [],
+  "stack_semantics": {
+    "47": "arg5 lenQ/arg6 mode lowBYTE",
+    "48": "arg5 lenQ/arg6 mode lowBYTE",
+    "49": "arg5 candidateYQ/arg6 padQ"
+  },
+  "reading_order_limits": "typed argv 저장은 원문의 물리 stack read 순서를 증명하지 않는다. EED는 pad6→Y5; DC는 len5/mode6이며 Playerseed와 Config체인의 읽기순서도 두본문을 구분한다.",
+  "denominator_separation": [
+    "함수표본",
+    "metric평가포함표본",
+    "반복metric평가",
+    "정적 계수·문턱/구조/프로토콜 소비점",
+    "동적 인수/enum·ADT niche"
+  ],
+  "loaded_table_scope": "canonical FILE selector9 offset·모델지원mode0..8; 원문 상한guard 아님. root의 초기loaded15capture는 별도/매호출불변증명false",
+  "actual_runtime_samples": 0,
+  "all_coefficients_verified": false
+}
