@@ -80,6 +80,33 @@ def boundary_check(site, meaning):
     return "서술에 해당 수치 없음", None
 
 
+def merge_snaps(snaps):
+    """같은 지점 표 회차들의 누적 스냅샷 합산: 횟수는 더하고, 최소/최대는 각각 min/max, 표본은 이어 붙인다."""
+    NONE = (1 << 64) - 1
+    out = {"run_id": "+".join(x["run_id"] for x in snaps), "t_ms": sum(x["t_ms"] for x in snaps),
+           "total_hits": sum(x["total_hits"] for x in snaps), "armed": max(x["armed"] for x in snaps),
+           "resting": 0, "refused": max(x["refused"] for x in snaps), "sites": []}
+    acc = {}
+    for sn in snaps:
+        for o in sn["sites"]:
+            e = acc.get(o["id"])
+            if e is None:
+                acc[o["id"]] = {"id": o["id"], "rva": o["rva"], "st": o["st"], "c": [list(c) for c in o["c"]],
+                                "rmin": o["rmin"], "rmax": o["rmax"], "s": list(o["s"])}
+                continue
+            for k in range(3):
+                a, b = e["c"][k], o["c"][k]
+                for i in range(8):
+                    a[i] += b[i]
+                a[8] = min(a[8], b[8]) if b[0] else a[8]
+                a[9] = max(a[9], b[9])
+            e["rmin"] = min(e["rmin"], o["rmin"]) if o["rmin"] != NONE else e["rmin"]
+            e["rmax"] = max(e["rmax"], o["rmax"])
+            e["s"] = (e["s"] + o["s"])[-16:]
+    out["sites"] = list(acc.values())
+    return out
+
+
 def decode_key(key, size, signed):
     if signed == "s":
         v = key ^ (1 << 63)
@@ -106,11 +133,12 @@ def lhs_size(site):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("jsonl")
+    ap.add_argument("jsonl", nargs="+", help="여러 개면 같은 지점 표의 회차로 보고 카운터를 합산")
     ap.add_argument("--catalog", default=os.path.join(HERE, "sites", "site_catalog.json"))
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
-    snap = json.loads(last_line(a.jsonl))
+    snaps = [json.loads(last_line(p)) for p in a.jsonl]
+    snap = merge_snaps(snaps) if len(snaps) > 1 else snaps[0]
     cat = json.load(open(a.catalog, encoding="utf-8"))
     sites = {s["id"]: s for s in cat["sites"]}
     obs = {o["id"]: o for o in snap["sites"]}
@@ -200,7 +228,7 @@ def main():
                "armed": snap["armed"], "resting": snap["resting"], "refused": snap["refused"],
                "sites": len(site_rows), "site_stage": dict(site_stage), "claims": len(out_claims),
                "claim_stage": dict(stage_count), "claim_value_check": dict(vc), "claim_boundary_check": dict(bc)}
-    out = a.out or os.path.join(os.path.dirname(os.path.abspath(a.jsonl)), f"site_report_{snap['run_id']}")
+    out = a.out or os.path.join(os.path.dirname(os.path.abspath(a.jsonl[0])), f"site_report_{snap['run_id'][:40]}")
     os.makedirs(out, exist_ok=True)
     json.dump({"summary": summary, "sites": site_rows}, open(os.path.join(out, "sites.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     json.dump({"summary": summary, "claims": out_claims}, open(os.path.join(out, "claims.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)

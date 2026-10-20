@@ -314,6 +314,10 @@ struct Runtime {
     frames: AtomicU64, started: AtomicBool, stop: AtomicBool,
     func_of: Vec<u32>, // 지점별 소속 함수(선택 필터용). 표와 같은 순서.
     status: Mutex<String>,
+    /// 작업자 시작 시각(스냅샷 t_ms 기준). 종료 처리에서도 같은 기준으로 쓴다.
+    started_at: OnceLock<std::time::Instant>,
+    /// 스냅샷 파일 쓰기 직렬화(작업자 vs 종료 처리)
+    write_lock: Mutex<()>,
 }
 static RT: OnceLock<Runtime> = OnceLock::new();
 
@@ -333,7 +337,7 @@ pub fn initialize(dir: PathBuf, identity: bool) -> Result<String, String> {
         else { format!("임계점 트레이서 준비: 지점 {} · run {run_id}", SITES.len()) };
     let func_of = crate::sites_generated::SITE_FUNCS.to_vec();
     RT.set(Runtime { dir, run_id, config, identity, frames: AtomicU64::new(0), started: AtomicBool::new(false),
-        stop: AtomicBool::new(false), func_of, status: Mutex::new(msg.clone()) }).map_err(|_| "site_trace 중복 초기화".to_string())?;
+        stop: AtomicBool::new(false), func_of, status: Mutex::new(msg.clone()), started_at: OnceLock::new(), write_lock: Mutex::new(()) }).map_err(|_| "site_trace 중복 초기화".to_string())?;
     Ok(msg)
 }
 
@@ -353,8 +357,13 @@ pub fn post_update(scene: usize) {
     if let Err(e) = spawned { set_status(rt, format!("임계점 트레이서 작업자 시작 실패: {e}")); }
 }
 
+/// 종료 처리. 작업자가 마지막 스냅샷을 쓰기 전에 프로세스가 끝날 수 있어(2회차 실측: 마지막 3분 유실) 여기서 직접 한 번 쓴다.
 pub fn shutdown() {
-    if let Some(rt) = RT.get() { rt.stop.store(true, Ordering::Release); }
+    let Some(rt) = RT.get() else { return; };
+    rt.stop.store(true, Ordering::Release);
+    if let Some(t0) = rt.started_at.get() {
+        let _ = write_snapshot(rt, t0.elapsed().as_millis() as u64);
+    }
 }
 
 fn set_status(rt: &Runtime, text: String) { *rt.status.lock().unwrap_or_else(|e| e.into_inner()) = text; }
@@ -400,7 +409,7 @@ fn worker(rt: &'static Runtime) {
     set_status(rt, summary.clone());
     write_status(rt, &refused, &summary, arena_addr);
     // 3) 루프
-    let start = std::time::Instant::now();
+    let start = *rt.started_at.get_or_init(std::time::Instant::now);
     let mut next_window = rt.config.window_ms;
     let mut next_snap = rt.config.snapshot_ms;
     loop {
@@ -468,6 +477,7 @@ fn write_status(rt: &Runtime, refused: &[(usize, &'static str)], summary: &str, 
 
 /// 누적 카운터 스냅샷을 jsonl 한 줄로 덧붙인다. 관측이 있는 지점만 쓴다.
 fn write_snapshot(rt: &Runtime, now_ms: u64) -> std::io::Result<()> {
+    let _guard = rt.write_lock.lock().unwrap_or_else(|e| e.into_inner());
     let mut line = String::with_capacity(64 * 1024);
     let (mut armed, mut rest, mut refused) = (0, 0, 0);
     for st in STATE.iter().take(SITES.len()) {
