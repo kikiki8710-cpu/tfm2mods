@@ -230,7 +230,7 @@ pub struct Config {
 }
 impl Default for Config {
     fn default() -> Self {
-        Self { trace: false, functions: Vec::new(), window_ms: 10_000, cap_per_window: 64, snapshot_ms: 15_000, install_delay_frames: 360 }
+        Self { trace: false, functions: Vec::new(), window_ms: 10_000, cap_per_window: 64, snapshot_ms: 300_000, install_delay_frames: 360 }
     }
 }
 pub fn parse(text: &str) -> Result<Config, String> {
