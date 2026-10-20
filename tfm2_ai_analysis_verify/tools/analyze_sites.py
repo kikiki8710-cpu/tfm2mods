@@ -230,8 +230,9 @@ def main():
                "claim_stage": dict(stage_count), "claim_value_check": dict(vc), "claim_boundary_check": dict(bc)}
     out = a.out or os.path.join(os.path.dirname(os.path.abspath(a.jsonl[0])), f"site_report_{snap['run_id'][:40]}")
     os.makedirs(out, exist_ok=True)
-    json.dump({"summary": summary, "sites": site_rows}, open(os.path.join(out, "sites.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    json.dump({"summary": summary, "claims": out_claims}, open(os.path.join(out, "claims.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    slim = [{**{k: v for k, v in r.items() if k != "claims"}, "records": [c["record"] for c in r["claims"]]} for r in site_rows]
+    json.dump({"summary": summary, "sites": slim}, open(os.path.join(out, "sites.json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    json.dump({"summary": summary, "claims": out_claims}, open(os.path.join(out, "claims.json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     write_md(out, summary, site_rows, out_claims)
     print(json.dumps(summary, ensure_ascii=False, indent=1))
 
