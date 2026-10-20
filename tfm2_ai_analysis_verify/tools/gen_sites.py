@@ -19,7 +19,7 @@ DEF_ATLAS = r"C:\Users\jungs\Desktop\claude\tfm2\mods_report\tfm2_ai_adjust\func
 DEF_EXE = r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\TeamfightManager2.exe"
 BASELINE_SHA = "a1d05045405a12e2bed182daeafcad8c8a40cf29ab68ba6ea5bfd30257439582"
 ENTRY_GUARD = 16          # 진입 훅(12B) 영역과 겹치지 않게 함수 첫 16B 는 트레이스 금지
-MAX_SITES = 6144          # 모드 표 상한 (site_trace.rs 의 MAX_SITES 와 같아야 함)
+MAX_SITES = 49152         # 모드 표 상한 (site_trace.rs 의 MAX_SITES 와 같아야 함)
 
 # CONTEXT(AMD64) 정수 레지스터 번호 = Rax..R15 순서(0..15). Rip 는 16.
 GPR = {}
@@ -132,15 +132,21 @@ def reg_desc(insn, op):
         return {"reg": GPR[name], "shift": 0, "size": op.size}
     if name in HIGH8:
         return {"reg": HIGH8[name], "shift": 8, "size": 1}
+    if name.startswith("xmm") and name[3:].isdigit() and int(name[3:]) < 16:
+        return {"xmm": int(name[3:]), "size": 8}  # 하위 64비트만 기록
     return None
 
 
 def operand(insn, op):
     if op.type == X.X86_OP_REG:
         d = reg_desc(insn, op)
+        if d and "xmm" in d:
+            return ("xmm", d)
         return ("reg", d) if d else None
     if op.type == X.X86_OP_MEM:
         d = mem_desc(insn, op)
+        if d and d["size"] > 8:
+            d["size"] = 8  # 16B SIMD 메모리는 앞 8바이트만
         return ("mem", d) if d else None
     if op.type == X.X86_OP_IMM:
         return ("imm", {"value": op.imm, "size": op.size})
@@ -189,7 +195,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--atlas", default=DEF_ATLAS)
     ap.add_argument("--exe", default=DEF_EXE)
-    ap.add_argument("--select", default="semantic", choices=["semantic", "threshold", "all"])
+    ap.add_argument("--select", default="all", choices=["semantic", "threshold", "all"])
     args = ap.parse_args()
 
     img = Image(args.exe)
@@ -276,7 +282,8 @@ def main():
             t = lst[tk]
             if t.mnemonic in CONTROL or t.mnemonic.startswith("j") or t.address - f[0] < ENTRY_GUARD:
                 continue
-            if t.mnemonic in ("push", "pop") or "rsp" in t.op_str and t.mnemonic not in ("cmp", "test", "mov"):
+            # 스텁은 같은 스택에서 원명령을 실행하므로 rsp 상대 피연산자는 괜찮다. 스택을 직접 움직이는 명령만 뺀다.
+            if t.mnemonic in ("push", "pop", "enter", "leave", "pushfq", "popfq") or t.mnemonic.startswith(("rep", "movs", "stos", "lods", "scas", "cmps")):
                 continue
             ent = trace.get(t.address)
             if ent is None:
@@ -300,8 +307,12 @@ def main():
                 ent["mnemonic"] = t.mnemonic
                 ent["ops"] = ops
                 ent["riprel"] = any(o.type == X.X86_OP_MEM and o.mem.base == X.X86_REG_RIP for o in t.operands)
+                ent["disp_off"] = t.disp_offset if ent["riprel"] else 0
+                ent["record_kinds"] = []
                 trace[t.address] = ent
             ent["records"].append(p["기록ID"])
+            if kind not in ent["record_kinds"]:
+                ent["record_kinds"].append(kind)
             ent["claims"].append({"record": p["기록ID"], "semantic": p["의미ID"], "class": p["분류"], "values": values,
                                   "site": hex(site), "static": row["static"], "meaning": p["의미"][:160]})
 
@@ -310,16 +321,18 @@ def main():
     for ent in trace.values():
         ops = ent["ops"]
         m = ent["mnemonic"]
-        if any(o is None for o in ops) or m.startswith(("comis", "ucomis")) or any(
-                o and o[0] == "reg" and o[1]["size"] > 8 for o in ops):
+        if any(o is None for o in ops) or m.startswith(("comis", "ucomis")) or (ent["riprel"] and not ent["disp_off"]):
             ent["trace_kind"] = "UNSUPPORTED_OPERAND"
         elif m == "cmp" and len(ops) == 2:
             ent["trace_kind"] = "CMP_IMM" if ops[1][0] == "imm" else "CMP_DYN"
         elif m == "test" and len(ops) == 2:
             ent["trace_kind"] = "TEST"
         else:
-            ent["trace_kind"] = "VALUE"  # 첫 번째 읽기 피연산자 값 분포만
-        if ent["cc"] and ent["cc"] in CC:
+            ent["trace_kind"] = "VALUE"  # 입력 피연산자 값 분포 + 도달 수
+            ent["vlhs"], ent["vrhs"] = value_ops(m, ops)
+        if ent["trace_kind"] == "VALUE":
+            ent["signed"] = "s" if m in SIGNED_VALUE else "u"; ent["rel"] = None
+        elif ent["cc"] and ent["cc"] in CC:
             sg, rel = CC[ent["cc"]]
             ent["signed"] = sg; ent["rel"] = rel
         else:
@@ -327,9 +340,9 @@ def main():
         sites.append(ent)
 
     out_dir = os.path.join(HERE, "sites"); os.makedirs(out_dir, exist_ok=True)
-    # v0.4.0 은 비교(CMP/TEST)만 트레이스한다. VALUE(곱셈·나눗셈 계수 등)는 목록만 남긴다.
-    traceable = [s for s in sites if s["trace_kind"] in ("CMP_IMM", "CMP_DYN", "TEST") and not s["riprel"]]
-    value_sites = [s for s in sites if s["trace_kind"] == "VALUE"]
+    # v0.5.0: 비교(CMP/TEST) + VALUE(계수·상수 로드 등 — 입력값 분포와 도달 수) 전부. RIP 상대는 스텁 재배치.
+    traceable = [s for s in sites if s["trace_kind"] != "UNSUPPORTED_OPERAND"]
+    value_sites = []
     traceable.sort(key=lambda s: s["rva"])
     for i, s in enumerate(traceable):
         s["id"] = i
@@ -350,10 +363,39 @@ def main():
     print(json.dumps(meta, ensure_ascii=False, indent=1))
 
 
+SIGNED_VALUE = {"imul", "idiv", "sar", "movsx", "movsxd", "cqo", "cdq", "cdqe"}
+MOVLIKE = {"mov", "movzx", "movsx", "movsxd", "movabs", "bsr", "bsf", "lzcnt", "tzcnt", "popcnt", "movd", "movq",
+           "movups", "movdqu", "movdqa", "movaps", "movapd", "movupd", "movss", "movsd", "cvtsi2sd", "cvtsi2ss"}
+
+
+def value_ops(m, ops):
+    """VALUE 지점에서 기록할 (입력값, 보조값). 실행 전 값이다."""
+    if not ops:
+        return None, None  # 피연산자 없음(cqo 등) = 도달 수만
+    if len(ops) == 1:
+        if m in ("mul", "div", "idiv", "imul"):  # 암묵 RAX 가 피제수/피승수
+            return ("reg", {"reg": 0, "shift": 0, "size": ops[0][1]["size"]}), ops[0]
+        return ops[0], None
+    if m == "lea":
+        d = ops[1][1] if ops[1] and ops[1][0] == "mem" else None
+        if d and d["index"] >= 0:
+            return ("reg", {"reg": d["index"], "shift": 0, "size": 8}), None
+        if d and isinstance(d["base"], int) and d["base"] >= 0:
+            return ("reg", {"reg": d["base"], "shift": 0, "size": 8}), None
+        return None, None  # [rip+x] 주소 계산 = 도달 수만
+    if len(ops) >= 3:
+        return ops[1], ops[2]
+    if m in MOVLIKE or m.startswith(("pshuf", "punpck", "cvt")):
+        return ops[1], None
+    return ops[0], ops[1]
+
+
 def rust_op(o):
     if o is None:
         return "Op::None"
     k, d = o
+    if k == "xmm":
+        return f"Op::Xmm{{idx:{d['xmm']}}}"
     if k == "reg":
         return f"Op::Reg{{reg:{d['reg']},shift:{d['shift']},size:{d['size']}}}"
     if k == "imm":
@@ -372,11 +414,14 @@ def write_rust(sites, path, sha):
     for s in sites:
         b = bytes.fromhex(s["bytes"])
         bb = ",".join(f"0x{x:02x}" for x in b) + ",0" * (16 - len(b))
-        ops = s["ops"] + [None] * (2 - len(s["ops"]))
-        lhs = rust_op(ops[0]); rhs = rust_op(ops[1]) if len(ops) > 1 else "Op::None"
+        if s["trace_kind"] == "VALUE":
+            lhs, rhs = rust_op(s["vlhs"]), rust_op(s["vrhs"])
+        else:
+            ops = s["ops"] + [None] * (2 - len(s["ops"]))
+            lhs = rust_op(ops[0]); rhs = rust_op(ops[1])
         sg = {"u": 0, "s": 1, "x": 2}[s["signed"]]
         rel = OPS.get(s["rel"], 0)
-        lines.append(f"Site{{rva:0x{s['rva']:x},len:{s['len']},bytes:[{bb}],kind:{kind[s['trace_kind']]},lhs:{lhs},rhs:{rhs},signed:{sg},rel:{rel}}},")
+        lines.append(f"Site{{rva:0x{s['rva']:x},len:{s['len']},bytes:[{bb}],kind:{kind[s['trace_kind']]},lhs:{lhs},rhs:{rhs},signed:{sg},rel:{rel},disp_off:{s['disp_off']}}},")
     lines.append("];")
     lines.append("/// 지점별 소속 함수 RVA (sites.cfg functions= 필터용)")
     lines.append(f"pub static SITE_FUNCS:[u32;SITE_COUNT]=[{','.join(s['function'] for s in sites)}];")

@@ -336,6 +336,39 @@ pub(crate) fn allocate_code(bytes: &[u8]) -> Result<usize, &'static str> {
     }
     Ok(p as usize)
 }
+/// center 의 ±1.5GB 안에서 빈 영역을 찾아 RW 로 예약·커밋한다(center=0 이면 아무 곳). 트레이서 스텁 아레나용.
+pub(crate) fn reserve_rw_near(center: usize, len: usize) -> Result<usize, &'static str> {
+    if len == 0 { return Err("empty arena"); }
+    if center == 0 {
+        let p = unsafe { VirtualAlloc(std::ptr::null_mut(), len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE) };
+        return if p.is_null() { Err("arena VirtualAlloc failed") } else { Ok(p as usize) };
+    }
+    const RANGE: usize = 0x6000_0000;
+    const GRAN: usize = 0x10000;
+    let lo = center.saturating_sub(RANGE).max(0x10000);
+    let hi = center.saturating_add(RANGE);
+    let mut at = lo;
+    while at < hi {
+        let mut info = MemoryInfo::default();
+        if unsafe { VirtualQuery(at as *const c_void, &mut info, std::mem::size_of::<MemoryInfo>()) } != std::mem::size_of::<MemoryInfo>() { break; }
+        let start = (info.base + GRAN - 1) & !(GRAN - 1);
+        let end = info.base.saturating_add(info.region_size);
+        if info.state == 0x10000 && start + len <= end && start + len <= hi {
+            let p = unsafe { VirtualAlloc(start as *mut c_void, len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE) };
+            if !p.is_null() { return Ok(p as usize); }
+        }
+        if end <= at { break; }
+        at = end;
+    }
+    Err("no free region within range")
+}
+/// RW 아레나를 RX 로 바꾸고 명령 캐시를 비운다.
+pub(crate) fn protect_rx(address: usize, len: usize) -> Result<(), &'static str> {
+    let mut old = 0;
+    if unsafe { VirtualProtect(address as *mut c_void, len, PAGE_EXECUTE_READ, &mut old) } == 0 { return Err("arena VirtualProtect RX failed"); }
+    if unsafe { FlushInstructionCache(GetCurrentProcess(), address as *const c_void, len) } == 0 { return Err("arena flush failed"); }
+    Ok(())
+}
 pub(crate) unsafe fn free_unpublished_code(address: usize) { VirtualFree(address as *mut c_void, 0, MEM_RELEASE); }
 
 pub(crate) struct PatchOutcome { pub attempted: bool, pub result: Result<(), &'static str> }

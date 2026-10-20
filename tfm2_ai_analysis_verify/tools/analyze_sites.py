@@ -16,7 +16,8 @@ import argparse, collections, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REL = {1: "<", 2: ">=", 3: "<=", 4: ">", 5: "==", 6: "!=", 0: None}
-STAGES = ["미도달", "한쪽만", "양쪽", "경계확정"]
+STAGES = ["미도달", "한쪽만", "양쪽", "경계확정", "도달"]  # 도달 = 값 기록 지점(비교 아님)이 실행됨
+RANK = {"미도달": 0, "도달": 1, "한쪽만": 2, "양쪽": 3, "경계확정": 4}
 
 
 def last_line(path):
@@ -99,7 +100,7 @@ def imm_value(site):
 
 
 def lhs_size(site):
-    op = site["ops"][0]
+    op = site.get("vlhs") if site["trace_kind"] == "VALUE" else site["ops"][0]
     return op[1]["size"] if op else 8
 
 
@@ -133,6 +134,8 @@ def main():
         unsigned_zero = T == 0 and s["signed"] != "s"
         if hits == 0:
             stage = 0
+        elif s["trace_kind"] == "VALUE":
+            stage = 4
         else:
             if cond_known:
                 both = cond > 0 and cond_false > 0
@@ -145,7 +148,9 @@ def main():
         site_rows.append({
             "id": sid, "rva": hex(s["rva"]), "function": s["function"], "area": s["area"], "insn": s["insn"],
             "consumer": s["consumer"], "kind": s["trace_kind"], "signed": s["signed"], "rel": s["rel"], "T": T,
-            "match_hits": hits, "menu_hits": c[2][0], "main_hits": c[0][0], "bg_hits": c[1][0],
+            "match_hits": hits, "menu_hits": c[2][0], "ingame_hits": c[0][0], "gametest_hits": c[1][0],
+            "rhs_min": decode_key(o["rmin"], 8, s["signed"]) if o and s["trace_kind"] in ("CMP_DYN", "VALUE") and o["rmin"] != (1 << 64) - 1 else None,
+            "rhs_max": decode_key(o["rmax"], 8, s["signed"]) if o and s["trace_kind"] in ("CMP_DYN", "VALUE") and o["rmin"] != (1 << 64) - 1 else None,
             "below": below, "equal": equal, "above": above, "t_minus1": tm1, "t_plus1": tp1,
             "cond_true": cond, "cond_false": hits - rfail - cond if s["rel"] else None, "read_fail": rfail,
             "lhs_min": lo, "lhs_max": hi, "samples": o["s"] if o else [], "state": o["st"] if o else None,
@@ -162,7 +167,7 @@ def main():
             e["sites"].append(r)
     out_claims = []
     for e in claims.values():
-        best = max(STAGES.index(r["stage"]) for r in e["sites"])
+        best_stage = max((r["stage"] for r in e["sites"]), key=lambda x: RANK[x])
         bchecks = []
         for r in e["sites"]:
             b, near = boundary_check(r, e["meaning"])
@@ -181,7 +186,7 @@ def main():
             else:
                 vcheck.append("다름")
         out_claims.append({**{k: e[k] for k in ("record", "semantic", "class", "values", "function", "area", "meaning")},
-                           "stage": STAGES[best], "value_check": sorted(set(vcheck)), "boundary_check": bchecks,
+                           "stage": best_stage, "value_check": sorted(set(vcheck)), "boundary_check": bchecks,
                            "site_ids": [r["id"] for r in e["sites"]]})
 
     stage_count = collections.Counter(c["stage"] for c in out_claims)
@@ -214,14 +219,14 @@ def write_md(out, summary, site_rows, claims):
          f"- 분석 기록 {summary['claims']}건 단계: " + ", ".join(f"{k} {summary['claim_stage'].get(k,0)}" for k in STAGES),
          f"- 값 대조(정적): {summary['claim_value_check']}",
          f"- 경계 대조(서술 부등호 vs 명령): {summary['claim_boundary_check']}", "",
-         "단계 뜻: 미도달=경기 중 실행 안 됨 / 한쪽만=조건이 늘 한쪽 / 양쪽=실제로 갈림 / 경계확정=T-1·T·T+1 모두 관측", "",
+         "단계 뜻: 미도달=경기 중 실행 안 됨 / 도달=값 기록 지점이 실행됨 / 한쪽만=조건이 늘 한쪽 / 양쪽=실제로 갈림 / 경계확정=T-1·T·T+1 모두 관측", "",
          "## 경기 중 도달한 비교 지점 (적중순 상위 400)", "",
-         "| 지점 | 함수 | 명령 → 소비 | 경기 적중(메인/배경) | 아래/같음/위 | T-1/T+1 | 조건 참/거짓 | 관측 범위 | 단계 | 대표 기록 |",
+         "| 지점 | 함수 | 명령 → 소비 | 경기 적중(InGame/GameTest) | 아래/같음/위 | T-1/T+1 | 조건 참/거짓 | 관측 범위 | 단계 | 대표 기록 |",
          "|---|---|---|---:|---|---|---|---|---|---|"]
     hit = sorted([r for r in site_rows if r["match_hits"]], key=lambda r: -r["match_hits"])
     for r in hit[:400]:
         cl = r["claims"][0]
-        L.append(f"| `{r['rva']}` | `{r['function']}` | `{r['insn']}` → `{fmt(r['consumer'])}` | {r['match_hits']:,} ({r['main_hits']:,}/{r['bg_hits']:,}) "
+        L.append(f"| `{r['rva']}` | `{r['function']}` | `{r['insn']}` → `{fmt(r['consumer'])}` | {r['match_hits']:,} ({r['ingame_hits']:,}/{r['gametest_hits']:,}) "
                  f"| {r['below']:,}/{r['equal']:,}/{r['above']:,} | {r['t_minus1']}/{r['t_plus1']} | {r['cond_true']:,}/{fmt(r['cond_false'])} "
                  f"| {fmt(r['lhs_min'])} ~ {fmt(r['lhs_max'])} | {r['stage']} | {cl['semantic'][:50]} |")
     L += ["", "## 값 대조에서 '다름'이 나온 기록", "",

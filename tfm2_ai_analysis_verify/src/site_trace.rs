@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicPtr, AtomicU32, AtomicU64, AtomicU8, AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock};
 
-pub const MAX_SITES: usize = 6144;
+pub const MAX_SITES: usize = 49152;
 const SAMPLES: usize = 8;
 const STUB_SLOT: usize = 32;
 
@@ -25,8 +25,10 @@ pub enum Op {
     /// reg = CONTEXT 정수 레지스터 번호(Rax=0..R15=15), shift=8 이면 ah/ch/dh/bh
     Reg { reg: u8, shift: u8, size: u8 },
     Imm { value: u64, size: u8 },
-    /// base/index = 레지스터 번호, -1 = 없음, 16 = RIP(v0.4.0 표에는 없음)
+    /// base/index = 레지스터 번호, -1 = 없음, 16 = RIP
     Mem { base: i8, index: i8, scale: u8, disp: i64, size: u8 },
+    /// xmm 레지스터 하위 64비트
+    Xmm { idx: u8 },
 }
 pub struct Site {
     pub rva: u32, pub len: u8, pub bytes: [u8; 16], pub kind: Kind,
@@ -35,6 +37,8 @@ pub struct Site {
     pub signed: u8,
     /// 소비 조건: 0=없음 1:< 2:>= 3:<= 4:> 5:== 6:!=  (lhs ? rhs 가 참이면 조건 성립)
     pub rel: u8,
+    /// RIP 상대 명령의 disp32 위치(0 = RIP 상대 아님). 스텁으로 옮길 때 주소를 보정한다.
+    pub disp_off: u8,
 }
 
 // 상태: 0=미무장 1=무장 2=예산초과(해제 대기) 3=예산으로 쉬는 중 4=거절
@@ -72,8 +76,11 @@ static TABLE: AtomicPtr<Site> = AtomicPtr::new(std::ptr::null_mut());
 static TABLE_LEN: AtomicUsize = AtomicUsize::new(0);
 static BASE: AtomicUsize = AtomicUsize::new(0);
 static CAP: AtomicU32 = AtomicU32::new(64);
+/// 창(window)마다 전 지점 합계 상한. 넘으면 그 뒤 적중한 지점은 기록 후 쉬게 한다(속도 보호).
+static GLOBAL_CAP: AtomicU64 = AtomicU64::new(u64::MAX);
+static GLOBAL_WINDOW: AtomicU64 = AtomicU64::new(0);
 static SCENE: AtomicUsize = AtomicUsize::new(usize::MAX);
-static MAIN_TID: AtomicU32 = AtomicU32::new(0);
+static MAIN_TID: AtomicU32 = AtomicU32::new(0); // v0.5.0 부터 분류에 쓰지 않음(0.6.4 AI는 메인 스레드 0회)
 static TOTAL_HITS: AtomicU64 = AtomicU64::new(0);
 static UNSUPPORTED_HITS: AtomicU64 = AtomicU64::new(0);
 
@@ -113,10 +120,14 @@ unsafe fn read_op(ctx: *const u8, op: &Op, next_ip: usize) -> Option<u64> {
             if index >= 0 { if index > 15 { return None; } ea = ea.wrapping_add(ctx_reg(ctx, index as u8).wrapping_mul(scale as u64)); }
             platform::veh_read(ea as usize, size).map(|v| v & mask(size))
         }
+        Op::Xmm { idx } => {
+            if idx > 15 { return None; }
+            Some(std::ptr::read_unaligned(ctx.add(0x1a0 + 16 * idx as usize) as *const u64))
+        }
     }
 }
 fn op_size(op: &Op) -> u8 {
-    match *op { Op::Reg { size, .. } | Op::Imm { size, .. } | Op::Mem { size, .. } => size, Op::None => 8 }
+    match *op { Op::Reg { size, .. } | Op::Imm { size, .. } | Op::Mem { size, .. } => size, Op::None | Op::Xmm { .. } => 8 }
 }
 
 /// 비교 분류. 반환 (순서 -1/0/1, a-b 가 정확히 -1/+1 인지, 조건 성립 여부, lhs 정렬키)
@@ -161,14 +172,20 @@ pub(crate) unsafe fn on_breakpoint(ctx: *mut u8, address: usize) -> bool {
 unsafe fn record(ctx: *const u8, site: &Site, st: &SiteState, next_ip: usize) {
     TOTAL_HITS.fetch_add(1, Ordering::Relaxed);
     let scene = SCENE.load(Ordering::Relaxed);
-    let c = if matches!(scene, 4 | 5) { if GetCurrentThreadId() == MAIN_TID.load(Ordering::Relaxed) { 0 } else { 1 } } else { 2 };
+    // 0 = InGame(4) 1 = GameTest(5) 2 = 그 외(타이틀 등)
+    let c = match scene { 4 => 0, 5 => 1, _ => 2 };
     let cls = &st.cls[c];
     cls.hits.fetch_add(1, Ordering::Relaxed);
     let n = st.window.fetch_add(1, Ordering::Relaxed).wrapping_add(1);
-    if n >= CAP.load(Ordering::Relaxed) {
+    let g = GLOBAL_WINDOW.fetch_add(1, Ordering::Relaxed).wrapping_add(1);
+    if n >= CAP.load(Ordering::Relaxed) || g >= GLOBAL_CAP.load(Ordering::Relaxed) {
         let _ = st.state.compare_exchange(S_ARMED, S_OVER, Ordering::AcqRel, Ordering::Relaxed);
     }
     let size = op_size(&site.lhs);
+    if site.kind == Kind::Value {
+        record_value(ctx, site, st, cls, next_ip, size);
+        return;
+    }
     let (Some(a), Some(b)) = (read_op(ctx, &site.lhs, next_ip), read_op(ctx, &site.rhs, next_ip)) else {
         cls.read_fail.fetch_add(1, Ordering::Relaxed); return;
     };
@@ -204,15 +221,40 @@ unsafe fn record(ctx: *const u8, site: &Site, st: &SiteState, next_ip: usize) {
     }
 }
 
-/// 스텁 = 원래 명령 바이트 + jmp [rip+0] + 다음 명령 절대주소. RIP 상대 명령은 지원하지 않는다.
-pub(crate) fn build_stub(site: &Site, next_abs: usize) -> Result<[u8; STUB_SLOT], &'static str> {
+/// 값 기록 지점: 입력값(lhs)의 최소/최대·표본, 보조값(rhs)의 최소/최대. lhs 가 없으면(상수 로드 등) 도달 수만.
+unsafe fn record_value(ctx: *const u8, site: &Site, st: &SiteState, cls: &Cls, next_ip: usize, size: u8) {
+    if matches!(site.lhs, Op::None) { return; }
+    let Some(a) = read_op(ctx, &site.lhs, next_ip) else { cls.read_fail.fetch_add(1, Ordering::Relaxed); return; };
+    let key = if site.signed == 1 { (sext(a, size) as u64) ^ (1u64 << 63) } else { a & mask(size) };
+    cls.min_key.fetch_max(!key, Ordering::Relaxed);
+    cls.max_key.fetch_max(key, Ordering::Relaxed);
+    if !matches!(site.rhs, Op::None | Op::Imm { .. }) {
+        if let Some(b) = read_op(ctx, &site.rhs, next_ip) {
+            let rs = op_size(&site.rhs);
+            let rk = if site.signed == 1 { (sext(b, rs) as u64) ^ (1u64 << 63) } else { b & mask(rs) };
+            st.rhs_min.fetch_max(!rk, Ordering::Relaxed);
+            st.rhs_max.fetch_max(rk, Ordering::Relaxed);
+        }
+    }
+    let i = st.sample_i.fetch_add(1, Ordering::Relaxed) as usize % SAMPLES;
+    st.samples[i].store(a & mask(size), Ordering::Relaxed);
+}
+
+/// 스텁 = 원래 명령 바이트 + jmp [rip+0] + 다음 명령 절대주소. RIP 상대 명령은 disp32 를 스텁 위치 기준으로 다시 계산한다.
+pub(crate) fn build_stub(site: &Site, next_abs: usize, stub_abs: usize) -> Result<[u8; STUB_SLOT], &'static str> {
     let len = site.len as usize;
     if len == 0 || len > 15 || len + 14 > STUB_SLOT { return Err("instruction length unsupported"); }
-    if matches!(site.lhs, Op::Mem { base: 16, .. }) || matches!(site.rhs, Op::Mem { base: 16, .. }) {
-        return Err("rip-relative operand unsupported");
-    }
     let mut out = [0xccu8; STUB_SLOT];
     out[..len].copy_from_slice(&site.bytes[..len]);
+    if site.disp_off != 0 {
+        let o = site.disp_off as usize;
+        if o + 4 > len { return Err("rip disp offset out of instruction"); }
+        let old = i32::from_le_bytes(out[o..o + 4].try_into().unwrap()) as i64;
+        let target = next_abs as i64 + old;
+        let new = target - (stub_abs as i64 + len as i64);
+        let new = i32::try_from(new).map_err(|_| "rip-relative stub out of 2GB range")?;
+        out[o..o + 4].copy_from_slice(&new.to_le_bytes());
+    }
     out[len..len + 6].copy_from_slice(&[0xff, 0x25, 0, 0, 0, 0]);
     out[len + 6..len + 14].copy_from_slice(&(next_abs as u64).to_le_bytes());
     Ok(out)
@@ -225,12 +267,14 @@ pub struct Config {
     pub functions: Vec<u32>,
     pub window_ms: u64,
     pub cap_per_window: u32,
+    /// 창마다 전 지점 합계 상한(넘으면 그 뒤 적중 지점은 기록 후 쉼)
+    pub global_cap_per_window: u64,
     pub snapshot_ms: u64,
     pub install_delay_frames: u64,
 }
 impl Default for Config {
     fn default() -> Self {
-        Self { trace: false, functions: Vec::new(), window_ms: 10_000, cap_per_window: 64, snapshot_ms: 300_000, install_delay_frames: 360 }
+        Self { trace: false, functions: Vec::new(), window_ms: 10_000, cap_per_window: 64, global_cap_per_window: 300_000, snapshot_ms: 300_000, install_delay_frames: 360 }
     }
 }
 pub fn parse(text: &str) -> Result<Config, String> {
@@ -255,6 +299,7 @@ pub fn parse(text: &str) -> Result<Config, String> {
             },
             "window_ms" => out.window_ms = num(1000, 600_000)?,
             "cap_per_window" => out.cap_per_window = num(1, 1_000_000)? as u32,
+            "global_cap_per_window" => out.global_cap_per_window = num(1000, 100_000_000)?,
             "snapshot_ms" => out.snapshot_ms = num(1000, 600_000)?,
             "install_delay_frames" => out.install_delay_frames = num(60, 36_000)?,
             _ => return Err(format!("sites.cfg 알 수 없는 설정: {key}")),
@@ -319,8 +364,12 @@ fn worker(rt: &'static Runtime) {
     let base = match platform::module_base() { Ok(b) => b, Err(e) => { set_status(rt, format!("module_base 실패: {e}")); return; } };
     let selected: Vec<bool> = (0..SITES.len()).map(|i| rt.config.functions.is_empty() || rt.config.functions.contains(&rt.func_of[i])).collect();
     let mut refused: Vec<(usize, &'static str)> = Vec::new();
-    // 1) 스텁 아레나를 한 번에 만든다(선택 지점만). 바이트가 표와 다르면 거절.
-    let mut arena = vec![0xccu8; SITES.len() * STUB_SLOT];
+    // 1) 스텁 아레나를 모듈 근처(±2GB, RIP 상대 보정용)에 RW 로 잡고 채운 뒤 RX 로 바꾼다. 바이트가 표와 다르면 거절.
+    let arena_len = SITES.len() * STUB_SLOT;
+    let arena_addr = match platform::reserve_rw_near(base, arena_len).or_else(|_| platform::reserve_rw_near(0, arena_len)) {
+        Ok(a) => a, Err(e) => { set_status(rt, format!("스텁 할당 실패: {e}")); return; } };
+    let arena = unsafe { std::slice::from_raw_parts_mut(arena_addr as *mut u8, arena_len) };
+    arena.fill(0xcc);
     let mut ok = vec![false; SITES.len()];
     for (i, s) in SITES.iter().enumerate() {
         if !selected[i] { continue; }
@@ -328,17 +377,18 @@ fn worker(rt: &'static Runtime) {
         let mut cur = [0u8; 16];
         if platform::safe_read_bytes(addr, &mut cur[..s.len as usize]).is_err() { refused.push((i, "read failed")); continue; }
         if cur[..s.len as usize] != s.bytes[..s.len as usize] { refused.push((i, "bytes differ (patched/other mod)")); continue; }
-        match build_stub(s, addr + s.len as usize) {
+        match build_stub(s, addr + s.len as usize, arena_addr + i * STUB_SLOT) {
             Ok(stub) => { arena[i * STUB_SLOT..(i + 1) * STUB_SLOT].copy_from_slice(&stub); ok[i] = true; }
             Err(e) => refused.push((i, e)),
         }
     }
-    let arena_addr = match platform::allocate_code(&arena) { Ok(a) => a, Err(e) => { set_status(rt, format!("스텁 할당 실패: {e}")); return; } };
+    if let Err(e) = platform::protect_rx(arena_addr, arena_len) { set_status(rt, format!("스텁 RX 전환 실패: {e}")); return; }
     for (i, good) in ok.iter().enumerate() {
         if *good { STATE[i].stub.store(arena_addr + i * STUB_SLOT, Ordering::Release); }
     }
     for &(i, _) in &refused { STATE[i].state.store(S_REFUSED, Ordering::Release); }
     CAP.store(rt.config.cap_per_window, Ordering::Release);
+    GLOBAL_CAP.store(rt.config.global_cap_per_window, Ordering::Release);
     BASE.store(base, Ordering::Release);
     TABLE_LEN.store(SITES.len(), Ordering::Release);
     TABLE.store(SITES.as_ptr() as *mut Site, Ordering::Release);
@@ -362,6 +412,7 @@ fn worker(rt: &'static Runtime) {
         if now >= next_window && !stopping {
             next_window = now + rt.config.window_ms;
             for st in STATE.iter().take(SITES.len()) { st.window.store(0, Ordering::Relaxed); }
+            GLOBAL_WINDOW.store(0, Ordering::Relaxed);
             let rest: Vec<usize> = (0..SITES.len()).filter(|&i| STATE[i].state.load(Ordering::Acquire) == S_REST).collect();
             if !rest.is_empty() { swap_sites(base, &rest, true); }
         }
@@ -496,26 +547,103 @@ mod tests {
         assert!(SITES.windows(2).all(|w| w[0].rva < w[1].rva));
         assert_eq!(SITES.len(), crate::sites_generated::SITE_FUNCS.len());
         for s in SITES.iter() {
-            let stub = build_stub(s, 0x1234_5678_9abc).unwrap();
-            assert_eq!(&stub[..s.len as usize], &s.bytes[..s.len as usize]);
+            let stub = build_stub(s, 0x7ff6_0000_0000 + s.rva as usize + s.len as usize, 0x7ff6_0000_0000 - 0x1000_0000).unwrap();
+            if s.disp_off == 0 { assert_eq!(&stub[..s.len as usize], &s.bytes[..s.len as usize]); }
             assert_eq!(&stub[s.len as usize..s.len as usize + 2], &[0xff, 0x25]);
             assert!(s.bytes[0] != 0xcc);
         }
+    }
+
+    #[test]
+    fn rip_relative_stub_targets_same_address() {
+        // 48 8b 05 10 00 00 00 = mov rax, [rip+0x10]  (원래 위치 0x1000 → 대상 0x1017)
+        let mut bytes = [0u8; 16];
+        bytes[..7].copy_from_slice(&[0x48, 0x8b, 0x05, 0x10, 0, 0, 0]);
+        let site = Site { rva: 0x1000, len: 7, bytes, kind: Kind::Value, lhs: Op::Mem { base: 16, index: -1, scale: 1, disp: 0x10, size: 8 },
+            rhs: Op::None, signed: 0, rel: 0, disp_off: 3 };
+        let stub = build_stub(&site, 0x1007, 0x9000).unwrap();
+        let d = i32::from_le_bytes(stub[3..7].try_into().unwrap()) as i64;
+        assert_eq!(0x9000 + 7 + d, 0x1017);
+        assert!(build_stub(&site, 0x1007, 0x1_0000_0000_0000).is_err()); // 2GB 밖이면 거절
+    }
+
+    fn reset_state(i: usize) {
+        let st = &STATE[i];
+        for c in &st.cls {
+            for a in [&c.hits, &c.below, &c.equal, &c.above, &c.tm1, &c.tp1, &c.cond_true, &c.read_fail, &c.min_key, &c.max_key] { a.store(0, Ordering::Relaxed); }
+        }
+        st.window.store(0, Ordering::Relaxed); st.rhs_min.store(0, Ordering::Relaxed); st.rhs_max.store(0, Ordering::Relaxed);
+        st.sample_i.store(0, Ordering::Relaxed); st.state.store(S_IDLE, Ordering::Relaxed);
+    }
+
+    /// 값 기록(imul 입력) + RIP 상대(mov rax,[rip+0x10]) 지점의 실제 INT3 종단 시험. 결과 불변·입력값 기록 확인.
+    #[test]
+    fn end_to_end_value_and_rip_relative() {
+        reset_state(0); reset_state(1);
+        // +0x00: imul rax, rcx, 100 ; ret      +0x20: mov rax, [rip+0x10] ; ret      +0x37: 데이터 0x1234
+        let page = platform::reserve_rw_near(0, 0x1000).unwrap();
+        let code = unsafe { std::slice::from_raw_parts_mut(page as *mut u8, 0x1000) };
+        code.fill(0xcc);
+        code[..5].copy_from_slice(&[0x48, 0x6b, 0xc1, 0x64, 0xc3]);
+        code[0x20..0x28].copy_from_slice(&[0x48, 0x8b, 0x05, 0x10, 0, 0, 0, 0xc3]);
+        code[0x37..0x3f].copy_from_slice(&0x1234u64.to_le_bytes());
+        platform::protect_rx(page, 0x1000).unwrap();
+        let mut b0 = [0u8; 16]; b0[..4].copy_from_slice(&[0x48, 0x6b, 0xc1, 0x64]);
+        let mut b1 = [0u8; 16]; b1[..7].copy_from_slice(&[0x48, 0x8b, 0x05, 0x10, 0, 0, 0]);
+        let sites: &'static [Site] = Box::leak(Box::new([
+            Site { rva: 0, len: 4, bytes: b0, kind: Kind::Value, lhs: Op::Reg { reg: 1, shift: 0, size: 8 }, rhs: Op::Imm { value: 100, size: 8 }, signed: 1, rel: 0, disp_off: 0 },
+            Site { rva: 0x20, len: 7, bytes: b1, kind: Kind::Value, lhs: Op::Mem { base: 16, index: -1, scale: 1, disp: 0x10, size: 8 }, rhs: Op::None, signed: 0, rel: 0, disp_off: 3 },
+        ]));
+        platform::init_safe_reader().unwrap();
+        let arena = platform::reserve_rw_near(page, 64).unwrap();
+        for (i, s) in sites.iter().enumerate() {
+            let stub = build_stub(s, page + s.rva as usize + s.len as usize, arena + i * STUB_SLOT).unwrap();
+            unsafe { std::ptr::copy_nonoverlapping(stub.as_ptr(), (arena + i * STUB_SLOT) as *mut u8, STUB_SLOT); }
+        }
+        platform::protect_rx(arena, 64).unwrap();
+        STATE[0].stub.store(arena, Ordering::Release);
+        STATE[1].stub.store(arena + STUB_SLOT, Ordering::Release);
+        CAP.store(1_000_000, Ordering::Release); GLOBAL_CAP.store(u64::MAX, Ordering::Release);
+        BASE.store(page, Ordering::Release); TABLE_LEN.store(2, Ordering::Release);
+        TABLE.store(sites.as_ptr() as *mut Site, Ordering::Release);
+        SCENE.store(4, Ordering::Release);
+        let mul: extern "C" fn(u64, i64) -> i64 = unsafe { std::mem::transmute(page) };
+        let load: extern "C" fn() -> u64 = unsafe { std::mem::transmute(page + 0x20) };
+        let mut res = Vec::new();
+        unsafe { platform::swap_page_bytes(&[(page, 0x48, 0xcc), (page + 0x20, 0x48, 0xcc)], &mut res).unwrap(); }
+        assert_eq!(res, vec![true, true]);
+        // imul rax, rcx, 100: rcx = 첫 인수
+        let r: Vec<i64> = [-3i64, 7, 250].iter().map(|&x| { let f: extern "C" fn(i64) -> i64 = unsafe { std::mem::transmute(page) }; f(x) }).collect();
+        assert_eq!(r, vec![-300, 700, 25000]);
+        let _ = mul;
+        assert_eq!(load(), 0x1234);
+        let l = |a: &AtomicU64| a.load(Ordering::Relaxed);
+        let c0 = &STATE[0].cls[0];
+        assert_eq!(l(&c0.hits), 3);
+        assert_eq!(((!l(&c0.min_key)) ^ (1 << 63)) as i64, -3);
+        assert_eq!((l(&c0.max_key) ^ (1 << 63)) as i64, 250);
+        let c1 = &STATE[1].cls[0];
+        assert_eq!((l(&c1.hits), !l(&c1.min_key), l(&c1.max_key)), (1, 0x1234, 0x1234));
+        unsafe { platform::swap_page_bytes(&[(page, 0xcc, 0x48), (page + 0x20, 0xcc, 0x48)], &mut res).unwrap(); }
+        TABLE.store(std::ptr::null_mut(), Ordering::Release);
+        BASE.store(0, Ordering::Release);
     }
 
     /// 실제 INT3 → VEH → 스텁 경로 종단 시험. 실행 페이지에 `cmp rcx, 30 ; setae al ; ret` 함수를 만들고
     /// 그 cmp 에 지점을 걸어 29/30/31 로 부른 뒤 반환값(원래 동작 보존)과 카운터를 확인한다.
     #[test]
     fn end_to_end_breakpoint_counts_and_preserves_result() {
+        reset_state(0);
+        GLOBAL_CAP.store(u64::MAX, Ordering::Release);
         // 48 83 f9 1e = cmp rcx,0x1e / 0f 93 c0 = setae al / c3 = ret. 앞에 xor eax,eax (31 c0)
         let code: [u8; 10] = [0x31, 0xc0, 0x48, 0x83, 0xf9, 0x1e, 0x0f, 0x93, 0xc0, 0xc3];
         let page = platform::allocate_code(&code).unwrap();
         let mut bytes = [0u8; 16];
         bytes[..4].copy_from_slice(&code[2..6]);
         let site: &'static [Site] = Box::leak(Box::new([Site { rva: 2, len: 4, bytes, kind: Kind::CmpImm,
-            lhs: Op::Reg { reg: 1, shift: 0, size: 8 }, rhs: Op::Imm { value: 30, size: 8 }, signed: 0, rel: 2 }]));
+            lhs: Op::Reg { reg: 1, shift: 0, size: 8 }, rhs: Op::Imm { value: 30, size: 8 }, signed: 0, rel: 2, disp_off: 0 }]));
         platform::init_safe_reader().unwrap();
-        let stub_code = build_stub(&site[0], page + 6).unwrap();
+        let stub_code = build_stub(&site[0], page + 6, 0).unwrap();
         let stub = platform::allocate_code(&stub_code).unwrap();
         STATE[0].stub.store(stub, Ordering::Release);
         CAP.store(1_000_000, Ordering::Release);
