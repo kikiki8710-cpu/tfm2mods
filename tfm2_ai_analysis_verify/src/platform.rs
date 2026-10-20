@@ -148,6 +148,8 @@ unsafe extern "system" fn read_exception(pointers: *mut ExceptionPointers) -> i3
     if p.record.is_null() || p.context.is_null() { return 0; }
     let rec = &*p.record;
     if handle_breakpoint(p, rec) { return -1; }
+    // 임계점 트레이서 지점. 등록 주소의 INT3만 받으며 할당/락/게임 CALL이 없다.
+    if rec.code == 0x80000003 && rec.flags & 1 == 0 && crate::site_trace::on_breakpoint(p.context, rec.address) { return -1; }
     if rec.code != 0xc0000005 && rec.code != 0x80000001 { return 0; }
     let rip_slot = p.context.add(0xf8) as *mut usize;
     let rip = std::ptr::read_unaligned(rip_slot);
@@ -173,6 +175,44 @@ unsafe extern "system" fn read_exception(pointers: *mut ExceptionPointers) -> i3
     }
     std::ptr::write_unaligned(rip_slot, landing);
     -1 // EXCEPTION_CONTINUE_EXECUTION
+}
+
+/// VEH 안에서 쓰는 읽기. 페이지 사전검사(VirtualQuery) 없이 고정 load 명령만 쓰며,
+/// fault는 같은 VEH의 landing 이 받는다(중첩 예외). 할당/락 없음.
+pub(crate) unsafe fn veh_read(address: usize, size: u8) -> Option<u64> {
+    if checked_end(address, size as usize).is_err() { return None; }
+    match size {
+        8 => { let mut v = 0u64; if tfm2_aiav_read8(address, &mut v) == 0 { None } else { Some(v) } }
+        4 => { let mut v = 0u32; if tfm2_aiav_read4(address, &mut v) == 0 { None } else { Some(v as u64) } }
+        2 => {
+            let (mut a, mut b) = (0u8, 0u8);
+            if tfm2_aiav_read1(address, &mut a) == 0 || tfm2_aiav_read1(address + 1, &mut b) == 0 { None }
+            else { Some(a as u64 | (b as u64) << 8) }
+        }
+        1 => { let mut v = 0u8; if tfm2_aiav_read1(address, &mut v) == 0 { None } else { Some(v as u64) } }
+        _ => None,
+    }
+}
+
+/// 한 페이지 안의 여러 명령 첫 byte를 원자 교환한다(트레이서 무장/해제). 결과는 항목별 성공.
+/// 보호를 RWX로 한 번 바꾸고 각 byte를 CAS 한 뒤 원래 보호로 되돌린다. 실행 권한은 유지된다.
+pub(crate) unsafe fn swap_page_bytes(items: &[(usize, u8, u8)], out: &mut Vec<bool>) -> Result<(), &'static str> {
+    out.clear();
+    let Some(first) = items.first() else { return Ok(()); };
+    let page = first.0 & !0xfff;
+    if items.iter().any(|x| x.0 & !0xfff != page) { return Err("swap items span pages"); }
+    executable_range(page, 1)?;
+    let mut old = 0;
+    if VirtualProtect(page as *mut c_void, 0x1000, 0x40, &mut old) == 0 { return Err("swap VirtualProtect failed"); }
+    for &(address, expected, byte) in items {
+        out.push((&*(address as *const AtomicU8)).compare_exchange(expected, byte, Ordering::SeqCst, Ordering::SeqCst).is_ok());
+    }
+    let mut ignored = 0;
+    let restored = VirtualProtect(page as *mut c_void, 0x1000, old, &mut ignored) != 0;
+    let flushed = FlushInstructionCache(GetCurrentProcess(), page as *const c_void, 0x1000) != 0;
+    if !restored { return Err("swap protection restore failed"); }
+    if !flushed { return Err("swap cache flush failed"); }
+    Ok(())
 }
 
 static READER: OnceLock<Result<usize, &'static str>> = OnceLock::new();

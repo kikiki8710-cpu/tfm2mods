@@ -2,11 +2,11 @@
   "name": "AI 분석 검증",
   "mod_id": "tfm2_ai_analysis_verify",
   "author": "tfm2mods",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "mod_type": "native",
   "contains_code": true,
-  "description": "실제 AI 호출의 원본 출력과 독립 계산값을 비교해 기록합니다. 판단 결과를 교체하지 않습니다. 지원 함수와 미연결 함수, 표본 없음과 불일치를 구분합니다.",
-  "last_updated": "2026-10-18",
+  "description": "실제 AI 호출의 원본 출력과 독립 계산값을 비교해 기록합니다. 판단 결과를 교체하지 않습니다. 지원 함수와 미연결 함수, 표본 없음과 불일치를 구분합니다. v0.4.0: 분석된 임계점 비교 명령에 관측점을 걸어 실제 값 분포를 셉니다(sites.cfg).",
+  "last_updated": "2026-10-21",
   "dependencies": [
     {
       "mod_id": "base",

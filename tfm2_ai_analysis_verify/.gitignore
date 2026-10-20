@@ -6,3 +6,4 @@ __pycache__/
 *.pyc
 
 /prepared_auto24_v*/
+/prepared_v*/

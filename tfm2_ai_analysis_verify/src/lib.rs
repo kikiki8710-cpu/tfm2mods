@@ -23,6 +23,8 @@ mod models_outputs11;
 mod loaded_constants;
 mod platform;
 mod sha256;
+mod site_trace;
+mod sites_generated;
 
 use mod_api_stable::{declare_stable_mod,LogLevel,StableClient,StableExtension,StableHost,StableMod};
 use std::panic::{catch_unwind,AssertUnwindSafe};
@@ -33,12 +35,14 @@ struct Extension;
 impl StableExtension for Extension {
     fn post_update(&self,ctx:&mut StableClient<'_>,_dt_micros:u64) {
         let _=catch_unwind(AssertUnwindSafe(||{
-            engine::set_scene(ctx.scene_kind().map(|x|x as usize).unwrap_or(usize::MAX));
+            let scene=ctx.scene_kind().map(|x|x as usize).unwrap_or(usize::MAX);
+            site_trace::post_update(scene);
+            engine::set_scene(scene);
             engine::post_update();
         }));
     }
 }
-impl Drop for Extension{fn drop(&mut self){engine::shutdown();}}
+impl Drop for Extension{fn drop(&mut self){site_trace::shutdown();engine::shutdown();}}
 
 fn setup()->Result<(),String> {
     let path=platform::own_module_path(init as *const () as usize).map_err(str::to_string)?;
@@ -53,6 +57,10 @@ fn setup()->Result<(),String> {
     let bytes=std::fs::read(&image_path).map_err(|e|format!("EXE 읽기 실패: {e}"))?;
     let digest=sha256::digest(&bytes);drop(bytes);
     let identity=digest==generated::BASELINE_EXE_SHA256;
+    // 임계점 트레이서는 verify.cfg 와 별개(sites.cfg). 실패해도 기존 검수 경로는 계속한다.
+    if let Err(e)=site_trace::initialize(dir.clone(),identity){
+        return Err(format!("sites.cfg 거절: {e}"));
+    }
     if configuration.armed&&identity {platform::init_safe_reader().map_err(str::to_string)?;}
     engine::initialize(dir,configuration,digest,identity)
 }
@@ -64,6 +72,8 @@ fn init(host:&StableHost)->StableMod {
         Ok(Err(error))=>host.log(LogLevel::Error,&format!("AI 분석 검증 설치 거절: {error}")),
         Err(_)=>host.log(LogLevel::Error,"AI 분석 검증 초기화 panic. 원본 함수에 훅을 설치하지 않았습니다."),
     }
+    let site=site_trace::status_text();
+    if !site.is_empty(){host.log(LogLevel::Info,&site);}
     let mut module=StableMod::new(MOD_ID);
     module.set_extension(Extension);module
 }
