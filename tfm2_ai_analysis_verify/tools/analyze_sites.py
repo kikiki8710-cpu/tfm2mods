@@ -3,7 +3,7 @@
 sites_<run_id>.jsonl(모드가 남긴 누적 카운터)의 마지막 스냅샷과 tools/sites/site_catalog.json 을 합쳐
 분석 기록(주장)마다 "실제 게임에서 그 비교에 들어온 값"을 판정한다.
 
-판정 단계(경기 장면 = scene 4/5 의 메인+배경 스레드 합계 기준):
+판정 단계(전 장면 합계 기준(타이틀 데모 경기 포함, --match-only 면 scene 4/5 만)):
   미도달      경기 중 한 번도 실행되지 않음 (틀렸다는 뜻 아님 — 그 상황이 안 나왔다)
   한쪽만      임계점의 한쪽 값만 들어옴 (조건이 늘 참이거나 늘 거짓)
   양쪽        아래·위 둘 다 들어옴 → 이 비교가 실제로 갈림
@@ -136,6 +136,7 @@ def main():
     ap.add_argument("jsonl", nargs="+", help="여러 개면 같은 지점 표의 회차로 보고 카운터를 합산")
     ap.add_argument("--catalog", default=os.path.join(HERE, "sites", "site_catalog.json"))
     ap.add_argument("--out", default=None)
+    ap.add_argument("--match-only", action="store_true", help="커리어/조합테스트 장면만(타이틀 데모 제외). 기본은 전 장면")
     a = ap.parse_args()
     snaps = [json.loads(last_line(p)) for p in a.jsonl]
     snap = merge_snaps(snaps) if len(snaps) > 1 else snaps[0]
@@ -147,11 +148,12 @@ def main():
     for sid, s in sites.items():
         o = obs.get(sid)
         c = o["c"] if o else [[0] * 10] * 3
-        m = [c[0][k] + c[1][k] for k in range(8)]  # 경기 장면(메인+배경)
+        CLS = (0, 1) if a.match_only else (0, 1, 2)  # 기본: 모든 장면(타이틀 데모 경기 포함)
+        m = [sum(c[j][k] for j in CLS) for k in range(8)]
         hits, below, equal, above, tm1, tp1, cond, rfail = m
         T = imm_value(s) if s["trace_kind"] == "CMP_IMM" else None
-        mins = [c[k][8] for k in (0, 1) if c[k][0]]
-        maxs = [c[k][9] for k in (0, 1) if c[k][0]]
+        mins = [c[k][8] for k in CLS if c[k][0]]
+        maxs = [c[k][9] for k in CLS if c[k][0]]
         size = lhs_size(s)
         lo = decode_key(min(mins), size, s["signed"]) if mins else None
         hi = decode_key(max(maxs), size, s["signed"]) if maxs else None
@@ -171,7 +173,8 @@ def main():
                 both = equal > 0 and above > 0
             else:
                 both = (below > 0 or unsigned_zero and equal > 0) and above > 0
-            edge = T is not None and equal and tp1 and (tm1 or unsigned_zero)
+            # 즉치: T-1·T·T+1 / 동적 비교: lhs-rhs 가 -1·0·+1 인 경우를 모두 봄
+            edge = (T is not None or s["trace_kind"] == "CMP_DYN") and equal and tp1 and (tm1 or unsigned_zero)
             stage = 3 if (both and edge) else (2 if both else 1)
         site_rows.append({
             "id": sid, "rva": hex(s["rva"]), "function": s["function"], "area": s["area"], "insn": s["insn"],

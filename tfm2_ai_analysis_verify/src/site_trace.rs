@@ -271,10 +271,15 @@ pub struct Config {
     pub global_cap_per_window: u64,
     pub snapshot_ms: u64,
     pub install_delay_frames: u64,
+    /// 비어 있지 않으면 이 지점 id 만 건다(집중 관측). sites.cfg 의 focus_file= 로 읽는다.
+    pub focus: Vec<u32>,
+    pub focus_file: String,
+    /// 덮어쓰기 최신 스냅샷(sites_<run>_latest.json) 간격. 종료 직전 유실 대비.
+    pub latest_ms: u64,
 }
 impl Default for Config {
     fn default() -> Self {
-        Self { trace: false, functions: Vec::new(), window_ms: 10_000, cap_per_window: 64, global_cap_per_window: 300_000, snapshot_ms: 300_000, install_delay_frames: 360 }
+        Self { trace: false, functions: Vec::new(), window_ms: 10_000, cap_per_window: 64, global_cap_per_window: 300_000, snapshot_ms: 300_000, install_delay_frames: 360, focus: Vec::new(), focus_file: String::new(), latest_ms: 30_000 }
     }
 }
 pub fn parse(text: &str) -> Result<Config, String> {
@@ -302,6 +307,8 @@ pub fn parse(text: &str) -> Result<Config, String> {
             "global_cap_per_window" => out.global_cap_per_window = num(1000, 100_000_000)?,
             "snapshot_ms" => out.snapshot_ms = num(1000, 600_000)?,
             "install_delay_frames" => out.install_delay_frames = num(60, 36_000)?,
+            "latest_ms" => out.latest_ms = num(5_000, 600_000)?,
+            "focus_file" => out.focus_file = value.to_string(),
             _ => return Err(format!("sites.cfg 알 수 없는 설정: {key}")),
         }
     }
@@ -328,6 +335,16 @@ pub fn initialize(dir: PathBuf, identity: bool) -> Result<String, String> {
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Config::default(),
         Err(e) => return Err(format!("sites.cfg 읽기 실패: {e}")),
     };
+    let mut config = config;
+    if !config.focus_file.is_empty() {
+        let text = std::fs::read_to_string(dir.join(&config.focus_file)).map_err(|e| format!("focus_file 읽기 실패: {e}"))?;
+        for item in text.split(|c: char| c == ',' || c.is_whitespace()).filter(|x| !x.is_empty()) {
+            let id = item.parse::<u32>().map_err(|_| format!("focus_file 잘못된 지점 id: {item}"))?;
+            if id as usize >= SITES.len() { return Err(format!("focus_file 지점 id 범위 밖: {id}")); }
+            config.focus.push(id);
+        }
+        config.focus.sort_unstable(); config.focus.dedup();
+    }
     if SITES.len() > MAX_SITES { return Err("지점 표가 MAX_SITES 초과".into()); }
     if SITES.windows(2).any(|w| w[0].rva >= w[1].rva) { return Err("지점 표가 RVA 오름차순이 아님".into()); }
     let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_err(|e| e.to_string())?.as_nanos();
@@ -371,7 +388,8 @@ fn set_status(rt: &Runtime, text: String) { *rt.status.lock().unwrap_or_else(|e|
 /// 설치: 지점 바이트 확인 → 스텁 게시 → 표 게시 → INT3 무장. 이후 창(window)마다 예산 관리, 주기적 스냅샷.
 fn worker(rt: &'static Runtime) {
     let base = match platform::module_base() { Ok(b) => b, Err(e) => { set_status(rt, format!("module_base 실패: {e}")); return; } };
-    let selected: Vec<bool> = (0..SITES.len()).map(|i| rt.config.functions.is_empty() || rt.config.functions.contains(&rt.func_of[i])).collect();
+    let selected: Vec<bool> = (0..SITES.len()).map(|i| (rt.config.functions.is_empty() || rt.config.functions.contains(&rt.func_of[i]))
+        && (rt.config.focus.is_empty() || rt.config.focus.binary_search(&(i as u32)).is_ok())).collect();
     let mut refused: Vec<(usize, &'static str)> = Vec::new();
     // 1) 스텁 아레나를 모듈 근처(±2GB, RIP 상대 보정용)에 RW 로 잡고 채운 뒤 RX 로 바꾼다. 바이트가 표와 다르면 거절.
     let arena_len = SITES.len() * STUB_SLOT;
@@ -412,6 +430,7 @@ fn worker(rt: &'static Runtime) {
     let start = *rt.started_at.get_or_init(std::time::Instant::now);
     let mut next_window = rt.config.window_ms;
     let mut next_snap = rt.config.snapshot_ms;
+    let mut next_latest = rt.config.latest_ms;
     loop {
         std::thread::sleep(std::time::Duration::from_millis(20));
         let stopping = rt.stop.load(Ordering::Acquire);
@@ -424,6 +443,10 @@ fn worker(rt: &'static Runtime) {
             GLOBAL_WINDOW.store(0, Ordering::Relaxed);
             let rest: Vec<usize> = (0..SITES.len()).filter(|&i| STATE[i].state.load(Ordering::Acquire) == S_REST).collect();
             if !rest.is_empty() { swap_sites(base, &rest, true); }
+        }
+        if now >= next_latest || stopping {
+            next_latest = now + rt.config.latest_ms;
+            let _ = write_latest(rt, now);
         }
         if now >= next_snap || stopping {
             next_snap = now + rt.config.snapshot_ms;
@@ -478,6 +501,20 @@ fn write_status(rt: &Runtime, refused: &[(usize, &'static str)], summary: &str, 
 /// 누적 카운터 스냅샷을 jsonl 한 줄로 덧붙인다. 관측이 있는 지점만 쓴다.
 fn write_snapshot(rt: &Runtime, now_ms: u64) -> std::io::Result<()> {
     let _guard = rt.write_lock.lock().unwrap_or_else(|e| e.into_inner());
+    let line = build_snapshot(rt, now_ms);
+    let mut f = std::fs::OpenOptions::new().create(true).append(true).open(rt.dir.join(format!("sites_{}.jsonl", rt.run_id)))?;
+    f.write_all(line.as_bytes())?;
+    f.flush()
+}
+
+/// 최신 누적값을 한 파일에 덮어쓴다(이름 바꾸기 없이 직접 덮어쓰기 — v0.2.1 rename errno5 회피). 종료 직전 유실 대비.
+fn write_latest(rt: &Runtime, now_ms: u64) -> std::io::Result<()> {
+    let _guard = rt.write_lock.lock().unwrap_or_else(|e| e.into_inner());
+    let line = build_snapshot(rt, now_ms);
+    std::fs::write(rt.dir.join(format!("sites_{}_latest.json", rt.run_id)), line.as_bytes())
+}
+
+fn build_snapshot(rt: &Runtime, now_ms: u64) -> String {
     let mut line = String::with_capacity(64 * 1024);
     let (mut armed, mut rest, mut refused) = (0, 0, 0);
     for st in STATE.iter().take(SITES.len()) {
@@ -509,9 +546,7 @@ fn write_snapshot(rt: &Runtime, now_ms: u64) -> std::io::Result<()> {
         line.push_str("]}");
     }
     line.push_str("]}\n");
-    let mut f = std::fs::OpenOptions::new().create(true).append(true).open(rt.dir.join(format!("sites_{}.jsonl", rt.run_id)))?;
-    f.write_all(line.as_bytes())?;
-    f.flush()
+    line
 }
 
 pub fn status_text() -> String {
@@ -546,7 +581,9 @@ mod tests {
         assert!(!c.trace && c.functions.is_empty() && c.cap_per_window == 64);
         let c = parse("trace=true\nfunctions=fd4260,0xdc0bb0\ncap_per_window=256").unwrap();
         assert!(c.trace && c.functions == vec![0xfd4260, 0xdc0bb0] && c.cap_per_window == 256);
-        for bad in ["trace=yes", "window_ms=5", "x=1", "trace=true\ntrace=false", "functions=zz"] {
+        let c = parse("focus_file=focus.txt\nlatest_ms=10000").unwrap();
+        assert!(c.focus_file == "focus.txt" && c.latest_ms == 10_000);
+        for bad in ["trace=yes", "window_ms=5", "x=1", "trace=true\ntrace=false", "functions=zz", "latest_ms=1"] {
             assert!(parse(bad).is_err(), "{bad}");
         }
     }
