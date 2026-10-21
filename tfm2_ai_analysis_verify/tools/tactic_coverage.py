@@ -44,6 +44,7 @@ for line in open(plan, encoding="utf-8"):
     nums = {n for n in nums if n >= 2}  # 0·1 은 너무 흔하다
     if any(n >= 10 for n in nums):
         nums = {n for n in nums if n >= 10}  # 작은 수(2·3·7)는 다른 비교와 우연히 겹친다
+    nums |= {v for n in nums if n >= 1000 for v in (n * n - 1, n * n, n * n + 1)}  # 거리는 제곱으로 비교한다(150000 → 22500000000)
     fn_info, knob = [], []
     for f in fns:
         r = cat.get(f)
