@@ -16,6 +16,8 @@
 // ═══════════════════════════════════════════════════════════════════════════
 mod bp;
 mod cap;
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // 로그 폴더(_log_root.txt 있으면 그 아래, 없으면 모드 폴더) — flow\·replay_params.json·banpick_live.* 산출물은 모드 폴더 그대로
 
 use mod_api_stable::{declare_stable_mod, LogLevel, RecordKindV1, SceneKindV1, SimOriginV1, StableClient, StableExtension, StableHost, StableMod};
 use serde_json::Value;
@@ -53,7 +55,7 @@ pub fn log(s: &str) {
     if !LOG_ENABLED {
         return;
     }
-    if let Some(d) = mod_dir() {
+    if let Some(d) = mod_dir().map(|d| log_dir::log_dir(&d)) {
         if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(format!("{d}\\flow_capture_log.txt")) {
             let _ = writeln!(f, "[{}ms] {}", now_ms(), s);
         }
@@ -406,7 +408,10 @@ fn write_status() {
         cap::DROPPED_FULL.load(Ordering::Relaxed),
         cap::active_summary()
     );
-    write_file("flow_status.txt", &s);
+    // 상태 덤프 = 진단 로그 → 로그 폴더(write_file 은 도구가 읽는 산출물 전용이라 쓰지 않는다)
+    if let Some(d) = mod_dir().map(|d| log_dir::log_dir(&d)) {
+        let _ = fs::write(format!("{d}\\flow_status.txt"), &s);
+    }
 }
 
 static FRAME: AtomicU64 = AtomicU64::new(0);

@@ -24,6 +24,8 @@ use mod_api_stable::{declare_stable_mod, LogLevel, SceneKindV1, StableClient, St
 mod uk;
 #[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
 mod cdb;
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // 로그 폴더(_log_root.txt 있으면 그 아래, 없으면 모드 폴더) — config/*.cfg 는 모드 폴더 그대로
 use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicPtr, AtomicU32, AtomicU64, AtomicUsize, Ordering};
@@ -1206,7 +1208,7 @@ fn dll_path() -> Option<PathBuf> {
 }
 fn mod_dir() -> Option<PathBuf> { dll_path()?.parent().map(|p| p.to_path_buf()) }
 fn write_log(name: &str, content: &str) {
-    if let Some(p) = mod_dir().map(|d| d.join(name)) { let _ = fs::write(p, content); }
+    if let Some(p) = mod_dir().map(|d| log_dir::log_dir_path(&d).join(name)) { let _ = fs::write(p, content); }
 }
 fn read_text(name: &str) -> Option<String> { fs::read_to_string(mod_dir()?.join(name)).ok() }
 fn now_ms() -> u64 { SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0) }

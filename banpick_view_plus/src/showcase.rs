@@ -172,6 +172,7 @@ fn slog(msg: &str) {
     }
     if let Some(d) = crate::mod_dir() {
         use std::io::Write;
+        let d = crate::log_dir::log_dir(&d);
         let _ = std::fs::OpenOptions::new()
             .append(true)
             .create(true)

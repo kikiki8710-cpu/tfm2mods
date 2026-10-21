@@ -11,6 +11,8 @@ use std::time::SystemTime;
 //   game_core::ItemBuildOverride → 로컬 enum(JSON 문자열) · ServerModContext → StableServerCtx
 //   · team.champion_personal_tactics 직접 쓰기 → team_set_json("champion_personal_tactics.<champ>", [..]).
 use mod_api_stable::{declare_stable_mod, LogLevel, StableHost, StableMod, StableServerCtx, StableServerExtension};
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // ★10-21: 로그 폴더(`mods\_log_root.txt` 있으면 그 아래) — debug.log 만. core-item-builds.json·data\ 는 모드 폴더 그대로
 
 /// game_core::ItemBuildOverride 의 로컬 미러(serde 유닛 variant = 문자열). 순서·이름은 0.5.8 SDK 기준.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -587,7 +589,7 @@ fn mod_dir() -> PathBuf {
 }
 
 fn log_path() -> PathBuf {
-    mod_dir().join("debug.log")
+    log_dir::log_dir_path(&mod_dir()).join("debug.log")
 }
 
 fn log_line(message: impl AsRef<str>) {

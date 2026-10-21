@@ -829,7 +829,7 @@ pub fn llog(msg: &str) {
     if !get().log_lineups {
         return;
     }
-    if let Some(d) = crate::mod_dir() {
+    if let Some(d) = crate::mod_dir().map(|d| crate::log_dir::log_dir(&d)) {
         use std::io::Write;
         // 세션 시작 시 1회 비우기 — 지난 판 기록과 섞이면 판독이 어렵다.
         if !LINEUP_FILE_FRESH.swap(true, Ordering::Relaxed) {
@@ -874,7 +874,7 @@ pub fn now_hms() -> String {
 }
 
 pub fn slog(msg: &str) {
-    let Some(d) = crate::mod_dir() else { return };
+    let Some(d) = crate::mod_dir().map(|d| crate::log_dir::log_dir(&d)) else { return };
     let msg = &format!("[{}] {msg}", now_hms());
     use std::io::Write;
     let path = format!("{d}\\champ_pos_lock_save.txt");
@@ -892,7 +892,7 @@ pub fn dlog(msg: &str) {
     if !get().debug {
         return;
     }
-    if let Some(d) = crate::mod_dir() {
+    if let Some(d) = crate::mod_dir().map(|d| crate::log_dir::log_dir(&d)) {
         use std::io::Write;
         if let Ok(mut f) = std::fs::OpenOptions::new()
             .create(true)

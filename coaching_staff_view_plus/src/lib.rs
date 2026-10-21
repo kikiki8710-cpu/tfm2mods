@@ -11,6 +11,8 @@ use mod_api_stable::{declare_stable_mod, ClientSceneKindV1, LogLevel, RecordKind
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // ★10-21: 로그 폴더(`mods\_log_root.txt` 있으면 그 아래)
 
 const MOD_ID: &str = "coaching_staff_view_plus";
 const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
@@ -43,7 +45,7 @@ fn log(s: &str) {
     let exe = String::from_utf16_lossy(&buf[..n]);
     if let Some(i) = exe.rfind(|c| c == '\\' || c == '/') {
         use std::io::Write;
-        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\mods\{}\debug.log", &exe[..i], MOD_ID)) {
+        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", log_dir::log_dir(&format!(r"{}\mods\{}", &exe[..i], MOD_ID)))) {
             let _ = writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s);
         }
     }

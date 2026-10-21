@@ -76,7 +76,9 @@ $COMMON = (Get-ChildItem "$DEPS\libcommon-*.rlib")[0].FullName
 $GAI = if (Test-Path "C:\tfm2mods\sdk_058\deps_ailink") { (Get-ChildItem "C:\tfm2mods\sdk_058\deps_ailink\libgame_ai-*.rlib")[0].FullName } else { (Get-ChildItem "$DEPS\libgame_ai-*.rlib")[0].FullName }
 
 # ★모드별·프로세스별 격리 작업 폴더 (공유 $SDK\lib.dll 사용 금지)
-$work = Join-Path $env:TEMP "tfm2_build\$ModId`_$PID"
+#   2026-10-21: 빌드 산출물은 E:\claude\tfm2\build 로(유저 지시 — C: 용량). E: 가 없으면 예전대로 %TEMP%.
+$buildRoot = if (Test-Path 'E:\claude\tfm2') { 'E:\claude\tfm2\build' } else { $env:TEMP }
+$work = Join-Path $buildRoot "tfm2_build\$ModId`_$PID"
 New-Item -ItemType Directory -Force -Path $work | Out-Null
 $out  = "$work\$ModId.dll"
 $errf = "$work\rustc_err.txt"

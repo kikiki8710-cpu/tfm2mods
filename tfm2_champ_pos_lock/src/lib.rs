@@ -28,6 +28,8 @@ pub mod ai_position; // ★0.6.4 ABI 10 decide_positions — 구 ai_swap(compute
 pub mod auto_swap; // ★09-20 내 팀 자동 스왑(select_swap 호출)
 pub mod ui_popup;
 pub mod perf; // ★09-28 구간 계측(cfg perf_log)
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // 로그 폴더(_log_root.txt 있으면 그 아래, 없으면 모드 폴더) — 설정·state.txt 는 모드 폴더 그대로
 #[path = r"C:\tfm2mods\ui_kit\ui_kit_stable.rs"]
 pub mod uk;
 #[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]

@@ -13,6 +13,9 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::atomic::{AtomicU64, AtomicU8, AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock};
 
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // 로그 폴더(_log_root.txt 있으면 그 아래, 없으면 모드 폴더) — lane_tactics.cfg 는 모드 폴더 그대로
+
 const MOD_ID: &str = "tfm2_lane_tactics";
 
 // ── 0.6.4 상수(근거 = mods_report\tfm2_lane_tactics\RE\2026-10-14_G7 · 0.6.3 = G6) ──
@@ -60,7 +63,7 @@ fn mod_dir() -> Option<String> {
     exe.rfind(|c| c == '\\' || c == '/').map(|i| format!(r"{}\mods\{}", &exe[..i], MOD_ID))
 }
 fn w(s: &str) {
-    if let Some(d) = mod_dir() {
+    if let Some(d) = mod_dir().map(|d| log_dir::log_dir(&d)) {
         use std::io::Write;
         if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\lane_tactics.log", d)) { let _ = writeln!(f, "{}", s); }
     }

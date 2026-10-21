@@ -45,6 +45,8 @@ use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, AtomicUsize, Ordering}
 use std::os::windows::ffi::OsStrExt;   // (26) 크래시 로그 경로 UTF-16 변환
 use std::sync::Mutex;
 
+#[path = "../../common/log_dir.rs"]
+mod log_dir;   // 로그 폴더(_log_root.txt 있으면 그 아래, 없으면 모드 폴더)
 #[path = "ui_inject.rs"]
 mod uinj;   // comp_test 아이템칸 모드 소유 드롭다운 오버레이(로더 훅, 체인 설치)
 use uinj as ui_inject;                       // (27) 킬스코어 오버레이에서 쓰는 별칭
@@ -345,7 +347,7 @@ fn dir() -> Option<PathBuf> { unsafe {
 const LOG_ENABLED: bool = false;  // 릴리스. (조사 시 true — 로그는 mods\<MOD_ID>\<MOD_ID>.txt)
 fn log(s: &str) {
     if !LOG_ENABLED { return; }
-    if let Some(mut p) = dir() {
+    if let Some(mut p) = dir().map(|d| log_dir::log_dir_path(&d)) {
         p.push("tfm2_comptest_unlock.txt");
         if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(&p) { let _ = write!(f, "{}", s); let _ = f.flush(); }
     }
@@ -2797,7 +2799,7 @@ unsafe fn install_crash_logger() {
     if GetModuleHandleExW(0x4 | 0x2, install_crash_logger as *const () as *const u16, &mut h) != 0 {
         MOD_BASE.store(h, Ordering::Relaxed);
     }
-    let Some(mut p) = dir() else { return };
+    let Some(mut p) = dir().map(|d| log_dir::log_dir_path(&d)) else { return };   // VEH 밖(설치 시)에서 경로 확정
     p.push("comptest_crash.txt");
     let s: Vec<u16> = p.as_os_str().encode_wide().chain(core::iter::once(0)).collect();
     let n = s.len().min(519);

@@ -17,6 +17,8 @@ use std::sync::Mutex;
 mod uk;
 mod phrases;
 use phrases::*;
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // ★10-21: 로그 폴더(`mods\_log_root.txt` 있으면 그 아래) — 설정(.cfg)·chat_lines.txt 는 모드 폴더 그대로
 
 const MOD_ID: &str = "Spectator_Chat";
 const DBG: bool = false; // 09-20 인게임 검증 후 OFF(진단 시 true)
@@ -61,7 +63,7 @@ pub fn mod_dir() -> Option<String> {
 }
 fn log(s: &str) {
     if !DBG { return; }
-    if let Some(d) = mod_dir() { use std::io::Write; if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", d)) { let _ = writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s); } }
+    if let Some(d) = mod_dir() { use std::io::Write; if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", log_dir::log_dir(&d))) { let _ = writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s); } }
 }
 fn cursor_ui() -> Option<(f32, f32)> {
     unsafe {

@@ -15,6 +15,8 @@ use mod_api_stable::{declare_stable_mod, LogLevel, SceneKindV1, StableClient, St
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
 use std::sync::Mutex;
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // ★10-21: 로그 폴더(`mods\_log_root.txt` 있으면 그 아래) — mod_order_log.txt 만. mod_order.txt(설정)는 모드 폴더 그대로
 
 const MOD_ID: &str = "tfm2_mod_order";
 const LOG_ENABLED: bool = false; // 진단 시 true(경로·pitch·덤프 로그)
@@ -66,7 +68,7 @@ fn log(msg: &str) {
     if let Some(d) = mod_dir() {
         use std::io::Write;
         let _ = std::fs::create_dir_all(&d);
-        let _ = std::fs::OpenOptions::new().append(true).create(true).open(format!("{d}\\mod_order_log.txt")).and_then(|mut f| writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), msg));
+        let _ = std::fs::OpenOptions::new().append(true).create(true).open(format!("{}\\mod_order_log.txt", log_dir::log_dir(&d))).and_then(|mut f| writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), msg));
     }
 }
 

@@ -22,6 +22,8 @@ mod draft_scene;
 #[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
 mod cdb; // ★09-28: 출시분 챔피언 목록 raw 읽기(champion_names() 는 모드 챔프가 많을수록 수백 ms~수 초)
 mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카드 일러) 통합 — 게임 훅 RVA 29(패치마다 재핀)
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // ★10-21: 로그 폴더(`mods\_log_root.txt` 있으면 그 아래) — debug.log·radar_dump.txt·showcase_log.txt 만. splash.cfg·*.flag 는 모드 폴더 그대로
 
 const MOD_ID: &str = "banpick_view_plus";
 const RADAR_DUMP: bool = false; // ★10-07 레이더 실측 덤프(mods\banpick_view_plus\radar_dump.txt) — 릴리스 false
@@ -209,7 +211,7 @@ fn log(s: &str) {
     if !DBG && !DIAG.load(Ordering::Relaxed) { return; }
     if let Some(d) = mod_dir() {
         use std::io::Write;
-        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", d)) { let _ = writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s); }
+        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", log_dir::log_dir(&d))) { let _ = writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s); }
     }
 }
 /// 커서 → UI 좌표(1920×1080). 게임 창이 전면이 아니면 None.
@@ -281,7 +283,7 @@ fn compute_axes(ctx: &StableClient<'_>) -> HashMap<String, [f32; 8]> {
         out.insert(name, axes);
     }
     if RADAR_DUMP {
-        if let Some(d) = mod_dir() { let _ = std::fs::write(format!(r"{}\radar_dump.txt", d), dump.join("\n")); }
+        if let Some(d) = mod_dir() { let _ = std::fs::write(format!(r"{}\radar_dump.txt", log_dir::log_dir(&d)), dump.join("\n")); }
     }
     out
 }

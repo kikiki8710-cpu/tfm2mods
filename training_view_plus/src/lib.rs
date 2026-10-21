@@ -17,6 +17,8 @@ use std::sync::Mutex;
 mod dd;
 #[path = r"C:\tfm2mods\ui_kit\training_plan_stable.rs"]
 mod training_plan;
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // ★10-21: 로그 폴더(`mods\_log_root.txt` 있으면 그 아래) — tvp_log.txt 만. .cfg 는 모드 폴더 그대로
 
 const MOD_ID: &str = "training_view_plus";
 const DBG: bool = false; // 진단 시 true(tvp_log.txt)
@@ -45,7 +47,7 @@ fn mod_dir() -> Option<String> {
 }
 fn log(s: &str) {
     if !DBG { return; }
-    if let Some(d) = mod_dir() { use std::io::Write; let _ = std::fs::create_dir_all(&d); let _ = std::fs::OpenOptions::new().append(true).create(true).open(format!("{d}\\tvp_log.txt")).and_then(|mut f| writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s)); }
+    if let Some(d) = mod_dir() { use std::io::Write; let d = log_dir::log_dir(&d); let _ = std::fs::create_dir_all(&d); let _ = std::fs::OpenOptions::new().append(true).create(true).open(format!("{d}\\tvp_log.txt")).and_then(|mut f| writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s)); }
 }
 
 // ── 설정(영속) ──

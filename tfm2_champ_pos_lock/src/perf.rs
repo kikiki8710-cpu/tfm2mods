@@ -62,7 +62,7 @@ impl Drop for Sec {
 }
 
 fn write(line: &str) {
-    let Some(d) = crate::mod_dir() else { return };
+    let Some(d) = crate::mod_dir().map(|d| crate::log_dir::log_dir(&d)) else { return };
     use std::io::Write;
     if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!("{d}\\champ_pos_lock_perf.txt")) {
         let _ = writeln!(f, "[{}] {line}", crate::config::now_hms());

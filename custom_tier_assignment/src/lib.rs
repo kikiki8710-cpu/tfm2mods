@@ -20,6 +20,8 @@ use std::sync::Mutex;
 mod team_sync;
 #[path = r"C:\tfm2mods\ui_kit\client_db_stable.rs"]
 mod cdb; // ★09-28: 출시분 챔피언 raw 목록(champion_names() 는 모드 챔프 수에 비례해 수백 ms~수 초 — 통계 뷰 6프레임마다 부르던 게 "게임정보 멈춤" 원인)
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // ★10-21: 로그 폴더(`mods\_log_root.txt` 있으면 그 아래) — .cfg 는 모드 폴더 그대로
 
 const MOD_ID: &str = "custom_tier_assignment";
 const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
@@ -156,7 +158,7 @@ fn log(s: &str) {
     if !DBG { return; }
     if let Some(d) = mod_dir() {
         use std::io::Write;
-        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", d)) {
+        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", log_dir::log_dir(&d))) {
             let _ = writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s);
         }
     }

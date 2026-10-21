@@ -14,6 +14,8 @@ use mod_api_stable::{declare_stable_mod, ClientSceneKindV1, LogLevel, RecordKind
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
+#[path = "../../common/log_dir.rs"]
+mod log_dir; // ★10-21: 로그 폴더(`mods\_log_root.txt` 있으면 그 아래) — .cfg 는 모드 폴더 그대로
 
 const MOD_ID: &str = "recruitment_view_plus";
 const DBG: bool = false; // 09-19 확정 배포(진단 시 true)
@@ -70,7 +72,7 @@ fn log(s: &str) {
     if !DBG { return; }
     if let Some(d) = mod_dir() {
         use std::io::Write;
-        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", d)) {
+        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", log_dir::log_dir(&d))) {
             let _ = writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s);
         }
     }
