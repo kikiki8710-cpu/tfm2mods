@@ -12,15 +12,15 @@ use mod_api_stable::StableServerCtx;
 
 /// 0.6.0 (exe sha AECB984A2C7AE187)
 pub const GAME_VER: &str = "0.6.2";
-const RVA_BUILD: usize = 0x2a12b80; // FUN_142262850(out*, state, ids_ptr, ids_len, my_team_id) -> out*  (ServerPacket ResponseTeam 0x740)
-const RVA_SEND: usize = 0x2abc080;  // FUN_14220ce30(out*, &Sender, &OutMsg) -> out*  ([out]==u64::MAX 면 Ok)
-const RVA_DROP: usize = 0x2958160;  // FUN_1421ce320(&out)
+const RVA_BUILD: usize = 0x28f7c20; // FUN_142262850(out*, state, ids_ptr, ids_len, my_team_id) -> out*  (ServerPacket ResponseTeam 0x740)
+const RVA_SEND: usize = 0x29c8000;  // FUN_14220ce30(out*, &Sender, &OutMsg) -> out*  ([out]==u64::MAX 면 Ok)
+const RVA_DROP: usize = 0x2859590;  // FUN_1421ce320(&out)
 /// 세 함수 공통 프롤로그(push rbp,r15,r14,r13,r12,rsi,rdi,rbx) — RE 확인은 0x2259320/0x220f040 기준. build/send/drop 은 첫 바이트만 느슨히 검사.
 const PROLOGUE_PUSH: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
-const OFF_SERVER_IN_LOOP: usize = 0x9f0;  // ★0.6.4 대핸들러 콜사이트 0x274144f `lea rdx,[rbx+0x9f0]`(owner 0x273c600 · call 0x29baa40) // ★0.6.3 0xa28 대핸들러 콜사이트 0x1db2bbb `lea rdx,[rbx+0xa28]` // 0.6.2 재핀(0.6.1=0x6c0 · 0.6.0=0x9d8) — 콜 루프 직전 lea r13,[rbx+0xa08] → rdx=r13 — 서버 루프 콜사이트 lea rdx,[rbx+..]
-const OFF_SENDER_IN_LOOP: usize = 0x410;  // ★0.6.4 `lea r9,[rbx+0x410]` 0x274145d // ★0.6.3 0x430 `lea r9,[rbx+0x430]` // 0.6.2(0.6.1=0x290 · 0.6.0=0x3f0) lea r9
-const OFF_ADDR_IN_LOOP: usize = 0x180;  // ★0.6.4 `lea rax,[rbx+0x180]` 0x274143b // ★0.6.3 0x1b0 `[rsp+0x28]=lea [rbx+0x1b0]` // 0.6.2(0.6.1=0x1c0 · 0.6.0=0x1a0) [rsp+0x28]
-const OFF_STATE_IN_LOOP: usize = 0x78;  // ★0.6.4 `mov r12,[rbx+0x78]` 0x2741478 // ★0.6.3 0xa0 `mov r12,[rbx+0xa0]` // 0.6.2(0.6.1=0x60 · 0.6.0=0x50) mov r12,[rbx+..] 콜 직전
+const OFF_SERVER_IN_LOOP: usize = 0xa20;  // ★0.6.5 대핸들러 콜사이트 0x1df64a6 `lea rdx,[rbx+0xa20]`(owner 0x1df14b0 · call 0x289fbd0 · RE 2026-10-21_0.6.5-재핀판정-serpen_ui_kit_view_plus) // ★0.6.4 0x9f0 대핸들러 콜사이트 0x274144f `lea rdx,[rbx+0x9f0]`(owner 0x273c600 · call 0x29baa40) // ★0.6.3 0xa28 대핸들러 콜사이트 0x1db2bbb `lea rdx,[rbx+0xa28]` // 0.6.2 재핀(0.6.1=0x6c0 · 0.6.0=0x9d8) — 콜 루프 직전 lea r13,[rbx+0xa08] → rdx=r13 — 서버 루프 콜사이트 lea rdx,[rbx+..]
+const OFF_SENDER_IN_LOOP: usize = 0x430;  // ★0.6.5 `lea r9,[rbx+0x430]` 0x1df64b4 // ★0.6.4 0x410 `lea r9,[rbx+0x410]` 0x274145d // ★0.6.3 0x430 `lea r9,[rbx+0x430]` // 0.6.2(0.6.1=0x290 · 0.6.0=0x3f0) lea r9
+const OFF_ADDR_IN_LOOP: usize = 0x1a0;  // ★0.6.5 `lea rax,[rbx+0x1a0]` 0x1df648b // ★0.6.4 0x180 `lea rax,[rbx+0x180]` 0x274143b // ★0.6.3 0x1b0 `[rsp+0x28]=lea [rbx+0x1b0]` // 0.6.2(0.6.1=0x1c0 · 0.6.0=0x1a0) [rsp+0x28]
+const OFF_STATE_IN_LOOP: usize = 0x90;  // ★0.6.5 `mov r12,[rbx+0x90]` 0x1df6411 // ★0.6.4 0x78 `mov r12,[rbx+0x78]` 0x2741478 // ★0.6.3 0xa0 `mov r12,[rbx+0xa0]` // 0.6.2(0.6.1=0x60 · 0.6.0=0x50) mov r12,[rbx+..] 콜 직전
 const PKT_SIZE: usize = 0x740;
 const MSG_SIZE: usize = 0x768;
 const ADDR_SIZE: usize = 0x20;

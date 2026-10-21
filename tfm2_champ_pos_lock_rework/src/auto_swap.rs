@@ -7,7 +7,7 @@
 use crate::draft_scene::SwapState;
 use std::sync::atomic::{AtomicU64, AtomicU8, Ordering};
 
-pub const RVA_SELECT_SWAP: usize = 0x2084c60;  // ★0.6.4 재핀(원본 매니페스트 동일값 · 구 0x24f3d70) 
+pub const RVA_SELECT_SWAP: usize = 0x22a0bc0;  // ★0.6.5 재핀(원본 매니페스트 동일값 · 0.6.4 0x2084c60)  // ★0.6.4 재핀(원본 매니페스트 동일값 · 구 0x24f3d70) 
 const PROL: [u8; 12] = [0x48, 0x83, 0xec, 0x28, 0x80, 0xb9, 0x69, 0x04, 0x00, 0x00, 0x00, 0x0f];
 const OFF_SELECTED_TAG: usize = 0x0;
 const OFF_SENT: usize = 0x466;

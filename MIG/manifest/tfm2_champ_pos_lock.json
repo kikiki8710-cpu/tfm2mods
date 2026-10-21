@@ -21,8 +21,8 @@
  "entries": [
   {
    "name": "RVA_POS_MASK",
-   "value": "0x18b0850",
-   "ver": "0.6.4",
+   "value": "0x1397fb0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/legacy_assign.rs:14"
@@ -33,8 +33,8 @@
   },
   {
    "name": "RVA_SELECT_SWAP",
-   "value": "0x2084c60",
-   "ver": "0.6.4",
+   "value": "0x22a0bc0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/auto_swap.rs:10"
@@ -45,8 +45,8 @@
   },
   {
    "name": "RVA_PICK_CLICK",
-   "value": "0x2611050",
-   "ver": "0.6.4",
+   "value": "0x20e36f0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/pick_click_hook.rs:14"
@@ -57,8 +57,8 @@
   },
   {
    "name": "RVA_SWAP_CONFIRM",
-   "value": "0x2611910",
-   "ver": "0.6.4",
+   "value": "0x20e3fb0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/swap_confirm_hook.rs:8"

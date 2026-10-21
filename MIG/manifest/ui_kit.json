@@ -96,8 +96,8 @@
  "entries": [
   {
    "name": "DD_SETOPT_RVA",
-   "value": "0x1e7f30",
-   "ver": "0.6.4",
+   "value": "0x1e79d0",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "ui_kit.rs:939"
@@ -110,8 +110,8 @@
   },
   {
    "name": "RVA_DROP_MAP",
-   "value": "0x2f65d0",
-   "ver": "0.6.4",
+   "value": "0x2f60f0",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "training_plan_stable.rs:15"
@@ -123,8 +123,8 @@
   },
   {
    "name": "RVA_DROP_PLAN",
-   "value": "0x306bd0",
-   "ver": "0.6.4",
+   "value": "0x3066f0",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "training_plan_stable.rs:14"
@@ -136,8 +136,8 @@
   },
   {
    "name": "RVA_INSERT",
-   "value": "0xa20890",
-   "ver": "0.6.4",
+   "value": "0xa30c90",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "training_plan_stable.rs:16"
@@ -149,8 +149,8 @@
   },
   {
    "name": "RVA_CLONE",
-   "value": "0x254c4b0",
-   "ver": "0.6.4",
+   "value": "0x29305b0",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "training_plan_stable.rs:13"
@@ -162,8 +162,8 @@
   },
   {
    "name": "RVA_DROP",
-   "value": "0x2958160",
-   "ver": "0.6.4",
+   "value": "0x2859590",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "team_sync_stable.rs:17",
@@ -176,8 +176,8 @@
   },
   {
    "name": "RVA_SEND",
-   "value": "0x2abc080",
-   "ver": "0.6.4",
+   "value": "0x29c8000",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "team_sync_stable.rs:16",
@@ -190,8 +190,8 @@
   },
   {
    "name": "RVA_BUILD",
-   "value": "0x2a12b80",
-   "ver": "0.6.4",
+   "value": "0x28f7c20",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "team_sync_stable.rs:15"
@@ -203,8 +203,8 @@
   },
   {
    "name": "RVA_SANITIZE",
-   "value": "0x2a2d120",
-   "ver": "0.6.4",
+   "value": "0x2910e20",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "training_plan_stable.rs:17"
@@ -216,8 +216,8 @@
   },
   {
    "name": "RVA_UPDATE",
-   "value": "0x21457b0",
-   "ver": "0.6.4",
+   "value": "0x2360f30",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "draft_scene_stable.rs:14"
@@ -229,8 +229,8 @@
   },
   {
    "name": "RVA_RESPONSE",
-   "value": "0x2701db0",
-   "ver": "0.6.4",
+   "value": "0x1db7810",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "training_plan_stable.rs:18"

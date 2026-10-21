@@ -19,15 +19,15 @@
     "src/lib.rs:188"
    ],
    "sect": ".text",
-   "bytes": "4d89f84929c876224d8b7424",
+   "bytes": "7425004939d50f8654ffffff",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "맵 좌표 상수(line_zone 판정 폭 0xabe00) — RVA 아님"
   },
   {
    "name": "RVA_PASSIVE_PLAN",
-   "value": "0xd5c300",
-   "ver": "0.6.4",
+   "value": "0xd5b2e0",
+   "ver": "0.6.5",
    "kind": "FN_START",
    "locs": [
     "src/lib.rs:21"

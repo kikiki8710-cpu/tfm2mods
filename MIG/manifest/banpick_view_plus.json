@@ -19,8 +19,8 @@
  "entries": [
   {
    "name": "RVA_ASSET_GET",
-   "value": "0x16cf80",
-   "ver": "0.6.4",
+   "value": "0x16cca0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:46"
@@ -31,8 +31,8 @@
   },
   {
    "name": "RVA_SUBMIT",
-   "value": "0x1c6370",
-   "ver": "0.6.4",
+   "value": "0x1bd180",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:32"
@@ -43,8 +43,8 @@
   },
   {
    "name": "RVA_SUBMIT_TEXT",
-   "value": "0x1c65f0",
-   "ver": "0.6.4",
+   "value": "0x1bd400",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:33"
@@ -55,8 +55,8 @@
   },
   {
    "name": "RVA_TEXT_BUILD",
-   "value": "0x1c7040",
-   "ver": "0.6.4",
+   "value": "0x1bde50",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:39"
@@ -67,8 +67,8 @@
   },
   {
    "name": "RVA_IMG_UV",
-   "value": "0x1c7620",
-   "ver": "0.6.4",
+   "value": "0x1be430",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:35"
@@ -79,8 +79,8 @@
   },
   {
    "name": "RVA_IMG_BUILD",
-   "value": "0x1c77c0",
-   "ver": "0.6.4",
+   "value": "0x1be5d0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:34"
@@ -92,8 +92,8 @@
   },
   {
    "name": "RVA_IMG_FLAG",
-   "value": "0x1c7ad0",
-   "ver": "0.6.4",
+   "value": "0x1be8e0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:36"
@@ -104,8 +104,8 @@
   },
   {
    "name": "RVA_IMG_SHADER",
-   "value": "0x1c9130",
-   "ver": "0.6.4",
+   "value": "0x1bff40",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:38"
@@ -116,8 +116,8 @@
   },
   {
    "name": "RVA_IMG_COLOR",
-   "value": "0x224b00",
-   "ver": "0.6.4",
+   "value": "0x2245a0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:37"
@@ -128,8 +128,8 @@
   },
   {
    "name": "RVA_ANIM_GET",
-   "value": "0x20fb50",
-   "ver": "0.6.4",
+   "value": "0x20f5f0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:47"
@@ -140,8 +140,8 @@
   },
   {
    "name": "RVA_FX_SET",
-   "value": "0x2099090",
-   "ver": "0.6.4",
+   "value": "0x22b56b0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:29"
@@ -152,8 +152,8 @@
   },
   {
    "name": "RVA_CARD_DRAW",
-   "value": "0x20aea10",
-   "ver": "0.6.4",
+   "value": "0x22cb030",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:30"
@@ -164,32 +164,32 @@
   },
   {
    "name": "RVA_D_CUT_LO",
-   "value": "0x20b8bc8",
-   "ver": "0.6.4",
+   "value": "0x22d5228",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:104"
    ],
    "sect": ".text",
-   "bytes": "b891a201f3450f58c2f3440f",
+   "bytes": "e80e8201f3450f58c2f3440f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_D_CUT_HI",
-   "value": "0x20b8bd6",
-   "ver": "0.6.4",
+   "value": "0x22d5236",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:105"
    ],
    "sect": ".text",
-   "bytes": "5ae9b101f3450f58d941b820",
+   "bytes": "5aaf8c01f3450f58d941b820",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_NAME_GET",
-   "value": "0x20ddd40",
-   "ver": "0.6.4",
+   "value": "0x22f9770",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:40"
@@ -200,8 +200,8 @@
   },
   {
    "name": "RVA_SPRITE_CALC",
-   "value": "0x20e3120",
-   "ver": "0.6.4",
+   "value": "0x22feb50",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:48"
@@ -212,8 +212,8 @@
   },
   {
    "name": "RVA_I_SNAP_H",
-   "value": "0x2143670",
-   "ver": "0.6.4",
+   "value": "0x235ee00",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:102"
@@ -224,44 +224,44 @@
   },
   {
    "name": "RVA_D_SNAP_W",
-   "value": "0x2143686",
-   "ver": "0.6.4",
+   "value": "0x235ee16",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:103"
    ],
    "sect": ".text",
-   "bytes": "bee89901e8116307fe90498b",
+   "bytes": "26747901e8c12fe7fd90498b",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_D_ZIG_X1",
-   "value": "0x21444d2",
-   "ver": "0.6.4",
+   "value": "0x235fc62",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:108"
    ],
    "sect": ".text",
-   "bytes": "eae5b501440f58d8410fc6fb",
+   "bytes": "aaad9201440f58d8410fc6fb",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_D_ZIG_X2",
-   "value": "0x2144bb0",
-   "ver": "0.6.4",
+   "value": "0x2360340",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:109"
    ],
    "sect": ".text",
-   "bytes": "0cdfb5010f58d50fc6da010f",
+   "bytes": "cca692010f58d50fc6da010f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_ILLUST_GET",
-   "value": "0x2add940",
-   "ver": "0.6.4",
+   "value": "0x220dda0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:31"
@@ -272,8 +272,8 @@
   },
   {
    "name": "RVA_GAME_ALLOC",
-   "value": "0x2fe7a70",
-   "ver": "0.6.4",
+   "value": "0x2f2dc50",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:52"
@@ -284,8 +284,8 @@
   },
   {
    "name": "RVA_C_CARD_RECT",
-   "value": "0x3ca2a40",
-   "ver": "0.6.4",
+   "value": "0x3c8a990",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:90"
@@ -296,8 +296,8 @@
   },
   {
    "name": "RVA_C_SNAP_RECT",
-   "value": "0x3ca2a60",
-   "ver": "0.6.4",
+   "value": "0x3c8a9b0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:91"
@@ -310,8 +310,8 @@
   },
   {
    "name": "RVA_C_NORMAL",
-   "value": "0x3ca2a70",
-   "ver": "0.6.4",
+   "value": "0x3c8a9c0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:95"
@@ -322,8 +322,8 @@
   },
   {
    "name": "RVA_C_LINE_DIR",
-   "value": "0x3ca2a90",
-   "ver": "0.6.4",
+   "value": "0x3c8a9e0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:92"
@@ -334,8 +334,8 @@
   },
   {
    "name": "RVA_C_LINE_START",
-   "value": "0x3ca2aa0",
-   "ver": "0.6.4",
+   "value": "0x3c8a9f0",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:93"
@@ -346,8 +346,8 @@
   },
   {
    "name": "RVA_C_LINE_ANCHOR",
-   "value": "0x3ca2ab0",
-   "ver": "0.6.4",
+   "value": "0x3c8aa00",
+   "ver": "0.6.5",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:94"
