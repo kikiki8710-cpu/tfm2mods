@@ -173,4 +173,70 @@ with open(os.path.join(out, "edge_confirmed.csv"), "w", encoding="utf-8-sig", ne
             lo, hi = obs(c)
             w.writerow([c["record"], c["semantic"], c["class"], c["function"], fname.get(c["function"], ""), c["area"], c["values"], lo, hi, hits(c), vc(c), bc(c), c["meaning"]])
 open(os.path.join(out, "README.md"), "w", encoding="utf-8", newline="\n").write("\n".join(L) + "\n")
+
+# ── 함수별 관측 범주 (지점 = 명령 단위). 추가 지점(extra) 만 있는 명령은 뺀다.
+CATS = [
+    ("A", "임계점 전부 실측 확인", "모든 지점 실행 · 비교 지점이 전부 경계확정(T-1·T·T+1)"),
+    ("B", "비교 전부 양쪽 관측", "모든 지점 실행 · 비교 지점이 전부 양쪽 이상(일부는 경계 미확정)"),
+    ("C", "값 기록만 · 전부 실행", "비교 지점 없음 · 값 기록 지점 전부 실행"),
+    ("D", "전부 실행 · 일부 비교 한쪽만", "모든 지점 실행 · 한쪽 결과만 본 비교가 있음"),
+    ("E", "대부분 실행(90% 이상)", "미도달 지점이 있으나 실행 비율 ≥ 90%"),
+    ("F", "절반 이상 실행(50~90%)", "실행 비율 50% 이상 90% 미만"),
+    ("G", "절반 미만 실행", "실행 비율 < 50%"),
+    ("H", "전부 미도달", "한 지점도 실행되지 않음"),
+]
+SITES_ALL = json.load(open(os.path.join(src, "sites.json"), encoding="utf-8"))["sites"]
+byfn = collections.defaultdict(list)
+for s in SITES_ALL:
+    if [r for r in s.get("records", []) if r != "extra"]:  # 기록이 extra 뿐 = v0.5.3 추가 지점
+        byfn[s["function"]].append(s)
+cat_rows = []
+for f, ss in byfn.items():
+    cmp_ = [s for s in ss if s["kind"] != "VALUE"]
+    st_ = collections.Counter(s["stage"] for s in ss)
+    n = len(ss); ex_ = n - st_["미도달"]
+    if ex_ == 0:
+        k = "H"
+    elif st_["미도달"]:
+        k = "E" if ex_ / n >= 0.9 else ("F" if ex_ / n >= 0.5 else "G")
+    elif not cmp_:
+        k = "C"
+    elif all(s["stage"] == "경계확정" for s in cmp_):
+        k = "A"
+    elif all(s["stage"] in VCMP for s in cmp_):
+        k = "B"
+    else:
+        k = "D"
+    cat_rows.append(dict(cat=k, f=f, name=fname.get(f, ""), area=ss[0]["area"], sites=n, cmp=len(cmp_), value=n - len(cmp_),
+                         edge=st_["경계확정"], both=st_["양쪽"], one=st_["한쪽만"], reach=st_["도달"], un=st_["미도달"],
+                         exec_pct=round(100 * ex_ / n), hits=sum(s["match_hits"] + s["menu_hits"] for s in ss)))
+order = {c[0]: i for i, c in enumerate(CATS)}
+cat_rows.sort(key=lambda r: (order[r["cat"]], r["area"], -r["sites"]))
+with open(os.path.join(out, "function_categories.csv"), "w", encoding="utf-8-sig", newline="") as h:
+    w = csv.DictWriter(h, fieldnames=list(cat_rows[0])); w.writeheader(); w.writerows(cat_rows)
+cnt = collections.Counter(r["cat"] for r in cat_rows)
+M = ["# 관측한 함수 — 관측 종류별 목록 (0.6.4 · 2~6회차 합산)", "",
+     "> 단위 = 측정 지점(명령). 비교 지점 = cmp/test(임계점), 값 기록 지점 = 계수·상수 로드 등. 추가 지점(v0.5.3 extra)만 있는 명령은 제외.",
+     "> 경계확정 = T-1·T·T+1 모두 관측 / 양쪽 = 참·거짓 모두 / 한쪽만 = 한 결과만 / 도달 = 값 기록 지점 실행 / 미도달 = 실행 안 됨.", "",
+     "| 범주 | 이름 | 기준 | 함수 | 지점 |", "|---|---|---|---:|---:|"]
+for k, nm, desc in CATS:
+    M.append(f"| {k} | {nm} | {desc} | {cnt[k]} | {sum(r['sites'] for r in cat_rows if r['cat'] == k):,} |")
+M += ["", f"합계 함수 {len(cat_rows)} · 지점 {sum(r['sites'] for r in cat_rows):,}. 표 = `function_categories.csv`.", ""]
+# 영역 × 범주
+areas_ = sorted({r["area"] for r in cat_rows})
+M += ["## 영역 × 범주 (함수 수)", "", "| 영역 | " + " | ".join(c[0] for c in CATS) + " | 합 |", "|---|" + "---:|" * (len(CATS) + 1)]
+for a in areas_:
+    rr = [r for r in cat_rows if r["area"] == a]
+    M.append(f"| {a} | " + " | ".join(str(sum(r['cat'] == c[0] for r in rr)) for c in CATS) + f" | {len(rr)} |")
+M.append("")
+for k, nm, desc in CATS:
+    rr = [r for r in cat_rows if r["cat"] == k]
+    M += [f"## {k}. {nm} ({len(rr)})", "", f"기준: {desc}", "",
+          "| 함수 | 의미 | 영역 | 지점 | 비교 | 경계확정 | 양쪽 | 한쪽만 | 값 도달 | 미도달 | 실행% | 적중 |",
+          "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    for r in rr:
+        M.append(f"| `{r['f']}` | {esc(r['name'])[:70]} | {r['area']} | {r['sites']} | {r['cmp']} | {r['edge']} | {r['both']} | {r['one']} | {r['reach']} | {r['un']} | {r['exec_pct']} | {r['hits']:,} |")
+    M.append("")
+open(os.path.join(out, "function_categories.md"), "w", encoding="utf-8", newline="\n").write("\n".join(M) + "\n")
+print(dict(cnt))
 print(len(C), ex, st["경계확정"], len(rows), len(full), len(comp))
