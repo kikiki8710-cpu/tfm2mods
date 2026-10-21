@@ -61,12 +61,15 @@ struct SiteState {
     cls: [Cls; 3], window: AtomicU32, state: AtomicU8, stub: AtomicUsize,
     rhs_min: AtomicU64, rhs_max: AtomicU64,
     samples: [AtomicU64; SAMPLES], sample_i: AtomicU32,
+    /// v0.5.3: 값 기록 지점에서 나온 값 0..=255 의 출현 비트맵(256비트). "이 값이 한 번이라도 나왔나"를 확정한다.
+    vmask: [AtomicU64; 4],
 }
 impl SiteState {
     const fn new() -> Self {
         Self { cls: [Cls::new(), Cls::new(), Cls::new()], window: AtomicU32::new(0), state: AtomicU8::new(S_IDLE),
             stub: AtomicUsize::new(0), rhs_min: AtomicU64::new(0), rhs_max: AtomicU64::new(0),
-            samples: [const { AtomicU64::new(0) }; SAMPLES], sample_i: AtomicU32::new(0) }
+            samples: [const { AtomicU64::new(0) }; SAMPLES], sample_i: AtomicU32::new(0),
+            vmask: [const { AtomicU64::new(0) }; 4] }
     }
 }
 static STATE: [SiteState; MAX_SITES] = [const { SiteState::new() }; MAX_SITES];
@@ -237,10 +240,12 @@ unsafe fn record_value(ctx: *const u8, site: &Site, st: &SiteState, cls: &Cls, n
         }
     }
     let i = st.sample_i.fetch_add(1, Ordering::Relaxed) as usize % SAMPLES;
-    st.samples[i].store(a & mask(size), Ordering::Relaxed);
+    let v = a & mask(size);
+    st.samples[i].store(v, Ordering::Relaxed);
+    if v < 256 { st.vmask[(v >> 6) as usize].fetch_or(1u64 << (v & 63), Ordering::Relaxed); }
 }
 
-/// 스텁 = 원래 명령 바이트 + jmp [rip+0] + 다음 명령 절대주소. RIP 상대 명령은 disp32 를 스텁 위치 기준으로 다시 계산한다.
+/// 스텁 =원래 명령 바이트 + jmp [rip+0] + 다음 명령 절대주소. RIP 상대 명령은 disp32 를 스텁 위치 기준으로 다시 계산한다.
 pub(crate) fn build_stub(site: &Site, next_abs: usize, stub_abs: usize) -> Result<[u8; STUB_SLOT], &'static str> {
     let len = site.len as usize;
     if len == 0 || len > 15 || len + 14 > STUB_SLOT { return Err("instruction length unsupported"); }
@@ -543,7 +548,10 @@ fn build_snapshot(rt: &Runtime, now_ms: u64) -> String {
             if k > 0 { line.push(','); }
             line.push_str(&st.samples[k].load(Ordering::Relaxed).to_string());
         }
-        line.push_str("]}");
+        line.push(']');
+        let vm = [0, 1, 2, 3].map(|k| st.vmask[k].load(Ordering::Relaxed));
+        if vm != [0; 4] { line.push_str(&format!(",\"vm\":[{},{},{},{}]", vm[0], vm[1], vm[2], vm[3])); }
+        line.push('}');
     }
     line.push_str("]}\n");
     line
@@ -621,6 +629,7 @@ mod tests {
         }
         st.window.store(0, Ordering::Relaxed); st.rhs_min.store(0, Ordering::Relaxed); st.rhs_max.store(0, Ordering::Relaxed);
         st.sample_i.store(0, Ordering::Relaxed); st.state.store(S_IDLE, Ordering::Relaxed);
+        for a in &st.vmask { a.store(0, Ordering::Relaxed); }
     }
 
     /// 값 기록(imul 입력) + RIP 상대(mov rax,[rip+0x10]) 지점의 실제 INT3 종단 시험. 결과 불변·입력값 기록 확인.
@@ -671,6 +680,9 @@ mod tests {
         assert_eq!((l(&c0.max_key) ^ (1 << 63)) as i64, 250);
         let c1 = &STATE[1].cls[0];
         assert_eq!((l(&c1.hits), !l(&c1.min_key), l(&c1.max_key)), (1, 0x1234, 0x1234));
+        // 값 출현 비트맵: 7·250 만(−3 은 64비트로 255 초과, 0x1234 도 초과)
+        assert_eq!([0, 1, 2, 3].map(|k| l(&STATE[0].vmask[k])), [1 << 7, 0, 0, 1 << (250 - 192)]);
+        assert_eq!([0, 1, 2, 3].map(|k| l(&STATE[1].vmask[k])), [0; 4]);
         unsafe { platform::swap_page_bytes(&[(page, 0xcc, 0x48), (page + 0x20, 0xcc, 0x48)], &mut res).unwrap(); }
         TABLE.store(std::ptr::null_mut(), Ordering::Release);
         BASE.store(0, Ordering::Release);

@@ -87,13 +87,15 @@ def merge_snaps(snaps):
            "total_hits": sum(x["total_hits"] for x in snaps), "armed": max(x["armed"] for x in snaps),
            "resting": 0, "refused": max(x["refused"] for x in snaps), "sites": []}
     acc = {}
+    # v0.5.3: 회차마다 지점 표가 다를 수 있다(지점 추가 → id 밀림). 합산 키는 rva.
     for sn in snaps:
         for o in sn["sites"]:
-            e = acc.get(o["id"])
+            e = acc.get(o["rva"])
             if e is None:
-                acc[o["id"]] = {"id": o["id"], "rva": o["rva"], "st": o["st"], "c": [list(c) for c in o["c"]],
-                                "rmin": o["rmin"], "rmax": o["rmax"], "s": list(o["s"])}
+                acc[o["rva"]] = {"id": o["id"], "rva": o["rva"], "st": o["st"], "c": [list(c) for c in o["c"]],
+                                "rmin": o["rmin"], "rmax": o["rmax"], "s": list(o["s"]), "vm": list(o.get("vm", [0, 0, 0, 0]))}
                 continue
+            e["vm"] = [a | b for a, b in zip(e["vm"], o.get("vm", [0, 0, 0, 0]))]
             for k in range(3):
                 a, b = e["c"][k], o["c"][k]
                 for i in range(8):
@@ -142,11 +144,11 @@ def main():
     snap = merge_snaps(snaps) if len(snaps) > 1 else snaps[0]
     cat = json.load(open(a.catalog, encoding="utf-8"))
     sites = {s["id"]: s for s in cat["sites"]}
-    obs = {o["id"]: o for o in snap["sites"]}
+    obs = {int(o["rva"], 16): o for o in snap["sites"]}  # 회차 간 지점 표가 달라도 rva 로 맞춘다
 
     site_rows = []
     for sid, s in sites.items():
-        o = obs.get(sid)
+        o = obs.get(s["rva"])
         c = o["c"] if o else [[0] * 10] * 3
         CLS = (0, 1) if a.match_only else (0, 1, 2)  # 기본: 모든 장면(타이틀 데모 경기 포함)
         m = [sum(c[j][k] for j in CLS) for k in range(8)]
@@ -185,6 +187,8 @@ def main():
             "below": below, "equal": equal, "above": above, "t_minus1": tm1, "t_plus1": tp1,
             "cond_true": cond, "cond_false": hits - rfail - cond if s["rel"] else None, "read_fail": rfail,
             "lhs_min": lo, "lhs_max": hi, "samples": o["s"] if o else [], "state": o["st"] if o else None,
+            # v0.5.3 값 기록 지점: 실제로 나온 값 0..255 (v0.5.2 이하 회차엔 없음 = None)
+            "values_seen": [k * 64 + b for k, w in enumerate(o["vm"]) for b in range(64) if w >> b & 1] if o and o.get("vm") and any(o["vm"]) else None,
             "stage": STAGES[stage], "claims": s["claims"],
         })
 

@@ -133,6 +133,7 @@ def main():
     byf = collections.defaultdict(list)
     for s in S:
         byf[s["function"]].append(s)
+    by_rva = {int(s["rva"], 16): s for s in S}
     results, summary = [], collections.Counter()
     gates = collections.defaultdict(lambda: {"blocked": [], "info": None})
     for f, ss in byf.items():
@@ -223,6 +224,31 @@ def main():
                                 "producer_at": hex(prod.address) if prod else None}
                         break
                     n = p_
+                # v0.5.3: 그 분기의 비교 명령에 실측 지점이 있으면(추가 지점) 실측으로 판정한다.
+                ms = by_rva.get(int(cond["producer_at"], 16)) if cond and cond["producer_at"] else None
+                if ms and ms["kind"] in ("CMP_IMM", "CMP_DYN", "TEST") and ms["rel"] is not None and ms["cond_false"] is not None \
+                        and ms["match_hits"] + ms["menu_hits"] and ms["consumer"] and ms["consumer"].startswith(cond["jcc"].split()[0]):
+                    ct, cf = ms["cond_true"], ms["cond_false"]
+                    toward = "taken" if cond["side"] == "taken" else "fall"
+                    never_side = "taken" if ct == 0 else ("fall" if cf == 0 else None)
+                    if never_side == toward:
+                        key = ms["rva"]
+                        summary["한쪽만 비교가 막음(합류 블록)"] += 1
+                        gates[key]["blocked"].append(u["rva"])
+                        gates[key]["info"] = {"gate_site": ms["rva"], "function": f, "semantic": sem, "insn": ms["insn"],
+                                              "consumer": ms["consumer"], "rel": ms["rel"], "T": ms["T"], "signed": ms["signed"],
+                                              "never": "참" if ct == 0 else "거짓", "observed": [ms["lhs_min"], ms["lhs_max"]],
+                                              "hits": ms["match_hits"] + ms["menu_hits"], "merge_block": True}
+                        results.append({"site": u["rva"], "function": f, "gate": key, "why": "한쪽만 비교(합류 블록)"}); continue
+                    # 이 분기는 이 지점 쪽으로도 갔다 → 막는 곳은 더 아래(사이트 없는 블록)
+                    key = "d:" + cond["branch"]
+                    summary["더 아래 미계측 분기가 막음"] += 1
+                    gates[key]["blocked"].append(u["rva"])
+                    gates[key]["info"] = {"gate_site": cond["branch"], "function": f, "semantic": sem, "insn": ms["insn"],
+                                          "consumer": cond["jcc"], "rel": "아래 미계측", "T": None, "signed": "x",
+                                          "never": "없음(이 지점 쪽도 실행)", "observed": [ms["lhs_min"], ms["lhs_max"]],
+                                          "hits": ms["match_hits"] + ms["menu_hits"], "untraced": True, "deeper": True}
+                    results.append({"site": u["rva"], "function": f, "gate": key, "why": "더 아래 미계측 분기", "cond": cond}); continue
                 key = "u:" + (cond["branch"] if cond else "none")
                 summary["추적 안 된 분기가 막음" if cond else "막는 분기 미상"] += 1
                 if cond:

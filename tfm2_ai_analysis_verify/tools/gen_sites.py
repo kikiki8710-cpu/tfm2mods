@@ -113,6 +113,20 @@ class Image:
         data = self.read(start, end - start)
         return list(self.md.disasm(data, start)) if data else []
 
+    def pdata_func(self, rva):
+        """아틀라스 밖 함수용: .pdata RUNTIME_FUNCTION 에서 rva 를 품은 (시작, 끝-1)."""
+        if not hasattr(self, "_pdata"):
+            d = self.pe.OPTIONAL_HEADER.DATA_DIRECTORY[3]
+            raw = self.read(d.VirtualAddress, d.Size) or b""
+            import struct
+            self._pdata = sorted(struct.unpack_from("<II", raw, o) for o in range(0, len(raw) - 11, 12))
+            self._pstarts = [b for b, _ in self._pdata]
+        import bisect
+        i = bisect.bisect_right(self._pstarts, rva) - 1
+        if i >= 0 and self._pdata[i][0] <= rva < self._pdata[i][1]:
+            return self._pdata[i][0], self._pdata[i][1] - 1
+        return None
+
 
 def mem_desc(insn, op):
     m = op.mem
@@ -196,6 +210,7 @@ def main():
     ap.add_argument("--atlas", default=DEF_ATLAS)
     ap.add_argument("--exe", default=DEF_EXE)
     ap.add_argument("--select", default="all", choices=["semantic", "threshold", "all"])
+    ap.add_argument("--extra", default=None, help="추가 지점 파일(줄마다 'RVA 메모'). 분기(jcc)면 직전 비교 명령을 건다 (v0.5.3)")
     args = ap.parse_args()
 
     img = Image(args.exe)
@@ -221,9 +236,55 @@ def main():
             insn_cache[f[0]] = (lst, {i.address: k for k, i in enumerate(lst)})
         return insn_cache[f[0]]
 
+    trace = collections.OrderedDict()  # producer rva -> site
+
+    def get_ent(f, lst, k):
+        """명령 k 의 트레이스 지점(없으면 만든다). 소비 명령이면 직전 플래그 생산 명령, 아니면 그 명령 자체."""
+        tk = k
+        if consumer_cc(lst[k]):
+            tk = None
+            for j in range(k - 1, max(-1, k - 5), -1):
+                if lst[j].mnemonic in FLAG_PRODUCERS:
+                    tk = j; break
+                if lst[j].mnemonic in CONTROL or lst[j].mnemonic.startswith("j"):
+                    break
+            if tk is None:
+                return None
+        t = lst[tk]
+        if t.mnemonic in CONTROL or t.mnemonic.startswith("j") or t.address - f[0] < ENTRY_GUARD:
+            return None
+        # 스텁은 같은 스택에서 원명령을 실행하므로 rsp 상대 피연산자는 괜찮다. 스택을 직접 움직이는 명령만 뺀다.
+        if t.mnemonic in ("push", "pop", "enter", "leave", "pushfq", "popfq") or t.mnemonic.startswith(("rep", "movs", "stos", "lods", "scas", "cmps")):
+            return None
+        ent = trace.get(t.address)
+        if ent is None:
+            ent = {"rva": t.address, "function": hex(f[0]), "function_set": f[2], "area": f[3],
+                   "insn": f"{t.mnemonic} {t.op_str}", "bytes": t.bytes.hex(), "len": t.size,
+                   "records": [], "claims": []}
+            # 소비 조건(바로 다음 명령)
+            # 플래그를 건드리지 않는 명령(mov/lea 등)은 건너뛰고 첫 소비 명령을 찾는다
+            nxt, ncc = None, None
+            for j in range(tk + 1, min(len(lst), tk + 6)):
+                cand = lst[j]
+                c = consumer_cc(cand)
+                if c:
+                    nxt, ncc = cand, c; break
+                if cand.mnemonic in FLAG_NEUTRAL:
+                    continue
+                nxt = cand; break
+            ent["consumer"] = f"{nxt.mnemonic} {nxt.op_str}" if nxt else None
+            ent["cc"] = ncc
+            ops = [operand(t, o) for o in t.operands]
+            ent["mnemonic"] = t.mnemonic
+            ent["ops"] = ops
+            ent["riprel"] = any(o.type == X.X86_OP_MEM and o.mem.base == X.X86_REG_RIP for o in t.operands)
+            ent["disp_off"] = t.disp_offset if ent["riprel"] else 0
+            ent["record_kinds"] = []
+            trace[t.address] = ent
+        return ent
+
     params = list(csv.DictReader(open(os.path.join(args.atlas, "parameters.csv"), encoding="utf-8-sig")))
     audit = []
-    trace = collections.OrderedDict()  # producer rva -> site
     for p in params:
         if p["원근거버전"] != "current064":
             continue
@@ -267,54 +328,43 @@ def main():
                 row["static"] = "VALUE_AT_SITE" if n == len(values) else ("PARTIAL_VALUES_AT_SITE" if n else "VALUE_NOT_AT_SITE")
             audit.append(row)
 
-            # 트레이스 지점 결정: 소비 명령이면 직전 플래그 생산 명령, 아니면 그 명령 자체
-            tk = k
-            cc = consumer_cc(insn)
-            if cc:
-                tk = None
-                for j in range(k - 1, max(-1, k - 5), -1):
-                    if lst[j].mnemonic in FLAG_PRODUCERS:
-                        tk = j; break
-                    if lst[j].mnemonic in CONTROL or lst[j].mnemonic.startswith("j"):
-                        break
-                if tk is None:
-                    continue
-            t = lst[tk]
-            if t.mnemonic in CONTROL or t.mnemonic.startswith("j") or t.address - f[0] < ENTRY_GUARD:
-                continue
-            # 스텁은 같은 스택에서 원명령을 실행하므로 rsp 상대 피연산자는 괜찮다. 스택을 직접 움직이는 명령만 뺀다.
-            if t.mnemonic in ("push", "pop", "enter", "leave", "pushfq", "popfq") or t.mnemonic.startswith(("rep", "movs", "stos", "lods", "scas", "cmps")):
-                continue
-            ent = trace.get(t.address)
+            ent = get_ent(f, lst, k)
             if ent is None:
-                ent = {"rva": t.address, "function": hex(f[0]), "function_set": f[2], "area": f[3],
-                       "insn": f"{t.mnemonic} {t.op_str}", "bytes": t.bytes.hex(), "len": t.size,
-                       "records": [], "claims": []}
-                # 소비 조건(바로 다음 명령)
-                # 플래그를 건드리지 않는 명령(mov/lea 등)은 건너뛰고 첫 소비 명령을 찾는다
-                nxt, ncc = None, None
-                for j in range(tk + 1, min(len(lst), tk + 6)):
-                    cand = lst[j]
-                    c = consumer_cc(cand)
-                    if c:
-                        nxt, ncc = cand, c; break
-                    if cand.mnemonic in FLAG_NEUTRAL:
-                        continue
-                    nxt = cand; break
-                ent["consumer"] = f"{nxt.mnemonic} {nxt.op_str}" if nxt else None
-                ent["cc"] = ncc
-                ops = [operand(t, o) for o in t.operands]
-                ent["mnemonic"] = t.mnemonic
-                ent["ops"] = ops
-                ent["riprel"] = any(o.type == X.X86_OP_MEM and o.mem.base == X.X86_REG_RIP for o in t.operands)
-                ent["disp_off"] = t.disp_offset if ent["riprel"] else 0
-                ent["record_kinds"] = []
-                trace[t.address] = ent
+                continue
             ent["records"].append(p["기록ID"])
             if kind not in ent["record_kinds"]:
                 ent["record_kinds"].append(kind)
             ent["claims"].append({"record": p["기록ID"], "semantic": p["의미ID"], "class": p["분류"], "values": values,
                                   "site": hex(site), "static": row["static"], "meaning": p["의미"][:160]})
+
+    # v0.5.3 추가 지점: 아틀라스 기록이 없는 분기(미실행 원인 귀속용). 기록 없이 kind 만 "extra".
+    extra_stat = collections.Counter()
+    if args.extra:
+        for line in open(args.extra, encoding="utf-8"):
+            line = line.split("#")[0].strip()
+            if not line:
+                continue
+            rva, note = (line.split(None, 1) + [""])[:2]
+            site = int(rva, 16)
+            f = owner(site)
+            if not f:
+                pf = img.pdata_func(site)  # 아틀라스 밖 함수(예: 0xd930a0)는 pdata 경계로
+                f = (pf[0], pf[1], "pdata", "extra") if pf else None
+            if not f:
+                extra_stat["함수 밖"] += 1; continue
+            lst, idx = insns_of(f)
+            if site not in idx:
+                extra_stat["명령 경계 아님"] += 1; continue
+            before = len(trace)
+            ent = get_ent(f, lst, idx[site])
+            new = len(trace) > before
+            if ent is None:
+                extra_stat["걸 수 없음"] += 1; continue
+            if "extra" not in ent["record_kinds"]:
+                ent["record_kinds"].append("extra")
+                ent["claims"].append({"record": "extra", "semantic": note, "class": "extra", "values": [],
+                                      "site": hex(site), "static": "EXTRA", "meaning": note[:160]})
+            extra_stat["추가" if new else "기존 지점"] += 1
 
     # 트레이스 종류 판정
     sites = []
@@ -352,7 +402,7 @@ def main():
     meta = {"exe_sha256": img.sha, "atlas": args.atlas, "select": args.select,
             "records_sites": len(audit), "static": dict(stat), "trace_points": len(sites),
             "trace_kinds": dict(kinds), "traceable": len(traceable),
-            "riprel": sum(1 for s in traceable if s["riprel"])}
+            "riprel": sum(1 for s in traceable if s["riprel"]), "extra": dict(extra_stat)}
     json.dump({"meta": meta, "audit": audit}, open(os.path.join(out_dir, "static_audit.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     json.dump({"meta": meta, "sites": traceable, "unsupported": [s for s in sites if s["trace_kind"] == "UNSUPPORTED_OPERAND"],
                "value_sites_untraced": value_sites},
