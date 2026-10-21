@@ -68,7 +68,8 @@ for x in rows:
             d += f" ← `{g['gate_site']}` `{(g['insn'] or '')[:30]}` 안 나온 쪽 {g.get('never')}"
         detail.append(d)
     plan.append(dict(tier=tier, stage=x["stage"], name=x["name"], section=x["section"], st=dict(st), methods=methods,
-                     fns=" · ".join(x["fns"][:5]), detail=detail))
+                     fns=" · ".join(x["fns"][:5]), detail=detail,
+                     bad_sites=[{"rva": k[1], "function": S[k[1]]["function"], "state": state(k)} for k in bad]))
 pri = {"A": 0, "A~B": 1, "B": 2, "B~C": 3, "C": 4}
 plan.sort(key=lambda p: (p["tier"], pri.get(p["stage"], 5), p["name"]))
 json.dump(plan, open(os.path.join(ms, "observation_plan.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
