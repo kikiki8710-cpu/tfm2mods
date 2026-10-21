@@ -21,7 +21,7 @@ site_by_old = {r["old"]: r for r in sites}
 def vkind(v):
     """판정 문자열 → 대분류: 그대로 / 이동 / 수정 / 병합 / 삭제 / 미매핑"""
     if v.startswith("aidiff:"):
-        return {"IDENTICAL": "그대로", "SHIFTED": "이동", "EDITED": "수정", "MERGED": "병합", "DELETED": "삭제", "RENAMED": "이름변경"}[v.split(":")[1]]
+        return {"IDENTICAL": "그대로", "SHIFTED": "이동", "EDITED": "수정", "MERGED": "병합", "DELETED": "삭제", "RENAMED": "이름변경"}[v.split(":")[1].split("(")[0]]
     if v == "미매핑":
         return "미매핑"
     return "수정" if v.endswith("상수변경") else "그대로"
@@ -50,8 +50,16 @@ for r in atlas:
 OKSET = {"same", "disp", "reg"}
 
 
+# RE 판정 덮어쓰기(re_overrides.csv — RE `2026-10-21_065_사라진손잡이45_판정.md`): 자동 판정보다 우선
+_ov_p = os.path.join(mig, "re_overrides.csv")
+OV = {r["old"]: r for r in csv.DictReader(open(_ov_p, encoding="utf-8-sig"))} if os.path.exists(_ov_p) else {}
+OV_STATE = {"enum재번호": "재배치", "값동일": "재배치", "스탯배율": "배율", "로직변경": "로직변경", "소멸": "소멸"}
+
+
 def site_state(r):
-    """지점 1개의 0.6.5 상태: 유지 / 재배치(값 생존) / 배율(×1000) / 사라짐(값 변경·코드 소실) / 함수없음"""
+    """지점 1개의 0.6.5 상태: 유지 / 재배치(값 생존) / 배율(×1000) / 로직변경 / 소멸 / 사라짐(미판정) / 함수없음"""
+    if r["old"] in OV:
+        return OV_STATE[OV[r["old"]]["re_verdict"]]
     st, sv = r["status"], r.get("survival", "")
     if st in OKSET:
         return "유지"
@@ -73,7 +81,14 @@ w("| 판정 | 수 |\n|---|---|")
 for k in ("그대로", "이동", "수정", "이름변경", "병합", "삭제", "미매핑"):
     w(f"| {k} | {c[k]} |")
 w("\n- 그대로 = aidiff IDENTICAL 또는 보조 짝(골격·호출순서·머리·배치)에서 즉치 다중집합 동일. 이동 = aidiff SHIFTED(패닉 위치 줄만 이동). 수정 = aidiff EDITED 또는 보조 짝에서 상수 변경.")
-w(f"- 미매핑 {c['미매핑']}개는 모두 `REGISTRY_ONLY_501`(측정 지점 없는 등록부 전용) — 측정 대상 영향 = 아래 §2.\n")
+w(f"- 미매핑 {c['미매핑']}개는 모두 `REGISTRY_ONLY_501`(측정 지점 없는 등록부 전용) — 측정 대상 영향 = 아래 §2.")
+_imm = [r for r in atlas if vkind(r["verdict"]) in ("그대로", "이동") and r["verdict"].startswith("aidiff:") and (int(r["imm_added"] or 0) + int(r["imm_removed"] or 0))]
+w(f"- ⚠ aidiff 그대로·이동은 **패닉 위치**가 같다는 뜻일 뿐 로직 동일 보증이 아니다. 그중 즉치 다중집합이 바뀐 함수 {len(_imm)}개"
+  "(구조 크기·오프셋 변화 포함). 실례: `team.push_selector.healthy_advantage_best_lane` 은 IDENTICAL 인데 감산항 하나가 삭제됐다(RE `2026-10-21_065_사라진손잡이45_판정.md` §1).")
+_cx = [r for r in atlas if "교차교정" in r["verdict"]]
+if _cx:
+    w("- aidiff 짝 교차 교정: " + " · ".join(f"`{r['old']}`→`{r['new']}` {r['name']}" for r in _cx) + " (같은 소스 파일 안에서 짝이 뒤바뀌어 있었음).")
+w("")
 
 # 범주별
 w("## 2. 측정 범주(A~H)별 함수 판정\n")
@@ -129,7 +144,11 @@ for t in tactics:
     ed = [f for f in fns if f in fa and vkind(fa[f]["verdict"]) in ("수정", "병합", "삭제")]
     sc = [f for f in fns if f in scaled]
     lost = st["사라짐"] + st["함수없음"]
-    if lost:
+    if st["소멸"]:
+        verdict = "소멸"  # 손잡이 기능이 0.6.5 에서 삭제(RE 확정)
+    elif st["로직변경"]:
+        verdict = "로직변경"  # 손잡이 식이 바뀜(RE) → 새 식 기준으로 상세전술 재설계·재측정
+    elif lost:
         verdict = "재분석"  # 손잡이 값·코드가 0.6.5 에서 안 보임 → RE 로 새 손잡이 위치·값 확인
     elif sc or st["배율"]:
         verdict = "재측정(스탯배율)"  # 손잡이는 살아 있으나 입력 스탯이 stat×m/1000 로 바뀜
@@ -138,7 +157,8 @@ for t in tactics:
     else:
         verdict = "그대로"
     trows.append(dict(section=t["section"], name=t["name"], stage=t["stage"], knobs=len(ks), keep=st["유지"],
-                      moved=st["재배치"], unknown=st["판정불가"], scaled=st["배율"], lost=st["사라짐"], nofunc=st["함수없음"],
+                      moved=st["재배치"], unknown=st["판정불가"], scaled=st["배율"], logic=st["로직변경"], gone=st["소멸"],
+                      lost=st["사라짐"], nofunc=st["함수없음"],
                       edited_fns=" ".join(ed), stat_scaled_fns=" ".join(sc), verdict=verdict))
 with open(os.path.join(mig, "tactic_065.csv"), "w", encoding="utf-8-sig", newline="") as h:
     cw = csv.DictWriter(h, fieldnames=list(trows[0])); cw.writeheader(); cw.writerows(trows)
@@ -147,15 +167,17 @@ w("| 판정 | 수 | 뜻 |\n|---|---|---|")
 w(f"| 그대로 | {vc['그대로']} | 손잡이 지점 전부 명령 유지(원문·변위·레지스터만) + 근거 함수 수정 없음 → 0.6.4 측정 결과 그대로 |")
 w(f"| 확인 | {vc['확인']} | 손잡이 값은 신 함수에 살아 있음(재배치) 또는 근거 함수 수정 → 지점 표 재생성 후 회차에서 값 대조 |")
 w(f"| 재측정(스탯배율) | {vc['재측정(스탯배율)']} | 손잡이는 살아 있으나 근거 함수가 스탯을 stat×[+0x288]/1000 로 읽게 바뀜 → 입력 분포 재측정 |")
-w(f"| 재분석 | {vc['재분석']} | 손잡이 값이 신 함수에서 안 보이거나 함수 삭제 → RE 로 새 위치·값 확인 |")
-w("\n- 재배치 = 정렬이 못 맞췄지만 같은 니모닉·같은 즉치 명령이 신 함수에 있음(작은 값 0·1 은 우연 일치 가능 — 약한 증거).")
-w("- 판정은 후보 단위 최악값: 손잡이 1개라도 사라지면 재분석.")
-for vv in ("재분석", "재측정(스탯배율)", "확인"):
+w(f"| 재분석 | {vc['재분석']} | 손잡이 값이 신 함수에서 안 보이거나 함수 삭제(RE 미판정) → RE 로 새 위치·값 확인 |")
+w(f"| 로직변경 | {vc['로직변경']} | RE 확정: 손잡이 식이 바뀜 → 새 식 기준 재설계·재측정 |")
+w(f"| 소멸 | {vc['소멸']} | RE 확정: 손잡이 기능 삭제(콜 오해·무시 RNG 등) → 후보에서 그 손잡이 제외 |")
+w("\n- 재배치 = 정렬이 못 맞췄지만 같은 니모닉·같은 즉치 명령이 신 함수에 있음(작은 값 0·1 은 우연 일치 가능 — 약한 증거). RE 가 enum재번호·값동일로 판정한 지점도 여기 포함.")
+w("- 판정은 후보 단위 최악값: 소멸 > 로직변경 > 재분석 > 재측정(스탯배율) > 확인 > 그대로.")
+for vv in ("소멸", "로직변경", "재분석", "재측정(스탯배율)", "확인"):
     w(f"\n### {vv}\n")
-    w("| 구역 | 후보 | 단계 | 손잡이 | 유지 | 재배치 | 판정불가 | 배율 | 사라짐 | 함수없음 | 수정 함수 | 스탯배율 함수 |\n|---|---|---|---|---|---|---|---|---|---|---|---|")
+    w("| 구역 | 후보 | 단계 | 손잡이 | 유지 | 재배치 | 판정불가 | 배율 | 로직변경 | 소멸 | 사라짐 | 함수없음 | 수정 함수 | 스탯배율 함수 |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in trows:
         if r["verdict"] == vv:
-            w(f"| {r['section']} | {r['name']} | {r['stage']} | {r['knobs']} | {r['keep']} | {r['moved']} | {r['unknown']} | {r['scaled']} | {r['lost']} | {r['nofunc']} | {r['edited_fns']} | {r['stat_scaled_fns']} |")
+            w(f"| {r['section']} | {r['name']} | {r['stage']} | {r['knobs']} | {r['keep']} | {r['moved']} | {r['unknown']} | {r['scaled']} | {r['logic']} | {r['gone']} | {r['lost']} | {r['nofunc']} | {r['edited_fns']} | {r['stat_scaled_fns']} |")
 w("")
 
 # 경계확정 기록

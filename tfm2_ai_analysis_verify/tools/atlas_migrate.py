@@ -29,6 +29,30 @@ for r in fs:
     elif k in am["deleted"]:
         how[o] = "aidiff:DELETED"
 
+# 1-a) aidiff 짝 교차 교정: 같은 소스 파일 안에서 두 짝을 맞바꾸면 명령 분포가 훨씬 잘 맞는 경우(0.6.5 tower_discipline
+#      0xeee590↔0xeee820 가 서로 뒤바뀌어 있었다 — Location 이 둘 다 같은 행 묶음이라 생기는 오대응).
+def _sim(a, b):
+    x, y = a["mnem"], b["mnem"]
+    ks = set(x) | set(y)
+    inter = sum(min(x.get(k, 0), y.get(k, 0)) for k in ks); uni = sum(max(x.get(k, 0), y.get(k, 0)) for k in ks)
+    return inter / uni if uni else 0
+
+
+_byfile = collections.defaultdict(list)
+for k, (n, v, src) in am["map"].items():
+    o = int(k, 16)
+    if o in pair and o in PO and pair[o] in PN:
+        _byfile[src].append(o)
+for src, os_ in _byfile.items():
+    for i, a in enumerate(os_):
+        for b in os_[i + 1:]:
+            na, nb = pair[a], pair[b]
+            cur = _sim(PO[a], PN[na]) + _sim(PO[b], PN[nb])
+            alt = _sim(PO[a], PN[nb]) + _sim(PO[b], PN[na])
+            if alt > cur + 0.2:
+                pair[a], pair[b] = nb, na
+                how[a] = how[a] + "(교차교정)"; how[b] = how[b] + "(교차교정)"
+
 # 1-b) 파일 이름만 바뀐 함수: aidiff 는 소스 파일이 달라지면 사라짐+새로생김으로 낸다(0.6.5 chat.rs→signal.rs).
 #      사라진 함수와 크기가 같은 '새로 생긴 함수'가 하나뿐이면 짝(골격 해시는 경로 문자열 탓에 달라질 수 있다).
 _md = os.path.join(os.path.dirname(amap_p), "aidiff_064_065.md")
