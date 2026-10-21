@@ -1,0 +1,62 @@
+# 0.6.5 지점 표 정정 (2026-10-22, RE `mods_report/tfm2_ai_analysis_verify/RE/2026-10-22_065_미도달원인.md`)
+# 형식: 종류 인자… # 메모
+#   remap <0.6.4 rva> <0.6.5 rva>      대응표(coverage_065.csv) 정정 — 뒤따르는 블록 구조로 짝 확정
+#   add <0.6.5 rva> <메모>              지점 표 추가(gen_sites --extra)
+#   excl <0.6.5 rva> <분류> <메모>      한 지점 분모 제외
+#   exclr <시작> <끝> <분류> <메모>     범위(끝 포함) 분모 제외
+#   exclf <함수 rva> <분류> <메모>      함수 전체 분모 제외
+# 분류: dead(0.6.5 사장) · codegen(컴파일러 사본) · guard(bounds/패닉) · mode(다른 모드·디버그·데모 전용) · static(정적 도달 불가, 0.6.4 와 동일)
+
+# ① 대응표 오류
+remap 0xde1b9e 0xe615b7   # general_action_score 구 핫 사본(26,856회) ↔ [+0x68]==0xf→imul [+0x4a8] 구조
+remap 0xde1ba2 0xe615bb
+remap 0xde19eb 0xe612d9   # [+0x70]==0 형 — 표 밖이라 add
+remap 0xde19ef 0xe612dd
+remap 0xde1b3c 0xe61558   # [+0xb0]==1 형
+remap 0xff95b2 0xe035cb   # objective_hunt 후퇴 해제 HP 30% cmp r14,0x1e ↔ cmp r15,0x1e (사본 e03612·e0361c)
+remap 0xe47322 0xf2f725   # finish_race 결과 블록(je 3개 합류) — 표 밖이라 add
+remap 0xda6d94 0xdbb454   # dispatch_phase_recovery 구 핫 사본 ↔ 앞 문맥 mov byte [..-4],6 + 로그 호출
+
+add 0xe612d9 general_action_score cmp rdi,4 사본([+0x70]==0 형 · 구 de19eb)
+add 0xe612dd general_action_score mov eax,3 사본(구 de19ef)
+add 0xe0361c objective_hunt cmp r15,0x1e 사본(대상이 에픽 아님 · 구 ff95b2 계열)
+add 0xf2f725 finish_race mov sil,1 결과 블록(구 e47322)
+
+# ② 0.6.5 사장 — 핸들러 +0x45b2(구 「콜 오해/무시」 결과) 상수 0(writer 0xfc8c3c)
+exclr 0xfcc18b 0xfcc425 dead observe 사장 구간(+0x45b2 게이트 뒤)
+exclr 0xfcd6e0 0xfcd877 dead observe 텔레메트리 카운터(+0x45b2)
+excl 0xfcc16d dead observe 자기 로스터 슬롯 null 진입
+exclf 0xd57440 dead filter_transition_proposal — 유일 호출 0xfcc1d4 가 사장 분기 안
+excl 0xd48897 dead plan_handler.main 7번째 인자(+0x45b2) 참 분기
+excl 0xd48a11 dead plan_handler.main 7번째 인자(+0x45b2) 참 분기
+exclr 0xe65cc5 0xe65e16 dead interaction.main [rbp+0x51d] 상수 0(e65768)
+
+# ① 코드젠 사본(핫 사본은 표에 있고 실행됨)
+excl 0xdb896e codegen 64비트 div 느린 경로(핫 db89b6)
+excl 0xe61421 codegen 64비트 div 느린 경로
+excl 0xe61471 codegen 64비트 div 느린 경로
+excl 0xe6154a codegen 64비트 div 느린 경로
+excl 0xdab940 codegen 64비트 div 느린 경로
+excl 0xdab988 codegen 64비트 div 느린 경로
+excl 0xdabc0a codegen 64비트 div 느린 경로
+excl 0xdabc45 codegen 64비트 div 느린 경로
+excl 0xdabcb1 codegen 64비트 div 느린 경로
+excl 0xdabdbc codegen 64비트 div 느린 경로
+excl 0xfd4215 codegen 루프 증가 꼬리 복제(null 슬롯 continue · 핫 fd43c6)
+excl 0xdabdc5 codegen 꼬리 사본(핫 dabd06)
+
+# bounds/패닉 가드 (obj_contest.rs 586:5 / 959:21)
+exclr 0xdaba09 0xdaba56 guard 팀 인덱스 ≥2 → 패닉
+excl 0xdabf43 guard 패닉
+excl 0xdabf5e guard 패닉
+excl 0xdabf79 guard 패닉
+excl 0xdabf8d guard 패닉
+
+# ③ 다른 모드·디버그·데모 전용
+excl 0xf2f623 mode finish_race [ctx+0x38]∈{1,3} case(MOBA 시즌은 0)
+exclf 0xfbe270 mode decision_trace — ctx+0x3c trace 플래그(setter 없음)
+exclr 0xf0c672 0xf0cc35 mode 다음템short 빌드 없음 폴백 — 타이틀 데모 경기 전용
+
+# 0.6.4 와 동일한 정적 도달 불가
+exclf 0xdcb2c0 static epic.compare_nearby — 9번째 인자 {2,3}만(phase1 같은 틱 소거)
+exclf 0xe1b600 static 위협 후보 48 초과 폴백 전용

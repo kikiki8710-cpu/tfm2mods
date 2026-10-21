@@ -1,0 +1,5 @@
+# 0.6.5 대응 정정으로 추가하는 지점 (fix_065.py · RE 2026-10-22_065_미도달원인)
+0xe612d9 fix:general_action_score cmp rdi,4 사본([+0x70]==0 형 · 구 de19eb)
+0xe612dd fix:general_action_score mov eax,3 사본(구 de19ef)
+0xe0361c fix:objective_hunt cmp r15,0x1e 사본(대상이 에픽 아님 · 구 ff95b2 계열)
+0xf2f725 fix:finish_race mov sil,1 결과 블록(구 e47322)
