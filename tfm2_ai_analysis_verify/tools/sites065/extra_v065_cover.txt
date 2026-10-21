@@ -1,0 +1,6 @@
+# 0.6.4 에서 측정됐지만 0.6.5 지점 표에 없던 대응 지점 (coverage_065.py)
+0xd4d476 cover:한쪽만 (0.6.4 0xd4cb0b cmp rsi, rax)
+0xdc1112 cover:경계확정 (0.6.4 0xdada26 cmp qword ptr [r12 + 0x7e8], rax)
+0xe67457 cover:양쪽 (0.6.4 0xde738d test r9b, r9b)
+0xec32cd cover:도달 (0.6.4 0xe14091 mov qword ptr [rbp], 0xfffffffffffffffe)
+0xf7693c cover:한쪽만 (0.6.4 0xe8e05b test rax, rax)
