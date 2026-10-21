@@ -85,6 +85,8 @@ static GLOBAL_WINDOW: AtomicU64 = AtomicU64::new(0);
 static SCENE: AtomicUsize = AtomicUsize::new(usize::MAX);
 static MAIN_TID: AtomicU32 = AtomicU32::new(0); // v0.5.0 부터 분류에 쓰지 않음(0.6.4 AI는 메인 스레드 0회)
 static TOTAL_HITS: AtomicU64 = AtomicU64::new(0);
+/// v0.7.0: 지점 id → 이벤트 번호+1 (0 = 이벤트 아님). 이벤트 지점은 창 예산(cap)을 적용하지 않는다(시간순 기록이 끊기면 안 됨).
+static EV_OF: [std::sync::atomic::AtomicU16; MAX_SITES] = [const { std::sync::atomic::AtomicU16::new(0) }; MAX_SITES];
 static UNSUPPORTED_HITS: AtomicU64 = AtomicU64::new(0);
 
 #[link(name = "kernel32")]
@@ -166,13 +168,15 @@ pub(crate) unsafe fn on_breakpoint(ctx: *mut u8, address: usize) -> bool {
     let rip = std::ptr::read_unaligned(ctx.add(0xf8) as *const usize);
     if rip != address && address.checked_add(1) != Some(rip) { return false; }
     let site = &t[id];
-    record(ctx, site, st, address + site.len as usize);
+    let ev = EV_OF[id].load(Ordering::Relaxed);
+    if ev != 0 { crate::event_trace::capture(ctx, ev as usize - 1); }
+    record(ctx, site, st, address + site.len as usize, ev != 0);
     // CONTEXT.Rip 만 바꾼다. 레지스터/플래그/스택은 그대로 → 스텁에서 원래 명령이 실행된다.
     std::ptr::write_unaligned(ctx.add(0xf8) as *mut usize, stub);
     true
 }
 
-unsafe fn record(ctx: *const u8, site: &Site, st: &SiteState, next_ip: usize) {
+unsafe fn record(ctx: *const u8, site: &Site, st: &SiteState, next_ip: usize, exempt: bool) {
     TOTAL_HITS.fetch_add(1, Ordering::Relaxed);
     let scene = SCENE.load(Ordering::Relaxed);
     // 0 = InGame(4) 1 = GameTest(5) 2 = 그 외(타이틀 등)
@@ -181,7 +185,7 @@ unsafe fn record(ctx: *const u8, site: &Site, st: &SiteState, next_ip: usize) {
     cls.hits.fetch_add(1, Ordering::Relaxed);
     let n = st.window.fetch_add(1, Ordering::Relaxed).wrapping_add(1);
     let g = GLOBAL_WINDOW.fetch_add(1, Ordering::Relaxed).wrapping_add(1);
-    if n >= CAP.load(Ordering::Relaxed) || g >= GLOBAL_CAP.load(Ordering::Relaxed) {
+    if !exempt && (n >= CAP.load(Ordering::Relaxed) || g >= GLOBAL_CAP.load(Ordering::Relaxed)) {
         let _ = st.state.compare_exchange(S_ARMED, S_OVER, Ordering::AcqRel, Ordering::Relaxed);
     }
     let size = op_size(&site.lhs);
@@ -281,10 +285,14 @@ pub struct Config {
     pub focus_file: String,
     /// 덮어쓰기 최신 스냅샷(sites_<run>_latest.json) 간격. 종료 직전 유실 대비.
     pub latest_ms: u64,
+    /// v0.7.0: 이벤트 트레이서(events_generated.rs 의 지점에서 값 여러 개를 시간순 기록 → events_<run>.jsonl)
+    pub events: bool,
+    /// true 면 이벤트 지점만 건다(나머지 임계점 관측 생략 — 가볍게 판단 흐름만 따라갈 때)
+    pub events_only: bool,
 }
 impl Default for Config {
     fn default() -> Self {
-        Self { trace: false, functions: Vec::new(), window_ms: 10_000, cap_per_window: 64, global_cap_per_window: 300_000, snapshot_ms: 300_000, install_delay_frames: 360, focus: Vec::new(), focus_file: String::new(), latest_ms: 30_000 }
+        Self { trace: false, functions: Vec::new(), window_ms: 10_000, cap_per_window: 64, global_cap_per_window: 300_000, snapshot_ms: 300_000, install_delay_frames: 360, focus: Vec::new(), focus_file: String::new(), latest_ms: 30_000, events: false, events_only: false }
     }
 }
 pub fn parse(text: &str) -> Result<Config, String> {
@@ -314,6 +322,8 @@ pub fn parse(text: &str) -> Result<Config, String> {
             "install_delay_frames" => out.install_delay_frames = num(60, 36_000)?,
             "latest_ms" => out.latest_ms = num(5_000, 600_000)?,
             "focus_file" => out.focus_file = value.to_string(),
+            "events" => out.events = match value { "true" => true, "false" => false, _ => return Err("sites.cfg events 는 true/false".into()) },
+            "events_only" => out.events_only = match value { "true" => true, "false" => false, _ => return Err("sites.cfg events_only 는 true/false".into()) },
             _ => return Err(format!("sites.cfg 알 수 없는 설정: {key}")),
         }
     }
@@ -358,6 +368,8 @@ pub fn initialize(dir: PathBuf, identity: bool) -> Result<String, String> {
         else if !identity { "임계점 트레이서 거절: exe SHA 불일치".to_string() }
         else { format!("임계점 트레이서 준비: 지점 {} · run {run_id}", SITES.len()) };
     let func_of = crate::sites_generated::SITE_FUNCS.to_vec();
+    // 로그(sites_*.jsonl·status·latest)는 _log_root.txt 가 가리키는 폴더로. 설정(sites.cfg·focus_file)은 위에서 모드 폴더에서 읽었다.
+    let dir = crate::log_dir::log_dir_path(&dir);
     RT.set(Runtime { dir, run_id, config, identity, frames: AtomicU64::new(0), started: AtomicBool::new(false),
         stop: AtomicBool::new(false), func_of, status: Mutex::new(msg.clone()), started_at: OnceLock::new(), write_lock: Mutex::new(()) }).map_err(|_| "site_trace 중복 초기화".to_string())?;
     Ok(msg)
@@ -370,6 +382,7 @@ pub fn post_update(scene: usize) {
     let Some(rt) = RT.get() else { return; };
     if !rt.config.trace || !rt.identity { return; }
     let frame = rt.frames.fetch_add(1, Ordering::Relaxed) + 1;
+    crate::event_trace::FRAME.store(frame, Ordering::Relaxed);
     if frame < rt.config.install_delay_frames || rt.started.swap(true, Ordering::AcqRel) { return; }
     if platform::debugger_present() { set_status(rt, "임계점 트레이서 거절: 디버거 연결됨(INT3 충돌)".into()); return; }
     if let Err(e) = platform::init_safe_reader() { set_status(rt, format!("임계점 트레이서 거절: {e}")); return; }
@@ -386,6 +399,10 @@ pub fn shutdown() {
     if let Some(t0) = rt.started_at.get() {
         let _ = write_snapshot(rt, t0.elapsed().as_millis() as u64);
     }
+    if rt.config.events {
+        let mut d = crate::event_trace::Drain::new();
+        let _ = crate::event_trace::drain(&rt.dir, &rt.run_id, &mut d);
+    }
 }
 
 fn set_status(rt: &Runtime, text: String) { *rt.status.lock().unwrap_or_else(|e| e.into_inner()) = text; }
@@ -393,8 +410,18 @@ fn set_status(rt: &Runtime, text: String) { *rt.status.lock().unwrap_or_else(|e|
 /// 설치: 지점 바이트 확인 → 스텁 게시 → 표 게시 → INT3 무장. 이후 창(window)마다 예산 관리, 주기적 스냅샷.
 fn worker(rt: &'static Runtime) {
     let base = match platform::module_base() { Ok(b) => b, Err(e) => { set_status(rt, format!("module_base 실패: {e}")); return; } };
-    let selected: Vec<bool> = (0..SITES.len()).map(|i| (rt.config.functions.is_empty() || rt.config.functions.contains(&rt.func_of[i]))
-        && (rt.config.focus.is_empty() || rt.config.focus.binary_search(&(i as u32)).is_ok())).collect();
+    let mut ev_missing = 0usize;
+    if rt.config.events {
+        for (k, e) in crate::events_generated::EVENTS.iter().enumerate() {
+            match SITES.binary_search_by_key(&e.rva, |s| s.rva) {
+                Ok(id) => EV_OF[id].store(k as u16 + 1, Ordering::Release),
+                Err(_) => ev_missing += 1,
+            }
+        }
+    }
+    let selected: Vec<bool> = (0..SITES.len()).map(|i| if rt.config.events_only { EV_OF[i].load(Ordering::Relaxed) != 0 } else {
+        (rt.config.functions.is_empty() || rt.config.functions.contains(&rt.func_of[i]))
+        && (rt.config.focus.is_empty() || rt.config.focus.binary_search(&(i as u32)).is_ok()) || EV_OF[i].load(Ordering::Relaxed) != 0 }).collect();
     let mut refused: Vec<(usize, &'static str)> = Vec::new();
     // 1) 스텁 아레나를 모듈 근처(±2GB, RIP 상대 보정용)에 RW 로 잡고 채운 뒤 RX 로 바꾼다. 바이트가 표와 다르면 거절.
     let arena_len = SITES.len() * STUB_SLOT;
@@ -427,8 +454,10 @@ fn worker(rt: &'static Runtime) {
     // 2) 무장
     let want: Vec<usize> = (0..SITES.len()).filter(|&i| ok[i]).collect();
     let armed = swap_sites(base, &want, true);
-    let summary = format!("임계점 트레이서 무장: 선택 {} · 무장 {} · 거절 {} · run {}",
-        selected.iter().filter(|x| **x).count(), armed, refused.len(), rt.run_id);
+    let summary = format!("임계점 트레이서 무장: 선택 {} · 무장 {} · 거절 {} · 이벤트 {}{} · run {}",
+        selected.iter().filter(|x| **x).count(), armed, refused.len(),
+        if rt.config.events { crate::events_generated::EVENTS.len() } else { 0 },
+        if ev_missing > 0 { format!("(지점 없음 {ev_missing})") } else { String::new() }, rt.run_id);
     set_status(rt, summary.clone());
     write_status(rt, &refused, &summary, arena_addr);
     // 3) 루프
@@ -436,9 +465,11 @@ fn worker(rt: &'static Runtime) {
     let mut next_window = rt.config.window_ms;
     let mut next_snap = rt.config.snapshot_ms;
     let mut next_latest = rt.config.latest_ms;
+    let mut drain_state = crate::event_trace::Drain::new();
     loop {
         std::thread::sleep(std::time::Duration::from_millis(20));
         let stopping = rt.stop.load(Ordering::Acquire);
+        if rt.config.events { let _ = crate::event_trace::drain(&rt.dir, &rt.run_id, &mut drain_state); }
         let over: Vec<usize> = (0..SITES.len()).filter(|&i| STATE[i].state.load(Ordering::Acquire) == S_OVER).collect();
         if !over.is_empty() { swap_sites(base, &over, false); }
         let now = start.elapsed().as_millis() as u64;
@@ -525,9 +556,9 @@ fn build_snapshot(rt: &Runtime, now_ms: u64) -> String {
     for st in STATE.iter().take(SITES.len()) {
         match st.state.load(Ordering::Relaxed) { S_ARMED | S_OVER => armed += 1, S_REST => rest += 1, S_REFUSED => refused += 1, _ => {} }
     }
-    line.push_str(&format!("{{\"run_id\":\"{}\",\"t_ms\":{},\"frames\":{},\"scene\":{},\"total_hits\":{},\"armed\":{},\"resting\":{},\"refused\":{},\"sites\":[",
+    line.push_str(&format!("{{\"run_id\":\"{}\",\"t_ms\":{},\"frames\":{},\"scene\":{},\"total_hits\":{},\"armed\":{},\"resting\":{},\"refused\":{},\"events\":{},\"sites\":[",
         rt.run_id, now_ms, rt.frames.load(Ordering::Relaxed), SCENE.load(Ordering::Relaxed) as i64,
-        TOTAL_HITS.load(Ordering::Relaxed), armed, rest, refused));
+        TOTAL_HITS.load(Ordering::Relaxed), armed, rest, refused, crate::event_trace::stats_json()));
     let mut first = true;
     for (i, st) in STATE.iter().enumerate().take(SITES.len()) {
         let any = st.cls.iter().any(|c| c.hits.load(Ordering::Relaxed) != 0);

@@ -10,18 +10,18 @@
    "NONNUMERIC_CLAIM": 1006,
    "PARTIAL_VALUES_AT_SITE": 10693
   },
-  "trace_points": 40511,
+  "trace_points": 40517,
   "trace_kinds": {
-   "VALUE": 27531,
-   "TEST": 706,
-   "CMP_IMM": 11552,
-   "CMP_DYN": 721,
+   "VALUE": 27534,
+   "TEST": 707,
+   "CMP_IMM": 11553,
+   "CMP_DYN": 722,
    "UNSUPPORTED_OPERAND": 1
   },
-  "traceable": 40510,
+  "traceable": 40516,
   "riprel": 154,
   "extra": {
-   "추가": 760,
+   "추가": 766,
    "기존 지점": 240,
    "걸 수 없음": 47
   }

@@ -25,6 +25,9 @@ mod platform;
 mod sha256;
 mod site_trace;
 mod sites_generated;
+mod event_trace;
+mod events_generated;
+#[path="../../common/log_dir.rs"] mod log_dir;
 
 use mod_api_stable::{declare_stable_mod,LogLevel,StableClient,StableExtension,StableHost,StableMod};
 use std::panic::{catch_unwind,AssertUnwindSafe};

@@ -67,7 +67,8 @@ struct Event {
     capture_label:String,scene_code:usize,
 }
 struct State {
-    dir:PathBuf, run_id:String, config:Config, identity_verified:bool, actual_sha256:String,
+    // dir = 로그 출력(_log_root.txt 있으면 그쪽), cfg_dir = 모드 폴더(capturectl.cfg 등 설정 읽기)
+    dir:PathBuf, cfg_dir:PathBuf, run_id:String, config:Config, identity_verified:bool, actual_sha256:String,
     stats:[Stats;MODEL_COUNT], probe_strides:[u64;MODEL_COUNT], install:Mutex<Vec<InstallStatus>>,
     queue:SyncSender<Event>, receiver:Mutex<Receiver<Event>>,writer:Mutex<BufWriter<File>>,summary_journal:Mutex<BufWriter<File>>,flush_lock:Mutex<()>,
     frames:AtomicU64, sequence:AtomicU64, install_tried:AtomicUsize, io_errors:AtomicU64,
@@ -393,6 +394,7 @@ pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verif
     }
     let probe_strides=resolve_probe_strides(&config)?;
     validate_probe_selection(&config)?;
+    let cfg_dir=dir.clone();let dir=crate::log_dir::log_dir_path(&cfg_dir);
     std::fs::create_dir_all(&dir).map_err(|e|e.to_string())?;
     let stamp=std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_err(|e|e.to_string())?.as_nanos();
     let run_id=format!("{}_{stamp}",std::process::id());
@@ -405,7 +407,7 @@ pub fn initialize(dir:PathBuf, config:Config,actual_sha256:String,identity_verif
     let journal=OpenOptions::new().create_new(true).append(true).open(journal_output).map_err(|e|e.to_string())?;
     let capacity=config.queue_capacity;
     let (queue,receiver)=sync_channel(capacity);
-    STATE.set(State{dir,run_id,config,identity_verified,actual_sha256,
+    STATE.set(State{dir,cfg_dir,run_id,config,identity_verified,actual_sha256,
         stats:std::array::from_fn(|_|Stats::default()),probe_strides,install:Mutex::new(Vec::new()),
         queue,receiver:Mutex::new(receiver),writer:Mutex::new(BufWriter::new(f)),summary_journal:Mutex::new(BufWriter::new(journal)),flush_lock:Mutex::new(()),
         frames:AtomicU64::new(0),sequence:AtomicU64::new(0),install_tried:AtomicUsize::new(0),io_errors:AtomicU64::new(0),
@@ -499,7 +501,7 @@ fn parse_control(text:&str)->Result<Control<'_>,&'static str>{
 fn process_control() {
     let Some(s)=STATE.get() else{return;};
     // metadata만 믿지 않고 실제 읽기도 제한하여 동시 파일 확장/대형 입력을 제한한다.
-    let file=match File::open(s.dir.join("capturectl.cfg")){
+    let file=match File::open(s.cfg_dir.join("capturectl.cfg")){
         Ok(f)=>f,Err(e) if e.kind()==std::io::ErrorKind::NotFound=>return,
         Err(_)=>{*s.control_error.lock().unwrap_or_else(|e|e.into_inner())="control 파일 읽기 실패".into();return;},
     };
