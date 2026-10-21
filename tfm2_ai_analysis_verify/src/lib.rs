@@ -58,7 +58,8 @@ fn setup()->Result<(),String> {
     let digest=sha256::digest(&bytes);drop(bytes);
     let identity=digest==generated::BASELINE_EXE_SHA256;
     // 임계점 트레이서는 verify.cfg 와 별개(sites.cfg). 실패해도 기존 검수 경로는 계속한다.
-    if let Err(e)=site_trace::initialize(dir.clone(),identity){
+    // v0.6.0: 트레이서는 자기 지점 표의 exe(sites_generated::EXE_SHA256)와 대조한다 — 검수 엔진은 0.6.4 기준 그대로라 0.6.5 에선 스스로 무장 해제.
+    if let Err(e)=site_trace::initialize(dir.clone(),digest==sites_generated::EXE_SHA256){
         return Err(format!("sites.cfg 거절: {e}"));
     }
     if configuration.armed&&identity {platform::init_safe_reader().map_err(str::to_string)?;}

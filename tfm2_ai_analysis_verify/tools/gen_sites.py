@@ -211,11 +211,13 @@ def main():
     ap.add_argument("--exe", default=DEF_EXE)
     ap.add_argument("--select", default="all", choices=["semantic", "threshold", "all"])
     ap.add_argument("--extra", default=None, help="추가 지점 파일(줄마다 'RVA 메모'). 분기(jcc)면 직전 비교 명령을 건다 (v0.5.3)")
+    # v0.6.0: 0.6.5 대응. 아틀라스는 tools/atlas_to_065.py 가 0.6.5 주소로 옮긴 사본(tools/atlas065)을 준다.
+    ap.add_argument("--sha", default=BASELINE_SHA, help="기대 exe sha256(모드의 트레이서 identity 상수로도 들어간다)")
     args = ap.parse_args()
 
     img = Image(args.exe)
-    if img.sha != BASELINE_SHA:
-        sys.exit(f"exe SHA 불일치: {img.sha} (기대 {BASELINE_SHA})")
+    if img.sha != args.sha:
+        sys.exit(f"exe SHA 불일치: {img.sha} (기대 {args.sha})")
 
     funcs = []
     for r in csv.DictReader(open(os.path.join(args.atlas, "functions.csv"), encoding="utf-8-sig")):
@@ -459,6 +461,8 @@ def write_rust(sites, path, sha):
     lines = ["// 자동 생성: tools/gen_sites.py — 손으로 고치지 말 것.",
              f"// exe sha256 {sha}",
              "use crate::site_trace::{Site,Kind,Op};",
+             "/// 이 지점 표가 맞는 exe (트레이서 identity — 검수 엔진의 BASELINE_EXE_SHA256 과 별개)",
+             f"pub const EXE_SHA256:&str=\"{sha}\";",
              f"pub const SITE_COUNT:usize={len(sites)};",
              "pub static SITES:[Site;SITE_COUNT]=["]
     for s in sites:
