@@ -28,17 +28,33 @@ CRASH_MARK = ('=== CRASH', 'CRASH (', 'panic', 'STATUS_', 'byte mismatch',
               'mismatch', 'SKIP', 'BLOCK', '실패', '불일치', '비활성')
 
 
+def log_root():
+    """2026-10-21: 모드 로그는 mods\\_log_root.txt 첫 줄 폴더(\\<mod_id>)로 나온다(common/log_dir.rs). 없으면 None."""
+    try:
+        r = open(os.path.join(MODS_DIR, '_log_root.txt'), encoding='utf-8-sig').readline().strip()
+    except OSError:
+        return None
+    return r if r and os.path.isdir(r) else None
+
+
+# 비밀값 파일은 스냅샷에 담지 않는다(2026-10-21: Match_Info_Exporter\api_keys.txt 가 after.json 에 평문으로 들어갔던 사고)
+SECRET = ('key', 'secret', 'token', 'password', 'credential')
+
+
 def scan():
-    """mods\\ 와 워크샵의 모든 .txt 로그를 수집."""
+    """mods\\ · 로그 루트(_log_root.txt) · 워크샵의 .txt/.log 로그를 수집."""
     out = {}
-    roots = [MODS_DIR] + ([WS] if os.path.isdir(WS) else [])
+    lr = log_root()
+    roots = [MODS_DIR] + ([lr] if lr else []) + ([WS] if os.path.isdir(WS) else [])
     for root in roots:
         for d in sorted(os.listdir(root)):
             base = os.path.join(root, d)
             if not os.path.isdir(base):
                 continue
             for f in sorted(os.listdir(base)):
-                if not f.endswith('.txt') or '.bak' in f or f.startswith('_old'):
+                if not f.endswith(('.txt', '.log')) or '.bak' in f or f.startswith('_old'):
+                    continue
+                if any(s in f.lower() for s in SECRET):
                     continue
                 p = os.path.join(base, f)
                 try:
