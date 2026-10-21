@@ -3,7 +3,8 @@
 입력: tactic_coverage.json(후보↔손잡이 지점), site_report sites.json, gate_analysis gates.json, function_categories.csv
 손잡이 지점(즉치 = 손잡이 값 ±1, 거리는 제곱 포함)을 상태별로 나눈다.
   ok    = 경계확정·양쪽·(값 기록) 도달
-  dbg   = 미도달인데 막는 분기가 ctx 디버그 플래그(+0x39/+0x3b/+0x3c)·싱글라인 → 로그용 사본, 관측 불필요
+  dbg   = 미도달인데 막는 분기가 ctx 디버그 플래그(+0x39/+0x3b/+0x3c)·싱글라인·-1 타이머 센티널 → 로그·진단용 사본, 관측 불필요
+  div64 = 64비트 나눗셈 느린 경로 사본(값이 2^32 미만이라 안 돎) → 32비트 빠른 경로 사본이 실측됨, 관측 불필요
   one   = 비교가 한쪽만 (손잡이 문턱 반대편이 안 나옴)
   deep  = 미도달, 이 지점 쪽 분기는 실행됐는데 더 아래(지점 없는 블록)에서 막힘
   untr  = 미도달, 막는 분기가 미계측(추적 안 됨·CFG 밖)
@@ -31,6 +32,29 @@ def imm_ok(k):
     return any(abs(abs(int(s["T"])) - v) <= 1 for v in k[4])
 
 
+import pefile, capstone  # noqa: E402
+_pe = pefile.PE(r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\TeamfightManager2.exe", fast_load=True)
+_md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
+
+
+def div64_copy(rva):
+    """64비트 나눗셈 느린 경로 사본인가: 앞 0x30 바이트 안에 `shr rdx, 0x20` → `je` → `div r64` 가 있고 그 뒤에 이 명령.
+    (Rust 가 u64 나눗셈을 32비트 빠른 경로/64비트 느린 경로로 복제한다. 체력×100 등은 2^32 미만이라 느린 경로는 안 돈다.)"""
+    for back in range(0x30, 0x8, -1):
+        ins = list(_md.disasm(_pe.get_data(rva - back, back + 8), rva - back))
+        if not any(i.address == rva for i in ins):
+            continue
+        seq = [i for i in ins if i.address < rva]
+        m = [i.mnemonic + " " + i.op_str for i in seq]
+        try:
+            a = next(k for k, x in enumerate(m) if x.startswith("shr rdx, 0x20"))
+        except StopIteration:
+            continue
+        if any(x.startswith("je ") for x in m[a:]) and any(x.startswith("div r") for x in m[a:]):
+            return True
+    return False
+
+
 def state(k):
     s = S[k[1]]
     if s["stage"] in ("경계확정", "양쪽", "도달"):
@@ -43,14 +67,37 @@ def state(k):
     g = gate.get(r.get("gate")) if r.get("gate") else None
     if g and (DEBUG.search(g["insn"] or "") or g["gate_site"] in ("0xd3ffb0", "0xdc5a4b")):
         return "dbg"
+    if g and g.get("observed") == [4294967295, 4294967295] and "-1" in (g["insn"] or ""):
+        return "dbg"  # -1 타이머 센티널(진단 플래그 0x5138f3d 미기동)
+    if div64_copy(int(k[1], 16)):
+        return "div64"
     w = r["why"]
     return "gate1" if w.startswith("한쪽만") else "deep" if w.startswith("더 아래") else "untr" if w.startswith(("추적", "CFG")) else "dbg" if w.startswith("panic") else "fn"
 
+
+# v0.5.4 M1: RE 로 직접 지정한 손잡이 지점(extra_v054_m1.txt) — 후보 짧은 이름 → 기획 후보명
+M1NAME = {"오브젝트전라인압박": "오브젝트 전 라인 압박 우선", "보스사냥끈기": "보스 사냥 끈기", "기지방어출동": "기지 방어 출동 민감도",
+          "킬욕심": "킬 욕심", "웨이브근처버팀": "웨이브 근처 버팀", "위치위험회피": "위치 위험 회피", "고립회피": "고립 회피",
+          "고립회피(짝)": "고립 회피", "민라인이어밀기": "역할: 민 라인 이어 밀기", "아군위치": "조건: 아군 위치", "포탑상태": "조건: 포탑 상태",
+          "정글동선": "정글 동선 규칙", "갱라인우선": "갱 라인 우선", "갱지점깊이": "갱 지점 깊이"}
+M1 = collections.defaultdict(list)
+_m1p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sites", "extra_v054_m1.txt")
+if os.path.exists(_m1p):
+    _cat = {int(x["rva"], 16) for x in S.values()}
+    for _l in open(_m1p, encoding="utf-8"):
+        _l = _l.split("#")[0].strip()
+        if _l:
+            _r, _n = int(_l.split()[0], 16), _l.split()[1]
+            _s = _r if _r in _cat else max((x for x in _cat if _r - 15 <= x < _r), default=None)
+            if _s is not None and _n in M1NAME:
+                M1[M1NAME[_n]].append(hex(_s))
 
 METHOD = {"one": "M3 상황 만들기", "deep": "M2 블록 입구 계측", "untr": "M2 블록 입구 계측", "gate1": "M4 막는 조건 RE", "fn": "M4 막는 조건 RE"}
 plan = []
 for x in rows:
     ks = [k for k in x["knob"] if imm_ok(k)]
+    if x["name"] in M1:  # M1 손잡이 지점(값 지정 없음 → 상태만)
+        ks = ks + [(S[r]["function"], r, S[r]["insn"], S[r]["stage"], []) for r in M1[x["name"]] if r in S]
     st = collections.Counter(state(k) for k in ks)
     bad = [k for k in ks if state(k) in METHOD]
     if ks and not bad:
