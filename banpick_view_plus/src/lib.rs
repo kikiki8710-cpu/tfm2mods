@@ -25,6 +25,8 @@ mod showcase; // ★09-20: tfm2_banpick_illust 쇼케이스(밴/픽 연출 카�
 
 const MOD_ID: &str = "banpick_view_plus";
 const RADAR_DUMP: bool = false; // ★10-07 레이더 실측 덤프(mods\banpick_view_plus\radar_dump.txt) — 릴리스 false
+/// 씬 phase 가 이 값 이상 = 양쪽 스왑 확정 후(8~9 = 전략 진입 · RE 10-15 `+0x3a8` · debug.log 10-14 실측 5→6→7→8→9). 스왑 결과 공개 기준.
+const PHASE_REVEAL: u32 = draft_scene::PHASE_SWAP + 1;
 const DBG: bool = false; // 09-23 확정 배포(진단 시 true — rects/layout/swap/카드덤프 로그)
 const ROOT: &str = "main";
 const DISC: &str = "main.header.bp_settings";
@@ -779,6 +781,19 @@ impl StableExtension for Ext {
                 if f % 600 == 0 { log(&format!("flagged={:?} done={:?} slots={:?}", flagged, done_now, st.slot_champ)); }
             }
             *SLOT_CHAMP.lock().unwrap_or_else(|e| e.into_inner()) = Some(slots.clone());
+            // ── 스왑 확정 전 상대 진영 가림(★0.6.1 09-23 요청 · 아래 「픽 슬롯 스플래시」 주석)
+            //   ★10-21(Flover "스왑 완료 후에도 계속 ? → 전술창"): main.swap 은 **phase 8~9(양쪽 확정 후)에도 계속 떠 있다**(debug.log 10-14: phase 7→8→9 동안
+            //     swap 가시 · 상대 raw 순서는 7→8 사이에 바뀜) ⟹ 가시만 보면 결과를 못 보고 전술창으로 넘어간다. phase < PHASE_REVEAL 일 때만 가린다.
+            //   slots 자체를 덮는다 — 호버 배경도 slots 를 읽어서, 덮지 않으면 가린 슬롯에 호버 시 상대 실제 배치가 배경으로 샌다.
+            let hide_side: Option<bool> = if ctx.ui_visible("main.swap").unwrap_or(false) {
+                draft_scene::read().filter(|r| r.phase < PHASE_REVEAL).and_then(|r| {
+                    let me = ctx.player_team_id()? as u64;
+                    if me == r.t1_id { Some(false) } else if me == r.t2_id { Some(true) } else { None }  // 숨길 쪽 = 상대
+                })
+            } else { None };
+            if let Some(hs) = hide_side {
+                for ((b, _), v) in slots.iter_mut() { if *b == hs { *v = if hs { "question_blue".into() } else { "question_red".into() }; } }
+            }
             // ── 호버(커서 → 카드/슬롯)
             let cur = cursor_ui();
             let mut hov: Option<(String, (f32, f32, f32, f32))> = None;
@@ -830,12 +845,7 @@ impl StableExtension for Ext {
             //   ⚠구현 1차(09-22)는 `sent!=0`(내 SwapDone, 씬 0x466)을 걸었는데 ①의미가 요청과 다르고
             //     ②실측상 확정을 눌러도 계속 0 이었다(0.6.1 로그: phase 5→7 정상, sent 내내 0) ⟹ 조건에서 제거.
             //   내 진영 = player_team_id ↔ t1_id(블루)/t2_id(레드). 못 가리면 **아무것도 안 한다**(폴백).
-            let hide_side: Option<bool> = if ctx.ui_visible("main.swap").unwrap_or(false) {
-                draft_scene::read().and_then(|r| {
-                    let me = ctx.player_team_id()? as u64;
-                    if me == r.t1_id { Some(false) } else if me == r.t2_id { Some(true) } else { None }  // 숨길 쪽 = 상대
-                })
-            } else { None };
+            //   hide_side 계산·slots 덮기 = 위 호버 앞(10-21 이동 · 확정 후 공개).
             if DBG && !CARD_DUMPED.swap(true, Ordering::Relaxed) {
                 for slot in ["main.blue_picks.pick_slot_0", "main.blue_picks.pick_slot_1"] {
                     for b in ["done", "in_turn", "wait"] {
@@ -883,14 +893,17 @@ impl StableExtension for Ext {
             for ((is_blue, n), r) in &slot_rects {
                 let team = if *is_blue { "blue" } else { "red" };
                 let slot = format!("main.{}_picks.pick_slot_{}", team, n);
-                let mut id = slots.get(&(*is_blue, *n)).cloned().unwrap_or_default();
-                if hide_side == Some(*is_blue) && !id.is_empty() {
-                    id = if *is_blue { "question_blue".into() } else { "question_red".into() };  // 상대 확정 전 = 물음표로 되돌림
-                }
+                let id = slots.get(&(*is_blue, *n)).cloned().unwrap_or_default();  // 가린 진영은 위에서 이미 question_*
                 let key = chosen_key(&il, &id);
                 let sp = format!("{}.done.bp_splash", slot);
                 // ★09-17(유저 제보): 레드 대기 슬롯의 "?" 플레이스홀더까지 좌우반전되던 것 → 챔피언 일러만 반전, question_* 은 반전 안 함.
-                match &key { Some(k) => { let (a, fl) = art_for(&il, k, *is_blue); want_splash.insert(sp.clone(), format!("{}|{}", a, fl && !id.starts_with("question"))); } None => {} }
+                match &key {
+                    Some(k) => { let (a, fl) = art_for(&il, k, *is_blue); want_splash.insert(sp.clone(), format!("{}|{}", a, fl && !id.starts_with("question"))); }
+                    // ★10-21(해외 제보 영상): 팩에 question_* 그림이 없으면 스플래시를 끄게 돼 **스왑 진입 직후 일러가 바닐라 도트로 돌아갔다**
+                    //   (바닐라 "?" 는 ~2.5초 뒤에야 뜬다). 가리는 중에는 모드 기본 "?"(asset/question_blue|red.png)로 덮는다.
+                    None if hide_side == Some(*is_blue) => { want_splash.insert(sp.clone(), format!("asset/{}/asset/{}|false", MOD_ID, id)); }
+                    None => {}
+                }
                 let hovered = cur.map(|p| inside(*r, p)).unwrap_or(false);
                 let gi = if *is_blue { *n } else { 5 + *n };
                 if hovered { grace[gi] = f + 10; }
