@@ -1,0 +1,1375 @@
+{
+ "game_version": "0.6.5",
+ "exe_sha256": "DAF040DB8A3A3AE136F3EF8CE704E2718F049656B6B5E4872EACB599811D30B5",
+ "source": "tfm2_tactics_verify targets 0.6.5 + gen_sites KNOBS",
+ "knobs": [
+  {
+   "id": "combat_retreat_hp_35",
+   "tactic": [
+    "전투 중 후퇴 — HP 35% 이하에서만 후퇴 점수 계산"
+   ],
+   "func_rva_note": [
+    "0xdda090"
+   ],
+   "default": 35,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "combat_retreat_hp_35",
+     "key": "0xddaf46",
+     "rva": "0xe5b546",
+     "asm": "cmp rax, 0x23",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary(후퇴 카테고리)",
+     "operand_meaning": "자기 HP% floor (category0=후퇴. 32/64 나눗셈 경로가 0xddaf31 로 합류)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "76 37",
+      "jcc": "jbe 0xddaf83",
+      "taken_means": "HP% <= 35 → 0xddaf83 후퇴 점수 계산 진행",
+      "not_taken_means": "HP% > 35 → 0xfca3e0 flags&0x10001 !=0 이면 점수 -99999(0xfffe7961) 로 후퇴 거부, 0 이면 진행"
+     }
+    },
+    {
+     "entry": "combat_retreat_hp_35",
+     "key": "0xdda2cf",
+     "rva": "0xe5a8cf",
+     "asm": "imul rcx, rcx, 0x23",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "copy(공용 gate, 교차곱 경계 — floor 경계와 35.x% 에서 다름)",
+     "operand_meaning": "rcx = max(maxHP,1)×35 (교차곱). 다음 0xdda2d3 cmp rax,rcx 에서 rax = HP×100",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 86 80 02 00 00",
+      "jcc": "jbe 0xdda55c",
+      "taken_means": "HP×100 <= maxHP×35 → 0xdda55c gate([rbp+0x1b0]) 거짓",
+      "not_taken_means": "초과 → gate = (0xfca3e0 flags&0x10001)!=0"
+     }
+    }
+   ]
+  },
+  {
+   "id": "line_chase_retreat_hp_45",
+   "tactic": [
+    "라인·추적 중 후퇴 — HP 45% 이하 바로 후퇴"
+   ],
+   "func_rva_note": [
+    "0xf7cde0"
+   ],
+   "default": 45,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "line_chase_retreat_hp_45",
+     "key": "0xde789d",
+     "rva": "0xf7ce6d",
+     "asm": "cmp rax, 0x2d",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary(64비트 div 경로)",
+     "operand_meaning": "자기 HP% ([r12+0x668]*100/[r12+0x620])",
+     "branch": {
+      "rva": "0xf7ce71",
+      "bytes_hex": "77 19",
+      "jcc": "ja 0xf7ce8c",
+      "taken_means": "HP% > 45 → 0xf7ce8c (일반 경로)",
+      "not_taken_means": "HP% <= 45 → 0xf7d019 바로 후퇴 경로"
+     }
+    },
+    {
+     "entry": "line_chase_retreat_hp_45",
+     "key": "0xde78b2",
+     "rva": "0xf7ce82",
+     "asm": "cmp rax, 0x2d",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "copy(32비트 div 경로)",
+     "operand_meaning": "자기 HP% (같은 판정 사본)",
+     "branch": {
+      "rva": "0xf7ce86",
+      "bytes_hex": "0f 86 8d 01 00 00",
+      "jcc": "jbe 0xf7d019",
+      "taken_means": "HP% <= 45 → 0xf7d019 바로 후퇴",
+      "not_taken_means": "HP% > 45 → 일반 경로"
+     }
+    }
+   ]
+  },
+  {
+   "id": "line_chase_target_guard_hp_65",
+   "tactic": [
+    "라인·추적 중 후퇴 — HP 65% 이하면 현재 표적 소비 가드"
+   ],
+   "func_rva_note": [
+    "0xf7cde0"
+   ],
+   "default": 65,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "line_chase_target_guard_hp_65",
+     "key": "0xde7cd4",
+     "rva": "0xf7d2a4",
+     "asm": "cmp qword ptr [rsp + 0x30], 0x41",
+     "imm_at": 5,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "자기 HP% (스택 [rsp+0x30] 에 저장된 위 HP%)",
+     "branch": {
+      "rva": "0xf7d2aa",
+      "bytes_hex": "77 57",
+      "jcc": "ja 0xf7d303",
+      "taken_means": "HP% > 65 → 0xf7d303 (현재 표적 소비 가드 통과 안 함)",
+      "not_taken_means": "HP% <= 65 → 현재 표적 소비 가드 경로"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lane_retreat_final_50",
+   "tactic": [
+    "라인 후퇴(passive_line) — 최종 점수 문턱 50",
+    "라인 후퇴(single_line) — 최종 점수 문턱 50"
+   ],
+   "func_rva_note": [
+    "0xf06730",
+    "0xfc42d0"
+   ],
+   "default": 50,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "lane_retreat_final_score_50_single",
+     "key": "0xfc57bc",
+     "rva": "0xf0a51e",
+     "asm": "cmp rdi, 0x32",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "signed 후퇴 점수 = 기본점수(60/70/80) + 플랜 가산(100/70/60/30/5) − 감점(−5/−10)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 9d c3",
+      "jcc": "setge bl",
+      "taken_means": "setge bl: 점수 >= 50 → bl=1 → self+0x18 = 후퇴 true (0xfc58a1)",
+      "not_taken_means": "bl=0"
+     }
+    },
+    {
+     "entry": "lane_retreat_final_score_50_passive",
+     "key": "0xf07f93",
+     "rva": "0xf9603d",
+     "asm": "cmp r13, 0x32",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "signed 후퇴 점수 = 기본점수(60/70/80) + 플랜 가산 − 감점",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 9d c0",
+      "jcc": "setge al",
+      "taken_means": "setge al: 점수 >= 50 → al=1 → (al 보존) 0xf080cd mov [r13+0x110],al = 후퇴 true",
+      "not_taken_means": "al=0"
+     }
+    }
+   ]
+  },
+  {
+   "id": "crowd_retreat_weight_plus2_300",
+   "tactic": [
+    "수적 열세·우세 공격성 — 적이 2명 이상 많을 때 후퇴 배율 300"
+   ],
+   "func_rva_note": [
+    "0xe5a690"
+   ],
+   "default": 300,
+   "min": 0,
+   "max": 100000,
+   "sites": [
+    {
+     "entry": "crowd_retreat_weight_plus2_300",
+     "key": "0xddc37e",
+     "rva": "0xe5c97e",
+     "asm": "mov ecx, 0x12c",
+     "imm_at": 1,
+     "width": 4,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "후퇴 gain 배율(적−아군 차 >= +2 일 때 쓰는 값). 다음 cmp rax,1 / jg 0xe5c9a2 가 차이 >1 이면 이 300 을 그대로 씀",
+     "branch": {
+      "rva": "0xe5c987",
+      "bytes_hex": "7f 19",
+      "jcc": "jg 0xe5c9a2",
+      "taken_means": "(다음 jg) 차이 > 1 → 배율 300 채택",
+      "not_taken_means": "차이 <= 1 → 40(0xe5c98c) 또는 표 0x3b1e2b8 [75,100,200]"
+     }
+    }
+   ]
+  },
+  {
+   "id": "combat_avoid_hp_41",
+   "tactic": [
+    "교전 회피 성향 — 인원 무시 후퇴 HP 41%(미만이면 인원 조건 생략)"
+   ],
+   "func_rva_note": [
+    "0xdd1fb0"
+   ],
+   "default": 41,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "combat_avoid_hp_41",
+     "key": "0xdd56c3",
+     "rva": "0xe52923",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "rax = [rbp+0x318] = 자기 HP%",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "72 0d",
+      "jcc": "jb 0xdd56d6",
+      "taken_means": "HP% < 41 → 0xdd56d6 인원 조건 없이 중간지점(300000) 후퇴 검토",
+      "not_taken_means": ">= 41 → 0xdd56c9 적−아군 >= 2 검사"
+     }
+    }
+   ]
+  },
+  {
+   "id": "combat_avoid_count_margin_2",
+   "tactic": [
+    "교전 회피 성향 — HP 41% 이상이면 적 >= 아군 + 2 일 때만 후퇴"
+   ],
+   "func_rva_note": [
+    "0xdd1fb0"
+   ],
+   "default": 2,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "combat_avoid_count_margin_2",
+     "key": "0xdd56c9",
+     "rva": "0xe52929",
+     "asm": "add rdx, 2",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "여유 +2",
+     "operand_meaning": "rdx = 150000 이내 아군 수(동일 ID 제외) → +2",
+     "branch": null
+    }
+   ]
+  },
+  {
+   "id": "self_risk_ignore_hp_35",
+   "tactic": [
+    "자기 위험 무시 — HP×100 > maxHP×35 일 때만 억제 가능"
+   ],
+   "func_rva_note": [
+    "0xde3fa0"
+   ],
+   "default": 35,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "self_risk_ignore_hp_35",
+     "key": "0xde40c5",
+     "rva": "0xe63da9",
+     "asm": "imul rdx, rcx, 0x23",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary(계수)",
+     "operand_meaning": "rdx = max(maxHP(r15+0x620),1)×35 (교차곱). r15 = 자기 champion 엔티티",
+     "branch": null
+    }
+   ]
+  },
+  {
+   "id": "jg_gank_hp_start_50",
+   "tactic": [
+    "갱 개시 — 갱 팔 진입·후보 HP 50%(이상 필요)"
+   ],
+   "func_rva_note": [
+    "0xee42c0"
+   ],
+   "default": 50,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "jg_gank_hp_start_50",
+     "key": "0xee44d5",
+     "rva": "0x1009475",
+     "asm": "cmp qword ptr [rbp + 0x138], 0x32",
+     "imm_at": 7,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary(갱 팔 진입 게이트)",
+     "operand_meaning": "자기 HP% (0xee44a2 에서 저장. 엔티티 = [rbp+0x88][[rbp+0x80]] = Cache+0x238+team×0x28 [Player+0x890] = 자기 슬롯 재조회)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "72 35",
+      "jcc": "jb 0xee4514",
+      "taken_means": "HP% < 50 → 0xee4514: 출력 -1 후 기본 위임(EE60A0). 갱 팔(이력/후보) 진입 안 함",
+      "not_taken_means": "HP% >= 50 → 상대팀 선수 존재 + 0x16ef1b0 거짓이면 0xee4681 갱 팔"
+     }
+    },
+    {
+     "entry": "jg_gank_hp_start_50",
+     "key": "0xee4e8a",
+     "rva": "0x1009e2c",
+     "asm": "cmp rax, 0x32",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "copy(후보 팔 재검사)",
+     "operand_meaning": "자기 HP% (후보 팔, 같은 슬롯 재조회. 32/64 나눗셈 경로가 여기로 합류)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 82 c1 f8 ff ff",
+      "jcc": "jb 0xee475c",
+      "taken_means": "HP% < 50 → 0xee475c 이 kind 건너뜀(다음 kind)",
+      "not_taken_means": "HP% >= 50 → 0xf609b0 상대 후보 수집"
+     }
+    }
+   ]
+  },
+  {
+   "id": "jg_gank_hp_floor_40",
+   "tactic": [
+    "갱 개시 — 진행 HP 40%(strict, 이하면 즉시 -1)"
+   ],
+   "func_rva_note": [
+    "0xee42c0"
+   ],
+   "default": 40,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "jg_gank_hp_floor_40",
+     "key": "0xee4418",
+     "rva": "0x100932f",
+     "asm": "cmp rax, 0x28",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "자기 HP% (64비트 나눗셈 경로). r15 = 자기 엔티티(Cache+0x238+team×0x28 [Player+0x890 role])",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "77 2c",
+      "jcc": "ja 0xee444a",
+      "taken_means": "HP% > 40 → 다음 단계(0xee444a: 50% 검사)로",
+      "not_taken_means": "HP% <= 40 → 0xee441e 출력 tag=-1 쓰고 즉시 반환(기본 위임도 안 함)"
+     }
+    },
+    {
+     "entry": "jg_gank_hp_floor_40",
+     "key": "0xee4444",
+     "rva": "0x100935b",
+     "asm": "cmp rax, 0x28",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "copy(32비트 div 경로)",
+     "operand_meaning": "자기 HP% (32비트 나눗셈 경로 — 같은 판정의 사본)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "76 d4",
+      "jcc": "jbe 0xee441e",
+      "taken_means": "HP% <= 40 → 0xee441e 출력 -1 반환",
+      "not_taken_means": "HP% > 40 → 0xee444a"
+     }
+    }
+   ]
+  },
+  {
+   "id": "gank_abort_hp_41",
+   "tactic": [
+    "갱 포기 — 자기 HP 41% 미만이면 종료(이유 1)"
+   ],
+   "func_rva_note": [
+    "0xf7bb80"
+   ],
+   "default": 41,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "gank_abort_hp_41",
+     "key": "0xf7bbf6",
+     "rva": "0xfc4006",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "자기 HP% (64비트 나눗셈 경로). r14 = 자기 엔티티",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "73 3d",
+      "jcc": "jae 0xf7bc39",
+      "taken_means": "HP% >= 41 → 0xf7bc39 계속(구조물 위협 검사)",
+      "not_taken_means": "HP% < 41 → 0xf7bbfc: 로그 WORD 0x0011 push, State+0x30=1, State+0x35=1(이유1), 종료"
+     }
+    },
+    {
+     "entry": "gank_abort_hp_41",
+     "key": "0xf7bc33",
+     "rva": "0xfc4043",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "copy(32비트 div 경로)",
+     "operand_meaning": "자기 HP% (32비트 나눗셈 경로 사본)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "72 c3",
+      "jcc": "jb 0xf7bbfc",
+      "taken_means": "HP% < 41 → 0xf7bbfc 종료(이유1)",
+      "not_taken_means": "HP% >= 41 → 0xf7bc39"
+     }
+    }
+   ]
+  },
+  {
+   "id": "gank_abort_tower_reason9",
+   "tactic": [
+    "갱 포기 — 라인 구조물이 대상과 상호 교전이면 종료(이유 9) 켬/끔"
+   ],
+   "func_rva_note": [
+    "0xf7bb80"
+   ],
+   "default": 1,
+   "min": 0,
+   "max": 1,
+   "sites": [
+    {
+     "entry": "gank_abort_tower_reason9",
+     "key": "0xf7bd27",
+     "rva": "0xfc4137",
+     "asm": "jne 0xfc414e",
+     "imm_at": 0,
+     "width": 1,
+     "tf": "'toggle', b'\\x75', b'\\xeb'",
+     "role": "toggle",
+     "operand_meaning": null,
+     "branch": null
+    }
+   ]
+  },
+  {
+   "id": "gank_call_accept_hp_60",
+   "tactic": [
+    "갱 콜 수락 — 라이너 HP 60% 이상(59 이하 거부)"
+   ],
+   "func_rva_note": [
+    "0xd59d00"
+   ],
+   "default": 60,
+   "min": 1,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "gank_call_accept_hp_60",
+     "key": "0xd5a06f",
+     "rva": "0xd7079f",
+     "asm": "cmp rax, 0x3b",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -1",
+     "role": "primary",
+     "operand_meaning": "자기(라이너) HP% floor (rbp = 자기 엔티티, 32/64 나눗셈 합류)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 86 7b 01 00 00",
+      "jcc": "jbe 0xd5a1f4",
+      "taken_means": "HP% <= 59 → 0xd5a1f4 수락 안 함(후처리)",
+      "not_taken_means": ">= 60 → 0xef2d80 갱 기회 점수"
+     }
+    }
+   ]
+  },
+  {
+   "id": "jungle_safe_radius_150000",
+   "tactic": [
+    "정글 안전 거리 — 노리는 캠프 근처 적 반경 150000(거리², 포함)"
+   ],
+   "func_rva_note": [
+    "0xef2410"
+   ],
+   "default": 150000,
+   "min": 1000,
+   "max": 2000000,
+   "sites": [
+    {
+     "entry": "jungle_safe_radius_150000",
+     "key": "0xef243c",
+     "rva": "0x1017bcc",
+     "asm": "movabs rcx, 0x53d1ac101",
+     "imm_at": 2,
+     "width": 8,
+     "tf": "'sq1',",
+     "role": "primary(단일 상수)",
+     "operand_meaning": "rcx = 150000²+1 = 0x53d1ac101 (4번 비교가 공유)",
+     "branch": null
+    }
+   ]
+  },
+  {
+   "id": "jungle_stop_hp_41",
+   "tactic": [
+    "정글링 중단 체력 — HP 밴드(회복 없음 21/41, 있음 11/21)를 함께 이동"
+   ],
+   "func_rva_note": [
+    "0x1018cb0"
+   ],
+   "default": 41,
+   "min": 30,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "jungle_stop_hp_41",
+     "key": "0xef376d",
+     "rva": "0x1018efd",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "회복 수단 없음: 70점 상한(41)",
+     "operand_meaning": "자기 HP% (회복 수단 없음 경로)",
+     "branch": {
+      "rva": "0x1018e48",
+      "bytes_hex": "48 0f 43 ca",
+      "jcc": "cmovae rcx, rdx (0x1018f01 jmp 0x1018e43 경유)",
+      "taken_means": "(0x1018e43 공유 후 cmovae) HP% >= 41 → 0점(계속)",
+      "not_taken_means": "HP% < 41 → 70점(49 초과 = 중단)"
+     }
+    },
+    {
+     "entry": "jungle_stop_hp_41",
+     "key": "0xef3761",
+     "rva": "0x1018ef1",
+     "asm": "cmp rax, 0x15",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -20",
+     "role": "회복 수단 없음: 80점(21)",
+     "operand_meaning": "자기 HP% (회복 수단 없음 경로)",
+     "branch": {
+      "rva": "0x1018ef5",
+      "bytes_hex": "0f 82 51 ff ff ff",
+      "jcc": "jb 0x1018e4c",
+      "taken_means": "HP% < 21 → 80점 반환",
+      "not_taken_means": "HP% >= 21 → 41 비교로"
+     }
+    },
+    {
+     "entry": "jungle_stop_hp_41",
+     "key": "0xef36af",
+     "rva": "0x1018e3f",
+     "asm": "cmp rax, 0x15",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -20",
+     "role": "회복 수단 있음: 70점 상한(21)",
+     "operand_meaning": "자기 HP% (회복 수단 있음 경로)",
+     "branch": {
+      "rva": "0x1018e48",
+      "bytes_hex": "48 0f 43 ca",
+      "jcc": "cmovae rcx, rdx",
+      "taken_means": "HP% >= 21 → 0점",
+      "not_taken_means": "HP% < 21 → 70점"
+     }
+    },
+    {
+     "entry": "jungle_stop_hp_41",
+     "key": "0xef36a7",
+     "rva": "0x1018e37",
+     "asm": "cmp rax, 0xb",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -30",
+     "role": "회복 수단 있음: 80점(11)",
+     "operand_meaning": "자기 HP% (회복 수단 있음 경로)",
+     "branch": {
+      "rva": "0x1018e3b",
+      "bytes_hex": "72 0f",
+      "jcc": "jb 0x1018e4c",
+      "taken_means": "HP% < 11 → 80점",
+      "not_taken_means": "HP% >= 11 → 21 비교로"
+     }
+    }
+   ]
+  },
+  {
+   "id": "minion_damage_ratio_49",
+   "tactic": [
+    "미니언 피해 민감도 — 미니언 피해를 위험으로 치는 피해율 49/29/17/10(함께 이동)"
+   ],
+   "func_rva_note": [
+    "0xf11ef0"
+   ],
+   "default": 49,
+   "min": 39,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "minion_damage_ratio_49",
+     "key": "0xfc7aec",
+     "rva": "0xf11f7c",
+     "asm": "cmp rax, 0x31",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "피해율 상한(항상)",
+     "operand_meaning": "예상 미니언 피해율% (rax = 피해 rcx×100/자기 HP r9). 피해 >= HP 면 이 전에 위험 반환",
+     "branch": {
+      "rva": "0xf11f80",
+      "bytes_hex": "77 29",
+      "jcc": "ja 0xf11fab",
+      "taken_means": "피해율 > 49 → 0xf11fab 위험(피해 값 반환)",
+      "not_taken_means": "<= 49 → HP 단계 검사"
+     }
+    },
+    {
+     "entry": "minion_damage_ratio_49",
+     "key": "0xfc7af8",
+     "rva": "0xf11f88",
+     "asm": "cmp rax, 0x1d",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -20",
+     "role": "HP<=65 단계",
+     "operand_meaning": "예상 피해율% (HP% r8 <= 65 일 때만 도달)",
+     "branch": {
+      "rva": "0xf11f8c",
+      "bytes_hex": "77 1d",
+      "jcc": "ja 0xf11fab",
+      "taken_means": "피해율 > 29 → 위험",
+      "not_taken_means": "<= 29 → 다음 단계"
+     }
+    },
+    {
+     "entry": "minion_damage_ratio_49",
+     "key": "0xfc7b04",
+     "rva": "0xf11f94",
+     "asm": "cmp rax, 0x11",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -32",
+     "role": "HP<=40 단계",
+     "operand_meaning": "예상 피해율% (HP% <= 40 일 때만)",
+     "branch": {
+      "rva": "0xf11f98",
+      "bytes_hex": "77 11",
+      "jcc": "ja 0xf11fab",
+      "taken_means": "피해율 > 17 → 위험",
+      "not_taken_means": "<= 17 → 다음 단계"
+     }
+    },
+    {
+     "entry": "minion_damage_ratio_49",
+     "key": "0xfc7b10",
+     "rva": "0xf11fa0",
+     "asm": "cmp rax, 0xa",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -39",
+     "role": "HP<=25 단계",
+     "operand_meaning": "예상 피해율% (HP% <= 25 일 때만)",
+     "branch": {
+      "rva": "0xf11fa9",
+      "bytes_hex": "72 03",
+      "jcc": "jb 0xf11fae",
+      "taken_means": "피해율 < 10 → 0 반환(무시)",
+      "not_taken_means": "피해율 >= 10 → 위험(피해 값 반환)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lane_assign_hp_30",
+   "tactic": [
+    "라인 배정 체력 — 후보 HP 30% 이상이어야 승인"
+   ],
+   "func_rva_note": [
+    "0xfd4260"
+   ],
+   "default": 30,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "lane_assign_hp_30",
+     "key": "0xfd43f8",
+     "rva": "0xf276e8",
+     "asm": "cmp rax, 0x1e",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "후보(RDX=candidateID 0..4) 슬롯 엔티티 HP% floor (32/64 나눗셈 합류)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 93 c0",
+      "jcc": "setae al",
+      "taken_means": "setae al: HP% >= 30 → AL=1(후보 승인) 반환",
+      "not_taken_means": "AL=0"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lane_opportunity_own_min_2",
+   "tactic": [
+    "라인 기회 잡기 — 라인 영역 건강 아군 2명 이상"
+   ],
+   "func_rva_note": [
+    "0xfb3830"
+   ],
+   "default": 2,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "lane_opportunity_own_min_2",
+     "key": "0xf2541e",
+     "rva": "0xfb3c2f",
+     "asm": "cmp rax, 2",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "라인 영역 건강(HP>49) 아군 수 (call 0xfb60b0 반환)",
+     "branch": {
+      "rva": "0xfb3c33",
+      "bytes_hex": "0f 82 e4 01 00 00",
+      "jcc": "jb 0xfb3e1d",
+      "taken_means": "아군 수 < 2 → 0xfb3e1d 거절",
+      "not_taken_means": ">= 2 → 다음 조건"
+     }
+    }
+   ]
+  },
+  {
+   "id": "support_minion_block_role_4",
+   "tactic": [
+    "서폿 미니언 처리 허용 — 포지션 4(서폿)면 라인 미니언 처리 거부"
+   ],
+   "func_rva_note": [
+    "0xdef830"
+   ],
+   "default": 4,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "support_minion_block_role_4",
+     "key": "0xfe285a",
+     "rva": "0xdef86a",
+     "asm": "cmp rdx, 4",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "자기 포지션 [rsi+0x8b0] (0 탑 … 3 원딜, 4 서폿)",
+     "branch": {
+      "rva": "0xdef86e",
+      "bytes_hex": "0f 84 19 03 00 00",
+      "jcc": "je 0xdefb8d",
+      "taken_means": "포지션 == 4 → 0xdefb8d 즉시 거부(라인 미니언 접근 상태 안 만듦)",
+      "not_taken_means": "포지션 != 4 → 후보 상태 수집"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bot_duo_partner_required",
+   "tactic": [
+    "봇 듀오 동행 — 원딜·서폿은 짝 확인(끄면 단독 허용)"
+   ],
+   "func_rva_note": [
+    "0xfe33c0"
+   ],
+   "default": 1,
+   "min": 0,
+   "max": 1,
+   "sites": [
+    {
+     "entry": "bot_duo_partner_required",
+     "key": "0xf98dbb",
+     "rva": "0xfe346b",
+     "asm": "ja 0xfe3451",
+     "imm_at": 0,
+     "width": 1,
+     "tf": "'toggle', b'\\x77', b'\\xeb'",
+     "role": "toggle",
+     "operand_meaning": "선행 비교 0xfe3468 cmp ecx,1 (ecx = 포지션−3, 부호없음). 3/4 가 아니면 ja 로 바로 허용(al=1) 반환",
+     "branch": {
+      "rva": "0xfe346b",
+      "bytes_hex": "77 e4",
+      "jcc": "ja 0xfe3451",
+      "taken_means": "포지션−3 > 1 (원딜·서폿 아님) → 0xfe3451 허용 반환",
+      "not_taken_means": "원딜·서폿 → 짝(3↔4) 챔피언 상태 확인 후 거부 가능"
+     }
+    }
+   ]
+  },
+  {
+   "id": "liner_roam_self_hp_41",
+   "tactic": [
+    "라이너 로밍 — 자기 HP 41% 이상이어야 로밍"
+   ],
+   "func_rva_note": [
+    "0xd40740"
+   ],
+   "default": 41,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "liner_roam_self_hp_41",
+     "key": "0xd4a9aa",
+     "rva": "0xd4b2ca",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "로밍 후보 선수 HP% (r14 = 후보 Player, wrap100HP/max(maxHP,1)). 64/32 div 합류 후",
+     "branch": {
+      "rva": "0xd4b2ce",
+      "bytes_hex": "0f 82 2e b0 ff ff",
+      "jcc": "jb 0xd46302",
+      "taken_means": "HP% < 41 → 0xd46302 거부",
+      "not_taken_means": "HP% >= 41 → 로밍 계속"
+     }
+    }
+   ]
+  },
+  {
+   "id": "liner_roam_lane_healthy_hp_41",
+   "tactic": [
+    "라이너 로밍 — 갈 라인 비교에서 건강 아군으로 칠 HP 41%"
+   ],
+   "func_rva_note": [
+    "0xd7be30"
+   ],
+   "default": 41,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "liner_roam_lane_healthy_hp_41",
+     "key": "0xd7b3c0",
+     "rva": "0xd7c450",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "슬롯1",
+     "operand_meaning": "같은 라인 자기팀 슬롯1 HP%",
+     "branch": {
+      "rva": "0xd7c454",
+      "bytes_hex": "0f 93 c1",
+      "jcc": "setae cl",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     }
+    },
+    {
+     "entry": "liner_roam_lane_healthy_hp_41",
+     "key": "0xd7b426",
+     "rva": "0xd7c4b6",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "슬롯2",
+     "operand_meaning": "같은 라인 자기팀 슬롯2 HP%",
+     "branch": {
+      "rva": "0xd7c4ba",
+      "bytes_hex": "48 83 d9 ff",
+      "jcc": "sbb rcx, -1",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     }
+    },
+    {
+     "entry": "liner_roam_lane_healthy_hp_41",
+     "key": "0xd7b489",
+     "rva": "0xd7c519",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "슬롯3",
+     "operand_meaning": "같은 라인 자기팀 슬롯3 HP%",
+     "branch": {
+      "rva": "0xd7c51d",
+      "bytes_hex": "48 83 d9 ff",
+      "jcc": "sbb rcx, -1",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     }
+    },
+    {
+     "entry": "liner_roam_lane_healthy_hp_41",
+     "key": "0xd7b4ec",
+     "rva": "0xd7c57c",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "슬롯4",
+     "operand_meaning": "같은 라인 자기팀 슬롯4 HP%",
+     "branch": {
+      "rva": "0xd7c580",
+      "bytes_hex": "48 83 d9 ff",
+      "jcc": "sbb rcx, -1",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     }
+    },
+    {
+     "entry": "liner_roam_lane_healthy_hp_41",
+     "key": "0xd7b505",
+     "rva": "0xd7c595",
+     "asm": "cmp rax, 0x29",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "슬롯5",
+     "operand_meaning": "같은 라인 자기팀 슬롯5 HP%",
+     "branch": {
+      "rva": "0xd7c599",
+      "bytes_hex": "48 83 d9 ff",
+      "jcc": "sbb rcx, -1",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     }
+    }
+   ]
+  },
+  {
+   "id": "liner_roam_call_chance_700",
+   "tactic": [
+    "라이너 로밍 — 로밍 팀 콜 확률 700/1000"
+   ],
+   "func_rva_note": [
+    "0xd40740"
+   ],
+   "default": 700,
+   "min": 0,
+   "max": 1001,
+   "sites": [
+    {
+     "entry": "liner_roam_call_chance_700",
+     "key": "0xd51340",
+     "rva": "0xd5200d",
+     "asm": "cmp rax, 0x2bc",
+     "imm_at": 2,
+     "width": 4,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "난수 0..999 (call 0xe8df30, r8d=1000)",
+     "branch": {
+      "rva": "0xd5201a",
+      "bytes_hex": "73 58",
+      "jcc": "jae 0xd52074",
+      "taken_means": "(jae) 난수 >= 700 → 0xd52074 (팀 콜 tag11 안 넣음)",
+      "not_taken_means": "난수 < 700 → tag11 큐(팀 로밍 콜)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hazard_avoid_padding_6000",
+   "tactic": [
+    "위험 구역 비켜 걷기 — 위험 구역 기본 여유 6000"
+   ],
+   "func_rva_note": [
+    "0xf0f5b0"
+   ],
+   "default": 6000,
+   "min": 0,
+   "max": 1000000,
+   "sites": [
+    {
+     "entry": "hazard_avoid_padding_6000",
+     "key": "0xdea2b6",
+     "rva": "0xf0fcb3",
+     "asm": "add rax, 0x1770",
+     "imm_at": 2,
+     "width": 4,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "위험 반경 확장량의 기본값 6000 (+ 성향×400 은 앞 imul 0xf0fc5e)",
+     "branch": null
+    }
+   ]
+  },
+  {
+   "id": "push_sustain_min_healthy_3",
+   "tactic": [
+    "진행 중 푸시 유지 — 건강(HP 40%↑) 자기 인원 >= 3"
+   ],
+   "func_rva_note": [
+    "0xda5e90"
+   ],
+   "default": 3,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "push_sustain_min_healthy_3",
+     "key": "0xda8804",
+     "rva": "0xdbd25a",
+     "asm": "cmp r8, 3",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "r8 = 자기 5슬롯 중 HP% >= 40 인원 (0xda8678 setae + 0xda86c7/870b/874f/8793 sbb r8,-1)",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 82 57 01 00 00",
+      "jcc": "jb 0xda8965",
+      "taken_means": "< 3 → 0xda8965 실패(푸시 유지 안 함, mode/폴백 경로)",
+      "not_taken_means": ">= 3 → 상대 비교"
+     }
+    }
+   ]
+  },
+  {
+   "id": "push_sustain_margin_2",
+   "tactic": [
+    "진행 중 푸시 유지 — 건강 인원 >= 상대 인원 + 2"
+   ],
+   "func_rva_note": [
+    "0xda5e90"
+   ],
+   "default": 2,
+   "min": 0,
+   "max": 126,
+   "sites": [
+    {
+     "entry": "push_sustain_margin_2",
+     "key": "0xda87ca",
+     "rva": "0xdbd220",
+     "asm": "mov eax, 3",
+     "imm_at": 1,
+     "width": 1,
+     "tf": "'v', 1",
+     "role": "여유 상수(+1 내장)",
+     "operand_meaning": "eax = 3 = 여유 2 + 1. 다음 0xda87cf sbb rax,0 (상대 slot0 null 이면 −1) 후 0xda8812 popcount(slot1~4 nonnull) 가산 → rax = 2 + 상대 nonnull 수",
+     "branch": null
+    }
+   ]
+  },
+  {
+   "id": "tower_chase_own_hp_35",
+   "tactic": [
+    "타워 아래 추격 — 괜찮은 교전 내 HP 문턱(25/35/45를 함께 이동)"
+   ],
+   "func_rva_note": [
+    "0xf542b0"
+   ],
+   "default": 35,
+   "min": 10,
+   "max": 117,
+   "sites": [
+    {
+     "entry": "tower_chase_own_hp_35",
+     "key": "0xe6a9c5",
+     "rva": "0xf54b75",
+     "asm": "cmp rcx, 0x19",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -10",
+     "role": "goodA(내 HP 25)",
+     "operand_meaning": "자기 HP% (rcx). goodA = 수적 우위(아군>=2·아군>적) && HP>=25",
+     "branch": {
+      "rva": "0xf54b79",
+      "bytes_hex": "41 0f 93 c2",
+      "jcc": "setae r10b",
+      "taken_means": "HP% >= 25 → r10b=1 (goodA 성립 후보)",
+      "not_taken_means": "HP% < 25 → goodA 불성립"
+     }
+    },
+    {
+     "entry": "tower_chase_own_hp_35",
+     "key": "0xe6a9d8",
+     "rva": "0xf54b88",
+     "asm": "cmp rcx, 0x23",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "goodB(내 HP 35)",
+     "operand_meaning": "자기 HP% (rcx). goodB = 대상 HP<26 && HP>=35",
+     "branch": {
+      "rva": "0xf54b8c",
+      "bytes_hex": "41 0f 93 c3",
+      "jcc": "setae r11b",
+      "taken_means": "HP% >= 35 → r11b=1",
+      "not_taken_means": "HP% < 35 → goodB 불성립"
+     }
+    },
+    {
+     "entry": "tower_chase_own_hp_35",
+     "key": "0xe6a9e9",
+     "rva": "0xf54b99",
+     "asm": "cmp rcx, 0x2d",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 10",
+     "role": "goodC(내 HP 45)",
+     "operand_meaning": "자기 HP% (rcx). goodC = 대상 HP<51 && 140000 안 수적 우위 && HP>=45",
+     "branch": {
+      "rva": "0xf54b9d",
+      "bytes_hex": "0f 93 c1",
+      "jcc": "setae cl",
+      "taken_means": "HP% >= 45 → cl=1",
+      "not_taken_means": "HP% < 45 → goodC 불성립"
+     }
+    }
+   ]
+  },
+  {
+   "id": "base_defense_min_enemies_6",
+   "tactic": [
+    "기지 방어 출동 — 뚫린 라인 상대 6명 이상(라인별 3곳)"
+   ],
+   "func_rva_note": [
+    "0xfcbbb0"
+   ],
+   "default": 6,
+   "min": 1,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "base_defense_min_enemies_6",
+     "key": "0xfcbd0c",
+     "rva": "0xf161dc",
+     "asm": "cmp r14, 6",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "lane0 (>=)",
+     "operand_meaning": "lane0 상대 목록(Cache+0x10+opp×0x20) 중 기지(Cache+0x1C8+team×8)와 거리² <= 기준(기지↔자기팀 첫 엔티티 거리²)인 수",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 83 5c 01 00 00",
+      "jcc": "jae 0xfcbe72",
+      "taken_means": "count >= 6 → 0xfcbe72 AL=1",
+      "not_taken_means": "아니면 다음 라인/AL=0"
+     }
+    },
+    {
+     "entry": "base_defense_min_enemies_6",
+     "key": "0xfcbdac",
+     "rva": "0xf1627c",
+     "asm": "cmp r14, 5",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -1",
+     "role": "lane1 (>5)",
+     "operand_meaning": "lane1 상대 목록(Cache+0x90+opp×0x20) 같은 집계",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "0f 87 bc 00 00 00",
+      "jcc": "ja 0xfcbe72",
+      "taken_means": "count > 5 → 0xfcbe72 AL=1",
+      "not_taken_means": "아니면 계속"
+     }
+    },
+    {
+     "entry": "base_defense_min_enemies_6",
+     "key": "0xfcbe6c",
+     "rva": "0xf1633c",
+     "asm": "cmp r8, 5",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', -1",
+     "role": "lane2 (>5)",
+     "operand_meaning": "lane2 상대 목록(Cache+0xD0+opp×0x20) 같은 집계",
+     "branch": {
+      "rva": null,
+      "bytes_hex": "76 04",
+      "jcc": "jbe 0xfcbe76",
+      "taken_means": "count <= 5 → 0xfcbe76 AL=0",
+      "not_taken_means": "count > 5 → 0xfcbe72 AL=1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "base_defense_hold_retreat_hp_45",
+   "tactic": [
+    "기지 방어 중 버팀 — 후퇴 HP 45%"
+   ],
+   "func_rva_note": [
+    "0xea6800"
+   ],
+   "default": 45,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "base_defense_hold_retreat_hp_45",
+     "key": "0xed6fa0",
+     "rva": "0xea6d30",
+     "asm": "cmp r13, 0x2d",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "자기 HP% (r13 = [rbx+0x668]*100/[rbx+0x620], 64/32 div 합류 후). 0xea6d2b cmp r14,rbx(예상 피해 < 현재 HP) 일 때만 도달",
+     "branch": {
+      "rva": "0xea6d34",
+      "bytes_hex": "0f 87 e4 00 00 00",
+      "jcc": "ja 0xea6e1e",
+      "taken_means": "HP% > 45 → 0xea6e1e (후퇴 안 함)",
+      "not_taken_means": "HP% <= 45 → 후퇴 후보(0xea6d3a~)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "base_defense_hold_nexus_hp_50",
+   "tactic": [
+    "기지 방어 중 버팀 — 넥서스 HP 50% 이하면 위협 확인 후 치명 피해만 후퇴"
+   ],
+   "func_rva_note": [
+    "0xea6800"
+   ],
+   "default": 50,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "base_defense_hold_nexus_hp_50",
+     "key": "0xed6f62",
+     "rva": "0xea6cf2",
+     "asm": "cmp rax, 0x32",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary(64비트 div 경로)",
+     "operand_meaning": "아군 넥서스 HP% ([r15+r12*8+0x1c8] 엔티티)",
+     "branch": {
+      "rva": "0xea6cf6",
+      "bytes_hex": "77 28",
+      "jcc": "ja 0xea6d20",
+      "taken_means": "HP% > 50 → 0xea6d20 (위협 확인 생략)",
+      "not_taken_means": "HP% <= 50 → 0xea6cf8 위협 확인 call 0xf1aa60(240000)"
+     }
+    },
+    {
+     "entry": "base_defense_hold_nexus_hp_50",
+     "key": "0xed6f8a",
+     "rva": "0xea6d1a",
+     "asm": "cmp rax, 0x32",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "copy(32비트 div 경로)",
+     "operand_meaning": "아군 넥서스 HP% (같은 판정 사본)",
+     "branch": {
+      "rva": "0xea6d1e",
+      "bytes_hex": "76 d8",
+      "jcc": "jbe 0xea6cf8",
+      "taken_means": "HP% <= 50 → 0xea6cf8 위협 확인",
+      "not_taken_means": "HP% > 50 → 0xea6d20"
+     }
+    }
+   ]
+  },
+  {
+   "id": "base_defense_hold_dmg_ratio_49",
+   "tactic": [
+    "기지 방어 중 버팀 — 피해율 49% 초과면 HP 와 무관하게 피해로 침"
+   ],
+   "func_rva_note": [
+    "0xea6800"
+   ],
+   "default": 49,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "base_defense_hold_dmg_ratio_49",
+     "key": "0xed6ee3",
+     "rva": "0xea6c73",
+     "asm": "cmp rax, 0x31",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "예상 피해율% (rax = 2×TPS 예측 피해 r14 ×100 / 자기 HP rbx). 피해 >= HP 이면 이 비교 전에 0xea6cb9 로 감",
+     "branch": {
+      "rva": "0xea6c77",
+      "bytes_hex": "77 40",
+      "jcc": "ja 0xea6cb9",
+      "taken_means": "피해율 > 49 → 0xea6cb9 (피해 유지 = 후퇴 검토 대상)",
+      "not_taken_means": "피해율 <= 49 → HP 단계표(65/29·40/17·25/10) 검사로"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lowhp_ult_bonus_low_14",
+   "tactic": [
+    "저체력 궁극기 사용 — HP 45% 미만이면 궁 행동 점수 +14"
+   ],
+   "func_rva_note": [
+    "0xe690a0"
+   ],
+   "default": 14,
+   "min": 0,
+   "max": 127,
+   "sites": [
+    {
+     "entry": "lowhp_ult_bonus_low_14",
+     "key": "0xdec0fb",
+     "rva": "0xe6955b",
+     "asm": "lea rax, [rdx + 0xe]",
+     "imm_at": 3,
+     "width": 1,
+     "tf": "'v', 0",
+     "role": "primary",
+     "operand_meaning": "저HP(<45%) 가산 점수 14: rax = rdx+14 (rdx = 누적 점수)",
+     "branch": {
+      "rva": "0xe69574",
+      "bytes_hex": "4c 0f 42 f0",
+      "jcc": "cmovb r14, rax",
+      "taken_means": "(0xe69574 cmovb) HP% < 45 → 점수 = rdx+14",
+      "not_taken_means": "HP% >= 45 → +6 또는 +0"
+     }
+    }
+   ]
+  }
+ ]
+}
