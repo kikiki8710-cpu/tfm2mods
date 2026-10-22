@@ -398,6 +398,25 @@ fn thread_ids(out: &mut Vec<u32>) -> Result<(), &'static str> {
     Ok(())
 }
 struct StoppedThread { handle: OwnedHandle, suspended: bool }
+const SNAPSHOT_ATTEMPTS: usize = 32;
+static SNAPSHOT_RETRIES: AtomicUsize = AtomicUsize::new(0);
+pub(crate) fn snapshot_retries() -> usize { SNAPSHOT_RETRIES.load(Ordering::Relaxed) }
+
+// 시작 중 스레드 생성/종료는 정상이다. 아직 어떤 스레드도 정지하지 않은
+// 구간에서만 새 목록 두 개를 다시 읽는다. 열거 오류/정지 후 오류는 재시도하지 않는다.
+fn stable_thread_ids(
+    first: &mut Vec<u32>, second: &mut Vec<u32>,
+    mut collect: impl FnMut(&mut Vec<u32>) -> Result<(), &'static str>,
+    mut backoff: impl FnMut(),
+) -> Result<usize, &'static str> {
+    for attempt in 0..SNAPSHOT_ATTEMPTS {
+        collect(first)?;
+        collect(second)?;
+        if first == second { return Ok(attempt); }
+        if attempt + 1 < SNAPSHOT_ATTEMPTS { backoff(); }
+    }
+    Err("thread list unstable before suspension (retry limit)")
+}
 /// 기존 스레드의 prefix 내 RIP를 검출하는 보수 장벽. 단독으로 새 진입을 막지 않는다.
 /// 설치자는 먼저 INT3/영구 원본우회를 게시한다. SuspendThread의 OS/loader 락 위험은 남는다.
 pub(crate) struct SuspendedThreads { threads: Vec<StoppedThread> }
@@ -407,9 +426,9 @@ impl SuspendedThreads {
         let mut first = Vec::with_capacity(MAX_THREADS);
         let mut second = Vec::with_capacity(MAX_THREADS);
         let mut after = Vec::with_capacity(MAX_THREADS);
-        thread_ids(&mut first)?;
-        thread_ids(&mut second)?;
-        if first != second { return Err("thread list unstable before suspension"); }
+        let retries = stable_thread_ids(&mut first, &mut second, thread_ids,
+            || std::thread::sleep(std::time::Duration::from_millis(2)))?;
+        SNAPSHOT_RETRIES.fetch_add(retries, Ordering::Relaxed);
         let current = unsafe { GetCurrentThreadId() };
         if !first.contains(&current) { return Err("installer absent from thread snapshot"); }
         let mut guard = Self { threads: Vec::with_capacity(first.len()) };
@@ -455,6 +474,39 @@ impl Drop for SuspendedThreads { fn drop(&mut self) { let _ = self.resume_all();
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn startup_thread_churn_recovers_with_fresh_matching_snapshots() {
+        let mut a = Vec::with_capacity(MAX_THREADS);
+        let mut b = Vec::with_capacity(MAX_THREADS);
+        let snapshots = [vec![1, 2], vec![1, 2, 3], vec![1, 3], vec![1, 3, 4], vec![1, 4], vec![1, 4]];
+        let mut at = 0; let mut waits = 0;
+        let retries = stable_thread_ids(&mut a, &mut b, |out| {
+            out.clear(); out.extend_from_slice(&snapshots[at]); at += 1; Ok(())
+        }, || waits += 1).unwrap();
+        assert_eq!((retries, at, waits), (2, 6, 2));
+        assert_eq!(a, vec![1, 4]); assert_eq!(a, b);
+    }
+    #[test]
+    fn continuous_thread_churn_stops_at_the_limit() {
+        let mut a = Vec::with_capacity(MAX_THREADS); let mut b = Vec::with_capacity(MAX_THREADS);
+        let mut calls = 0; let mut waits = 0;
+        let result = stable_thread_ids(&mut a, &mut b, |out| {
+            calls += 1; out.clear(); out.push(calls); Ok(())
+        }, || waits += 1);
+        assert!(result.unwrap_err().contains("retry limit"));
+        assert_eq!(calls as usize, SNAPSHOT_ATTEMPTS * 2);
+        assert_eq!(waits, SNAPSHOT_ATTEMPTS - 1);
+    }
+    #[test]
+    fn snapshot_errors_are_not_treated_as_thread_churn() {
+        let mut a = Vec::with_capacity(MAX_THREADS); let mut b = Vec::with_capacity(MAX_THREADS);
+        let mut calls = 0;
+        assert_eq!(stable_thread_ids(&mut a, &mut b, |_| {
+            calls += 1; Err("thread snapshot failed")
+        }, || panic!("must not retry an enumeration error")), Err("thread snapshot failed"));
+        assert_eq!(calls, 1);
+    }
 
     // 이 시험은 VirtualQuery 사전 거절 경로다. 실제 load fault/VEH landing 실행
     // 또는 외부 protection 변경 경쟁을 재현한 검증으로 세지 않는다.

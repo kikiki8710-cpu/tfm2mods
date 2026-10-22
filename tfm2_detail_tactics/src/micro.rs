@@ -146,6 +146,7 @@ fn install_inner()->Vec<String>{
         ENABLED[t].store(ok,Release);tactics::set_status(t,if ok{tactics::ST_ACTIVE}else{tactics::ST_FAILED});
         logs.push(format!("{}: {} ({}곳)",tactics::TACTICS[t].id,if ok{"설치"}else{"원본 유지"},indices.len()));
     }
+    logs.push(format!("정지 전 스레드 목록 안정화 재시도={}",platform::snapshot_retries()));
     logs
 }
 pub fn diagnostics()->Vec<String>{
