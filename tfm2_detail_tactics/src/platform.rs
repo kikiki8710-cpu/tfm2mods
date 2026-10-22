@@ -242,8 +242,11 @@ pub fn safe_read_u64(address: usize) -> Result<u64, &'static str> {
     let mut out = [0; 8]; safe_read_bytes(address, &mut out)?; Ok(u64::from_le_bytes(out))
 }
 pub fn module_base() -> Result<usize, &'static str> {
-    let h = unsafe { GetModuleHandleW(std::ptr::null()) };
-    if h.is_null() { Err("GetModuleHandleW failed") } else { Ok(h as usize) }
+    static BASE: OnceLock<Result<usize, &'static str>> = OnceLock::new();
+    *BASE.get_or_init(|| {
+        let h = unsafe { GetModuleHandleW(std::ptr::null()) };
+        if h.is_null() { Err("GetModuleHandleW failed") } else { Ok(h as usize) }
+    })
 }
 fn path_for_module(module: Handle) -> Result<PathBuf, &'static str> {
     use std::os::windows::ffi::OsStringExt;

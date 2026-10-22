@@ -1,6 +1,6 @@
 // 자동 생성 — tools/gen_sites.py (손으로 고치지 말 것). 원천 = tools/targets/knobs_0.6.5.json + subjects_0.6.5.json
 #![allow(clippy::all)]
-use crate::micro::{Branch, Field, Patch, Src, Tf};
+use crate::micro::{Branch, Caller, Field, Patch, Src, Tf};
 pub const GAME_VERSION: &str = "0.6.5";
 pub const EXE_SHA256: &str = "DAF040DB8A3A3AE136F3EF8CE704E2718F049656B6B5E4872EACB599811D30B5";
 pub static PATCHES: &[Patch] = &[
@@ -68,6 +68,8 @@ pub static PATCHES: &[Patch] = &[
     Patch { name: "liner_roam_lane_healthy_hp_41@0xd7c595", tactic: 21, rva: 0xd7c595, win: &[0x48, 0x83, 0xf8, 0x29, 0x48, 0x83, 0xd9, 0xff], fields: &[Field { off: 3, width: 1, tf: Tf::Add(0), max: 127 }], branches: &[], src: Src::StackMem(0x50, 0x1768), team_chk: Src::Reg(15), first_len: 4, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4c, 0x39, 0xd8, 0x41, 0x5b] },
     // cmp rax, 0x2bc (함수 0xd40740)
     Patch { name: "liner_roam_call_chance_700@0xd5200d", tactic: 22, rva: 0xd5200d, win: &[0x48, 0x3d, 0xbc, 0x02, 0x00, 0x00], fields: &[Field { off: 2, width: 4, tf: Tf::Add(0), max: 2147483647 }], branches: &[], src: Src::Mem(5, 0x1768), team_chk: Src::None, first_len: 6, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4c, 0x39, 0xd8, 0x41, 0x5b] },
+    // add rax, 0x1770 (함수 0xf0f5b0)
+    Patch { name: "hazard_avoid_padding_6000@0xf0fcb3", tactic: 23, rva: 0xf0fcb3, win: &[0x48, 0x05, 0x70, 0x17, 0x00, 0x00], fields: &[Field { off: 2, width: 4, tf: Tf::Add(0), max: 2147483647 }], branches: &[], src: Src::CachePlayer { operation: 6, entity: 12, team_stack: 0xe0 }, team_chk: Src::Stack(0xe0), first_len: 6, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4c, 0x01, 0xd8, 0x41, 0x5b] },
     // cmp r8, 3 (함수 0xdba9b0)
     Patch { name: "push_sustain_min_healthy_3@0xdbd25a", tactic: 24, rva: 0xdbd25a, win: &[0x49, 0x83, 0xf8, 0x03, 0x0f, 0x82, 0x6b, 0x01, 0x00, 0x00], fields: &[Field { off: 3, width: 1, tf: Tf::Add(0), max: 127 }], branches: &[Branch { off: 4, len: 6, cc: Some(2), target_rva: 0xdbd3cf }], src: Src::Mem(5, 0x3d0), team_chk: Src::Reg(11), first_len: 4, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4d, 0x39, 0xd8, 0x41, 0x5b] },
     // mov eax, 3 (함수 0xdba9b0)
@@ -78,6 +80,12 @@ pub static PATCHES: &[Patch] = &[
     Patch { name: "tower_chase_own_hp_35@0xf54b88", tactic: 26, rva: 0xf54b88, win: &[0x48, 0x83, 0xf9, 0x23, 0x41, 0x0f, 0x93, 0xc3], fields: &[Field { off: 3, width: 1, tf: Tf::Add(0), max: 127 }], branches: &[], src: Src::Stack(0x50), team_chk: Src::None, first_len: 4, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4c, 0x39, 0xd9, 0x41, 0x5b] },
     // cmp rcx, 0x2d (함수 0xf542b0)
     Patch { name: "tower_chase_own_hp_35@0xf54b99", tactic: 26, rva: 0xf54b99, win: &[0x48, 0x83, 0xf9, 0x2d, 0x0f, 0x93, 0xc1], fields: &[Field { off: 3, width: 1, tf: Tf::Add(10), max: 127 }], branches: &[], src: Src::Stack(0x50), team_chk: Src::None, first_len: 4, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4c, 0x39, 0xd9, 0x41, 0x5b] },
+    // cmp r14, 6 (함수 0xf16080)
+    Patch { name: "base_defense_min_enemies_6@0xf161dc", tactic: 27, rva: 0xf161dc, win: &[0x49, 0x83, 0xfe, 0x06, 0x0f, 0x83, 0x5c, 0x01, 0x00, 0x00], fields: &[Field { off: 3, width: 1, tf: Tf::Add(0), max: 127 }], branches: &[Branch { off: 4, len: 6, cc: Some(3), target_rva: 0xf16342 }], src: Src::Caller(0x68, &[Caller { ret_rva: 0xd59154, src: Src::Stack(0x48) }, Caller { ret_rva: 0xdb1c8f, src: Src::Stack(0x40) }, Caller { ret_rva: 0xdb252b, src: Src::Stack(0x40) }, Caller { ret_rva: 0xdb28ac, src: Src::Stack(0x58) }, Caller { ret_rva: 0xdb30c0, src: Src::Stack(0x28) }, Caller { ret_rva: 0xdbb0fd, src: Src::StackMem(0x30, 0x3d0) }]), team_chk: Src::Reg(1), first_len: 4, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4d, 0x39, 0xde, 0x41, 0x5b] },
+    // cmp r14, 5 (함수 0xf16080)
+    Patch { name: "base_defense_min_enemies_6@0xf1627c", tactic: 27, rva: 0xf1627c, win: &[0x49, 0x83, 0xfe, 0x05, 0x0f, 0x87, 0xbc, 0x00, 0x00, 0x00], fields: &[Field { off: 3, width: 1, tf: Tf::Add(-1), max: 127 }], branches: &[Branch { off: 4, len: 6, cc: Some(7), target_rva: 0xf16342 }], src: Src::Caller(0x68, &[Caller { ret_rva: 0xd59154, src: Src::Stack(0x48) }, Caller { ret_rva: 0xdb1c8f, src: Src::Stack(0x40) }, Caller { ret_rva: 0xdb252b, src: Src::Stack(0x40) }, Caller { ret_rva: 0xdb28ac, src: Src::Stack(0x58) }, Caller { ret_rva: 0xdb30c0, src: Src::Stack(0x28) }, Caller { ret_rva: 0xdbb0fd, src: Src::StackMem(0x30, 0x3d0) }]), team_chk: Src::Reg(1), first_len: 4, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4d, 0x39, 0xde, 0x41, 0x5b] },
+    // cmp r8, 5 (함수 0xf16080)
+    Patch { name: "base_defense_min_enemies_6@0xf1633c", tactic: 27, rva: 0xf1633c, win: &[0x49, 0x83, 0xf8, 0x05, 0x76, 0x04], fields: &[Field { off: 3, width: 1, tf: Tf::Add(-1), max: 127 }], branches: &[Branch { off: 4, len: 2, cc: Some(6), target_rva: 0xf16346 }], src: Src::Caller(0x68, &[Caller { ret_rva: 0xd59154, src: Src::Stack(0x48) }, Caller { ret_rva: 0xdb1c8f, src: Src::Stack(0x40) }, Caller { ret_rva: 0xdb252b, src: Src::Stack(0x40) }, Caller { ret_rva: 0xdb28ac, src: Src::Stack(0x58) }, Caller { ret_rva: 0xdb30c0, src: Src::Stack(0x28) }, Caller { ret_rva: 0xdbb0fd, src: Src::StackMem(0x30, 0x3d0) }]), team_chk: Src::None, first_len: 4, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4d, 0x39, 0xd8, 0x41, 0x5b] },
     // cmp r13, 0x2d (함수 0xea6800)
     Patch { name: "base_defense_hold_retreat_hp_45@0xea6d30", tactic: 28, rva: 0xea6d30, win: &[0x49, 0x83, 0xfd, 0x2d, 0x0f, 0x87, 0xe4, 0x00, 0x00, 0x00], fields: &[Field { off: 3, width: 1, tf: Tf::Add(0), max: 127 }], branches: &[Branch { off: 4, len: 6, cc: Some(7), target_rva: 0xea6e1e }], src: Src::Mem(5, 0x280), team_chk: Src::Reg(12), first_len: 4, dynamic: &[0x41, 0x53, 0x4c, 0x8b, 0x5c, 0x24, 0xf8, 0x4d, 0x39, 0xdd, 0x41, 0x5b] },
     // cmp rax, 0x32 (함수 0xea6800)
@@ -95,6 +103,4 @@ pub static UNSUPPORTED: &[(&str, &str)] = &[
     ("jungle_stop_hp_41", "헬퍼 0x1018cb0 = 엔티티만(호출자 6곳·라이너 로밍 포함) — 호출자별 Player 위치 미확정"),
     ("lane_assign_hp_30", "검사 대상 = 후보 팀원(판단자 아님) · 후보 포지션이 지점에서 소실 · filter 경로는 판단자 Player 없음"),
     ("bot_duo_partner_required", "Player 포인터 소실(r15 가 cache 로 덮임) — 팀 rsi·포지션 r12 만 남음"),
-    ("hazard_avoid_padding_6000", "Player 포인터 소실 — 팀 [rsp+0xe0]·자기 엔티티 r12 만 남음"),
-    ("base_defense_min_enemies_6", "함수 0xf16080 인자에 Player 없음(팀만) — 호출자 6곳별 저장 슬롯 필요"),
 ];

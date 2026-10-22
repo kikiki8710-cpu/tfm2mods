@@ -2,7 +2,9 @@
 use crate::{platform, sites, tactics};
 use std::sync::{OnceLock, atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering::{Relaxed, Acquire, Release}}};
 #[derive(Clone, Copy, Debug)]
-pub enum Src { None, Reg(u8), Stack(i32), Mem(u8,i32), StackMem(i32,i32) }
+pub enum Src { None, Reg(u8), Stack(i32), Mem(u8,i32), StackMem(i32,i32), Caller(i32,&'static [Caller]), CachePlayer { operation:u8, entity:u8, team_stack:i32 } }
+#[derive(Clone, Copy, Debug)]
+pub struct Caller { pub ret_rva:usize, pub src:Src }
 #[derive(Clone, Copy, Debug)]
 pub enum Tf { Add(i64), Sq1, Map { on:i64, off:i64 } }
 pub struct Field { pub off:u8, pub width:u8, pub tf:Tf, pub max:i64 }
@@ -34,7 +36,35 @@ impl Frame {
     fn src(&self,s:Src)->Option<u64>{
         fn at(base:u64,d:i32)->Option<u64>{platform::fast_read_u64(base.wrapping_add_signed(d as i64) as usize)}
         match s { Src::None=>None, Src::Reg(r)=>self.reg(r), Src::Stack(d)=>at(self.reg(4)?,d),
-            Src::Mem(r,d)=>at(self.reg(r)?,d), Src::StackMem(a,b)=>at(at(self.reg(4)?,a)?,b) }
+            Src::Mem(r,d)=>at(self.reg(r)?,d), Src::StackMem(a,b)=>at(at(self.reg(4)?,a)?,b),
+            Src::Caller(offset,cases)=>{
+                let ret=at(self.reg(4)?,offset)? as usize;
+                let rva=ret.checked_sub(platform::module_base().ok()?)?;
+                let source=cases.iter().find(|c|c.ret_rva==rva)?.src;
+                // 생성기는 caller 중첩을 만들지 않는다. 잘못된 표도 재귀하지 않는다.
+                if matches!(source,Src::Caller(..)|Src::CachePlayer{..}){None}else{self.src(source)}
+            }
+            Src::CachePlayer{operation,entity,team_stack}=>{
+                let cache=at(self.reg(operation)?,0)?;
+                let entity=self.reg(entity)?;
+                let team=at(self.reg(4)?,team_stack)?;
+                if team>1 || entity<0x10000 {return None;}
+                // 0.6.5 cache champion[2][5] / Player[2][5].
+                // 게임 자체 lookup helper 0xd787e0의 대응을 안전 읽기로 재현한다.
+                let mut found=None;
+                for pos in 0..5u64 {
+                    let slot=team*0x28+pos*8;
+                    if at(cache,0x238+slot as i32)?!=entity {continue;}
+                    if found.is_some(){return None;} // 중복 엔티티 슬롯은 모호하므로 거절.
+                    found=Some((at(cache,0x288+slot as i32)?,pos,slot));
+                }
+                let (player,pos,slot)=found?;
+                if at(player,0x820)?!=team || platform::fast_read_u32(player.wrapping_add(0x8b0) as usize)? as u64!=pos {return None;}
+                // 캐시 재사용/불완전한 snapshot은 원래 판단으로 돌린다.
+                if at(cache,0x238+slot as i32)?!=entity || at(cache,0x288+slot as i32)?!=player {return None;}
+                Some(player)
+            }
+        }
     }
 }
 fn transform(f:&Field,v:i64)->Option<u64>{
@@ -48,7 +78,7 @@ unsafe extern "C" fn dispatch(index:usize,frame:*mut Frame)->usize {
         let p=sites::PATCHES.get(index)?;
         HITS[index].fetch_add(1,Relaxed);
         let f=&mut *frame;
-        let player=f.src(p.src)? as usize;
+        let player=match f.src(p.src){Some(v)=>v as usize,None=>{BAD_SUBJECT[index].fetch_add(1,Relaxed);return None;}};
         let athlete=platform::fast_read_u64(player.wrapping_add(0x810))?;
         let team=platform::fast_read_u64(player.wrapping_add(0x820))?;
         let pos=platform::fast_read_u32(player.wrapping_add(0x8b0))? as usize;
@@ -159,6 +189,63 @@ pub fn diagnostics()->Vec<String>{
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn caller_source_requires_known_return_and_current_stack() {
+        platform::init_safe_reader().unwrap();
+        #[repr(C)] struct Fixture { frame:Frame, stack:[u64;32] }
+        let mut f:Fixture=unsafe{std::mem::zeroed()};
+        static CASES:[Caller;2]=[
+            Caller{ret_rva:0x12345,src:Src::Stack(0x48)},
+            Caller{ret_rva:0x54321,src:Src::StackMem(0x30,0x10)},
+        ];
+        let src=Src::Caller(0x68,&CASES);
+        let base=platform::module_base().unwrap();
+        f.stack[0x68/8]=(base+0x12345) as u64; f.stack[0x48/8]=0x123456789ab;
+        assert_eq!(f.frame.src(src),Some(0x123456789ab));
+        let mut nested=[0u64;4]; nested[2]=0x23456789abc;
+        f.stack[0x30/8]=nested.as_ptr() as u64; f.stack[0x68/8]=(base+0x54321) as u64;
+        assert_eq!(f.frame.src(src),Some(0x23456789abc));
+        f.stack[0x68/8]=(base+0x99999) as u64;
+        assert_eq!(f.frame.src(src),None); // 모르는 호출자는 어떤 슬롯도 선수로 추정하지 않는다.
+        f.stack[0x68/8]=1; assert_eq!(f.frame.src(src),None);
+        f.stack[0x68/8]=(base+0x54321) as u64; f.stack[0x30/8]=1;
+        assert_eq!(f.frame.src(src),None); // 잘못된 저장 포인터도 원본.
+    }
+    #[test] fn cache_subject_matches_entity_team_and_position_without_global_side() {
+        platform::init_safe_reader().unwrap();
+        #[repr(C)] struct Fixture { frame:Frame, stack:[u64;32] }
+        let mut f:Fixture=unsafe{std::mem::zeroed()};
+        let mut cache=vec![0u64;0x300/8]; let mut player=vec![0u64;0x900/8];
+        let operation=[cache.as_ptr() as u64];
+        let entity=0x12345678u64;
+        f.frame.regs[14-ORDER.iter().position(|r|*r==6).unwrap()]=operation.as_ptr() as u64;
+        f.frame.regs[14-ORDER.iter().position(|r|*r==12).unwrap()]=entity;
+        f.stack[0xe0/8]=1;
+        let slot=0x28+3*8;
+        cache[(0x238+slot)/8]=entity; cache[(0x288+slot)/8]=player.as_ptr() as u64;
+        player[0x810/8]=0; player[0x820/8]=1; player[0x8b0/8]=3;
+        let source=Src::CachePlayer{operation:6,entity:12,team_stack:0xe0};
+        for team in 0..2usize {for pos in 0..5usize {
+            cache.fill(0); let s=team*0x28+pos*8;
+            f.stack[0xe0/8]=team as u64; player[0x820/8]=team as u64; player[0x8b0/8]=pos as u64;
+            cache[(0x238+s)/8]=entity;cache[(0x288+s)/8]=player.as_ptr() as u64;
+            assert_eq!(f.frame.src(source),Some(player.as_ptr() as u64));
+        }}
+        cache.fill(0); f.stack[0xe0/8]=1;player[0x820/8]=1;player[0x8b0/8]=3;
+        cache[(0x238+slot)/8]=entity;cache[(0x288+slot)/8]=player.as_ptr() as u64;
+        assert_eq!(f.frame.src(source),Some(player.as_ptr() as u64));
+        cache[(0x238+0x28)/8]=entity;assert_eq!(f.frame.src(source),None);
+        cache[(0x238+0x28)/8]=0;
+        player[0x820/8]=0; assert_eq!(f.frame.src(source),None);
+        player[0x820/8]=1; player[0x8b0/8]=2; assert_eq!(f.frame.src(source),None);
+        player[0x8b0/8]=3; f.stack[0xe0/8]=0; assert_eq!(f.frame.src(source),None);
+        f.stack[0xe0/8]=2; assert_eq!(f.frame.src(source),None);
+        f.stack[0xe0/8]=1; cache[(0x238+slot)/8]=entity+1; assert_eq!(f.frame.src(source),None);
+        cache[(0x238+slot)/8]=entity; cache[(0x288+slot)/8]=1; assert_eq!(f.frame.src(source),None);
+        // 같은 side의 다른 경기 캐시를 가로질러 검색하지 않는다.
+        let empty_cache=vec![0u64;0x300/8]; let other_operation=[empty_cache.as_ptr() as u64];
+        f.frame.regs[14-ORDER.iter().position(|r|*r==6).unwrap()]=other_operation.as_ptr() as u64;
+        assert_eq!(f.frame.src(source),None);
+    }
     #[test] fn frame_layout_and_codegen_fixture(){
         assert_eq!(std::mem::size_of::<Frame>(),240);
         assert_eq!(std::mem::offset_of!(Frame,value),224);
@@ -174,7 +261,7 @@ pub fn diagnostics()->Vec<String>{
                 "dispatch":dispatch as *const () as usize,"field_off":f.off,"field_width":f.width,
                 "values":([d.min,d.default,d.max,d.low,d.high].iter().map(|v|transform(f,*v).unwrap()).collect::<Vec<_>>())})
         }).collect();
-        assert_eq!(covered.len(),26);assert_eq!(list.len(),42);
+        assert_eq!(covered.len(),28);assert_eq!(list.len(),46);
         if let Some(path)=std::env::var_os("DT_CODEGEN_DUMP") {std::fs::write(path,serde_json::to_vec_pretty(&list).unwrap()).unwrap();}
     }
     #[test] fn dispatch_team_position_and_live_value(){
@@ -193,6 +280,54 @@ pub fn diagnostics()->Vec<String>{
         player[0x810/8]=athlete+1;assert_eq!(unsafe{dispatch(0,&mut frame)},0x10000);
         player[0x810/8]=athlete;player[0x8b0/8]=1;assert_eq!(unsafe{dispatch(0,&mut frame)},0x10000);
         player[0x8b0/8]=2;ENABLED[0].store(false,Release);assert_eq!(unsafe{dispatch(0,&mut frame)},0x10000);
+        tactics::set_armed(false);tactics::clear_levels();tactics::reset_values();tactics::set_my_athletes(&[]);
+    }
+    #[test] fn restored_sites_dispatch_only_the_recovered_own_player() {
+        platform::init_safe_reader().unwrap();
+        #[repr(C)] struct Fixture { frame:Frame, stack:[u64;32] }
+        let mut f:Fixture=unsafe{std::mem::zeroed()};
+        let mut player=vec![0u64;0x900/8]; let ptr=player.as_ptr() as u64;
+        let mut parent=vec![0u64;0x400/8]; parent[0x3d0/8]=ptr;
+        let mut cache=vec![0u64;0x300/8]; let operation=[cache.as_ptr() as u64];
+        let athlete=0x123456789abu64; let base=platform::module_base().unwrap();
+        tactics::clear_levels();tactics::reset_values();tactics::set_my_athletes(&[athlete]);tactics::set_armed(true);
+        for (i,p) in sites::PATCHES.iter().enumerate().filter(|(_,p)|p.tactic==23||p.tactic==27) {
+            ORIGINAL[i].store(0x10000,Release);DYNAMIC[i].store(0x20000,Release);ENABLED[p.tactic].store(true,Release);
+            for team in 0..2u64 {for pos in 0..5usize {
+                player[0x810/8]=athlete;player[0x820/8]=team;player[0x8b0/8]=pos as u64;
+                f.frame.regs[14-ORDER.iter().position(|r|*r==1).unwrap()]=team;
+                tactics::set_level(p.tactic,if p.tactic==27{5}else{pos},tactics::LV_LOW);
+                let cases=match p.src {Src::Caller(_,cases)=>cases,_=>&[]};
+                for case in 0..cases.len().max(1) {
+                    f.stack.fill(0);
+                    if let Src::Caller(off,_) = p.src {
+                        let c=cases[case];f.stack[off as usize/8]=(base+c.ret_rva) as u64;
+                        match c.src {
+                            Src::Stack(d)=>f.stack[d as usize/8]=ptr,
+                            Src::StackMem(d,_)=>f.stack[d as usize/8]=parent.as_ptr() as u64,
+                            _=>panic!("unexpected caller source"),
+                        }
+                    } else {
+                        f.stack[0xe0/8]=team;
+                        f.frame.regs[14-ORDER.iter().position(|r|*r==6).unwrap()]=operation.as_ptr() as u64;
+                        f.frame.regs[14-ORDER.iter().position(|r|*r==12).unwrap()]=0x12345678;
+                        cache.fill(0);let slot=team as usize*0x28+pos*8;
+                        cache[(0x238+slot)/8]=0x12345678;cache[(0x288+slot)/8]=ptr;
+                    }
+                    assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x20000,"{} team={team} pos={pos} caller={case}",p.name);
+                    assert_eq!(f.frame.value,transform(&p.fields[0],tactics::value_of(p.tactic,1)).unwrap());
+                    player[0x810/8]=athlete+1;
+                    assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000); // 같은 team/pos라도 상대 선수면 원본.
+                    player[0x810/8]=athlete;
+                    tactics::set_armed(false);assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000);tactics::set_armed(true);
+                }
+                if let Src::Caller(off,_) = p.src {
+                    f.stack[off as usize/8]=(base+0x12345) as u64;
+                    assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000); // 모르는 호출자는 원본.
+                }
+            }}
+            ENABLED[p.tactic].store(false,Release);
+        }
         tactics::set_armed(false);tactics::clear_levels();tactics::reset_values();tactics::set_my_athletes(&[]);
     }
     #[test] fn native_install_and_dispatch_on_owned_fixture(){

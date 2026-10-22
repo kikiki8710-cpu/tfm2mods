@@ -104,6 +104,15 @@ def parse_tactics_order():
 def parse_src(s):
     if s is None:
         return "Src::None"
+    if isinstance(s, dict) and s.get("kind") == "cache_player":
+        return f"Src::CachePlayer {{ operation: {REGS.index(s['operation'])}, entity: {REGS.index(s['entity'])}, team_stack: {int(s['team_stack'],16):#x} }}"
+    if isinstance(s, dict) and s.get("kind") == "caller":
+        cases = []
+        for case in s["cases"]:
+            if isinstance(case["src"], dict):
+                raise SystemExit("caller 주체 중첩 거절")
+            cases.append(f"Caller {{ ret_rva: {int(case['ret_rva'], 16):#x}, src: {parse_src(case['src'])} }}")
+        return f"Src::Caller({int(s['return_off'], 16):#x}, &[{', '.join(cases)}])"
     p = s.split(":")
     if p[0] == "reg":
         return f"Src::Reg({REGS.index(p[1])})"
@@ -322,7 +331,7 @@ def main():
 
     out = ["// 자동 생성 — tools/gen_sites.py (손으로 고치지 말 것). 원천 = tools/targets/knobs_{0}.json + subjects_{0}.json".format(a.ver),
            "#![allow(clippy::all)]",
-           "use crate::micro::{Branch, Field, Patch, Src, Tf};",
+           "use crate::micro::{Branch, Caller, Field, Patch, Src, Tf};",
            f'pub const GAME_VERSION: &str = "{a.ver}";',
            f'pub const EXE_SHA256: &str = "{sha}";',
            "pub static PATCHES: &[Patch] = &["]

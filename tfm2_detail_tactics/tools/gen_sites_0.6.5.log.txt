@@ -34,13 +34,15 @@
 [창] liner_roam_lane_healthy_hp_41 0xd7c57c len=8 cmp rax, 0x29 ; sbb rcx, -1 | 함수 0xd7be30 | 주체 stackmem:0x50:0x1768
 [창] liner_roam_lane_healthy_hp_41 0xd7c595 len=8 cmp rax, 0x29 ; sbb rcx, -1 | 함수 0xd7be30 | 주체 stackmem:0x50:0x1768
 [창] liner_roam_call_chance_700 0xd5200d len=6 cmp rax, 0x2bc | 함수 0xd40740 | 주체 mem:rbp:0x1768
-[미지원] hazard_avoid_padding_6000: Player 포인터 소실 — 팀 [rsp+0xe0]·자기 엔티티 r12 만 남음
+[창] hazard_avoid_padding_6000 0xf0fcb3 len=6 add rax, 0x1770 | 함수 0xf0f5b0 | 주체 {'kind': 'cache_player', 'operation': 'rsi', 'entity': 'r12', 'team_stack': '0xe0'}
 [창] push_sustain_min_healthy_3 0xdbd25a len=10 cmp r8, 3 ; jb 0x140dbd3cf | 함수 0xdba9b0 | 주체 mem:rbp:0x3d0
 [창] push_sustain_margin_2 0xdbd220 len=5 mov eax, 3 | 함수 0xdba9b0 | 주체 mem:rbp:0x3d0
 [창] tower_chase_own_hp_35 0xf54b75 len=8 cmp rcx, 0x19 ; setae r10b | 함수 0xf542b0 | 주체 stack:0x50
 [창] tower_chase_own_hp_35 0xf54b88 len=8 cmp rcx, 0x23 ; setae r11b | 함수 0xf542b0 | 주체 stack:0x50
 [창] tower_chase_own_hp_35 0xf54b99 len=7 cmp rcx, 0x2d ; setae cl | 함수 0xf542b0 | 주체 stack:0x50
-[미지원] base_defense_min_enemies_6: 함수 0xf16080 인자에 Player 없음(팀만) — 호출자 6곳별 저장 슬롯 필요
+[창] base_defense_min_enemies_6 0xf161dc len=10 cmp r14, 6 ; jae 0x140f16342 | 함수 0xf16080 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xd59154', 'src': 'stack:0x48'}, {'ret_rva': '0xdb1c8f', 'src': 'stack:0x40'}, {'ret_rva': '0xdb252b', 'src': 'stack:0x40'}, {'ret_rva': '0xdb28ac', 'src': 'stack:0x58'}, {'ret_rva': '0xdb30c0', 'src': 'stack:0x28'}, {'ret_rva': '0xdbb0fd', 'src': 'stackmem:0x30:0x3d0'}]}
+[창] base_defense_min_enemies_6 0xf1627c len=10 cmp r14, 5 ; ja 0x140f16342 | 함수 0xf16080 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xd59154', 'src': 'stack:0x48'}, {'ret_rva': '0xdb1c8f', 'src': 'stack:0x40'}, {'ret_rva': '0xdb252b', 'src': 'stack:0x40'}, {'ret_rva': '0xdb28ac', 'src': 'stack:0x58'}, {'ret_rva': '0xdb30c0', 'src': 'stack:0x28'}, {'ret_rva': '0xdbb0fd', 'src': 'stackmem:0x30:0x3d0'}]}
+[창] base_defense_min_enemies_6 0xf1633c len=6 cmp r8, 5 ; jbe 0x140f16346 | 함수 0xf16080 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xd59154', 'src': 'stack:0x48'}, {'ret_rva': '0xdb1c8f', 'src': 'stack:0x40'}, {'ret_rva': '0xdb252b', 'src': 'stack:0x40'}, {'ret_rva': '0xdb28ac', 'src': 'stack:0x58'}, {'ret_rva': '0xdb30c0', 'src': 'stack:0x28'}, {'ret_rva': '0xdbb0fd', 'src': 'stackmem:0x30:0x3d0'}]}
 [창] base_defense_hold_retreat_hp_45 0xea6d30 len=10 cmp r13, 0x2d ; ja 0x140ea6e1e | 함수 0xea6800 | 주체 mem:rbp:0x280
 [창] base_defense_hold_nexus_hp_50 0xea6cf2 len=6 cmp rax, 0x32 ; ja 0x140ea6d20 | 함수 0xea6800 | 주체 mem:rbp:0x280
 [창] base_defense_hold_nexus_hp_50 0xea6d1a len=6 cmp rax, 0x32 ; jbe 0x140ea6cf8 | 함수 0xea6800 | 주체 mem:rbp:0x280
