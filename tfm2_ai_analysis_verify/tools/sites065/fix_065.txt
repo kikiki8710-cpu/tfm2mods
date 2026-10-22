@@ -60,3 +60,8 @@ exclr 0xf0c672 0xf0cc35 mode 다음템short 빌드 없음 폴백 — 타이틀 �
 # 0.6.4 와 동일한 정적 도달 불가
 exclf 0xdcb2c0 static epic.compare_nearby — 9번째 인자 {2,3}만(phase1 같은 틱 소거)
 exclf 0xe1b600 static 위협 후보 48 초과 폴백 전용
+
+# 2026-10-22 2차(RE `2026-10-22_065_남은192_도달조건.md`) — 다음 빌드에 반영
+remap 0xe50a65 0xf37a61   # hp_timeline 루프 공통 합류점(구 r02 783회) ↔ 신 합류점(하류 f37a7a 1,404회). f37a2d 는 스킵 사본
+add 0xf37a61 hp_timeline add rbx,5 공통 합류점(구 e50a65)
+excl 0xecb8f1 codegen hide lea 가 cmovae 앞 무조건 → cmp rsi,3;jae 분기(id<3 전용)로 바뀜
