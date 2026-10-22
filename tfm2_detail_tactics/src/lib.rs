@@ -30,7 +30,10 @@ impl StableExtension for Extension {
             tactics::set_armed(save::loaded()&&own);
             for l in values::reload_if_changed(frame,false){log(&l);}
             ui::tick(ctx,frame);
-            if frame%1800==0{for l in micro::diagnostics(){log(&l);}}
+            if frame%1800==0{
+                log(&format!("상태 armed={} scene={:?} athletes={:?} 선택={:?}",tactics::armed(),ctx.client_scene_kind(),tactics::my_athletes(),tactics::state_text()));
+                for l in micro::diagnostics(){log(&l);}
+            }
         })).is_err(){tactics::set_armed(false);log("post_update panic: 적용 중지");}
     }
     fn on_end(&self){tactics::set_armed(false);for l in micro::diagnostics(){log(&l);}}

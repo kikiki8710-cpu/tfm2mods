@@ -1,5 +1,5 @@
 //! 공식 read-only JSON API의 계약 소속으로 내 팀 선수를 찾는다(raw 오프셋 없음).
-use mod_api_stable::{RecordKindV1 as R,StableClient};
+use mod_api_stable::{RecordKindV1 as R,StableClient,ClientSceneKindV1};
 use std::collections::VecDeque;
 use serde_json::Value;
 #[derive(Default)]
@@ -10,8 +10,13 @@ pub fn contract_team(text:&str)->Option<u64>{
 }
 impl Roster {
     pub fn tick(&mut self,ctx:&StableClient<'_>,frame:u64)->bool {
+        // 경기/밴픽에서는 관리 DB 조회가 일시적으로 None일 수 있다.
+        // 같은 세이브의 관리 화면에서 검증한 명단을 유지한다(leave에서 반드시 폐기).
+        if ctx.client_scene_kind()!=Some(ClientSceneKindV1::Main) && self.team.is_some() && !self.ids.is_empty() {
+            return true;
+        }
         let team=ctx.player_team_id();
-        if team!=self.team { *self=Self::default();self.team=team;crate::tactics::set_armed(false);crate::tactics::set_my_athletes(&[]); }
+        if team!=self.team {crate::log(&format!("내 팀 전환: {:?} → {:?}",self.team,team)); *self=Self::default();self.team=team;crate::tactics::set_armed(false);crate::tactics::set_my_athletes(&[]); }
         let Some(team)=team else{return false;};
         if frame>=self.refresh && self.queue.is_empty(){
             self.queue=ctx.athlete_ids().into();self.refresh=frame+300;

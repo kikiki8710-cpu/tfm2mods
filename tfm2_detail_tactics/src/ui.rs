@@ -10,7 +10,7 @@ static EDIT:Mutex<Editor>=Mutex::new(Editor{open:false,page:0,draft:[[0;6];tacti
 static FIRED:Mutex<Option<std::collections::HashMap<String,u64>>>=Mutex::new(None);
 fn text(ctx:&mut StableClient<'_>,p:&str,s:&str){if ctx.ui_text(p).as_deref()!=Some(s){ctx.ui_set_text(p,s);}}
 fn button(id:&str,x:usize,y:usize,w:usize,label:&str)->String{
-    format!("#{id}:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; x:{x}px; y:{y}px; width:{w}px; height:38px; text:{{text:\"{label}\"; font:\"asset/base/font/set/bold\"; size:16; align_x:Center; align_y:Center;}} }}\n")
+    format!("#{id}:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; x:{x}px; y:{y}px; width:{w}px; height:38px; #caption:label {{ ignore_event:true; width:100%; height:100%; text:\"{label}\"; font:\"asset/base/font/set/bold\"; size:16; align_x:Center; align_y:Center; }} }}\n")
 }
 fn label(id:&str,x:usize,y:usize,w:usize,h:usize,size:usize,s:&str)->String{
     format!("#{id}:label {{ @\"asset/base/style/main#label\"; x:{x}px; y:{y}px; width:{w}px; height:{h}px; size:{size}; align_y:Center; text:\"{s}\"; }}\n")
@@ -53,7 +53,7 @@ fn register_popup(ctx:&mut StableClient<'_>){
         let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());
         if !e.open||!save::loaded(){return;}
         for t in 0..tactics::N{for col in 0..6{tactics::set_level(t,col,e.draft[t][col]);}}
-        save::request(tactics::state_text());e.open=false;
+        let body=tactics::state_text();crate::log(&format!("전술 확인: {body:?}"));save::request(body);e.open=false;
     });
     register(ctx,"previous",||{let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());e.page=e.page.saturating_sub(1);e.dirty=true;});
     register(ctx,"next",||{let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());e.page=(e.page+1).min((tactics::N-1)/ROWS);e.dirty=true;});
@@ -107,7 +107,7 @@ pub fn tick(ctx:&mut StableClient<'_>,frame:u64){
             if ctx.ui_visible(&path)!=Some(show){ctx.ui_set_visible(&path,show);}
             if !show{continue;}
             let lv=e.draft[t][col];let title=if st!=tactics::ST_ACTIVE{"원본 유지".into()}else{choice(t,lv)};
-            text(ctx,&format!("{path}.text"),&title);
+            text(ctx,&format!("{path}.caption"),&title);
             let bg=if st!=tactics::ST_ACTIVE{"#292b33ff"}else{match lv{1=>"#274555ff",2=>"#60452bff",_=>"#30343fff"}};
             ctx.ui_set_properties(&path,&format!("btn: {{color:{bg}; back_color:{bg};}}"));
         }
