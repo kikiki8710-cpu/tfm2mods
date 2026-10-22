@@ -5481,3 +5481,4 @@
 0xe612dd fix:general_action_score mov eax,3 사본(구 de19ef)
 0xe0361c fix:objective_hunt cmp r15,0x1e 사본(대상이 에픽 아님 · 구 ff95b2 계열)
 0xf2f725 fix:finish_race mov sil,1 결과 블록(구 e47322)
+0xf37a61 fix:hp_timeline add rbx,5 공통 합류점(구 e50a65)
