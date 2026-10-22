@@ -401,6 +401,38 @@ struct StoppedThread { handle: OwnedHandle, suspended: bool }
 const SNAPSHOT_ATTEMPTS: usize = 32;
 static SNAPSHOT_RETRIES: AtomicUsize = AtomicUsize::new(0);
 pub(crate) fn snapshot_retries() -> usize { SNAPSHOT_RETRIES.load(Ordering::Relaxed) }
+static BARRIER_RETRIES: AtomicUsize = AtomicUsize::new(0);
+pub(crate) fn barrier_retries() -> usize { BARRIER_RETRIES.load(Ordering::Relaxed) }
+const BARRIER_ATTEMPTS: usize = 16;
+fn transient_barrier_error(e: &str) -> bool {
+    matches!(e, "thread list unstable before suspension (retry limit)"
+        | "OpenThread failed; refusing patch" | "thread identity/owner changed; refusing patch"
+        | "SuspendThread failed; refusing patch" | "GetThreadContext failed; refusing patch"
+        | "thread RIP inside patch range; refusing patch"
+        | "thread list changed during suspension; refusing patch")
+}
+// operation의 오류는 정지했던 스레드를 명시적으로 모두 재개한 뒤에만 반환한다.
+fn retry_barrier<T>(mut operation: impl FnMut() -> Result<T, &'static str>, mut backoff: impl FnMut()) -> Result<T, &'static str> {
+    for attempt in 0..BARRIER_ATTEMPTS {
+        match operation() {
+            Ok(value) => return Ok(value),
+            Err(e) if transient_barrier_error(e) && attempt + 1 < BARRIER_ATTEMPTS => {
+                BARRIER_RETRIES.fetch_add(1, Ordering::Relaxed); backoff();
+            }
+            Err(e) => return Err(e),
+        }
+    }
+    unreachable!()
+}
+#[cfg(test)]
+thread_local! { static FAIL_SUSPEND_AFTER: std::cell::Cell<Option<usize>> = const { std::cell::Cell::new(None) }; }
+fn suspend_thread(handle: Handle) -> u32 {
+    #[cfg(test)]
+    if FAIL_SUSPEND_AFTER.with(|v| match v.get() {
+        Some(0) => { v.set(None); true }, Some(n) => { v.set(Some(n-1)); false }, None => false
+    }) { return u32::MAX; }
+    unsafe { SuspendThread(handle) }
+}
 
 // 시작 중 스레드 생성/종료는 정상이다. 아직 어떤 스레드도 정지하지 않은
 // 구간에서만 새 목록 두 개를 다시 읽는다. 열거 오류/정지 후 오류는 재시도하지 않는다.
@@ -423,6 +455,10 @@ pub(crate) struct SuspendedThreads { threads: Vec<StoppedThread> }
 impl SuspendedThreads {
     pub(crate) fn acquire(address: usize, patch_len: usize) -> Result<Self, &'static str> {
         let end = checked_end(address, patch_len)?;
+        retry_barrier(|| Self::acquire_once(address, end),
+            || std::thread::sleep(std::time::Duration::from_millis(2)))
+    }
+    fn acquire_once(address: usize, end: usize) -> Result<Self, &'static str> {
         let mut first = Vec::with_capacity(MAX_THREADS);
         let mut second = Vec::with_capacity(MAX_THREADS);
         let mut after = Vec::with_capacity(MAX_THREADS);
@@ -432,6 +468,7 @@ impl SuspendedThreads {
         let current = unsafe { GetCurrentThreadId() };
         if !first.contains(&current) { return Err("installer absent from thread snapshot"); }
         let mut guard = Self { threads: Vec::with_capacity(first.len()) };
+        let result = (|| {
         // 모든 handle/Vec/CONTEXT를 정지 전에 준비한다.
         for id in first.iter().copied().filter(|id| *id != current) {
             let handle = unsafe { OpenThread(0x0002 | 0x0008 | 0x0040, 0, id) };
@@ -445,7 +482,7 @@ impl SuspendedThreads {
         }
         let mut context = Context([0; 1232]);
         for thread in &mut guard.threads {
-            if unsafe { SuspendThread(thread.handle.0) } == u32::MAX { return Err("SuspendThread failed; refusing patch"); }
+            if suspend_thread(thread.handle.0) == u32::MAX { return Err("SuspendThread failed; refusing patch"); }
             thread.suspended = true;
             context.0.fill(0);
             context.0[0x30..0x34].copy_from_slice(&0x0010_0001u32.to_le_bytes());
@@ -456,6 +493,14 @@ impl SuspendedThreads {
         // 재할당 없는 추가 검사. 이 검사 뒤 만들어지는 새 스레드는 잔여 경쟁이다.
         thread_ids(&mut after)?;
         if first != after { return Err("thread list changed during suspension; refusing patch"); }
+        Ok(())
+        })();
+        if let Err(e) = result {
+            // Drop의 best effort에 기대지 않는다. 복구 실패는 hard error이므로
+            // wrapper가 새 장벽을 만들거나 backoff로 잠들지 않는다.
+            guard.resume_all()?;
+            return Err(e);
+        }
         Ok(guard)
     }
     pub(crate) fn resume_all(&mut self) -> Result<(), &'static str> {
@@ -474,6 +519,38 @@ impl Drop for SuspendedThreads { fn drop(&mut self) { let _ = self.resume_all();
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn barrier_retry_preserves_hard_failure_and_last_reason() {
+        let mut attempts = 0; let mut waits = 0;
+        let result: Result<(), _> = retry_barrier(|| {
+            attempts += 1; Err("SuspendThread failed; refusing patch")
+        }, || waits += 1);
+        assert_eq!(result, Err("SuspendThread failed; refusing patch"));
+        assert_eq!((attempts, waits), (BARRIER_ATTEMPTS, BARRIER_ATTEMPTS - 1));
+        for error in ["ResumeThread failed; manual diagnosis required", "thread snapshot failed", "installer absent from thread snapshot"] {
+            let mut n = 0;
+            let result: Result<(), _> = retry_barrier(|| { n += 1; Err(error) }, || panic!("hard error must not retry"));
+            assert_eq!(result, Err(error)); assert_eq!(n, 1);
+        }
+    }
+    #[test]
+    fn native_partial_suspension_is_resumed_before_retry() {
+        use std::sync::{Arc, atomic::{AtomicBool, AtomicUsize}};
+        let stop = Arc::new(AtomicBool::new(false)); let ticks = Arc::new(AtomicUsize::new(0));
+        let worker = { let stop=stop.clone(); let ticks=ticks.clone(); std::thread::spawn(move || {
+            while !stop.load(Ordering::Relaxed) { ticks.fetch_add(1, Ordering::Relaxed); std::thread::yield_now(); }
+        }) };
+        while ticks.load(Ordering::Relaxed) == 0 { std::thread::yield_now(); }
+        // main test harness + worker: 최소 두 타 스레드. 첫 정지 후 두 번째 실패를 주입한다.
+        let before = barrier_retries();
+        FAIL_SUSPEND_AFTER.with(|v| v.set(Some(1)));
+        let mut guard = SuspendedThreads::acquire(0x10000, 1).unwrap();
+        assert!(barrier_retries() > before);
+        assert!(FAIL_SUSPEND_AFTER.with(|v| v.get().is_none()));
+        guard.resume_all().unwrap();
+        stop.store(true, Ordering::Relaxed); worker.join().unwrap();
+    }
 
     #[test]
     fn startup_thread_churn_recovers_with_fresh_matching_snapshots() {
