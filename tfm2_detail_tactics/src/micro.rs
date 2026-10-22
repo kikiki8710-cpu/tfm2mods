@@ -132,7 +132,7 @@ fn install_inner()->Vec<String>{
         for name in ["tfm2_ai_analysis_verify.dll","tfm2_tactics_verify.dll"] {if platform::module_loaded(name){return Err(format!("동시 사용 불가: {name}"));}}
         let exe=platform::module_path().map_err(str::to_string)?;
         let bytes=std::fs::read(exe).map_err(|e|e.to_string())?;
-        if crate::sha256::digest(&bytes)!=sites::EXE_SHA256{return Err("게임 EXE SHA256 불일치".into());}
+        if !crate::sha256::digest(&bytes).eq_ignore_ascii_case(sites::EXE_SHA256){return Err("게임 EXE SHA256 불일치".into());}
         platform::init_safe_reader().map_err(str::to_string)?;
         platform::module_base().map_err(str::to_string)
     })();
