@@ -1,0 +1,1433 @@
+{
+ "schema": "probe_targets v1",
+ "game_version": "0.6.4",
+ "exe_sha256": "A1D05045405A12E2BED182DAEAFCAD8C8A40CF29AB68BA6EA5BFD30257439582",
+ "exe_sha256_prefix16": "A1D05045405A12E2",
+ "generated": "2026-10-20",
+ "sources": [
+  "capstone.txt (analysis_064 계약 폴더)",
+  "parameters.csv (function_atlas_064_20261018)",
+  "contract.md / analysis.md",
+  "게임 exe 직접 디스어셈(capstone 5.0.7)"
+ ],
+ "rva_note": "RVA = abs − 0x140000000. imm_offset = 명령 시작부터 바이트 오프셋. imm_kind=sib_scale 이면 imm_offset 은 SIB 바이트 위치(배율만 바뀜).",
+ "byte_check": "모든 site/branch 바이트를 exe 에서 읽어 capstone.txt 의 같은 주소 바이트와 대조함",
+ "entries": [
+  {
+   "id": "jg_gank_hp_floor_40",
+   "tactic": "갱 개시 — 진행 HP 40%(strict, 이하면 즉시 -1)",
+   "func_rva": "0xee42c0",
+   "semantic_id": "passive_jungle.recent_event_role_matrix_candidates_and_plan_commit.health_and_metric (initial_hp_strict)",
+   "value": 40,
+   "sites": [
+    {
+     "rva": "0xee4418",
+     "bytes_hex": "48 83 f8 28",
+     "asm": "cmp rax, 0x28",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xee441b",
+     "current_imm_value": 40,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (64비트 나눗셈 경로). r15 = 자기 엔티티(Cache+0x238+team×0x28 [Player+0x890 role])",
+     "branch": {
+      "rva": "0xee441c",
+      "bytes_hex": "77 2c",
+      "jcc": "ja 0xee444a",
+      "taken_means": "HP% > 40 → 다음 단계(0xee444a: 50% 검사)로",
+      "not_taken_means": "HP% <= 40 → 0xee441e 출력 tag=-1 쓰고 즉시 반환(기본 위임도 안 함)"
+     },
+     "patch": "imm8 @+3: 새 문턱 T(0..127) 기록. 0xee4444 와 반드시 같이",
+     "key": "0xee4418"
+    },
+    {
+     "rva": "0xee4444",
+     "bytes_hex": "48 83 f8 28",
+     "asm": "cmp rax, 0x28",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xee4447",
+     "current_imm_value": 40,
+     "role": "copy(32비트 div 경로)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (32비트 나눗셈 경로 — 같은 판정의 사본)",
+     "branch": {
+      "rva": "0xee4448",
+      "bytes_hex": "76 d4",
+      "jcc": "jbe 0xee441e",
+      "taken_means": "HP% <= 40 → 0xee441e 출력 -1 반환",
+      "not_taken_means": "HP% > 40 → 0xee444a"
+     },
+     "patch": "imm8 @+3: 0xee4418 과 같은 값",
+     "key": "0xee4444"
+    }
+   ],
+   "copies": [
+    "0xee4418",
+    "0xee4444"
+   ],
+   "result_meaning": "RCX=out Option(64). 출력 tag 10 = 갱 플랜 커밋(56B payload, 기한=tick+12TPS) / -1 = 이번 틱 불가 / 그 외 = 기본 위임 0xee60a0 결과. 지표: tag10 커밋 횟수, 커밋 시 state+0x50=tick, 큐 tag 11 행 push",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "앞 조건: 기지 사각형 안이면 HP<maxHP 시 -1(0xee43d8), 아니면 0xef3520 지표 EAX<=49(0xee43e8 cmp eax,0x31) 필요. ★실효 주의: 이 40 통과 후 0xee44d5 의 50% 검사(아래 항목)가 갱 팔 진입을 다시 막으므로, 40만 내리면 갱 빈도는 변하지 않고 'HP T~49% 구간이 -1 반환 vs 기본 위임(EE60A0)' 차이만 바뀐다. 갱 시작 체력을 바꾸려면 50 두 곳을 같이 움직일 것."
+  },
+  {
+   "id": "jg_gank_hp_start_50",
+   "tactic": "갱 개시 — 갱 팔 진입·후보 HP 50%(이상 필요)",
+   "func_rva": "0xee42c0",
+   "semantic_id": "passive_jungle.recent_event_role_matrix_candidates_and_plan_commit.health_and_metric (candidate_hp_min)",
+   "value": 50,
+   "sites": [
+    {
+     "rva": "0xee44d5",
+     "bytes_hex": "48 83 bd 38 01 00 00 32",
+     "asm": "cmp qword ptr [rbp + 0x138], 0x32",
+     "imm_offset": 7,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xee44dc",
+     "current_imm_value": 50,
+     "role": "primary(갱 팔 진입 게이트)",
+     "compare_operand": "qword [rbp+0x138]",
+     "operand_meaning": "자기 HP% (0xee44a2 에서 저장. 엔티티 = [rbp+0x88][[rbp+0x80]] = Cache+0x238+team×0x28 [Player+0x890] = 자기 슬롯 재조회)",
+     "branch": {
+      "rva": "0xee44dd",
+      "bytes_hex": "72 35",
+      "jcc": "jb 0xee4514",
+      "taken_means": "HP% < 50 → 0xee4514: 출력 -1 후 기본 위임(EE60A0). 갱 팔(이력/후보) 진입 안 함",
+      "not_taken_means": "HP% >= 50 → 상대팀 선수 존재 + 0x16ef1b0 거짓이면 0xee4681 갱 팔"
+     },
+     "patch": "imm8 @+7 (명령 8바이트 중 마지막 바이트 0xee44dc)",
+     "key": "0xee44d5"
+    },
+    {
+     "rva": "0xee4e8a",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xee4e8d",
+     "current_imm_value": 50,
+     "role": "copy(후보 팔 재검사)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (후보 팔, 같은 슬롯 재조회. 32/64 나눗셈 경로가 여기로 합류)",
+     "branch": {
+      "rva": "0xee4e95",
+      "bytes_hex": "0f 82 c1 f8 ff ff",
+      "jcc": "jb 0xee475c",
+      "taken_means": "HP% < 50 → 0xee475c 이 kind 건너뜀(다음 kind)",
+      "not_taken_means": "HP% >= 50 → 0xf609b0 상대 후보 수집"
+     },
+     "patch": "imm8 @+3",
+     "key": "0xee4e8a"
+    }
+   ],
+   "copies": [
+    "0xee44d5",
+    "0xee4e8a"
+   ],
+   "result_meaning": "위와 같음(출력 tag 10 커밋 / -1 / 기본 위임)",
+   "confidence": "capstone+exe 바이트 직접 확인 (자기 엔티티 판정 = 0xee4342~0xee436a 의 [rbp+0x80]/[rbp+0x88] 저장 근거)",
+   "notes": "★기획 v5 정정: '0xee44d5 = 첫 상대 HP 50% 미만이면 위임'은 틀림. [rbp+0x88]=Cache+0x238+team×0x28(자기 팀 슬롯 배열), [rbp+0x80]=Player+0x890(자기 role) 이라 0xee44d5 와 0xee4e8a 는 둘 다 자기 HP. 실질 '갱 시작 체력'은 이 50(두 곳)이고 40 은 -1/위임 경계일 뿐. 두 곳 같은 값으로 바꿀 것."
+  },
+  {
+   "id": "jg_gank_commit_window_12tps",
+   "tactic": "갱 개시 — 이동 허용(commit) 12×TPS / 갱 기한",
+   "func_rva": "0xee42c0",
+   "semantic_id": "passive_jungle.recent_event_role_matrix_candidates_and_plan_commit.time_gates (commit)",
+   "value": 12,
+   "sites": [
+    {
+     "rva": "0xee50cd",
+     "bytes_hex": "48 8d 04 85 00 00 00 00",
+     "asm": "lea rax, [rax*4]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xee50d0",
+     "current_patch_byte": "85",
+     "role": "계수 a(×4)",
+     "compare_operand": "rax",
+     "operand_meaning": "TPS (Settings+0x12F8, 0xee50bf 로드) → rax = 4×TPS. SIB 0x85 = [rax*4+disp32]",
+     "branch": null,
+     "patch": "SIB 바이트 0xee50d0: 0x05=×1, 0x45=×2, 0x85=×4(원본), 0xC5=×8. disp32(0xee50d1~d4, 현재 0)에 상수 d 를 넣으면 rsi=3×(4TPS+d) 틱",
+     "key": "0xee50cd"
+    },
+    {
+     "rva": "0xee50d5",
+     "bytes_hex": "48 8d 34 40",
+     "asm": "lea rsi, [rax + rax*2]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xee50d8",
+     "current_patch_byte": "40",
+     "role": "계수 b(×3)",
+     "compare_operand": "rsi",
+     "operand_meaning": "rsi = 3×rax = 12×TPS. SIB 0x40 = [rax+rax*2]",
+     "branch": null,
+     "patch": "SIB 바이트 0xee50d8: 0x00=×2, 0x40=×3(원본), 0x80=×5, 0xC0=×9",
+     "key": "0xee50d5"
+    },
+    {
+     "rva": "0xee515b",
+     "bytes_hex": "48 39 c6",
+     "asm": "cmp rsi, rax",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "비교(즉치 없음)",
+     "compare_operand": "rsi vs rax",
+     "operand_meaning": "rsi = 12×TPS(콜리 보존 레지스터), rax = 0xf7b170 소요시간 + TPS (0xee5154 add rax,[rbp+0xb8]; [rbp+0xb8]=TPS)",
+     "branch": {
+      "rva": "0xee515e",
+      "bytes_hex": "73 39",
+      "jcc": "jae 0xee5199",
+      "taken_means": "12×TPS >= 소요+1초 → 0xee5199 승인: state+0x50=tick, 0xe8d9f0(cost 1000), 큐 tag 11 push, 출력 tag 10",
+      "not_taken_means": "초과 → 0x128c0 정리 후 다음 kind"
+     },
+     "key": "0xee515b"
+    }
+   ],
+   "copies": [
+    "0xee50d9~0xee50ea: 같은 rsi 로 기한 = tick + 12×TPS → [rbp+0xd8] (커밋 payload). 계수를 바꾸면 기한도 같이 바뀜(기획 의도와 일치)"
+   ],
+   "result_meaning": "출력 tag 10(갱 커밋) 횟수와 payload 기한. 소요시간 분포가 문턱 근처일 때만 A/B 차이",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "즉치가 아니라 lea 배율 곱(4×3). SIB 배율만 바꿔서 만들 수 있는 배수 = {1,2,4,8}×{2,3,5,9}: 8(=4×2: 0xee50d8←00), 16(=8×2: 0xee50d0←C5, 0xee50d8←00), 6, 10, 18, 20, 24, 36 … 기획 8/12/16 은 모두 가능. 다른 시간 문턱(재검사 3TPS 0xee4319·0xee47d7 lea [r+r*2], late 30TPS 0xee45c4 shl5−2)은 별개 손잡이."
+  },
+  {
+   "id": "jg_gank_population_margin_1",
+   "tactic": "갱 개시 — 인원 여유 +1 (상대 후보 수 <= 자기 건강 인원 + 1)",
+   "func_rva": "0xee42c0",
+   "semantic_id": "passive_jungle.recent_event_role_matrix_candidates_and_plan_commit.candidate_population",
+   "value": 1,
+   "sites": [
+    {
+     "rva": "0xee4f9f",
+     "bytes_hex": "48 ff c0",
+     "asm": "inc rax",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "+1 자체",
+     "compare_operand": "rax",
+     "operand_meaning": "rax = ownLen([rbp+0x18], 0xf5e770 자기 건강 목록 길이) → inc 로 +1. 즉치 없음",
+     "branch": null,
+     "patch": "+0: 이 3바이트를 0f 1f 00(nop) 로. +k(0..127): 0xee4f99..0xee4fa1 9바이트를 `85 c0 0f 95 c1 48 8d 40 kk` (test eax,eax; setne cl; lea rax,[rax+k]) 로 재작성 → 이후 0xee4fa1 1바이트가 손잡이. len<2^32 라 test eax 축소는 동치(추정·런타임 미검증)",
+     "key": "0xee4f9f"
+    },
+    {
+     "rva": "0xee4fa2",
+     "bytes_hex": "48 39 c6",
+     "asm": "cmp rsi, rax",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "비교",
+     "compare_operand": "rsi vs rax",
+     "operand_meaning": "rsi = 상대 후보 목록 길이(0xf609b0 결과), rax = ownLen+1",
+     "branch": {
+      "rva": "0xee4faa",
+      "bytes_hex": "75 73",
+      "jcc": "jne 0xee501f",
+      "taken_means": "own!=0(setne cl @0xee4f9c) && opp<=own+1(setbe al @0xee4fa5) → 0xee501f 정리 후 0xe9dfd0 검사(참이면 커밋 단계)",
+      "not_taken_means": "아니면 정리 후 다음 kind"
+     },
+     "patch": "setbe(0xee4fa5: 0f 96 c0) → setb(0f 92 c0) 로 바꾸면 +0 과 동치",
+     "key": "0xee4fa2"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "출력 tag 10 커밋 횟수",
+   "confidence": "capstone+exe 바이트 직접 확인 (rax/rsi 의미 = contract.md 후보 팔 서술 근거)",
+   "notes": "즉치 1바이트 손잡이 없음. +0/−1 은 1~3바이트 교체, +2 이상은 9바이트 재작성(위) 또는 훅 필요."
+  },
+  {
+   "id": "gank_abort_hp_41",
+   "tactic": "갱 포기 — 자기 HP 41% 미만이면 종료(이유 1)",
+   "func_rva": "0xf7bb80",
+   "semantic_id": "ganker.low_health_threat_and_region_phase_log.low_health41",
+   "value": 41,
+   "sites": [
+    {
+     "rva": "0xf7bbf6",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf7bbf9",
+     "current_imm_value": 41,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (64비트 나눗셈 경로). r14 = 자기 엔티티",
+     "branch": {
+      "rva": "0xf7bbfa",
+      "bytes_hex": "73 3d",
+      "jcc": "jae 0xf7bc39",
+      "taken_means": "HP% >= 41 → 0xf7bc39 계속(구조물 위협 검사)",
+      "not_taken_means": "HP% < 41 → 0xf7bbfc: 로그 WORD 0x0011 push, State+0x30=1, State+0x35=1(이유1), 종료"
+     },
+     "patch": "imm8 @+3. 0xf7bc33 과 같이",
+     "key": "0xf7bbf6"
+    },
+    {
+     "rva": "0xf7bc33",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf7bc36",
+     "current_imm_value": 41,
+     "role": "copy(32비트 div 경로)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (32비트 나눗셈 경로 사본)",
+     "branch": {
+      "rva": "0xf7bc37",
+      "bytes_hex": "72 c3",
+      "jcc": "jb 0xf7bbfc",
+      "taken_means": "HP% < 41 → 0xf7bbfc 종료(이유1)",
+      "not_taken_means": "HP% >= 41 → 0xf7bc39"
+     },
+     "patch": "imm8 @+3",
+     "key": "0xf7bc33"
+    }
+   ],
+   "copies": [
+    "0xf7bbf6",
+    "0xf7bc33"
+   ],
+   "result_meaning": "void. RCX=State*: +0x30 종료 플래그, +0x35 종료 이유(1=저체력, 9=라인 구조물 교전), +0x32 기한 표시, +0x20 도착 stamp, Vec(+0/+8/+0x10) 로그 WORD 0x11/0x411/0x211. 지표: 이유1 종료 횟수",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "라이너가 라인 갱 플랜(tag 10)일 때도 이 함수가 불리는지는 미확인(기획 4절, 훅 카운터로 확인 필요)."
+  },
+  {
+   "id": "gank_abort_tower_reason9",
+   "tactic": "갱 포기 — 라인 구조물이 대상과 상호 교전이면 종료(이유 9) 켬/끔",
+   "func_rva": "0xf7bb80",
+   "semantic_id": "ganker.low_health_threat_and_region_phase_log.threat_exact_types",
+   "value": "ON (조건: 개체 type 4·+0x88==1, 대상 type 3·+0x88==1, 대상+0x90 == 개체+0x5b8)",
+   "sites": [
+    {
+     "rva": "0xf7bcd6",
+     "bytes_hex": "41 83 7c 24 68 04",
+     "asm": "cmp dword ptr [r12 + 0x68], 4",
+     "imm_offset": 5,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf7bcdb",
+     "current_imm_value": 4,
+     "role": "게이트1",
+     "compare_operand": "dword [r12+0x68]",
+     "operand_meaning": "r12 = 라인 고정 개체(State+0x34 라인의 1D8/1E8… 쌍 → 없으면 170 목록 첫 원소 → 넥서스 1C8). 종류 == 4",
+     "branch": {
+      "rva": "0xf7bcdc",
+      "bytes_hex": "75 60",
+      "jcc": "jne 0xf7bd3e",
+      "taken_means": "종류 != 4 → 0xf7bd3e 이유9 팔 건너뜀",
+      "not_taken_means": "종류 == 4 → +0x88==1 검사"
+     },
+     "patch": "이 jne(75 60)를 jmp(eb 60)로 → 이유9 팔 전체 생략(조회 vtable 호출도 생략)",
+     "key": "0xf7bcd6"
+    },
+    {
+     "rva": "0xf7bd09",
+     "bytes_hex": "83 78 68 03",
+     "asm": "cmp dword ptr [rax + 0x68], 3",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf7bd0c",
+     "current_imm_value": 3,
+     "role": "게이트2",
+     "compare_operand": "dword [rax+0x68]",
+     "operand_meaning": "rax = World+0x208 조회 결과(개체+0x98 가 가리키는 대상). 종류 == 3",
+     "branch": {
+      "rva": "0xf7bd0d",
+      "bytes_hex": "75 2f",
+      "jcc": "jne 0xf7bd3e",
+      "taken_means": "종류 != 3 → 0xf7bd3e",
+      "not_taken_means": "== 3 → +0x88==1 검사"
+     },
+     "key": "0xf7bd09"
+    },
+    {
+     "rva": "0xf7bd1f",
+     "bytes_hex": "49 3b 84 24 b8 05 00 00",
+     "asm": "cmp rax, qword ptr [r12 + 0x5b8]",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "최종 게이트",
+     "compare_operand": "rax vs qword [r12+0x5b8]",
+     "operand_meaning": "rax = 대상+0x90(대상이 노리는 ID), [r12+0x5b8] = 개체 자신 ID → 상호 교전",
+     "branch": {
+      "rva": "0xf7bd27",
+      "bytes_hex": "75 15",
+      "jcc": "jne 0xf7bd3e",
+      "taken_means": "불일치 → 0xf7bd3e 이유9 아님(지역 조회로 계속)",
+      "not_taken_means": "일치 → 0xf7bd29 State+0x30=1, 0xf7bd2d State+0x35=9, 카운터 lock inc, 종료"
+     },
+     "patch": "OFF = 0xf7bd27 의 75 → eb (1바이트)",
+     "key": "0xf7bd1f"
+    },
+    {
+     "rva": "0xf7bd27",
+     "key": "0xf7bd27",
+     "bytes_hex": "75",
+     "asm": "jne (토글 대상)",
+     "role": "toggle",
+     "patch": "75(jne)↔eb(jmp)"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "State+0x35==9 종료 횟수(OFF 시 0 이 되어야 함)",
+   "confidence": "capstone+exe 바이트 직접 확인 (종류 3·4 의 게임 이름은 미확정)",
+   "notes": "문턱이 아니라 on/off. 1바이트 jcc 반전으로 끔."
+  },
+  {
+   "id": "base_defense_min_enemies_6",
+   "tactic": "기지 방어 출동 — 뚫린 라인 상대 6명 이상(라인별 3곳)",
+   "func_rva": "0xfcbbb0",
+   "semantic_id": "defense.opponent_wave.minimum_count",
+   "value": 6,
+   "sites": [
+    {
+     "rva": "0xfcbd0c",
+     "bytes_hex": "49 83 fe 06",
+     "asm": "cmp r14, 6",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfcbd0f",
+     "current_imm_value": 6,
+     "role": "lane0 (>=)",
+     "compare_operand": "r14",
+     "operand_meaning": "lane0 상대 목록(Cache+0x10+opp×0x20) 중 기지(Cache+0x1C8+team×8)와 거리² <= 기준(기지↔자기팀 첫 엔티티 거리²)인 수",
+     "branch": {
+      "rva": "0xfcbd10",
+      "bytes_hex": "0f 83 5c 01 00 00",
+      "jcc": "jae 0xfcbe72",
+      "taken_means": "count >= 6 → 0xfcbe72 AL=1",
+      "not_taken_means": "아니면 다음 라인/AL=0"
+     },
+     "patch": "imm8 @+3 = N",
+     "key": "0xfcbd0c"
+    },
+    {
+     "rva": "0xfcbdac",
+     "bytes_hex": "49 83 fe 05",
+     "asm": "cmp r14, 5",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfcbdaf",
+     "current_imm_value": 5,
+     "role": "lane1 (>5)",
+     "compare_operand": "r14",
+     "operand_meaning": "lane1 상대 목록(Cache+0x90+opp×0x20) 같은 집계",
+     "branch": {
+      "rva": "0xfcbdb0",
+      "bytes_hex": "0f 87 bc 00 00 00",
+      "jcc": "ja 0xfcbe72",
+      "taken_means": "count > 5 → 0xfcbe72 AL=1",
+      "not_taken_means": "아니면 계속"
+     },
+     "patch": "imm8 @+3 = N−1",
+     "key": "0xfcbdac"
+    },
+    {
+     "rva": "0xfcbe6c",
+     "bytes_hex": "49 83 f8 05",
+     "asm": "cmp r8, 5",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfcbe6f",
+     "current_imm_value": 5,
+     "role": "lane2 (>5)",
+     "compare_operand": "r8",
+     "operand_meaning": "lane2 상대 목록(Cache+0xD0+opp×0x20) 같은 집계",
+     "branch": {
+      "rva": "0xfcbe70",
+      "bytes_hex": "76 04",
+      "jcc": "jbe 0xfcbe76",
+      "taken_means": "count <= 5 → 0xfcbe76 AL=0",
+      "not_taken_means": "count > 5 → 0xfcbe72 AL=1"
+     },
+     "patch": "imm8 @+3 = N−1",
+     "key": "0xfcbe6c"
+    }
+   ],
+   "copies": [
+    "0xfcbd0c",
+    "0xfcbdac",
+    "0xfcbe6c"
+   ],
+   "result_meaning": "AL bool = 수비 출동 필요. 라인 k 는 자기 구조물쌍(Cache+0x1D8/0x1E8, 0x1F8/0x208, 0x218/0x228 +team×8)이 둘 다 0(=뚫림)일 때만 검사. mode(Context+0x38)별 검사 라인: 0/7/8→[0,1,2], 1/3→[2], 2→[0], 4→[1], 5→[1,2], 6→없음, >8→false",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "검수 중 한 번도 참이 된 적 없음(기획 0절). N명으로 바꾸려면 lane0=N, lane1·lane2=N−1 로 세 곳 동시. 기준 반경은 고정값이 아니라 동적(첫 자기 엔티티 거리²)."
+  },
+  {
+   "id": "lane_retreat_direct_hp_by_counts",
+   "tactic": "라인 후퇴(single_line) — 인원차별 즉시 후퇴 HP 65/50/35",
+   "func_rva": "0xfc42d0",
+   "semantic_id": "single_line.retreat.direct_hp_by_counts",
+   "value": {
+    "F<E": 65,
+    "F==E": 50,
+    "F>E": 35
+   },
+   "sites": [
+    {
+     "rva": "0xfc5041",
+     "bytes_hex": "49 39 f6",
+     "asm": "cmp r14, rsi",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "인원 비교(cmovbe/cmovae 로 문턱 선택)",
+     "compare_operand": "r14 vs rsi",
+     "operand_meaning": "r14 = 아군 수+1(F, 자기 포함), rsi = 적 수(E, [rbp+0x168] enemyVec 길이; 0이면 이 블록 안 옴)",
+     "branch": null,
+     "key": "0xfc5041"
+    },
+    {
+     "rva": "0xfc5044",
+     "bytes_hex": "b8 32 00 00 00",
+     "asm": "mov eax, 0x32",
+     "imm_offset": 1,
+     "imm_size": 4,
+     "imm_kind": "imm32(mov r32)",
+     "patch_byte_rva": "0xfc5045",
+     "current_imm_value": 50,
+     "role": "F==E: 50",
+     "compare_operand": "eax",
+     "operand_meaning": "F == E 일 때 문턱 (cmovbe 로 rdx 에 들어감)",
+     "branch": null,
+     "patch": "imm32 하위 바이트 0xfc5045 (값<=127 권장)",
+     "key": "0xfc5044"
+    },
+    {
+     "rva": "0xfc5049",
+     "bytes_hex": "ba 23 00 00 00",
+     "asm": "mov edx, 0x23",
+     "imm_offset": 1,
+     "imm_size": 4,
+     "imm_kind": "imm32(mov r32)",
+     "patch_byte_rva": "0xfc504a",
+     "current_imm_value": 35,
+     "role": "F>E: 35",
+     "compare_operand": "edx",
+     "operand_meaning": "F > E 일 때 문턱",
+     "branch": null,
+     "patch": "imm32 하위 바이트 0xfc504a",
+     "key": "0xfc5049"
+    },
+    {
+     "rva": "0xfc5052",
+     "bytes_hex": "b8 41 00 00 00",
+     "asm": "mov eax, 0x41",
+     "imm_offset": 1,
+     "imm_size": 4,
+     "imm_kind": "imm32(mov r32)",
+     "patch_byte_rva": "0xfc5053",
+     "current_imm_value": 65,
+     "role": "F<E: 65",
+     "compare_operand": "eax",
+     "operand_meaning": "F < E 일 때 문턱 (cmovae 로 F>=E 면 rdx 로 교체)",
+     "branch": null,
+     "patch": "imm32 하위 바이트 0xfc5053",
+     "key": "0xfc5052"
+    },
+    {
+     "rva": "0xfc505b",
+     "bytes_hex": "48 39 85 e8 01 00 00",
+     "asm": "cmp qword ptr [rbp + 0x1e8], rax",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "비교",
+     "compare_operand": "qword [rbp+0x1e8] vs rax",
+     "operand_meaning": "[rbp+0x1e8] = H = 자기 HP%(floor), rax = 선택된 문턱",
+     "branch": {
+      "rva": "0xfc5062",
+      "bytes_hex": "0f 86 d8 07 00 00",
+      "jcc": "jbe 0xfc5840",
+      "taken_means": "H <= 문턱 → 0xfc5840 → 0xfc586c bl=1 → 0xfc58a1 self+0x18 = 후퇴 true",
+      "not_taken_means": "H > 문턱 → 점수 계산 계속"
+     },
+     "key": "0xfc505b"
+    }
+   ],
+   "copies": [
+    "0xfc4c1b cmp qword [rbp+0x1e8],0x32 는 위협150k 구간의 'H<=50' 게이트(다른 의미, 같이 바꾸지 않음)",
+    "0xf06730 에는 이 즉시 HP 표가 없음"
+   ],
+   "result_meaning": "void. self(r15)+0x18 = 후퇴 bool (0xfc58a1 mov [r15+0x18],bl). 지표: self+0x18 이 1 로 쓰인 횟수",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "세 값 모두 imm32 mov 이지만 0~127 범위면 하위 1바이트만 고치면 된다. 기획 '버팀 55·40·25 / 안전 75·60·45' 모두 1바이트."
+  },
+  {
+   "id": "lane_retreat_final_score_50_single",
+   "tactic": "라인 후퇴(single_line) — 최종 점수 문턱 50",
+   "func_rva": "0xfc42d0",
+   "semantic_id": "single_line.retreat.final_score_gate",
+   "value": 50,
+   "sites": [
+    {
+     "rva": "0xfc57bc",
+     "bytes_hex": "49 83 fd 32",
+     "asm": "cmp r13, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfc57bf",
+     "current_imm_value": 50,
+     "role": "primary",
+     "compare_operand": "r13",
+     "operand_meaning": "signed 후퇴 점수 = 기본점수(60/70/80) + 플랜 가산(100/70/60/30/5) − 감점(−5/−10)",
+     "branch": {
+      "rva": "0xfc57c0",
+      "bytes_hex": "0f 9d c3",
+      "jcc": "setge bl",
+      "taken_means": "setge bl: 점수 >= 50 → bl=1 → self+0x18 = 후퇴 true (0xfc58a1)",
+      "not_taken_means": "bl=0"
+     },
+     "patch": "imm8 @+3 (signed, −128..127)",
+     "key": "0xfc57bc"
+    }
+   ],
+   "copies": [
+    "0xf07f93 (0xf06730 사본, 아래 항목)"
+   ],
+   "result_meaning": "self+0x18 후퇴 bool",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "jcc 가 아니라 setge. H<11 또는 (mode40 payload && H<61) 강제 true 경로는 이 비교를 거치지 않음."
+  },
+  {
+   "id": "lane_retreat_final_score_50_passive",
+   "tactic": "라인 후퇴(passive_line) — 최종 점수 문턱 50",
+   "func_rva": "0xf06730",
+   "semantic_id": "passive_line.retreat_final_score_threshold",
+   "value": 50,
+   "sites": [
+    {
+     "rva": "0xf07f93",
+     "bytes_hex": "49 83 fc 32",
+     "asm": "cmp r12, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf07f96",
+     "current_imm_value": 50,
+     "role": "primary",
+     "compare_operand": "r12",
+     "operand_meaning": "signed 후퇴 점수 = 기본점수(60/70/80) + 플랜 가산 − 감점",
+     "branch": {
+      "rva": "0xf07f97",
+      "bytes_hex": "0f 9d c0",
+      "jcc": "setge al",
+      "taken_means": "setge al: 점수 >= 50 → al=1 → (al 보존) 0xf080cd mov [r13+0x110],al = 후퇴 true",
+      "not_taken_means": "al=0"
+     },
+     "patch": "imm8 @+3 (signed)",
+     "key": "0xf07f93"
+    }
+   ],
+   "copies": [
+    "0xfc57bc (0xfc42d0 사본)"
+   ],
+   "result_meaning": "void. self(r13)+0x110 = 후퇴 bool. 이후 +0x111 추적 상태·카운터(+0x90~+0xe0) 갱신",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "두 함수(passive_line / single_line)가 같은 50 을 따로 가진다. 라인 후퇴 성향을 일관되게 바꾸려면 두 곳 모두."
+  },
+  {
+   "id": "combat_retreat_hp_35",
+   "tactic": "전투 중 후퇴 — HP 35% 이하에서만 후퇴 점수 계산",
+   "func_rva": "0xdda090",
+   "semantic_id": "action_score.interaction.hp_gate_percent",
+   "value": 35,
+   "sites": [
+    {
+     "rva": "0xddaf46",
+     "bytes_hex": "48 83 f8 23",
+     "asm": "cmp rax, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xddaf49",
+     "current_imm_value": 35,
+     "role": "primary(후퇴 카테고리)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% floor (category0=후퇴. 32/64 나눗셈 경로가 0xddaf31 로 합류)",
+     "branch": {
+      "rva": "0xddaf4a",
+      "bytes_hex": "76 37",
+      "jcc": "jbe 0xddaf83",
+      "taken_means": "HP% <= 35 → 0xddaf83 후퇴 점수 계산 진행",
+      "not_taken_means": "HP% > 35 → 0xfca3e0 flags&0x10001 !=0 이면 점수 -99999(0xfffe7961) 로 후퇴 거부, 0 이면 진행"
+     },
+     "patch": "imm8 @+3",
+     "key": "0xddaf46"
+    },
+    {
+     "rva": "0xdda2cf",
+     "bytes_hex": "48 6b c9 23",
+     "asm": "imul rcx, rcx, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdda2d2",
+     "current_imm_value": 35,
+     "role": "copy(공용 gate, 교차곱 경계 — floor 경계와 35.x% 에서 다름)",
+     "compare_operand": "rcx",
+     "operand_meaning": "rcx = max(maxHP,1)×35 (교차곱). 다음 0xdda2d3 cmp rax,rcx 에서 rax = HP×100",
+     "branch": {
+      "rva": "0xdda2d6",
+      "bytes_hex": "0f 86 80 02 00 00",
+      "jcc": "jbe 0xdda55c",
+      "taken_means": "HP×100 <= maxHP×35 → 0xdda55c gate([rbp+0x1b0]) 거짓",
+      "not_taken_means": "초과 → gate = (0xfca3e0 flags&0x10001)!=0"
+     },
+     "patch": "imm8 @+3 (imul 계수)",
+     "key": "0xdda2cf"
+    }
+   ],
+   "copies": [
+    "0xddaf46 (floor HP%<=35)",
+    "0xdda2cf (HP×100 <= maxHP×35)"
+   ],
+   "result_meaning": "RAX = signed i64 행동 점수. category0(후퇴) = 주÷4 + 보조×인원배율÷800 − 2, 거절 −99999, 강한 거절 −9999999. 지표: 후퇴 카테고리 점수가 −99999 가 아닌 비율",
+   "confidence": "capstone+exe 바이트 직접 확인 (0xdda2cf gate 의 소비처 세부는 analysis.md 서술 근거)",
+   "notes": "champion+0x480!=0 또는 flags&0x100 이면 HP 무관 gate true. 기획 '25/35/45' 모두 imm8. 두 곳의 경계식이 달라(교차곱 vs floor) 같은 값으로 바꿔도 35.x% 처리 차이는 유지된다."
+  },
+  {
+   "id": "combat_call_arrival_5tps",
+   "tactic": "전투 콜 합류 — 도착 5×TPS 이내",
+   "func_rva": "0xd5a290",
+   "semantic_id": "chat.arrival_windows (earlyMultiplier / generalEngageMultiplier)",
+   "value": 5,
+   "sites": [
+    {
+     "rva": "0xd5a731",
+     "bytes_hex": "48 8d 14 89",
+     "asm": "lea rdx, [rcx + rcx*4]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xd5a734",
+     "current_patch_byte": "89",
+     "role": "조기 배수",
+     "compare_operand": "rdx",
+     "operand_meaning": "rcx = TPS(Settings+0x12F8) → rdx = 5×TPS (조기 교전). SIB 0x89=[rcx+rcx*4]",
+     "branch": null,
+     "patch": "SIB 바이트 0xd5a734: 0x09=×2, 0x49=×3, 0x89=×5(원본), 0xC9=×9",
+     "key": "0xd5a731"
+    },
+    {
+     "rva": "0xd5a735",
+     "bytes_hex": "48 39 d0",
+     "asm": "cmp rax, rdx",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "조기 비교",
+     "compare_operand": "rax vs rdx",
+     "operand_meaning": "rax = 도착시간 = isqrt(거리²)/max(속도(Own+0x638),1) (32/64 나눗셈 0xd5a722 합류)",
+     "branch": {
+      "rva": "0xd5a738",
+      "bytes_hex": "0f 87 e5 fb ff ff",
+      "jcc": "ja 0xd5a323",
+      "taken_means": "도착 > 5×TPS → 0xd5a323 반환(조기 반응 없음)",
+      "not_taken_means": "<= → handler+0x2A2A/0x195E/재시도 기한 검사 후 0xe5f1a0"
+     },
+     "key": "0xd5a735"
+    },
+    {
+     "rva": "0xd5aa84",
+     "bytes_hex": "48 8d 04 80",
+     "asm": "lea rax, [rax + rax*4]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xd5aa87",
+     "current_patch_byte": "80",
+     "role": "일반 배수",
+     "compare_operand": "rax",
+     "operand_meaning": "rax = TPS → 5×TPS → [rbp+0x6c0] (일반 교전). SIB 0x80=[rax+rax*4]",
+     "branch": null,
+     "patch": "SIB 바이트 0xd5aa87: 0x00=×2, 0x40=×3, 0x80=×5(원본), 0xC0=×9",
+     "key": "0xd5aa84"
+    },
+    {
+     "rva": "0xd5aac7",
+     "bytes_hex": "48 3b 95 c0 06 00 00",
+     "asm": "cmp rdx, qword ptr [rbp + 0x6c0]",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "일반 비교",
+     "compare_operand": "rdx vs qword [rbp+0x6c0]",
+     "operand_meaning": "rdx = 일반 도착시간([rbp+0x6b8], 속도 0 이면 panic), [rbp+0x6c0] = 5×TPS",
+     "branch": {
+      "rva": "0xd5aace",
+      "bytes_hex": "76 18",
+      "jcc": "jbe 0xd5aae8",
+      "taken_means": "도착 <= 5×TPS → 0xd5aae8 정상 commit 경로(available&&exact 또는 suppress 0)",
+      "not_taken_means": "> 5×TPS → usable 일 때만 commit(X=0) 경로"
+     },
+     "key": "0xd5aac7"
+    },
+    {
+     "rva": "0xd5a9c3",
+     "bytes_hex": "48 8d 0c 89",
+     "asm": "lea rcx, [rcx + rcx*4]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xd5a9c6",
+     "current_patch_byte": "89",
+     "role": "copy(진단 카운터만)",
+     "compare_operand": "rcx",
+     "operand_meaning": "진단 카운터용 5×TPS 사본. 0xd5a9c7 cmp r8,rcx / 0xd5a9ca jbe 0xd5ae9d (> 이면 handler+0x1280++)",
+     "branch": null,
+     "patch": "SIB 바이트 0xd5a9c6 (0x89 동일 체계) — 카운터 해석 일관성 위해 같이 권장",
+     "key": "0xd5a9c3"
+    }
+   ],
+   "copies": [
+    "0xd5a731(조기)",
+    "0xd5aa84(일반)",
+    "0xd5a9c3(진단 카운터)"
+   ],
+   "result_meaning": "void. 관측 지표 = handler(RCX)+0x1260(대상 존재) / +0x1268 / +0x1278(allow bit0=0) / +0x1280(도착>5TPS) / +0x1288(도착<=5TPS && HP<50) / +0x1290·+0x1298(0xe56cd0 commit 결과) 카운터 + battle 상태(byte 0x321) commit",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "즉치 아님 — lea 배율. 만들 수 있는 배수 = 2/3/5/9 (8 불가, 9 가능). ★주의: 원격 궁극기 예약은 '도착 > 6×TPS'(0xd5ad06 lea [r12+r12] + 0xd5ad0a lea [rax+rax*2], 0xd5ad0e cmp, 0xd5ad11 jbe 반환) — 5→3 으로 내리면 3~6TPS 구간은 합류도 예약도 안 함. 같은 대상 재시도 4×TPS(0xd5a75f)·0xd65190 의 5×TPS 는 별개."
+  },
+  {
+   "id": "jungle_safe_radius_150000",
+   "tactic": "정글 안전 거리 — 노리는 캠프 근처 적 반경 150000(거리², 포함)",
+   "func_rva": "0xef2410",
+   "semantic_id": "passive_jungle.any_opponent_except_role_one_within_reference_150k.radius_squared_plus_one",
+   "value": 150000,
+   "sites": [
+    {
+     "rva": "0xef243c",
+     "bytes_hex": "48 b9 01 c1 1a 3d 05 00 00 00",
+     "asm": "movabs rcx, 0x53d1ac101",
+     "imm_offset": 2,
+     "imm_size": 8,
+     "imm_kind": "imm64",
+     "patch_byte_rva": "0xef243e",
+     "current_imm_value": 22500000001,
+     "role": "primary(단일 상수)",
+     "compare_operand": "rcx",
+     "operand_meaning": "rcx = 150000²+1 = 0x53d1ac101 (4번 비교가 공유)",
+     "branch": null,
+     "patch": "imm64 @+2 (8바이트 LE) = R²+1. 예: 100000→0x2540be401, 200000→0x9502f9001",
+     "key": "0xef243c"
+    },
+    {
+     "rva": "0xef2486",
+     "bytes_hex": "49 39 cb",
+     "asm": "cmp r11, rcx",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "비교 role0",
+     "compare_operand": "r11 vs rcx",
+     "operand_meaning": "r11 = 상대 role0 엔티티와 기준점(R8,R9) 거리²(64비트 wrap)",
+     "branch": {
+      "rva": "0xef2489",
+      "bytes_hex": "0f 82 db 00 00 00",
+      "jcc": "jb 0xef256a",
+      "taken_means": "거리² < R²+1 → 0xef256a AL=1 반환(적 있음)",
+      "not_taken_means": "다음 role 검사"
+     },
+     "key": "0xef2486"
+    }
+   ],
+   "copies": [
+    "같은 rcx 비교: 0xef24d3(role2), 0xef2520(role3), 0xef2563(role4, r9). role1(상대 정글러)은 일부러 안 봄"
+   ],
+   "result_meaning": "AL bool = 기준점 R 이내에 상대(role0/2/3/4) 존재 → 호출자 0xee7790 이 캠프 포기 / 카정 확정 거절",
+   "confidence": "capstone+exe 바이트 직접 확인 (런타임 MATCH 이력 있음)",
+   "notes": "1바이트 손잡이는 아니지만 단일 사이트 8바이트 상수 한 번 교체로 끝."
+  },
+  {
+   "id": "lane_assign_hp_30",
+   "tactic": "라인 배정 체력 — 후보 HP 30% 이상이어야 승인",
+   "func_rva": "0xfd4260",
+   "semantic_id": "lane.candidate.health_percent_min",
+   "value": 30,
+   "sites": [
+    {
+     "rva": "0xfd43f8",
+     "bytes_hex": "48 83 f8 1e",
+     "asm": "cmp rax, 0x1e",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfd43fb",
+     "current_imm_value": 30,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "후보(RDX=candidateID 0..4) 슬롯 엔티티 HP% floor (32/64 나눗셈 합류)",
+     "branch": {
+      "rva": "0xfd43fc",
+      "bytes_hex": "0f 93 c0",
+      "jcc": "setae al",
+      "taken_means": "setae al: HP% >= 30 → AL=1(후보 승인) 반환",
+      "not_taken_means": "AL=0"
+     },
+     "patch": "imm8 @+3",
+     "key": "0xfd43f8"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "AL bool = 이 후보 라인 배정 승인 (호출: 0xfe62f0 세 라인 배정기, 0xef68f0 후보 목록)",
+   "confidence": "capstone+exe 바이트 직접 확인 (런타임 MATCH 이력 있음)",
+   "notes": "후보 ID 가 인자라 선수별 분기는 훅에서 쉬움. 0xfe62f0 특수 슬롯 30%·0xd61e90 41% 는 다른 소비."
+  },
+  {
+   "id": "self_risk_ignore_hp_35",
+   "tactic": "자기 위험 무시 — HP×100 > maxHP×35 일 때만 억제 가능",
+   "func_rva": "0xde3fa0",
+   "semantic_id": "action_score.protection.low_hp_percent (= interaction.self_risk.defense_hp_gate_pct)",
+   "value": 35,
+   "sites": [
+    {
+     "rva": "0xde40c5",
+     "bytes_hex": "48 6b d1 23",
+     "asm": "imul rdx, rcx, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xde40c8",
+     "current_imm_value": 35,
+     "role": "primary(계수)",
+     "compare_operand": "rdx",
+     "operand_meaning": "rdx = max(maxHP(r15+0x620),1)×35 (교차곱). r15 = 자기 champion 엔티티",
+     "branch": null,
+     "patch": "imm8 @+3 (imul 계수)",
+     "key": "0xde40c5"
+    },
+    {
+     "rva": "0xde40d1",
+     "bytes_hex": "48 39 d0",
+     "asm": "cmp rax, rdx",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "비교",
+     "compare_operand": "rax vs rdx",
+     "operand_meaning": "rax = HP(r15+0x668)×100 (0xde40ae)",
+     "branch": {
+      "rva": "0xde40d4",
+      "bytes_hex": "76 1d",
+      "jcc": "jbe 0xde40f3",
+      "taken_means": "HP×100 <= maxHP×35 → 0xde40f3 플래그 cl=0/r8=0 (자기 위험 억제 불가)",
+      "not_taken_means": "초과 → 0xfca3e0 flags&0x10001 !=0 이면 플래그 1"
+     },
+     "key": "0xde40d1"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "RAX = 효과·대상 합성 점수. 플래그 → [rbp+0x54f] / r13d (방어 보조 판정으로 자기 위험 감점 억제 가능 여부). champion+0x480!=0 또는 flags&0x100 이면 HP 무관 1",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "기획 '보수 45 / 보통 35 / 과감 25' 모두 imm8."
+  },
+  {
+   "id": "late_push_threshold_130",
+   "tactic": "후반 푸시 결단 — 문턱 130 (식 130 + 20t − 5k)",
+   "func_rva": "0xf23e30",
+   "semantic_id": "team.push_selector.adaptive_threshold (base)",
+   "value": 130,
+   "sites": [
+    {
+     "rva": "0xf24fab",
+     "bytes_hex": "81 c1 82 00 00 00",
+     "asm": "add ecx, 0x82",
+     "imm_offset": 2,
+     "imm_size": 4,
+     "imm_kind": "imm32",
+     "patch_byte_rva": "0xf24fad",
+     "current_imm_value": 130,
+     "role": "base 130",
+     "compare_operand": "ecx",
+     "operand_meaning": "ecx = 20t + 130 (t = floor((424−min(9v,300))/125), v = min(Player+0x280×Player+0x218/8/1000, 100)); 이후 0xf24fca 에서 −5k",
+     "branch": null,
+     "patch": "imm32 하위 바이트 0xf24fad (110=0x6e, 150=0x96 — 0..255 면 1바이트)",
+     "key": "0xf24fab"
+    },
+    {
+     "rva": "0xf24fcc",
+     "bytes_hex": "41 39 ca",
+     "asm": "cmp r10d, ecx",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "비교(cmovge)",
+     "compare_operand": "r10d vs ecx",
+     "operand_meaning": "r10d = 라인별 점수 최대값(signed, 0xf24f19 cmovg 누적), ecx = 문턱",
+     "branch": {
+      "rva": "0xf24fda",
+      "bytes_hex": "44 0f 4d d0",
+      "jcc": "cmovge r10d, eax",
+      "taken_means": "cmovge: 최고점수 >= 문턱 → 반환값 = 선택 라인([rsp+0x5c])",
+      "not_taken_means": "미달 → 반환 0xFF(푸시 안 함)"
+     },
+     "key": "0xf24fcc"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "EAX/AL = 푸시할 라인 번호 또는 0xFF. 호출자 0xda5e90 등이 lane!=FF 면 packed 8|(lane<<8) 발행",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "식의 다른 계수: 9(0xf24f72 lea [rax+rax*8]), 300(0xf24f79 cmp −0x12b / 0xf24f7f −0x12c / 0xf24fb1 sub 0x12c), 424(0xf24f87 add 0x1a8), ÷125(매직 0x625 @0xf24f90), 20(and ~3 + lea×5), ÷175(매직 0x2ed @0xf24fbe), 5(0xf24fc7 lea×5). base 만 단순 즉치."
+  },
+  {
+   "id": "push_sustain_min_healthy_3",
+   "tactic": "진행 중 푸시 유지 — 건강(HP 40%↑) 자기 인원 >= 3",
+   "func_rva": "0xda5e90",
+   "semantic_id": "team.objective_dispatch.healthy_advantage (minimum_own)",
+   "value": 3,
+   "sites": [
+    {
+     "rva": "0xda8804",
+     "bytes_hex": "49 83 f8 03",
+     "asm": "cmp r8, 3",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xda8807",
+     "current_imm_value": 3,
+     "role": "primary",
+     "compare_operand": "r8",
+     "operand_meaning": "r8 = 자기 5슬롯 중 HP% >= 40 인원 (0xda8678 setae + 0xda86c7/870b/874f/8793 sbb r8,-1)",
+     "branch": {
+      "rva": "0xda8808",
+      "bytes_hex": "0f 82 57 01 00 00",
+      "jcc": "jb 0xda8965",
+      "taken_means": "< 3 → 0xda8965 실패(푸시 유지 안 함, mode/폴백 경로)",
+      "not_taken_means": ">= 3 → 상대 비교"
+     },
+     "patch": "imm8 @+3",
+     "key": "0xda8804"
+    }
+   ],
+   "copies": [
+    "HP 40% 카운트 문턱 5곳: 0xda8678, 0xda86c7, 0xda870b, 0xda874f, 0xda8793 (cmp rax,0x28) — '건강' 정의, 별개 손잡이"
+   ],
+   "result_meaning": "void. 통과(+차단 이벤트 없음) 시 0xf23e30 lane!=FF 면 0xdab800 에 packed 8|(lane<<8), state+0xC18=clock, plan2 → 푸시 지속. 지표: tag 8 발행 횟수",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": ""
+  },
+  {
+   "id": "push_sustain_margin_2",
+   "tactic": "진행 중 푸시 유지 — 건강 인원 >= 상대 인원 + 2",
+   "func_rva": "0xda5e90",
+   "semantic_id": "team.objective_dispatch.healthy_advantage (opponent_extra)",
+   "value": 2,
+   "sites": [
+    {
+     "rva": "0xda87ca",
+     "bytes_hex": "b8 03 00 00 00",
+     "asm": "mov eax, 3",
+     "imm_offset": 1,
+     "imm_size": 4,
+     "imm_kind": "imm32(mov r32)",
+     "patch_byte_rva": "0xda87cb",
+     "current_imm_value": 3,
+     "role": "여유 상수(+1 내장)",
+     "compare_operand": "eax",
+     "operand_meaning": "eax = 3 = 여유 2 + 1. 다음 0xda87cf sbb rax,0 (상대 slot0 null 이면 −1) 후 0xda8812 popcount(slot1~4 nonnull) 가산 → rax = 2 + 상대 nonnull 수",
+     "branch": null,
+     "patch": "imm32 하위 바이트 0xda87cb = 여유+1 (여유 1→2, 3→4)",
+     "key": "0xda87ca"
+    },
+    {
+     "rva": "0xda8815",
+     "bytes_hex": "49 39 c0",
+     "asm": "cmp r8, rax",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "비교",
+     "compare_operand": "r8 vs rax",
+     "operand_meaning": "r8 = 건강 자기 인원, rax = 상대 nonnull 수 + 2",
+     "branch": {
+      "rva": "0xda8818",
+      "bytes_hex": "0f 82 47 01 00 00",
+      "jcc": "jb 0xda8965",
+      "taken_means": "건강 < 상대+2 → 0xda8965 실패",
+      "not_taken_means": "통과 → 차단 이벤트 검사 후 0xf23e30"
+     },
+     "key": "0xda8815"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "위와 같음",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "상대 쪽은 HP 무관 nonnull 수. 즉치 3 에 '+1'(slot0 sbb 트릭)이 섞여 있어 기록값=여유+1 임에 주의."
+  },
+  {
+   "id": "gank_call_accept_hp_60",
+   "tactic": "갱 콜 수락 — 라이너 HP 60% 이상(59 이하 거부)",
+   "func_rva": "0xd59d00",
+   "semantic_id": "chat.lane_hp_gate",
+   "value": 60,
+   "sites": [
+    {
+     "rva": "0xd5a06f",
+     "bytes_hex": "48 83 f8 3b",
+     "asm": "cmp rax, 0x3b",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd5a072",
+     "current_imm_value": 59,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "자기(라이너) HP% floor (rbp = 자기 엔티티, 32/64 나눗셈 합류)",
+     "branch": {
+      "rva": "0xd5a073",
+      "bytes_hex": "0f 86 7b 01 00 00",
+      "jcc": "jbe 0xd5a1f4",
+      "taken_means": "HP% <= 59 → 0xd5a1f4 수락 안 함(후처리)",
+      "not_taken_means": ">= 60 → 0xef2d80 갱 기회 점수"
+     },
+     "patch": "imm8 @+3 = 새 최소값−1 (60→0x3b)",
+     "key": "0xd5a06f"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "수락 시: handler+0x1CE8 Vec 에 {kind 0x0C, lane} push, handler+0x2960=0x15, +0x2968=tick, 새 플랜 tag 10(마감 = now+10×TPS, 0xd5a13a) → 0xd3fa10('plan'). 지표: tag 10 플랜 생성·kind 0x0C push 횟수",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "비교가 '<= 59' 형태라 기록값 = 문턱−1."
+  },
+  {
+   "id": "gank_call_accept_random_350",
+   "tactic": "갱 콜 수락 — 갱 기회 점수 음수면 난수 >= 350/1000",
+   "func_rva": "0xd59d00",
+   "semantic_id": "chat.lane_random_gate",
+   "value": {
+    "range": 1000,
+    "min": 350
+   },
+   "sites": [
+    {
+     "rva": "0xd5a08f",
+     "bytes_hex": "85 c0",
+     "asm": "test eax, eax",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "난수 진입",
+     "compare_operand": "eax",
+     "operand_meaning": "eax = 0xef2d80(Player,Data,lane) 갱 기회 점수(signed)",
+     "branch": {
+      "rva": "0xd5a091",
+      "bytes_hex": "79 23",
+      "jcc": "jns 0xd5a0b6",
+      "taken_means": "점수 >= 0 → 0xd5a0b6 난수 생략",
+      "not_taken_means": "음수 → 난수"
+     },
+     "key": "0xd5a08f"
+    },
+    {
+     "rva": "0xd5a098",
+     "bytes_hex": "41 b8 e8 03 00 00",
+     "asm": "mov r8d, 0x3e8",
+     "imm_offset": 2,
+     "imm_size": 4,
+     "imm_kind": "imm32(mov r32)",
+     "patch_byte_rva": "0xd5a09a",
+     "current_imm_value": 1000,
+     "role": "범위",
+     "compare_operand": "r8d",
+     "operand_meaning": "0xe8dae0(B,0,1000) 난수 범위 인자",
+     "branch": null,
+     "patch": "imm32 (1000=0x3e8, 2바이트 필요)",
+     "key": "0xd5a098"
+    },
+    {
+     "rva": "0xd5a0ab",
+     "bytes_hex": "3d 5e 01 00 00",
+     "asm": "cmp eax, 0x15e",
+     "imm_offset": 1,
+     "imm_size": 4,
+     "imm_kind": "imm32",
+     "patch_byte_rva": "0xd5a0ac",
+     "current_imm_value": 350,
+     "role": "문턱",
+     "compare_operand": "eax",
+     "operand_meaning": "eax = 0xe8dae0 결과(signed)",
+     "branch": {
+      "rva": "0xd5a0b0",
+      "bytes_hex": "0f 8c 3e 01 00 00",
+      "jcc": "jl 0xd5a1f4",
+      "taken_means": "난수 < 350 → 0xd5a1f4 거부",
+      "not_taken_means": ">= 350 → 0xf98d10 이동 비용 검사"
+     },
+     "patch": "imm32 @+1 (350=0x15e, 하위 2바이트 0xd5a0ac~ad)",
+     "key": "0xd5a0ab"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "위와 같음",
+   "confidence": "capstone+exe 바이트 직접 확인 (0xe8dae0 분포는 미확정 — 35% 확률이라 단정 금지)",
+   "notes": "350 은 imm32 라 2바이트. 기획 '잘 받음/덜 받음'은 이 값과 HP 60 을 함께."
+  },
+  {
+   "id": "combat_avoid_hp_41",
+   "tactic": "교전 회피 성향 — 인원 무시 후퇴 HP 41%(미만이면 인원 조건 생략)",
+   "func_rva": "0xdd1fb0",
+   "semantic_id": "battle.compose_retreat_track_attack_and_reposition_candidates.HP_local_thresholds (41)",
+   "value": 41,
+   "sites": [
+    {
+     "rva": "0xdd56c3",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdd56c6",
+     "current_imm_value": 41,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "rax = [rbp+0x318] = 자기 HP%",
+     "branch": {
+      "rva": "0xdd56c7",
+      "bytes_hex": "72 0d",
+      "jcc": "jb 0xdd56d6",
+      "taken_means": "HP% < 41 → 0xdd56d6 인원 조건 없이 중간지점(300000) 후퇴 검토",
+      "not_taken_means": ">= 41 → 0xdd56c9 적−아군 >= 2 검사"
+     },
+     "patch": "imm8 @+3",
+     "key": "0xdd56c3"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "후퇴 후보 레코드 생성([rbp+0x245]=2, 기준점 32000/928000 팀별, 5, −1 …) → 후보 벡터. 지표: 이 경로의 후퇴 후보 생성 횟수",
+   "confidence": "capstone+exe 바이트 직접 확인 (rax/r12/rdx 의미 = contract.md 근거)",
+   "notes": "기획 4절: 이 함수엔 '단일 literal 자동 patch 금지' 표시 — 시험 모드 한정으로만. 21% 중간지점 게이트(0xdd614b 부근)는 별개."
+  },
+  {
+   "id": "combat_avoid_count_margin_2",
+   "tactic": "교전 회피 성향 — HP 41% 이상이면 적 >= 아군 + 2 일 때만 후퇴",
+   "func_rva": "0xdd1fb0",
+   "semantic_id": "battle.compose_retreat_track_attack_and_reposition_candidates.direction_and_reposition (2) — 전수표에 별도 ID 없음",
+   "value": 2,
+   "sites": [
+    {
+     "rva": "0xdd56c9",
+     "bytes_hex": "48 83 c2 02",
+     "asm": "add rdx, 2",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdd56cc",
+     "current_imm_value": 2,
+     "role": "여유 +2",
+     "compare_operand": "rdx",
+     "operand_meaning": "rdx = 150000 이내 아군 수(동일 ID 제외) → +2",
+     "branch": null,
+     "patch": "imm8 @+3",
+     "key": "0xdd56c9"
+    },
+    {
+     "rva": "0xdd56cd",
+     "bytes_hex": "49 39 d4",
+     "asm": "cmp r12, rdx",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "비교",
+     "compare_operand": "r12 vs rdx",
+     "operand_meaning": "r12 = 150000 이내 적 수(보임/최근 120틱)",
+     "branch": {
+      "rva": "0xdd56d0",
+      "bytes_hex": "0f 82 e5 00 00 00",
+      "jcc": "jb 0xdd57bb",
+      "taken_means": "적 < 아군+2 → 0xdd57bb 특수 후퇴 안 함",
+      "not_taken_means": ">= → 0xdd56d6 후퇴 검토"
+     },
+     "key": "0xdd56cd"
+    }
+   ],
+   "copies": [],
+   "result_meaning": "위와 같음",
+   "confidence": "capstone+exe 바이트 직접 확인 (전수표 의미ID 는 묶음 기록이라 '2' 단독 행 없음)",
+   "notes": ""
+  },
+  {
+   "id": "objective_hunt_danger_mult_3",
+   "tactic": "오브젝트 사냥 중 후퇴 — 예상 피해 ×3 이면 위험",
+   "func_rva": "0xff9370",
+   "semantic_id": "objective_hunt.update_health_damage_danger_byte_hysteresis.danger_hit_multiplier",
+   "value": 3,
+   "sites": [
+    {
+     "rva": "0xff9487",
+     "bytes_hex": "48 8d 04 40",
+     "asm": "lea rax, [rax + rax*2]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xff948a",
+     "current_patch_byte": "40",
+     "role": "flag0/event5",
+     "compare_operand": "rax",
+     "operand_meaning": "rax = 0x178caf0 예상 피해 → ×3 (플래그 0, event 5)",
+     "branch": null,
+     "patch": "SIB 0xff948a: 0x00=×2, 0x40=×3(원본), 0x80=×5, 0xC0=×9",
+     "key": "0xff9487"
+    },
+    {
+     "rva": "0xff9570",
+     "bytes_hex": "48 39 c2",
+     "asm": "cmp rdx, rax",
+     "imm_offset": null,
+     "imm_size": null,
+     "imm_kind": "none",
+     "role": "flag0 비교",
+     "compare_operand": "rdx vs rax",
+     "operand_meaning": "rdx = 자기 HP(+0x668), rax = 피해×3 (event5) 또는 피해 (type7 경로)",
+     "branch": {
+      "rva": "0xff9573",
+      "bytes_hex": "77 4b",
+      "jcc": "ja 0xff95c0",
+      "taken_means": "HP > 값 → 0xff95c0 위험 아님(플래그 0 유지)",
+      "not_taken_means": "HP <= 값 → 0xff95be 플래그 1(위험)"
+     },
+     "key": "0xff9570"
+    },
+    {
+     "rva": "0xff955e",
+     "bytes_hex": "48 8d 0c 40",
+     "asm": "lea rcx, [rax + rax*2]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xff9561",
+     "current_patch_byte": "40",
+     "role": "flag0/type7",
+     "compare_operand": "rcx",
+     "operand_meaning": "피해×3 (플래그 0, type 7: 대상이 나를 노리고 +0x88 bit0 일 때)",
+     "branch": null,
+     "patch": "SIB 0xff9561",
+     "key": "0xff955e"
+    },
+    {
+     "rva": "0xff951f",
+     "bytes_hex": "48 8d 04 40",
+     "asm": "lea rax, [rax + rax*2]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xff9522",
+     "current_patch_byte": "40",
+     "role": "flag≠0/event5",
+     "compare_operand": "rax",
+     "operand_meaning": "피해×3 (플래그≠0, event5) → 0xff9523 cmp rcx(HP),rax / setbe = 위험",
+     "branch": null,
+     "patch": "SIB 0xff9522",
+     "key": "0xff951f"
+    },
+    {
+     "rva": "0xff9597",
+     "bytes_hex": "4c 8d 04 40",
+     "asm": "lea r8, [rax + rax*2]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "sib_scale",
+     "patch_byte_rva": "0xff959a",
+     "current_patch_byte": "40",
+     "role": "flag≠0/type7",
+     "compare_operand": "r8",
+     "operand_meaning": "피해×3 (플래그≠0, type7)",
+     "branch": null,
+     "patch": "SIB 0xff959a",
+     "key": "0xff9597"
+    }
+   ],
+   "copies": [
+    "0xff9487",
+    "0xff955e",
+    "0xff951f",
+    "0xff9597 — 4곳 동시 변경 필요"
+   ],
+   "result_meaning": "void. RDX → 플래그 바이트: 0→1 = 위험 진입, ≠0→0 = 해제. 1이면 0xff4820 이 즉시 후퇴 후보 하나만 냄. 지표: 플래그 0→1 전이 횟수",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "즉치 아님 — lea 배율. 가능 배수 2/3/5/9 (기획 ×4 불가 → ×5 로 대체하거나 훅)."
+  },
+  {
+   "id": "objective_hunt_exit_hp_30",
+   "tactic": "오브젝트 사냥 중 후퇴 — 위험 해제 HP 30%(목표 있음 >=30, 없음 >29)",
+   "func_rva": "0xff9370",
+   "semantic_id": "objective_hunt.update_health_damage_danger_byte_hysteresis.health_exit_percent",
+   "value": 30,
+   "sites": [
+    {
+     "rva": "0xff95b2",
+     "bytes_hex": "49 83 fe 1e",
+     "asm": "cmp r14, 0x1e",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xff95b5",
+     "current_imm_value": 30,
+     "role": "목표 있음",
+     "compare_operand": "r14",
+     "operand_meaning": "r14 = 자기 HP% (함수 앞에서 계산, 플래그≠0 일 때만)",
+     "branch": {
+      "rva": "0xff95b6",
+      "bytes_hex": "72 08",
+      "jcc": "jb 0xff95c0",
+      "taken_means": "HP% < 30 → 0xff95c0 플래그 유지",
+      "not_taken_means": ">= 30 이고 위험 아님 → 0xff95bc 플래그 0(해제)"
+     },
+     "patch": "imm8 @+3 = T",
+     "key": "0xff95b2"
+    },
+    {
+     "rva": "0xff952e",
+     "bytes_hex": "49 83 fe 1d",
+     "asm": "cmp r14, 0x1d",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xff9531",
+     "current_imm_value": 29,
+     "role": "목표 없음",
+     "compare_operand": "r14",
+     "operand_meaning": "목표 목록 없음/조회 실패 경로",
+     "branch": {
+      "rva": "0xff9532",
+      "bytes_hex": "0f 87 84 00 00 00",
+      "jcc": "ja 0xff95bc",
+      "taken_means": "HP% > 29 → 0xff95bc 해제",
+      "not_taken_means": "<= 29 → 유지"
+     },
+     "patch": "imm8 @+3 = T−1",
+     "key": "0xff952e"
+    }
+   ],
+   "copies": [
+    "0xff95b2 (=30)",
+    "0xff952e (=29)"
+   ],
+   "result_meaning": "위와 같음",
+   "confidence": "capstone+exe 바이트 직접 확인",
+   "notes": "T 로 바꿀 때 0xff95b2←T, 0xff952e←T−1."
+  }
+ ],
+ "schema_note": "key = 버전 무관 지점 키(최초 0.6.4 RVA, 사본이 갈라지면 #n). 노브는 key 로 지점을 가리킨다(gen_sites KNOBS)."
+}

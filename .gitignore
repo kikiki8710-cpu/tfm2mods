@@ -37,6 +37,8 @@
 !/tfm2_bancard_keep/
 !/tfm2_champ_pos_lock/
 !/tfm2_lane_tactics/
+# 2026-10-22 상세전술 튜닝 검증 모드(0.6.5 재생성) — 그 전엔 미추적
+!/tfm2_tactics_verify/
 !/tfm2_champion_exclude/
 !/tfm2_html_overlay/
 !/tfm2_html_overlay_stable/

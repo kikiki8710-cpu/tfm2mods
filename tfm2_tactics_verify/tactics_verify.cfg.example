@@ -1,0 +1,8 @@
+# DLL 폴더에 tactics_verify.cfg로 복사한 뒤 명시적으로 켭니다.
+armed=false
+label=base
+install_delay_frames=60
+max_hits=50000000
+summary_interval_ms=2000
+# gates=gank_abort_hp_41,lane_assign_hp_30
+# set=gank_abort_hp_41=55

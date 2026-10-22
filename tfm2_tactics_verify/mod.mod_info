@@ -1,0 +1,10 @@
+{
+  "name": "상세전술 문턱 검증",
+  "mod_id": "tfm2_tactics_verify",
+  "author": "tfm2mods",
+  "version": "0.2.0",
+  "mod_type": "native",
+  "contains_code": true,
+  "description": "상세전술 비교 문턱의 입력 분포와 설정별 차이를 기록합니다. 기본 비무장입니다.",
+  "dependencies": [{ "mod_id": "base", "version": ">=0.6.5, <0.6.6" }]
+}

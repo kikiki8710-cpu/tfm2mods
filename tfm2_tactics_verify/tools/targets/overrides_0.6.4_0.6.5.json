@@ -1,0 +1,41 @@
+{
+ "note": "0.6.4→0.6.5 지점 이전 사람 판정 (2026-10-22). 근거 = mods_report/tfm2_ai_analysis_verify/migration_065/sites_064_065.csv(구·신 명령 대조) · RE 2026-10-22_065_미도달원인.md(A9) · 메인 세션 디스어셈 대조",
+ "sites": {
+  "0xda8804": "0xdbd25a",
+  "0xda8815": "0xdbd26b",
+  "0xd5a735": "0xd6f935",
+  "0xde40d1": "0xe63db5",
+  "0xf07f93": "0xf9603d",
+  "0xfc505b": "0xf09b2b",
+  "0xfc57bc": "0xf0a51e",
+  "0xff952e": "0xe035d3",
+  "0xff9570": "0xe035f3",
+  "0xff95b2": [
+   "0xe035cb",
+   "0xe03612",
+   "0xe0361c"
+  ],
+  "0xf24fab": null,
+  "0xf24fcc": null,
+  "0xd5a098": "0xd707c8",
+  "0xff9487": "0xe035ed",
+  "0xff951f": "0xe03608"
+ },
+ "why": {
+  "0xda8804": "push_sustain 최소 인원 3 — 대응표 cmp r8,3 동일",
+  "0xda8815": "push_sustain 여유 비교 — 대응표 cmp r8,rax 동일",
+  "0xd5a735": "전투 콜 도착 5×TPS — repin MID_OWNER_HEAD_UNIQUE, 같은 오프셋 0x4a5·명령 동일",
+  "0xde40d1": "자기 위험 무시 35% 비교 — 대응표 0xe63db5 cmp rax,rdx (repin 의 0xe63db1 은 명령 중간)",
+  "0xf07f93": "라인 후퇴 최종 50(passive) — 대응표 0xf9603d cmp r13,0x32",
+  "0xfc505b": "싱글라인 후퇴 직접 비교 — 대응표·repin 일치 0xf09b2b",
+  "0xfc57bc": "싱글라인 최종 50 — 대응표 0xf0a51e cmp rdi,0x32 (repin 동일오프셋 가정은 명령 중간)",
+  "0xff952e": "오브젝트 사냥 후퇴 29 비교(cmp r14,0x1d → cmp r15,0x1d) — 디스어셈 대조",
+  "0xff9570": "오브젝트 사냥 위험 비교 cmp rdx,rax — 디스어셈 대조",
+  "0xff95b2": "오브젝트 사냥 후퇴 30% — 0.6.5 에서 사본 3개(RE A9: e035cb/e03612/e0361c)",
+  "0xf24fab": "후반 푸시 문턱 130 — 0.6.5 로직변경(감산항 삭제, 문턱 비교 구조 바뀜 · 사라진손잡이45 판정 §1) → 설계 변경 대상, 이 버전 비활성",
+  "0xf24fcc": "후반 푸시 문턱 비교 — 위와 같음",
+  "0xd5a098": "갱 콜 수락 난수 범위 mov r8d,0x3e8 — 명령 동일(주변 call 대상만 다름)",
+  "0xff9487": "오브젝트 사냥 위험 배수 lea rax,[rax+rax*2] (flag0/event5) — 뒤따르는 mov cl,1 꼴로 짝 확정",
+  "0xff951f": "오브젝트 사냥 위험 배수 lea rax,[rax+rax*2] (flag≠0/event5) — cmp bl,5 뒤 꼴로 짝 확정"
+ }
+}

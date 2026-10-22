@@ -1,0 +1,13 @@
+[package]
+name = "tfm2_tactics_verify"
+version = "0.2.0"
+edition = "2021"
+[lib]
+crate-type = ["cdylib", "rlib"]
+[dependencies]
+mod-api-stable = { path = "../sdk_064_stable/mod-api-stable" }
+[workspace]
+[profile.release]
+opt-level = 1
+overflow-checks = false
+panic = "unwind"
