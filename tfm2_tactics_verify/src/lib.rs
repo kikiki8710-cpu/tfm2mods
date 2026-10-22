@@ -7,6 +7,7 @@ mod probe;
 mod sha256;
 mod sites;
 mod summary;
+#[path = "../../common/log_dir.rs"] mod log_dir;
 
 use mod_api_stable::{declare_stable_mod, LogLevel, StableClient, StableExtension, StableHost, StableMod};
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -27,8 +28,11 @@ static RUNTIME: OnceLock<Mutex<Runtime>> = OnceLock::new();
 
 fn setup() -> Result<(), String> {
     let dll = platform::own_module_path(init as *const () as usize).map_err(str::to_string)?;
-    let dir = dll.parent().ok_or("DLL 부모경로 없음")?.to_path_buf();
-    let text = std::fs::read_to_string(dir.join("tactics_verify.cfg"));
+    let mod_dir = dll.parent().ok_or("DLL 부모경로 없음")?.to_path_buf();
+    // cfg 는 모드 폴더에서 읽고, 로그·요약은 mods\_log_root.txt 가 가리키는 곳(E:)에 쓴다(유저 지시 2026-10-21).
+    let dir = log_dir::log_dir_path(&mod_dir);
+    let _ = std::fs::create_dir_all(&dir);
+    let text = std::fs::read_to_string(mod_dir.join("tactics_verify.cfg"));
     let cfg = match text {
         Ok(text) => config::parse(&text)?,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => config::Config::default(),

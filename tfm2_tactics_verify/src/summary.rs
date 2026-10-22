@@ -101,8 +101,14 @@ impl Session {
     }
 
     fn write(&self) -> std::io::Result<()> {
-        atomic_write(&self.dir.join("tactics_verify_summary.json"), self.json().as_bytes())
+        atomic_write(&summary_path(&self.dir, &self.cfg.label), self.json().as_bytes())
     }
+}
+
+/// 요약 파일 = `tactics_verify_summary_<label>.json` — 다시보기 A/B 에서 회차(label)별로 남긴다(2026-10-22).
+pub fn summary_path(dir: &Path, label: &str) -> std::path::PathBuf {
+    let safe: String = label.chars().map(|c| if c.is_ascii_alphanumeric() || c == '_' || c == '-' { c } else { '_' }).collect();
+    dir.join(format!("tactics_verify_summary_{safe}.json"))
 }
 
 // Windows std::fs::rename은 대상 파일이 존재하면 실패할 수 있다. 삭제 간격 없이 교체한다.
@@ -219,9 +225,10 @@ mod tests {
             identity: false, install_ms: 1, install_frame: 60, knobs: vec![], gates: vec![] };
         let worker = start(s).unwrap();
         drop(worker);
-        let text = std::fs::read_to_string(dir.join("tactics_verify_summary.json")).unwrap();
+        let path = summary_path(&dir, &Config::default().label);
+        let text = std::fs::read_to_string(&path).unwrap();
         assert!(text.contains("\"gates\":[]"));
-        assert!(!dir.join("tactics_verify_summary.json.tmp").exists());
+        assert!(!path.with_extension("json.tmp").exists());
         std::fs::remove_dir_all(dir).unwrap();
     }
 }
