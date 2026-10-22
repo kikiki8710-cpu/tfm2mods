@@ -2,6 +2,8 @@
 use crate::platform::{self, cap_word, CAP_NONE, CAP_REG, CAP_STACK, CAP_VALUE};
 use crate::sites::{Cap, GATES};
 use std::collections::BTreeMap;
+// 게이트가 슬롯보다 많으면 넘친 게이트가 실행 중 "capacity exhausted" 로 조용히 거절된다 — 컴파일 때 막는다.
+const _: () = assert!(GATES.len() <= platform::MAX_SITES, "sites.rs 게이트 수가 platform::MAX_SITES 를 넘음");
 
 pub struct GateStatus {
     pub id: &'static str,

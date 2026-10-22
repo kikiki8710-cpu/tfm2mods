@@ -1492,6 +1492,3636 @@
    "result_meaning": "위와 같음",
    "confidence": "capstone+exe 바이트 직접 확인",
    "notes": "T 로 바꿀 때 0xff95b2←T, 0xff952e←T−1."
+  },
+  {
+   "id": "pickoff_target_hp_bonus120_61",
+   "tactic": "픽오프 대상 우선 — 대상 HP 61% 미만이면 점수 +120",
+   "func_rva": "0xfb3eb0",
+   "func_rva_064": "0xf256a0",
+   "value": 61,
+   "sites": [
+    {
+     "rva": "0xfb51ff",
+     "bytes_hex": "49 83 f8 3d",
+     "asm": "cmp r8, 0x3d",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfb5202",
+     "current_imm_value": 61,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "r8",
+     "operand_meaning": "후보 고립 적의 HP% (r8 = [r11+0x668]*100 / [r11+0x620], r11 = 후보 적 엔티티). 64/32비트 div 경로가 0xfb51db 에서 합류 — 사본 없음",
+     "branch": {
+      "rva": "0xfb5208",
+      "bytes_hex": "0f 43 c1",
+      "jcc": "cmovae eax, ecx",
+      "taken_means": "HP% >= 61 → eax = ecx(+50 또는 0 쪽 점수) — +120 보너스 없음",
+      "not_taken_means": "HP% < 61 → eax = base+120 (저체력 대상 우선)"
+     },
+     "patch": "imm8 @+3: 새 문턱 T(0..127). cmovae 라 \"T 미만이면 +120\"",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 61,
+      "lhs": [
+       3,
+       100
+      ],
+      "below_equal_above": [
+       9,
+       0,
+       144
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 61,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xf269ef",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xf269ef"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "score_terms(team.isolation): role_bonus 표 [30,100,150,150]·opp 3/>3 보너스 50/150·HP 61/81 → +120/+50. B=101 이면 모든 대상이 +120 → HP 차등이 사라져 대상 선택이 포지션·거리 쪽으로 쏠림(기대). 함수 0xfb3eb0 호출자 = 0xdba9b0 하나.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "pickoff_target_hp_bonus50_81",
+   "tactic": "픽오프 대상 우선 — 대상 HP 81% 미만이면 점수 +50",
+   "func_rva": "0xfb3eb0",
+   "func_rva_064": "0xf256a0",
+   "value": 81,
+   "sites": [
+    {
+     "rva": "0xfb51f3",
+     "bytes_hex": "49 83 f8 51",
+     "asm": "cmp r8, 0x51",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfb51f6",
+     "current_imm_value": 81,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "r8",
+     "operand_meaning": "후보 고립 적의 HP% (위와 같은 r8)",
+     "branch": {
+      "rva": "0xfb51fc",
+      "bytes_hex": "0f 43 c8",
+      "jcc": "cmovae ecx, eax",
+      "taken_means": "HP% >= 81 → ecx = base(eax) — +50 없음",
+      "not_taken_means": "HP% < 81 → ecx = base+50"
+     },
+     "patch": "imm8 @+3. 61 문턱보다 위에 있어야 3단계(+120/+50/0)가 유지됨",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 81,
+      "lhs": [
+       3,
+       100
+      ],
+      "below_equal_above": [
+       18,
+       2,
+       133
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 81,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xf269e3",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xf269e3"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "B=61 이면 +50 구간(61~80%)이 없어짐(61 이상 = 0). 단독 효과는 작을 수 있음 — 61 노브와 따로 돌릴 것.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "objective_start_nearby_radius_220000",
+   "tactic": "오브젝트 개시 인원 — 근처 반경 220000(건강 아군을 몇 명으로 세나)",
+   "func_rva": "0xdb4c40",
+   "func_rva_064": "0xda01f0",
+   "value": 220000,
+   "sites": [
+    {
+     "rva": "0xdb4e73",
+     "bytes_hex": "48 b8 01 64 dd 44 0b 00 00 00",
+     "asm": "movabs rax, 0xb44dd6401",
+     "imm_offset": 2,
+     "imm_size": 8,
+     "imm_kind": "imm64(movabs, R²+1)",
+     "patch_byte_rva": "0xdb4e75",
+     "current_imm_value": 48400000001,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "근처 판정 반경² +1 = 220000²+1. 다음 cmp r8/rbx, rax/rdx 의 우변(아군 슬롯 1의 오브젝트까지 거리²)",
+     "branch": {
+      "rva": "0xdb4e83",
+      "bytes_hex": "41 0f 92 c7",
+      "jcc": "setb r15b",
+      "taken_means": "거리² < R²+1 (setb=1) → 근처 건강 인원 +1",
+      "not_taken_means": "거리² >= R²+1 → 인원 미포함"
+     },
+     "patch": "imm64 @+2: R*R+1 (sq1). 5곳 같은 값",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       48400000001,
+       48400000001
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda0423",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdb4f13",
+     "bytes_hex": "48 ba 01 64 dd 44 0b 00 00 00",
+     "asm": "movabs rdx, 0xb44dd6401",
+     "imm_offset": 2,
+     "imm_size": 8,
+     "imm_kind": "imm64(movabs, R²+1)",
+     "patch_byte_rva": "0xdb4f15",
+     "current_imm_value": 48400000001,
+     "knob_delta": 0,
+     "role": "copy(아군 슬롯 2)",
+     "compare_operand": "rdx",
+     "operand_meaning": "근처 판정 반경² +1 = 220000²+1. 다음 cmp r8/rbx, rax/rdx 의 우변(아군 슬롯 2의 오브젝트까지 거리²)",
+     "branch": {
+      "rva": "0xdb4f22",
+      "bytes_hex": "0f 92 c0",
+      "jcc": "setb al",
+      "taken_means": "거리² < R²+1 (setb=1) → 근처 건강 인원 +1",
+      "not_taken_means": "거리² >= R²+1 → 인원 미포함"
+     },
+     "patch": "imm64 @+2: R*R+1 (sq1). 5곳 같은 값",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       48400000001,
+       48400000001
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda04c3",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdb4fa8",
+     "bytes_hex": "48 ba 01 64 dd 44 0b 00 00 00",
+     "asm": "movabs rdx, 0xb44dd6401",
+     "imm_offset": 2,
+     "imm_size": 8,
+     "imm_kind": "imm64(movabs, R²+1)",
+     "patch_byte_rva": "0xdb4faa",
+     "current_imm_value": 48400000001,
+     "knob_delta": 0,
+     "role": "copy(아군 슬롯 3)",
+     "compare_operand": "rdx",
+     "operand_meaning": "근처 판정 반경² +1 = 220000²+1. 다음 cmp r8/rbx, rax/rdx 의 우변(아군 슬롯 3의 오브젝트까지 거리²)",
+     "branch": {
+      "rva": "0xdb4fb7",
+      "bytes_hex": "0f 92 c0",
+      "jcc": "setb al",
+      "taken_means": "거리² < R²+1 (setb=1) → 근처 건강 인원 +1",
+      "not_taken_means": "거리² >= R²+1 → 인원 미포함"
+     },
+     "patch": "imm64 @+2: R*R+1 (sq1). 5곳 같은 값",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       48400000001,
+       48400000001
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda0558",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdb503d",
+     "bytes_hex": "48 ba 01 64 dd 44 0b 00 00 00",
+     "asm": "movabs rdx, 0xb44dd6401",
+     "imm_offset": 2,
+     "imm_size": 8,
+     "imm_kind": "imm64(movabs, R²+1)",
+     "patch_byte_rva": "0xdb503f",
+     "current_imm_value": 48400000001,
+     "knob_delta": 0,
+     "role": "copy(아군 슬롯 4)",
+     "compare_operand": "rdx",
+     "operand_meaning": "근처 판정 반경² +1 = 220000²+1. 다음 cmp r8/rbx, rax/rdx 의 우변(아군 슬롯 4의 오브젝트까지 거리²)",
+     "branch": {
+      "rva": "0xdb504c",
+      "bytes_hex": "0f 92 c0",
+      "jcc": "setb al",
+      "taken_means": "거리² < R²+1 (setb=1) → 근처 건강 인원 +1",
+      "not_taken_means": "거리² >= R²+1 → 인원 미포함"
+     },
+     "patch": "imm64 @+2: R*R+1 (sq1). 5곳 같은 값",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       48400000001,
+       48400000001
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda05ed",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdb50cc",
+     "bytes_hex": "48 ba 01 64 dd 44 0b 00 00 00",
+     "asm": "movabs rdx, 0xb44dd6401",
+     "imm_offset": 2,
+     "imm_size": 8,
+     "imm_kind": "imm64(movabs, R²+1)",
+     "patch_byte_rva": "0xdb50ce",
+     "current_imm_value": 48400000001,
+     "knob_delta": 0,
+     "role": "copy(아군 슬롯 5)",
+     "compare_operand": "rdx",
+     "operand_meaning": "근처 판정 반경² +1 = 220000²+1. 다음 cmp r8/rbx, rax/rdx 의 우변(아군 슬롯 5의 오브젝트까지 거리²)",
+     "branch": {
+      "rva": "0xdb50db",
+      "bytes_hex": "0f 92 c0",
+      "jcc": "setb al",
+      "taken_means": "거리² < R²+1 (setb=1) → 근처 건강 인원 +1",
+      "not_taken_means": "거리² >= R²+1 → 인원 미포함"
+     },
+     "patch": "imm64 @+2: R*R+1 (sq1). 5곳 같은 값",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       48400000001,
+       48400000001
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda067c",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xda0423",
+    "0xda04c3",
+    "0xda0558",
+    "0xda05ed",
+    "0xda067c"
+   ],
+   "copies_note": "아군 5슬롯 펼침 — 5곳 모두 같이 바꿀 것",
+   "result_meaning": "",
+   "notes": "개시 인원 문턱 자체는 .rdata 표(A 0x3b0f750 [2,2,1,2,1,2,1,2,2] / B 0x3b0f798 [3,2,1,2,1,3,1,3,3] / C 0x3b0f860 [4,2,1,2,1,3,1,4,4], qword×9)라 명령 즉치 노브 불가 → 대신 \"세는 반경\"을 줄여 같은 방향 효과를 낸다(B=120000 → 덜 셈 → 개시 감소 기대). 함수 0xdb4c40 호출자 4개(0xdb2720·0xdb2e60·0xdcb2c0·0xdce140) — 오브젝트 경합/에픽 사냥 결단 쪽에도 같이 걸림(추정).",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "objective_start_member_hp_50",
+   "tactic": "오브젝트 개시 인원 — 인원으로 셀 건강 HP 50%",
+   "func_rva": "0xdb4c40",
+   "func_rva_064": "0xda01f0",
+   "value": 50,
+   "sites": [
+    {
+     "rva": "0xdb4e34",
+     "bytes_hex": "48 83 f8 31",
+     "asm": "cmp rax, 0x31",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdb4e37",
+     "current_imm_value": 49,
+     "knob_delta": -1,
+     "role": "primary(슬롯1, 49/jbe 인코딩)",
+     "compare_operand": "rax",
+     "operand_meaning": "아군 슬롯1 HP% (64/32비트 div 합류 후)",
+     "branch": {
+      "rva": "0xdb4e38",
+      "bytes_hex": "76 4f",
+      "jcc": "jbe 0xdb4e89",
+      "taken_means": "HP% <= 49 → 0xdb4e89 (근처 인원 미포함)",
+      "not_taken_means": "HP% >= 50 → 거리 판정으로"
+     },
+     "patch": "imm8 @+3 = T-1 (jbe). 노브 변환 (v,-1)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 49,
+      "lhs": [
+       12,
+       100
+      ],
+      "below_equal_above": [
+       599,
+       0,
+       861
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 49,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda03e4",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdb4ed4",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdb4ed7",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(슬롯2)",
+     "compare_operand": "rax",
+     "operand_meaning": "아군 슬롯2 HP%",
+     "branch": {
+      "rva": "0xdb4ed8",
+      "bytes_hex": "72 4d",
+      "jcc": "jb 0xdb4f27",
+      "taken_means": "HP% < 50 → 인원 미포함",
+      "not_taken_means": "HP% >= 50 → 거리 판정으로"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 50,
+      "lhs": [
+       40,
+       100
+      ],
+      "below_equal_above": [
+       189,
+       0,
+       1294
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda0484",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdb4f69",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdb4f6c",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(슬롯3)",
+     "compare_operand": "rax",
+     "operand_meaning": "아군 슬롯3 HP%",
+     "branch": {
+      "rva": "0xdb4f6d",
+      "bytes_hex": "72 4d",
+      "jcc": "jb 0xdb4fbc",
+      "taken_means": "HP% < 50 → 인원 미포함",
+      "not_taken_means": "HP% >= 50 → 거리 판정으로"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 50,
+      "lhs": [
+       24,
+       100
+      ],
+      "below_equal_above": [
+       11,
+       0,
+       1650
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda0519",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdb4ffe",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdb5001",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(슬롯4)",
+     "compare_operand": "rax",
+     "operand_meaning": "아군 슬롯4 HP%",
+     "branch": {
+      "rva": "0xdb5002",
+      "bytes_hex": "72 4d",
+      "jcc": "jb 0xdb5051",
+      "taken_means": "HP% < 50 → 인원 미포함",
+      "not_taken_means": "HP% >= 50 → 거리 판정으로"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 50,
+      "lhs": [
+       10,
+       100
+      ],
+      "below_equal_above": [
+       168,
+       0,
+       1144
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda05ae",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdb5093",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdb5096",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(슬롯5)",
+     "compare_operand": "rax",
+     "operand_meaning": "아군 슬롯5 HP%",
+     "branch": {
+      "rva": "0xdb5097",
+      "bytes_hex": "72 47",
+      "jcc": "jb 0xdb50e0",
+      "taken_means": "HP% < 50 → 인원 미포함",
+      "not_taken_means": "HP% >= 50 → 거리 판정으로"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 50,
+      "lhs": [
+       25,
+       100
+      ],
+      "below_equal_above": [
+       477,
+       0,
+       1015
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xda0643",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdd3fb5",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdd3fb8",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(0xdd3f90 준비 인원 집계 — B표 비교용)",
+     "compare_operand": "rax",
+     "operand_meaning": "구역 안 아군 HP%",
+     "branch": {
+      "rva": "0xdd3fb9",
+      "bytes_hex": "49 83 d9 ff",
+      "jcc": "sbb r9, -1",
+      "taken_means": "HP% < 50 → CF=1 → 카운트 그대로",
+      "not_taken_means": "HP% >= 50 → sbb r9,-1 로 카운트+1"
+     },
+     "patch": "imm8 @+3 = T",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 50,
+      "lhs": [
+       14,
+       100
+      ],
+      "below_equal_above": [
+       148,
+       0,
+       1468
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xdc0fa5",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdd3e23",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdd3e26",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(0xdd3d90 event4/5 구역 집계 1)",
+     "compare_operand": "rax",
+     "operand_meaning": "구역 안 아군 HP% (event 4/5 경로)",
+     "branch": {
+      "rva": "0xdd3e27",
+      "bytes_hex": "72 b7",
+      "jcc": "jb 0xdd3de0",
+      "taken_means": "HP% < 50 → 미포함(다음 원소)",
+      "not_taken_means": "HP% >= 50 → 포함"
+     },
+     "patch": "imm8 @+3 = T",
+     "stage_run09": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xdc0e13",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdd3e34",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdd3e37",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(0xdd3d90 event4/5 구역 집계 2)",
+     "compare_operand": "rax",
+     "operand_meaning": "구역 안 아군 HP% (event 4/5 경로)",
+     "branch": {
+      "rva": "0xdd3e38",
+      "bytes_hex": "72 a6",
+      "jcc": "jb 0xdd3de0",
+      "taken_means": "HP% < 50 → 미포함(다음 원소)",
+      "not_taken_means": "HP% >= 50 → 포함"
+     },
+     "patch": "imm8 @+3 = T",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 50,
+      "lhs": [
+       14,
+       100
+      ],
+      "below_equal_above": [
+       148,
+       0,
+       1436
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xdc0e24",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdd3eef",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdd3ef2",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(0xdd3d90 event4/5 구역 집계 3)",
+     "compare_operand": "rax",
+     "operand_meaning": "구역 안 아군 HP% (event 4/5 경로)",
+     "branch": {
+      "rva": "0xdd3ef3",
+      "bytes_hex": "72 bb",
+      "jcc": "jb 0xdd3eb0",
+      "taken_means": "HP% < 50 → 미포함(다음 원소)",
+      "not_taken_means": "HP% >= 50 → 포함"
+     },
+     "patch": "imm8 @+3 = T",
+     "stage_run09": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xdc0edf",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xdd3f04",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdd3f07",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(0xdd3d90 event4/5 구역 집계 4)",
+     "compare_operand": "rax",
+     "operand_meaning": "구역 안 아군 HP% (event 4/5 경로)",
+     "branch": {
+      "rva": "0xdd3f08",
+      "bytes_hex": "72 a6",
+      "jcc": "jb 0xdd3eb0",
+      "taken_means": "HP% < 50 → 미포함(다음 원소)",
+      "not_taken_means": "HP% >= 50 → 포함"
+     },
+     "patch": "imm8 @+3 = T",
+     "stage_run09": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xdc0ef4",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xda03e4",
+    "0xda0484",
+    "0xda0519",
+    "0xda05ae",
+    "0xda0643",
+    "0xdc0fa5",
+    "0xdc0e13",
+    "0xdc0e24",
+    "0xdc0edf",
+    "0xdc0ef4"
+   ],
+   "copies_note": "근처 5슬롯(0xdb4c40) + 준비 집계(0xdd3f90) 1 + event4/5 집계(0xdd3d90) 4 = 10곳",
+   "result_meaning": "",
+   "notes": "0xdd3f90·0xdd3d90 은 호출자가 0xdb4c40 하나뿐(콜그래프 확인) → 같은 판단의 일부로 묶음. 0xdd3e23·0xdd3eef·0xdd3f04 는 9회차 미도달(event4/5 경로). B=80 → 건강 인원 감소 → 개시 감소 기대.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "base_defense_hold_retreat_hp_45",
+   "tactic": "기지 방어 중 버팀 — 후퇴 HP 45%",
+   "func_rva": "0xea6800",
+   "func_rva_064": "0xed6a70",
+   "value": 45,
+   "sites": [
+    {
+     "rva": "0xea6d30",
+     "bytes_hex": "49 83 fd 2d",
+     "asm": "cmp r13, 0x2d",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xea6d33",
+     "current_imm_value": 45,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "r13",
+     "operand_meaning": "자기 HP% (r13 = [rbx+0x668]*100/[rbx+0x620], 64/32 div 합류 후). 0xea6d2b cmp r14,rbx(예상 피해 < 현재 HP) 일 때만 도달",
+     "branch": {
+      "rva": "0xea6d34",
+      "bytes_hex": "0f 87 e4 00 00 00",
+      "jcc": "ja 0xea6e1e",
+      "taken_means": "HP% > 45 → 0xea6e1e (후퇴 안 함)",
+      "not_taken_means": "HP% <= 45 → 후퇴 후보(0xea6d3a~)"
+     },
+     "patch": "imm8 @+3 = T (ja)",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 45,
+      "lhs": [
+       21,
+       100
+      ],
+      "below_equal_above": [
+       195,
+       24,
+       591
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 45,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xed6fa0",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xed6fa0"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "기획 선택지 버팀 35 / 기본 45 / 빠른 후퇴 55. B=75 로 크게. 함수 호출자 0xe55d30 하나.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "base_defense_hold_nexus_hp_50",
+   "tactic": "기지 방어 중 버팀 — 넥서스 HP 50% 이하면 위협 확인 후 치명 피해만 후퇴",
+   "func_rva": "0xea6800",
+   "func_rva_064": "0xed6a70",
+   "value": 50,
+   "sites": [
+    {
+     "rva": "0xea6cf2",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xea6cf5",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "primary(64비트 div 경로)",
+     "compare_operand": "rax",
+     "operand_meaning": "아군 넥서스 HP% ([r15+r12*8+0x1c8] 엔티티)",
+     "branch": {
+      "rva": "0xea6cf6",
+      "bytes_hex": "77 28",
+      "jcc": "ja 0xea6d20",
+      "taken_means": "HP% > 50 → 0xea6d20 (위협 확인 생략)",
+      "not_taken_means": "HP% <= 50 → 0xea6cf8 위협 확인 call 0xf1aa60(240000)"
+     },
+     "patch": "imm8 @+3 = T (ja)",
+     "stage_run09": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xed6f62",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xea6d1a",
+     "bytes_hex": "48 83 f8 32",
+     "asm": "cmp rax, 0x32",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xea6d1d",
+     "current_imm_value": 50,
+     "knob_delta": 0,
+     "role": "copy(32비트 div 경로)",
+     "compare_operand": "rax",
+     "operand_meaning": "아군 넥서스 HP% (같은 판정 사본)",
+     "branch": {
+      "rva": "0xea6d1e",
+      "bytes_hex": "76 d8",
+      "jcc": "jbe 0xea6cf8",
+      "taken_means": "HP% <= 50 → 0xea6cf8 위협 확인",
+      "not_taken_means": "HP% > 50 → 0xea6d20"
+     },
+     "patch": "imm8 @+3 = T (jbe)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 50,
+      "lhs": [
+       3,
+       100
+      ],
+      "below_equal_above": [
+       38,
+       0,
+       713
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 50,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xed6f8a",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xed6f62",
+    "0xed6f8a"
+   ],
+   "copies_note": "64/32비트 div 사본 2",
+   "result_meaning": "",
+   "notes": "두 곳은 64/32비트 div 사본 — 반드시 같이. 0xea6cf2 는 9회차 미도달(64비트 경로), 0xea6d1a 양쪽. 240000 반경(0xf1abe5)은 0xf1aa60 공유 helper(호출자 5)라 노브에서 뺌. B=100 → 넥서스 HP 와 무관하게 늘 위협 확인.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "base_defense_hold_dmg_ratio_49",
+   "tactic": "기지 방어 중 버팀 — 피해율 49% 초과면 HP 와 무관하게 피해로 침",
+   "func_rva": "0xea6800",
+   "func_rva_064": "0xed6a70",
+   "value": 49,
+   "sites": [
+    {
+     "rva": "0xea6c73",
+     "bytes_hex": "48 83 f8 31",
+     "asm": "cmp rax, 0x31",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xea6c76",
+     "current_imm_value": 49,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "예상 피해율% (rax = 2×TPS 예측 피해 r14 ×100 / 자기 HP rbx). 피해 >= HP 이면 이 비교 전에 0xea6cb9 로 감",
+     "branch": {
+      "rva": "0xea6c77",
+      "bytes_hex": "77 40",
+      "jcc": "ja 0xea6cb9",
+      "taken_means": "피해율 > 49 → 0xea6cb9 (피해 유지 = 후퇴 검토 대상)",
+      "not_taken_means": "피해율 <= 49 → HP 단계표(65/29·40/17·25/10) 검사로"
+     },
+     "patch": "imm8 @+3 = T (ja). 단계표 6값(0xea6c79~0xea6c97)은 이 노브에 안 묶음",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 49,
+      "lhs": [
+       0,
+       93
+      ],
+      "below_equal_above": [
+       888,
+       2,
+       73
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 49,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xed6ee3",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xed6ee3"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단계표: HP>65 면 피해율>49 만, HP<=65 면 >29, <=40 면 >17, <=25 면 >=10 (0xea6c79/7f/85/8b/91/97, 전부 단일 사본·imm8). 필요하면 같은 방식으로 노브 추가 가능. B=9 → 거의 모든 피해를 위험으로 침(빠른 후퇴 기대).",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "crowd_retreat_weight_plus2_300",
+   "tactic": "수적 열세·우세 공격성 — 적이 2명 이상 많을 때 후퇴 배율 300",
+   "func_rva": "0xe5a690",
+   "func_rva_064": "0xdda090",
+   "value": 300,
+   "sites": [
+    {
+     "rva": "0xe5c97e",
+     "bytes_hex": "b9 2c 01 00 00",
+     "asm": "mov ecx, 0x12c",
+     "imm_offset": 1,
+     "imm_size": 4,
+     "imm_kind": "imm32(mov ecx)",
+     "patch_byte_rva": "0xe5c97f",
+     "current_imm_value": 300,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "ecx",
+     "operand_meaning": "후퇴 gain 배율(적−아군 차 >= +2 일 때 쓰는 값). 다음 cmp rax,1 / jg 0xe5c9a2 가 차이 >1 이면 이 300 을 그대로 씀",
+     "branch": {
+      "rva": "0xe5c987",
+      "bytes_hex": "7f 19",
+      "jcc": "jg 0xe5c9a2",
+      "taken_means": "(다음 jg) 차이 > 1 → 배율 300 채택",
+      "not_taken_means": "차이 <= 1 → 40(0xe5c98c) 또는 표 0x3b1e2b8 [75,100,200]"
+     },
+     "patch": "imm32 @+1 (mov — 비교 피연산자 아님, 점수 배율). 후퇴 점수 = B×배율/800",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       300,
+       300
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xddc37e",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xddc37e"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "기획 선택지는 +1(200)·+2(300)을 같이 바꾸는데 +1·0·−1 값(75/100/200)은 .rdata 표 0x3b1e2b8(qword, [rcx+rax*8+8])라 명령 즉치로는 +2 이상(300)과 −2 이하(40, 0xe5c98c mov ecx,0x28)만 바꿀 수 있다. 9회차 단계 = 도달(값 300 관측). 함수 0xe5a690 호출자 8 — 여러 교전 점수에서 공통 사용(그 자체가 이 전술의 정의).",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "tower_chase_own_hp_35",
+   "tactic": "타워 아래 추격 — 괜찮은 교전 내 HP 문턱(25/35/45를 함께 이동)",
+   "func_rva": "0xf542b0",
+   "func_rva_064": "0xe6a100",
+   "value": 35,
+   "sites": [
+    {
+     "rva": "0xf54b75",
+     "bytes_hex": "48 83 f9 19",
+     "asm": "cmp rcx, 0x19",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf54b78",
+     "current_imm_value": 25,
+     "knob_delta": -10,
+     "role": "goodA(내 HP 25)",
+     "compare_operand": "rcx",
+     "operand_meaning": "자기 HP% (rcx). goodA = 수적 우위(아군>=2·아군>적) && HP>=25",
+     "branch": {
+      "rva": "0xf54b79",
+      "bytes_hex": "41 0f 93 c2",
+      "jcc": "setae r10b",
+      "taken_means": "HP% >= 25 → r10b=1 (goodA 성립 후보)",
+      "not_taken_means": "HP% < 25 → goodA 불성립"
+     },
+     "patch": "imm8 @+3 = V-10",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 25,
+      "lhs": [
+       7,
+       100
+      ],
+      "below_equal_above": [
+       28,
+       3,
+       2254
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 25,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xe6a9c5",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xf54b88",
+     "bytes_hex": "48 83 f9 23",
+     "asm": "cmp rcx, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf54b8b",
+     "current_imm_value": 35,
+     "knob_delta": 0,
+     "role": "goodB(내 HP 35)",
+     "compare_operand": "rcx",
+     "operand_meaning": "자기 HP% (rcx). goodB = 대상 HP<26 && HP>=35",
+     "branch": {
+      "rva": "0xf54b8c",
+      "bytes_hex": "41 0f 93 c3",
+      "jcc": "setae r11b",
+      "taken_means": "HP% >= 35 → r11b=1",
+      "not_taken_means": "HP% < 35 → goodB 불성립"
+     },
+     "patch": "imm8 @+3 = V",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 35,
+      "lhs": [
+       7,
+       100
+      ],
+      "below_equal_above": [
+       106,
+       6,
+       2173
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 35,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xe6a9d8",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xf54b99",
+     "bytes_hex": "48 83 f9 2d",
+     "asm": "cmp rcx, 0x2d",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf54b9c",
+     "current_imm_value": 45,
+     "knob_delta": 10,
+     "role": "goodC(내 HP 45)",
+     "compare_operand": "rcx",
+     "operand_meaning": "자기 HP% (rcx). goodC = 대상 HP<51 && 140000 안 수적 우위 && HP>=45",
+     "branch": {
+      "rva": "0xf54b9d",
+      "bytes_hex": "0f 93 c1",
+      "jcc": "setae cl",
+      "taken_means": "HP% >= 45 → cl=1",
+      "not_taken_means": "HP% < 45 → goodC 불성립"
+     },
+     "patch": "imm8 @+3 = V+10",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 45,
+      "lhs": [
+       7,
+       100
+      ],
+      "below_equal_above": [
+       200,
+       6,
+       2079
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 45,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xe6a9e9",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xe6a9c5",
+    "0xe6a9d8",
+    "0xe6a9e9"
+   ],
+   "copies_note": "사본 아님 — 3경우 문턱(goodA/B/C)",
+   "result_meaning": "",
+   "notes": "세 문턱은 각각 단일 사본(div 합류 뒤). 기획 선택지 금지 45·55·65 / 보통 25·35·45 / 허용 15·25·35 가 모두 ±10 이동이라 노브 1개(V=가운데 값)로 묶음. 결과 al = good 여부 → xor al,1 후 반환. B=55 → 금지 선택지(45·55·65). 함수 호출자 5(0xe4a890·0xed5300·0xee0fb0·0xeebd10·0xf51460).",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "tower_chase_tower_margin_15000",
+   "tactic": "타워 아래 추격 — 타워 범위 판정 여유 15000",
+   "func_rva": "0x1012ed0",
+   "func_rva_064": "0xeed870",
+   "value": 15000,
+   "sites": [
+    {
+     "rva": "0x101300b",
+     "bytes_hex": "49 81 c2 98 3a 00 00",
+     "asm": "add r10, 0x3a98",
+     "imm_offset": 3,
+     "imm_size": 4,
+     "imm_kind": "imm32(add r10)",
+     "patch_byte_rva": "0x101300e",
+     "current_imm_value": 15000,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "r10",
+     "operand_meaning": "타워 공격 사거리 판정의 안전 여유(r10 = 호출자 여유 + 15000). 이후 0x10131d4 cmp rbp,rcx(거리² vs (사거리+여유)²) jae",
+     "branch": {
+      "rva": "0x10131d7",
+      "bytes_hex": "0f 83 43 fe ff ff",
+      "jcc": "jae 0x1013020",
+      "taken_means": "(0x10131d7 jae) 거리² >= 범위² → 타워 범위 밖",
+      "not_taken_means": "거리² < 범위² → 타워 범위 안(추격 위험)"
+     },
+     "patch": "imm32 @+3 (add — 비교 피연산자 공급)",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       25000,
+       395000
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xeed9ab",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xeed9ab"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "0x1012ed0 호출자 = 0xf542b0 하나(콜그래프). 늘리면 타워 범위를 넓게 봄 → 추격 감소 기대. 9회차 단계: add 지점 도달(lhs 25000~395000), 하류 비교 0x10131d4 양쪽.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "line_chase_retreat_hp_45",
+   "tactic": "라인·추적 중 후퇴 — HP 45% 이하 바로 후퇴",
+   "func_rva": "0xf7cde0",
+   "func_rva_064": "0xde7810",
+   "value": 45,
+   "sites": [
+    {
+     "rva": "0xf7ce6d",
+     "bytes_hex": "48 83 f8 2d",
+     "asm": "cmp rax, 0x2d",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf7ce70",
+     "current_imm_value": 45,
+     "knob_delta": 0,
+     "role": "primary(64비트 div 경로)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% ([r12+0x668]*100/[r12+0x620])",
+     "branch": {
+      "rva": "0xf7ce71",
+      "bytes_hex": "77 19",
+      "jcc": "ja 0xf7ce8c",
+      "taken_means": "HP% > 45 → 0xf7ce8c (일반 경로)",
+      "not_taken_means": "HP% <= 45 → 0xf7d019 바로 후퇴 경로"
+     },
+     "patch": "imm8 @+3 = T (ja)",
+     "stage_run09": {
+      "stage": "미도달",
+      "T": 45,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 45,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xde789d",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xf7ce82",
+     "bytes_hex": "48 83 f8 2d",
+     "asm": "cmp rax, 0x2d",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf7ce85",
+     "current_imm_value": 45,
+     "knob_delta": 0,
+     "role": "copy(32비트 div 경로)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (같은 판정 사본)",
+     "branch": {
+      "rva": "0xf7ce86",
+      "bytes_hex": "0f 86 8d 01 00 00",
+      "jcc": "jbe 0xf7d019",
+      "taken_means": "HP% <= 45 → 0xf7d019 바로 후퇴",
+      "not_taken_means": "HP% > 45 → 일반 경로"
+     },
+     "patch": "imm8 @+3 = T (jbe)",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 45,
+      "lhs": [
+       17,
+       107
+      ],
+      "below_equal_above": [
+       108,
+       10,
+       5023
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 45,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xde78b2",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xde789d",
+    "0xde78b2"
+   ],
+   "copies_note": "64/32비트 div 사본 2",
+   "result_meaning": "",
+   "notes": "64/32비트 div 사본 2 — 같이 바꿀 것. 0xf7ce6d 9회차 미도달, 0xf7ce82 경계확정. 함수 호출자 3(0xde44f0·0xde4c80·0xe90e90).",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "line_chase_target_guard_hp_65",
+   "tactic": "라인·추적 중 후퇴 — HP 65% 이하면 현재 표적 소비 가드",
+   "func_rva": "0xf7cde0",
+   "func_rva_064": "0xde7810",
+   "value": 65,
+   "sites": [
+    {
+     "rva": "0xf7d2a4",
+     "bytes_hex": "48 83 7c 24 30 41",
+     "asm": "cmp qword ptr [rsp + 0x30], 0x41",
+     "imm_offset": 5,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf7d2a9",
+     "current_imm_value": 65,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "qword ptr [rsp + 0x30]",
+     "operand_meaning": "자기 HP% (스택 [rsp+0x30] 에 저장된 위 HP%)",
+     "branch": {
+      "rva": "0xf7d2aa",
+      "bytes_hex": "77 57",
+      "jcc": "ja 0xf7d303",
+      "taken_means": "HP% > 65 → 0xf7d303 (현재 표적 소비 가드 통과 안 함)",
+      "not_taken_means": "HP% <= 65 → 현재 표적 소비 가드 경로"
+     },
+     "patch": "imm8 @+5 = T (ja)",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 65,
+      "lhs": [
+       46,
+       107
+      ],
+      "below_equal_above": [
+       200,
+       8,
+       4855
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 65,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xde7cd4",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xde7cd4"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단일 사본(경계확정). 기획 메모 \"0xf7d2a4 경계확정\" 지점.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "retreat_hold_extend_hp_65",
+   "tactic": "라인·추적 중 후퇴 — HP 65% 이하면 후퇴 유지 시간 1.5×TPS 연장",
+   "func_rva": "0xe90e90",
+   "func_rva_064": "0xeb9640",
+   "value": 65,
+   "sites": [
+    {
+     "rva": "0xe922df",
+     "bytes_hex": "48 83 f8 41",
+     "asm": "cmp rax, 0x41",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xe922e2",
+     "current_imm_value": 65,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "wrap(HP×100)/max(maxHP,1) (자기 HP%)",
+     "branch": {
+      "rva": "0xe922ea",
+      "bytes_hex": "0f 86 7e fa ff ff",
+      "jcc": "jbe 0xe91d6e",
+      "taken_means": "HP% <= 65 → 0xe91d6e (후퇴 유지 TTL 1.5×TPS 연장 경로)",
+      "not_taken_means": "HP% > 65 → 연장 없음"
+     },
+     "patch": "imm8 @+3 = T (jbe — 사이에 mov 1개)",
+     "stage_run09": {
+      "stage": "한쪽만",
+      "T": 65,
+      "lhs": [
+       21,
+       65
+      ],
+      "below_equal_above": [
+       218,
+       6,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 65,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xebaa8f",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xebaa8f"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "0xe90e90(0.6.4 0xeb9640, IDENTICAL) 단일 사본. 9회차 한쪽만(lhs 21~65, 위쪽 미관측) — 올리는 쪽(B=95)은 관측 범위 밖이라 효과가 안 보일 수 있다(추정). 내리는 쪽 B=35 도 고려.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "support_minion_block_role_4",
+   "tactic": "서폿 미니언 처리 허용 — 포지션 4(서폿)면 라인 미니언 처리 거부",
+   "func_rva": "0xdef830",
+   "func_rva_064": "0xfe2820",
+   "value": 4,
+   "sites": [
+    {
+     "rva": "0xdef86a",
+     "bytes_hex": "48 83 fa 04",
+     "asm": "cmp rdx, 4",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xdef86d",
+     "current_imm_value": 4,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rdx",
+     "operand_meaning": "자기 포지션 [rsi+0x8b0] (0 탑 … 3 원딜, 4 서폿)",
+     "branch": {
+      "rva": "0xdef86e",
+      "bytes_hex": "0f 84 19 03 00 00",
+      "jcc": "je 0xdefb8d",
+      "taken_means": "포지션 == 4 → 0xdefb8d 즉시 거부(라인 미니언 접근 상태 안 만듦)",
+      "not_taken_means": "포지션 != 4 → 후보 상태 수집"
+     },
+     "patch": "imm8 @+3: 막을 포지션 번호. 5 이상(존재하지 않는 포지션)이면 아무도 안 막음",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 4,
+      "lhs": [
+       0,
+       4
+      ],
+      "below_equal_above": [
+       3807,
+       969,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 4,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xfe285a",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xfe285a"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "값 의미 = 막을 포지션(토글성). B=9 → 서폿도 미니언 처리(켬). rdx 는 뒤에서 슬롯 인덱스로도 쓰이지만 cmp 만 바꾸므로 무관. 함수 호출자 0xe0d160 하나.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "bot_duo_partner_required",
+   "tactic": "봇 듀오 동행 — 원딜·서폿은 짝 확인(끄면 단독 허용)",
+   "func_rva": "0xfe33c0",
+   "func_rva_064": "0xf98d10",
+   "value": 1,
+   "sites": [
+    {
+     "rva": "0xfe346b",
+     "bytes_hex": "77 e4",
+     "asm": "ja 0xfe3451",
+     "imm_offset": 0,
+     "imm_size": 1,
+     "imm_kind": "jcc opcode(토글)",
+     "patch_byte_rva": "0xfe346b",
+     "current_imm_value": 119,
+     "knob_delta": 0,
+     "role": "toggle",
+     "compare_operand": "flags of 0xfe3468 cmp ecx,1",
+     "operand_meaning": "선행 비교 0xfe3468 cmp ecx,1 (ecx = 포지션−3, 부호없음). 3/4 가 아니면 ja 로 바로 허용(al=1) 반환",
+     "branch": {
+      "rva": "0xfe346b",
+      "bytes_hex": "77 e4",
+      "jcc": "ja 0xfe3451",
+      "taken_means": "포지션−3 > 1 (원딜·서폿 아님) → 0xfe3451 허용 반환",
+      "not_taken_means": "원딜·서폿 → 짝(3↔4) 챔피언 상태 확인 후 거부 가능"
+     },
+     "patch": "토글: 77(ja, 원래) ↔ eb(jmp) — eb 면 모든 포지션이 짝 확인 없이 허용(단독 허용)",
+     "stage_run09": null,
+     "stage_run10": null,
+     "key": "0xf98dbb",
+     "key_source": "함수오프셋(aidiff:IDENTICAL, 0.6.4 바이트 일치)",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xf98dbb"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "비교 즉치(cmp ecx,1)로는 \"항상 허용\"을 만들 수 없음(ja 부호없음, 0·1 둘 다 통과시키는 즉치 없음) → 기존 gank_abort_tower_reason9 과 같은 jcc 토글 방식. 짝 확인 판정 0xfe3468 은 9회차 경계확정. 함수 호출자 0xd70430(갱 콜 수락)·0xf94700(라인 변경). ⚠KNOBS 의 toggle 바이트는 gen_sites 형식상 bytes(b\"\\x77\", b\"\\xeb\").",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "minion_damage_ratio_49",
+   "tactic": "미니언 피해 민감도 — 미니언 피해를 위험으로 치는 피해율 49/29/17/10(함께 이동)",
+   "func_rva": "0xf11ef0",
+   "func_rva_064": "0xfc7a60",
+   "value": 49,
+   "sites": [
+    {
+     "rva": "0xf11f7c",
+     "bytes_hex": "48 83 f8 31",
+     "asm": "cmp rax, 0x31",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf11f7f",
+     "current_imm_value": 49,
+     "knob_delta": 0,
+     "role": "피해율 상한(항상)",
+     "compare_operand": "rax",
+     "operand_meaning": "예상 미니언 피해율% (rax = 피해 rcx×100/자기 HP r9). 피해 >= HP 면 이 전에 위험 반환",
+     "branch": {
+      "rva": "0xf11f80",
+      "bytes_hex": "77 29",
+      "jcc": "ja 0xf11fab",
+      "taken_means": "피해율 > 49 → 0xf11fab 위험(피해 값 반환)",
+      "not_taken_means": "<= 49 → HP 단계 검사"
+     },
+     "patch": "imm8 @+3 = V (ja)",
+     "stage_run09": null,
+     "stage_run10": null,
+     "key": "0xfc7aec",
+     "key_source": "함수오프셋(skel:상수동일, 0.6.4 바이트 일치)",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xf11f88",
+     "bytes_hex": "48 83 f8 1d",
+     "asm": "cmp rax, 0x1d",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf11f8b",
+     "current_imm_value": 29,
+     "knob_delta": -20,
+     "role": "HP<=65 단계",
+     "compare_operand": "rax",
+     "operand_meaning": "예상 피해율% (HP% r8 <= 65 일 때만 도달)",
+     "branch": {
+      "rva": "0xf11f8c",
+      "bytes_hex": "77 1d",
+      "jcc": "ja 0xf11fab",
+      "taken_means": "피해율 > 29 → 위험",
+      "not_taken_means": "<= 29 → 다음 단계"
+     },
+     "patch": "imm8 @+3 = V-20",
+     "stage_run09": null,
+     "stage_run10": null,
+     "key": "0xfc7af8",
+     "key_source": "함수오프셋(skel:상수동일, 0.6.4 바이트 일치)",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xf11f94",
+     "bytes_hex": "48 83 f8 11",
+     "asm": "cmp rax, 0x11",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf11f97",
+     "current_imm_value": 17,
+     "knob_delta": -32,
+     "role": "HP<=40 단계",
+     "compare_operand": "rax",
+     "operand_meaning": "예상 피해율% (HP% <= 40 일 때만)",
+     "branch": {
+      "rva": "0xf11f98",
+      "bytes_hex": "77 11",
+      "jcc": "ja 0xf11fab",
+      "taken_means": "피해율 > 17 → 위험",
+      "not_taken_means": "<= 17 → 다음 단계"
+     },
+     "patch": "imm8 @+3 = V-32",
+     "stage_run09": null,
+     "stage_run10": null,
+     "key": "0xfc7b04",
+     "key_source": "함수오프셋(skel:상수동일, 0.6.4 바이트 일치)",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xf11fa0",
+     "bytes_hex": "48 83 f8 0a",
+     "asm": "cmp rax, 0xa",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xf11fa3",
+     "current_imm_value": 10,
+     "knob_delta": -39,
+     "role": "HP<=25 단계",
+     "compare_operand": "rax",
+     "operand_meaning": "예상 피해율% (HP% <= 25 일 때만)",
+     "branch": {
+      "rva": "0xf11fa9",
+      "bytes_hex": "72 03",
+      "jcc": "jb 0xf11fae",
+      "taken_means": "피해율 < 10 → 0 반환(무시)",
+      "not_taken_means": "피해율 >= 10 → 위험(피해 값 반환)"
+     },
+     "patch": "imm8 @+3 = V-39 (jb)",
+     "stage_run09": null,
+     "stage_run10": null,
+     "key": "0xfc7b10",
+     "key_source": "함수오프셋(skel:상수동일, 0.6.4 바이트 일치)",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xfc7aec",
+    "0xfc7af8",
+    "0xfc7b04",
+    "0xfc7b10"
+   ],
+   "copies_note": "사본 아님 — HP 단계별 4문턱, 각 단일",
+   "result_meaning": "",
+   "notes": "★손잡이 정정: tactic_coverage 가 짚은 0xe656d2/0xe656ea \"cmp rdx,0x1d(29)\" 는 grid lastCell 29(좌표 칸)로 우연 일치 — 미니언 피해와 무관(atlas065 action_score.grid_geometry). 실제 손잡이는 0.6.4 0xfc7a60 → 0.6.5 0xf11ef0(skel 상수동일, 호출자 0xe63c80 하나, 호출 지점 0xe6552b). 이 helper 의 비교 4곳은 sites 표에 없어 9회차 단계 = 표없음(미측정). 호출 직후 0xe65530 은 9회차 도달 → helper 자체는 실행됨(추정). 기획 선택지는 ×1.3/×0.7 비율이지만 노브는 오프셋으로 근사(V=64 → 64/44/32/25). B=79 → 둔감 극단.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "jungle_stop_hp_41",
+   "tactic": "정글링 중단 체력 — HP 밴드(회복 없음 21/41, 있음 11/21)를 함께 이동",
+   "func_rva": "0x1018cb0",
+   "func_rva_064": "0xef3520",
+   "value": 41,
+   "sites": [
+    {
+     "rva": "0x1018efd",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0x1018f00",
+     "current_imm_value": 41,
+     "knob_delta": 0,
+     "role": "회복 수단 없음: 70점 상한(41)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (회복 수단 없음 경로)",
+     "branch": {
+      "rva": "0x1018e48",
+      "bytes_hex": "48 0f 43 ca",
+      "jcc": "cmovae rcx, rdx (0x1018f01 jmp 0x1018e43 경유)",
+      "taken_means": "(0x1018e43 공유 후 cmovae) HP% >= 41 → 0점(계속)",
+      "not_taken_means": "HP% < 41 → 70점(49 초과 = 중단)"
+     },
+     "patch": "imm8 @+3 = V",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 41,
+      "lhs": [
+       22,
+       100
+      ],
+      "below_equal_above": [
+       126,
+       18,
+       6356
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 41,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xef376d",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0x1018ef1",
+     "bytes_hex": "48 83 f8 15",
+     "asm": "cmp rax, 0x15",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0x1018ef4",
+     "current_imm_value": 21,
+     "knob_delta": -20,
+     "role": "회복 수단 없음: 80점(21)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (회복 수단 없음 경로)",
+     "branch": {
+      "rva": "0x1018ef5",
+      "bytes_hex": "0f 82 51 ff ff ff",
+      "jcc": "jb 0x1018e4c",
+      "taken_means": "HP% < 21 → 80점 반환",
+      "not_taken_means": "HP% >= 21 → 41 비교로"
+     },
+     "patch": "imm8 @+3 = V-20",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 21,
+      "lhs": [
+       7,
+       100
+      ],
+      "below_equal_above": [
+       44,
+       0,
+       6500
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 21,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xef3761",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0x1018e3f",
+     "bytes_hex": "48 83 f8 15",
+     "asm": "cmp rax, 0x15",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0x1018e42",
+     "current_imm_value": 21,
+     "knob_delta": -20,
+     "role": "회복 수단 있음: 70점 상한(21)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (회복 수단 있음 경로)",
+     "branch": {
+      "rva": "0x1018e48",
+      "bytes_hex": "48 0f 43 ca",
+      "jcc": "cmovae rcx, rdx",
+      "taken_means": "HP% >= 21 → 0점",
+      "not_taken_means": "HP% < 21 → 70점"
+     },
+     "patch": "imm8 @+3 = V-20",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 21,
+      "lhs": [
+       12,
+       100
+      ],
+      "below_equal_above": [
+       27,
+       0,
+       4473
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 21,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xef36af",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0x1018e37",
+     "bytes_hex": "48 83 f8 0b",
+     "asm": "cmp rax, 0xb",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0x1018e3a",
+     "current_imm_value": 11,
+     "knob_delta": -30,
+     "role": "회복 수단 있음: 80점(11)",
+     "compare_operand": "rax",
+     "operand_meaning": "자기 HP% (회복 수단 있음 경로)",
+     "branch": {
+      "rva": "0x1018e3b",
+      "bytes_hex": "72 0f",
+      "jcc": "jb 0x1018e4c",
+      "taken_means": "HP% < 11 → 80점",
+      "not_taken_means": "HP% >= 11 → 21 비교로"
+     },
+     "patch": "imm8 @+3 = V-30",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 11,
+      "lhs": [
+       0,
+       100
+      ],
+      "below_equal_above": [
+       21,
+       0,
+       4500
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 11,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xef36a7",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xef376d",
+    "0xef3761",
+    "0xef36af",
+    "0xef36a7"
+   ],
+   "copies_note": "사본 아님 — 경로(회복 유무)×2단계",
+   "result_meaning": "",
+   "notes": "0x1018cb0 반환 80/70/0 을 소비처(0x100ca89·0x100d2b7·0x10092ff·0x100c104·0xd4648a, 모두 >49)가 \"중단\"으로 씀 → 실효 문턱은 상한(41 / 21). 하한(21 / 11)은 80 vs 70 구분이라 같이 밀어 순서만 유지. 각 비교 단일 사본(div 합류 뒤). 호출자 5(0xd40740·0x10091d0·0x100b8a0·0x100c870·0x1018470) 모두 정글. B=61 → 일찍 중단.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "liner_roam_self_hp_41",
+   "tactic": "라이너 로밍 — 자기 HP 41% 이상이어야 로밍",
+   "func_rva": "0xd40740",
+   "func_rva_064": "0xd3fe10",
+   "value": 41,
+   "sites": [
+    {
+     "rva": "0xd4b2ca",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd4b2cd",
+     "current_imm_value": 41,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "로밍 후보 선수 HP% (r14 = 후보 Player, wrap100HP/max(maxHP,1)). 64/32 div 합류 후",
+     "branch": {
+      "rva": "0xd4b2ce",
+      "bytes_hex": "0f 82 2e b0 ff ff",
+      "jcc": "jb 0xd46302",
+      "taken_means": "HP% < 41 → 0xd46302 거부",
+      "not_taken_means": "HP% >= 41 → 로밍 계속"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 41,
+      "lhs": [
+       28,
+       101
+      ],
+      "below_equal_above": [
+       36,
+       6,
+       4560
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 41,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd4a9aa",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xd4a9aa"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단일 사본(경계확정). 0xd40740(0.6.4 0xd3fe10, EDITED) 13·16단계 support_relay 쿨다운(Config+0x1418+10TPS) 뒤.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "liner_roam_lane_healthy_hp_41",
+   "tactic": "라이너 로밍 — 갈 라인 비교에서 건강 아군으로 칠 HP 41%",
+   "func_rva": "0xd7be30",
+   "func_rva_064": "0xd7ada0",
+   "value": 41,
+   "sites": [
+    {
+     "rva": "0xd7c450",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd7c453",
+     "current_imm_value": 41,
+     "knob_delta": 0,
+     "role": "슬롯1",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 자기팀 슬롯1 HP%",
+     "branch": {
+      "rva": "0xd7c454",
+      "bytes_hex": "0f 93 c1",
+      "jcc": "setae cl",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     },
+     "patch": "imm8 @+3 = T (setae/sbb)",
+     "stage_run09": {
+      "stage": "한쪽만",
+      "T": 41,
+      "lhs": [
+       44,
+       106
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       520
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 41,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd7b3c0",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xd7c4b6",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd7c4b9",
+     "current_imm_value": 41,
+     "knob_delta": 0,
+     "role": "슬롯2",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 자기팀 슬롯2 HP%",
+     "branch": {
+      "rva": "0xd7c4ba",
+      "bytes_hex": "48 83 d9 ff",
+      "jcc": "sbb rcx, -1",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     },
+     "patch": "imm8 @+3 = T (setae/sbb)",
+     "stage_run09": {
+      "stage": "한쪽만",
+      "T": 41,
+      "lhs": [
+       41,
+       105
+      ],
+      "below_equal_above": [
+       0,
+       1,
+       597
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 41,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd7b426",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xd7c519",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd7c51c",
+     "current_imm_value": 41,
+     "knob_delta": 0,
+     "role": "슬롯3",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 자기팀 슬롯3 HP%",
+     "branch": {
+      "rva": "0xd7c51d",
+      "bytes_hex": "48 83 d9 ff",
+      "jcc": "sbb rcx, -1",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     },
+     "patch": "imm8 @+3 = T (setae/sbb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 41,
+      "lhs": [
+       37,
+       100
+      ],
+      "below_equal_above": [
+       34,
+       0,
+       359
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 41,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd7b489",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xd7c57c",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd7c57f",
+     "current_imm_value": 41,
+     "knob_delta": 0,
+     "role": "슬롯4",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 자기팀 슬롯4 HP%",
+     "branch": {
+      "rva": "0xd7c580",
+      "bytes_hex": "48 83 d9 ff",
+      "jcc": "sbb rcx, -1",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     },
+     "patch": "imm8 @+3 = T (setae/sbb)",
+     "stage_run09": {
+      "stage": "한쪽만",
+      "T": 41,
+      "lhs": [
+       54,
+       100
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       637
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 41,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd7b4ec",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xd7c595",
+     "bytes_hex": "48 83 f8 29",
+     "asm": "cmp rax, 0x29",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd7c598",
+     "current_imm_value": 41,
+     "knob_delta": 0,
+     "role": "슬롯5",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 자기팀 슬롯5 HP%",
+     "branch": {
+      "rva": "0xd7c599",
+      "bytes_hex": "48 83 d9 ff",
+      "jcc": "sbb rcx, -1",
+      "taken_means": "HP% >= 41 → 건강 아군 +1",
+      "not_taken_means": "HP% < 41 → 미포함"
+     },
+     "patch": "imm8 @+3 = T (setae/sbb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 41,
+      "lhs": [
+       31,
+       100
+      ],
+      "below_equal_above": [
+       19,
+       0,
+       407
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 41,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd7b505",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xd7b3c0",
+    "0xd7b426",
+    "0xd7b489",
+    "0xd7b4ec",
+    "0xd7b505"
+   ],
+   "copies_note": "자기팀 5슬롯 펼침 — 5곳 같이",
+   "result_meaning": "",
+   "notes": "0xd7be30(0.6.4 0xd7ada0, IDENTICAL) \"보이는 적 수 <= HP41% 이상 아군 수\". 호출자 0xd40740 의 3곳(0xd51c16·0xd51cc9·0xd51d8a)뿐 — 모두 로밍 꼬리 경로로 추정(미확인). 9회차 한쪽만 4·양쪽 2.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "liner_roam_call_chance_700",
+   "tactic": "라이너 로밍 — 로밍 팀 콜 확률 700/1000",
+   "func_rva": "0xd40740",
+   "func_rva_064": "0xd3fe10",
+   "value": 700,
+   "sites": [
+    {
+     "rva": "0xd5200d",
+     "bytes_hex": "48 3d bc 02 00 00",
+     "asm": "cmp rax, 0x2bc",
+     "imm_offset": 2,
+     "imm_size": 4,
+     "imm_kind": "imm32(부호확장)",
+     "patch_byte_rva": "0xd5200f",
+     "current_imm_value": 700,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "난수 0..999 (call 0xe8df30, r8d=1000)",
+     "branch": {
+      "rva": "0xd5201a",
+      "bytes_hex": "73 58",
+      "jcc": "jae 0xd52074",
+      "taken_means": "(jae) 난수 >= 700 → 0xd52074 (팀 콜 tag11 안 넣음)",
+      "not_taken_means": "난수 < 700 → tag11 큐(팀 로밍 콜)"
+     },
+     "patch": "imm32 @+2 = T",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 700,
+      "lhs": [
+       17,
+       987
+      ],
+      "below_equal_above": [
+       87,
+       0,
+       27
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 700,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd51340",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xd51340"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단일(양쪽, lhs 17~987). B=100 → 콜 거의 없음. 1001 이면 항상.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "gank_incoming_lane_enemy_hp_35",
+   "tactic": "갱 올 때 라인 선공 — 정글러가 멀면 라인 적 HP 35% 미만일 때만 선공",
+   "func_rva": "0xd642e0",
+   "func_rva_064": "0xd65190",
+   "value": 35,
+   "sites": [
+    {
+     "rva": "0xd6c77a",
+     "bytes_hex": "48 83 f8 23",
+     "asm": "cmp rax, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd6c77d",
+     "current_imm_value": 35,
+     "knob_delta": 0,
+     "role": "적 슬롯1",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 가시/최근 적 슬롯1 HP% (64/32 div 합류 지점)",
+     "branch": {
+      "rva": "0xd6c77e",
+      "bytes_hex": "0f 82 ab f2 ff ff",
+      "jcc": "jb 0xd6ba2f",
+      "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+      "not_taken_means": "HP% >= 35 → 다음 슬롯"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 35,
+      "lhs": [
+       22,
+       100
+      ],
+      "below_equal_above": [
+       21,
+       0,
+       2157
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 35,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd6d0e2",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xd6c953",
+     "bytes_hex": "48 83 f8 23",
+     "asm": "cmp rax, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd6c956",
+     "current_imm_value": 35,
+     "knob_delta": 0,
+     "role": "적 슬롯2",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 가시/최근 적 슬롯2 HP% (64/32 div 합류 지점)",
+     "branch": {
+      "rva": "0xd6c957",
+      "bytes_hex": "0f 82 d2 f0 ff ff",
+      "jcc": "jb 0xd6ba2f",
+      "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+      "not_taken_means": "HP% >= 35 → 다음 슬롯"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 35,
+      "lhs": [
+       19,
+       100
+      ],
+      "below_equal_above": [
+       42,
+       2,
+       1304
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 35,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd6d2bb",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xd6ca19",
+     "bytes_hex": "48 83 f8 23",
+     "asm": "cmp rax, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd6ca1c",
+     "current_imm_value": 35,
+     "knob_delta": 0,
+     "role": "적 슬롯3",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 가시/최근 적 슬롯3 HP% (64/32 div 합류 지점)",
+     "branch": {
+      "rva": "0xd6ca1d",
+      "bytes_hex": "0f 82 0c f0 ff ff",
+      "jcc": "jb 0xd6ba2f",
+      "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+      "not_taken_means": "HP% >= 35 → 다음 슬롯"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 35,
+      "lhs": [
+       17,
+       100
+      ],
+      "below_equal_above": [
+       17,
+       0,
+       2103
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 35,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd6d381",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xd6cadf",
+     "bytes_hex": "48 83 f8 23",
+     "asm": "cmp rax, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd6cae2",
+     "current_imm_value": 35,
+     "knob_delta": 0,
+     "role": "적 슬롯4",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 가시/최근 적 슬롯4 HP% (64/32 div 합류 지점)",
+     "branch": {
+      "rva": "0xd6cae3",
+      "bytes_hex": "0f 82 46 ef ff ff",
+      "jcc": "jb 0xd6ba2f",
+      "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+      "not_taken_means": "HP% >= 35 → 다음 슬롯"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 35,
+      "lhs": [
+       4,
+       100
+      ],
+      "below_equal_above": [
+       77,
+       0,
+       1698
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 35,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd6d447",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xd6ccc0",
+     "bytes_hex": "48 83 f8 23",
+     "asm": "cmp rax, 0x23",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xd6ccc3",
+     "current_imm_value": 35,
+     "knob_delta": 0,
+     "role": "적 슬롯5",
+     "compare_operand": "rax",
+     "operand_meaning": "같은 라인 가시/최근 적 슬롯5 HP% (64/32 div 합류 지점)",
+     "branch": {
+      "rva": "0xd6ccc4",
+      "bytes_hex": "0f 82 65 ed ff ff",
+      "jcc": "jb 0xd6ba2f",
+      "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+      "not_taken_means": "HP% >= 35 → 다음 슬롯"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 35,
+      "lhs": [
+       24,
+       100
+      ],
+      "below_equal_above": [
+       7,
+       0,
+       1828
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 35,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd6d628",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xd6d0e2",
+    "0xd6d2bb",
+    "0xd6d381",
+    "0xd6d447",
+    "0xd6d628"
+   ],
+   "copies_note": "적 5슬롯 펼침 — 5곳 같이",
+   "result_meaning": "",
+   "notes": "적 5슬롯 펼침(각 슬롯은 div 두 경로가 같은 cmp 로 합류 — 추가 사본 없음, 0xd642e0 전체 스캔으로 0x23 비교 5개뿐 확인). 기획 선택지 적극 45 / 보통 35 / 소극 25. B=75.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "gank_incoming_jg_dist2_40000000000",
+   "tactic": "갱 올 때 라인 선공 — 우리 정글러 200000 안(거리², 포함)이면 바로 일반 평가",
+   "func_rva": "0xd642e0",
+   "func_rva_064": "0xd65190",
+   "value": 40000000000,
+   "sites": [
+    {
+     "rva": "0xd6ba0b",
+     "bytes_hex": "48 b9 00 90 2f 50 09 00 00 00",
+     "asm": "movabs rcx, 0x9502f9000",
+     "imm_offset": 2,
+     "imm_size": 8,
+     "imm_kind": "imm64(movabs, R² 정확값)",
+     "patch_byte_rva": "0xd6ba0d",
+     "current_imm_value": 40000000000,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rcx",
+     "operand_meaning": "우리 정글러(role1)~자기 거리² 문턱 = 200000² (R², +1 아님). 다음 cmp rsi,rcx 의 우변",
+     "branch": {
+      "rva": "0xd6ba18",
+      "bytes_hex": "0f 87 59 02 00 00",
+      "jcc": "ja 0xd6bc77",
+      "taken_means": "(0xd6ba18 ja) 거리² > R² → 0xd6bc77 (정글러 멂 → HP35 경로)",
+      "not_taken_means": "거리² <= R² → 정글 칸·시야 조건 후 일반 평가"
+     },
+     "patch": "imm64 @+2 = R² (값 단위 = 거리²). 기존 sq1 변환은 R²+1 이라 맞지 않아 (v,0)·거리² 단위로 둠",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       40000000000,
+       40000000000
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd6c38c",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xd6c38c"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "노브 값 단위가 거리² 임에 주의(250000²=62500000000, 150000²=22500000000). 9회차: movabs 도달, 하류 0xd6ba15 cmp 양쪽(b/e/a 403/0/1147). B=0 → 정글러 근접 경로 차단(늘 HP35 경로). 새 변환 (\"sq\",) 을 만들면 V=200000 으로 쓸 수 있음.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "lane_opportunity_own_min_2",
+   "tactic": "라인 기회 잡기 — 라인 영역 건강 아군 2명 이상",
+   "func_rva": "0xfb3830",
+   "func_rva_064": "0xf25030",
+   "value": 2,
+   "sites": [
+    {
+     "rva": "0xfb3c2f",
+     "bytes_hex": "48 83 f8 02",
+     "asm": "cmp rax, 2",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfb3c32",
+     "current_imm_value": 2,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "라인 영역 건강(HP>49) 아군 수 (call 0xfb60b0 반환)",
+     "branch": {
+      "rva": "0xfb3c33",
+      "bytes_hex": "0f 82 e4 01 00 00",
+      "jcc": "jb 0xfb3e1d",
+      "taken_means": "아군 수 < 2 → 0xfb3e1d 거절",
+      "not_taken_means": ">= 2 → 다음 조건"
+     },
+     "patch": "imm8 @+3 = T (jb)",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 2,
+      "lhs": [
+       0,
+       5
+      ],
+      "below_equal_above": [
+       3482,
+       709,
+       1315
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 2,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xf2541e",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xf2541e"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단일(경계확정, lhs 0~5). 기획 신중 3 / 보통 2 / 적극 1. 함수 호출자 0xdba9b0.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "lane_opportunity_enemy_max_1",
+   "tactic": "라인 기회 잡기 — 라인 영역 적 1명 이하",
+   "func_rva": "0xfb3830",
+   "func_rva_064": "0xf25030",
+   "value": 1,
+   "sites": [
+    {
+     "rva": "0xfb3c89",
+     "bytes_hex": "48 83 f8 01",
+     "asm": "cmp rax, 1",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xfb3c8c",
+     "current_imm_value": 1,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "라인 영역 상대 수 합 (call 0xfb5ee0 반환)",
+     "branch": {
+      "rva": "0xfb3c8d",
+      "bytes_hex": "0f 87 8a 01 00 00",
+      "jcc": "ja 0xfb3e1d",
+      "taken_means": "상대 수 > 1 → 0xfb3e1d 거절",
+      "not_taken_means": "<= 1 → 다음 조건(모드 표 jmp)"
+     },
+     "patch": "imm8 @+3 = T (ja)",
+     "stage_run09": {
+      "stage": "경계확정",
+      "T": 1,
+      "lhs": [
+       0,
+       4
+      ],
+      "below_equal_above": [
+       1290,
+       590,
+       1445
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 1,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xf2547d",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xf2547d"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단일(경계확정, lhs 0~4). 기획 신중 0 / 보통 1 / 적극 2. HP50 아군 수 문턱은 모드 표(데이터)라 제외.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "lowhp_ult_bonus_low_14",
+   "tactic": "저체력 궁극기 사용 — HP 45% 미만이면 궁 행동 점수 +14",
+   "func_rva": "0xe690a0",
+   "func_rva_064": "0xdebc40",
+   "value": 14,
+   "sites": [
+    {
+     "rva": "0xe6955b",
+     "bytes_hex": "48 8d 42 0e",
+     "asm": "lea rax, [rdx + 0xe]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "disp8(lea, 부호)",
+     "patch_byte_rva": "0xe6955e",
+     "current_imm_value": 14,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "저HP(<45%) 가산 점수 14: rax = rdx+14 (rdx = 누적 점수)",
+     "branch": {
+      "rva": "0xe69574",
+      "bytes_hex": "4c 0f 42 f0",
+      "jcc": "cmovb r14, rax",
+      "taken_means": "(0xe69574 cmovb) HP% < 45 → 점수 = rdx+14",
+      "not_taken_means": "HP% >= 45 → +6 또는 +0"
+     },
+     "patch": "disp8 @+3 (lea 변위 — 즉치처럼 바이트 교체 가능, 배율 아님)",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       69,
+       150
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xdec0fb",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xdec0fb"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "밴드 문턱 cmp 0xe69568(65, cmovae)·0xe69570(45, cmovb)은 단일·9회차 경계확정/양쪽. 기획 선택지는 보너스(0·0 / 14·6 / 28·12)를 바꾸므로 lea 변위를 노브로 둠. 점수 상한 160(0xe695a0). 함수 호출자 5(0xde6470·0xe0c350·0xe4e190·0xe6e2d0·0xe76800) — 기획상 태그13(궁) 행동에만 더해진다고 하나 호출자 쪽 확인은 미완(추정).",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "lowhp_ult_bonus_mid_6",
+   "tactic": "저체력 궁극기 사용 — HP 45~64% 면 궁 행동 점수 +6",
+   "func_rva": "0xe690a0",
+   "func_rva_064": "0xdebc40",
+   "value": 6,
+   "sites": [
+    {
+     "rva": "0xe6955f",
+     "bytes_hex": "4c 8d 72 06",
+     "asm": "lea r14, [rdx + 6]",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "disp8(lea, 부호)",
+     "patch_byte_rva": "0xe69562",
+     "current_imm_value": 6,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "r14",
+     "operand_meaning": "중HP(45~64%) 가산 점수 6: r14 = rdx+6",
+     "branch": {
+      "rva": "0xe6956c",
+      "bytes_hex": "4c 0f 43 f2",
+      "jcc": "cmovae r14, rdx",
+      "taken_means": "(0xe6956c cmovae) HP% >= 65 → 점수 = rdx(가산 없음)",
+      "not_taken_means": "HP% < 65 → r14 = rdx+6 유지(45 미만이면 +14 로 덮음)"
+     },
+     "patch": "disp8 @+3",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       69,
+       150
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xdec0ff",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xdec0ff"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "위 +14 노브와 짝. 9회차 lea 지점 도달(lhs 69~150).",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "threat_home_return_radius_200000",
+   "tactic": "위협 시 기지 복귀 — 할 일 없을 때 200000 안 상대를 보면 기지로",
+   "func_rva": "0xfcb590",
+   "func_rva_064": "0xf83190",
+   "value": 200000,
+   "sites": [
+    {
+     "rva": "0xfcc584",
+     "bytes_hex": "48 b8 01 90 2f 50 09 00 00 00",
+     "asm": "movabs rax, 0x9502f9001",
+     "imm_offset": 2,
+     "imm_size": 8,
+     "imm_kind": "imm64(movabs, R²+1)",
+     "patch_byte_rva": "0xfcc586",
+     "current_imm_value": 40000000001,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "보이는/최근(120틱) 상대까지 거리² 문턱 200000²+1. 다음 cmp r8,rax",
+     "branch": {
+      "rva": "0xfcc591",
+      "bytes_hex": "0f 82 66 04 00 00",
+      "jcc": "jb 0xfcc9fd",
+      "taken_means": "(0xfcc591 jb) 거리² < R²+1 → 0xfcc9fd 기지 좌표로 이동 대안",
+      "not_taken_means": ">= → 다음 상대"
+     },
+     "patch": "imm64 @+2 = R*R+1 (sq1)",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       40000000001,
+       40000000001
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xf84501",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xf84501"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단일(0xfcb590 안 200k 리터럴은 이곳뿐). 단계 0/1/4 마스크(0xfcc46c cmp rax,4 · 0xfcc476 mov ecx,0x13)와 기지 밖 조건 뒤. 9회차: movabs 도달. B=0 → R²+1=1 → 사실상 끔(기획 \"끔\"). 민감 쪽은 300000.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "tower_forced_recall_type_4",
+   "tactic": "타워 노림 강제 귀환 — 강제 대상 타입 4(타워)면 강제 귀환(127 = 끔)",
+   "func_rva": "0xe9ca40",
+   "func_rva_064": "0xec3c70",
+   "value": 4,
+   "sites": [
+    {
+     "rva": "0xe9ce82",
+     "bytes_hex": "83 78 68 04",
+     "asm": "cmp dword ptr [rax + 0x68], 4",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xe9ce85",
+     "current_imm_value": 4,
+     "knob_delta": 0,
+     "role": "에픽 견제(0xe9ca40)",
+     "compare_operand": "dword ptr [rax + 0x68]",
+     "operand_meaning": "나를 노리는 강제 대상 엔티티 타입 [rax+0x68] (4 = 타워 추정)",
+     "branch": {
+      "rva": "0xe9ce86",
+      "bytes_hex": "0f 85 b3 01 00 00",
+      "jcc": "jne 0xe9d03f",
+      "taken_means": "타입 != 4 → 0xe9d03f 강제 귀환 안 함",
+      "not_taken_means": "타입 == 4 → bit0·ID 확인 후 강제 귀환(mode1)"
+     },
+     "patch": "imm8 @+3 = 타입",
+     "stage_run09": {
+      "stage": "미도달",
+      "T": 4,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 4,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xec40b2",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xe998a2",
+     "bytes_hex": "83 78 68 04",
+     "asm": "cmp dword ptr [rax + 0x68], 4",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xe998a5",
+     "current_imm_value": 4,
+     "knob_delta": 0,
+     "role": "세르펜 견제(0xe99460)",
+     "compare_operand": "dword ptr [rax + 0x68]",
+     "operand_meaning": "같은 규칙 사본",
+     "branch": {
+      "rva": "0xe998a6",
+      "bytes_hex": "0f 85 b3 01 00 00",
+      "jcc": "jne 0xe99a5f",
+      "taken_means": "타입 != 4 → 강제 귀환 안 함",
+      "not_taken_means": "타입 == 4 → 강제 귀환 검사 계속"
+     },
+     "patch": "imm8 @+3",
+     "stage_run09": {
+      "stage": "한쪽만",
+      "T": 4,
+      "lhs": [
+       4,
+       4
+      ],
+      "below_equal_above": [
+       0,
+       1220,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 4,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xec0ad2",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    },
+    {
+     "rva": "0xe00987",
+     "bytes_hex": "83 78 68 04",
+     "asm": "cmp dword ptr [rax + 0x68], 4",
+     "imm_offset": 3,
+     "imm_size": 1,
+     "imm_kind": "imm8(부호확장)",
+     "patch_byte_rva": "0xe0098a",
+     "current_imm_value": 4,
+     "knob_delta": 0,
+     "role": "오브젝트 사냥(0xdfe5e0)",
+     "compare_operand": "dword ptr [rax + 0x68]",
+     "operand_meaning": "같은 규칙 사본(type4·bit0·ID==own+0x5b8)",
+     "branch": {
+      "rva": "0xe0098b",
+      "bytes_hex": "0f 85 ba 01 00 00",
+      "jcc": "jne 0xe00b4b",
+      "taken_means": "타입 != 4 → 0xe00b4b",
+      "not_taken_means": "타입 == 4 → 강제 귀환 검사 계속"
+     },
+     "patch": "imm8 @+3",
+     "stage_run09": {
+      "stage": "한쪽만",
+      "T": 4,
+      "lhs": [
+       4,
+       4
+      ],
+      "below_equal_above": [
+       0,
+       1845,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 4,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xff6aa6",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xec40b2",
+    "0xec0ad2",
+    "0xff6aa6"
+   ],
+   "copies_note": "함수 3개에 같은 규칙 사본 — 같이 바꿀 것",
+   "result_meaning": "",
+   "notes": "값 의미 = 강제 귀환을 일으킬 엔티티 타입(토글성). B=127(존재하지 않는 타입, 추정) → 끔. 9회차: 에픽 미도달 / 세르펜 한쪽만(=4 1220회) / 사냥 한쪽만(=4 1845회) — \"같음\"만 관측되어 끄면 효과가 보일 가능성 높음. 세 함수 호출자 모두 0xe55d30.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "remote_ult_min_range_200000",
+   "tactic": "원격 궁극기 지원 — 사거리 200000 이상 궁만 원격 예약",
+   "func_rva": "0xd6f490",
+   "func_rva_064": "0xd5a290",
+   "value": 200000,
+   "sites": [
+    {
+     "rva": "0xd6ffc0",
+     "bytes_hex": "48 81 fa 40 0d 03 00",
+     "asm": "cmp rdx, 0x30d40",
+     "imm_offset": 3,
+     "imm_size": 4,
+     "imm_kind": "imm32(부호확장)",
+     "patch_byte_rva": "0xd6ffc3",
+     "current_imm_value": 200000,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rdx",
+     "operand_meaning": "궁극기 사거리 합(descriptor 거리 + Actor+0x430)",
+     "branch": {
+      "rva": "0xd6ffc7",
+      "bytes_hex": "0f 82 56 f5 ff ff",
+      "jcc": "jb 0xd6f523",
+      "taken_means": "(jb) 사거리 < 200000 → 0xd6f523 예약 안 함",
+      "not_taken_means": ">= 200000 → 종류(<=3, !=2) 검사 후 예약"
+     },
+     "patch": "imm32 @+3 = T",
+     "stage_run09": {
+      "stage": "양쪽",
+      "T": 200000,
+      "lhs": [
+       1,
+       960000
+      ],
+      "below_equal_above": [
+       198,
+       0,
+       12
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": 200000,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xd5adc0",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xd5adc0"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단일(양쪽, lhs 1~960000). B=1000000 → 관측 최대 사거리 위 → 사실상 끔. 적극 쪽은 100000. 함수 호출자 0xd40740·0xd70430.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
+  },
+  {
+   "id": "hazard_avoid_padding_6000",
+   "tactic": "위험 구역 비켜 걷기 — 위험 구역 기본 여유 6000",
+   "func_rva": "0xf0f5b0",
+   "func_rva_064": "0xde9bd0",
+   "value": 6000,
+   "sites": [
+    {
+     "rva": "0xf0fcb3",
+     "bytes_hex": "48 05 70 17 00 00",
+     "asm": "add rax, 0x1770",
+     "imm_offset": 2,
+     "imm_size": 4,
+     "imm_kind": "imm32(add rax)",
+     "patch_byte_rva": "0xf0fcb5",
+     "current_imm_value": 6000,
+     "knob_delta": 0,
+     "role": "primary",
+     "compare_operand": "rax",
+     "operand_meaning": "위험 반경 확장량의 기본값 6000 (+ 성향×400 은 앞 imul 0xf0fc5e)",
+     "branch": null,
+     "patch": "imm32 @+2 (add — 비교 피연산자 공급)",
+     "stage_run09": {
+      "stage": "도달",
+      "T": null,
+      "lhs": [
+       10000,
+       50000
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "stage_run10": {
+      "stage": "미도달",
+      "T": null,
+      "lhs": [
+       null,
+       null
+      ],
+      "below_equal_above": [
+       0,
+       0,
+       0
+      ]
+     },
+     "key": "0xdea2b6",
+     "key_source": "sites_064_065.csv",
+     "in_existing_targets": false
+    }
+   ],
+   "copies": [
+    "0xdea2b6"
+   ],
+   "copies_note": "",
+   "result_meaning": "",
+   "notes": "단일(도달, lhs 10000~50000). 기획 대담 3000 / 보통 6000 / 신중 12000. 함수 호출자 5(경로 탐색). 9회차는 도달만 — 판단 갈림은 이동 경로(좌표) 지문으로 봐야 함.",
+   "confidence": "0.6.5 exe 바이트 직접 디스어셈(capstone) + atlas065 parameters.csv 의미 + 9회차 sites.json 단계",
+   "added": "2026-10-22 D(추가 후보 30)"
   }
  ],
  "schema_note": "key = 버전 무관 지점 키(최초 0.6.4 RVA, 사본이 갈라지면 #n). 노브는 key 로 지점을 가리킨다(gen_sites KNOBS).",

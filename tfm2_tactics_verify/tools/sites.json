@@ -2,6 +2,209 @@
  "exe_sha256": "daf040db8a3a3ae136f3ef8ce704e2718f049656b6b5e4872eacb599811d30b5",
  "gates": [
   {
+   "id": "liner_roam_self_hp_41@0xd4b2ca",
+   "entry": "liner_roam_self_hp_41",
+   "rva": "0xd4b2ca",
+   "bytes": "4883f829",
+   "asm": "cmp rax, 0x29",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 41,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xd4b2ce",
+    "op_str": "0xd46302"
+   },
+   "taken_means": "HP% < 41 → 0xd46302 거부",
+   "not_taken_means": "HP% >= 41 → 로밍 계속",
+   "operand_meaning": "로밍 후보 선수 HP% (r14 = 후보 Player, wrap100HP/max(maxHP,1)). 64/32 div 합류 후",
+   "role": "primary"
+  },
+  {
+   "id": "liner_roam_call_chance_700@0xd5200d",
+   "entry": "liner_roam_call_chance_700",
+   "rva": "0xd5200d",
+   "bytes": "483dbc020000",
+   "asm": "cmp rax, 0x2bc",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 700,
+    "width": 8,
+    "at": 2,
+    "size": 4
+   },
+   "cond": {
+    "mnemonic": "jae",
+    "rva": "0xd5201a",
+    "op_str": "0xd52074"
+   },
+   "taken_means": "(jae) 난수 >= 700 → 0xd52074 (팀 콜 tag11 안 넣음)",
+   "not_taken_means": "난수 < 700 → tag11 큐(팀 로밍 콜)",
+   "operand_meaning": "난수 0..999 (call 0xe8df30, r8d=1000)",
+   "role": "primary"
+  },
+  {
+   "id": "gank_incoming_lane_enemy_hp_35@0xd6c77a",
+   "entry": "gank_incoming_lane_enemy_hp_35",
+   "rva": "0xd6c77a",
+   "bytes": "4883f823",
+   "asm": "cmp rax, 0x23",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 35,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xd6c77e",
+    "op_str": "0xd6ba2f"
+   },
+   "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+   "not_taken_means": "HP% >= 35 → 다음 슬롯",
+   "operand_meaning": "같은 라인 가시/최근 적 슬롯1 HP% (64/32 div 합류 지점)",
+   "role": "적 슬롯1"
+  },
+  {
+   "id": "gank_incoming_lane_enemy_hp_35@0xd6c953",
+   "entry": "gank_incoming_lane_enemy_hp_35",
+   "rva": "0xd6c953",
+   "bytes": "4883f823",
+   "asm": "cmp rax, 0x23",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 35,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xd6c957",
+    "op_str": "0xd6ba2f"
+   },
+   "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+   "not_taken_means": "HP% >= 35 → 다음 슬롯",
+   "operand_meaning": "같은 라인 가시/최근 적 슬롯2 HP% (64/32 div 합류 지점)",
+   "role": "적 슬롯2"
+  },
+  {
+   "id": "gank_incoming_lane_enemy_hp_35@0xd6ca19",
+   "entry": "gank_incoming_lane_enemy_hp_35",
+   "rva": "0xd6ca19",
+   "bytes": "4883f823",
+   "asm": "cmp rax, 0x23",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 35,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xd6ca1d",
+    "op_str": "0xd6ba2f"
+   },
+   "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+   "not_taken_means": "HP% >= 35 → 다음 슬롯",
+   "operand_meaning": "같은 라인 가시/최근 적 슬롯3 HP% (64/32 div 합류 지점)",
+   "role": "적 슬롯3"
+  },
+  {
+   "id": "gank_incoming_lane_enemy_hp_35@0xd6cadf",
+   "entry": "gank_incoming_lane_enemy_hp_35",
+   "rva": "0xd6cadf",
+   "bytes": "4883f823",
+   "asm": "cmp rax, 0x23",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 35,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xd6cae3",
+    "op_str": "0xd6ba2f"
+   },
+   "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+   "not_taken_means": "HP% >= 35 → 다음 슬롯",
+   "operand_meaning": "같은 라인 가시/최근 적 슬롯4 HP% (64/32 div 합류 지점)",
+   "role": "적 슬롯4"
+  },
+  {
+   "id": "gank_incoming_lane_enemy_hp_35@0xd6ccc0",
+   "entry": "gank_incoming_lane_enemy_hp_35",
+   "rva": "0xd6ccc0",
+   "bytes": "4883f823",
+   "asm": "cmp rax, 0x23",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 35,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xd6ccc4",
+    "op_str": "0xd6ba2f"
+   },
+   "taken_means": "HP% < 35 → 0xd6ba2f 일반 교전 평가(C3B0)로",
+   "not_taken_means": "HP% >= 35 → 다음 슬롯",
+   "operand_meaning": "같은 라인 가시/최근 적 슬롯5 HP% (64/32 div 합류 지점)",
+   "role": "적 슬롯5"
+  },
+  {
    "id": "combat_call_arrival_5tps@0xd6f935",
    "entry": "combat_call_arrival_5tps",
    "rva": "0xd6f935",
@@ -57,6 +260,35 @@
    "not_taken_means": "> 5×TPS → usable 일 때만 commit(X=0) 경로",
    "operand_meaning": "rdx = 일반 도착시간([rbp+0x6b8], 속도 0 이면 panic), [rbp+0x6c0] = 5×TPS",
    "role": "일반 비교"
+  },
+  {
+   "id": "remote_ult_min_range_200000@0xd6ffc0",
+   "entry": "remote_ult_min_range_200000",
+   "rva": "0xd6ffc0",
+   "bytes": "4881fa400d0300",
+   "asm": "cmp rdx, 0x30d40",
+   "a": {
+    "kind": "reg",
+    "off": 136,
+    "width": 8,
+    "name": "rdx"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 200000,
+    "width": 8,
+    "at": 3,
+    "size": 4
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xd6ffc7",
+    "op_str": "0xd6f523"
+   },
+   "taken_means": "(jb) 사거리 < 200000 → 0xd6f523 예약 안 함",
+   "not_taken_means": ">= 200000 → 종류(<=3, !=2) 검사 후 예약",
+   "operand_meaning": "궁극기 사거리 합(descriptor 거리 + Actor+0x430)",
+   "role": "primary"
   },
   {
    "id": "gank_call_accept_hp_60@0xd7079f",
@@ -144,6 +376,280 @@
    "role": "문턱"
   },
   {
+   "id": "liner_roam_lane_healthy_hp_41@0xd7c450",
+   "entry": "liner_roam_lane_healthy_hp_41",
+   "rva": "0xd7c450",
+   "bytes": "4883f829",
+   "asm": "cmp rax, 0x29",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 41,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "setae",
+    "rva": "0xd7c454",
+    "op_str": "cl"
+   },
+   "taken_means": "HP% >= 41 → 건강 아군 +1",
+   "not_taken_means": "HP% < 41 → 미포함",
+   "operand_meaning": "같은 라인 자기팀 슬롯1 HP%",
+   "role": "슬롯1"
+  },
+  {
+   "id": "liner_roam_lane_healthy_hp_41@0xd7c4b6",
+   "entry": "liner_roam_lane_healthy_hp_41",
+   "rva": "0xd7c4b6",
+   "bytes": "4883f829",
+   "asm": "cmp rax, 0x29",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 41,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": null,
+   "taken_means": "HP% >= 41 → 건강 아군 +1",
+   "not_taken_means": "HP% < 41 → 미포함",
+   "operand_meaning": "같은 라인 자기팀 슬롯2 HP%",
+   "role": "슬롯2"
+  },
+  {
+   "id": "liner_roam_lane_healthy_hp_41@0xd7c519",
+   "entry": "liner_roam_lane_healthy_hp_41",
+   "rva": "0xd7c519",
+   "bytes": "4883f829",
+   "asm": "cmp rax, 0x29",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 41,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": null,
+   "taken_means": "HP% >= 41 → 건강 아군 +1",
+   "not_taken_means": "HP% < 41 → 미포함",
+   "operand_meaning": "같은 라인 자기팀 슬롯3 HP%",
+   "role": "슬롯3"
+  },
+  {
+   "id": "liner_roam_lane_healthy_hp_41@0xd7c57c",
+   "entry": "liner_roam_lane_healthy_hp_41",
+   "rva": "0xd7c57c",
+   "bytes": "4883f829",
+   "asm": "cmp rax, 0x29",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 41,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": null,
+   "taken_means": "HP% >= 41 → 건강 아군 +1",
+   "not_taken_means": "HP% < 41 → 미포함",
+   "operand_meaning": "같은 라인 자기팀 슬롯4 HP%",
+   "role": "슬롯4"
+  },
+  {
+   "id": "liner_roam_lane_healthy_hp_41@0xd7c595",
+   "entry": "liner_roam_lane_healthy_hp_41",
+   "rva": "0xd7c595",
+   "bytes": "4883f829",
+   "asm": "cmp rax, 0x29",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 41,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": null,
+   "taken_means": "HP% >= 41 → 건강 아군 +1",
+   "not_taken_means": "HP% < 41 → 미포함",
+   "operand_meaning": "같은 라인 자기팀 슬롯5 HP%",
+   "role": "슬롯5"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdb4e34",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdb4e34",
+   "bytes": "4883f831",
+   "asm": "cmp rax, 0x31",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 49,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jbe",
+    "rva": "0xdb4e38",
+    "op_str": "0xdb4e89"
+   },
+   "taken_means": "HP% <= 49 → 0xdb4e89 (근처 인원 미포함)",
+   "not_taken_means": "HP% >= 50 → 거리 판정으로",
+   "operand_meaning": "아군 슬롯1 HP% (64/32비트 div 합류 후)",
+   "role": "primary(슬롯1, 49/jbe 인코딩)"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdb4ed4",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdb4ed4",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xdb4ed8",
+    "op_str": "0xdb4f27"
+   },
+   "taken_means": "HP% < 50 → 인원 미포함",
+   "not_taken_means": "HP% >= 50 → 거리 판정으로",
+   "operand_meaning": "아군 슬롯2 HP%",
+   "role": "copy(슬롯2)"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdb4f69",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdb4f69",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xdb4f6d",
+    "op_str": "0xdb4fbc"
+   },
+   "taken_means": "HP% < 50 → 인원 미포함",
+   "not_taken_means": "HP% >= 50 → 거리 판정으로",
+   "operand_meaning": "아군 슬롯3 HP%",
+   "role": "copy(슬롯3)"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdb4ffe",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdb4ffe",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xdb5002",
+    "op_str": "0xdb5051"
+   },
+   "taken_means": "HP% < 50 → 인원 미포함",
+   "not_taken_means": "HP% >= 50 → 거리 판정으로",
+   "operand_meaning": "아군 슬롯4 HP%",
+   "role": "copy(슬롯4)"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdb5093",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdb5093",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xdb5097",
+    "op_str": "0xdb50e0"
+   },
+   "taken_means": "HP% < 50 → 인원 미포함",
+   "not_taken_means": "HP% >= 50 → 거리 판정으로",
+   "operand_meaning": "아군 슬롯5 HP%",
+   "role": "copy(슬롯5)"
+  },
+  {
    "id": "push_sustain_min_healthy_3@0xdbd25a",
    "entry": "push_sustain_min_healthy_3",
    "rva": "0xdbd25a",
@@ -199,6 +705,203 @@
    "not_taken_means": "통과 → 차단 이벤트 검사 후 0xf23e30",
    "operand_meaning": "r8 = 건강 자기 인원, rax = 상대 nonnull 수 + 2",
    "role": "비교"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdd3e23",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdd3e23",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xdd3e27",
+    "op_str": "0xdd3de0"
+   },
+   "taken_means": "HP% < 50 → 미포함(다음 원소)",
+   "not_taken_means": "HP% >= 50 → 포함",
+   "operand_meaning": "구역 안 아군 HP% (event 4/5 경로)",
+   "role": "copy(0xdd3d90 event4/5 구역 집계 1)"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdd3e34",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdd3e34",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xdd3e38",
+    "op_str": "0xdd3de0"
+   },
+   "taken_means": "HP% < 50 → 미포함(다음 원소)",
+   "not_taken_means": "HP% >= 50 → 포함",
+   "operand_meaning": "구역 안 아군 HP% (event 4/5 경로)",
+   "role": "copy(0xdd3d90 event4/5 구역 집계 2)"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdd3eef",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdd3eef",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xdd3ef3",
+    "op_str": "0xdd3eb0"
+   },
+   "taken_means": "HP% < 50 → 미포함(다음 원소)",
+   "not_taken_means": "HP% >= 50 → 포함",
+   "operand_meaning": "구역 안 아군 HP% (event 4/5 경로)",
+   "role": "copy(0xdd3d90 event4/5 구역 집계 3)"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdd3f04",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdd3f04",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xdd3f08",
+    "op_str": "0xdd3eb0"
+   },
+   "taken_means": "HP% < 50 → 미포함(다음 원소)",
+   "not_taken_means": "HP% >= 50 → 포함",
+   "operand_meaning": "구역 안 아군 HP% (event 4/5 경로)",
+   "role": "copy(0xdd3d90 event4/5 구역 집계 4)"
+  },
+  {
+   "id": "objective_start_member_hp_50@0xdd3fb5",
+   "entry": "objective_start_member_hp_50",
+   "rva": "0xdd3fb5",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": null,
+   "taken_means": "HP% < 50 → CF=1 → 카운트 그대로",
+   "not_taken_means": "HP% >= 50 → sbb r9,-1 로 카운트+1",
+   "operand_meaning": "구역 안 아군 HP%",
+   "role": "copy(0xdd3f90 준비 인원 집계 — B표 비교용)"
+  },
+  {
+   "id": "support_minion_block_role_4@0xdef86a",
+   "entry": "support_minion_block_role_4",
+   "rva": "0xdef86a",
+   "bytes": "4883fa04",
+   "asm": "cmp rdx, 4",
+   "a": {
+    "kind": "reg",
+    "off": 136,
+    "width": 8,
+    "name": "rdx"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 4,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "je",
+    "rva": "0xdef86e",
+    "op_str": "0xdefb8d"
+   },
+   "taken_means": "포지션 == 4 → 0xdefb8d 즉시 거부(라인 미니언 접근 상태 안 만듦)",
+   "not_taken_means": "포지션 != 4 → 후보 상태 수집",
+   "operand_meaning": "자기 포지션 [rsi+0x8b0] (0 탑 … 3 원딜, 4 서폿)",
+   "role": "primary"
+  },
+  {
+   "id": "tower_forced_recall_type_4@0xe00987",
+   "entry": "tower_forced_recall_type_4",
+   "rva": "0xe00987",
+   "bytes": "83786804",
+   "asm": "cmp dword ptr [rax + 0x68], 4",
+   "a": {
+    "kind": "heap",
+    "name": "dword ptr [rax + 0x68], 4"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 4,
+    "width": 4,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jne",
+    "rva": "0xe0098b",
+    "op_str": "0xe00b4b"
+   },
+   "taken_means": "타입 != 4 → 0xe00b4b",
+   "not_taken_means": "타입 == 4 → 강제 귀환 검사 계속",
+   "operand_meaning": "같은 규칙 사본(type4·bit0·ID==own+0x5b8)",
+   "role": "오브젝트 사냥(0xdfe5e0)"
   },
   {
    "id": "objective_hunt_exit_hp_30@0xe035cb",
@@ -459,6 +1162,205 @@
    "role": "비교"
   },
   {
+   "id": "retreat_hold_extend_hp_65@0xe922df",
+   "entry": "retreat_hold_extend_hp_65",
+   "rva": "0xe922df",
+   "bytes": "4883f841",
+   "asm": "cmp rax, 0x41",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 65,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jbe",
+    "rva": "0xe922ea",
+    "op_str": "0xe91d6e"
+   },
+   "taken_means": "HP% <= 65 → 0xe91d6e (후퇴 유지 TTL 1.5×TPS 연장 경로)",
+   "not_taken_means": "HP% > 65 → 연장 없음",
+   "operand_meaning": "wrap(HP×100)/max(maxHP,1) (자기 HP%)",
+   "role": "primary"
+  },
+  {
+   "id": "tower_forced_recall_type_4@0xe998a2",
+   "entry": "tower_forced_recall_type_4",
+   "rva": "0xe998a2",
+   "bytes": "83786804",
+   "asm": "cmp dword ptr [rax + 0x68], 4",
+   "a": {
+    "kind": "heap",
+    "name": "dword ptr [rax + 0x68], 4"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 4,
+    "width": 4,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jne",
+    "rva": "0xe998a6",
+    "op_str": "0xe99a5f"
+   },
+   "taken_means": "타입 != 4 → 강제 귀환 안 함",
+   "not_taken_means": "타입 == 4 → 강제 귀환 검사 계속",
+   "operand_meaning": "같은 규칙 사본",
+   "role": "세르펜 견제(0xe99460)"
+  },
+  {
+   "id": "tower_forced_recall_type_4@0xe9ce82",
+   "entry": "tower_forced_recall_type_4",
+   "rva": "0xe9ce82",
+   "bytes": "83786804",
+   "asm": "cmp dword ptr [rax + 0x68], 4",
+   "a": {
+    "kind": "heap",
+    "name": "dword ptr [rax + 0x68], 4"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 4,
+    "width": 4,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jne",
+    "rva": "0xe9ce86",
+    "op_str": "0xe9d03f"
+   },
+   "taken_means": "타입 != 4 → 0xe9d03f 강제 귀환 안 함",
+   "not_taken_means": "타입 == 4 → bit0·ID 확인 후 강제 귀환(mode1)",
+   "operand_meaning": "나를 노리는 강제 대상 엔티티 타입 [rax+0x68] (4 = 타워 추정)",
+   "role": "에픽 견제(0xe9ca40)"
+  },
+  {
+   "id": "base_defense_hold_dmg_ratio_49@0xea6c73",
+   "entry": "base_defense_hold_dmg_ratio_49",
+   "rva": "0xea6c73",
+   "bytes": "4883f831",
+   "asm": "cmp rax, 0x31",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 49,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xea6c77",
+    "op_str": "0xea6cb9"
+   },
+   "taken_means": "피해율 > 49 → 0xea6cb9 (피해 유지 = 후퇴 검토 대상)",
+   "not_taken_means": "피해율 <= 49 → HP 단계표(65/29·40/17·25/10) 검사로",
+   "operand_meaning": "예상 피해율% (rax = 2×TPS 예측 피해 r14 ×100 / 자기 HP rbx). 피해 >= HP 이면 이 비교 전에 0xea6cb9 로 감",
+   "role": "primary"
+  },
+  {
+   "id": "base_defense_hold_nexus_hp_50@0xea6cf2",
+   "entry": "base_defense_hold_nexus_hp_50",
+   "rva": "0xea6cf2",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xea6cf6",
+    "op_str": "0xea6d20"
+   },
+   "taken_means": "HP% > 50 → 0xea6d20 (위협 확인 생략)",
+   "not_taken_means": "HP% <= 50 → 0xea6cf8 위협 확인 call 0xf1aa60(240000)",
+   "operand_meaning": "아군 넥서스 HP% ([r15+r12*8+0x1c8] 엔티티)",
+   "role": "primary(64비트 div 경로)"
+  },
+  {
+   "id": "base_defense_hold_nexus_hp_50@0xea6d1a",
+   "entry": "base_defense_hold_nexus_hp_50",
+   "rva": "0xea6d1a",
+   "bytes": "4883f832",
+   "asm": "cmp rax, 0x32",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 50,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jbe",
+    "rva": "0xea6d1e",
+    "op_str": "0xea6cf8"
+   },
+   "taken_means": "HP% <= 50 → 0xea6cf8 위협 확인",
+   "not_taken_means": "HP% > 50 → 0xea6d20",
+   "operand_meaning": "아군 넥서스 HP% (같은 판정 사본)",
+   "role": "copy(32비트 div 경로)"
+  },
+  {
+   "id": "base_defense_hold_retreat_hp_45@0xea6d30",
+   "entry": "base_defense_hold_retreat_hp_45",
+   "rva": "0xea6d30",
+   "bytes": "4983fd2d",
+   "asm": "cmp r13, 0x2d",
+   "a": {
+    "kind": "reg",
+    "off": 224,
+    "width": 8,
+    "name": "r13"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 45,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xea6d34",
+    "op_str": "0xea6e1e"
+   },
+   "taken_means": "HP% > 45 → 0xea6e1e (후퇴 안 함)",
+   "not_taken_means": "HP% <= 45 → 후퇴 후보(0xea6d3a~)",
+   "operand_meaning": "자기 HP% (r13 = [rbx+0x668]*100/[rbx+0x620], 64/32 div 합류 후). 0xea6d2b cmp r14,rbx(예상 피해 < 현재 HP) 일 때만 도달",
+   "role": "primary"
+  },
+  {
    "id": "lane_retreat_direct_hp_by_counts@0xf09b11",
    "entry": "lane_retreat_direct_hp_by_counts",
    "rva": "0xf09b11",
@@ -543,6 +1445,122 @@
    "not_taken_means": "bl=0",
    "operand_meaning": "signed 후퇴 점수 = 기본점수(60/70/80) + 플랜 가산(100/70/60/30/5) − 감점(−5/−10)",
    "role": "primary"
+  },
+  {
+   "id": "minion_damage_ratio_49@0xf11f7c",
+   "entry": "minion_damage_ratio_49",
+   "rva": "0xf11f7c",
+   "bytes": "4883f831",
+   "asm": "cmp rax, 0x31",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 49,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xf11f80",
+    "op_str": "0xf11fab"
+   },
+   "taken_means": "피해율 > 49 → 0xf11fab 위험(피해 값 반환)",
+   "not_taken_means": "<= 49 → HP 단계 검사",
+   "operand_meaning": "예상 미니언 피해율% (rax = 피해 rcx×100/자기 HP r9). 피해 >= HP 면 이 전에 위험 반환",
+   "role": "피해율 상한(항상)"
+  },
+  {
+   "id": "minion_damage_ratio_49@0xf11f88",
+   "entry": "minion_damage_ratio_49",
+   "rva": "0xf11f88",
+   "bytes": "4883f81d",
+   "asm": "cmp rax, 0x1d",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 29,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xf11f8c",
+    "op_str": "0xf11fab"
+   },
+   "taken_means": "피해율 > 29 → 위험",
+   "not_taken_means": "<= 29 → 다음 단계",
+   "operand_meaning": "예상 피해율% (HP% r8 <= 65 일 때만 도달)",
+   "role": "HP<=65 단계"
+  },
+  {
+   "id": "minion_damage_ratio_49@0xf11f94",
+   "entry": "minion_damage_ratio_49",
+   "rva": "0xf11f94",
+   "bytes": "4883f811",
+   "asm": "cmp rax, 0x11",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 17,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xf11f98",
+    "op_str": "0xf11fab"
+   },
+   "taken_means": "피해율 > 17 → 위험",
+   "not_taken_means": "<= 17 → 다음 단계",
+   "operand_meaning": "예상 피해율% (HP% <= 40 일 때만)",
+   "role": "HP<=40 단계"
+  },
+  {
+   "id": "minion_damage_ratio_49@0xf11fa0",
+   "entry": "minion_damage_ratio_49",
+   "rva": "0xf11fa0",
+   "bytes": "4883f80a",
+   "asm": "cmp rax, 0xa",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 10,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xf11fa9",
+    "op_str": "0xf11fae"
+   },
+   "taken_means": "피해율 < 10 → 0 반환(무시)",
+   "not_taken_means": "피해율 >= 10 → 위험(피해 값 반환)",
+   "operand_meaning": "예상 피해율% (HP% <= 25 일 때만)",
+   "role": "HP<=25 단계"
   },
   {
    "id": "base_defense_min_enemies_6@0xf161dc",
@@ -661,6 +1679,181 @@
    "role": "primary"
   },
   {
+   "id": "tower_chase_own_hp_35@0xf54b75",
+   "entry": "tower_chase_own_hp_35",
+   "rva": "0xf54b75",
+   "bytes": "4883f919",
+   "asm": "cmp rcx, 0x19",
+   "a": {
+    "kind": "reg",
+    "off": 128,
+    "width": 8,
+    "name": "rcx"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 25,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "setae",
+    "rva": "0xf54b79",
+    "op_str": "r10b"
+   },
+   "taken_means": "HP% >= 25 → r10b=1 (goodA 성립 후보)",
+   "not_taken_means": "HP% < 25 → goodA 불성립",
+   "operand_meaning": "자기 HP% (rcx). goodA = 수적 우위(아군>=2·아군>적) && HP>=25",
+   "role": "goodA(내 HP 25)"
+  },
+  {
+   "id": "tower_chase_own_hp_35@0xf54b88",
+   "entry": "tower_chase_own_hp_35",
+   "rva": "0xf54b88",
+   "bytes": "4883f923",
+   "asm": "cmp rcx, 0x23",
+   "a": {
+    "kind": "reg",
+    "off": 128,
+    "width": 8,
+    "name": "rcx"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 35,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "setae",
+    "rva": "0xf54b8c",
+    "op_str": "r11b"
+   },
+   "taken_means": "HP% >= 35 → r11b=1",
+   "not_taken_means": "HP% < 35 → goodB 불성립",
+   "operand_meaning": "자기 HP% (rcx). goodB = 대상 HP<26 && HP>=35",
+   "role": "goodB(내 HP 35)"
+  },
+  {
+   "id": "tower_chase_own_hp_35@0xf54b99",
+   "entry": "tower_chase_own_hp_35",
+   "rva": "0xf54b99",
+   "bytes": "4883f92d",
+   "asm": "cmp rcx, 0x2d",
+   "a": {
+    "kind": "reg",
+    "off": 128,
+    "width": 8,
+    "name": "rcx"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 45,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "setae",
+    "rva": "0xf54b9d",
+    "op_str": "cl"
+   },
+   "taken_means": "HP% >= 45 → cl=1",
+   "not_taken_means": "HP% < 45 → goodC 불성립",
+   "operand_meaning": "자기 HP% (rcx). goodC = 대상 HP<51 && 140000 안 수적 우위 && HP>=45",
+   "role": "goodC(내 HP 45)"
+  },
+  {
+   "id": "line_chase_retreat_hp_45@0xf7ce6d",
+   "entry": "line_chase_retreat_hp_45",
+   "rva": "0xf7ce6d",
+   "bytes": "4883f82d",
+   "asm": "cmp rax, 0x2d",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 45,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xf7ce71",
+    "op_str": "0xf7ce8c"
+   },
+   "taken_means": "HP% > 45 → 0xf7ce8c (일반 경로)",
+   "not_taken_means": "HP% <= 45 → 0xf7d019 바로 후퇴 경로",
+   "operand_meaning": "자기 HP% ([r12+0x668]*100/[r12+0x620])",
+   "role": "primary(64비트 div 경로)"
+  },
+  {
+   "id": "line_chase_retreat_hp_45@0xf7ce82",
+   "entry": "line_chase_retreat_hp_45",
+   "rva": "0xf7ce82",
+   "bytes": "4883f82d",
+   "asm": "cmp rax, 0x2d",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 45,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jbe",
+    "rva": "0xf7ce86",
+    "op_str": "0xf7d019"
+   },
+   "taken_means": "HP% <= 45 → 0xf7d019 바로 후퇴",
+   "not_taken_means": "HP% > 45 → 일반 경로",
+   "operand_meaning": "자기 HP% (같은 판정 사본)",
+   "role": "copy(32비트 div 경로)"
+  },
+  {
+   "id": "line_chase_target_guard_hp_65@0xf7d2a4",
+   "entry": "line_chase_target_guard_hp_65",
+   "rva": "0xf7d2a4",
+   "bytes": "48837c243041",
+   "asm": "cmp qword ptr [rsp + 0x30], 0x41",
+   "a": {
+    "kind": "stack",
+    "off": 152,
+    "disp": 48,
+    "width": 8,
+    "name": "[rsp+0x30]"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 65,
+    "width": 8,
+    "at": 5,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xf7d2aa",
+    "op_str": "0xf7d303"
+   },
+   "taken_means": "HP% > 65 → 0xf7d303 (현재 표적 소비 가드 통과 안 함)",
+   "not_taken_means": "HP% <= 65 → 현재 표적 소비 가드 경로",
+   "operand_meaning": "자기 HP% (스택 [rsp+0x30] 에 저장된 위 HP%)",
+   "role": "primary"
+  },
+  {
    "id": "lane_retreat_final_score_50_passive@0xf9603d",
    "entry": "lane_retreat_final_score_50_passive",
    "rva": "0xf9603d",
@@ -687,6 +1880,122 @@
    "taken_means": "setge al: 점수 >= 50 → al=1 → (al 보존) 0xf080cd mov [r13+0x110],al = 후퇴 true",
    "not_taken_means": "al=0",
    "operand_meaning": "signed 후퇴 점수 = 기본점수(60/70/80) + 플랜 가산 − 감점",
+   "role": "primary"
+  },
+  {
+   "id": "lane_opportunity_own_min_2@0xfb3c2f",
+   "entry": "lane_opportunity_own_min_2",
+   "rva": "0xfb3c2f",
+   "bytes": "4883f802",
+   "asm": "cmp rax, 2",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 2,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0xfb3c33",
+    "op_str": "0xfb3e1d"
+   },
+   "taken_means": "아군 수 < 2 → 0xfb3e1d 거절",
+   "not_taken_means": ">= 2 → 다음 조건",
+   "operand_meaning": "라인 영역 건강(HP>49) 아군 수 (call 0xfb60b0 반환)",
+   "role": "primary"
+  },
+  {
+   "id": "lane_opportunity_enemy_max_1@0xfb3c89",
+   "entry": "lane_opportunity_enemy_max_1",
+   "rva": "0xfb3c89",
+   "bytes": "4883f801",
+   "asm": "cmp rax, 1",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 1,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "ja",
+    "rva": "0xfb3c8d",
+    "op_str": "0xfb3e1d"
+   },
+   "taken_means": "상대 수 > 1 → 0xfb3e1d 거절",
+   "not_taken_means": "<= 1 → 다음 조건(모드 표 jmp)",
+   "operand_meaning": "라인 영역 상대 수 합 (call 0xfb5ee0 반환)",
+   "role": "primary"
+  },
+  {
+   "id": "pickoff_target_hp_bonus50_81@0xfb51f3",
+   "entry": "pickoff_target_hp_bonus50_81",
+   "rva": "0xfb51f3",
+   "bytes": "4983f851",
+   "asm": "cmp r8, 0x51",
+   "a": {
+    "kind": "reg",
+    "off": 184,
+    "width": 8,
+    "name": "r8"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 81,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "cmovae",
+    "rva": "0xfb51fc",
+    "op_str": "ecx, eax"
+   },
+   "taken_means": "HP% >= 81 → ecx = base(eax) — +50 없음",
+   "not_taken_means": "HP% < 81 → ecx = base+50",
+   "operand_meaning": "후보 고립 적의 HP% (위와 같은 r8)",
+   "role": "primary"
+  },
+  {
+   "id": "pickoff_target_hp_bonus120_61@0xfb51ff",
+   "entry": "pickoff_target_hp_bonus120_61",
+   "rva": "0xfb51ff",
+   "bytes": "4983f83d",
+   "asm": "cmp r8, 0x3d",
+   "a": {
+    "kind": "reg",
+    "off": 184,
+    "width": 8,
+    "name": "r8"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 61,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "cmovae",
+    "rva": "0xfb5208",
+    "op_str": "eax, ecx"
+   },
+   "taken_means": "HP% >= 61 → eax = ecx(+50 또는 0 쪽 점수) — +120 보너스 없음",
+   "not_taken_means": "HP% < 61 → eax = base+120 (저체력 대상 우선)",
+   "operand_meaning": "후보 고립 적의 HP% (r8 = [r11+0x668]*100 / [r11+0x620], r11 = 후보 적 엔티티). 64/32비트 div 경로가 0xfb51db 에서 합류 — 사본 없음",
    "role": "primary"
   },
   {
@@ -1027,6 +2336,118 @@
    "not_taken_means": "다음 role 검사",
    "operand_meaning": "r11 = 상대 role0 엔티티와 기준점(R8,R9) 거리²(64비트 wrap)",
    "role": "비교 role0"
+  },
+  {
+   "id": "jungle_stop_hp_41@0x1018e37",
+   "entry": "jungle_stop_hp_41",
+   "rva": "0x1018e37",
+   "bytes": "4883f80b",
+   "asm": "cmp rax, 0xb",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 11,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0x1018e3b",
+    "op_str": "0x1018e4c"
+   },
+   "taken_means": "HP% < 11 → 80점",
+   "not_taken_means": "HP% >= 11 → 21 비교로",
+   "operand_meaning": "자기 HP% (회복 수단 있음 경로)",
+   "role": "회복 수단 있음: 80점(11)"
+  },
+  {
+   "id": "jungle_stop_hp_41@0x1018e3f",
+   "entry": "jungle_stop_hp_41",
+   "rva": "0x1018e3f",
+   "bytes": "4883f815",
+   "asm": "cmp rax, 0x15",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 21,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "cmovae",
+    "rva": "0x1018e48",
+    "op_str": "rcx, rdx"
+   },
+   "taken_means": "HP% >= 21 → 0점",
+   "not_taken_means": "HP% < 21 → 70점",
+   "operand_meaning": "자기 HP% (회복 수단 있음 경로)",
+   "role": "회복 수단 있음: 70점 상한(21)"
+  },
+  {
+   "id": "jungle_stop_hp_41@0x1018ef1",
+   "entry": "jungle_stop_hp_41",
+   "rva": "0x1018ef1",
+   "bytes": "4883f815",
+   "asm": "cmp rax, 0x15",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 21,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": {
+    "mnemonic": "jb",
+    "rva": "0x1018ef5",
+    "op_str": "0x1018e4c"
+   },
+   "taken_means": "HP% < 21 → 80점 반환",
+   "not_taken_means": "HP% >= 21 → 41 비교로",
+   "operand_meaning": "자기 HP% (회복 수단 없음 경로)",
+   "role": "회복 수단 없음: 80점(21)"
+  },
+  {
+   "id": "jungle_stop_hp_41@0x1018efd",
+   "entry": "jungle_stop_hp_41",
+   "rva": "0x1018efd",
+   "bytes": "4883f829",
+   "asm": "cmp rax, 0x29",
+   "a": {
+    "kind": "reg",
+    "off": 120,
+    "width": 8,
+    "name": "rax"
+   },
+   "b": {
+    "kind": "imm",
+    "value": 41,
+    "width": 8,
+    "at": 3,
+    "size": 1
+   },
+   "cond": null,
+   "taken_means": "(0x1018e43 공유 후 cmovae) HP% >= 41 → 0점(계속)",
+   "not_taken_means": "HP% < 41 → 70점(49 초과 = 중단)",
+   "operand_meaning": "자기 HP% (회복 수단 없음 경로)",
+   "role": "회복 수단 없음: 70점 상한(41)"
   }
  ],
  "knobs": [
@@ -1486,6 +2907,871 @@
      "tf": [
       "v",
       -1
+     ]
+    }
+   ]
+  },
+  {
+   "id": "pickoff_target_hp_bonus120_61",
+   "default": 61,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xfb51ff",
+     "orig": "4983f83d",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "pickoff_target_hp_bonus50_81",
+   "default": 81,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xfb51f3",
+     "orig": "4983f851",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "objective_start_nearby_radius_220000",
+   "default": 220000,
+   "min": 0,
+   "max": 2000000,
+   "writes": [
+    {
+     "rva": "0xdb4e73",
+     "orig": "48b80164dd440b000000",
+     "at": 2,
+     "width": 8,
+     "tf": [
+      "sq1"
+     ]
+    },
+    {
+     "rva": "0xdb4f13",
+     "orig": "48ba0164dd440b000000",
+     "at": 2,
+     "width": 8,
+     "tf": [
+      "sq1"
+     ]
+    },
+    {
+     "rva": "0xdb4fa8",
+     "orig": "48ba0164dd440b000000",
+     "at": 2,
+     "width": 8,
+     "tf": [
+      "sq1"
+     ]
+    },
+    {
+     "rva": "0xdb503d",
+     "orig": "48ba0164dd440b000000",
+     "at": 2,
+     "width": 8,
+     "tf": [
+      "sq1"
+     ]
+    },
+    {
+     "rva": "0xdb50cc",
+     "orig": "48ba0164dd440b000000",
+     "at": 2,
+     "width": 8,
+     "tf": [
+      "sq1"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "objective_start_member_hp_50",
+   "default": 50,
+   "min": 1,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xdb4e34",
+     "orig": "4883f831",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      -1
+     ]
+    },
+    {
+     "rva": "0xdb4ed4",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xdb4f69",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xdb4ffe",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xdb5093",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xdd3fb5",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xdd3e23",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xdd3e34",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xdd3eef",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xdd3f04",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "base_defense_hold_retreat_hp_45",
+   "default": 45,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xea6d30",
+     "orig": "4983fd2d",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "base_defense_hold_nexus_hp_50",
+   "default": 50,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xea6cf2",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xea6d1a",
+     "orig": "4883f832",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "base_defense_hold_dmg_ratio_49",
+   "default": 49,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xea6c73",
+     "orig": "4883f831",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "crowd_retreat_weight_plus2_300",
+   "default": 300,
+   "min": 0,
+   "max": 100000,
+   "writes": [
+    {
+     "rva": "0xe5c97e",
+     "orig": "b92c010000",
+     "at": 1,
+     "width": 4,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tower_chase_own_hp_35",
+   "default": 35,
+   "min": 10,
+   "max": 117,
+   "writes": [
+    {
+     "rva": "0xf54b75",
+     "orig": "4883f919",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      -10
+     ]
+    },
+    {
+     "rva": "0xf54b88",
+     "orig": "4883f923",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xf54b99",
+     "orig": "4883f92d",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tower_chase_tower_margin_15000",
+   "default": 15000,
+   "min": 0,
+   "max": 1000000,
+   "writes": [
+    {
+     "rva": "0x101300b",
+     "orig": "4981c2983a0000",
+     "at": 3,
+     "width": 4,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "line_chase_retreat_hp_45",
+   "default": 45,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xf7ce6d",
+     "orig": "4883f82d",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xf7ce82",
+     "orig": "4883f82d",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "line_chase_target_guard_hp_65",
+   "default": 65,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xf7d2a4",
+     "orig": "48837c243041",
+     "at": 5,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "retreat_hold_extend_hp_65",
+   "default": 65,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xe922df",
+     "orig": "4883f841",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "support_minion_block_role_4",
+   "default": 4,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xdef86a",
+     "orig": "4883fa04",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bot_duo_partner_required",
+   "default": 1,
+   "min": 0,
+   "max": 1,
+   "writes": [
+    {
+     "rva": "0xfe346b",
+     "orig": "77e4",
+     "at": 0,
+     "width": 1,
+     "tf": [
+      "toggle",
+      "77",
+      "eb"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "minion_damage_ratio_49",
+   "default": 49,
+   "min": 39,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xf11f7c",
+     "orig": "4883f831",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xf11f88",
+     "orig": "4883f81d",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      -20
+     ]
+    },
+    {
+     "rva": "0xf11f94",
+     "orig": "4883f811",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      -32
+     ]
+    },
+    {
+     "rva": "0xf11fa0",
+     "orig": "4883f80a",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      -39
+     ]
+    }
+   ]
+  },
+  {
+   "id": "jungle_stop_hp_41",
+   "default": 41,
+   "min": 30,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0x1018efd",
+     "orig": "4883f829",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0x1018ef1",
+     "orig": "4883f815",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      -20
+     ]
+    },
+    {
+     "rva": "0x1018e3f",
+     "orig": "4883f815",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      -20
+     ]
+    },
+    {
+     "rva": "0x1018e37",
+     "orig": "4883f80b",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      -30
+     ]
+    }
+   ]
+  },
+  {
+   "id": "liner_roam_self_hp_41",
+   "default": 41,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xd4b2ca",
+     "orig": "4883f829",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "liner_roam_lane_healthy_hp_41",
+   "default": 41,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xd7c450",
+     "orig": "4883f829",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xd7c4b6",
+     "orig": "4883f829",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xd7c519",
+     "orig": "4883f829",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xd7c57c",
+     "orig": "4883f829",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xd7c595",
+     "orig": "4883f829",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "liner_roam_call_chance_700",
+   "default": 700,
+   "min": 0,
+   "max": 1001,
+   "writes": [
+    {
+     "rva": "0xd5200d",
+     "orig": "483dbc020000",
+     "at": 2,
+     "width": 4,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "gank_incoming_lane_enemy_hp_35",
+   "default": 35,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xd6c77a",
+     "orig": "4883f823",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xd6c953",
+     "orig": "4883f823",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xd6ca19",
+     "orig": "4883f823",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xd6cadf",
+     "orig": "4883f823",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xd6ccc0",
+     "orig": "4883f823",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "gank_incoming_jg_dist2_40000000000",
+   "default": 40000000000,
+   "min": 0,
+   "max": 1000000000000,
+   "writes": [
+    {
+     "rva": "0xd6ba0b",
+     "orig": "48b900902f5009000000",
+     "at": 2,
+     "width": 8,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lane_opportunity_own_min_2",
+   "default": 2,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xfb3c2f",
+     "orig": "4883f802",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lane_opportunity_enemy_max_1",
+   "default": 1,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xfb3c89",
+     "orig": "4883f801",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lowhp_ult_bonus_low_14",
+   "default": 14,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xe6955b",
+     "orig": "488d420e",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lowhp_ult_bonus_mid_6",
+   "default": 6,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xe6955f",
+     "orig": "4c8d7206",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "threat_home_return_radius_200000",
+   "default": 200000,
+   "min": 0,
+   "max": 2000000,
+   "writes": [
+    {
+     "rva": "0xfcc584",
+     "orig": "48b801902f5009000000",
+     "at": 2,
+     "width": 8,
+     "tf": [
+      "sq1"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tower_forced_recall_type_4",
+   "default": 4,
+   "min": 0,
+   "max": 127,
+   "writes": [
+    {
+     "rva": "0xe9ce82",
+     "orig": "83786804",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xe998a2",
+     "orig": "83786804",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    },
+    {
+     "rva": "0xe00987",
+     "orig": "83786804",
+     "at": 3,
+     "width": 1,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "remote_ult_min_range_200000",
+   "default": 200000,
+   "min": 0,
+   "max": 2000000000,
+   "writes": [
+    {
+     "rva": "0xd6ffc0",
+     "orig": "4881fa400d0300",
+     "at": 3,
+     "width": 4,
+     "tf": [
+      "v",
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hazard_avoid_padding_6000",
+   "default": 6000,
+   "min": 0,
+   "max": 1000000,
+   "writes": [
+    {
+     "rva": "0xf0fcb3",
+     "orig": "480570170000",
+     "at": 2,
+     "width": 4,
+     "tf": [
+      "v",
+      0
      ]
     }
    ]

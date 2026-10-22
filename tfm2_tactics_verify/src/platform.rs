@@ -146,7 +146,7 @@ unsafe fn handle_breakpoint(p: &ExceptionPointers, rec: &ExceptionRecord) -> boo
 // 비교 명령(cmp/test) 첫 바이트의 INT3 → 피연산자 값 기록 → RIP 를 스텁(원래 명령 사본 + 절대 jmp)으로.
 // 핸들러: 할당/락/게임 CALL 없음. 읽기 = CONTEXT 레지스터, 또는 rsp/rbp 기준 스택(그 명령이 곧 읽을 주소).
 // 슬롯은 게시 뒤 영구 보존한다(지연 dispatch 와 무장 해제 뒤 늦게 온 예외도 스텁으로 보낸다).
-pub(crate) const MAX_SITES: usize = 48;
+pub(crate) const MAX_SITES: usize = 96; // 게이트 수 상한 — probe.rs 가 컴파일 때 GATES.len() 과 대조
 pub(crate) const SAMPLE_CAP: usize = 1024;
 pub(crate) const HIST: usize = 257; // a-b(부호) −128..=128, 양 끝 = 넘침
 pub(crate) const CAP_NONE: u64 = 0;
