@@ -122,8 +122,8 @@ pub fn set_status(t: usize, st: u8) { if t < N { STATUS[t].store(st, Relaxed); }
 pub fn status(t: usize) -> u8 { if t < N { STATUS[t].load(Relaxed) } else { ST_UNKNOWN } }
 pub fn index_of_knob(knob: &str) -> Option<usize> { TACTICS.iter().position(|d| d.knob == knob) }
 
-/// 내 팀 선발 athlete_id(최대 8 · 0 = 빈 칸). Player `+0x810` u64(0.6.5 RE 2026-10-23).
-static MY_ATHLETES: [AtomicU64; 32] = [const { AtomicU64::new(0) }; 32];
+/// 계약 명단 athlete_id(최대 32). ID 0도 유효하므로 빈 슬롯은 u64::MAX.
+static MY_ATHLETES: [AtomicU64; 32] = [const { AtomicU64::new(u64::MAX) }; 32];
 /// 적용 스위치 — 세이브 설정 로드 + 내 팀 확보 뒤 켠다.
 static ARMED: AtomicBool = AtomicBool::new(false);
 
@@ -168,11 +168,11 @@ pub fn value_of(t: usize, lv: u8) -> i64 {
 }
 
 pub fn set_my_athletes(ids: &[u64]) {
-    for (i, slot) in MY_ATHLETES.iter().enumerate() { slot.store(ids.get(i).copied().unwrap_or(0), Relaxed); }
+    for (i, slot) in MY_ATHLETES.iter().enumerate() { slot.store(ids.get(i).copied().unwrap_or(u64::MAX), Relaxed); }
 }
-pub fn my_athletes() -> Vec<u64> { MY_ATHLETES.iter().map(|a| a.load(Relaxed)).filter(|a| *a != 0).collect() }
+pub fn my_athletes() -> Vec<u64> { MY_ATHLETES.iter().map(|a| a.load(Relaxed)).filter(|a| *a != u64::MAX).collect() }
 #[inline]
-pub fn is_my_athlete(ath: u64) -> bool { ath != 0 && MY_ATHLETES.iter().any(|a| a.load(Relaxed) == ath) }
+pub fn is_my_athlete(ath: u64) -> bool { ath != u64::MAX && MY_ATHLETES.iter().any(|a| a.load(Relaxed) == ath) }
 pub fn set_armed(on: bool) { ARMED.store(on, Relaxed); }
 pub fn armed() -> bool { ARMED.load(Relaxed) }
 
@@ -248,6 +248,9 @@ mod tests {
         assert_eq!(value_for(t, 101, 0), Some(50));
         assert_eq!(value_for(t, 101, 1), None); // 정글 칸은 기본
         assert_eq!(value_for(t, 999, 0), None); // 남의 팀
+        set_my_athletes(&[0,101,102]); // 실제 세이브의 첫 선수 ID도 0이다.
+        assert_eq!(value_for(t,0,0),Some(50));
+        assert_eq!(my_athletes(),vec![0,101,102]);
         assert!(set_value(t, LV_HIGH, 60));
         assert_eq!(value_for(t, 102, 0), Some(60));
         assert!(!set_value(t, LV_HIGH, 500)); // 범위 밖
