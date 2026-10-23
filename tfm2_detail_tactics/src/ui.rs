@@ -44,6 +44,13 @@ fn button(id:&str,x:usize,y:usize,w:usize,label:&str)->String{
 fn label(id:&str,x:usize,y:usize,w:usize,h:usize,size:usize,s:&str)->String{
     format!("#{id}:label {{ @\"asset/base/style/main#label\"; x:{x}px; y:{y}px; width:{w}px; height:{h}px; size:{size}; align_y:Center; text:\"{s}\"; }}\n")
 }
+// 공용 UI kit 출력의 글자 영역만 대칭 여백으로 바꿔 칸 전체의 중앙에 맞춘다.
+// 오른쪽 화살표·선택 체크 공간은 남기며 다른 모드의 풀다운은 건드리지 않는다.
+fn centered_dropdown(src:String,w:usize,kit_text_inset:usize)->String{
+    src.replace("x: 14px;","x: 40px;")
+        .replace(&format!("width: {}px;",w-kit_text_inset),&format!("width: {}px;",w-80))
+        .replace("align_y: Center;","align_x: Center; align_y: Center;")
+}
 fn source()->String{
     let mut s=String::from("dt_modal:color { width:1740px; height:970px; anchor_x:0.5; pivot_x:0.5; anchor_y:0.5; pivot_y:0.5; visible:false; color:#161721ff; rounding:Uniform{rounding:12;}\n");
     s+=&label("title",30,18,1450,42,26,"상세전술");
@@ -59,15 +66,15 @@ fn source()->String{
         let y=229+row*76;
         s+=&label(&format!("name{row}"),30,y,640,30,18,"");
         s+=&label(&format!("desc{row}"),30,y+30,640,44,14,"");
-        for col in 0..5{s+=&dd::button_source(&format!("c{row}_{col}"),(690+col*200)as i32,(y+12)as i32,190,38,"",16);}
-        s+=&dd::button_source(&format!("team{row}"),690,(y+12)as i32,990,38,"",16);
-        s+=&dd::button_source(&format!("duo{row}"),1290,(y+12)as i32,390,38,"",16);
+        for col in 0..5{s+=&centered_dropdown(dd::button_source(&format!("c{row}_{col}"),(690+col*200)as i32,(y+12)as i32,190,38,"",16),190,44);}
+        s+=&centered_dropdown(dd::button_source(&format!("team{row}"),690,(y+12)as i32,990,38,"",16),990,44);
+        s+=&centered_dropdown(dd::button_source(&format!("duo{row}"),1290,(y+12)as i32,390,38,"",16),390,44);
     }
     s+=&label("category_info",30,862,1370,38,16,"");
     s+=&button("reset",1450,862,230,"전부 기본으로");
     s+=&label("config",30,916,1120,30,14,"단계별 숫자는 모드 폴더의 detail_tactics_values.cfg에서 바꾸면 자동 반영됩니다.");
     s+=&button("cancel",1220,912,210,"취소");s+=&button("ok",1450,912,230,"확인");
-    s+=&dd::list_source("choices",690,234,190,38,16,&[("lv0",""),("lv1",""),("lv2","")]);
+    s+=&centered_dropdown(dd::list_source("choices",690,234,190,38,16,&[("lv0",""),("lv1",""),("lv2","")]),190,54);
     s+="}\n";s
 }
 fn register(ctx:&mut StableClient<'_>,id:&str,f:impl Fn()+Send+Sync+'static){
@@ -144,7 +151,7 @@ pub fn tick(ctx:&mut StableClient<'_>,frame:u64){
             let by=241+row*76;let h=count*38;let y=if by+40+h>850{by-h-2}else{by+40};
             ctx.ui_set_properties(&list,&format!("x:{x}px; y:{y}px; width:{w}px; height:{h}px;"));
             for(lv,id)in ITEM_IDS.iter().enumerate(){let p=format!("{list}.{id}");ctx.ui_set_visible(&p,lv<count);
-                ctx.ui_set_properties(&p,&format!("width:{w}px;"));ctx.ui_set_properties(&format!("{p}.label"),&format!("width:{}px;",w-54));
+                ctx.ui_set_properties(&p,&format!("width:{w}px;"));ctx.ui_set_properties(&format!("{p}.label"),&format!("x:40px; width:{}px; align_x:Center;",w-80));
                 text(ctx,&format!("{p}.label"),&choice(t,lv as u8));}
         }
         let lv=cell_level(&e,t,col);
