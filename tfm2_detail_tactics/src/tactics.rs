@@ -16,7 +16,10 @@ pub fn config_update()->ConfigUpdate{
 }
 impl Drop for ConfigUpdate{fn drop(&mut self){CONFIG_REV.fetch_add(1,Release);}}
 pub fn config_revision()->Option<u32>{let v=CONFIG_REV.load(Acquire);(v&1==0).then_some(v)}
-pub fn config_unchanged(v:u32)->bool{CONFIG_REV.load(Acquire)==v}
+pub fn config_unchanged(v:u32)->bool{
+    std::sync::atomic::fence(Acquire);
+    CONFIG_REV.load(Relaxed)==v
+}
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Scope {

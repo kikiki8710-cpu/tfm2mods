@@ -62,7 +62,7 @@
       "min": 0,
       "max": 1000,
       "kind": "Value",
-      "tab": "라인·이동",
+      "tab": "푸시·타워",
       "pos_mask": 31,
       "sites": [
         {
@@ -908,7 +908,7 @@
       "min": 0,
       "max": 100,
       "kind": "Value",
-      "tab": "전투·생존",
+      "tab": "푸시·타워",
       "pos_mask": 31,
       "sites": [
         {
