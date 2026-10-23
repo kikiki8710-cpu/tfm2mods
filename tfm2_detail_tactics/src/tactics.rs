@@ -68,9 +68,9 @@ pub static TACTICS: &[TacticDef] = &[
     v("jg_gank_hp_floor", "jg_gank_hp_floor_40", "갱 최소 체력(%)", "갱 중 이 체력 아래면 그만둔다", P, 40, 25, 60, 0, 127),
     v("gank_abort_hp", "gank_abort_hp_41", "갱 포기 체력(%)", "갱 진행 중 체력이 이 값보다 낮으면 포기", P, 41, 25, 60, 0, 127),
     t("gank_abort_tower", "gank_abort_tower_reason9", "갱 중 적 포탑 교전 시 포기", "끄면 적 포탑 근처에서도 갱을 계속한다", P),
-    v("gank_call_accept_hp", "gank_call_accept_hp_60", "갱 콜 수락 최소 체력(%)", "라이너가 갱 콜을 받을 때 필요한 체력", P, 60, 40, 80, 1, 127),
-    v("jungle_safe_radius", "jungle_safe_radius_150000", "정글 캠프 안전 반경", "노리는 캠프 이 거리 안에 적이 있으면 위험으로 본다", P, 150000, 100000, 250000, 1000, 2000000),
-    v("jungle_stop_hp", "jungle_stop_hp_41", "정글링·로밍 중단 체력(%)", "체력이 이 값 아래면 정글링(로밍 중 포함)을 멈춘다", P, 41, 31, 55, 30, 127),
+    v("gank_call_accept_hp", "gank_call_accept_hp_60", "갱 콜 수락 최소 체력(%)", "라인 계획 중 갱 콜 수락에 필요한 체력. 정글도 라인 계획이면 적용", P, 60, 40, 80, 1, 127),
+    v("jungle_safe_radius", "jungle_safe_radius_150000", "정글 캠프 안전 반경", "캠프 주변 이 거리 안의 적 라이너·서포터를 위험으로 본다", P, 150000, 100000, 250000, 1000, 2000000),
+    v("jungle_stop_hp", "jungle_stop_hp_41", "정글링 중단 체력(%)", "정글러 체력이 이 값 아래면 정글링을 멈춘다", P, 41, 31, 55, 30, 127),
     v("minion_damage_ratio", "minion_damage_ratio_49", "미니언 피해 민감도(%)", "미니언 예상 피해율이 이 값을 넘으면 위험으로 본다. 낮을수록 조심", P, 49, 39, 65, 39, 127),
     // ── 라인 운영·로밍
     v("lane_assign_hp", "lane_assign_hp_30", "라인 배정 체력(%)", "탑·미드·원딜 후보 체력 기준. 정글·서폿은 원본 규칙상 제외", P, 30, 15, 50, 0, 127),
