@@ -1,0 +1,1295 @@
+{
+  "exe_sha256": "DAF040DB8A3A3AE136F3EF8CE704E2718F049656B6B5E4872EACB599811D30B5",
+  "tactics": [
+    {
+      "audit_id": "C002",
+      "id": "pickoff_hp_bands",
+      "name": "픽오프 저체력 기준(%)",
+      "desc": "하단 체력 문턱과 그보다20 높은 문턱을 함께 조절한다. 높을수록 체력 있는 적도 우선한다",
+      "scope": "Player",
+      "default": 61,
+      "low": 41,
+      "high": 71,
+      "min": 1,
+      "max": 80,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xfb51f3",
+          "win_hex": "49 83 f8 51 41 8d 4c 12 32",
+          "first_len": 4,
+          "src": "mem:rbp:0x98",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 20
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 d8 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xfb51ff",
+          "win_hex": "49 83 f8 3d 41 8d 44 12 78",
+          "first_len": 4,
+          "src": "mem:rbp:0x98",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 d8 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C003",
+      "id": "structure_retreat_keep_hp",
+      "name": "구조물 공격 중 후퇴 유지 체력(%)",
+      "desc": "추적 중 적 구조물을 공격하며 이미 후퇴 요청이 있을 때, 이 체력 이하면 후퇴 요청을 유지한다",
+      "scope": "Player",
+      "default": 65,
+      "low": 50,
+      "high": 80,
+      "min": 0,
+      "max": 100,
+      "kind": "Value",
+      "tab": "푸시·타워",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe922df",
+          "win_hex": "48 83 f8 41 48 8b 95 b8 05 00 00",
+          "first_len": 4,
+          "src": "mem:rbp:0x660",
+          "team_chk": "mem:rbp:0x5b8",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C010",
+      "id": "chase_speed_ratio",
+      "name": "추격 속도비 기준(10분율)",
+      "desc": "적 이동속도×10과 내 속도×이 값을 비교한다. 낮을수록 속도 차이로 추격을 멈추기 쉽다",
+      "scope": "Player",
+      "default": 9,
+      "low": 7,
+      "high": 11,
+      "min": 1,
+      "max": 20,
+      "kind": "Value",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe4d559",
+          "win_hex": "48 8d 14 d2 48 39 d0",
+          "first_len": 4,
+          "src": "mem:rbp:0x218",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::chase_ratio_rdx"
+          },
+          "dynamic_hex": "48 8b 54 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xeee719",
+          "win_hex": "48 8d 0c c9 48 39 c8",
+          "first_len": 4,
+          "src": "mem:rbp:0x348",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::chase_ratio_rcx"
+          },
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [
+        {
+          "rva": "0xe4d54b",
+          "length": 7,
+          "bytes": "48 01 c0 48 8d 04 80",
+          "function": "0xe4a890",
+          "reuse": false,
+          "asm": [
+            "0xe4d54b: add rax, rax",
+            "0xe4d54e: lea rax, [rax + rax*4]"
+          ],
+          "branch_relocation": [],
+          "pass": true,
+          "keep_original": true,
+          "reason": "적속도×10은 원래 ADD/LEA·wrap/flags까지 유지"
+        },
+        {
+          "rva": "0xeee70b",
+          "length": 7,
+          "bytes": "48 01 c0 48 8d 04 80",
+          "function": "0xeebd10",
+          "reuse": false,
+          "asm": [
+            "0xeee70b: add rax, rax",
+            "0xeee70e: lea rax, [rax + rax*4]"
+          ],
+          "branch_relocation": [],
+          "pass": true,
+          "keep_original": true,
+          "reason": "적속도×10은 원래 ADD/LEA·wrap/flags까지 유지"
+        }
+      ],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C011",
+      "id": "tower_tank_hits",
+      "name": "타워 탱킹 필요 체력(타)",
+      "desc": "타워 피해를 이 횟수만큼 견딜 체력이 있는 아군을 탱킹 후보로 고른다. 팀 공통이며 낮을수록 위험을 감수한다",
+      "scope": "Team",
+      "default": 3,
+      "low": 2,
+      "high": 4,
+      "min": 1,
+      "max": 10,
+      "kind": "Value",
+      "tab": "푸시·타워",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0x1010b11",
+          "win_hex": "48 8d 04 40 48 39 82 68 06 00 00",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x1b8",
+            "cases": [
+              {
+                "ret_rva": "0xdfbb38",
+                "src": {
+                  "kind": "caller",
+                  "return_off": "0x208",
+                  "cases": [
+                    {
+                      "ret_rva": "0xdca088",
+                      "src": "stack:0x1f0"
+                    },
+                    {
+                      "ret_rva": "0xe0e5a7",
+                      "src": "stackmem:0x1b0:0x720"
+                    },
+                    {
+                      "ret_rva": "0xf9960f",
+                      "src": "stack:0x1f0"
+                    }
+                  ]
+                }
+              },
+              {
+                "ret_rva": "0xe12669",
+                "src": "stackmem:0x1b0:0x720"
+              },
+              {
+                "ret_rva": "0xf7fdab",
+                "src": "stackmem:0x1b0:0x480"
+              },
+              {
+                "ret_rva": "0x10135b7",
+                "src": "stack:0x210"
+              },
+              {
+                "ret_rva": "0x101381c",
+                "src": "stack:0x198"
+              }
+            ]
+          },
+          "team_chk": "stack:0x140",
+          "tf": {
+            "calc": "extra_combat::tower_hits"
+          },
+          "dynamic_hex": "48 8b 44 24 f0",
+          "notes": "알려진5경로 및 dfba90 상위3경로를2단 whitelist로 회수. 알려지지 않은 반환주소는 원본.",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C013",
+      "id": "kill_bonus_cap",
+      "name": "처치 가산점 상한",
+      "desc": "적을 처치할 가능성의 가산점 상한. 높을수록 마무리 공격·기술을 우선한다",
+      "scope": "Player",
+      "default": 100,
+      "low": 50,
+      "high": 150,
+      "min": 0,
+      "max": 1000,
+      "kind": "Value",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe5daa5",
+          "win_hex": "48 83 f8 64 bf 64 00 00 00",
+          "first_len": 9,
+          "src": "mem:rbp:0x58",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 44 89 df 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe5db43",
+          "win_hex": "48 83 f8 64 bf 64 00 00 00",
+          "first_len": 9,
+          "src": "mem:rbp:0x58",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 44 89 df 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe5dfa3",
+          "win_hex": "48 83 f8 64 b9 64 00 00 00",
+          "first_len": 9,
+          "src": "mem:rbp:0x58",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 44 89 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe5e06a",
+          "win_hex": "48 83 f8 64 b9 64 00 00 00",
+          "first_len": 9,
+          "src": "mem:rbp:0x58",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 44 89 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe5e1ff",
+          "win_hex": "48 83 f8 64 b9 64 00 00 00",
+          "first_len": 9,
+          "src": "mem:rbp:0x58",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 44 89 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe5e2b0",
+          "win_hex": "48 83 f8 64 b9 64 00 00 00",
+          "first_len": 9,
+          "src": "mem:rbp:0x58",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 44 89 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C014",
+      "id": "ally_spacing_radius",
+      "name": "아군 간격 반경",
+      "desc": "가까운 아군끼리 벌어지는 반경. 높을수록 서로 넓게 선다",
+      "scope": "Player",
+      "default": 48000,
+      "low": 32000,
+      "high": 60000,
+      "min": 1000,
+      "max": 65535,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe09c9b",
+          "win_hex": "ba ff 3f 54 89",
+          "first_len": 5,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x1b8",
+          "tf": {
+            "calc": "extra_combat::radius_square_minus_one"
+          },
+          "dynamic_hex": "8b 54 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe09cbb",
+          "win_hex": "41 b8 80 bb 00 00",
+          "first_len": 6,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x1b8",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "44 8b 44 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe09f3d",
+          "win_hex": "b8 00 40 54 89",
+          "first_len": 5,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x1b8",
+          "tf": {
+            "calc": "extra_combat::radius_square"
+          },
+          "dynamic_hex": "8b 44 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe09f58",
+          "win_hex": "49 69 c6 80 bb 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x1b8",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 f0 49 0f af c3 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xc01"
+        },
+        {
+          "rva": "0xe09f91",
+          "win_hex": "48 69 c7 80 bb 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x1b8",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 48 89 f8 49 0f af c3 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xc01"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C015",
+      "id": "near_ally_link_margin",
+      "name": "근접 아군 연계 거리 여유",
+      "desc": "아군의 공격 범위 밖에서도 연계할 수 있다고 인정하는 거리 여유. 높을수록 넓게 합을 맞춘다",
+      "scope": "Player",
+      "default": 30000,
+      "low": 15000,
+      "high": 60000,
+      "min": 0,
+      "max": 300000,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xed0c91",
+          "win_hex": "48 81 c5 30 75 00 00",
+          "first_len": 7,
+          "src": "stack:0x40",
+          "team_chk": "stack:0x88",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 dd 41 5b",
+          "notes": "현재 RBP는 사거리 누적값이며 프레임이 아님. 원래 RSP 기준 주체40/팀88.",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C019",
+      "id": "basic_trade_hp_divisor",
+      "name": "기본공격 교환 체력 여유(분모)",
+      "desc": "내 최대 체력/이 값과 적 기본공격 피해를 합친 체력보다 높을 때 안전하다고 본다. 높을수록 교환에 적극적",
+      "scope": "Player",
+      "default": 4,
+      "low": 2,
+      "high": 8,
+      "min": 1,
+      "max": 32,
+      "kind": "Value",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0x1013aca",
+          "win_hex": "48 c1 e9 02 48 01 c1",
+          "first_len": 4,
+          "src": "reg:r13",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::trade_hp_divisor"
+          },
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C020",
+      "id": "support_cap_multiplier",
+      "name": "회복·실드 평가 허용 배수",
+      "desc": "회복은 잃은 체력+피해평가×이 값, 실드는 피해평가×(이 값+1)까지 가치로 센다. 실제 회복·실드량은 바꾸지 않는다",
+      "scope": "Player",
+      "default": 2,
+      "low": 1,
+      "high": 4,
+      "min": 0,
+      "max": 10,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe662db",
+          "win_hex": "4a 8d 0c 41 48 8b 95 88 04 00 00",
+          "first_len": 4,
+          "src": "mem:rbp:0x548",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::heal_r8"
+          },
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe662f4",
+          "win_hex": "4b 8d 0c 40 48 39 d9",
+          "first_len": 4,
+          "src": "mem:rbp:0x548",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::shield_r8"
+          },
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe666f4",
+          "win_hex": "4a 8d 0c 71 4c 8b bd 10 05 00 00",
+          "first_len": 4,
+          "src": "mem:rbp:0x548",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::heal_r14"
+          },
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe6670d",
+          "win_hex": "4b 8d 0c 76 48 39 f9",
+          "first_len": 4,
+          "src": "mem:rbp:0x548",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::shield_r14"
+          },
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C021",
+      "id": "buff_arrival_value_seconds",
+      "name": "지원 기술 도착 가치 기간(초)",
+      "desc": "도착이 늦는 지원 기술의 가치를 이 기간에 걸쳐 낮춘다. 높을수록 늦게 도착해도 높게 평가한다",
+      "scope": "Player",
+      "default": 6,
+      "low": 3,
+      "high": 10,
+      "min": 1,
+      "max": 30,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe66e0c",
+          "win_hex": "4c 8d 04 49 4d 85 c0",
+          "first_len": 4,
+          "src": "mem:rbp:0x548",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::buff_arrival_ticks"
+          },
+          "dynamic_hex": "4c 8b 44 24 f0",
+          "notes": "RCX는 직전2TPS. 홀수 입력은 계약 밖으로 보고 원본 복귀.",
+          "fixture_flags_mask": "0xcc5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C038",
+      "id": "position_isolation_risk_percent",
+      "name": "고립 위치 위험 가산(%)",
+      "desc": "주변 아군 없이 적이2명 이상일 때의 위치 위험 가산. 높을수록 혼자 들어가는 위치를 피한다",
+      "scope": "Player",
+      "default": 25,
+      "low": 10,
+      "high": 50,
+      "min": 0,
+      "max": 1000,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xf8310b",
+          "win_hex": "48 8d 0c 80 48 ba 0b d7 a3 70 3d 0a d7 a3",
+          "first_len": 4,
+          "src": "mem:rbp:0x480",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::isolated_percent"
+          },
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "notes": "직전 5X의 모듈러 역원으로 X를 회수해 K×X를 만든다. LEA의 flags 불변 유지.",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C039",
+      "id": "front_ally_risk_scale",
+      "name": "튼튼한 아군보다 앞섬 억제(%)",
+      "desc": "튼튼한 아군보다 앞선 위치의 위험 점수와 두 상한을 함께 비례 조정한다. 높을수록 아군 뒤에 서려 한다",
+      "scope": "Player",
+      "default": 100,
+      "low": 50,
+      "high": 150,
+      "min": 1,
+      "max": 400,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xf83c29",
+          "win_hex": "48 b9 cf f7 53 e3 a5 9b c4 20 48 f7 e1 48 c1 ea 09",
+          "first_len": 17,
+          "src": "mem:rbp:0x480",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::front_ally_distance_score"
+          },
+          "dynamic_hex": "48 b9 cf f7 53 e3 a5 9b c4 20 48 f7 e1 48 c1 ea 09 48 8b 54 24 f0",
+          "notes": "원래 MUL의 RAX/RCX와 flags를 재현하고 RDX 점수만 교체. 다음 f83c3a CMP가 산술 flags 전부 덮음.",
+          "fixture_flags_mask": "0x4c5"
+        },
+        {
+          "rva": "0xf83c3a",
+          "win_hex": "48 83 fa 19 b8 19 00 00 00",
+          "first_len": 9,
+          "src": "mem:rbp:0x480",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::front_ally_cap"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 da 44 89 d8 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xf83ca4",
+          "win_hex": "49 83 fc 3c b8 3c 00 00 00",
+          "first_len": 9,
+          "src": "mem:rbp:0x480",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::front_ally_total_cap"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 dc 44 89 d8 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C040",
+      "id": "battle_skill_safety_margin",
+      "name": "교전 기술 안전 거리 여유",
+      "desc": "추격·교전에서 기술 범위에 더하는 안전 여유. 높을수록 더 떨어진 위치를 안전하다고 본다. 시야 밖 상한은 원래 규칙 유지",
+      "scope": "Player",
+      "default": 50000,
+      "low": 25000,
+      "high": 75000,
+      "min": 0,
+      "max": 300000,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xf84ee6",
+          "win_hex": "48 81 c1 50 c3 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x230",
+          "team_chk": "mem:rbp:0x228",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xf8502c",
+          "win_hex": "48 81 c1 50 c3 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x230",
+          "team_chk": "mem:rbp:0x228",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xf85263",
+          "win_hex": "48 81 c1 50 c3 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x230",
+          "team_chk": "mem:rbp:0x228",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xf85426",
+          "win_hex": "48 81 c1 50 c3 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x230",
+          "team_chk": "mem:rbp:0x228",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [
+        {
+          "rva": "0xf84eb5",
+          "length": 7,
+          "bytes": "48 81 cb a0 86 01 00",
+          "function": "0xf84830",
+          "reuse": true,
+          "asm": [
+            "0xf84eb5: or rbx, 0x186a0"
+          ],
+          "branch_relocation": [],
+          "pass": true,
+          "keep_original": true,
+          "reason": "독립 비가시 cap100000/OR(rawVision) 분기는 원본 유지"
+        }
+      ],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C041",
+      "id": "wave_position_risk_divisor",
+      "name": "라인 웨이브 위치 위험 할인(분모)",
+      "desc": "원래 웨이브 안전 조건을 만족할 때 위치 위험을 이 값으로 나눈다. 높을수록 웨이브 주변을 덜 위험하게 본다",
+      "scope": "Player",
+      "default": 4,
+      "low": 2,
+      "high": 8,
+      "min": 1,
+      "max": 32,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xf841cf",
+          "win_hex": "49 8d 41 03 4d 85 c9 49 0f 49 c1 48 c1 f8 02",
+          "first_len": 15,
+          "src": "mem:rbp:0x480",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::wave_risk_divisor"
+          },
+          "dynamic_hex": "49 8d 41 03 4d 85 c9 49 0f 49 c1 48 c1 f8 02 48 8b 44 24 f0",
+          "notes": "원래 15B 부수 효과를 유지하고 몫만 교체. f841de CMP가 flags 전부 덮음.",
+          "fixture_flags_mask": "0x4c5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C042",
+      "id": "movement_skill_period_margin",
+      "name": "이동기 절약 보행 여유(업데이트)",
+      "desc": "이동기 절약 모드에서 보행 시간과 기술 주기를 비교할 때 더하는 여유. 초 단위가 아니며 높을수록 이동기를 아낀다",
+      "scope": "Player",
+      "default": 60,
+      "low": 30,
+      "high": 90,
+      "min": 0,
+      "max": 600,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xf59d0f",
+          "win_hex": "48 83 c1 3c 48 39 ce",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x2a8",
+            "cases": [
+              {
+                "ret_rva": "0xdebe4f",
+                "src": "stack:0x2a0"
+              },
+              {
+                "ret_rva": "0xdec870",
+                "src": "stackmem:0x2a0:0x300"
+              },
+              {
+                "ret_rva": "0xe922b9",
+                "src": "stackmem:0x2a0:0x660"
+              },
+              {
+                "ret_rva": "0xf29f96",
+                "src": "stackmem:0x2a0:0xc60"
+              },
+              {
+                "ret_rva": "0xf2e42f",
+                "src": "stackmem:0x2a0:0x970"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d9 41 5b",
+          "notes": "MOV/PUSH/POP은 입력CF를 바꾸지 않음. ADC는 원래 CF를 받아 실행하고 뒤 CMP가 비교 flags 생성.",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xf5a22d",
+          "win_hex": "48 83 d0 3c 48 39 c6",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x2a8",
+            "cases": [
+              {
+                "ret_rva": "0xdebe4f",
+                "src": "stack:0x2a0"
+              },
+              {
+                "ret_rva": "0xdec870",
+                "src": "stackmem:0x2a0:0x300"
+              },
+              {
+                "ret_rva": "0xe922b9",
+                "src": "stackmem:0x2a0:0x660"
+              },
+              {
+                "ret_rva": "0xf29f96",
+                "src": "stackmem:0x2a0:0xc60"
+              },
+              {
+                "ret_rva": "0xf2e42f",
+                "src": "stackmem:0x2a0:0x970"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 11 d8 41 5b",
+          "notes": "MOV/PUSH/POP은 입력CF를 바꾸지 않음. ADC는 원래 CF를 받아 실행하고 뒤 CMP가 비교 flags 생성.",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xf6b83d",
+          "win_hex": "48 83 c1 3c 48 39 cb",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x298",
+            "cases": [
+              {
+                "ret_rva": "0xde4b40",
+                "src": "stackmem:0x290:0x1e0"
+              },
+              {
+                "ret_rva": "0xde6172",
+                "src": "stackmem:0x290:0x5c0"
+              },
+              {
+                "ret_rva": "0xdeb9e1",
+                "src": "stackmem:0x290:0x550"
+              },
+              {
+                "ret_rva": "0xdedc0a",
+                "src": "stackmem:0x290:0x4e0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d9 41 5b",
+          "notes": "MOV/PUSH/POP은 입력CF를 바꾸지 않음. ADC는 원래 CF를 받아 실행하고 뒤 CMP가 비교 flags 생성.",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xf6bccd",
+          "win_hex": "48 83 d0 3c 48 39 c3",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x298",
+            "cases": [
+              {
+                "ret_rva": "0xde4b40",
+                "src": "stackmem:0x290:0x1e0"
+              },
+              {
+                "ret_rva": "0xde6172",
+                "src": "stackmem:0x290:0x5c0"
+              },
+              {
+                "ret_rva": "0xdeb9e1",
+                "src": "stackmem:0x290:0x550"
+              },
+              {
+                "ret_rva": "0xdedc0a",
+                "src": "stackmem:0x290:0x4e0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 11 d8 41 5b",
+          "notes": "MOV/PUSH/POP은 입력CF를 바꾸지 않음. ADC는 원래 CF를 받아 실행하고 뒤 CMP가 비교 flags 생성.",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C048",
+      "id": "battle_risk_retreat_threshold",
+      "name": "교전 위험 후퇴 문턱",
+      "desc": "위치 위험 K/2.4K와 직접 피해평가 비율2K를 함께 조정한다. 낮을수록 작은 위험에도 후퇴한다",
+      "scope": "Player",
+      "default": 10,
+      "low": 5,
+      "high": 15,
+      "min": 1,
+      "max": 50,
+      "kind": "Value",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe4f75e",
+          "win_hex": "49 83 fe 0a 0f 9d c0",
+          "first_len": 4,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 de 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe4f883",
+          "win_hex": "49 83 fe 18 0f 8f f5 00 00 00",
+          "first_len": 4,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::risk_retreat_high"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 de 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe4f8c7",
+          "win_hex": "48 c1 e0 02 48 8d 04 80",
+          "first_len": 8,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::risk_retreat_pressure"
+          },
+          "dynamic_hex": "48 c1 e0 02 48 8d 04 80 48 8b 44 24 f0",
+          "notes": "원래 SHL 부수 flags를 보존하고 H×2K만 교체. 다음 e4f8cf CMP가 모든 산술 flags 덮음.",
+          "fixture_flags_mask": "0x4c5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C049",
+      "id": "unseen_self_risk_divisor",
+      "name": "시야 밖 자기 위험 할인(분모)",
+      "desc": "적 시야에 잡히지 않을 때 기본 자기위험을 이 값으로 나눈다. 다른 위험 가산은 유지하며 높을수록 은폐를 믿는다",
+      "scope": "Player",
+      "default": 3,
+      "low": 2,
+      "high": 6,
+      "min": 1,
+      "max": 32,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe649d0",
+          "win_hex": "48 ba 56 55 55 55 55 55 55 55 48 89 f8 48 f7 ea 49 89 d6 49 c1 ee 3f 49 01 d6",
+          "first_len": 26,
+          "src": "mem:rbp:0x548",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::unseen_risk_divisor"
+          },
+          "dynamic_hex": "48 ba 56 55 55 55 55 55 55 55 48 89 f8 48 f7 ea 49 89 d6 49 c1 ee 3f 49 01 d6 4c 8b 74 24 f0",
+          "notes": "원래 RAX/RDX와 flags 재현 후 R14 몫만 교체. 직후 e649ea TEST CL,CL가 flags 덮음.",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C050",
+      "id": "battle_reposition_distance_scale",
+      "name": "교전 재배치 거리 폭(%)",
+      "desc": "적·자기 중심의 재배치 후보 거리5개를 비례 조정한다. 높을수록 넓은 거리대에서 위치를 찾는다",
+      "scope": "Player",
+      "default": 100,
+      "low": 75,
+      "high": 125,
+      "min": 25,
+      "max": 200,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe5211b",
+          "win_hex": "48 81 e9 40 1f 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::relocate_inner"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 29 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe531e9",
+          "win_hex": "48 81 c1 30 75 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::relocate_mid"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d9 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe5427b",
+          "win_hex": "48 2d 40 1f 00 00",
+          "first_len": 6,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::relocate_inner"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 29 d8 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe54293",
+          "win_hex": "48 8d 84 32 30 75 00 00",
+          "first_len": 8,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::relocate_mid_result"
+          },
+          "dynamic_hex": "48 8b 44 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe5429b",
+          "win_hex": "48 8d 8c 32 70 11 01 00",
+          "first_len": 8,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::relocate_outer_result"
+          },
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe5435e",
+          "win_hex": "48 c7 85 20 01 00 00 c0 5d 00 00",
+          "first_len": 11,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::relocate_self_near"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 9d 20 01 00 00 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe54385",
+          "win_hex": "48 c7 85 38 01 00 00 80 bb 00 00",
+          "first_len": 11,
+          "src": "mem:rbp:0x430",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::relocate_self_far"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 9d 38 01 00 00 41 5b",
+          "notes": "",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C051",
+      "id": "candidate_move_budget_margin",
+      "name": "공격·기술 후보 탐색 이동 여유",
+      "desc": "기본 공격·첫 두 기술의 후보 수집에 이동 예산×이 값을 더한다. 실제 기술 사거리·효과 상한은 유지하며 초 단위가 아니다",
+      "scope": "Player",
+      "default": 30,
+      "low": 15,
+      "high": 60,
+      "min": 0,
+      "max": 120,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xfd0b60",
+          "win_hex": "48 8d 0c 00 48 c1 e0 05 48 29 c8",
+          "first_len": 11,
+          "src": "mem:rbp:0x190",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::candidate_move_budget"
+          },
+          "dynamic_hex": "48 8d 0c 00 48 8b 44 24 f0 48 29 c8",
+          "notes": "M의 원래 상대속도 차/0하한을 유지. RCX=2M과 마지막 SUB의 carry/overflow를 정확히 보존; min(base,cap) 뒤 여유.",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xfd109b",
+          "win_hex": "48 8d 0c 00 48 c1 e0 05 48 29 c8",
+          "first_len": 11,
+          "src": "mem:rbp:0x190",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::candidate_move_budget"
+          },
+          "dynamic_hex": "48 8d 0c 00 48 8b 44 24 f0 48 29 c8",
+          "notes": "M의 원래 상대속도 차/0하한을 유지. RCX=2M과 마지막 SUB의 carry/overflow를 정확히 보존; min(base,cap) 뒤 여유.",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C052",
+      "id": "forward_damage_credit_percent",
+      "name": "전진 후 피해 상쇄 비율(%)",
+      "desc": "이동 후 위험에서 현재 위치 피해의 이 비율을 빼고0하한을 적용한다. 높을수록 전진을 덜 위험하게 본다",
+      "scope": "Player",
+      "default": 50,
+      "low": 25,
+      "high": 75,
+      "min": 0,
+      "max": 100,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe65530",
+          "win_hex": "48 d1 ef 31 f6 48 29 f8",
+          "first_len": 3,
+          "src": "mem:rbp:0x548",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::forward_credit_percent"
+          },
+          "dynamic_hex": "48 8b 7c 24 f0",
+          "notes": "원래 뒤 XOR ESI/SUB RAX,RDI를 재실행해 borrow와0하한 CMOVAE 보존.",
+          "fixture_flags_mask": "0xcd5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    },
+    {
+      "audit_id": "C053",
+      "id": "battle_move_candidate_penalty",
+      "name": "교전 중 이동후보 감점",
+      "desc": "원래 조건을 만족한 이동후보에만 주는 감점. 높을수록 공격·기술에 비해 이동후보를 덜 고른다",
+      "scope": "Player",
+      "default": 6,
+      "low": 0,
+      "high": 12,
+      "min": 0,
+      "max": 1000,
+      "kind": "Value",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe76b89",
+          "win_hex": "4c 29 f6 48 83 c6 fa",
+          "first_len": 7,
+          "src": "mem:rbp:0x220",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::move_penalty_negative"
+          },
+          "dynamic_hex": "4c 29 f6 41 53 4c 8b 5c 24 f8 4c 01 de 41 5b",
+          "notes": "SUB 양수가 아니라 ADD 음수로 재현해 원래 carry/AF까지 보존.",
+          "fixture_flags_mask": "0xcd5"
+        },
+        {
+          "rva": "0xe0c490",
+          "win_hex": "4d 8d 75 fa 84 c0",
+          "first_len": 4,
+          "src": "mem:rbp:0xf0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_combat::move_penalty_result"
+          },
+          "dynamic_hex": "4c 8b 74 24 f0",
+          "notes": "",
+          "fixture_flags_mask": "0xcc5"
+        }
+      ],
+      "reference_windows": [],
+      "default_policy": "기본 단계는 원본 트램폴린. 선택값이 원본과 같으면 동적 연산도 원본과 동일. 주체 회수/내 계약 선수 검증 실패는 원본."
+    }
+  ]
+}

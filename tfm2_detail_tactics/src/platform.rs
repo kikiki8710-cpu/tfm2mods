@@ -137,7 +137,7 @@ unsafe extern "system" fn read_exception(pointers: *mut ExceptionPointers) -> i3
 }
 
 static READER: OnceLock<Result<usize, &'static str>> = OnceLock::new();
-const GATES: usize = 96;
+const GATES: usize = crate::micro::CAP;
 static GATE_ADDR: [AtomicUsize; GATES] = [const { AtomicUsize::new(0) }; GATES];
 static GATE_ORIG: [AtomicUsize; GATES] = [const { AtomicUsize::new(0) }; GATES];
 pub(crate) fn prepare_gate(i: usize, address: usize, original: usize) -> Result<(), &'static str> {

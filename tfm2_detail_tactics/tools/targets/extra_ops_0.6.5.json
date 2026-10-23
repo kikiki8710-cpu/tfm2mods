@@ -1,0 +1,1419 @@
+{
+  "exe_sha256": "DAF040DB8A3A3AE136F3EF8CE704E2718F049656B6B5E4872EACB599811D30B5",
+  "tactics": [
+    {
+      "audit_id": "C007",
+      "id": "objective_power_allowance",
+      "name": "오브젝트 전력 보완값",
+      "desc": "아군 체력 합에 더하는 여유. 높게 하면 진입 조건을 완화한다",
+      "scope": "Player",
+      "default": 200,
+      "low": 100,
+      "high": 300,
+      "min": 0,
+      "max": 1000,
+      "kind": "Value",
+      "tab": "오브젝트",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xdabbe7",
+          "win_hex": "41 bf c8 00 00 00",
+          "first_len": 6,
+          "src": "mem:rbp:c8",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 45 89 df 41 5b",
+          "notes": "allow = sum_ally_hp_pct + A >= sum_enemy_hp_pct + (special_condition ? 0 : 200); A(default)=200; u64 wrap",
+          "window_name": "ally_empty_bonus",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov r15d,r11d; pop r11",
+          "first_asm": "mov r15d, 0xc8"
+        },
+        {
+          "rva": "0xdabcbd",
+          "win_hex": "49 81 c7 c8 00 00 00",
+          "first_len": 7,
+          "src": "mem:rbp:c8",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 01 df 41 5b",
+          "notes": "allow = sum_ally_hp_pct + A >= sum_enemy_hp_pct + (special_condition ? 0 : 200); A(default)=200; u64 wrap",
+          "window_name": "ally_nonempty_bonus",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add r15,r11; pop r11",
+          "first_asm": "add r15, 0xc8"
+        }
+      ]
+    },
+    {
+      "audit_id": "C022",
+      "id": "push_start_base",
+      "name": "푸시 개시 기본 점수",
+      "desc": "능력치 보정 전 개시 문턱. 높게 하면 더 높은 점수를 요구한다",
+      "scope": "Player",
+      "default": 130,
+      "low": 110,
+      "high": 150,
+      "min": 0,
+      "max": 1000,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xfb37c7",
+          "win_hex": "05 82 00 00 00",
+          "first_len": 5,
+          "src": "stack:60",
+          "team_chk": "stack:78",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 44 01 d8 41 5b",
+          "notes": "threshold = u32(base130 + ability_term{0,20,40,60}); valid_v as original selector; do not assume README s59 scale",
+          "window_name": "push_base_threshold",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add eax,r11d; pop r11",
+          "first_asm": "add eax, 0x82"
+        }
+      ]
+    },
+    {
+      "audit_id": "C023",
+      "id": "other_lane_collapse_profile",
+      "name": "다른 라인 붕괴 경계",
+      "desc": "다른 라인 지표와 단계 문턱을 함께 조절. 높게 하면 일찍 푸시를 포기한다",
+      "scope": "Player",
+      "default": 100,
+      "low": 75,
+      "high": 125,
+      "min": 50,
+      "max": 150,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xfb2510",
+          "win_hex": "48 81 7e 10 48 f4 ff ff",
+          "first_len": 8,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x78",
+            "cases": [
+              {
+                "ret_rva": "0xd45fad",
+                "src": "stack:48"
+              },
+              {
+                "ret_rva": "0xdbd5fc",
+                "src": "stackmem:40:3d0"
+              },
+              {
+                "ret_rva": "0xdbd760",
+                "src": "stackmem:40:3d0"
+              },
+              {
+                "ret_rva": "0xdbdcc4",
+                "src": "stackmem:40:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 5e 10 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "generic_metric1",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp qword ptr [rsi + 0x10],r11; pop r11",
+          "first_asm": "cmp qword ptr [rsi + 0x10], -0xbb8"
+        },
+        {
+          "rva": "0xfb251a",
+          "win_hex": "83 7e 20 fe 0f 9d c3",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x78",
+            "cases": [
+              {
+                "ret_rva": "0xd45fad",
+                "src": "stack:48"
+              },
+              {
+                "ret_rva": "0xdbd5fc",
+                "src": "stackmem:40:3d0"
+              },
+              {
+                "ret_rva": "0xdbd760",
+                "src": "stackmem:40:3d0"
+              },
+              {
+                "ret_rva": "0xdbdcc4",
+                "src": "stackmem:40:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 44 39 5e 20 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "generic_stage1",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [rsi + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [rsi + 0x20], -2"
+        },
+        {
+          "rva": "0xfb2559",
+          "win_hex": "49 81 7b 10 48 f4 ff ff",
+          "first_len": 8,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x78",
+            "cases": [
+              {
+                "ret_rva": "0xd45fad",
+                "src": "stack:48"
+              },
+              {
+                "ret_rva": "0xdbd5fc",
+                "src": "stackmem:40:3d0"
+              },
+              {
+                "ret_rva": "0xdbd760",
+                "src": "stackmem:40:3d0"
+              },
+              {
+                "ret_rva": "0xdbdcc4",
+                "src": "stackmem:40:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_metric"
+          },
+          "dynamic_hex": "41 52 4c 8b 54 24 f8 4d 39 53 10 41 5a",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "generic_metric2",
+          "dynamic_asm": "push r10; mov r10,qword ptr [rsp-8]; cmp qword ptr [r11 + 0x10],r10; pop r10",
+          "first_asm": "cmp qword ptr [r11 + 0x10], -0xbb8"
+        },
+        {
+          "rva": "0xfb2563",
+          "win_hex": "41 83 7b 20 fe",
+          "first_len": 5,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x78",
+            "cases": [
+              {
+                "ret_rva": "0xd45fad",
+                "src": "stack:48"
+              },
+              {
+                "ret_rva": "0xdbd5fc",
+                "src": "stackmem:40:3d0"
+              },
+              {
+                "ret_rva": "0xdbd760",
+                "src": "stackmem:40:3d0"
+              },
+              {
+                "ret_rva": "0xdbdcc4",
+                "src": "stackmem:40:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_stage"
+          },
+          "dynamic_hex": "41 52 4c 8b 54 24 f8 45 39 53 20 41 5a",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "generic_stage2",
+          "dynamic_asm": "push r10; mov r10,qword ptr [rsp-8]; cmp dword ptr [r11 + 0x20],r10d; pop r10",
+          "first_asm": "cmp dword ptr [r11 + 0x20], -2"
+        },
+        {
+          "rva": "0xfb3d44",
+          "win_hex": "49 81 7a 10 48 f4 ff ff",
+          "first_len": 8,
+          "src": {
+            "kind": "caller",
+            "return_off": "0xc8",
+            "cases": [
+              {
+                "ret_rva": "0xdbd515",
+                "src": "stackmem:90:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 5a 10 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "opportunity_metric1",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp qword ptr [r10 + 0x10],r11; pop r11",
+          "first_asm": "cmp qword ptr [r10 + 0x10], -0xbb8"
+        },
+        {
+          "rva": "0xfb3d4e",
+          "win_hex": "41 83 7a 20 fe",
+          "first_len": 5,
+          "src": {
+            "kind": "caller",
+            "return_off": "0xc8",
+            "cases": [
+              {
+                "ret_rva": "0xdbd515",
+                "src": "stackmem:90:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 45 39 5a 20 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "opportunity_stage1",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [r10 + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [r10 + 0x20], -2"
+        },
+        {
+          "rva": "0xfb3d7c",
+          "win_hex": "49 81 79 10 48 f4 ff ff",
+          "first_len": 8,
+          "src": {
+            "kind": "caller",
+            "return_off": "0xc8",
+            "cases": [
+              {
+                "ret_rva": "0xdbd515",
+                "src": "stackmem:90:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 59 10 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "opportunity_metric2",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp qword ptr [r9 + 0x10],r11; pop r11",
+          "first_asm": "cmp qword ptr [r9 + 0x10], -0xbb8"
+        },
+        {
+          "rva": "0xfb3d86",
+          "win_hex": "41 83 79 20 fe",
+          "first_len": 5,
+          "src": {
+            "kind": "caller",
+            "return_off": "0xc8",
+            "cases": [
+              {
+                "ret_rva": "0xdbd515",
+                "src": "stackmem:90:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 45 39 59 20 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "opportunity_stage2",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [r9 + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [r9 + 0x20], -2"
+        },
+        {
+          "rva": "0xfb3dac",
+          "win_hex": "48 81 7f 10 48 f4 ff ff",
+          "first_len": 8,
+          "src": {
+            "kind": "caller",
+            "return_off": "0xc8",
+            "cases": [
+              {
+                "ret_rva": "0xdbd515",
+                "src": "stackmem:90:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 5f 10 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "opportunity_metric3",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp qword ptr [rdi + 0x10],r11; pop r11",
+          "first_asm": "cmp qword ptr [rdi + 0x10], -0xbb8"
+        },
+        {
+          "rva": "0xfb3db6",
+          "win_hex": "83 7f 20 fe 7c 61",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0xc8",
+            "cases": [
+              {
+                "ret_rva": "0xdbd515",
+                "src": "stackmem:90:3d0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 44 39 5f 20 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "opportunity_stage3",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [rdi + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [rdi + 0x20], -2"
+        },
+        {
+          "rva": "0xdbd995",
+          "win_hex": "49 81 7a 10 48 f4 ff ff",
+          "first_len": 8,
+          "src": "mem:rbp:3d0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 5a 10 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "push_metric1",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp qword ptr [r10 + 0x10],r11; pop r11",
+          "first_asm": "cmp qword ptr [r10 + 0x10], -0xbb8"
+        },
+        {
+          "rva": "0xdbd99f",
+          "win_hex": "41 83 7a 20 fe",
+          "first_len": 5,
+          "src": "mem:rbp:3d0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 45 39 5a 20 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "push_stage1",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [r10 + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [r10 + 0x20], -2"
+        },
+        {
+          "rva": "0xdbd9cd",
+          "win_hex": "49 81 79 10 48 f4 ff ff",
+          "first_len": 8,
+          "src": "mem:rbp:3d0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 59 10 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "push_metric2",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp qword ptr [r9 + 0x10],r11; pop r11",
+          "first_asm": "cmp qword ptr [r9 + 0x10], -0xbb8"
+        },
+        {
+          "rva": "0xdbd9d7",
+          "win_hex": "41 83 79 20 fe",
+          "first_len": 5,
+          "src": "mem:rbp:3d0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 45 39 59 20 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "push_stage2",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [r9 + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [r9 + 0x20], -2"
+        },
+        {
+          "rva": "0xdbd9f9",
+          "win_hex": "49 81 7e 10 48 f4 ff ff",
+          "first_len": 8,
+          "src": "mem:rbp:3d0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 5e 10 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "push_metric3",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp qword ptr [r14 + 0x10],r11; pop r11",
+          "first_asm": "cmp qword ptr [r14 + 0x10], -0xbb8"
+        },
+        {
+          "rva": "0xdbda03",
+          "win_hex": "41 83 7e 20 fd",
+          "first_len": 5,
+          "src": "mem:rbp:3d0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::collapse_last_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 45 39 5e 20 41 5b",
+          "notes": "reject when otherLine.metric_i64<=-3000 AND stage_i32<-2; push third comparison encodes stage<=-3 via CMP -3/JG inverse (equivalent integer boundary)",
+          "window_name": "push_stage3",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [r14 + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [r14 + 0x20], -3"
+        }
+      ]
+    },
+    {
+      "audit_id": "C027",
+      "id": "ambush_engage_radius",
+      "name": "매복 교전 대상 반경",
+      "desc": "매복 판단 중 적 후보를 살피는 반경. 시야·최근 관측 조건은 유지한다",
+      "scope": "Player",
+      "default": 250000,
+      "low": 200000,
+      "high": 300000,
+      "min": 1000,
+      "max": 2000000,
+      "kind": "Value",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xecad63",
+          "win_hex": "48 ba 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "src": "mem:rbp:2580",
+          "team_chk": null,
+          "tf": {
+            "kind": "Sq1"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 da 41 5b",
+          "notes": "main d2 < R*R+1; helper d2<=R*R; default R=250000; most-recent/visibility filter preserved",
+          "window_name": "ambush_radius_sq1",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov rdx,r11; pop r11",
+          "first_asm": "movabs rdx, 0xe8d4a5101"
+        },
+        {
+          "rva": "0xd9396c",
+          "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "src": "stack:50",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::radius_squared"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 da 41 5b",
+          "notes": "main d2 < R*R+1; helper d2<=R*R; default R=250000; most-recent/visibility filter preserved",
+          "window_name": "ambush_helper_radius_sq",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov rdx,r11; pop r11",
+          "first_asm": "movabs rdx, 0xe8d4a5100"
+        }
+      ]
+    },
+    {
+      "audit_id": "C028",
+      "id": "objective_lane_pressure_profile",
+      "name": "오브젝트 전 라인 압박 문턱",
+      "desc": "라인 단계·지표·인원 문턱을 함께 조절. 높게 하면 라인 압박 후보를 넓힌다",
+      "scope": "Player",
+      "default": 100,
+      "low": 50,
+      "high": 150,
+      "min": 50,
+      "max": 150,
+      "kind": "Value",
+      "tab": "오브젝트",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xdd269d",
+          "win_hex": "49 83 fd 03 0f 82 c7 00 00 00",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 dd 41 5b",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "stage_general",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp r13,r11; pop r11",
+          "first_asm": "cmp r13, 3"
+        },
+        {
+          "rva": "0xdd26ab",
+          "win_hex": "48 81 fd d0 07 00 00",
+          "first_len": 7,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 dd 41 5b",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "metric_general",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp rbp,r11; pop r11",
+          "first_asm": "cmp rbp, 0x7d0"
+        },
+        {
+          "rva": "0xdd26b4",
+          "win_hex": "83 7a 20 02 7c 16",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_count"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 44 39 5a 20 41 5b",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "count_general",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [rdx + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [rdx + 0x20], 2"
+        },
+        {
+          "rva": "0xdd2709",
+          "win_hex": "49 83 fd 03 72 77",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 dd 41 5b",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "stage_mode2",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp r13,r11; pop r11",
+          "first_asm": "cmp r13, 3"
+        },
+        {
+          "rva": "0xdd2713",
+          "win_hex": "48 81 fd d0 07 00 00",
+          "first_len": 7,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 dd 41 5b",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "metric_mode2",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp rbp,r11; pop r11",
+          "first_asm": "cmp rbp, 0x7d0"
+        },
+        {
+          "rva": "0xdd271c",
+          "win_hex": "41 83 7b 20 02",
+          "first_len": 5,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_count"
+          },
+          "dynamic_hex": "41 52 4c 8b 54 24 f8 45 39 53 20 41 5a",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "count_mode2",
+          "dynamic_asm": "push r10; mov r10,qword ptr [rsp-8]; cmp dword ptr [r11 + 0x20],r10d; pop r10",
+          "first_asm": "cmp dword ptr [r11 + 0x20], 2"
+        },
+        {
+          "rva": "0xdd2749",
+          "win_hex": "49 83 fd 03 72 28",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_stage"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 dd 41 5b",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "stage_mode4",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp r13,r11; pop r11",
+          "first_asm": "cmp r13, 3"
+        },
+        {
+          "rva": "0xdd2753",
+          "win_hex": "48 81 fd d0 07 00 00",
+          "first_len": 7,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_metric"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 dd 41 5b",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "metric_mode4",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp rbp,r11; pop r11",
+          "first_asm": "cmp rbp, 0x7d0"
+        },
+        {
+          "rva": "0xdd275c",
+          "win_hex": "41 83 7b 48 02",
+          "first_len": 5,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xdb3ff5",
+                "src": "stack:e8"
+              },
+              {
+                "ret_rva": "0xdb521d",
+                "src": "stack:c8"
+              },
+              {
+                "ret_rva": "0xdb5520",
+                "src": "stack:60"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::pressure_count"
+          },
+          "dynamic_hex": "41 52 4c 8b 54 24 f8 45 39 53 48 41 5a",
+          "notes": "candidate if (stage_u64<3 OR metric_i64<2000 OR count_i32<2); score=stage*10000+metric+count*1000; choose min_s; AL=0xff if none",
+          "window_name": "count_mode4",
+          "dynamic_asm": "push r10; mov r10,qword ptr [rsp-8]; cmp dword ptr [r11 + 0x48],r10d; pop r10",
+          "first_asm": "cmp dword ptr [r11 + 0x48], 2"
+        }
+      ]
+    },
+    {
+      "audit_id": "C030",
+      "id": "defense_leave_hp",
+      "name": "방어 계획 이탈 체력(%)",
+      "desc": "일반 방어 체력 문턱. 위협 경로는 이 값보다10 낮게 적용한다",
+      "scope": "Player",
+      "default": 31,
+      "low": 21,
+      "high": 41,
+      "min": 11,
+      "max": 100,
+      "kind": "Value",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xf16ee9",
+          "win_hex": "49 83 ff 15 0f 92 c0",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x48",
+            "cases": [
+              {
+                "ret_rva": "0xf0b56d",
+                "src": "reg:r14"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::defense_threat_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 df 41 5b",
+          "notes": "if earlyThreatOrProtection: false; else secondThreat ? outsideOwnBase && subjectHPpct<21 : subjectHPpct<31",
+          "window_name": "defense_threat_hp",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp r15,r11; pop r11",
+          "first_asm": "cmp r15, 0x15"
+        },
+        {
+          "rva": "0xf16ef4",
+          "win_hex": "49 83 ff 1f 0f 92 c0",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x48",
+            "cases": [
+              {
+                "ret_rva": "0xf0b56d",
+                "src": "reg:r14"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 df 41 5b",
+          "notes": "if earlyThreatOrProtection: false; else secondThreat ? outsideOwnBase && subjectHPpct<21 : subjectHPpct<31",
+          "window_name": "defense_normal_hp",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp r15,r11; pop r11",
+          "first_asm": "cmp r15, 0x1f"
+        }
+      ]
+    },
+    {
+      "audit_id": "C031",
+      "id": "structure_skill_bonus",
+      "name": "구조물 기술 후보 가산",
+      "desc": "넥서스 공격 계획에서 종류4 구조물을 겨냥한 첫 두 기술 점수에만 가산",
+      "scope": "Player",
+      "default": 3,
+      "low": 0,
+      "high": 6,
+      "min": 0,
+      "max": 100,
+      "kind": "Value",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xea66ca",
+          "win_hex": "4c 8d 2c 49 49 8d 8c 24 f8 04 00 00",
+          "first_len": 4,
+          "src": "reg:rdi",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::structure_rcx"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 dd 41 5b",
+          "notes": "score=common+skillScore+(tag in {11,12} && target.kind32==4 ? K : 0); default K=3",
+          "window_name": "structure_bonus_tag12",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov r13,r11; pop r11",
+          "first_asm": "lea r13, [rcx + rcx*2]"
+        },
+        {
+          "rva": "0xea6722",
+          "win_hex": "4c 8d 2c 52 49 8d 8c 24 c0 04 00 00",
+          "first_len": 4,
+          "src": "reg:rdi",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::structure_rdx"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 dd 41 5b",
+          "notes": "score=common+skillScore+(tag in {11,12} && target.kind32==4 ? K : 0); default K=3",
+          "window_name": "structure_bonus_tag11",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov r13,r11; pop r11",
+          "first_asm": "lea r13, [rdx + rdx*2]"
+        }
+      ]
+    },
+    {
+      "audit_id": "C032",
+      "id": "epic_final_allies_min",
+      "name": "에픽 최종 아군 인원 문턱",
+      "desc": "지터 보정 후 인원 문턱. 상대 보정값0 예외와 선승인은 유지한다",
+      "scope": "Player",
+      "default": 3,
+      "low": 2,
+      "high": 4,
+      "min": 0,
+      "max": 5,
+      "kind": "Value",
+      "tab": "오브젝트",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xdcca2b",
+          "win_hex": "48 83 f9 03 41 0f 93 c0",
+          "first_len": 4,
+          "src": "stack:70",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d9 41 5b",
+          "notes": "epic final requires (jitteredA_u64>=K || jitteredD==0) alongside previous comparisons; K=3",
+          "window_name": "epic_final_nearby_ally_min",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp rcx,r11; pop r11",
+          "first_asm": "cmp rcx, 3"
+        }
+      ]
+    },
+    {
+      "audit_id": "C033",
+      "id": "boss_respawn_wait_seconds",
+      "name": "보스 리스폰 대기(초)",
+      "desc": "현재 보스가 없을 때 남은 리스폰 시간이 이 값보다 크면 계획을 끝낸다",
+      "scope": "Player",
+      "default": 15,
+      "low": 10,
+      "high": 20,
+      "min": 1,
+      "max": 120,
+      "kind": "Value",
+      "tab": "오브젝트",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xde7cda",
+          "win_hex": "48 8d 04 40 48 39 c1",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0xc8",
+            "cases": [
+              {
+                "ret_rva": "0xd5eb79",
+                "src": "stack:a0"
+              },
+              {
+                "ret_rva": "0xdcdda5",
+                "src": "stackmem:90:18"
+              },
+              {
+                "ret_rva": "0xed1f7c",
+                "src": {
+                  "kind": "caller",
+                  "return_off": "0x128",
+                  "cases": [
+                    {
+                      "ret_rva": "0xd4357c",
+                      "src": "stackmem:90:1768"
+                    },
+                    {
+                      "ret_rva": "0xd4b9da",
+                      "src": "stackmem:90:1768"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::respawn_seconds"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d8 41 5b",
+          "notes": "end=remaining_u64>wrap64(seconds*TPS); remaining=max_u(respawn-now,0); default15, equality continues",
+          "window_name": "epic_respawn_seconds",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov rax,r11; pop r11",
+          "first_asm": "lea rax, [rax + rax*2]"
+        },
+        {
+          "rva": "0xe8f901",
+          "win_hex": "48 8d 04 40 48 39 c1",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0xd8",
+            "cases": [
+              {
+                "ret_rva": "0xd5eb39",
+                "src": "stack:b0"
+              },
+              {
+                "ret_rva": "0xdcfd77",
+                "src": "stackmem:a0:78"
+              },
+              {
+                "ret_rva": "0xed1f96",
+                "src": {
+                  "kind": "caller",
+                  "return_off": "0x138",
+                  "cases": [
+                    {
+                      "ret_rva": "0xd4357c",
+                      "src": "stackmem:a0:1768"
+                    },
+                    {
+                      "ret_rva": "0xd4b9da",
+                      "src": "stackmem:a0:1768"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::respawn_seconds"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d8 41 5b",
+          "notes": "end=remaining_u64>wrap64(seconds*TPS); remaining=max_u(respawn-now,0); default15, equality continues",
+          "window_name": "serpen_respawn_seconds",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov rax,r11; pop r11",
+          "first_asm": "lea rax, [rax + rax*2]"
+        }
+      ]
+    },
+    {
+      "audit_id": "C034",
+      "id": "boss_reposition_improvement",
+      "name": "보스 사냥 재배치 개선값",
+      "desc": "국소 재배치에 요구하는 점수 개선. 기존 거리 대체조건은 유지한다",
+      "scope": "Player",
+      "default": 8,
+      "low": 4,
+      "high": 12,
+      "min": 0,
+      "max": 1000,
+      "kind": "Value",
+      "tab": "오브젝트",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe01f21",
+          "win_hex": "48 83 c1 08 48 8b 95 a0 01 00 00",
+          "first_len": 4,
+          "src": "mem:rbp:478",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d9 41 5b",
+          "notes": "if ([rbp+298]&1): compare candidateMetric>=wrap64(currentMetric+8) OR distanceAlternative; otherwise bypass this gate as original",
+          "window_name": "reposition_metric_improvement",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add rcx,r11; pop r11",
+          "first_asm": "add rcx, 8"
+        }
+      ]
+    },
+    {
+      "audit_id": "C035",
+      "id": "boss_poke_damage_factor",
+      "name": "보스 견제 예상피해 가중치",
+      "desc": "예상피해를 체력과 비교하는 배수. 높게 하면 위험 판단이 보수적이다",
+      "scope": "Player",
+      "default": 2,
+      "low": 1,
+      "high": 3,
+      "min": 1,
+      "max": 10,
+      "kind": "Value",
+      "tab": "오브젝트",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe92f74",
+          "win_hex": "48 01 c0 49 3b 85 68 06 00 00",
+          "first_len": 3,
+          "src": "mem:rbp:90",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::damage_increment"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b",
+          "notes": "danger = wrap_u64(predictedDamage*K)>=ownHP && distanceWithin(rangeTerms+20000); default K=2; candidates/fallback as original",
+          "window_name": "epic_damage_factor",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add rax,r11; pop r11",
+          "first_asm": "add rax, rax"
+        },
+        {
+          "rva": "0xe92ac1",
+          "win_hex": "48 01 c0 49 3b 80 68 06 00 00",
+          "first_len": 3,
+          "src": "mem:rbp:d0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::damage_increment"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b",
+          "notes": "danger = wrap_u64(predictedDamage*K)>=ownHP && distanceWithin(rangeTerms+20000); default K=2; candidates/fallback as original",
+          "window_name": "serpen_damage_factor",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add rax,r11; pop r11",
+          "first_asm": "add rax, rax"
+        },
+        {
+          "rva": "0xe988f8",
+          "win_hex": "48 01 c0 49 3b 84 24 68 06 00 00",
+          "first_len": 3,
+          "src": "mem:rbp:230",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::damage_increment"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b",
+          "notes": "danger = wrap_u64(predictedDamage*K)>=ownHP && distanceWithin(rangeTerms+20000); default K=2; candidates/fallback as original",
+          "window_name": "epic_fallback_damage_factor",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add rax,r11; pop r11",
+          "first_asm": "add rax, rax"
+        },
+        {
+          "rva": "0xe96af2",
+          "win_hex": "48 01 c0 48 8b 95 a8 01 00 00",
+          "first_len": 3,
+          "src": "mem:rbp:220",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::damage_increment"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b",
+          "notes": "danger = wrap_u64(predictedDamage*K)>=ownHP && distanceWithin(rangeTerms+20000); default K=2; candidates/fallback as original",
+          "window_name": "serpen_fallback_damage_factor",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add rax,r11; pop r11",
+          "first_asm": "add rax, rax"
+        }
+      ]
+    },
+    {
+      "audit_id": "C037",
+      "id": "active_recall_slack_profile",
+      "name": "마무리 전략의 귀환 종료 여유(초)",
+      "desc": "현재 전략0은 선택 초, 전략1은1초 적게 적용. 큰 계획 종료 판단만 조절한다",
+      "scope": "Player",
+      "default": 3,
+      "low": 2,
+      "high": 4,
+      "min": 1,
+      "max": 30,
+      "kind": "Value",
+      "tab": "오브젝트",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xfc34a3",
+          "win_hex": "4f 8d 34 76 48 8b 7c 24 28",
+          "first_len": 4,
+          "src": "reg:r15",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::finish_seconds3"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 de 41 5b",
+          "notes": "allow if defenderArrival>sat_add(eval_i, commonCost, slack) for all three i; slack=(snapshotByte45==0?3TPS:==1?2TPS:0)",
+          "window_name": "finish_slack_3TPS",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov r14,r11; pop r11",
+          "first_asm": "lea r14, [r14 + r14*2]"
+        },
+        {
+          "rva": "0xfc349e",
+          "win_hex": "4d 01 f6 eb 0e",
+          "first_len": 3,
+          "src": "reg:r15",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::finish_increment2"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 01 de 41 5b",
+          "notes": "allow if defenderArrival>sat_add(eval_i, commonCost, slack) for all three i; slack=(snapshotByte45==0?3TPS:==1?2TPS:0)",
+          "window_name": "finish_slack_2TPS",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add r14,r11; pop r11",
+          "first_asm": "add r14, r14"
+        }
+      ]
+    },
+    {
+      "audit_id": "C045",
+      "id": "camp_time_margin_profile",
+      "name": "캠프 경쟁 시간 여유(%)",
+      "desc": "생존 여유1초와 상대 처리시간 비교의 반초 여유를 같은 비율로 조절한다",
+      "scope": "Player",
+      "default": 100,
+      "low": 50,
+      "high": 150,
+      "min": 0,
+      "max": 300,
+      "kind": "Value",
+      "tab": "정글",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0x100bea9",
+          "win_hex": "48 03 45 10 48 c7 c1 ff ff ff ff",
+          "first_len": 4,
+          "src": "mem:rbp:e0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::camp_survival_margin"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b",
+          "notes": "survivalBudget compared with sat(fd49d0(Data,ownEntity,kind,side)+marginTPS) in2 paths; final reset if targetHP*100000/f39f00(Context,opponentSlot1,target)<=wrap(ownPathArrival+floorTPS/2), preserving divide/optional guards",
+          "window_name": "camp_survival_plus_TPS",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add rax,r11; pop r11",
+          "first_asm": "add rax, qword ptr [rbp + 0x10]"
+        },
+        {
+          "rva": "0x100c43e",
+          "win_hex": "48 03 45 10 48 c7 c1 ff ff ff ff",
+          "first_len": 4,
+          "src": "mem:rbp:e0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::camp_survival_margin"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b",
+          "notes": "survivalBudget compared with sat(fd49d0(Data,ownEntity,kind,side)+marginTPS) in2 paths; final reset if targetHP*100000/f39f00(Context,opponentSlot1,target)<=wrap(ownPathArrival+floorTPS/2), preserving divide/optional guards",
+          "window_name": "camp_survival_plus_TPS_copy",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; add rax,r11; pop r11",
+          "first_asm": "add rax, qword ptr [rbp + 0x10]"
+        },
+        {
+          "rva": "0x100c69f",
+          "win_hex": "48 d1 e9 48 01 c1",
+          "first_len": 3,
+          "src": "mem:rbp:e0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::camp_arrival_margin"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d9 41 5b",
+          "notes": "survivalBudget compared with sat(fd49d0(Data,ownEntity,kind,side)+marginTPS) in2 paths; final reset if targetHP*100000/f39f00(Context,opponentSlot1,target)<=wrap(ownPathArrival+floorTPS/2), preserving divide/optional guards",
+          "window_name": "camp_arrival_half_TPS",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov rcx,r11; pop r11",
+          "first_asm": "shr rcx, 1"
+        }
+      ]
+    },
+    {
+      "audit_id": "D001",
+      "id": "gank_lane_tower_wave_profile",
+      "name": "갱 후보 포탑·웨이브 경계",
+      "desc": "포탑 반경·미니언 차이·웨이브 위치 필터를 함께 조절. 높게 하면 보수적이다",
+      "scope": "Player",
+      "default": 100,
+      "low": 75,
+      "high": 125,
+      "min": 50,
+      "max": 150,
+      "kind": "Value",
+      "tab": "정글",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0x100a769",
+          "win_hex": "49 bb 01 44 40 90 04 00 00 00",
+          "first_len": 10,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x148",
+            "cases": [
+              {
+                "ret_rva": "0xe2f987",
+                "src": "stackmem:140:-8"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::tower_radius_high"
+          },
+          "dynamic_hex": "41 52 4c 8b 54 24 f8 4d 89 d3 41 5a",
+          "notes": "reject empty perceived enemies or enemyLen>ownHealthyLen; E=nearest perceived enemy to own champion; T=nearest enemy tower to E among fixed6+twin Vec; reject if T && signed32(ownMinionLen-enemyMinionLen)>K(1) && d2(E,T)<R_hi(140000)^2+1; reject if T && d2(E,T)<R_lo(100000)^2+1; allow only signed64(from_mid)<=M(3000)",
+          "window_name": "tower_distance_with_wave_advantage",
+          "dynamic_asm": "push r10; mov r10,qword ptr [rsp-8]; mov r11,r10; pop r10",
+          "first_asm": "movabs r11, 0x490404401"
+        },
+        {
+          "rva": "0x100a7b7",
+          "win_hex": "48 b8 01 e4 0b 54 02 00 00 00",
+          "first_len": 10,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x148",
+            "cases": [
+              {
+                "ret_rva": "0xe2f987",
+                "src": "stackmem:140:-8"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::tower_radius_low"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d8 41 5b",
+          "notes": "reject empty perceived enemies or enemyLen>ownHealthyLen; E=nearest perceived enemy to own champion; T=nearest enemy tower to E among fixed6+twin Vec; reject if T && signed32(ownMinionLen-enemyMinionLen)>K(1) && d2(E,T)<R_hi(140000)^2+1; reject if T && d2(E,T)<R_lo(100000)^2+1; allow only signed64(from_mid)<=M(3000)",
+          "window_name": "tower_distance_base",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; mov rax,r11; pop r11",
+          "first_asm": "movabs rax, 0x2540be401"
+        },
+        {
+          "rva": "0x100a717",
+          "win_hex": "41 83 7f 20 01",
+          "first_len": 5,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x148",
+            "cases": [
+              {
+                "ret_rva": "0xe2f987",
+                "src": "stackmem:140:-8"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::tower_minion_gate"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 45 39 5f 20 41 5b",
+          "notes": "reject empty perceived enemies or enemyLen>ownHealthyLen; E=nearest perceived enemy to own champion; T=nearest enemy tower to E among fixed6+twin Vec; reject if T && signed32(ownMinionLen-enemyMinionLen)>K(1) && d2(E,T)<R_hi(140000)^2+1; reject if T && d2(E,T)<R_lo(100000)^2+1; allow only signed64(from_mid)<=M(3000)",
+          "window_name": "minion_count_difference_gate",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp dword ptr [r15 + 0x20],r11d; pop r11",
+          "first_asm": "cmp dword ptr [r15 + 0x20], 1"
+        },
+        {
+          "rva": "0x100a7c6",
+          "win_hex": "49 81 7f 10 b8 0b 00 00",
+          "first_len": 8,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x148",
+            "cases": [
+              {
+                "ret_rva": "0xe2f987",
+                "src": "stackmem:140:-8"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_ops::tower_wave_limit"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 5f 10 41 5b",
+          "notes": "reject empty perceived enemies or enemyLen>ownHealthyLen; E=nearest perceived enemy to own champion; T=nearest enemy tower to E among fixed6+twin Vec; reject if T && signed32(ownMinionLen-enemyMinionLen)>K(1) && d2(E,T)<R_hi(140000)^2+1; reject if T && d2(E,T)<R_lo(100000)^2+1; allow only signed64(from_mid)<=M(3000)",
+          "window_name": "minion_from_mid_limit",
+          "dynamic_asm": "push r11; mov r11,qword ptr [rsp-8]; cmp qword ptr [r15 + 0x10],r11; pop r11",
+          "first_asm": "cmp qword ptr [r15 + 0x10], 0xbb8"
+        }
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ pub enum Src {
 #[derive(Clone, Copy, Debug)]
 pub struct Caller { pub ret_rva:usize, pub src:Src }
 #[derive(Clone, Copy, Debug)]
-pub enum Tf { Add(i64), Sq1, Map { on:i64, off:i64 } }
+pub enum Tf { Add(i64), Sq1, Map { on:i64, off:i64 }, Compute(fn(&Frame,i64)->Option<u64>) }
 pub struct Field { pub off:u8, pub width:u8, pub tf:Tf, pub max:i64 }
 pub struct Branch { pub off:u8, pub len:u8, pub cc:Option<u8>, pub target_rva:usize }
 pub struct Patch {
@@ -18,7 +18,7 @@ pub struct Patch {
     pub fields:&'static [Field], pub branches:&'static [Branch], pub src:Src, pub team_chk:Src,
     pub first_len:usize, pub dynamic:&'static [u8],
 }
-const CAP:usize=96;
+pub(crate) const CAP:usize=256;
 static ENABLED:[AtomicBool;tactics::N]=[const{AtomicBool::new(false)};tactics::N];
 static ORIGINAL:[AtomicUsize;CAP]=[const{AtomicUsize::new(0)};CAP];
 static DYNAMIC:[AtomicUsize;CAP]=[const{AtomicUsize::new(0)};CAP];
@@ -31,20 +31,22 @@ struct Sample { athlete:AtomicU64, team:AtomicU64, pos:AtomicU64, site:AtomicUsi
 static SAMPLES:[Sample;16]=[const{Sample{athlete:AtomicU64::new(0),team:AtomicU64::new(0),pos:AtomicU64::new(0),site:AtomicUsize::new(0)}};16];
 const ORDER:[u8;15]=[0,1,2,3,5,6,7,8,9,10,11,12,13,14,15];
 #[repr(C)]
-struct Frame { xmm:[u8;96], regs:[u64;15], flags:u64, value:u64, target:u64 }
+pub(crate) struct Frame { xmm:[u8;96], regs:[u64;15], flags:u64, value:u64, target:u64 }
 impl Frame {
-    fn reg(&self,r:u8)->Option<u64>{
+    pub(crate) fn flags(&self)->u64 {self.flags}
+    pub(crate) fn carry(&self)->bool {self.flags&1!=0}
+    pub(crate) fn reg(&self,r:u8)->Option<u64>{
         if r==4 { return Some(self as *const Self as u64 + 240); }
         ORDER.iter().position(|v|*v==r).map(|i|self.regs[14-i])
     }
-    fn scalar(&self,s:Src)->Option<u64>{
+    pub(crate) fn scalar(&self,s:Src)->Option<u64>{
         fn at(base:u64,d:i32)->Option<u64>{platform::fast_read_u64(base.wrapping_add_signed(d as i64) as usize)}
         match s { Src::Const(v)=>Some(v), Src::Reg(r)=>self.reg(r), Src::Stack(d)=>at(self.reg(4)?,d),
             Src::Mem(r,d)=>at(self.reg(r)?,d), Src::StackMem(a,b)=>at(at(self.reg(4)?,a)?,b),
             Src::Mem2(r,a,b)=>at(at(self.reg(r)?,a)?,b), _=>None,
         }
     }
-    fn src(&self,s:Src)->Option<u64>{self.src_depth(s,0)}
+    pub(crate) fn src(&self,s:Src)->Option<u64>{self.src_depth(s,0)}
     fn src_depth(&self,s:Src,depth:u8)->Option<u64>{
         fn at(base:u64,d:i32)->Option<u64>{platform::fast_read_u64(base.wrapping_add_signed(d as i64) as usize)}
         match s {
@@ -96,9 +98,10 @@ impl Frame {
         }
     }
 }
-fn transform(f:&Field,v:i64)->Option<u64>{
+fn transform(f:&Field,v:i64,frame:&Frame)->Option<u64>{
+    if let Tf::Compute(calc)=f.tf {return calc(frame,v);}
     let n=match f.tf { Tf::Add(d)=>v.checked_add(d)?, Tf::Sq1=>v.checked_mul(v)?.checked_add(1)?,
-        Tf::Map{on,off}=>if v==0 {off}else{on} };
+        Tf::Map{on,off}=>if v==0 {off}else{on}, Tf::Compute(_)=>unreachable!() };
     if n<0 || n>f.max {None}else{Some(n as u64)}
 }
 unsafe extern "C" fn dispatch(index:usize,frame:*mut Frame)->usize {
@@ -121,8 +124,11 @@ unsafe extern "C" fn dispatch(index:usize,frame:*mut Frame)->usize {
         if !tactics::is_my_athlete(athlete) {return None;}
         MINE[index].fetch_add(1,Relaxed);
         if !ENABLED[p.tactic].load(Acquire) {return None;}
+        let revision=tactics::config_revision()?;
         let value=tactics::value_for(p.tactic,athlete,pos)?;
-        f.value=transform(p.fields.first()?,value)?;
+        let transformed=transform(p.fields.first()?,value,f)?;
+        if !tactics::config_unchanged(revision){return None;}
+        f.value=transformed;
         APPLIED[index].fetch_add(1,Relaxed);
         Some(DYNAMIC[index].load(Acquire))
     })).ok().flatten().unwrap_or(fallback)
@@ -143,10 +149,11 @@ fn relocated(p:&Patch,base:usize,dynamic:bool)->Result<Vec<u8>, &'static str>{
     if p.fields.len()!=1 || p.first_len>p.win.len() {return Err("invalid generated window");}
     let mut out=Vec::new(); let mut at=0;
     if dynamic {
-        if let Some(branch)=p.branches.iter().find(|b|b.off==0) {
+        if !p.dynamic.is_empty() {out.extend_from_slice(p.dynamic);
+        } else if let Some(branch)=p.branches.iter().find(|b|b.off==0) {
             let Tf::Map{off,..}=p.fields[0].tf else{return Err("first branch needs toggle");};
             branch_toggle(&mut out,branch,base,off)?;
-        } else {out.extend_from_slice(p.dynamic);}
+        } else {return Err("dynamic replacement missing");}
         at=p.first_len;
     }
     while at<p.win.len(){
@@ -235,6 +242,19 @@ pub fn diagnostics()->Vec<String>{
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn complete_catalog_has_relocatable_windows_and_default_bypass(){
+        assert_eq!(tactics::N,88);assert_eq!(sites::PATCHES.len(),197);
+        let mut counts=[0usize;tactics::N];
+        for p in sites::PATCHES{
+            counts[p.tactic]+=1;assert!(!matches!(p.src,Src::None));
+            assert!(!relocated(p,0x140000000,false).unwrap().is_empty());
+            assert!(!relocated(p,0x140000000,true).unwrap().is_empty());
+        }
+        assert!(counts.iter().all(|n|*n>0));assert!(sites::UNSUPPORTED.is_empty());
+        tactics::clear_levels();tactics::set_my_athletes(&[101]);tactics::set_armed(true);
+        for t in 0..tactics::N{for pos in 0..5{assert_eq!(tactics::value_for(t,101,pos),None);}}
+        tactics::set_armed(false);
+    }
     #[repr(C)] struct WideFixture {frame:Frame,stack:[u64;96]}
     fn put_reg(f:&mut Frame,r:u8,v:u64){f.regs[14-ORDER.iter().position(|x|*x==r).unwrap()]=v;}
     fn seed_scalar(s:Src,v:u64,f:&mut WideFixture,parent:&mut [u64],context:&mut [u64],team_mem:&mut [u64]){
@@ -303,7 +323,7 @@ pub fn diagnostics()->Vec<String>{
                 }else{seed_scalar(source,ptr,&mut f,&mut parent,&mut context,&mut team_mem);}
                 tactics::set_level(p.tactic,pos as usize,tactics::LV_LOW);
                 assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x20000,"{} team={team} pos={pos}",p.name);
-                assert_eq!(f.frame.value,transform(&p.fields[0],tactics::value_of(p.tactic,1)).unwrap());
+                assert_eq!(f.frame.value,transform(&p.fields[0],tactics::value_of(p.tactic,1),&f.frame).unwrap());
                 player[0x810/8]=athlete+1;assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000);player[0x810/8]=athlete;
                 tactics::set_armed(false);assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000);tactics::set_armed(true);
                 tactics::clear_levels();assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000);tactics::set_level(p.tactic,pos as usize,1);
@@ -379,17 +399,18 @@ pub fn diagnostics()->Vec<String>{
         assert_eq!(std::mem::offset_of!(Frame,value),224);
         assert_eq!(std::mem::offset_of!(Frame,target),232);
         let mut covered=std::collections::HashSet::new();
-        let list:Vec<_>=sites::PATCHES.iter().enumerate().map(|(i,p)|{
+        let list:Vec<_>=sites::PATCHES.iter().enumerate().filter(|(_,p)|p.tactic<32).map(|(i,p)|{
             covered.insert(p.tactic);
             let d=&tactics::TACTICS[p.tactic];let f=&p.fields[0];
-            for v in [d.min,d.default,d.max,d.low,d.high]{assert!(transform(f,v).is_some(),"{}: {v}",p.name);}
+            let frame:Frame=unsafe{std::mem::zeroed()};
+            for v in [d.min,d.default,d.max,d.low,d.high]{assert!(transform(f,v,&frame).is_some(),"{}: {v}",p.name);}
             let toggle=p.branches.iter().find(|b|b.off==0).map(|b|serde_json::json!({
                 "target":0x140000000usize+b.target_rva,"on":p.win[0],"off":0xeb}));
             serde_json::json!({"name":p.name,"rva":p.rva,"win":p.win,"first_len":p.first_len,"branch_toggle":toggle,
                 "dynamic_first":p.dynamic,"original":relocated(p,0x140000000,false).unwrap(),
                 "dynamic":relocated(p,0x140000000,true).unwrap(),"stub":stub(i),
                 "dispatch":dispatch as *const () as usize,"field_off":f.off,"field_width":f.width,
-                "values":([d.min,d.default,d.max,d.low,d.high].iter().map(|v|transform(f,*v).unwrap()).collect::<Vec<_>>())})
+                "values":([d.min,d.default,d.max,d.low,d.high].iter().map(|v|transform(f,*v,&frame).unwrap()).collect::<Vec<_>>())})
         }).collect();
         assert_eq!(covered.len(),32);assert_eq!(list.len(),53);
         if let Some(path)=std::env::var_os("DT_CODEGEN_DUMP") {std::fs::write(path,serde_json::to_vec_pretty(&list).unwrap()).unwrap();}
@@ -445,7 +466,7 @@ pub fn diagnostics()->Vec<String>{
                         cache[(0x238+slot)/8]=0x12345678;cache[(0x288+slot)/8]=ptr;
                     }
                     assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x20000,"{} team={team} pos={pos} caller={case}",p.name);
-                    assert_eq!(f.frame.value,transform(&p.fields[0],tactics::value_of(p.tactic,1)).unwrap());
+                    assert_eq!(f.frame.value,transform(&p.fields[0],tactics::value_of(p.tactic,1),&f.frame).unwrap());
                     player[0x810/8]=athlete+1;
                     assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000); // 같은 team/pos라도 상대 선수면 원본.
                     player[0x810/8]=athlete;

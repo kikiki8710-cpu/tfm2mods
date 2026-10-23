@@ -1,0 +1,936 @@
+{
+  "exe_sha256": "DAF040DB8A3A3AE136F3EF8CE704E2718F049656B6B5E4872EACB599811D30B5",
+  "tactics": [
+    {
+      "audit_id": "C001",
+      "id": "gank_call_rng",
+      "name": "갱 콜 수락 난수",
+      "desc": "음수 평가일 때만 적용합니다. 높을수록 콜 수락이 까다롭습니다.",
+      "scope": "Player",
+      "default": 350,
+      "low": 250,
+      "high": 450,
+      "min": 0,
+      "max": 999,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xd707db",
+          "win_hex": "3d 5e 01 00 00",
+          "first_len": 5,
+          "src": "reg:r12",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 44 39 d8 41 5b",
+          "notes": "rank>=0 bypasses RNG; if rank<0, signed_i32(RNG_result)>=T required, default350; range argument1000 unchanged.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C004",
+      "id": "pre_gank_engage_profile",
+      "name": "갱 도착 전 라인 선공",
+      "desc": "100이 원본 HP35·거리200000입니다. 높을수록 선공 허용 범위가 넓습니다.",
+      "scope": "Player",
+      "default": 100,
+      "low": 80,
+      "high": 120,
+      "min": 50,
+      "max": 150,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xd6c77a",
+          "win_hex": "48 83 f8 23 0f 82 ab f2 ff ff",
+          "first_len": 4,
+          "src": "mem:rbp:0x848",
+          "team_chk": "mem:rbp:0x830",
+          "tf": {
+            "calc": "extra_lane::pregank_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "normal evaluate if ownJunglerDistanceSquared<=40_000_000_000 AND required jungler-slot/nonvisibility guards; otherwise scan five lane enemies and evaluate if any floor_u(wrap64(enemyHP*100)/enemyMaxHP)<T(default35).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd6c953",
+          "win_hex": "48 83 f8 23 0f 82 d2 f0 ff ff",
+          "first_len": 4,
+          "src": "mem:rbp:0x848",
+          "team_chk": "mem:rbp:0x830",
+          "tf": {
+            "calc": "extra_lane::pregank_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "normal evaluate if ownJunglerDistanceSquared<=40_000_000_000 AND required jungler-slot/nonvisibility guards; otherwise scan five lane enemies and evaluate if any floor_u(wrap64(enemyHP*100)/enemyMaxHP)<T(default35).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd6ca19",
+          "win_hex": "48 83 f8 23 0f 82 0c f0 ff ff",
+          "first_len": 4,
+          "src": "mem:rbp:0x848",
+          "team_chk": "mem:rbp:0x830",
+          "tf": {
+            "calc": "extra_lane::pregank_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "normal evaluate if ownJunglerDistanceSquared<=40_000_000_000 AND required jungler-slot/nonvisibility guards; otherwise scan five lane enemies and evaluate if any floor_u(wrap64(enemyHP*100)/enemyMaxHP)<T(default35).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd6cadf",
+          "win_hex": "48 83 f8 23 0f 82 46 ef ff ff",
+          "first_len": 4,
+          "src": "mem:rbp:0x848",
+          "team_chk": "mem:rbp:0x830",
+          "tf": {
+            "calc": "extra_lane::pregank_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "normal evaluate if ownJunglerDistanceSquared<=40_000_000_000 AND required jungler-slot/nonvisibility guards; otherwise scan five lane enemies and evaluate if any floor_u(wrap64(enemyHP*100)/enemyMaxHP)<T(default35).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd6ccc0",
+          "win_hex": "48 83 f8 23 0f 82 65 ed ff ff",
+          "first_len": 4,
+          "src": "mem:rbp:0x848",
+          "team_chk": "mem:rbp:0x830",
+          "tf": {
+            "calc": "extra_lane::pregank_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "normal evaluate if ownJunglerDistanceSquared<=40_000_000_000 AND required jungler-slot/nonvisibility guards; otherwise scan five lane enemies and evaluate if any floor_u(wrap64(enemyHP*100)/enemyMaxHP)<T(default35).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd6ba0b",
+          "win_hex": "48 b9 00 90 2f 50 09 00 00 00",
+          "first_len": 10,
+          "src": "mem:rbp:0x848",
+          "team_chk": "mem:rbp:0x830",
+          "tf": {
+            "calc": "extra_lane::pregank_radius"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d9 41 5b",
+          "notes": "normal evaluate if ownJunglerDistanceSquared<=40_000_000_000 AND required jungler-slot/nonvisibility guards; otherwise scan five lane enemies and evaluate if any floor_u(wrap64(enemyHP*100)/enemyMaxHP)<T(default35).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C005",
+      "id": "gank_travel_deadline",
+      "name": "정글 갱 이동 기한",
+      "desc": "정글 갱 계획 기한과 이동시간 승인 문턱에 같은 초를 사용합니다.",
+      "scope": "Player",
+      "default": 12,
+      "low": 8,
+      "high": 16,
+      "min": 2,
+      "max": 30,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 2,
+      "sites": [
+        {
+          "rva": "0x100a077",
+          "win_hex": "48 8d 34 40 48 8b 83 b8 01 00 00",
+          "first_len": 4,
+          "src": "mem:rbp:0x1d0",
+          "team_chk": "reg:r12",
+          "tf": {
+            "calc": "extra_lane::gank_deadline"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 de 41 5b",
+          "notes": "T=selected_seconds*TPS (u64 wrap); now+T is gank deadline; approve iff T>=travel_duration+TPS. One producer synchronizes both consumers; default12.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C006",
+      "id": "battle_call_response_seconds",
+      "name": "교전 콜 응답 시간",
+      "desc": "도착 승인과 진단의 응답 초를 맞춥니다. 별도 궁극기6초 하한은 유지합니다.",
+      "scope": "Player",
+      "default": 5,
+      "low": 3,
+      "high": 7,
+      "min": 1,
+      "max": 15,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xd6f931",
+          "win_hex": "48 8d 14 89 48 39 d0",
+          "first_len": 4,
+          "src": "reg:r12",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::call_early"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 da 41 5b",
+          "notes": "early/general arrival window=5*TPS, diagnostic same5; remote-ult fallback lower bound6*TPS separate. Cache usable can allow arrival>5*TPS.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd6fbc3",
+          "win_hex": "48 8d 0c 89 49 39 c8",
+          "first_len": 4,
+          "src": "mem:rbp:0x708",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::call_diagnostic"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d9 41 5b",
+          "notes": "early/general arrival window=5*TPS, diagnostic same5; remote-ult fallback lower bound6*TPS separate. Cache usable can allow arrival>5*TPS.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd6fc84",
+          "win_hex": "48 8d 04 80 48 89 85 c0 06 00 00",
+          "first_len": 4,
+          "src": "mem:rbp:0x708",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::call_general"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d8 41 5b",
+          "notes": "early/general arrival window=5*TPS, diagnostic same5; remote-ult fallback lower bound6*TPS separate. Cache usable can allow arrival>5*TPS.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C008",
+      "id": "same_lane_gank_retry_seconds",
+      "name": "같은 라인 갱 재시도",
+      "desc": "동일 라인 재시도를 막는 추가 초입니다. 통계용 기록 시간은 유지합니다.",
+      "scope": "Player",
+      "default": 10,
+      "low": 6,
+      "high": 14,
+      "min": 1,
+      "max": 30,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xd47d42",
+          "win_hex": "48 8d 04 80 48 39 c1",
+          "first_len": 4,
+          "src": "mem:rbp:0x1768",
+          "team_chk": "mem:rbp:0x1700",
+          "tf": {
+            "calc": "extra_lane::same_lane_retry"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d8 41 5b",
+          "notes": "A: prevLane!=FF && prevLane==candidateLane && sat(now-LPH2928)<=seconds*TPS -> reject candidate plan10; B stays original10TPS.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C016",
+      "id": "line_defense_approval_profile",
+      "name": "라인 방어 승인 신중도",
+      "desc": "100이 위험35·장기점수25·단기점수10입니다. 높을수록 승인이 까다롭습니다.",
+      "scope": "Player",
+      "default": 100,
+      "low": 80,
+      "high": 120,
+      "min": 50,
+      "max": 150,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xde73a5",
+          "win_hex": "48 6b d0 23 48 39 d1",
+          "first_len": 4,
+          "src": "mem:rbp:0x188",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::defense_risk"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 48 89 c2 49 0f af d3 41 5b",
+          "notes": "long delay>2TPS: signed_score>=25 AND policy lowbit. short delay<=2TPS: policy OR signed_score>=10 OR signed64(wrap64(compositeRisk*100))>=signed64(wrap64(max_u(currentHP,1)*35)). compositeRisk=max_s(prediction,0)+factor88, wrapped.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xde73c0",
+          "win_hex": "49 83 f8 19 0f 9d c1",
+          "first_len": 4,
+          "src": "mem:rbp:0x188",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::defense_long"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 d8 41 5b",
+          "notes": "long delay>2TPS: signed_score>=25 AND policy lowbit. short delay<=2TPS: policy OR signed_score>=10 OR signed64(wrap64(compositeRisk*100))>=signed64(wrap64(max_u(currentHP,1)*35)). compositeRisk=max_s(prediction,0)+factor88, wrapped.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xde7412",
+          "win_hex": "49 83 f8 0a 0f 9d c2",
+          "first_len": 4,
+          "src": "mem:rbp:0x188",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::defense_short"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 d8 41 5b",
+          "notes": "long delay>2TPS: signed_score>=25 AND policy lowbit. short delay<=2TPS: policy OR signed_score>=10 OR signed64(wrap64(compositeRisk*100))>=signed64(wrap64(max_u(currentHP,1)*35)). compositeRisk=max_s(prediction,0)+factor88, wrapped.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C017",
+      "id": "base_battle_call_range",
+      "name": "기지 교전 콜 허용 폭",
+      "desc": "1000범위 난수의 허용 폭입니다. 기지 지원 계획 자체의 승인과는 별개입니다.",
+      "scope": "Player",
+      "default": 650,
+      "low": 500,
+      "high": 800,
+      "min": 1,
+      "max": 1000,
+      "kind": "Value",
+      "tab": "기지 방어",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xd6c872",
+          "win_hex": "48 3d 89 02 00 00",
+          "first_len": 6,
+          "src": "mem:rbp:0x848",
+          "team_chk": "mem:rbp:0x830",
+          "tf": {
+            "kind": "Add",
+            "value": -1
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "if evaluated base-support plan succeeds, append call iff full_u64(RNG_result)<=649 (desired accepted-range650 encoded T-1); range argument1000 unchanged. Own plan commit occurs whether call appended or not.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C018",
+      "id": "shared_battle_role_markers",
+      "name": "교전 참조 역할 표시수",
+      "desc": "양팀 도착 역할 표시의 합 문턱입니다. 같은 팀 투표 인원 수가 아닙니다.",
+      "scope": "Player",
+      "default": 2,
+      "low": 1,
+      "high": 3,
+      "min": 1,
+      "max": 5,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xd62911",
+          "win_hex": "80 fb 02 72 da",
+          "first_len": 3,
+          "src": "reg:rdx",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 44 38 db 41 5b",
+          "notes": "sum(five role markers)>=N (original2); markers are union of roles from both teams with arrival<=6TPS plus current actor role.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C025",
+      "id": "gank_reevaluate_seconds",
+      "name": "정글 갱 재평가 간격",
+      "desc": "이 초보다 짧은 간격의 재평가는 원래처럼 보류합니다.",
+      "scope": "Player",
+      "default": 3,
+      "low": 2,
+      "high": 5,
+      "min": 1,
+      "max": 15,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 2,
+      "sites": [
+        {
+          "rva": "0x1009229",
+          "win_hex": "4f 8d 14 76 48 0f 43 c8",
+          "first_len": 4,
+          "src": "mem:rbp:0x1d0",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::gank_recheck"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 da 41 5b",
+          "notes": "elapsed=saturating_sub_u64(now,lastTick); return_none iff elapsed<selected_seconds*TPS; default3. Equality proceeds.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C026",
+      "id": "gank_candidate_margin",
+      "name": "갱 후보 인원 여유",
+      "desc": "내 편 후보가 있을 때 허용할 상대 후보 수의 추가 여유입니다.",
+      "scope": "Player",
+      "default": 1,
+      "low": 0,
+      "high": 2,
+      "min": 0,
+      "max": 4,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 2,
+      "sites": [
+        {
+          "rva": "0x1009f41",
+          "win_hex": "48 ff c0 48 39 c6",
+          "first_len": 3,
+          "src": "mem:rbp:0x1d0",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b",
+          "notes": "ownLen>0 AND opponentLen<=ownLen+selected_margin; default1; normal five-slot own/opponent lengths0..5. 0 does not admit ownLen=0.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C029",
+      "id": "roam_retry_extra_seconds",
+      "name": "로밍 재시도 추가 간격",
+      "desc": "원래 기본 간격에 추가되는 초입니다. 마지막 로밍 기록이 없으면 우회합니다.",
+      "scope": "Player",
+      "default": 10,
+      "low": 6,
+      "high": 14,
+      "min": 1,
+      "max": 30,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 29,
+      "sites": [
+        {
+          "rva": "0xd4b1e7",
+          "win_hex": "48 01 c9 4c 8d 24 89",
+          "first_len": 7,
+          "src": "mem:rbp:0x1768",
+          "team_chk": "mem:rbp:0x1700",
+          "tf": {
+            "calc": "extra_lane::roam_extra"
+          },
+          "dynamic_hex": "48 01 c9 41 53 4c 8b 5c 24 f8 4d 89 dc 41 5b",
+          "notes": "if lastRoamTick!=0, allow iff now>=wrap64(lastRoamTick+Config1418+selectedExtraSeconds*TPS); default extra10. last=0 bypass.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C044",
+      "id": "early_gank_target_min_hp",
+      "name": "조기 갱 대상 최소 체력",
+      "desc": "조기 갱 대상으로 검토할 적의 최소 체력입니다. 저체력 선호 설정과 다릅니다.",
+      "scope": "Player",
+      "default": 40,
+      "low": 30,
+      "high": 50,
+      "min": 1,
+      "max": 90,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xd96619",
+          "win_hex": "48 83 f8 27 0f 86 e0 fe ff ff",
+          "first_len": 4,
+          "src": "stackmem:0x58:0x28",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": -1
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "candidate visible OR seenStamp+120>=worldClock; D2<=250000^2; floor_u(wrap64(enemyHP*100)/enemyMaxHP)>=40; outside requested zone; choose nearest to reference. Default minT40 encoded reject<=T-1(39) in two DIV copies.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd96629",
+          "win_hex": "48 83 f8 27 0f 86 d0 fe ff ff",
+          "first_len": 4,
+          "src": "stackmem:0x58:0x28",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": -1
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "candidate visible OR seenStamp+120>=worldClock; D2<=250000^2; floor_u(wrap64(enemyHP*100)/enemyMaxHP)>=40; outside requested zone; choose nearest to reference. Default minT40 encoded reject<=T-1(39) in two DIV copies.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C054",
+      "id": "lane_attack_move_allowance",
+      "name": "라인 공격 접근 여유",
+      "desc": "자기 이동 예산에 곱할 접근 여유입니다. 높을수록 먼 공격 후보도 검토합니다.",
+      "scope": "Player",
+      "default": 30,
+      "low": 20,
+      "high": 40,
+      "min": 0,
+      "max": 60,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xdeff0f",
+          "win_hex": "48 8d 0c 3f 48 c1 e7 05 48 29 cf",
+          "first_len": 11,
+          "src": "mem:rbp:0xb8",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::lane_range_a"
+          },
+          "dynamic_hex": "48 8d 0c 3f 41 53 4c 8b 5c 24 f8 4c 89 df 41 5b 48 29 cf",
+          "notes": "reach = original_range_terms + selected_K*snapshot(ownEntity+638), wrap64; default30=32M-2M. Candidate test distanceSquared<=wrap64(reachSquared).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xe0eaeb",
+          "win_hex": "4b 8d 04 24 49 c1 e4 05 49 29 c4",
+          "first_len": 11,
+          "src": "mem:rbp:0x720",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::lane_range_b"
+          },
+          "dynamic_hex": "4b 8d 04 24 41 53 4c 8b 5c 24 f8 4d 89 dc 41 5b 49 29 c4",
+          "notes": "reach = original_range_terms + selected_K*snapshot(ownEntity+638), wrap64; default30=32M-2M. Candidate test distanceSquared<=wrap64(reachSquared).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xe9522c",
+          "win_hex": "48 8d 04 3f 48 c1 e7 05 48 29 c7",
+          "first_len": 11,
+          "src": "mem:rbp:0x160",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::lane_range_c"
+          },
+          "dynamic_hex": "48 8d 04 3f 41 53 4c 8b 5c 24 f8 4c 89 df 41 5b 48 29 c7",
+          "notes": "reach = original_range_terms + selected_K*snapshot(ownEntity+638), wrap64; default30=32M-2M. Candidate test distanceSquared<=wrap64(reachSquared).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C055",
+      "id": "lane_defense_support_margin",
+      "name": "라인 방어 지원 인원 여유",
+      "desc": "주변 다른 아군 수에 더할 지원 여유입니다. 원래 능력 조건도 필요합니다.",
+      "scope": "Player",
+      "default": 1,
+      "low": 0,
+      "high": 2,
+      "min": 0,
+      "max": 4,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe10799",
+          "win_hex": "48 ff c6 48 39 f7",
+          "first_len": 3,
+          "src": "mem:rbp:0x720",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 de 41 5b",
+          "notes": "supportOK=(threatVecLen<=nearOtherAllies+margin) AND (rawAbilityPredicateAL&1); default margin1. saved[53b]=!supportOK; later skip special branch if anotherMetricLess OR saved[53b].;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C056",
+      "id": "lane_exchange_advantage_ticks",
+      "name": "라인 교환 시간 우위",
+      "desc": "최종 라인 후보의 교환 시간차 문턱입니다. 업데이트 틱이며 별도 인원 우회는 유지합니다.",
+      "scope": "Player",
+      "default": 61,
+      "low": 41,
+      "high": 81,
+      "min": 1,
+      "max": 180,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xf3ca61",
+          "win_hex": "49 83 f8 3d 0f 9d c1",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x138",
+            "cases": [
+              {
+                "ret_rva": "0xd43da4",
+                "src": "stackmem:0x130:0x1768"
+              }
+            ]
+          },
+          "team_chk": {
+            "kind": "caller",
+            "return_off": "0x138",
+            "cases": [
+              {
+                "ret_rva": "0xd43da4",
+                "src": "stackmem:0x130:0x1700"
+              }
+            ]
+          },
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 d8 41 5b",
+          "notes": "F(A->B)=sum floor(wrap(D_i*100000)/P_i(A)), attack/skill1/skill2 only; P0/P1=min3, P2=min1 after original haste/wrap DIV. Final delta=trunc(MaxHP_A*100000/max(F(B->A),1))-trunc(MaxHP_B*100000/max(F(A->B),1)); signed delta>=T (original61 ticks) sets bit1, OR enemyCount<4 bit0. Earlier candidate uses delta>0 and enemyCount<5, unchanged. Exact original division/wrap/abnormal-value behavior retained.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C057",
+      "id": "lane_superiority_profile",
+      "name": "라인 수적우세 확정 신중도",
+      "desc": "낮게:담당HP20·1명, 기본:25·2명, 높게:30·3명. 팀 공통 정책입니다.",
+      "scope": "Team",
+      "default": 1,
+      "low": 0,
+      "high": 2,
+      "min": 0,
+      "max": 2,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xdc299c",
+          "win_hex": "48 83 f8 19 0f 82 a0 01 00 00",
+          "first_len": 4,
+          "src": "mem:rbp:0x4d0",
+          "team_chk": "mem:rbp:0x4b8",
+          "tf": {
+            "calc": "extra_lane::superiority_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "phase6 lane lifecycle: canonical lane actor absent OR HPpercent<25 ends; else target-chain and providers pass, oldPlanDWORD10 AND healthyOwnCount>=2 AND healthyOwnCount>opponentCount commits. healthyOwn HP>=40 confirmed dd4010; team-common policy only.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xdc2b40",
+          "win_hex": "48 83 f8 19 73 7a",
+          "first_len": 4,
+          "src": "mem:rbp:0x4d0",
+          "team_chk": "mem:rbp:0x4b8",
+          "tf": {
+            "calc": "extra_lane::superiority_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "phase6 lane lifecycle: canonical lane actor absent OR HPpercent<25 ends; else target-chain and providers pass, oldPlanDWORD10 AND healthyOwnCount>=2 AND healthyOwnCount>opponentCount commits. healthyOwn HP>=40 confirmed dd4010; team-common policy only.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xdc2da5",
+          "win_hex": "49 83 ff 02 72 6f",
+          "first_len": 4,
+          "src": "mem:rbp:0x4d0",
+          "team_chk": "mem:rbp:0x4b8",
+          "tf": {
+            "calc": "extra_lane::superiority_count"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 df 41 5b",
+          "notes": "phase6 lane lifecycle: canonical lane actor absent OR HPpercent<25 ends; else target-chain and providers pass, oldPlanDWORD10 AND healthyOwnCount>=2 AND healthyOwnCount>opponentCount commits. healthyOwn HP>=40 confirmed dd4010; team-common policy only.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C058",
+      "id": "lane_call_travel_seconds",
+      "name": "라인 갱 콜 이동 상한",
+      "desc": "콜 응답 이동비용 상한과 수락 계획 기한에 같은 초를 적용합니다.",
+      "scope": "Player",
+      "default": 10,
+      "low": 6,
+      "high": 14,
+      "min": 2,
+      "max": 30,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xfe3446",
+          "win_hex": "48 8d 0c 89 48 39 c8",
+          "first_len": 4,
+          "src": {
+            "kind": "cache_slot",
+            "cache": "reg:r15",
+            "team": "reg:rsi",
+            "pos": "reg:r12",
+            "entity": "reg:r13"
+          },
+          "team_chk": "reg:rsi",
+          "tf": {
+            "calc": "extra_lane::lane_call_cap"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d9 41 5b",
+          "notes": "arrivalCost<=selectedSeconds*TPS; default10. Synchronize caller d70430 accepted plan deadline=now+selectedSeconds*TPS. Cost=integer path/waypoint-adjusted distance / max_u(own638,1); independent from jungler12 and retry10.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xd7086a",
+          "win_hex": "48 8d 04 80 48 01 c0",
+          "first_len": 4,
+          "src": "reg:r12",
+          "team_chk": null,
+          "tf": {
+            "calc": "extra_lane::lane_call_deadline_half"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d8 41 5b",
+          "notes": "arrivalCost<=selectedSeconds*TPS; default10. Synchronize caller d70430 accepted plan deadline=now+selectedSeconds*TPS. Cost=integer path/waypoint-adjusted distance / max_u(own638,1); independent from jungler12 and retry10.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C060",
+      "id": "mia_notice_caution_profile",
+      "name": "실종 알림 신중도",
+      "desc": "100이 대기1·4초/기억HP60/거리170000입니다. 높을수록 오래 기다리고 엄격히 선별합니다.",
+      "scope": "Player",
+      "default": 100,
+      "low": 80,
+      "high": 120,
+      "min": 50,
+      "max": 150,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xdc7699",
+          "win_hex": "48 01 ca 48 8b 87 b8 01 00 00",
+          "first_len": 3,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x258",
+          "tf": {
+            "calc": "extra_lane::mia_global"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 da 41 5b",
+          "notes": "self present: wrap(C90+TPS)<now AND B50!=0 AND wrap(B50+4TPS)<now AND rememberedHP>=60 AND rememberedD2<170000^2 AND B28<wrap(B50+4TPS) -> write B28=now,C90=now,append eventtag1+opponentRole. Values are stored memory, not necessarily current enemy.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xdc76c4",
+          "win_hex": "48 8d 0c 8a 48 39 c1",
+          "first_len": 4,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x258",
+          "tf": {
+            "calc": "extra_lane::mia_memory"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d9 41 5b",
+          "notes": "self present: wrap(C90+TPS)<now AND B50!=0 AND wrap(B50+4TPS)<now AND rememberedHP>=60 AND rememberedD2<170000^2 AND B28<wrap(B50+4TPS) -> write B28=now,C90=now,append eventtag1+opponentRole. Values are stored memory, not necessarily current enemy.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xdc76d8",
+          "win_hex": "4a 83 bc ca c8 0b 00 00 3c",
+          "first_len": 9,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x258",
+          "tf": {
+            "calc": "extra_lane::mia_hp"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4e 39 9c ca c8 0b 00 00 41 5b",
+          "notes": "self present: wrap(C90+TPS)<now AND B50!=0 AND wrap(B50+4TPS)<now AND rememberedHP>=60 AND rememberedD2<170000^2 AND B28<wrap(B50+4TPS) -> write B28=now,C90=now,append eventtag1+opponentRole. Values are stored memory, not necessarily current enemy.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xdc76fa",
+          "win_hex": "48 81 fa 00 93 ba 06",
+          "first_len": 7,
+          "src": "mem:rbp:0x290",
+          "team_chk": "mem:rbp:0x258",
+          "tf": {
+            "calc": "extra_lane::mia_radius"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 da 41 5b",
+          "notes": "self present: wrap(C90+TPS)<now AND B50!=0 AND wrap(B50+4TPS)<now AND rememberedHP>=60 AND rememberedD2<170000^2 AND B28<wrap(B50+4TPS) -> write B28=now,C90=now,append eventtag1+opponentRole. Values are stored memory, not necessarily current enemy.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "C061",
+      "id": "relay_undying_limit_centiseconds",
+      "name": "운영 신호 불사 잔여 허용",
+      "desc": "100이 원본1초입니다. 0.01초 단위의 불사 잔여 문턱이며 통과 후 기존 계획을 해제합니다.",
+      "scope": "Player",
+      "default": 100,
+      "low": 50,
+      "high": 150,
+      "min": 1,
+      "max": 300,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xd6e4e4",
+          "win_hex": "4d 3b 99 f8 12 00 00",
+          "first_len": 7,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x388",
+            "cases": [
+              {
+                "ret_rva": "0xd462d8",
+                "src": "mem:rbp:0x1768"
+              },
+              {
+                "ret_rva": "0xd4b129",
+                "src": "mem:rbp:0x1768"
+              }
+            ]
+          },
+          "team_chk": {
+            "kind": "caller",
+            "return_off": "0x388",
+            "cases": [
+              {
+                "ret_rva": "0xd462d8",
+                "src": "mem:rbp:0x1700"
+              },
+              {
+                "ret_rva": "0xd4b129",
+                "src": "mem:rbp:0x1700"
+              }
+            ]
+          },
+          "tf": {
+            "calc": "extra_lane::relay_limit"
+          },
+          "dynamic_hex": "41 52 4c 8b 54 24 f8 4d 39 d3 41 5a",
+          "notes": "first peer80B Relay7 edge and existing gates; if ownEntity lacks undying -> bypass wait; otherwise max(undying duration: kind0=I64MAX,kind1=remaining ticks,kind2=0)<=seconds*TPS -> commit rawBigPlan2/None (original1TPS).;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "D002",
+      "id": "lane_wait_front_minion_distance",
+      "name": "선두 아군 미니언 대기 거리",
+      "desc": "아군 선두 미니언 기준 접근 검사와 뒤로 물러날 거리 계산에 같은 거리를 사용합니다.",
+      "scope": "Player",
+      "default": 180000,
+      "low": 150000,
+      "high": 210000,
+      "min": 50000,
+      "max": 300000,
+      "kind": "Value",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xea9af9",
+          "win_hex": "48 b9 01 c4 30 8b 07 00 00 00",
+          "first_len": 10,
+          "src": "mem:rbp:0x140",
+          "team_chk": null,
+          "tf": {
+            "kind": "Sq1"
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d9 41 5b",
+          "notes": "same-team front minion=max D2 from own base (ties later); if valid reference and close<=180000, backoff=max(polylineToRef-180000,0) under original gates.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        },
+        {
+          "rva": "0xea9ef1",
+          "win_hex": "48 81 e9 20 bf 02 00",
+          "first_len": 7,
+          "src": "mem:rbp:0x140",
+          "team_chk": null,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 29 d9 41 5b",
+          "notes": "same-team front minion=max D2 from own base (ties later); if valid reference and close<=180000, backoff=max(polylineToRef-180000,0) under original gates.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    },
+    {
+      "audit_id": "D004",
+      "id": "support_roam_adc_min_hp",
+      "name": "서폿 로밍 원딜 최소 체력",
+      "desc": "알려진 서폿 로밍 세 경로에서 같은 팀 원딜 체력을 검사하는 문턱입니다.",
+      "scope": "Player",
+      "default": 51,
+      "low": 40,
+      "high": 65,
+      "min": 1,
+      "max": 95,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 16,
+      "sites": [
+        {
+          "rva": "0xd3fa45",
+          "win_hex": "48 83 f8 33 0f 93 c0",
+          "first_len": 4,
+          "src": {
+            "kind": "caller",
+            "return_off": "0x28",
+            "cases": [
+              {
+                "ret_rva": "0xd4b4d1",
+                "src": "mem:rbp:0x1768"
+              },
+              {
+                "ret_rva": "0xd4b619",
+                "src": "mem:rbp:0x1768"
+              },
+              {
+                "ret_rva": "0xd4b6ad",
+                "src": "mem:rbp:0x1768"
+              }
+            ]
+          },
+          "team_chk": {
+            "kind": "caller",
+            "return_off": "0x28",
+            "cases": [
+              {
+                "ret_rva": "0xd4b4d1",
+                "src": "mem:rbp:0x1700"
+              },
+              {
+                "ret_rva": "0xd4b619",
+                "src": "mem:rbp:0x1700"
+              },
+              {
+                "ret_rva": "0xd4b6ad",
+                "src": "mem:rbp:0x1700"
+              }
+            ]
+          },
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          },
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "notes": "d3f9f0(Entity) returns zone2(Entity) AND HPpercent>=51 (MaxHP0panic). Whitelistthree support(role4) line2-roam callers only; policy belongs to judging support or ScopeTeam, inspected SAME TEAM slot3 ADC is not setting owner.;기본프로필은전체원본우회. 미등록주체/불안정읽기/다른팀원본."
+        }
+      ]
+    }
+  ]
+}

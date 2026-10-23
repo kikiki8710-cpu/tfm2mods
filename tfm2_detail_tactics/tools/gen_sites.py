@@ -214,6 +214,8 @@ def dynamic_instruction(ins):
 
 
 def main():
+    import gen_extras
+    gen_extras.write_catalog()
     ap = argparse.ArgumentParser()
     ap.add_argument("--exe", required=True)
     ap.add_argument("--ver", default="0.6.5")
@@ -352,6 +354,7 @@ def main():
                                 asm=asm, func=fn[0], first_len=prefix_len+first.size, dynamic=b"" if tf[0] == "toggle" else prefix+dynamic_instruction(first)))
             log.append(f"[창] {kid} {s['rva']} len={len(winbytes)} {' ; '.join(f'{i.mnemonic} {i.op_str}' for i in win)}"
                        f" | 함수 {fn[0]:#x} | 주체 {sj['src']}")
+    patches.extend(gen_extras.load(pe,sha,md,starts,ends,order,func_cache,interior_all,log))
     # ③ .text 전체 rel32 패턴
     hits = text_rel32_hits(pe, interior_all.keys())
     if hits:

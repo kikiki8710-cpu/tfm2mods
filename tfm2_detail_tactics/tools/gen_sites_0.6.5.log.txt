@@ -51,3 +51,147 @@
 [창] base_defense_hold_nexus_hp_50 0xea6d1a len=6 cmp rax, 0x32 ; jbe 0x140ea6cf8 | 함수 0xea6800 | 주체 mem:rbp:0x280
 [창] base_defense_hold_dmg_ratio_49 0xea6c73 len=6 cmp rax, 0x31 ; ja 0x140ea6cb9 | 함수 0xea6800 | 주체 mem:rbp:0x280
 [창] lowhp_ult_bonus_low_14 0xe6955b len=8 lea rax, [rdx + 0xe] ; lea r14, [rdx + 6] | 함수 0xe690a0 | 주체 stack:0x78
+[추가창] C001 0xd707db cmp eax, 0x15e | 주체 reg:r12
+[추가창] C002 0xfb51f3 cmp r8, 0x51 ; lea ecx, [r10 + rdx + 0x32] | 주체 mem:rbp:0x98
+[추가창] C002 0xfb51ff cmp r8, 0x3d ; lea eax, [r10 + rdx + 0x78] | 주체 mem:rbp:0x98
+[추가창] C003 0xe922df cmp rax, 0x41 ; mov rdx, qword ptr [rbp + 0x5b8] | 주체 mem:rbp:0x660
+[추가창] C004 0xd6c77a cmp rax, 0x23 ; jb 0x140d6ba2f | 주체 mem:rbp:0x848
+[추가창] C004 0xd6c953 cmp rax, 0x23 ; jb 0x140d6ba2f | 주체 mem:rbp:0x848
+[추가창] C004 0xd6ca19 cmp rax, 0x23 ; jb 0x140d6ba2f | 주체 mem:rbp:0x848
+[추가창] C004 0xd6cadf cmp rax, 0x23 ; jb 0x140d6ba2f | 주체 mem:rbp:0x848
+[추가창] C004 0xd6ccc0 cmp rax, 0x23 ; jb 0x140d6ba2f | 주체 mem:rbp:0x848
+[추가창] C004 0xd6ba0b movabs rcx, 0x9502f9000 | 주체 mem:rbp:0x848
+[추가창] C005 0x100a077 lea rsi, [rax + rax*2] ; mov rax, qword ptr [rbx + 0x1b8] | 주체 mem:rbp:0x1d0
+[추가창] C006 0xd6f931 lea rdx, [rcx + rcx*4] ; cmp rax, rdx | 주체 reg:r12
+[추가창] C006 0xd6fbc3 lea rcx, [rcx + rcx*4] ; cmp r8, rcx | 주체 mem:rbp:0x708
+[추가창] C006 0xd6fc84 lea rax, [rax + rax*4] ; mov qword ptr [rbp + 0x6c0], rax | 주체 mem:rbp:0x708
+[추가창] C007 0xdabbe7 mov r15d, 0xc8 | 주체 mem:rbp:c8
+[추가창] C007 0xdabcbd add r15, 0xc8 | 주체 mem:rbp:c8
+[추가창] C008 0xd47d42 lea rax, [rax + rax*4] ; cmp rcx, rax | 주체 mem:rbp:0x1768
+[추가창] C010 0xe4d559 lea rdx, [rdx + rdx*8] ; cmp rax, rdx | 주체 mem:rbp:0x218
+[추가창] C010 0xeee719 lea rcx, [rcx + rcx*8] ; cmp rax, rcx | 주체 mem:rbp:0x348
+[추가창] C011 0x1010b11 lea rax, [rax + rax*2] ; cmp qword ptr [rdx + 0x668], rax | 주체 {'kind': 'caller', 'return_off': '0x1b8', 'cases': [{'ret_rva': '0xdfbb38', 'src': {'kind': 'caller', 'return_off': '0x208', 'cases': [{'ret_rva': '0xdca088', 'src': 'stack:0x1f0'}, {'ret_rva': '0xe0e5a7', 'src': 'stackmem:0x1b0:0x720'}, {'ret_rva': '0xf9960f', 'src': 'stack:0x1f0'}]}}, {'ret_rva': '0xe12669', 'src': 'stackmem:0x1b0:0x720'}, {'ret_rva': '0xf7fdab', 'src': 'stackmem:0x1b0:0x480'}, {'ret_rva': '0x10135b7', 'src': 'stack:0x210'}, {'ret_rva': '0x101381c', 'src': 'stack:0x198'}]}
+[추가창] C013 0xe5daa5 cmp rax, 0x64 ; mov edi, 0x64 | 주체 mem:rbp:0x58
+[추가창] C013 0xe5db43 cmp rax, 0x64 ; mov edi, 0x64 | 주체 mem:rbp:0x58
+[추가창] C013 0xe5dfa3 cmp rax, 0x64 ; mov ecx, 0x64 | 주체 mem:rbp:0x58
+[추가창] C013 0xe5e06a cmp rax, 0x64 ; mov ecx, 0x64 | 주체 mem:rbp:0x58
+[추가창] C013 0xe5e1ff cmp rax, 0x64 ; mov ecx, 0x64 | 주체 mem:rbp:0x58
+[추가창] C013 0xe5e2b0 cmp rax, 0x64 ; mov ecx, 0x64 | 주체 mem:rbp:0x58
+[추가창] C014 0xe09c9b mov edx, 0x89543fff | 주체 mem:rbp:0x290
+[추가창] C014 0xe09cbb mov r8d, 0xbb80 | 주체 mem:rbp:0x290
+[추가창] C014 0xe09f3d mov eax, 0x89544000 | 주체 mem:rbp:0x290
+[추가창] C014 0xe09f58 imul rax, r14, 0xbb80 | 주체 mem:rbp:0x290
+[추가창] C014 0xe09f91 imul rax, rdi, 0xbb80 | 주체 mem:rbp:0x290
+[추가창] C015 0xed0c91 add rbp, 0x7530 | 주체 stack:0x40
+[추가창] C016 0xde73a5 imul rdx, rax, 0x23 ; cmp rcx, rdx | 주체 mem:rbp:0x188
+[추가창] C016 0xde73c0 cmp r8, 0x19 ; setge cl | 주체 mem:rbp:0x188
+[추가창] C016 0xde7412 cmp r8, 0xa ; setge dl | 주체 mem:rbp:0x188
+[추가창] C017 0xd6c872 cmp rax, 0x289 | 주체 mem:rbp:0x848
+[추가창] C018 0xd62911 cmp bl, 2 ; jb 0x140d628f0 | 주체 reg:rdx
+[추가창] C019 0x1013aca shr rcx, 2 ; add rcx, rax | 주체 reg:r13
+[추가창] C020 0xe662db lea rcx, [rcx + r8*2] ; mov rdx, qword ptr [rbp + 0x488] | 주체 mem:rbp:0x548
+[추가창] C020 0xe662f4 lea rcx, [r8 + r8*2] ; cmp rcx, rbx | 주체 mem:rbp:0x548
+[추가창] C020 0xe666f4 lea rcx, [rcx + r14*2] ; mov r15, qword ptr [rbp + 0x510] | 주체 mem:rbp:0x548
+[추가창] C020 0xe6670d lea rcx, [r14 + r14*2] ; cmp rcx, rdi | 주체 mem:rbp:0x548
+[추가창] C021 0xe66e0c lea r8, [rcx + rcx*2] ; test r8, r8 | 주체 mem:rbp:0x548
+[추가창] C022 0xfb37c7 add eax, 0x82 | 주체 stack:60
+[추가창] C023 0xfb2510 cmp qword ptr [rsi + 0x10], -0xbb8 | 주체 {'kind': 'caller', 'return_off': '0x78', 'cases': [{'ret_rva': '0xd45fad', 'src': 'stack:48'}, {'ret_rva': '0xdbd5fc', 'src': 'stackmem:40:3d0'}, {'ret_rva': '0xdbd760', 'src': 'stackmem:40:3d0'}, {'ret_rva': '0xdbdcc4', 'src': 'stackmem:40:3d0'}]}
+[추가창] C023 0xfb251a cmp dword ptr [rsi + 0x20], -2 ; setge bl | 주체 {'kind': 'caller', 'return_off': '0x78', 'cases': [{'ret_rva': '0xd45fad', 'src': 'stack:48'}, {'ret_rva': '0xdbd5fc', 'src': 'stackmem:40:3d0'}, {'ret_rva': '0xdbd760', 'src': 'stackmem:40:3d0'}, {'ret_rva': '0xdbdcc4', 'src': 'stackmem:40:3d0'}]}
+[추가창] C023 0xfb2559 cmp qword ptr [r11 + 0x10], -0xbb8 | 주체 {'kind': 'caller', 'return_off': '0x78', 'cases': [{'ret_rva': '0xd45fad', 'src': 'stack:48'}, {'ret_rva': '0xdbd5fc', 'src': 'stackmem:40:3d0'}, {'ret_rva': '0xdbd760', 'src': 'stackmem:40:3d0'}, {'ret_rva': '0xdbdcc4', 'src': 'stackmem:40:3d0'}]}
+[추가창] C023 0xfb2563 cmp dword ptr [r11 + 0x20], -2 | 주체 {'kind': 'caller', 'return_off': '0x78', 'cases': [{'ret_rva': '0xd45fad', 'src': 'stack:48'}, {'ret_rva': '0xdbd5fc', 'src': 'stackmem:40:3d0'}, {'ret_rva': '0xdbd760', 'src': 'stackmem:40:3d0'}, {'ret_rva': '0xdbdcc4', 'src': 'stackmem:40:3d0'}]}
+[추가창] C023 0xfb3d44 cmp qword ptr [r10 + 0x10], -0xbb8 | 주체 {'kind': 'caller', 'return_off': '0xc8', 'cases': [{'ret_rva': '0xdbd515', 'src': 'stackmem:90:3d0'}]}
+[추가창] C023 0xfb3d4e cmp dword ptr [r10 + 0x20], -2 | 주체 {'kind': 'caller', 'return_off': '0xc8', 'cases': [{'ret_rva': '0xdbd515', 'src': 'stackmem:90:3d0'}]}
+[추가창] C023 0xfb3d7c cmp qword ptr [r9 + 0x10], -0xbb8 | 주체 {'kind': 'caller', 'return_off': '0xc8', 'cases': [{'ret_rva': '0xdbd515', 'src': 'stackmem:90:3d0'}]}
+[추가창] C023 0xfb3d86 cmp dword ptr [r9 + 0x20], -2 | 주체 {'kind': 'caller', 'return_off': '0xc8', 'cases': [{'ret_rva': '0xdbd515', 'src': 'stackmem:90:3d0'}]}
+[추가창] C023 0xfb3dac cmp qword ptr [rdi + 0x10], -0xbb8 | 주체 {'kind': 'caller', 'return_off': '0xc8', 'cases': [{'ret_rva': '0xdbd515', 'src': 'stackmem:90:3d0'}]}
+[추가창] C023 0xfb3db6 cmp dword ptr [rdi + 0x20], -2 ; jl 0x140fb3e1d | 주체 {'kind': 'caller', 'return_off': '0xc8', 'cases': [{'ret_rva': '0xdbd515', 'src': 'stackmem:90:3d0'}]}
+[추가창] C023 0xdbd995 cmp qword ptr [r10 + 0x10], -0xbb8 | 주체 mem:rbp:3d0
+[추가창] C023 0xdbd99f cmp dword ptr [r10 + 0x20], -2 | 주체 mem:rbp:3d0
+[추가창] C023 0xdbd9cd cmp qword ptr [r9 + 0x10], -0xbb8 | 주체 mem:rbp:3d0
+[추가창] C023 0xdbd9d7 cmp dword ptr [r9 + 0x20], -2 | 주체 mem:rbp:3d0
+[추가창] C023 0xdbd9f9 cmp qword ptr [r14 + 0x10], -0xbb8 | 주체 mem:rbp:3d0
+[추가창] C023 0xdbda03 cmp dword ptr [r14 + 0x20], -3 | 주체 mem:rbp:3d0
+[추가창] C025 0x1009229 lea r10, [r14 + r14*2] ; cmovae rcx, rax | 주체 mem:rbp:0x1d0
+[추가창] C026 0x1009f41 inc rax ; cmp rsi, rax | 주체 mem:rbp:0x1d0
+[추가창] C027 0xecad63 movabs rdx, 0xe8d4a5101 | 주체 mem:rbp:2580
+[추가창] C027 0xd9396c movabs rdx, 0xe8d4a5100 | 주체 stack:50
+[추가창] C028 0xdd269d cmp r13, 3 ; jb 0x140dd276e | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C028 0xdd26ab cmp rbp, 0x7d0 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C028 0xdd26b4 cmp dword ptr [rdx + 0x20], 2 ; jl 0x140dd26d0 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C028 0xdd2709 cmp r13, 3 ; jb 0x140dd2786 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C028 0xdd2713 cmp rbp, 0x7d0 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C028 0xdd271c cmp dword ptr [r11 + 0x20], 2 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C028 0xdd2749 cmp r13, 3 ; jb 0x140dd2777 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C028 0xdd2753 cmp rbp, 0x7d0 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C028 0xdd275c cmp dword ptr [r11 + 0x48], 2 | 주체 {'kind': 'caller', 'return_off': '0x68', 'cases': [{'ret_rva': '0xdb3ff5', 'src': 'stack:e8'}, {'ret_rva': '0xdb521d', 'src': 'stack:c8'}, {'ret_rva': '0xdb5520', 'src': 'stack:60'}]}
+[추가창] C029 0xd4b1e7 add rcx, rcx ; lea r12, [rcx + rcx*4] | 주체 mem:rbp:0x1768
+[추가창] C030 0xf16ee9 cmp r15, 0x15 ; setb al | 주체 {'kind': 'caller', 'return_off': '0x48', 'cases': [{'ret_rva': '0xf0b56d', 'src': 'reg:r14'}]}
+[추가창] C030 0xf16ef4 cmp r15, 0x1f ; setb al | 주체 {'kind': 'caller', 'return_off': '0x48', 'cases': [{'ret_rva': '0xf0b56d', 'src': 'reg:r14'}]}
+[추가창] C031 0xea66ca lea r13, [rcx + rcx*2] ; lea rcx, [r12 + 0x4f8] | 주체 reg:rdi
+[추가창] C031 0xea6722 lea r13, [rdx + rdx*2] ; lea rcx, [r12 + 0x4c0] | 주체 reg:rdi
+[추가창] C032 0xdcca2b cmp rcx, 3 ; setae r8b | 주체 stack:70
+[추가창] C033 0xde7cda lea rax, [rax + rax*2] ; cmp rcx, rax | 주체 {'kind': 'caller', 'return_off': '0xc8', 'cases': [{'ret_rva': '0xd5eb79', 'src': 'stack:a0'}, {'ret_rva': '0xdcdda5', 'src': 'stackmem:90:18'}, {'ret_rva': '0xed1f7c', 'src': {'kind': 'caller', 'return_off': '0x128', 'cases': [{'ret_rva': '0xd4357c', 'src': 'stackmem:90:1768'}, {'ret_rva': '0xd4b9da', 'src': 'stackmem:90:1768'}]}}]}
+[추가창] C033 0xe8f901 lea rax, [rax + rax*2] ; cmp rcx, rax | 주체 {'kind': 'caller', 'return_off': '0xd8', 'cases': [{'ret_rva': '0xd5eb39', 'src': 'stack:b0'}, {'ret_rva': '0xdcfd77', 'src': 'stackmem:a0:78'}, {'ret_rva': '0xed1f96', 'src': {'kind': 'caller', 'return_off': '0x138', 'cases': [{'ret_rva': '0xd4357c', 'src': 'stackmem:a0:1768'}, {'ret_rva': '0xd4b9da', 'src': 'stackmem:a0:1768'}]}}]}
+[추가창] C034 0xe01f21 add rcx, 8 ; mov rdx, qword ptr [rbp + 0x1a0] | 주체 mem:rbp:478
+[추가창] C035 0xe92f74 add rax, rax ; cmp rax, qword ptr [r13 + 0x668] | 주체 mem:rbp:90
+[추가창] C035 0xe92ac1 add rax, rax ; cmp rax, qword ptr [r8 + 0x668] | 주체 mem:rbp:d0
+[추가창] C035 0xe988f8 add rax, rax ; cmp rax, qword ptr [r12 + 0x668] | 주체 mem:rbp:230
+[추가창] C035 0xe96af2 add rax, rax ; mov rdx, qword ptr [rbp + 0x1a8] | 주체 mem:rbp:220
+[추가창] C037 0xfc34a3 lea r14, [r14 + r14*2] ; mov rdi, qword ptr [rsp + 0x28] | 주체 reg:r15
+[추가창] C037 0xfc349e add r14, r14 ; jmp 0x140fc34b1 | 주체 reg:r15
+[추가창] C038 0xf8310b lea rcx, [rax + rax*4] ; movabs rdx, 0xa3d70a3d70a3d70b | 주체 mem:rbp:0x480
+[추가창] C039 0xf83c29 movabs rcx, 0x20c49ba5e353f7cf ; mul rcx ; shr rdx, 9 | 주체 mem:rbp:0x480
+[추가창] C039 0xf83c3a cmp rdx, 0x19 ; mov eax, 0x19 | 주체 mem:rbp:0x480
+[추가창] C039 0xf83ca4 cmp r12, 0x3c ; mov eax, 0x3c | 주체 mem:rbp:0x480
+[추가창] C040 0xf84ee6 add rcx, 0xc350 | 주체 mem:rbp:0x230
+[추가창] C040 0xf8502c add rcx, 0xc350 | 주체 mem:rbp:0x230
+[추가창] C040 0xf85263 add rcx, 0xc350 | 주체 mem:rbp:0x230
+[추가창] C040 0xf85426 add rcx, 0xc350 | 주체 mem:rbp:0x230
+[추가창] C041 0xf841cf lea rax, [r9 + 3] ; test r9, r9 ; cmovns rax, r9 ; sar rax, 2 | 주체 mem:rbp:0x480
+[추가창] C042 0xf59d0f add rcx, 0x3c ; cmp rsi, rcx | 주체 {'kind': 'caller', 'return_off': '0x2a8', 'cases': [{'ret_rva': '0xdebe4f', 'src': 'stack:0x2a0'}, {'ret_rva': '0xdec870', 'src': 'stackmem:0x2a0:0x300'}, {'ret_rva': '0xe922b9', 'src': 'stackmem:0x2a0:0x660'}, {'ret_rva': '0xf29f96', 'src': 'stackmem:0x2a0:0xc60'}, {'ret_rva': '0xf2e42f', 'src': 'stackmem:0x2a0:0x970'}]}
+[추가창] C042 0xf5a22d adc rax, 0x3c ; cmp rsi, rax | 주체 {'kind': 'caller', 'return_off': '0x2a8', 'cases': [{'ret_rva': '0xdebe4f', 'src': 'stack:0x2a0'}, {'ret_rva': '0xdec870', 'src': 'stackmem:0x2a0:0x300'}, {'ret_rva': '0xe922b9', 'src': 'stackmem:0x2a0:0x660'}, {'ret_rva': '0xf29f96', 'src': 'stackmem:0x2a0:0xc60'}, {'ret_rva': '0xf2e42f', 'src': 'stackmem:0x2a0:0x970'}]}
+[추가창] C042 0xf6b83d add rcx, 0x3c ; cmp rbx, rcx | 주체 {'kind': 'caller', 'return_off': '0x298', 'cases': [{'ret_rva': '0xde4b40', 'src': 'stackmem:0x290:0x1e0'}, {'ret_rva': '0xde6172', 'src': 'stackmem:0x290:0x5c0'}, {'ret_rva': '0xdeb9e1', 'src': 'stackmem:0x290:0x550'}, {'ret_rva': '0xdedc0a', 'src': 'stackmem:0x290:0x4e0'}]}
+[추가창] C042 0xf6bccd adc rax, 0x3c ; cmp rbx, rax | 주체 {'kind': 'caller', 'return_off': '0x298', 'cases': [{'ret_rva': '0xde4b40', 'src': 'stackmem:0x290:0x1e0'}, {'ret_rva': '0xde6172', 'src': 'stackmem:0x290:0x5c0'}, {'ret_rva': '0xdeb9e1', 'src': 'stackmem:0x290:0x550'}, {'ret_rva': '0xdedc0a', 'src': 'stackmem:0x290:0x4e0'}]}
+[추가창] C044 0xd96619 cmp rax, 0x27 ; jbe 0x140d96503 | 주체 stackmem:0x58:0x28
+[추가창] C044 0xd96629 cmp rax, 0x27 ; jbe 0x140d96503 | 주체 stackmem:0x58:0x28
+[추가창] C045 0x100bea9 add rax, qword ptr [rbp + 0x10] ; mov rcx, 0xffffffffffffffff | 주체 mem:rbp:e0
+[추가창] C045 0x100c43e add rax, qword ptr [rbp + 0x10] ; mov rcx, 0xffffffffffffffff | 주체 mem:rbp:e0
+[추가창] C045 0x100c69f shr rcx, 1 ; add rcx, rax | 주체 mem:rbp:e0
+[추가창] C048 0xe4f75e cmp r14, 0xa ; setge al | 주체 mem:rbp:0x430
+[추가창] C048 0xe4f883 cmp r14, 0x18 ; jg 0x140e4f982 | 주체 mem:rbp:0x430
+[추가창] C048 0xe4f8c7 shl rax, 2 ; lea rax, [rax + rax*4] | 주체 mem:rbp:0x430
+[추가창] C049 0xe649d0 movabs rdx, 0x5555555555555556 ; mov rax, rdi ; imul rdx ; mov r14, rdx ; shr r14, 0x3f ; add r14, rdx | 주체 mem:rbp:0x548
+[추가창] C050 0xe5211b sub rcx, 0x1f40 | 주체 mem:rbp:0x430
+[추가창] C050 0xe531e9 add rcx, 0x7530 | 주체 mem:rbp:0x430
+[추가창] C050 0xe5427b sub rax, 0x1f40 | 주체 mem:rbp:0x430
+[추가창] C050 0xe54293 lea rax, [rdx + rsi + 0x7530] | 주체 mem:rbp:0x430
+[추가창] C050 0xe5429b lea rcx, [rdx + rsi + 0x11170] | 주체 mem:rbp:0x430
+[추가창] C050 0xe5435e mov qword ptr [rbp + 0x120], 0x5dc0 | 주체 mem:rbp:0x430
+[추가창] C050 0xe54385 mov qword ptr [rbp + 0x138], 0xbb80 | 주체 mem:rbp:0x430
+[추가창] C051 0xfd0b60 lea rcx, [rax + rax] ; shl rax, 5 ; sub rax, rcx | 주체 mem:rbp:0x190
+[추가창] C051 0xfd109b lea rcx, [rax + rax] ; shl rax, 5 ; sub rax, rcx | 주체 mem:rbp:0x190
+[추가창] C052 0xe65530 shr rdi, 1 ; xor esi, esi ; sub rax, rdi | 주체 mem:rbp:0x548
+[추가창] C053 0xe76b89 sub rsi, r14 ; add rsi, -6 | 주체 mem:rbp:0x220
+[추가창] C053 0xe0c490 lea r14, [r13 - 6] ; test al, al | 주체 mem:rbp:0xf0
+[추가창] C054 0xdeff0f lea rcx, [rdi + rdi] ; shl rdi, 5 ; sub rdi, rcx | 주체 mem:rbp:0xb8
+[추가창] C054 0xe0eaeb lea rax, [r12 + r12] ; shl r12, 5 ; sub r12, rax | 주체 mem:rbp:0x720
+[추가창] C054 0xe9522c lea rax, [rdi + rdi] ; shl rdi, 5 ; sub rdi, rax | 주체 mem:rbp:0x160
+[추가창] C055 0xe10799 inc rsi ; cmp rdi, rsi | 주체 mem:rbp:0x720
+[추가창] C056 0xf3ca61 cmp r8, 0x3d ; setge cl | 주체 {'kind': 'caller', 'return_off': '0x138', 'cases': [{'ret_rva': '0xd43da4', 'src': 'stackmem:0x130:0x1768'}]}
+[추가창] C057 0xdc299c cmp rax, 0x19 ; jb 0x140dc2b46 | 주체 mem:rbp:0x4d0
+[추가창] C057 0xdc2b40 cmp rax, 0x19 ; jae 0x140dc2bc0 | 주체 mem:rbp:0x4d0
+[추가창] C057 0xdc2da5 cmp r15, 2 ; jb 0x140dc2e1a | 주체 mem:rbp:0x4d0
+[추가창] C058 0xfe3446 lea rcx, [rcx + rcx*4] ; cmp rax, rcx | 주체 {'kind': 'cache_slot', 'cache': 'reg:r15', 'team': 'reg:rsi', 'pos': 'reg:r12', 'entity': 'reg:r13'}
+[추가창] C058 0xd7086a lea rax, [rax + rax*4] ; add rax, rax | 주체 reg:r12
+[추가창] C060 0xdc7699 add rdx, rcx ; mov rax, qword ptr [rdi + 0x1b8] | 주체 mem:rbp:0x290
+[추가창] C060 0xdc76c4 lea rcx, [rdx + rcx*4] ; cmp rcx, rax | 주체 mem:rbp:0x290
+[추가창] C060 0xdc76d8 cmp qword ptr [rdx + r9*8 + 0xbc8], 0x3c | 주체 mem:rbp:0x290
+[추가창] C060 0xdc76fa cmp rdx, 0x6ba9300 | 주체 mem:rbp:0x290
+[추가창] C061 0xd6e4e4 cmp r11, qword ptr [r9 + 0x12f8] | 주체 {'kind': 'caller', 'return_off': '0x388', 'cases': [{'ret_rva': '0xd462d8', 'src': 'mem:rbp:0x1768'}, {'ret_rva': '0xd4b129', 'src': 'mem:rbp:0x1768'}]}
+[추가창] D001 0x100a769 movabs r11, 0x490404401 | 주체 {'kind': 'caller', 'return_off': '0x148', 'cases': [{'ret_rva': '0xe2f987', 'src': 'stackmem:140:-8'}]}
+[추가창] D001 0x100a7b7 movabs rax, 0x2540be401 | 주체 {'kind': 'caller', 'return_off': '0x148', 'cases': [{'ret_rva': '0xe2f987', 'src': 'stackmem:140:-8'}]}
+[추가창] D001 0x100a717 cmp dword ptr [r15 + 0x20], 1 | 주체 {'kind': 'caller', 'return_off': '0x148', 'cases': [{'ret_rva': '0xe2f987', 'src': 'stackmem:140:-8'}]}
+[추가창] D001 0x100a7c6 cmp qword ptr [r15 + 0x10], 0xbb8 | 주체 {'kind': 'caller', 'return_off': '0x148', 'cases': [{'ret_rva': '0xe2f987', 'src': 'stackmem:140:-8'}]}
+[추가창] D002 0xea9af9 movabs rcx, 0x78b30c401 | 주체 mem:rbp:0x140
+[추가창] D002 0xea9ef1 sub rcx, 0x2bf20 | 주체 mem:rbp:0x140
+[추가창] D004 0xd3fa45 cmp rax, 0x33 ; setae al | 주체 {'kind': 'caller', 'return_off': '0x28', 'cases': [{'ret_rva': '0xd4b4d1', 'src': 'mem:rbp:0x1768'}, {'ret_rva': '0xd4b619', 'src': 'mem:rbp:0x1768'}, {'ret_rva': '0xd4b6ad', 'src': 'mem:rbp:0x1768'}]}

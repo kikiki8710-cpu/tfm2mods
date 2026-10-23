@@ -42,6 +42,7 @@ pub struct Parsed { pub applied: usize, pub warnings: Vec<String> }
 
 /// 설정 본문을 읽어 단계 값을 바꾼다(먼저 전부 정의 기본값으로 되돌린 뒤).
 pub fn apply_text(txt: &str) -> Parsed {
+    let _update=tactics::config_update();
     tactics::reset_values();
     let txt = txt.trim_start_matches('\u{feff}');
     let mut cur: Option<usize> = None;
@@ -118,6 +119,7 @@ pub fn reload_if_changed(frame: u64, force: bool) -> Vec<String> {
             log.extend(p.warnings);
         }
         Err(e) => {
+            let _update=tactics::config_update();
             tactics::reset_values();
             log.push(format!("설정 파일 읽기 실패({e}) — 정의 기본값 사용"));
         }

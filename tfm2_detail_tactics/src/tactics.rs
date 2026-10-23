@@ -6,6 +6,17 @@
 //!   · 적용 장치 → `value_for(tactic, athlete_id, pos)` — None 이면 원본 그대로.
 //! 모든 상태는 원자 변수라 어느 스레드(시뮬 스레드 포함)에서 읽어도 된다. 락·할당 없음.
 use std::sync::atomic::{AtomicBool, AtomicI64, AtomicU32, AtomicU64, AtomicU8, Ordering::Relaxed};
+use std::sync::{Mutex,MutexGuard,atomic::Ordering::{Acquire,AcqRel,Release}};
+static CONFIG_WRITE:Mutex<()>=Mutex::new(());
+static CONFIG_REV:AtomicU32=AtomicU32::new(0);
+pub struct ConfigUpdate(MutexGuard<'static,()>);
+pub fn config_update()->ConfigUpdate{
+    let guard=CONFIG_WRITE.lock().unwrap_or_else(|e|e.into_inner());
+    CONFIG_REV.fetch_add(1,AcqRel);ConfigUpdate(guard)
+}
+impl Drop for ConfigUpdate{fn drop(&mut self){CONFIG_REV.fetch_add(1,Release);}}
+pub fn config_revision()->Option<u32>{let v=CONFIG_REV.load(Acquire);(v&1==0).then_some(v)}
+pub fn config_unchanged(v:u32)->bool{CONFIG_REV.load(Acquire)==v}
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Scope {
@@ -92,9 +103,67 @@ pub static TACTICS: &[TacticDef] = &[
     v("base_defense_hold_dmg_ratio", "base_defense_hold_dmg_ratio_49", "기지 방어 피해율 문턱(%)", "받는 피해율이 이 값을 넘으면 체력과 무관하게 위험으로 본다", P, 49, 30, 70, 0, 127),
     // ── 궁극기
     v("lowhp_ult_bonus_low", "lowhp_ult_bonus_low_14", "저체력 궁극기 가산점", "체력 45% 미만일 때 궁극기 사용 점수에 더하는 값", P, 14, 5, 40, 0, 127),
+    // BEGIN GENERATED EXTRAS — tools/gen_extras.py
+    v("gank_call_rng","extra_c001","갱 콜 수락 난수","음수 평가일 때만 적용합니다. 높을수록 콜 수락이 까다롭습니다.",P,350,250,450,0,999),
+    v("pickoff_hp_bands","extra_c002","픽오프 저체력 기준(%)","하단 체력 문턱과 그보다20 높은 문턱을 함께 조절한다. 높을수록 체력 있는 적도 우선한다",P,61,41,71,1,80),
+    v("structure_retreat_keep_hp","extra_c003","구조물 공격 중 후퇴 유지 체력(%)","추적 중 적 구조물을 공격하며 이미 후퇴 요청이 있을 때, 이 체력 이하면 후퇴 요청을 유지한다",P,65,50,80,0,100),
+    v("pre_gank_engage_profile","extra_c004","갱 도착 전 라인 선공","100이 원본 HP35·거리200000입니다. 높을수록 선공 허용 범위가 넓습니다.",P,100,80,120,50,150),
+    v("gank_travel_deadline","extra_c005","정글 갱 이동 기한","정글 갱 계획 기한과 이동시간 승인 문턱에 같은 초를 사용합니다.",P,12,8,16,2,30),
+    v("battle_call_response_seconds","extra_c006","교전 콜 응답 시간","도착 승인과 진단의 응답 초를 맞춥니다. 별도 궁극기6초 하한은 유지합니다.",P,5,3,7,1,15),
+    v("objective_power_allowance","extra_c007","오브젝트 전력 보완값","아군 체력 합에 더하는 여유. 높게 하면 진입 조건을 완화한다",P,200,100,300,0,1000),
+    v("same_lane_gank_retry_seconds","extra_c008","같은 라인 갱 재시도","동일 라인 재시도를 막는 추가 초입니다. 통계용 기록 시간은 유지합니다.",P,10,6,14,1,30),
+    v("chase_speed_ratio","extra_c010","추격 속도비 기준(10분율)","적 이동속도×10과 내 속도×이 값을 비교한다. 낮을수록 속도 차이로 추격을 멈추기 쉽다",P,9,7,11,1,20),
+    v("tower_tank_hits","extra_c011","타워 탱킹 필요 체력(타)","타워 피해를 이 횟수만큼 견딜 체력이 있는 아군을 탱킹 후보로 고른다. 팀 공통이며 낮을수록 위험을 감수한다",T,3,2,4,1,10),
+    v("kill_bonus_cap","extra_c013","처치 가산점 상한","적을 처치할 가능성의 가산점 상한. 높을수록 마무리 공격·기술을 우선한다",P,100,50,150,0,1000),
+    v("ally_spacing_radius","extra_c014","아군 간격 반경","가까운 아군끼리 벌어지는 반경. 높을수록 서로 넓게 선다",P,48000,32000,60000,1000,65535),
+    v("near_ally_link_margin","extra_c015","근접 아군 연계 거리 여유","아군의 공격 범위 밖에서도 연계할 수 있다고 인정하는 거리 여유. 높을수록 넓게 합을 맞춘다",P,30000,15000,60000,0,300000),
+    v("line_defense_approval_profile","extra_c016","라인 방어 승인 신중도","100이 위험35·장기점수25·단기점수10입니다. 높을수록 승인이 까다롭습니다.",P,100,80,120,50,150),
+    v("base_battle_call_range","extra_c017","기지 교전 콜 허용 폭","1000범위 난수의 허용 폭입니다. 기지 지원 계획 자체의 승인과는 별개입니다.",P,650,500,800,1,1000),
+    v("shared_battle_role_markers","extra_c018","교전 참조 역할 표시수","양팀 도착 역할 표시의 합 문턱입니다. 같은 팀 투표 인원 수가 아닙니다.",P,2,1,3,1,5),
+    v("basic_trade_hp_divisor","extra_c019","기본공격 교환 체력 여유(분모)","내 최대 체력/이 값과 적 기본공격 피해를 합친 체력보다 높을 때 안전하다고 본다. 높을수록 교환에 적극적",P,4,2,8,1,32),
+    v("support_cap_multiplier","extra_c020","회복·실드 평가 허용 배수","회복은 잃은 체력+피해평가×이 값, 실드는 피해평가×(이 값+1)까지 가치로 센다. 실제 회복·실드량은 바꾸지 않는다",P,2,1,4,0,10),
+    v("buff_arrival_value_seconds","extra_c021","지원 기술 도착 가치 기간(초)","도착이 늦는 지원 기술의 가치를 이 기간에 걸쳐 낮춘다. 높을수록 늦게 도착해도 높게 평가한다",P,6,3,10,1,30),
+    v("push_start_base","extra_c022","푸시 개시 기본 점수","능력치 보정 전 개시 문턱. 높게 하면 더 높은 점수를 요구한다",P,130,110,150,0,1000),
+    v("other_lane_collapse_profile","extra_c023","다른 라인 붕괴 경계","다른 라인 지표와 단계 문턱을 함께 조절. 높게 하면 일찍 푸시를 포기한다",P,100,75,125,50,150),
+    v("gank_reevaluate_seconds","extra_c025","정글 갱 재평가 간격","이 초보다 짧은 간격의 재평가는 원래처럼 보류합니다.",P,3,2,5,1,15),
+    v("gank_candidate_margin","extra_c026","갱 후보 인원 여유","내 편 후보가 있을 때 허용할 상대 후보 수의 추가 여유입니다.",P,1,0,2,0,4),
+    v("ambush_engage_radius","extra_c027","매복 교전 대상 반경","매복 판단 중 적 후보를 살피는 반경. 시야·최근 관측 조건은 유지한다",P,250000,200000,300000,1000,2000000),
+    v("objective_lane_pressure_profile","extra_c028","오브젝트 전 라인 압박 문턱","라인 단계·지표·인원 문턱을 함께 조절. 높게 하면 라인 압박 후보를 넓힌다",P,100,50,150,50,150),
+    v("roam_retry_extra_seconds","extra_c029","로밍 재시도 추가 간격","원래 기본 간격에 추가되는 초입니다. 마지막 로밍 기록이 없으면 우회합니다.",P,10,6,14,1,30),
+    v("defense_leave_hp","extra_c030","방어 계획 이탈 체력(%)","일반 방어 체력 문턱. 위협 경로는 이 값보다10 낮게 적용한다",P,31,21,41,11,100),
+    v("structure_skill_bonus","extra_c031","구조물 기술 후보 가산","넥서스 공격 계획에서 종류4 구조물을 겨냥한 첫 두 기술 점수에만 가산",P,3,0,6,0,100),
+    v("epic_final_allies_min","extra_c032","에픽 최종 아군 인원 문턱","지터 보정 후 인원 문턱. 상대 보정값0 예외와 선승인은 유지한다",P,3,2,4,0,5),
+    v("boss_respawn_wait_seconds","extra_c033","보스 리스폰 대기(초)","현재 보스가 없을 때 남은 리스폰 시간이 이 값보다 크면 계획을 끝낸다",P,15,10,20,1,120),
+    v("boss_reposition_improvement","extra_c034","보스 사냥 재배치 개선값","국소 재배치에 요구하는 점수 개선. 기존 거리 대체조건은 유지한다",P,8,4,12,0,1000),
+    v("boss_poke_damage_factor","extra_c035","보스 견제 예상피해 가중치","예상피해를 체력과 비교하는 배수. 높게 하면 위험 판단이 보수적이다",P,2,1,3,1,10),
+    v("active_recall_slack_profile","extra_c037","마무리 전략의 귀환 종료 여유(초)","현재 전략0은 선택 초, 전략1은1초 적게 적용. 큰 계획 종료 판단만 조절한다",P,3,2,4,1,30),
+    v("position_isolation_risk_percent","extra_c038","고립 위치 위험 가산(%)","주변 아군 없이 적이2명 이상일 때의 위치 위험 가산. 높을수록 혼자 들어가는 위치를 피한다",P,25,10,50,0,1000),
+    v("front_ally_risk_scale","extra_c039","튼튼한 아군보다 앞섬 억제(%)","튼튼한 아군보다 앞선 위치의 위험 점수와 두 상한을 함께 비례 조정한다. 높을수록 아군 뒤에 서려 한다",P,100,50,150,1,400),
+    v("battle_skill_safety_margin","extra_c040","교전 기술 안전 거리 여유","추격·교전에서 기술 범위에 더하는 안전 여유. 높을수록 더 떨어진 위치를 안전하다고 본다. 시야 밖 상한은 원래 규칙 유지",P,50000,25000,75000,0,300000),
+    v("wave_position_risk_divisor","extra_c041","라인 웨이브 위치 위험 할인(분모)","원래 웨이브 안전 조건을 만족할 때 위치 위험을 이 값으로 나눈다. 높을수록 웨이브 주변을 덜 위험하게 본다",P,4,2,8,1,32),
+    v("movement_skill_period_margin","extra_c042","이동기 절약 보행 여유(업데이트)","이동기 절약 모드에서 보행 시간과 기술 주기를 비교할 때 더하는 여유. 초 단위가 아니며 높을수록 이동기를 아낀다",P,60,30,90,0,600),
+    v("early_gank_target_min_hp","extra_c044","조기 갱 대상 최소 체력","조기 갱 대상으로 검토할 적의 최소 체력입니다. 저체력 선호 설정과 다릅니다.",P,40,30,50,1,90),
+    v("camp_time_margin_profile","extra_c045","캠프 경쟁 시간 여유(%)","생존 여유1초와 상대 처리시간 비교의 반초 여유를 같은 비율로 조절한다",P,100,50,150,0,300),
+    v("battle_risk_retreat_threshold","extra_c048","교전 위험 후퇴 문턱","위치 위험 K/2.4K와 직접 피해평가 비율2K를 함께 조정한다. 낮을수록 작은 위험에도 후퇴한다",P,10,5,15,1,50),
+    v("unseen_self_risk_divisor","extra_c049","시야 밖 자기 위험 할인(분모)","적 시야에 잡히지 않을 때 기본 자기위험을 이 값으로 나눈다. 다른 위험 가산은 유지하며 높을수록 은폐를 믿는다",P,3,2,6,1,32),
+    v("battle_reposition_distance_scale","extra_c050","교전 재배치 거리 폭(%)","적·자기 중심의 재배치 후보 거리5개를 비례 조정한다. 높을수록 넓은 거리대에서 위치를 찾는다",P,100,75,125,25,200),
+    v("candidate_move_budget_margin","extra_c051","공격·기술 후보 탐색 이동 여유","기본 공격·첫 두 기술의 후보 수집에 이동 예산×이 값을 더한다. 실제 기술 사거리·효과 상한은 유지하며 초 단위가 아니다",P,30,15,60,0,120),
+    v("forward_damage_credit_percent","extra_c052","전진 후 피해 상쇄 비율(%)","이동 후 위험에서 현재 위치 피해의 이 비율을 빼고0하한을 적용한다. 높을수록 전진을 덜 위험하게 본다",P,50,25,75,0,100),
+    v("battle_move_candidate_penalty","extra_c053","교전 중 이동후보 감점","원래 조건을 만족한 이동후보에만 주는 감점. 높을수록 공격·기술에 비해 이동후보를 덜 고른다",P,6,0,12,0,1000),
+    v("lane_attack_move_allowance","extra_c054","라인 공격 접근 여유","자기 이동 예산에 곱할 접근 여유입니다. 높을수록 먼 공격 후보도 검토합니다.",P,30,20,40,0,60),
+    v("lane_defense_support_margin","extra_c055","라인 방어 지원 인원 여유","주변 다른 아군 수에 더할 지원 여유입니다. 원래 능력 조건도 필요합니다.",P,1,0,2,0,4),
+    v("lane_exchange_advantage_ticks","extra_c056","라인 교환 시간 우위","최종 라인 후보의 교환 시간차 문턱입니다. 업데이트 틱이며 별도 인원 우회는 유지합니다.",P,61,41,81,1,180),
+    v("lane_superiority_profile","extra_c057","라인 수적우세 확정 신중도","낮게:담당HP20·1명, 기본:25·2명, 높게:30·3명. 팀 공통 정책입니다.",T,1,0,2,0,2),
+    v("lane_call_travel_seconds","extra_c058","라인 갱 콜 이동 상한","콜 응답 이동비용 상한과 수락 계획 기한에 같은 초를 적용합니다.",P,10,6,14,2,30),
+    v("mia_notice_caution_profile","extra_c060","실종 알림 신중도","100이 대기1·4초/기억HP60/거리170000입니다. 높을수록 오래 기다리고 엄격히 선별합니다.",P,100,80,120,50,150),
+    v("relay_undying_limit_centiseconds","extra_c061","운영 신호 불사 잔여 허용","100이 원본1초입니다. 0.01초 단위의 불사 잔여 문턱이며 통과 후 기존 계획을 해제합니다.",P,100,50,150,1,300),
+    v("gank_lane_tower_wave_profile","extra_d001","갱 후보 포탑·웨이브 경계","포탑 반경·미니언 차이·웨이브 위치 필터를 함께 조절. 높게 하면 보수적이다",P,100,75,125,50,150),
+    v("lane_wait_front_minion_distance","extra_d002","선두 아군 미니언 대기 거리","아군 선두 미니언 기준 접근 검사와 뒤로 물러날 거리 계산에 같은 거리를 사용합니다.",P,180000,150000,210000,50000,300000),
+    v("support_roam_adc_min_hp","extra_d004","서폿 로밍 원딜 최소 체력","알려진 서폿 로밍 세 경로에서 같은 팀 원딜 체력을 검사하는 문턱입니다.",P,51,40,65,1,95),
+    // END GENERATED EXTRAS
 ];
 
-pub const N: usize = 32;
+pub const N: usize = 88;
 const _: () = assert!(TACTICS.len() == N);
 
 /// 단계: 0 기본(원본) · 1 낮게(켬·끔이면 끔) · 2 높게.
@@ -203,6 +272,7 @@ pub fn state_text() -> String {
 }
 /// 반환 = 읽은 전술 수. 모르는 id·잘못된 줄은 건너뛴다(다음 버전 호환).
 pub fn apply_state_text(txt: &str) -> usize {
+    let _update=config_update();
     clear_levels();
     let mut n = 0;
     for line in txt.lines() {
@@ -220,6 +290,15 @@ pub fn apply_state_text(txt: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]fn all_88_saved_ids_roundtrip_and_config_revision_rejects_partial_update(){
+        clear_levels();let revision=config_revision().unwrap();
+        {let _update=config_update();assert!(config_revision().is_none());
+         for t in 0..N{for col in 0..6{set_level(t,col,LV_LOW);}}}
+        assert!(!config_unchanged(revision));
+        let txt=state_text();assert_eq!(apply_state_text(&txt),88);
+        for t in 0..N{for col in 0..6{assert_eq!(level(t,col),LV_LOW);}}
+        clear_levels();
+    }
     #[test]
     fn table_is_consistent() {
         for d in TACTICS {
