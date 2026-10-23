@@ -11,6 +11,18 @@ const PARENT:&str="main.contents.strategy";
 static EDIT:Mutex<Editor>=Mutex::new(Editor{open:false,page:0,draft:[[0;6];tactics::N],dirty:true,dropdown:None});
 static DROPDOWN_OPEN:AtomicBool=AtomicBool::new(false);
 const ITEM_IDS:[&str;3]=["lv0","lv1","lv2"];
+// UI 전용 칸. 저장·적용은 기존 원딜(3), 서폿(4) 슬롯을 그대로 쓴다.
+const COL_DUO:usize=6;
+fn cell_id(row:usize,col:usize)->String{match col{5=>format!("team{row}"),COL_DUO=>format!("duo{row}"),_=>format!("c{row}_{col}")}}
+fn cell_bounds(col:usize)->(usize,usize){match col{5=>(690,990),COL_DUO=>(1290,390),_=>(690+col*200,190)}}
+fn cell_visible(t:usize,col:usize)->bool{
+    let d=&tactics::TACTICS[t];
+    if d.id=="bot_duo_partner"{col==COL_DUO}else if d.scope==Scope::Team{col==5}else{col<5}
+}
+fn cell_level(e:&Editor,t:usize,col:usize)->Option<u8>{
+    if col==COL_DUO{(e.draft[t][3]==e.draft[t][4]).then_some(e.draft[t][3])}else{Some(e.draft[t][col])}
+}
+fn cell_choice(t:usize,lv:Option<u8>)->String{lv.map(|lv|choice(t,lv)).unwrap_or_else(||"서로 다름 · 다시 선택".into())}
 fn close_dropdown(e:&mut Editor){e.dropdown=None;DROPDOWN_OPEN.store(false,Relaxed);}
 static FIRED:Mutex<Option<std::collections::HashMap<String,u64>>>=Mutex::new(None);
 fn text(ctx:&mut StableClient<'_>,p:&str,s:&str){if ctx.ui_text(p).as_deref()!=Some(s){ctx.ui_set_text(p,s);}}
@@ -33,6 +45,7 @@ fn source()->String{
         s+=&label(&format!("desc{row}"),30,y+30,640,44,14,"");
         for col in 0..5{s+=&dd::button_source(&format!("c{row}_{col}"),(690+col*200)as i32,(y+12)as i32,190,38,"",16);}
         s+=&dd::button_source(&format!("team{row}"),690,(y+12)as i32,990,38,"",16);
+        s+=&dd::button_source(&format!("duo{row}"),1290,(y+12)as i32,390,38,"",16);
     }
     s+=&button("previous",30,862,120,"이전");s+=&button("next",310,862,120,"다음");
     s+=&label("page",165,862,135,38,18,"");
@@ -64,13 +77,12 @@ fn register_popup(ctx:&mut StableClient<'_>){
     register(ctx,"previous",||{let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());close_dropdown(&mut e);e.page=e.page.saturating_sub(1);e.dirty=true;});
     register(ctx,"next",||{let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());close_dropdown(&mut e);e.page=(e.page+1).min((tactics::N-1)/ROWS);e.dirty=true;});
     register(ctx,"reset",||{let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());close_dropdown(&mut e);e.draft=[[0;6];tactics::N];e.dirty=true;});
-    for row in 0..ROWS{for col in 0..6{
-        let id=if col==5{format!("team{row}")}else{format!("c{row}_{col}")};
+    for row in 0..ROWS{for col in 0..=COL_DUO{
+        let id=cell_id(row,col);
         register(ctx,&id,move||{
             let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());let t=e.page*ROWS+row;
             if !e.open||t>=tactics::N||tactics::status(t)!=tactics::ST_ACTIVE{return;}
-            let d=&tactics::TACTICS[t];
-            if (d.scope==Scope::Team)!=(col==5){return;}
+            if !cell_visible(t,col){return;}
             if e.dropdown==Some((row,col))&&DROPDOWN_OPEN.load(Relaxed){close_dropdown(&mut e);}else{e.dropdown=Some((row,col));DROPDOWN_OPEN.store(true,Relaxed);}
             e.dirty=true;
         });
@@ -80,7 +92,9 @@ fn register_popup(ctx:&mut StableClient<'_>){
         let Some((row,col))=e.dropdown else{return;};let t=e.page*ROWS+row;
         if !e.open||!DROPDOWN_OPEN.load(Relaxed)||t>=tactics::N||tactics::status(t)!=tactics::ST_ACTIVE{return;}
         if lv>=if tactics::TACTICS[t].kind==Kind::Toggle{2}else{3}{return;}
-        e.draft[t][col]=lv as u8;close_dropdown(&mut e);e.dirty=true;
+        if !cell_visible(t,col){return;}
+        if col==COL_DUO{e.draft[t][3]=lv as u8;e.draft[t][4]=lv as u8;}else{e.draft[t][col]=lv as u8;}
+        close_dropdown(&mut e);e.dirty=true;
     });}
 }
 fn choice(t:usize,lv:u8)->String {
@@ -110,17 +124,18 @@ pub fn tick(ctx:&mut StableClient<'_>,frame:u64){
     let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());
     if let Some((row,col))=e.dropdown{
         let t=e.page*ROWS+row;let count=if tactics::TACTICS[t].kind==Kind::Toggle{2}else{3};
-        let btn=format!("{POP}.{}",if col==5{format!("team{row}")}else{format!("c{row}_{col}")});
+        let btn=format!("{POP}.{}",cell_id(row,col));
         let list=format!("{POP}.choices");
         if e.dirty{
-            let x=690+if col==5{0}else{col*200};let w=if col==5{990}else{190};
+            let(x,w)=cell_bounds(col);
             let by=194+row*82;let h=count*38;let y=if by+40+h>850{by-h-2}else{by+40};
             ctx.ui_set_properties(&list,&format!("x:{x}px; y:{y}px; width:{w}px; height:{h}px;"));
             for(lv,id)in ITEM_IDS.iter().enumerate(){let p=format!("{list}.{id}");ctx.ui_set_visible(&p,lv<count);
                 ctx.ui_set_properties(&p,&format!("width:{w}px;"));ctx.ui_set_properties(&format!("{p}.label"),&format!("width:{}px;",w-54));
                 text(ctx,&format!("{p}.label"),&choice(t,lv as u8));}
         }
-        let edge=dd::click_edge();dd::tick(ctx,&btn,&list,&ITEM_IDS[..count],&DROPDOWN_OPEN,e.draft[t][col]as usize,&choice(t,e.draft[t][col]),edge);
+        let lv=cell_level(&e,t,col);
+        let edge=dd::click_edge();dd::tick(ctx,&btn,&list,&ITEM_IDS[..count],&DROPDOWN_OPEN,lv.map(usize::from).unwrap_or(usize::MAX),&cell_choice(t,lv),edge);
         if !DROPDOWN_OPEN.load(Relaxed){e.dropdown=None;}
     }else{ctx.ui_set_visible(&format!("{POP}.choices"),false);let _=dd::click_edge();}
     if !e.dirty&&frame%120!=0{return;}e.dirty=false;
@@ -131,14 +146,14 @@ pub fn tick(ctx:&mut StableClient<'_>,frame:u64){
         let st=tactics::status(t);let suffix=match st{tactics::ST_ACTIVE=>"",tactics::ST_UNSUPPORTED=>" · 이번 버전 미지원",tactics::ST_FAILED=>" · 설치 실패(원본 유지)",_=>" · 준비 중"};
         text(ctx,&format!("{POP}.name{row}"),&format!("{}{suffix}",d.name));
         text(ctx,&format!("{POP}.desc{row}"),d.desc);
-        for col in 0..6{
-            let id=if col==5{format!("team{row}")}else{format!("c{row}_{col}")};let path=format!("{POP}.{id}");
-            let show=(d.scope==Scope::Team)==(col==5);
+        for col in 0..=COL_DUO{
+            let id=cell_id(row,col);let path=format!("{POP}.{id}");
+            let show=cell_visible(t,col);
             if ctx.ui_visible(&path)!=Some(show){ctx.ui_set_visible(&path,show);}
             if !show{continue;}
-            let lv=e.draft[t][col];let title=if st!=tactics::ST_ACTIVE{"원본 유지".into()}else{choice(t,lv)};
+            let lv=cell_level(&e,t,col);let title=if st!=tactics::ST_ACTIVE{"원본 유지".into()}else{cell_choice(t,lv)};
             text(ctx,&format!("{path}.label"),&title);
-            let bg=if st!=tactics::ST_ACTIVE{"#292b33ff"}else{match lv{1=>"#274555ff",2=>"#60452bff",_=>"#30343fff"}};
+            let bg=if st!=tactics::ST_ACTIVE{"#292b33ff"}else{match lv{Some(1)=>"#274555ff",Some(2)=>"#60452bff",_=>"#30343fff"}};
             ctx.ui_set_properties(&path,&format!("btn: {{color:{bg}; back_color:{bg};}}"));
         }
     }
