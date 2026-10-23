@@ -101,19 +101,31 @@ def parse_tactics_order():
     return {knob: i for i, (_id, knob) in enumerate(order)}, [k for _i, k in order]
 
 
-def parse_src(s):
+def parse_src(s, caller_depth=0):
     if s is None:
         return "Src::None"
     if isinstance(s, dict) and s.get("kind") == "cache_player":
         return f"Src::CachePlayer {{ operation: {REGS.index(s['operation'])}, entity: {REGS.index(s['entity'])}, team_stack: {int(s['team_stack'],16):#x} }}"
+    if isinstance(s, dict) and s.get("kind") == "cache_slot":
+        fields=[]
+        for field in ('cache','team','pos','entity'):
+            val=s.get(field)
+            if isinstance(val,dict):
+                raise SystemExit("cache_slot은 scalar source만 허용")
+            if field!='entity' and val is None:
+                raise SystemExit(f"cache_slot {field} 누락")
+            fields.append(f"{field}: &{parse_src(val)}")
+        return f"Src::CacheSlot {{ {', '.join(fields)} }}"
     if isinstance(s, dict) and s.get("kind") == "caller":
+        if caller_depth>=2:
+            raise SystemExit("caller source는 최대2단계")
         cases = []
         for case in s["cases"]:
-            if isinstance(case["src"], dict):
-                raise SystemExit("caller 주체 중첩 거절")
-            cases.append(f"Caller {{ ret_rva: {int(case['ret_rva'], 16):#x}, src: {parse_src(case['src'])} }}")
+            cases.append(f"Caller {{ ret_rva: {int(case['ret_rva'], 16):#x}, src: {parse_src(case['src'],caller_depth+1)} }}")
         return f"Src::Caller({int(s['return_off'], 16):#x}, &[{', '.join(cases)}])"
     p = s.split(":")
+    if p[0] == "const":
+        return f"Src::Const({int(p[1],0):#x})"
     if p[0] == "reg":
         return f"Src::Reg({REGS.index(p[1])})"
     if p[0] == "stack":
@@ -122,6 +134,8 @@ def parse_src(s):
         return f"Src::Mem({REGS.index(p[1])}, {int(p[2], 16):#x})"
     if p[0] == "stackmem":
         return f"Src::StackMem({int(p[1], 16):#x}, {int(p[2], 16):#x})"
+    if p[0] == "mem2":
+        return f"Src::Mem2({REGS.index(p[1])}, {int(p[2],16):#x}, {int(p[3],16):#x})"
     raise SystemExit(f"알 수 없는 src 형식: {s}")
 
 
@@ -147,6 +161,11 @@ def tf_of(s):
     m = re.match(r"'v',\s*(-?\d+)", s)
     if m:
         return ("v", int(m.group(1)))
+    if s.startswith("'toggle'"):
+        m = re.fullmatch(r"'toggle',\s*b'\\x([0-9a-fA-F]{2})',\s*b'\\x([0-9a-fA-F]{2})'", s)
+        if not m:
+            raise ValueError(f"invalid branch toggle: {s}")
+        return ("toggle", (int(m[1], 16), int(m[2], 16)))
     return ("other", s)
 
 
@@ -229,11 +248,23 @@ def main():
             continue
         tbv = subj.get("toggle_by_value", {}).get(kid)
         for s in k["sites"]:
-            rva = int(s["rva"], 16)
-            code = pe.read(rva, 64)
-            insns = list(md.disasm(code, 0x140000000 + rva))
-            first = insns[0]
+            value_rva = int(s["rva"], 16)
+            sj = subj["sites"][s["rva"]]
+            rva=int(sj.get('patch_start',s['rva']),16)
+            insns = list(md.disasm(pe.read(rva,64),0x140000000+rva))
+            prefix_len=value_rva-rva
+            first=next((i for i in insns if i.address==0x140000000+value_rva),None)
+            if first is None or prefix_len<0:
+                raise SystemExit(f"{kid}: immediate is not on a patch instruction boundary")
+            prefix=b''.join(bytes(i.bytes) for i in insns if i.address<first.address)
+            if prefix_len:
+                # e3f의 공통 후속 e43은 다른 경로도 진입한다. 검증된 xor2B를
+                # 앞에 포함하면 cmp4B 뒤의 공유 명령은 창 밖에 남는다.
+                if prefix!=bytes.fromhex(sj.get('prefix_hex','')) or prefix!=b'\x31\xd2':
+                    raise SystemExit(f"{kid}: only the verified xor edx,edx prefix is supported")
             asm = f"{first.mnemonic} {first.op_str}".strip()
+            if first.group(CS_GRP_JUMP) and first.operands and first.operands[0].type==X86_OP_IMM:
+                asm=f"{first.mnemonic} {first.operands[0].imm-0x140000000:#x}"
             if asm != s["asm"]:
                 raise SystemExit(f"{kid} {s['rva']}: asm 불일치 '{asm}' != '{s['asm']}'")
             tf = tf_of(s["tf"])
@@ -241,7 +272,7 @@ def main():
                 raise SystemExit(f"{kid} {s['rva']}: 지원하지 않는 변환 {s['tf']}")
             imm_at, width = s["imm_at"], s["width"]
             cur = int.from_bytes(first.bytes[imm_at:imm_at + width], "little")
-            exp = (k["default"] + tf[1]) if tf[0] == "v" else k["default"] ** 2 + 1
+            exp = (k["default"] + tf[1]) if tf[0] == "v" else (tf[1][0] if tf[0] == "toggle" else k["default"] ** 2 + 1)
             if cur != exp:
                 raise SystemExit(f"{kid} {s['rva']}: 즉치 {cur} != 기본값 변환 {exp}")
             # 창
@@ -249,7 +280,7 @@ def main():
             for ins in insns:
                 win.append(ins)
                 ln += ins.size
-                if ln >= 5:
+                if ln >= max(5,prefix_len+first.size):
                     break
             branches, fields = [], []
             off = 0
@@ -271,11 +302,16 @@ def main():
             lim = imm_limit(first, imm_at, width)
             if tf[0] == "sq1":
                 tfrs = "Tf::Sq1"
+            elif tf[0] == "toggle":
+                on, off = tf[1]
+                if first.mnemonic not in JCC or first.size != 2 or off != 0xeb or on != (0x70 | JCC[first.mnemonic]):
+                    raise SystemExit(f"{kid}: toggle must be a verified short Jcc -> JMP")
+                tfrs = f"Tf::Map {{ on: {on}, off: {off} }}"
             elif tbv:
                 tfrs = f"Tf::Map {{ on: {tbv['on']}, off: {tbv['off']} }}"
             else:
                 tfrs = f"Tf::Add({tf[1]})"
-            fields.append(f"Field {{ off: {imm_at}, width: {width}, tf: {tfrs}, max: {lim} }}")
+            fields.append(f"Field {{ off: {prefix_len+imm_at}, width: {width}, tf: {tfrs}, max: {lim} }}")
             interior = set(range(rva + 1, rva + len(winbytes)))
             fn = find_func(starts, ends, rva)
             if fn is None:
@@ -311,10 +347,9 @@ def main():
                 raise SystemExit(f"{kid} {s['rva']}: 창 안으로 분기 {sorted(hex(h) for h in hit)} (함수 {fn[0]:#x})")
             for h in interior:
                 interior_all[h] = (kid, s["rva"])
-            sj = subj["sites"][s["rva"]]
             patches.append(dict(name=f"{kid}@{s['rva']}", tactic=t, rva=rva, win=winbytes, fields=fields,
                                 branches=branches, src=parse_src(sj["src"]), chk=parse_src(sj.get("team_chk")),
-                                asm=asm, func=fn[0], first_len=first.size, dynamic=dynamic_instruction(first)))
+                                asm=asm, func=fn[0], first_len=prefix_len+first.size, dynamic=b"" if tf[0] == "toggle" else prefix+dynamic_instruction(first)))
             log.append(f"[창] {kid} {s['rva']} len={len(winbytes)} {' ; '.join(f'{i.mnemonic} {i.op_str}' for i in win)}"
                        f" | 함수 {fn[0]:#x} | 주체 {sj['src']}")
     # ③ .text 전체 rel32 패턴

@@ -37,6 +37,10 @@ for index,row in enumerate(rows):
         for seed in range(12):
             rng=random.Random(seed*1777+index)
             regs=[rng.getrandbits(64) for _ in REGS];regs[4]=RSP;regs[5]=RBP
+            # 갱 토글 창의 fallthrough는 [rsi+0x30]에 종료 플래그를 쓴다.
+            # 실제 메모리 쓰기도 원본/동적/전체 스텁 사이에서 대조한다.
+            if row['name'].startswith('gank_abort_tower_reason9'):
+                regs[6]=STACK+0x12000
             flags=0x202|(rng.getrandbits(12)&0x8d5) # defined arithmetic bits + DF
             memory=rng.randbytes(0x20000)
             xmm=[rng.getrandbits(128) for _ in range(16)]
@@ -49,17 +53,25 @@ for index,row in enumerate(rows):
                 u.reg_write(UC_X86_REG_EFLAGS,flags)
                 ref=bytearray(row['original'])
                 if mode!='fallback':
-                    off=row['field_off'];w=row['field_width'];ref[off:off+w]=value.to_bytes(w,'little')
+                    toggle=row.get('branch_toggle')
+                    if toggle:
+                        assert value in (toggle['on'],toggle['off'])
+                        if value==toggle['off']:
+                            ref=bytearray(b'\xff\x25\0\0\0\0'+struct.pack('<Q',toggle['target']))
+                    else:
+                        off=row['field_off'];w=row['field_width'];ref[off:off+w]=value.to_bytes(w,'little')
                 u.mem_write(CODE,bytes(ref));u.mem_write(DYNAMIC,bytes(row['dynamic']));u.mem_write(STUB,bytes(row['stub']))
                 for lo in (CODE,STUB,DYNAMIC):u.ctl_remove_cache(lo,lo+0x10000)
                 start={'reference':CODE,'dynamic':DYNAMIC,'stub':STUB,'fallback':STUB}[mode]
                 u.emu_start(start,0,count=300)
                 assert state['exit'] is not None,('no exit',row['name'],mode)
-                return ([u.reg_read(r) for r in REGS],u.reg_read(UC_X86_REG_EFLAGS),[u.reg_read(UC_X86_REG_XMM0+n) for n in range(16)],state['exit'])
+                return ([u.reg_read(r) for r in REGS],u.reg_read(UC_X86_REG_EFLAGS),[u.reg_read(UC_X86_REG_XMM0+n) for n in range(16)],state['exit'],bytes(u.mem_read(STACK+0x12000,0x100)))
             ref=run('reference')
             mask=0xcd5
             # IMUL defines CF/OF; PF/AF/ZF/SF are undefined.
             if row['win'][1:2]==[0x6b]:mask=0xc01
+            # XOR는 AF를 정의하지 않는다(끔 경로는 원래 flags를 보존).
+            if row['name'].startswith('bot_duo_partner_required'):mask &= ~0x10
             for mode in ['dynamic','stub']:
                 got=run(mode)
                 assert got[0]==ref[0],(row['name'],value,seed,mode,'GPR',[(i,hex(x),hex(y))for i,(x,y)in enumerate(zip(got[0],ref[0]))if x!=y])

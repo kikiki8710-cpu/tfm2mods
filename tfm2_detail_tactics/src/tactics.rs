@@ -73,7 +73,7 @@ pub static TACTICS: &[TacticDef] = &[
     v("jungle_stop_hp", "jungle_stop_hp_41", "정글링·로밍 중단 체력(%)", "체력이 이 값 아래면 정글링(로밍 중 포함)을 멈춘다", P, 41, 31, 55, 30, 127),
     v("minion_damage_ratio", "minion_damage_ratio_49", "미니언 피해 민감도(%)", "미니언 예상 피해율이 이 값을 넘으면 위험으로 본다. 낮을수록 조심", P, 49, 39, 65, 39, 127),
     // ── 라인 운영·로밍
-    v("lane_assign_hp", "lane_assign_hp_30", "라인 배정 체력(%)", "이 체력 미만인 팀원은 라인 배정 후보에서 뺀다", P, 30, 15, 50, 0, 127),
+    v("lane_assign_hp", "lane_assign_hp_30", "라인 배정 체력(%)", "탑·미드·원딜 후보 체력 기준. 정글·서폿은 원본 규칙상 제외", P, 30, 15, 50, 0, 127),
     v("lane_opportunity_own_min", "lane_opportunity_own_min_2", "라인 기회 — 건강 아군 최소(명)", "라인 영역에 건강한 아군이 이만큼 있어야 기회로 본다", P, 2, 1, 3, 0, 127),
     t("support_minion_block", "support_minion_block_role_4", "서폿 라인 미니언 처리 금지", "끄면 서폿도 라인 미니언을 처리한다", P),
     t("bot_duo_partner", "bot_duo_partner_required", "원딜·서폿 짝 동행 확인", "끄면 원딜·서폿이 짝 없이도 혼자 움직인다", P),

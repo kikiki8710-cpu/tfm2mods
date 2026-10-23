@@ -2,7 +2,11 @@
 use crate::{platform, sites, tactics};
 use std::sync::{OnceLock, atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering::{Relaxed, Acquire, Release}}};
 #[derive(Clone, Copy, Debug)]
-pub enum Src { None, Reg(u8), Stack(i32), Mem(u8,i32), StackMem(i32,i32), Caller(i32,&'static [Caller]), CachePlayer { operation:u8, entity:u8, team_stack:i32 } }
+pub enum Src {
+    None, Const(u64), Reg(u8), Stack(i32), Mem(u8,i32), StackMem(i32,i32), Mem2(u8,i32,i32),
+    Caller(i32,&'static [Caller]), CachePlayer { operation:u8, entity:u8, team_stack:i32 },
+    CacheSlot { cache:&'static Src, team:&'static Src, pos:&'static Src, entity:&'static Src },
+}
 #[derive(Clone, Copy, Debug)]
 pub struct Caller { pub ret_rva:usize, pub src:Src }
 #[derive(Clone, Copy, Debug)]
@@ -33,16 +37,40 @@ impl Frame {
         if r==4 { return Some(self as *const Self as u64 + 240); }
         ORDER.iter().position(|v|*v==r).map(|i|self.regs[14-i])
     }
-    fn src(&self,s:Src)->Option<u64>{
+    fn scalar(&self,s:Src)->Option<u64>{
         fn at(base:u64,d:i32)->Option<u64>{platform::fast_read_u64(base.wrapping_add_signed(d as i64) as usize)}
-        match s { Src::None=>None, Src::Reg(r)=>self.reg(r), Src::Stack(d)=>at(self.reg(4)?,d),
+        match s { Src::Const(v)=>Some(v), Src::Reg(r)=>self.reg(r), Src::Stack(d)=>at(self.reg(4)?,d),
             Src::Mem(r,d)=>at(self.reg(r)?,d), Src::StackMem(a,b)=>at(at(self.reg(4)?,a)?,b),
+            Src::Mem2(r,a,b)=>at(at(self.reg(r)?,a)?,b), _=>None,
+        }
+    }
+    fn src(&self,s:Src)->Option<u64>{self.src_depth(s,0)}
+    fn src_depth(&self,s:Src,depth:u8)->Option<u64>{
+        fn at(base:u64,d:i32)->Option<u64>{platform::fast_read_u64(base.wrapping_add_signed(d as i64) as usize)}
+        match s {
             Src::Caller(offset,cases)=>{
+                if depth>=2 {return None;}
                 let ret=at(self.reg(4)?,offset)? as usize;
                 let rva=ret.checked_sub(platform::module_base().ok()?)?;
                 let source=cases.iter().find(|c|c.ret_rva==rva)?.src;
-                // 생성기는 caller 중첩을 만들지 않는다. 잘못된 표도 재귀하지 않는다.
-                if matches!(source,Src::Caller(..)|Src::CachePlayer{..}){None}else{self.src(source)}
+                self.src_depth(source,depth+1)
+            }
+            Src::CacheSlot{cache:cache_src,team:team_src,pos:pos_src,entity}=>{
+                let cache=self.scalar(*cache_src)?; let team=self.scalar(*team_src)?; let pos=self.scalar(*pos_src)?;
+                if team>1 || pos>4 {return None;}
+                let slot=(team*0x28+pos*8) as i32;
+                let champion=at(cache,0x238+slot)?;
+                if champion<0x10000 || champion>=1u64<<48 {return None;}
+                if !matches!(entity,Src::None) && self.scalar(*entity)!=Some(champion){return None;}
+                // 후보 슬롯을 알아도 중복 엔티티가 있는 손상된 캐시는 거절한다.
+                for other in 0..5u64 {
+                    if other!=pos && at(cache,0x238+(team*0x28+other*8) as i32)?==champion{return None;}
+                }
+                let player=at(cache,0x288+slot)?;
+                if at(player,0x820)?!=team || platform::fast_read_u32(player.wrapping_add(0x8b0) as usize)? as u64!=pos{return None;}
+                if at(cache,0x238+slot)?!=champion || at(cache,0x288+slot)?!=player{return None;}
+                if self.scalar(*cache_src)!=Some(cache) || self.scalar(*team_src)!=Some(team) || self.scalar(*pos_src)!=Some(pos){return None;}
+                Some(player)
             }
             Src::CachePlayer{operation,entity,team_stack}=>{
                 let cache=at(self.reg(operation)?,0)?;
@@ -64,6 +92,7 @@ impl Frame {
                 if at(cache,0x238+slot as i32)?!=entity || at(cache,0x288+slot as i32)?!=player {return None;}
                 Some(player)
             }
+            _=>self.scalar(s),
         }
     }
 }
@@ -99,10 +128,27 @@ unsafe extern "C" fn dispatch(index:usize,frame:*mut Frame)->usize {
     })).ok().flatten().unwrap_or(fallback)
 }
 fn abs_jump(code:&mut Vec<u8>,target:usize){code.extend_from_slice(&[0xff,0x25,0,0,0,0]);code.extend_from_slice(&(target as u64).to_le_bytes());}
+fn branch_toggle(code:&mut Vec<u8>,branch:&Branch,base:usize,off:i64)->Result<(), &'static str>{
+    let cc=branch.cc.filter(|v|*v<=15).ok_or("toggle needs conditional branch")?;
+    let off=u8::try_from(off).map_err(|_|"toggle opcode out of range")?;
+    // 판단별 값은 진입 rsp-16. pushfq 후에는 rsp-8이며 원래 분기 플래그를
+    // 비교 전에 보관한다. 두 경로 모두 popfq 후 분기해 GPR/RSP/플래그 불변.
+    code.extend_from_slice(&[0x9c,0x80,0x7c,0x24,0xf8,off,0x75,15,0x9d]);
+    abs_jump(code,base+branch.target_rva);
+    code.extend_from_slice(&[0x9d,0x70|(cc^1),14]);
+    abs_jump(code,base+branch.target_rva);
+    Ok(())
+}
 fn relocated(p:&Patch,base:usize,dynamic:bool)->Result<Vec<u8>, &'static str>{
     if p.fields.len()!=1 || p.first_len>p.win.len() {return Err("invalid generated window");}
     let mut out=Vec::new(); let mut at=0;
-    if dynamic {out.extend_from_slice(p.dynamic);at=p.first_len;}
+    if dynamic {
+        if let Some(branch)=p.branches.iter().find(|b|b.off==0) {
+            let Tf::Map{off,..}=p.fields[0].tf else{return Err("first branch needs toggle");};
+            branch_toggle(&mut out,branch,base,off)?;
+        } else {out.extend_from_slice(p.dynamic);}
+        at=p.first_len;
+    }
     while at<p.win.len(){
         if let Some(b)=p.branches.iter().find(|b|b.off as usize==at){
             if let Some(cc)=b.cc {if cc>15{return Err("bad condition");} out.extend_from_slice(&[0x70|(cc^1),14]);}
@@ -189,6 +235,88 @@ pub fn diagnostics()->Vec<String>{
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[repr(C)] struct WideFixture {frame:Frame,stack:[u64;96]}
+    fn put_reg(f:&mut Frame,r:u8,v:u64){f.regs[14-ORDER.iter().position(|x|*x==r).unwrap()]=v;}
+    fn seed_scalar(s:Src,v:u64,f:&mut WideFixture,parent:&mut [u64],context:&mut [u64],team_mem:&mut [u64]){
+        match s {
+            Src::Const(n)=>assert_eq!(n,v), Src::Reg(r)=>put_reg(&mut f.frame,r,v),
+            Src::Stack(d)=>f.stack[d as usize/8]=v,
+            Src::StackMem(d,off)=>{f.stack[d as usize/8]=parent.as_ptr() as u64;parent[off as usize/8]=v;},
+            Src::Mem(r,off)=>{put_reg(&mut f.frame,r,context.as_ptr() as u64);context[off as usize/8]=v;},
+            Src::Mem2(r,a,b)=>{put_reg(&mut f.frame,r,context.as_ptr() as u64);context[a as usize/8]=team_mem.as_ptr() as u64;team_mem[b as usize/8]=v;},
+            _=>panic!("not a scalar"),
+        }
+    }
+    fn source_paths(s:Src,path:Vec<(i32,usize)>,out:&mut Vec<(Vec<(i32,usize)>,Src)>){
+        if let Src::Caller(off,cases)=s {
+            for c in cases {let mut next=path.clone();next.push((off,c.ret_rva));source_paths(c.src,next,out);}
+        } else {out.push((path,s));}
+    }
+    #[test] fn cache_slot_checks_candidate_identity_and_rejects_ambiguous_sources(){
+        platform::init_safe_reader().unwrap();
+        let mut f:WideFixture=unsafe{std::mem::zeroed()};
+        let mut cache=vec![0u64;0x300/8];let mut player=vec![0u64;0x900/8];
+        let mut parent=vec![0u64;0x3000/8];let mut context=[0u64;4];let mut team_mem=[0u64;2];
+        let source=Src::CacheSlot{cache:&Src::Mem(10,8),team:&Src::Mem2(10,0x10,0),pos:&Src::Reg(14),entity:&Src::Reg(13)};
+        let Src::CacheSlot{cache:cs,team:ts,pos:ps,entity:es}=source else{unreachable!()};
+        let ptr=player.as_ptr() as u64;let entity=0x12345678;
+        for team in 0..2u64 {for pos in 0..5u64 {
+            cache.fill(0);let slot=(team*0x28+pos*8) as usize;
+            cache[(0x238+slot)/8]=entity;cache[(0x288+slot)/8]=ptr;
+            player[0x810/8]=0;player[0x820/8]=team;player[0x8b0/8]=pos;
+            for (s,v) in [(*cs,cache.as_ptr() as u64),(*ts,team),(*ps,pos),(*es,entity)]{seed_scalar(s,v,&mut f,&mut parent,&mut context,&mut team_mem);}
+            assert_eq!(f.frame.src(source),Some(ptr));
+            put_reg(&mut f.frame,13,entity+1);assert_eq!(f.frame.src(source),None);put_reg(&mut f.frame,13,entity);
+            player[0x820/8]=team^1;assert_eq!(f.frame.src(source),None);player[0x820/8]=team;
+            player[0x8b0/8]=(pos+1)%5;assert_eq!(f.frame.src(source),None);player[0x8b0/8]=pos;
+            let duplicate=(team*0x28+(pos+1)%5*8) as usize;
+            cache[(0x238+duplicate)/8]=entity;assert_eq!(f.frame.src(source),None);cache[(0x238+duplicate)/8]=0;
+            cache[(0x288+slot)/8]=1;assert_eq!(f.frame.src(source),None);cache[(0x288+slot)/8]=ptr;
+        }}
+        put_reg(&mut f.frame,14,5);assert_eq!(f.frame.src(source),None);
+        put_reg(&mut f.frame,14,4);unsafe{std::ptr::write_volatile(&mut team_mem[0],2)};assert_eq!(f.frame.src(source),None);
+        // CacheSlot 내부에서 Caller/CacheSlot을 또 해석하지 않는다.
+        assert_eq!(f.frame.scalar(source),None);
+    }
+    #[test] fn final_four_sites_use_own_subject_and_all_known_caller_paths(){
+        platform::init_safe_reader().unwrap();
+        let mut f:WideFixture=unsafe{std::mem::zeroed()};
+        let mut parent=vec![0u64;0x3000/8];let mut context=[0u64;4];let mut team_mem=[0u64;2];
+        let mut cache=vec![0u64;0x300/8];let mut player=vec![0u64;0x900/8];
+        let ptr=player.as_ptr() as u64;let entity=0x12345678;let athlete=0x123456789abu64;
+        let base=platform::module_base().unwrap();let mut seen=std::collections::HashSet::new();
+        tactics::clear_levels();tactics::reset_values();tactics::set_my_athletes(&[athlete]);tactics::set_armed(true);
+        for (i,p) in sites::PATCHES.iter().enumerate().filter(|(_,p)|[11,14,16,19].contains(&p.tactic)){
+            seen.insert(p.tactic);ORIGINAL[i].store(0x10000,Release);DYNAMIC[i].store(0x20000,Release);ENABLED[p.tactic].store(true,Release);
+            let mut paths=Vec::new();source_paths(p.src,Vec::new(),&mut paths);
+            for (guards,source) in paths {for team in 0..2u64 {for pos in 0..5u64 {
+                if let Src::CacheSlot{pos:ps,..}=source {if let Src::Const(n)=ps {if *n!=pos{continue;}}}
+                f.frame=unsafe{std::mem::zeroed()};f.stack.fill(0);parent.fill(0);context.fill(0);cache.fill(0);
+                // helper의 현재 RBP는 이미 덮였어도 저장 RBP만으로 복구해야 한다.
+                put_reg(&mut f.frame,5,1);put_reg(&mut f.frame,9,0xdeadbeef);
+                player[0x810/8]=athlete;player[0x820/8]=team;player[0x8b0/8]=pos;
+                let slot=(team*0x28+pos*8) as usize;cache[(0x238+slot)/8]=entity;cache[(0x288+slot)/8]=ptr;
+                for &(off,ret) in &guards {f.stack[off as usize/8]=(base+ret) as u64;}
+                if let Src::CacheSlot{cache:cs,team:ts,pos:ps,entity:es}=source {
+                    for (s,v) in [(*cs,cache.as_ptr() as u64),(*ts,team),(*ps,pos)]{seed_scalar(s,v,&mut f,&mut parent,&mut context,&mut team_mem);}
+                    if !matches!(es,Src::None){seed_scalar(*es,entity,&mut f,&mut parent,&mut context,&mut team_mem);}
+                }else{seed_scalar(source,ptr,&mut f,&mut parent,&mut context,&mut team_mem);}
+                tactics::set_level(p.tactic,pos as usize,tactics::LV_LOW);
+                assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x20000,"{} team={team} pos={pos}",p.name);
+                assert_eq!(f.frame.value,transform(&p.fields[0],tactics::value_of(p.tactic,1)).unwrap());
+                player[0x810/8]=athlete+1;assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000);player[0x810/8]=athlete;
+                tactics::set_armed(false);assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000);tactics::set_armed(true);
+                tactics::clear_levels();assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000);tactics::set_level(p.tactic,pos as usize,1);
+                for &(off,ret) in &guards {
+                    f.stack[off as usize/8]=(base+0x12345) as u64;assert_eq!(unsafe{dispatch(i,&mut f.frame)},0x10000);
+                    f.stack[off as usize/8]=(base+ret) as u64;
+                }
+            }}}
+            ENABLED[p.tactic].store(false,Release);
+        }
+        assert_eq!(seen.len(),4);
+        tactics::set_armed(false);tactics::clear_levels();tactics::reset_values();tactics::set_my_athletes(&[]);
+    }
     #[test] fn caller_source_requires_known_return_and_current_stack() {
         platform::init_safe_reader().unwrap();
         #[repr(C)] struct Fixture { frame:Frame, stack:[u64;32] }
@@ -255,13 +383,15 @@ pub fn diagnostics()->Vec<String>{
             covered.insert(p.tactic);
             let d=&tactics::TACTICS[p.tactic];let f=&p.fields[0];
             for v in [d.min,d.default,d.max,d.low,d.high]{assert!(transform(f,v).is_some(),"{}: {v}",p.name);}
-            serde_json::json!({"name":p.name,"rva":p.rva,"win":p.win,"first_len":p.first_len,
+            let toggle=p.branches.iter().find(|b|b.off==0).map(|b|serde_json::json!({
+                "target":0x140000000usize+b.target_rva,"on":p.win[0],"off":0xeb}));
+            serde_json::json!({"name":p.name,"rva":p.rva,"win":p.win,"first_len":p.first_len,"branch_toggle":toggle,
                 "dynamic_first":p.dynamic,"original":relocated(p,0x140000000,false).unwrap(),
                 "dynamic":relocated(p,0x140000000,true).unwrap(),"stub":stub(i),
                 "dispatch":dispatch as *const () as usize,"field_off":f.off,"field_width":f.width,
                 "values":([d.min,d.default,d.max,d.low,d.high].iter().map(|v|transform(f,*v).unwrap()).collect::<Vec<_>>())})
         }).collect();
-        assert_eq!(covered.len(),28);assert_eq!(list.len(),46);
+        assert_eq!(covered.len(),32);assert_eq!(list.len(),53);
         if let Some(path)=std::env::var_os("DT_CODEGEN_DUMP") {std::fs::write(path,serde_json::to_vec_pretty(&list).unwrap()).unwrap();}
     }
     #[test] fn dispatch_team_position_and_live_value(){
