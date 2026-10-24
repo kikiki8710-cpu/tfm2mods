@@ -16,10 +16,7 @@ pub const CATEGORIES: &[Category] = &[
         "combat_avoid_count_margin",
         "self_risk_ignore_hp",
         "lowhp_ult_bonus_low",
-        "chase_speed_ratio",
         "kill_bonus_cap",
-        "basic_trade_hp_divisor",
-        "defense_leave_hp",
         "battle_risk_retreat_threshold",
         "battle_move_candidate_penalty",
     ] },
@@ -32,11 +29,7 @@ pub const CATEGORIES: &[Category] = &[
         "bot_duo_partner",
         "hazard_avoid_padding",
         "line_defense_approval_profile",
-        "other_lane_collapse_profile",
         "lane_attack_move_allowance",
-        "lane_defense_support_margin",
-        "lane_exchange_advantage_ticks",
-        "lane_superiority_profile",
         "mia_notice_caution_profile",
         "lane_wait_front_minion_distance",
     ] },
@@ -45,8 +38,6 @@ pub const CATEGORIES: &[Category] = &[
         "jg_gank_hp_floor",
         "jungle_safe_radius",
         "jungle_stop_hp",
-        "camp_time_margin_profile",
-        "gank_lane_tower_wave_profile",
     ] },
     Category { name: "갱·로밍", ids: &[
         "gank_abort_hp",
@@ -55,61 +46,31 @@ pub const CATEGORIES: &[Category] = &[
         "liner_roam_self_hp",
         "liner_roam_lane_healthy_hp",
         "liner_roam_call_chance",
-        "gank_call_rng",
-        "pickoff_hp_bands",
-        "pre_gank_engage_profile",
-        "gank_travel_deadline",
-        "battle_call_response_seconds",
-        "same_lane_gank_retry_seconds",
         "shared_battle_role_markers",
         "gank_reevaluate_seconds",
-        "gank_candidate_margin",
-        "roam_retry_extra_seconds",
-        "early_gank_target_min_hp",
-        "lane_call_travel_seconds",
-        "relay_undying_limit_centiseconds",
-        "support_roam_adc_min_hp",
     ] },
     Category { name: "푸시·타워", ids: &[
         "push_sustain_min_healthy",
         "push_sustain_margin",
         "tower_chase_own_hp",
-        "structure_retreat_keep_hp",
         "tower_tank_hits",
-        "push_start_base",
-        "structure_skill_bonus",
     ] },
     Category { name: "기지 방어", ids: &[
         "base_defense_min_enemies",
         "base_defense_hold_retreat_hp",
         "base_defense_hold_nexus_hp",
         "base_defense_hold_dmg_ratio",
-        "base_battle_call_range",
     ] },
     Category { name: "오브젝트", ids: &[
-        "objective_power_allowance",
-        "objective_lane_pressure_profile",
-        "epic_final_allies_min",
-        "boss_respawn_wait_seconds",
         "boss_reposition_improvement",
-        "boss_poke_damage_factor",
-        "active_recall_slack_profile",
     ] },
     Category { name: "위치·기술", ids: &[
-        "ally_spacing_radius",
-        "near_ally_link_margin",
         "support_cap_multiplier",
-        "buff_arrival_value_seconds",
-        "ambush_engage_radius",
         "position_isolation_risk_percent",
         "front_ally_risk_scale",
-        "battle_skill_safety_margin",
-        "wave_position_risk_divisor",
         "movement_skill_period_margin",
-        "unseen_self_risk_divisor",
         "battle_reposition_distance_scale",
         "candidate_move_budget_margin",
-        "forward_damage_credit_percent",
     ] },
 ];
 pub fn tactic_at(tab: usize, row: usize) -> Option<usize> {
@@ -195,7 +156,7 @@ pub fn player_visible(id: &str, col: usize) -> bool {
 mod tests {
     use super::*;
     #[test]
-    fn tabs_cover_every_saved_tactic_exactly_once() {
+    fn tabs_cover_visible_tactics_once_and_preserve_saved_catalog() {
         let mut seen = [false; tactics::N];
         for (tab, category) in CATEGORIES.iter().enumerate() {
             assert!(!category.ids.is_empty() && category.ids.len() <= ROWS);
@@ -206,7 +167,16 @@ mod tests {
             }
             assert_eq!(tactic_at(tab, category.ids.len()), None);
         }
-        assert!(seen.iter().all(|x| *x));
+        assert_eq!(seen.iter().filter(|x| **x).count(), 49);
+        // 숨김은 저장 카탈로그 삭제가 아니다. 기존32종은 모두 남는다.
+        assert!(seen[..32].iter().all(|x| *x));
+        for id in ["kill_bonus_cap", "shared_battle_role_markers", "boss_reposition_improvement", "movement_skill_period_margin"] {
+            assert!(seen[tactics::index_of(id).unwrap()]);
+        }
+        for id in ["gank_call_rng", "support_roam_adc_min_hp", "defense_leave_hp"] {
+            assert!(!seen[tactics::index_of(id).unwrap()]);
+        }
+        assert_eq!(tactics::N, 88);
         assert_eq!(tactic_at(CATEGORIES.len(), 0), None);
     }
 }

@@ -210,7 +210,7 @@ pub fn leave(){let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());close_dro
             assert!(e.select(row,col,1));
             assert_eq!(cell_level(&e,t,col),Some(1));
         }
-        assert_eq!(total,88);assert_eq!(CATEGORIES.len(),8);
+        assert_eq!(total,49);assert_eq!(CATEGORIES.len(),8);
         let src=source();assert_eq!(src.matches(":scroll_view").count(),8);
         for(tab,category)in CATEGORIES.iter().enumerate(){assert!(src.contains(&format!("height:{}px",category.ids.len()*76)));assert!(src.contains(&format!("#page{tab}:scroll_view")));}
     }

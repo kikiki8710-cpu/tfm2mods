@@ -34,7 +34,10 @@ def write_catalog():
         cats.append((name,[i for i in re.findall(r'"([a-z0-9_]+)"',body) if i not in {t['id'] for t in rows}]))
     for name in ('오브젝트','위치·기술'):
         if name not in [n for n,_ in cats]:cats.append((name,[]))
+    visible=set(json.loads((ROOT/'tools'/'visible_extras.json').read_text(encoding='utf-8'))['audit_ids'])
+    assert len(visible)==17 and visible <= {t['audit_id'] for t in rows}
     for t in rows:
+        if t['audit_id'] not in visible:continue
         match=next((ids for name,ids in cats if name==t['tab']),None)
         if match is None:raise ValueError('unknown tab '+t['tab'])
         match.append(t['id'])
