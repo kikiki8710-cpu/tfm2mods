@@ -239,6 +239,15 @@ pub fn diagnostics()->Vec<String>{
     for s in &SAMPLES{let a=s.athlete.load(Acquire);if a!=0{lines.push(format!("sample site={} athlete_id={a} team={} pos={}",s.site.load(Relaxed),s.team.load(Relaxed),s.pos.load(Relaxed)));}}
     lines
 }
+/// QA-only process-wide counters. No dispatch/gating changes and no counter resets.
+#[cfg(feature="replay_ab")]
+pub(crate) fn replay_ab_snapshot()->serde_json::Value {
+    serde_json::Value::Array(sites::PATCHES.iter().enumerate().map(|(i,p)|serde_json::json!({
+        "index":i,"name":p.name,"tactic":tactics::TACTICS[p.tactic].id,"rva":format!("0x{:x}",p.rva),
+        "enabled":ENABLED[p.tactic].load(Acquire),"calls":HITS[i].load(Relaxed),"mine":MINE[i].load(Relaxed),
+        "applied":APPLIED[i].load(Relaxed),"subject_reject":BAD_SUBJECT[i].load(Relaxed)
+    })).collect())
+}
 
 #[cfg(test)] mod tests {
     use super::*;

@@ -24,6 +24,9 @@ pub fn request(body: String) { *PENDING.lock().unwrap_or_else(|e| e.into_inner()
 /// 세이브 안(InGame)에서 매 프레임.
 pub fn tick(ctx: &mut StableClient<'_>) {
     let pending = PENDING.lock().unwrap_or_else(|e| e.into_inner()).take();
+    // QA still reads this save and verifies the roster; discard the taken write atomically.
+    #[cfg(feature="replay_ab")]
+    let pending = if crate::replay_ab::active() { None } else { pending };
     if let Some(body) = pending {
         if ctx.save_can_write() {
             ctx.save_set_version(SAVE_NS_VERSION);

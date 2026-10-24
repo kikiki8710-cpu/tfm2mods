@@ -4,6 +4,9 @@ version = "0.2.0"
 edition = "2021"
 [lib]
 crate-type = ["cdylib", "rlib"]
+[features]
+default = []
+replay_ab = []
 [dependencies]
 mod-api-stable = { path = "../sdk_064_stable/mod-api-stable" }
 serde_json = "1.0.151"

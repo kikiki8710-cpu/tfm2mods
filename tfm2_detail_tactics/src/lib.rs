@@ -2,6 +2,7 @@
 #![allow(dead_code)]
 mod platform; mod micro; mod sites; mod tactics; mod values; mod save; mod sha256; mod roster; mod presentation; mod ui;
 mod extra_lane; mod extra_combat; mod extra_ops;
+#[cfg(feature="replay_ab")] mod replay_ab;
 #[path="../../common/log_dir.rs"] mod log_dir;
 use mod_api_stable::{declare_stable_mod,LogLevel,StableClient,StableExtension,StableHost,StableMod,SceneKindV1};
 use std::sync::{Mutex,OnceLock,atomic::{AtomicU64,Ordering::Relaxed}};
@@ -21,6 +22,7 @@ impl StableExtension for Extension {
             let mut r=self.0.lock().unwrap_or_else(|e|e.into_inner());
             if !r.installed && frame>=120 {r.installed=true;for l in micro::install(){log(l);}}
             if ctx.scene_kind()!=Some(SceneKindV1::InGame){
+                #[cfg(feature="replay_ab")] replay_ab::leave(frame);
                 tactics::set_armed(false);
                 if r.inside {save::leave();ui::leave();r.roster=roster::Roster::default();r.inside=false;}
                 return;
@@ -30,14 +32,19 @@ impl StableExtension for Extension {
             let own=r.roster.tick(ctx,frame);
             tactics::set_armed(save::loaded()&&own);
             for l in values::reload_if_changed(frame,false){log(&l);}
-            ui::tick(ctx,frame);
+            #[cfg(feature="replay_ab")] replay_ab::tick(ctx,frame);
+            #[cfg(feature="replay_ab")] if !replay_ab::active(){ui::tick(ctx,frame);}
+            #[cfg(not(feature="replay_ab"))] ui::tick(ctx,frame);
             if frame%1800==0{
                 log(&format!("상태 armed={} scene={:?} athletes={:?} 선택={:?}",tactics::armed(),ctx.client_scene_kind(),tactics::my_athletes(),tactics::state_text()));
                 for l in micro::diagnostics(){log(&l);}
             }
         })).is_err(){tactics::set_armed(false);log("post_update panic: 적용 중지");}
     }
-    fn on_end(&self){tactics::set_armed(false);for l in micro::diagnostics(){log(&l);}}
+    fn on_end(&self){
+        #[cfg(feature="replay_ab")] replay_ab::leave(FRAME.load(Relaxed));
+        tactics::set_armed(false);for l in micro::diagnostics(){log(&l);}
+    }
 }
 fn init(host:&StableHost)->StableMod {
     let setup=(||->Result<(),String>{
@@ -45,10 +52,13 @@ fn init(host:&StableHost)->StableMod {
         let dir=dll.parent().ok_or("DLL 경로 없음")?;
         let out=log_dir::log_dir_path(dir);std::fs::create_dir_all(&out).map_err(|e|e.to_string())?;
         let _=LOG.set(out.join("detail_tactics.log"));
+        #[cfg(feature="replay_ab")] replay_ab::init(dir,&out);
         for l in values::init(dir){log(&l);}
         Ok(())
     })();
     match setup {Ok(())=>host.log(LogLevel::Info,"상세전술 준비: 팀전술 화면의 상세전술 버튼"),Err(e)=>host.log(LogLevel::Error,&e)}
-    let mut module=StableMod::new("tfm2_detail_tactics");module.set_extension(Extension(Mutex::new(Runtime::default())));module
+    let mut module=StableMod::new("tfm2_detail_tactics");module.set_extension(Extension(Mutex::new(Runtime::default())));
+    #[cfg(feature="replay_ab")] module.set_match_hook(replay_ab::Observer);
+    module
 }
 declare_stable_mod!(init);
