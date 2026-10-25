@@ -1,4 +1,4 @@
-# 대용량 데이터(버전 백업·빌드 산출물·로그)를 E:\claude\tfm2 로 옮긴다 (2026-10-21).
+﻿# 대용량 데이터(버전 백업·빌드 산출물·로그)를 E:\claude\tfm2 로 옮긴다 (2026-10-21).
 # 폴더: robocopy 복사 → 파일 수·바이트 대조 → 원본 삭제 → 원위치에 정션(mklink /J) — 기존 경로를 쓰는 도구·빌드가 그대로 동작.
 # 파일: 복사 → 크기 대조 → 원본 삭제 → 원래 폴더의 _MOVED_TO_E.txt 에 기록.
 # 사용: powershell -File move_to_e.ps1 -Plan <move_plan.json> [-Skip <정규식>] [-DryRun]
@@ -7,6 +7,24 @@ $ErrorActionPreference = 'Stop'
 $manifest = 'E:\claude\tfm2\MOVE_MANIFEST.csv'
 if (-not (Test-Path $manifest)) { 'utc,kind,type,source,dest,files,bytes,result' | Out-File -FilePath $manifest -Encoding utf8 }
 $p = Get-Content -LiteralPath $Plan -Raw -Encoding UTF8 | ConvertFrom-Json
+
+# ★2026-10-25 안전장치: 폴더 안에 정션·심볼릭 링크(reparse point)가 하나라도 있으면 그 폴더는 거부한다.
+#   robocopy /E 는 정션을 따라가 복사하고, PS 5.1 Remove-Item -Recurse 는 정션 너머 실데이터(E:)까지 지울 수 있다.
+#   그런 폴더는 정션 안전한 공용 도구 F:\claude\_tools\storage\offload_to_e.ps1 을 쓸 것(F:\claude\README.md 저장소 운용 규칙).
+#   훑을 때도 정션 안으로는 들어가지 않는다(.NET 열거 + 속성 검사).
+function Find-Reparse([string]$root) {
+    $stack = New-Object System.Collections.Generic.Stack[string]
+    $stack.Push($root)
+    while ($stack.Count -gt 0) {
+        $d = $stack.Pop()
+        foreach ($e in [IO.Directory]::EnumerateFileSystemEntries($d)) {
+            $a = [IO.File]::GetAttributes($e)
+            if ($a -band [IO.FileAttributes]::ReparsePoint) { return $e }
+            if ($a -band [IO.FileAttributes]::Directory) { $stack.Push($e) }
+        }
+    }
+    return $null
+}
 
 function Stat($path) {
     $f = Get-ChildItem -LiteralPath $path -Recurse -File -Force -ErrorAction SilentlyContinue
@@ -24,6 +42,8 @@ foreach ($d in $p.dirs) {
     $item = Get-Item -LiteralPath $src -Force -ErrorAction SilentlyContinue
     if (-not $item) { continue }
     if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { Log $kind dir $src $dst 0 0 'SKIP_already_link'; continue }
+    $rp = Find-Reparse $src
+    if ($rp) { Log $kind dir $src $dst 0 0 'REFUSE_reparse_inside'; Write-Output "  안에 정션/링크: $rp — offload_to_e.ps1 을 쓸 것"; continue }
     if ($DryRun) { Write-Output "DRY dir $src -> $dst"; continue }
     $s = Stat $src
     New-Item -ItemType Directory -Force -Path $dst | Out-Null
