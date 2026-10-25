@@ -17,4 +17,5 @@ rustflags = [
   "--remap-path-prefix=C:\\Users\\jungs\\.rustup=rustup",
   "--remap-path-prefix=C:\\Users\\jungs=~",
   "--remap-path-prefix=C:\\tfm2mods=src",
+  "--remap-path-prefix=F:\\claude\\tfm2mods=src",   # 2026-10-25 F 재배치 — 실경로에서 빌드해도 소스 경로가 dll 에 남지 않게
 ]

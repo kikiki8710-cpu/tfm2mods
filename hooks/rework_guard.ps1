@@ -7,9 +7,9 @@ $ErrorActionPreference = 'SilentlyContinue'
 $mem = ''
 $projRoot = Join-Path $env:USERPROFILE '.claude\projects'
 $proj = Get-ChildItem $projRoot -Directory -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -like '*-Desktop-claude-tfm2' } | Select-Object -First 1
+        Where-Object { $_.Name -like '*-Desktop-claude-tfm2' -or $_.Name -eq 'F--claude-tfm2' } | Select-Object -First 1
 if ($proj) { $mem = Join-Path $proj.FullName 'memory' }
-$anaRoot = Join-Path $env:USERPROFILE 'Desktop\claude\tfm2\팀파매2모드 분석'
+$anaRoot = 'F:\claude\tfm2\팀파매2모드 분석'   # 2026-10-25 F 재배치(옛 %USERPROFILE%\Desktop\claude\tfm2 는 정션)
 try { [Console]::InputEncoding  = [System.Text.Encoding]::UTF8 } catch {}
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 $raw = [Console]::In.ReadToEnd()

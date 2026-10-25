@@ -14,7 +14,7 @@
 param(
     [string]$Jar = "",
     [string]$Program = "0.5.8",
-    [string]$GhidraRun = "C:\Users\jungs\Desktop\claude\ghidra_12.1.2_PUBLIC_20260605\ghidra_12.1.2_PUBLIC\ghidraRun.bat",
+    [string]$GhidraRun = "F:\claude\_tools\ghidra_12.1.2_PUBLIC_20260605\ghidra_12.1.2_PUBLIC\ghidraRun.bat",
     [string]$JarDest = "C:\Users\jungs\AppData\Roaming\ghidra\ghidra_12.1.2_PUBLIC\Extensions\GhidraMCP\lib\GhidraMCP.jar",
     [int]$Port = 8081
 )

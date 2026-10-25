@@ -46,10 +46,10 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 import aiprobe                      # ★prolog_of·sections 재사용(복사하면 규칙이 갈린다)
 import re
-MAP_HTML = r"C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
+MAP_HTML = r"F:\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
 MAPALL_IDX0 = 300   # --map-all AUX idx 시작(명세 idx·AUX 250 과 안 겹침 · P20.idx 는 u16)
 
-SPEC = r"C:\tfm2mods\MIG\_spec\specs20_v3.json"
+SPEC = r"F:\claude\tfm2mods\MIG\_spec\specs20_v3.json"
 
 # ★명세 `exe.addr` 가 비어 있는 5건. 그중 둘은 **다른 정본이 이미 확정**해 뒀다.
 #   ⚠명세에 미반영이라 여기 적어 두고, 출처를 같이 남긴다(추측이 아니다).

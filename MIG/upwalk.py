@@ -2,9 +2,9 @@
 # 2단 노드(ext=2)에서 정적 xref 로 계속 올라가면 뿌리가 있나 — .text call/jmp 전수 + .pdata 로 최대 8단
 import io, re, json, sys
 sys.stdout.reconfigure(encoding="utf-8")
-sys.path.insert(0, r"C:\tfm2mods\MIG")
+sys.path.insert(0, r"F:\claude\tfm2mods\MIG")
 import retedges, fnmap_ext
-W = r"C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
+W = r"F:\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
 h = io.open(W, encoding="utf-8").read()
 d = json.loads(re.search(r'<script id="fndata" type="application/json">(.*?)</script>', h, re.S).group(1))
 BY = {n["a"]: n for n in d}

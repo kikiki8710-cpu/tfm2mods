@@ -1,6 +1,6 @@
 ﻿# build_inj.ps1 — SDK + engine_ui 링크해서 mod 빌드·배포 (런타임 노드 구성용).
 # 사용: powershell -File build_inj.ps1 -Src <lib.rs 절대경로> -ModId <mod_id>
-# (경로에 공백 없음 전제 — SDK/소스는 C:\tfm2mods 아래. 배포대상만 Program Files=Copy-Item 처리)
+# (경로에 공백 없음 전제 — SDK/소스는 F:\claude\tfm2mods 아래. 배포대상만 Program Files=Copy-Item 처리)
 #
 # ⚠ $SDK 는 build_inj_050.ps1 과 동일하게 sdk_050_hotfix 를 가리킨다(=사실상 같은 스크립트).
 #   버전을 나눠 쓸 거면 여기 $SDK 만 바꿀 것.
@@ -55,7 +55,7 @@ param(
 #    toolchain은 nightly-2026-05-24 유지(toolchain_version.txt = rustc 1.98.0-nightly 23a3312d9 실측) = 재설치 불요.)
 #   (0.5.8 전환 2026-09-02: sdk_058. toolchain 동일 rustc 1.98.0-nightly(23a3312d9 2026-05-23), rlib 154개로 057과 동수.
 #    exe 는 전면 재링크(.pdata 136,233->137,497 = +1,264) -> RVA 전량 재핑 + 전 모드 재빌드.)
-$SDK  = "C:\tfm2mods\sdk_058\mod-sdk"
+$SDK  = "F:\claude\tfm2mods\sdk_058\mod-sdk"
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 $MODAPI = (Get-ChildItem "$DEPS\libmod_api-*.rlib")[0].FullName
 $EUI    = (Get-ChildItem "$DEPS\libengine_ui-*.rlib")[0].FullName
@@ -73,7 +73,7 @@ $GVIEW  = (Get-ChildItem "$DEPS\libgame_view-*.rlib")[0].FullName
 #   (mod_api 재수출로는 안 잡힘). 안 쓰는 모드엔 --extern 만 늘어나 무해.
 $COMMON = (Get-ChildItem "$DEPS\libcommon-*.rlib")[0].FullName
 # ★[2026-09-09] game_ai 비트코드 rlib(TypeId 패치판 deps_ailink 우선 · 없으면 SDK 원본). `extern crate game_ai;` 한 모드(ai_adjust)만 실제 링크되고 나머진 무해.
-$GAI = if (Test-Path "C:\tfm2mods\sdk_058\deps_ailink") { (Get-ChildItem "C:\tfm2mods\sdk_058\deps_ailink\libgame_ai-*.rlib")[0].FullName } else { (Get-ChildItem "$DEPS\libgame_ai-*.rlib")[0].FullName }
+$GAI = if (Test-Path "F:\claude\tfm2mods\sdk_058\deps_ailink") { (Get-ChildItem "F:\claude\tfm2mods\sdk_058\deps_ailink\libgame_ai-*.rlib")[0].FullName } else { (Get-ChildItem "$DEPS\libgame_ai-*.rlib")[0].FullName }
 
 # ★모드별·프로세스별 격리 작업 폴더 (공유 $SDK\lib.dll 사용 금지)
 #   2026-10-21: 빌드 산출물은 E:\claude\tfm2\build 로(유저 지시 — C: 용량). E: 가 없으면 예전대로 %TEMP%.

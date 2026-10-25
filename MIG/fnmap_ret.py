@@ -11,7 +11,7 @@ u"""fnmap_ret.py — 실측 호출 간선(`retedges.py` 출력)을 AI함수지�
 """
 import io, json, os, re, sys
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-DEF_MAP = r"C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
+DEF_MAP = r"F:\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
 MARK = "/* RETEDGES-JS v1 */"
 # 지도 밖 호출자 실명(rvaname 09-16 · 패닉 Location 지문) — 나머지는 지문 없는 소형 헬퍼(미명명)
 EXTNAME = {"1879080": u"game_core mode.rs 시뮬레이션 틱 루프(AI 루트 · Agent::get_input 호출)", "c87850": u"last_stand_flags LocalKey::with(LAST_STAND_MEMO 작성자)",

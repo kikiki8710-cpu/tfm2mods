@@ -2,7 +2,7 @@
 # 게임 exe 크기가 마지막 마이그레이션 기준(baseline)과 다르면 경고를 stdout으로 출력(→세션 컨텍스트에 주입).
 $ErrorActionPreference = 'SilentlyContinue'
 $exe      = "C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\TeamfightManager2.exe"
-$baseline = "C:\tfm2mods\.exe_baseline.txt"
+$baseline = "F:\claude\tfm2mods\.exe_baseline.txt"
 if (-not (Test-Path $exe)) { exit 0 }                       # 게임 미설치/이동 → 조용
 $cur = (Get-Item $exe).Length
 if (-not (Test-Path $baseline)) {                            # 최초 실행 → 기준만 기록

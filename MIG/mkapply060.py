@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "_ne
 os.makedirs(os.path.join(OUT, "out"), exist_ok=True)
 V = json.load(io.open(os.path.join(HERE, "_spec", "specs20_v060.json"), encoding="utf-8"))
 DC = {f["old"]: f for f in json.load(io.open(os.path.join(HERE, "_next", "dispcheck060.json"), encoding="utf-8"))}
-RE_DIR = r"C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_judge_verify\RE"
+RE_DIR = r"F:\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_judge_verify\RE"
 W = {}
 for line in io.open(os.path.join(HERE, "_next", "spec_patch_060.md"), encoding="utf-8"):
     m = re.match(r"\|\s*`([0-9a-f]+)`\s*\|\s*`([0-9a-f]+)`\s*\|\s*([^|]*)\|\s*(.*)\|\s*(w\d+ §[^|]*)\|\s*$", line.rstrip())

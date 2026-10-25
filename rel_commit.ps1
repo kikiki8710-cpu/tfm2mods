@@ -6,8 +6,8 @@
 #   역추적해야 했다(미빌드 변경분 ct_hunt 를 그렇게 찾아냈다). 그 반복을 막는 게 목적이다.
 #
 # 사용법
-#   powershell -File C:\tfm2mods\rel_commit.ps1 -ModId tfm2_elemental_serpen -Summary "성능 개편: 전역 락 제거"
-#   powershell -File C:\tfm2mods\rel_commit.ps1 -ModId tfm2_item_tactics -DryRun      # 메시지만 확인
+#   powershell -File F:\claude\tfm2mods\rel_commit.ps1 -ModId tfm2_elemental_serpen -Summary "성능 개편: 전역 락 제거"
+#   powershell -File F:\claude\tfm2mods\rel_commit.ps1 -ModId tfm2_item_tactics -DryRun      # 메시지만 확인
 #
 #   -Summary  : 사람이 쓰는 한 줄~여러 줄 변경점 요약(권장). 없으면 diff 통계만 들어간다.
 #   -Base     : 게임 버전 폴더(기본 = MIG\mig_verify.py 의 GAME_VER) = release\<Base>\<ModId>.zip
@@ -22,14 +22,14 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$REPO = "C:\tfm2mods"
+$REPO = "F:\claude\tfm2mods"
 # -Base 생략 시 현행 게임 버전 = MIG\mig_verify.py 의 GAME_VER (패치마다 거기만 갱신). 2026-09-06: 0.5.3 고정값이 0.5.8 릴리스에 구 zip 을 보고했던 사고 → 자동화
 if ($Base -eq "") {
     $mv = Get-Content "$REPO\MIG\mig_verify.py" -Encoding UTF8 | Select-String "^GAME_VER\s*=\s*'([^']+)'" | Select-Object -First 1
     if ($mv) { $Base = $mv.Matches[0].Groups[1].Value } else { $Base = "0.5.8" }
 }
 $GAME = "C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods"
-$RELEASE = "C:\tfm2mods\release"   # 릴리스 zip 보관처(게임 폴더 밖, 2026-08-23 이관)
+$RELEASE = "F:\claude\tfm2mods\release"   # 릴리스 zip 보관처(게임 폴더 밖, 2026-08-23 이관)
 
 $srcDir = Join-Path $REPO $ModId
 if (-not (Test-Path $srcDir)) { Write-Error "소스 폴더 없음: $srcDir"; exit 1 }

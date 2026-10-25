@@ -20,12 +20,12 @@ from capstone import Cs, CS_ARCH_X86, CS_MODE_64
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
-OLD = r"C:\Users\jungs\Desktop\claude\tfm2\tfm2_0.5.8\TeamfightManager2.exe"
-NEW = r"C:\Users\jungs\Desktop\claude\tfm2\tfm2_0.6.0\TeamfightManager2.exe"
-PKL = {"old": r"C:\tfm2mods\_fnidx_058.pkl", "new": r"C:\tfm2mods\_fnidx_060.pkl"}
-CG = {"old": r"C:\tfm2mods\_cg_058.pkl", "new": r"C:\tfm2mods\_cg_060.pkl"}
+OLD = r"F:\claude\tfm2\tfm2_0.5.8\TeamfightManager2.exe"
+NEW = r"F:\claude\tfm2\tfm2_0.6.0\TeamfightManager2.exe"
+PKL = {"old": r"F:\claude\tfm2mods\_fnidx_058.pkl", "new": r"F:\claude\tfm2mods\_fnidx_060.pkl"}
+CG = {"old": r"F:\claude\tfm2mods\_cg_058.pkl", "new": r"F:\claude\tfm2mods\_cg_060.pkl"}
 BASE = 0x140000000
-MAP = r"C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
+MAP = r"F:\claude\tfm2\.claude\worktrees\swap-order-button-style-fe9e04\mods_report\tfm2_ai_adjust\AI함수지도.html"
 SPEC = os.path.join(HERE, "_spec", "specs20_v3.json")
 CACHE = os.path.join(HERE, "_next", "mig060_locidx_%s.pkl")
 
