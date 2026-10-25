@@ -163,10 +163,22 @@ pub static TACTICS: &[TacticDef] = &[
     v("gank_lane_tower_wave_profile","extra_d001","갱 후보 포탑·웨이브 경계","포탑 반경·미니언 차이·웨이브 위치 필터를 함께 조절. 높게 하면 보수적이다",P,100,75,125,50,150),
     v("lane_wait_front_minion_distance","extra_d002","선두 아군 미니언 대기 거리","아군 선두 미니언 기준 접근 검사와 뒤로 물러날 거리 계산에 같은 거리를 사용합니다.",P,180000,150000,210000,50000,300000),
     v("support_roam_adc_min_hp","extra_d004","서폿 로밍 원딜 최소 체력","알려진 서폿 로밍 세 경로에서 같은 팀 원딜 체력을 검사하는 문턱입니다.",P,51,40,65,1,95),
+    v("purchase_recall_walk_ticks","extra_n001","구매 귀환 도보시간","구매를 위한 귀환 판단의 도보시간 문턱입니다. 높을수록 걸어서 돌아갈 수 있는 시간 범위를 넓힙니다. 초 단위가 아닙니다.",P,211,150,300,1,10000),
+    v("purchase_recall_threat_radius","extra_n002","구매 귀환 위협 반경","구매 귀환 판단에서 적을 위협으로 인정하는 반경입니다. 높을수록 먼 적까지 살핍니다. 원래 거리·활동 조건은 유지합니다.",P,200000,100000,300000,0,1000000),
+    v("purchase_recall_threat_memory","extra_n003","구매 귀환 위협 기억","구매 귀환 판단에서 최근 본 적을 위협으로 기억하는 기간입니다. 높을수록 오래 기억합니다. 초 단위가 아닙니다.",P,120,60,180,0,10000),
+    v("same_lane_partner_radius","extra_n004","같은라인 동료 근접반경","같은 라인 동료가 가까이 있다고 인정하는 반경입니다. 높을수록 먼 동료까지 인정하며, 거리 밖의 별도 승인 조건은 유지합니다.",P,150000,100000,200000,0,700000),
+    v("support_zero_net_penalty","extra_n005","지원 순평가0 대체 감점","지원 자격을 만족하고 이동 비용을 뺀 지원 평가가 정확히 0일 때 적용하는 감점입니다. 높을수록 그 지원 후보를 덜 고릅니다.",P,10,0,30,0,1000),
+    v("camp_deadline_arrival_seconds","extra_n006","일반 캠프 기한 비교 도착 여유","일반 캠프의 기한과 도착 시간을 비교할 때 더하는 여유 시간(초)입니다. 높을수록 기한 내 도착을 엄격히 따집니다.",P,1,0,3,0,10),
+    v("enemy_base_allies_radius","extra_n007","존재 아군 전원의 상대 기지 근접 반경","존재하는 아군 전원이 상대 기지에 가까운지 판단하는 반경입니다. 현재 판단 선수의 설정을 쓰며 높을수록 넓게 인정합니다.",P,600000,450000,700000,1000,2000000),
+    v("ambush_wait_accept_radius","extra_n008","매복 대기 인정 반경","매복 시작·재판정의 원래 위치 조건 안에서 대기를 인정하는 반경입니다. 높을수록 넓게 인정하며 적 탐지 반경은 유지합니다.",P,100000,50000,150000,1000,300000),
+    v("tracked_target_chase_bonus","extra_n009","등록 추적대상의 사거리 밖 추격 가산","등록된 추적 대상이 사거리 밖에 있을 때 추격 후보에 더하는 점수입니다. 높을수록 그 대상을 더 쫓습니다.",P,10,0,20,0,1000),
+    v("champion_ultimate_waste_penalty","extra_n010","챔피언 대상 궁극기 낭비 억제 감점","원래 낭비 검사 조건을 만족한 챔피언 대상 궁극기 후보의 감점입니다. 높을수록 해당 궁극기 사용을 아낍니다. 실제 위력은 유지합니다.",P,30,0,60,0,1000),
+    v("lane_opportunity_enemy_limit","extra_n011","라인 기회 상대 수 상한","라인 기회를 검토할 때 허용하는 상대 인원 상한입니다. 높을수록 상대가 더 많아도 기회 후보를 검토합니다.",P,1,0,2,0,5),
+    v("skill_arrival_prediction_margin","extra_n012","기술 도달 예측 여유","기술 도달 시점을 예측할 때 더하는 시간 여유입니다. 높을수록 예측 여유가 커집니다. 초 단위가 아니며 기술 속도·재사용 대기시간은 유지합니다.",P,10,5,15,0,1000),
     // END GENERATED EXTRAS
 ];
 
-pub const N: usize = 88;
+pub const N: usize = 100;
 const _: () = assert!(TACTICS.len() == N);
 
 /// 단계: 0 기본(원본) · 1 낮게(켬·끔이면 끔) · 2 높게.
@@ -293,12 +305,12 @@ pub fn apply_state_text(txt: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]fn all_88_saved_ids_roundtrip_and_config_revision_rejects_partial_update(){
+    #[test]fn all_100_saved_ids_roundtrip_and_config_revision_rejects_partial_update(){
         clear_levels();let revision=config_revision().unwrap();
         {let _update=config_update();assert!(config_revision().is_none());
          for t in 0..N{for col in 0..6{set_level(t,col,LV_LOW);}}}
         assert!(!config_unchanged(revision));
-        let txt=state_text();assert_eq!(apply_state_text(&txt),88);
+        let txt=state_text();assert_eq!(apply_state_text(&txt),100);
         for t in 0..N{for col in 0..6{assert_eq!(level(t,col),LV_LOW);}}
         clear_levels();
     }

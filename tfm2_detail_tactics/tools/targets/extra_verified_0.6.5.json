@@ -1,0 +1,751 @@
+{
+  "game_version": "0.6.5",
+  "exe_sha256": "daf040db8a3a3ae136f3ef8ce704e2718f049656b6b5e4872eacb599811d30b5",
+  "source_sha256": "89b28fde42bee13a2fc72690dfeb224978bfc0f78e51d52c424c657402e6ef98",
+  "evidence": [
+    "runtime_candidates_20261025/analyst_conclusion.md",
+    "runtime_candidates_second_20261025/analyst_conclusion.md"
+  ],
+  "tactics": [
+    {
+      "audit_id": "N001",
+      "id": "purchase_recall_walk_ticks",
+      "name": "구매 귀환 도보시간",
+      "desc": "구매를 위한 귀환 판단의 도보시간 문턱입니다. 높을수록 걸어서 돌아갈 수 있는 시간 범위를 넓힙니다. 초 단위가 아닙니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 211,
+      "low": 150,
+      "high": 300,
+      "min": 1,
+      "max": 10000,
+      "sites": [
+        {
+          "rva": "0xf3223f",
+          "src": {
+            "kind": "caller",
+            "return_off": "0xe8",
+            "cases": [
+              {
+                "ret_rva": "0xf0d06b",
+                "src": "stack:b8"
+              }
+            ]
+          },
+          "team_chk": "reg:r14",
+          "win_hex": "48 3d d3 00 00 00",
+          "first_len": 6,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          }
+        },
+        {
+          "rva": "0xf322a0",
+          "src": {
+            "kind": "caller",
+            "return_off": "0xe8",
+            "cases": [
+              {
+                "ret_rva": "0xf0d06b",
+                "src": "stack:b8"
+              }
+            ]
+          },
+          "team_chk": "reg:r14",
+          "win_hex": "48 3d d3 00 00 00",
+          "first_len": 6,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          }
+        }
+      ],
+      "verified_candidate_id": "R01",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n001"
+    },
+    {
+      "audit_id": "N002",
+      "id": "purchase_recall_threat_radius",
+      "name": "구매 귀환 위협 반경",
+      "desc": "구매 귀환 판단에서 적을 위협으로 인정하는 반경입니다. 높을수록 먼 적까지 살핍니다. 원래 거리·활동 조건은 유지합니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 200000,
+      "low": 100000,
+      "high": 300000,
+      "min": 0,
+      "max": 1000000,
+      "sites": [
+        {
+          "rva": "0xf322f8",
+          "src": {
+            "kind": "caller",
+            "return_off": "0xe8",
+            "cases": [
+              {
+                "ret_rva": "0xf0d06b",
+                "src": "stack:b8"
+              }
+            ]
+          },
+          "team_chk": "reg:r13",
+          "win_hex": "48 bd 01 90 2f 50 09 00 00 00",
+          "first_len": 10,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 dd 41 5b",
+          "tf": {
+            "kind": "Sq1"
+          }
+        }
+      ],
+      "verified_candidate_id": "R02",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n002"
+    },
+    {
+      "audit_id": "N003",
+      "id": "purchase_recall_threat_memory",
+      "name": "구매 귀환 위협 기억",
+      "desc": "구매 귀환 판단에서 최근 본 적을 위협으로 기억하는 기간입니다. 높을수록 오래 기억합니다. 초 단위가 아닙니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 120,
+      "low": 60,
+      "high": 180,
+      "min": 0,
+      "max": 10000,
+      "sites": [
+        {
+          "rva": "0xf323c3",
+          "src": {
+            "kind": "caller",
+            "return_off": "0xe8",
+            "cases": [
+              {
+                "ret_rva": "0xf0d06b",
+                "src": "stack:b8"
+              }
+            ]
+          },
+          "team_chk": "reg:r13",
+          "win_hex": "49 83 c7 78 48 89 f1",
+          "first_len": 4,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 01 df 41 5b",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          }
+        }
+      ],
+      "verified_candidate_id": "R03",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n003"
+    },
+    {
+      "audit_id": "N004",
+      "id": "same_lane_partner_radius",
+      "name": "같은라인 동료 근접반경",
+      "desc": "같은 라인 동료가 가까이 있다고 인정하는 반경입니다. 높을수록 먼 동료까지 인정하며, 거리 밖의 별도 승인 조건은 유지합니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 150000,
+      "low": 100000,
+      "high": 200000,
+      "min": 0,
+      "max": 700000,
+      "sites": [
+        {
+          "rva": "0xd3dae1",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0xd5e6db",
+                "src": "stackmem:30:be0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "win_hex": "49 81 fd c1 1a 3d 05",
+          "first_len": 7,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 dd 41 5b",
+          "tf": {
+            "calc": "verified_candidates::square_shift8"
+          }
+        },
+        {
+          "rva": "0xfdc554",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x58",
+            "cases": [
+              {
+                "ret_rva": "0xd4903e",
+                "src": "mem:rbp:1768"
+              },
+              {
+                "ret_rva": "0xd5c94d",
+                "src": "mem:rbp:be0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "win_hex": "49 81 ff c1 1a 3d 05",
+          "first_len": 7,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 df 41 5b",
+          "tf": {
+            "calc": "verified_candidates::square_shift8"
+          }
+        },
+        {
+          "rva": "0xfdc609",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x58",
+            "cases": [
+              {
+                "ret_rva": "0xd4903e",
+                "src": "mem:rbp:1768"
+              },
+              {
+                "ret_rva": "0xd5c94d",
+                "src": "mem:rbp:be0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "win_hex": "49 81 ff c1 1a 3d 05",
+          "first_len": 7,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 df 41 5b",
+          "tf": {
+            "calc": "verified_candidates::square_shift8"
+          }
+        },
+        {
+          "rva": "0xfdc6be",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x58",
+            "cases": [
+              {
+                "ret_rva": "0xd4903e",
+                "src": "mem:rbp:1768"
+              },
+              {
+                "ret_rva": "0xd5c94d",
+                "src": "mem:rbp:be0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "win_hex": "49 81 ff c1 1a 3d 05",
+          "first_len": 7,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 df 41 5b",
+          "tf": {
+            "calc": "verified_candidates::square_shift8"
+          }
+        },
+        {
+          "rva": "0xfdc773",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x58",
+            "cases": [
+              {
+                "ret_rva": "0xd4903e",
+                "src": "mem:rbp:1768"
+              },
+              {
+                "ret_rva": "0xd5c94d",
+                "src": "mem:rbp:be0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "win_hex": "49 81 ff c1 1a 3d 05",
+          "first_len": 7,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 df 41 5b",
+          "tf": {
+            "calc": "verified_candidates::square_shift8"
+          }
+        },
+        {
+          "rva": "0xfdc81c",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x58",
+            "cases": [
+              {
+                "ret_rva": "0xd4903e",
+                "src": "mem:rbp:1768"
+              },
+              {
+                "ret_rva": "0xd5c94d",
+                "src": "mem:rbp:be0"
+              }
+            ]
+          },
+          "team_chk": null,
+          "win_hex": "49 81 fb c1 1a 3d 05",
+          "first_len": 7,
+          "dynamic_hex": "41 52 4c 8b 54 24 f8 4d 39 d3 41 5a",
+          "tf": {
+            "calc": "verified_candidates::square_shift8"
+          }
+        }
+      ],
+      "verified_candidate_id": "LN7-01",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n004"
+    },
+    {
+      "audit_id": "N005",
+      "id": "support_zero_net_penalty",
+      "name": "지원 순평가0 대체 감점",
+      "desc": "지원 자격을 만족하고 이동 비용을 뺀 지원 평가가 정확히 0일 때 적용하는 감점입니다. 높을수록 그 지원 후보를 덜 고릅니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 10,
+      "low": 0,
+      "high": 30,
+      "min": 0,
+      "max": 1000,
+      "sites": [
+        {
+          "rva": "0xe6744c",
+          "src": "mem:rbp:548",
+          "team_chk": null,
+          "win_hex": "49 c7 c0 f6 ff ff ff",
+          "first_len": 7,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 d8 41 5b",
+          "tf": {
+            "calc": "verified_candidates::negative"
+          }
+        },
+        {
+          "rva": "0xe67a1d",
+          "src": "mem:rbp:548",
+          "team_chk": null,
+          "win_hex": "49 c7 c0 f6 ff ff ff",
+          "first_len": 7,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 d8 41 5b",
+          "tf": {
+            "calc": "verified_candidates::negative"
+          }
+        }
+      ],
+      "verified_candidate_id": "LN10-01",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n005"
+    },
+    {
+      "queue_id": "J03",
+      "audit_id": "N006",
+      "id": "camp_deadline_arrival_seconds",
+      "name": "일반 캠프 기한 비교 도착 여유",
+      "desc": "일반 캠프의 기한과 도착 시간을 비교할 때 더하는 여유 시간(초)입니다. 높을수록 기한 내 도착을 엄격히 따집니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 1,
+      "low": 0,
+      "high": 3,
+      "min": 0,
+      "max": 10,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "sites": [
+        {
+          "rva": "0x101621b",
+          "win_hex": "48 03 81 f8 12 00 00",
+          "min_win": 7,
+          "first_len": 7,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b",
+          "dynamic_asm": "push r11 ; mov r11, qword ptr [rsp - 8] ; add rax, r11 ; pop r11",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x68",
+            "cases": [
+              {
+                "ret_rva": "0x100e988",
+                "src": "stackmem:30:2e50"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "verified_candidates::ops_camp_tps"
+          },
+          "branches": [],
+          "first_asm": "add rax, qword ptr [rcx + 0x12f8]",
+          "original_asm": "add rax, qword ptr [rcx + 0x12f8]",
+          "function": [
+            "0x1016020",
+            "0x10162e5"
+          ],
+          "dynamic_semantics": "ADD RAX,TPS×seconds;원래wrap64및ADDflags.",
+          "flags_contract": "ADD64 CF/OF등정확. 뒤CMP D,arrival유지.",
+          "inbound_interior_direct_or_contiguous_jt": []
+        }
+      ],
+      "evidence": "candidate_round4_20261024/ops_part01_conclusion.md",
+      "runtime_verified": true,
+      "callback": "ops_camp_tps",
+      "scalar_reads": [
+        {
+          "kind": "mem",
+          "reg": "rcx",
+          "off": "0x12f8",
+          "meaning": "u64 TPS,fixture RCX는readable Settings"
+        }
+      ],
+      "shared_cache": "knownreturn100e988만. 다른4directcaller/unknown원본. callback실패원본. 확률/최종deadline gate변경없음.",
+      "knob": "extra_n006",
+      "all_copies_included": true,
+      "verified_candidate_id": "J03",
+      "tab": "정글",
+      "pos_mask": 2
+    },
+    {
+      "queue_id": "G6-01",
+      "audit_id": "N007",
+      "id": "enemy_base_allies_radius",
+      "name": "존재 아군 전원의 상대 기지 근접 반경",
+      "desc": "존재하는 아군 전원이 상대 기지에 가까운지 판단하는 반경입니다. 현재 판단 선수의 설정을 쓰며 높을수록 넓게 인정합니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 600000,
+      "low": 450000,
+      "high": 700000,
+      "min": 1000,
+      "max": 2000000,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "sites": [
+        {
+          "rva": "0xdedffd",
+          "win_hex": "49 b8 00 10 ac d1 53 00 00 00",
+          "min_win": 10,
+          "first_len": 10,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 d8 41 5b",
+          "dynamic_asm": "push r11 ; mov r11, qword ptr [rsp - 8] ; mov r8, r11 ; pop r11",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x38",
+            "cases": [
+              {
+                "ret_rva": "0xdeee7b",
+                "src": "stack:30"
+              },
+              {
+                "ret_rva": "0xdef014",
+                "src": "stack:30"
+              }
+            ]
+          },
+          "team_chk": null,
+          "tf": {
+            "calc": "verified_candidates::ops_gather_square"
+          },
+          "branches": [],
+          "first_asm": "movabs r8, 0x53d1ac1000",
+          "original_asm": "movabs r8, 0x53d1ac1000",
+          "function": [
+            "0xdedfb0",
+            "0xdee1b2"
+          ],
+          "dynamic_semantics": "MOV R8,R²;기존5거리비교·빈슬롯/빈팀예외유지.",
+          "flags_contract": "MOVABS처럼RFLAGS불변. callerTeam및현재Cache의Player슬롯추가검증.",
+          "inbound_interior_direct_or_contiguous_jt": []
+        }
+      ],
+      "evidence": "candidate_round6_20261024/gather_part01_conclusion.md",
+      "runtime_verified": true,
+      "callback": "ops_gather_square",
+      "scalar_reads": [
+        {
+          "kind": "stack",
+          "off": "0x30",
+          "meaning": "saved caller RSI Player"
+        },
+        {
+          "kind": "stackmem",
+          "off": "0x30",
+          "inner": "0x820",
+          "meaning": "u64 team"
+        },
+        {
+          "kind": "stackmem",
+          "off": "0x30",
+          "inner": "0x8b0",
+          "meaning": "u64 read후low32 pos"
+        },
+        {
+          "kind": "reg",
+          "reg": "r9",
+          "meaning": "5×ownTeam"
+        },
+        {
+          "kind": "mem",
+          "reg": "rdx",
+          "off": "0x288+team*0x28+pos*8",
+          "meaning": "currentCache Player==savedPlayer;2회읽기"
+        },
+        {
+          "kind": "mem",
+          "reg": "rdx",
+          "off": "0x238+team*0x28+pos*8",
+          "meaning": "currentchamp validpointer;2회읽기"
+        }
+      ],
+      "shared_cache": "known2caller만. roster귀속/팀불일치·빈ownchamp/unknown은원본. helper결과cache없음; geometry/strong변경없음.",
+      "knob": "extra_n007",
+      "all_copies_included": true,
+      "verified_candidate_id": "G6-01",
+      "tab": "갱·로밍",
+      "pos_mask": 31
+    },
+    {
+      "queue_id": "OP10-01",
+      "audit_id": "N008",
+      "id": "ambush_wait_accept_radius",
+      "name": "매복 대기 인정 반경",
+      "desc": "매복 시작·재판정의 원래 위치 조건 안에서 대기를 인정하는 반경입니다. 높을수록 넓게 인정하며 적 탐지 반경은 유지합니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 100000,
+      "low": 50000,
+      "high": 150000,
+      "min": 1000,
+      "max": 300000,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "sites": [
+        {
+          "rva": "0xeca42f",
+          "win_hex": "48 b9 00 e4 0b 54 02 00 00 00",
+          "min_win": 10,
+          "first_len": 10,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d9 41 5b",
+          "dynamic_asm": "push r11 ; mov r11, qword ptr [rsp - 8] ; mov rcx, r11 ; pop r11",
+          "src": "mem:rbp:2580",
+          "team_chk": null,
+          "tf": {
+            "calc": "verified_candidates::ops_radius_squared"
+          },
+          "branches": [],
+          "first_asm": "movabs rcx, 0x2540be400",
+          "original_asm": "movabs rcx, 0x2540be400",
+          "function": [
+            "0xeca140",
+            "0xecc59b"
+          ],
+          "dynamic_semantics": "MOVABS목적GPR=R². 뒤unsigned<=거리비교유지.",
+          "flags_contract": "MOVABS처럼RFLAGS불변.",
+          "inbound_interior_direct_or_contiguous_jt": []
+        },
+        {
+          "rva": "0xeca605",
+          "win_hex": "48 b8 00 e4 0b 54 02 00 00 00",
+          "min_win": 10,
+          "first_len": 10,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 d8 41 5b",
+          "dynamic_asm": "push r11 ; mov r11, qword ptr [rsp - 8] ; mov rax, r11 ; pop r11",
+          "src": "mem:rbp:2580",
+          "team_chk": null,
+          "tf": {
+            "calc": "verified_candidates::ops_radius_squared"
+          },
+          "branches": [],
+          "first_asm": "movabs rax, 0x2540be400",
+          "original_asm": "movabs rax, 0x2540be400",
+          "function": [
+            "0xeca140",
+            "0xecc59b"
+          ],
+          "dynamic_semantics": "MOVABS목적GPR=R². 뒤unsigned<=거리비교유지.",
+          "flags_contract": "MOVABS처럼RFLAGS불변.",
+          "inbound_interior_direct_or_contiguous_jt": []
+        }
+      ],
+      "evidence": "candidate_round10_20261025/ops_part01_conclusion.md",
+      "runtime_verified": true,
+      "callback": "ops_radius_squared",
+      "scalar_reads": [],
+      "shared_cache": "공유Mapmetadata/lazykey·적250k·이동80k/16k·mode/대각선우회유지. 자연reset전state유지가능. 난수알고리즘은그대로,바뀐분기소비량은변화가능.",
+      "knob": "extra_n008",
+      "all_copies_included": true,
+      "verified_candidate_id": "OP10-01",
+      "tab": "갱·로밍",
+      "pos_mask": 31
+    },
+    {
+      "audit_id": "N009",
+      "id": "tracked_target_chase_bonus",
+      "name": "등록 추적대상의 사거리 밖 추격 가산",
+      "desc": "등록된 추적 대상이 사거리 밖에 있을 때 추격 후보에 더하는 점수입니다. 높을수록 그 대상을 더 쫓습니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 10,
+      "low": 0,
+      "high": 20,
+      "min": 0,
+      "max": 1000,
+      "sites": [
+        {
+          "rva": "0xe77494",
+          "src": "mem:rbp:0x220",
+          "team_chk": null,
+          "win_hex": "48 8d 4e 0a 49 39 c1",
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "first_len": 4,
+          "tf": {
+            "calc": "verified_candidates::combat_rsi_add"
+          }
+        }
+      ],
+      "verified_candidate_id": "R8C01",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n009"
+    },
+    {
+      "audit_id": "N010",
+      "id": "champion_ultimate_waste_penalty",
+      "name": "챔피언 대상 궁극기 낭비 억제 감점",
+      "desc": "원래 낭비 검사 조건을 만족한 챔피언 대상 궁극기 후보의 감점입니다. 높을수록 해당 궁극기 사용을 아낍니다. 실제 위력은 유지합니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 30,
+      "low": 0,
+      "high": 60,
+      "min": 0,
+      "max": 1000,
+      "sites": [
+        {
+          "rva": "0xe78277",
+          "src": "mem:rbp:0x220",
+          "team_chk": null,
+          "win_hex": "48 83 c6 e2 e9 44 fd ff ff",
+          "dynamic_hex": "48 03 74 24 f0",
+          "first_len": 4,
+          "tf": {
+            "calc": "verified_candidates::combat_negative"
+          }
+        },
+        {
+          "rva": "0xe78267",
+          "src": "mem:rbp:0x220",
+          "team_chk": null,
+          "win_hex": "49 c7 c1 e2 ff ff ff",
+          "dynamic_hex": "4c 8b 4c 24 f0",
+          "first_len": 7,
+          "tf": {
+            "calc": "verified_candidates::combat_negative"
+          }
+        }
+      ],
+      "verified_candidate_id": "R9C01",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n010"
+    },
+    {
+      "audit_id": "N011",
+      "id": "lane_opportunity_enemy_limit",
+      "name": "라인 기회 상대 수 상한",
+      "desc": "라인 기회를 검토할 때 허용하는 상대 인원 상한입니다. 높을수록 상대가 더 많아도 기회 후보를 검토합니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 1,
+      "low": 0,
+      "high": 2,
+      "min": 0,
+      "max": 5,
+      "sites": [
+        {
+          "rva": "0xfb3c89",
+          "src": "reg:r13",
+          "team_chk": null,
+          "win_hex": "48 83 f8 01 0f 87 8a 01 00 00",
+          "first_len": 4,
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b",
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          }
+        }
+      ],
+      "verified_candidate_id": "L02",
+      "tab": "라인·이동",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n011"
+    },
+    {
+      "audit_id": "N012",
+      "id": "skill_arrival_prediction_margin",
+      "name": "기술 도달 예측 여유",
+      "desc": "기술 도달 시점을 예측할 때 더하는 시간 여유입니다. 높을수록 예측 여유가 커집니다. 초 단위가 아니며 기술 속도·재사용 대기시간은 유지합니다.",
+      "scope": "Player",
+      "kind": "Value",
+      "default": 10,
+      "low": 5,
+      "high": 15,
+      "min": 0,
+      "max": 1000,
+      "sites": [
+        {
+          "rva": "0x10142e3",
+          "src": "reg:rdi",
+          "team_chk": "mem:rsp:0x50",
+          "win_hex": "48 83 e8 0a 4c 0f 43 e0",
+          "dynamic_hex": "48 2b 44 24 f0",
+          "first_len": 4,
+          "tf": {
+            "kind": "Add",
+            "value": 0
+          }
+        }
+      ],
+      "verified_candidate_id": "DC01",
+      "tab": "위치·기술",
+      "pos_mask": 31,
+      "runtime_verified": true,
+      "qa_only": false,
+      "status": "promoted_after_replay_comparison",
+      "knob": "extra_n012"
+    }
+  ]
+}

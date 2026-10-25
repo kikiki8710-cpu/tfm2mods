@@ -2,9 +2,14 @@
   "name": "상세전술",
   "mod_id": "tfm2_detail_tactics",
   "author": "tfm2mods",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "mod_type": "native",
   "contains_code": true,
-  "description": "팀전술 창에서 내 팀의 49개 상세전술을 설정합니다. 8개 종류별 탭과 스크롤, 포지션별·팀 공통 풀다운을 지원합니다. 단계별 값은 detail_tactics_values.cfg에서 바꿀 수 있습니다.",
-  "dependencies": [{ "mod_id": "base", "version": ">=0.6.5, <0.6.6" }]
+  "description": "팀전술 창에서 내 팀의 61개 상세전술을 설정합니다. 8개 종류별 탭과 스크롤, 포지션별·팀 공통 풀다운을 지원합니다. 단계별 값은 detail_tactics_values.cfg에서 바꿀 수 있습니다.",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.6.5, <0.6.6"
+    }
+  ]
 }

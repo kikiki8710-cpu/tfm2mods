@@ -1,7 +1,7 @@
 //! UI 분류와 표시 포지션. 저장·AI에서 사용하는 TACTICS 순서는 바꾸지 않는다.
 use crate::tactics;
 
-pub const ROWS: usize = 20;
+pub const ROWS: usize = 17;
 pub struct Category {
     pub name: &'static str,
     pub ids: &'static [&'static str],
@@ -19,6 +19,8 @@ pub const CATEGORIES: &[Category] = &[
         "kill_bonus_cap",
         "battle_risk_retreat_threshold",
         "battle_move_candidate_penalty",
+        "tracked_target_chase_bonus",
+        "champion_ultimate_waste_penalty",
     ] },
     Category { name: "라인·이동", ids: &[
         "lane_retreat_final",
@@ -32,12 +34,19 @@ pub const CATEGORIES: &[Category] = &[
         "lane_attack_move_allowance",
         "mia_notice_caution_profile",
         "lane_wait_front_minion_distance",
+        "purchase_recall_walk_ticks",
+        "purchase_recall_threat_radius",
+        "purchase_recall_threat_memory",
+        "same_lane_partner_radius",
+        "support_zero_net_penalty",
+        "lane_opportunity_enemy_limit",
     ] },
     Category { name: "정글", ids: &[
         "jg_gank_hp_start",
         "jg_gank_hp_floor",
         "jungle_safe_radius",
         "jungle_stop_hp",
+        "camp_deadline_arrival_seconds",
     ] },
     Category { name: "갱·로밍", ids: &[
         "gank_abort_hp",
@@ -48,6 +57,8 @@ pub const CATEGORIES: &[Category] = &[
         "liner_roam_call_chance",
         "shared_battle_role_markers",
         "gank_reevaluate_seconds",
+        "enemy_base_allies_radius",
+        "ambush_wait_accept_radius",
     ] },
     Category { name: "푸시·타워", ids: &[
         "push_sustain_min_healthy",
@@ -71,6 +82,7 @@ pub const CATEGORIES: &[Category] = &[
         "movement_skill_period_margin",
         "battle_reposition_distance_scale",
         "candidate_move_budget_margin",
+        "skill_arrival_prediction_margin",
     ] },
 ];
 pub fn tactic_at(tab: usize, row: usize) -> Option<usize> {
@@ -139,6 +151,18 @@ pub fn player_visible(id: &str, col: usize) -> bool {
         "gank_lane_tower_wave_profile" => return 31 & (1 << col) != 0,
         "lane_wait_front_minion_distance" => return 31 & (1 << col) != 0,
         "support_roam_adc_min_hp" => return 16 & (1 << col) != 0,
+        "purchase_recall_walk_ticks" => return 31 & (1 << col) != 0,
+        "purchase_recall_threat_radius" => return 31 & (1 << col) != 0,
+        "purchase_recall_threat_memory" => return 31 & (1 << col) != 0,
+        "same_lane_partner_radius" => return 31 & (1 << col) != 0,
+        "support_zero_net_penalty" => return 31 & (1 << col) != 0,
+        "camp_deadline_arrival_seconds" => return 2 & (1 << col) != 0,
+        "enemy_base_allies_radius" => return 31 & (1 << col) != 0,
+        "ambush_wait_accept_radius" => return 31 & (1 << col) != 0,
+        "tracked_target_chase_bonus" => return 31 & (1 << col) != 0,
+        "champion_ultimate_waste_penalty" => return 31 & (1 << col) != 0,
+        "lane_opportunity_enemy_limit" => return 31 & (1 << col) != 0,
+        "skill_arrival_prediction_margin" => return 31 & (1 << col) != 0,
         _ => {}
     }
     // END EXTRA VISIBILITY
@@ -167,7 +191,7 @@ mod tests {
             }
             assert_eq!(tactic_at(tab, category.ids.len()), None);
         }
-        assert_eq!(seen.iter().filter(|x| **x).count(), 49);
+        assert_eq!(seen.iter().filter(|x| **x).count(), 61);
         // 숨김은 저장 카탈로그 삭제가 아니다. 기존32종은 모두 남는다.
         assert!(seen[..32].iter().all(|x| *x));
         for id in ["kill_bonus_cap", "shared_battle_role_markers", "boss_reposition_improvement", "movement_skill_period_margin"] {
@@ -176,7 +200,7 @@ mod tests {
         for id in ["gank_call_rng", "support_roam_adc_min_hp", "defense_leave_hp"] {
             assert!(!seen[tactics::index_of(id).unwrap()]);
         }
-        assert_eq!(tactics::N, 88);
+        assert_eq!(tactics::N, 100);
         assert_eq!(tactic_at(CATEGORIES.len(), 0), None);
     }
 }

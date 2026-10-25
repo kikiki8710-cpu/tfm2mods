@@ -10,6 +10,11 @@ def records():
     rows = sorted([t for d in docs for t in d['tactics']], key=lambda t:t['audit_id'])
     assert len(rows)==56 and len({t['audit_id'] for t in rows})==56
     assert len({t['id'] for t in rows})==56
+    verified=json.loads((ROOT/'tools/targets/extra_verified_0.6.5.json').read_text(encoding='utf-8'))
+    assert len(verified['tactics'])==12
+    # 기존 88개 저장 순서를 고정하고 검증 후보는 후방에만 추가한다.
+    docs.append(verified);rows.extend(verified['tactics'])
+    assert len(rows)==68 and len({t['id'] for t in rows})==68
     return docs, rows
 
 def write_catalog():
@@ -24,7 +29,7 @@ def write_catalog():
     path=ROOT/'src'/'tactics.rs';s=path.read_text(encoding='utf-8')
     s=re.sub(r'    // BEGIN GENERATED EXTRAS.*?    // END GENERATED EXTRAS\n','',s,flags=re.S)
     s=s.replace('\n];\n\npub const N:', '\n'+'\n'.join(lines)+'\n];\n\npub const N:',1)
-    s=re.sub(r'pub const N: usize = \d+;', 'pub const N: usize = 88;',s)
+    s=re.sub(r'pub const N: usize = \d+;', f'pub const N: usize = {32+len(rows)};',s)
     path.write_text(s,encoding='utf-8',newline='\n')
     # Preserve existing category membership and save identities; append audit rows.
     path=ROOT/'src'/'presentation.rs';s=path.read_text(encoding='utf-8')
@@ -35,7 +40,7 @@ def write_catalog():
     for name in ('오브젝트','위치·기술'):
         if name not in [n for n,_ in cats]:cats.append((name,[]))
     visible=set(json.loads((ROOT/'tools'/'visible_extras.json').read_text(encoding='utf-8'))['audit_ids'])
-    assert len(visible)==17 and visible <= {t['audit_id'] for t in rows}
+    assert len(visible)==29 and visible <= {t['audit_id'] for t in rows}
     for t in rows:
         if t['audit_id'] not in visible:continue
         match=next((ids for name,ids in cats if name==t['tab']),None)
@@ -92,7 +97,7 @@ def load(pe,sha,md,starts,ends,order,func_cache,interior_all,log):
             for h in interior:interior_all[h]=(t['id'],s['rva'])
             tf=s['tf']
             if 'calc' in tf:
-                assert re.fullmatch(r'extra_(lane|combat|ops)::[a-z0-9_]+',tf['calc'])
+                assert re.fullmatch(r'(extra_(lane|combat|ops)|verified_candidates)::[a-z0-9_]+',tf['calc'])
                 trans='Tf::Compute(crate::'+tf['calc']+')'
             elif tf['kind']=='Add':trans=f"Tf::Add({tf['value']})"
             elif tf['kind']=='Sq1':trans='Tf::Sq1'
@@ -102,5 +107,5 @@ def load(pe,sha,md,starts,ends,order,func_cache,interior_all,log):
             asm=' ; '.join(i.mnemonic+' '+i.op_str for i in ins)
             patches.append(dict(name=f"extra_{t['audit_id'].lower()}@{s['rva']}",tactic=order['extra_'+t['audit_id'].lower()],rva=rva,win=win,fields=fields,branches=branches,src=parse_src(s['src']),chk=parse_src(s.get('team_chk')),asm=asm,func=fn[0],first_len=first,dynamic=dyn))
             log.append(f"[추가창] {t['audit_id']} {s['rva']} {asm} | 주체 {s['src']}")
-    assert len({p['tactic'] for p in patches})==56
+    assert len({p['tactic'] for p in patches})==68
     return patches

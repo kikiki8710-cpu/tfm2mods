@@ -1,7 +1,7 @@
 //! 상세전술: 공식 UI·세이브 API + 내 팀 한정 AI 문턱 적용.
 #![allow(dead_code)]
 mod platform; mod micro; mod sites; mod tactics; mod values; mod save; mod sha256; mod roster; mod presentation; mod ui;
-mod extra_lane; mod extra_combat; mod extra_ops;
+mod extra_lane; mod extra_combat; mod extra_ops; mod verified_candidates;
 #[cfg(feature="replay_ab")] mod replay_ab;
 #[path="../../common/log_dir.rs"] mod log_dir;
 use mod_api_stable::{declare_stable_mod,LogLevel,StableClient,StableExtension,StableHost,StableMod,SceneKindV1};

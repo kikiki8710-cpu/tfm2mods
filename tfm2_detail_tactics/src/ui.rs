@@ -210,7 +210,7 @@ pub fn leave(){let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());close_dro
             assert!(e.select(row,col,1));
             assert_eq!(cell_level(&e,t,col),Some(1));
         }
-        assert_eq!(total,49);assert_eq!(CATEGORIES.len(),8);
+        assert_eq!(total,61);assert_eq!(CATEGORIES.len(),8);
         let src=source();assert_eq!(src.matches(":scroll_view").count(),8);
         for(tab,category)in CATEGORIES.iter().enumerate(){assert!(src.contains(&format!("height:{}px",category.ids.len()*76)));assert!(src.contains(&format!("#page{tab}:scroll_view")));}
     }
@@ -224,6 +224,8 @@ pub fn leave(){let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());close_dro
             ("gank_abort_hp",0b0011111),("gank_abort_tower",0b0011111),
             ("gank_call_accept_hp",0b0011111),("lane_opportunity_own_min",0b0011111),
             ("lane_retreat_final",0b0011111),("push_sustain_margin",0b0100000),
+            ("camp_deadline_arrival_seconds",0b0000010),
+            ("same_lane_partner_radius",0b0011111),
         ];
         for(id,mask)in cases{let t=tactics::index_of(id).unwrap();for col in 0..=COL_DUO{
             assert_eq!(cell_visible(t,col),mask&(1<<col)!=0,"{id} col={col}");

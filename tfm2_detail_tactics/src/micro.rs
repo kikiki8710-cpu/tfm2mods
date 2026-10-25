@@ -252,7 +252,7 @@ pub(crate) fn replay_ab_snapshot()->serde_json::Value {
 #[cfg(test)] mod tests {
     use super::*;
     #[test] fn complete_catalog_has_relocatable_windows_and_default_bypass(){
-        assert_eq!(tactics::N,88);assert_eq!(sites::PATCHES.len(),197);
+        assert_eq!(tactics::N,100);assert_eq!(sites::PATCHES.len(),218);
         let mut counts=[0usize;tactics::N];
         for p in sites::PATCHES{
             counts[p.tactic]+=1;assert!(!matches!(p.src,Src::None));
