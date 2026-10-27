@@ -1,0 +1,561 @@
+{
+ "schema": "hotfix_exposure/1",
+ "generated": "2026-10-27",
+ "doc": "MIG\\patchday\\hotfix_exposure_0.6.5.md",
+ "base": {
+  "version": "0.6.5",
+  "exe_sha256": "DAF040DB8A3A3AE136F3EF8CE704E2718F049656B6B5E4872EACB599811D30B5",
+  "exe_size": 87009792,
+  "enabled_mods_source": "<게임>\\config\\game\\mods.json enabled_mods (21개, 2026-10-23 02:00)"
+ },
+ "conclusion": [
+  "정식 패치(0.6.6): deps 상한 10종은 게임이 자동 비활성, 상한 없는 5종은 stable 전용(RVA 0)이라 무관 = 안전",
+  "핫픽스(버전 문자열 0.6.5 유지 — 과거 7/7회): 15종 전부 새 exe 에서 로드됨",
+  "핫픽스 크래시 위험 높음 2종 = tfm2_comptest_unlock(UI 로더 훅 무검증) · tfm2_elemental_serpen(arg_str 훅 무검증·init 즉시)",
+  "중간 1종 = banpick_view_plus(훅은 대조하나 훅 안 무검증 헬퍼 13개 — 부분 이동 핫픽스에서 위험)",
+  "나머지는 안전하게 꺼지거나 기능만 죽음 · tfm2_detail_tactics 는 EXE SHA256 가드로 100전술 전부 미설치",
+  "권고: 게임 켜기 전 run_patchday.py → 핫픽스면 comptest·serpen(필수)·banpick_view_plus(권장) 를 enabled_mods 에서 빼고 마이그 후 복귀"
+ ],
+ "loader_rule": {
+  "compare": "Rust semver 1.0.26 — 게임 버전(exe 내장 문자열)을 base deps VersionReq 와 비교",
+  "evidence_exe_strings_065": [
+   "Failed to parse game version '…' as semver: … . Using 0.0.0 (파일오프셋 0x3d3811f 부근)",
+   "dependency '…' version … does not match requirement … (0x3d29317 부근)",
+   "Invalid version requirement for dependency '…' (0x3d37b13)",
+   "semver-1.0.26\\src\\parse.rs (0x3dcd79c)",
+   "내장 게임 버전 '0.6.5' 3곳: 0x3a8daab · 0x3af1f31 · 0x3d388e8(로더 영역)"
+  ],
+  "no_exe_hash_check": "로더는 exe 해시를 안 봄 · stable 은 ABI 레벨이 게임보다 높을 때만 거절(mod-sdk-stable\\README.txt)",
+  "deps_mismatch_keeps_enabled_entry": "간접 근거: mods.json 백업 09-17·09-19·09-30 에 deps 범위 밖 모드(tfm2_item_tactics·sylas 등)가 enabled_mods 에 남아 있음 — 재배포 후 자동 복귀 ⬜미검증",
+  "variants": {
+   "0.6.6": "상한 10종 꺼짐 · >=0.6.0/>=0.4.0 켜짐",
+   "0.6.5": "전부 켜짐(핫픽스 — 과거 7/7회 이 형태)",
+   "0.6.5+x": "전부 켜짐 (추정: semver 는 빌드 메타데이터 무시)",
+   "0.6.5-x": "base deps 가진 모드 전부 꺼짐 (추정: 프리릴리스 매칭 규칙)",
+   "0.6.5_x / 0.6.5.1": "semver 파싱 실패 → 0.0.0 → 전부 꺼짐 (exe 문자열 근거 · 경로 미실측)"
+  }
+ },
+ "hotfix_history": [
+  {"pair": "0.4.13→0.4.13_2", "version_string": "0.4.13→0.4.13", "same_fn_bounds_pct": 3.0, "first_moved_rva": "0x1000", "class": "H2"},
+  {"pair": "0.4.13_2→0.4.13_3", "version_string": "0.4.13→0.4.13", "same_fn_bounds_pct": 27.1, "first_moved_rva": "0xb388a0", "class": "H1"},
+  {"pair": "0.4.13_3→0.4.13_4", "version_string": "0.4.13→0.4.13", "same_fn_bounds_pct": 5.2, "first_moved_rva": "0x3bd120", "class": "H2"},
+  {"pair": "0.4.13_4→0.4.13_5", "version_string": "0.4.13→0.4.13", "same_fn_bounds_pct": 3.2, "first_moved_rva": "0x1330", "class": "H2"},
+  {"pair": "0.4.14→0.4.14_2", "version_string": "0.4.14→0.4.14", "same_fn_bounds_pct": 0.4, "first_moved_rva": "0x72f0", "class": "H2"},
+  {"pair": "0.5.0→0.5.0_2", "version_string": "0.5.0→0.5.0", "same_fn_bounds_pct": 25.7, "first_moved_rva": "0xb4b750", "class": "H1"},
+  {"pair": "0.5.0_2→0.5.0_3", "version_string": "0.5.0→0.5.0", "same_fn_bounds_pct": 0.4, "first_moved_rva": "0x7910", "class": "H2"},
+  {"pair": "0.6.4→0.6.5 (정식·참고)", "version_string": "0.6.4→0.6.5", "same_fn_bounds_pct": 1.0, "first_moved_rva": "0x63c30", "class": "H2"}
+ ],
+ "hotfix_classes": {
+  "H2": "전면 재배치 — 거의 모든 함수 주소가 바뀜(과거 핫픽스 5/7)",
+  "H1": "부분 이동 — 앞 약 11~12MB 는 그대로, 그 뒤만 이동(과거 핫픽스 2/7)",
+  "note": "tfm2_0.4.14_2 와 tfm2_0.4.14_hotfix 는 sha256 동일 파일이라 표본 제외"
+ },
+ "guard_sim": {
+  "method": "매니페스트 0.6.5 RVA 의 12B 를 0.6.4·0.6.3 exe 같은 RVA 에 대조(_tmp\\hotfix_exposure\\guard_sim.py)",
+  "result": "8개 매니페스트 448 RVA 중 12B 일치 0 (0.6.4·0.6.3 모두) = H2 에서는 12B 대조가 전부 막음",
+  "push8_count_065_text": 82248,
+  "push8_random_match_16aligned": "0.24%",
+  "first_byte_only_pass_16aligned": {"build/send": "5.0%", "drop": "15.4%"},
+  "unguarded_targets_on_other_exe": {
+   "comptest LOADER_RVA 0x337890": "0.6.4 함수 0x3377f0+0xa0 · 0.6.3 함수 0x337870+0x20 (다른 함수 중간)",
+   "serpen ARG_STR_RVA 0x1657a70": "0.6.4 함수 0x16576a0+0x3d0 · 0.6.3 함수 0x1656230+0x1840",
+   "banpick NAME_GET 0x22f9770": "0.6.4 함수 0x22f92a0+0x4d0 · 0.6.3 함수 0x22f85e0+0x1190",
+   "comptest CTX_CLONE 0x2a7c610": "0.6.4 함수 0x2a7c600+0x10 · 0.6.3 함수 0x2a7c5c0+0x50"
+  }
+ },
+ "rows": [
+  {
+   "모드": "tfm2_comptest_unlock",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "로드됨 · UI로더 훅 무검증 덮어쓰기 → 크래시 위험 높음",
+   "자체 확인": "혼합 — 패치·훅 대부분 바이트 대조, 로더 훅 확인 없음",
+   "권고": "핫픽스면 게임 켜기 전 끄기(필수)",
+   "risk": "HIGH",
+   "hotfix_action": "disable_before_launch",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "mixed",
+    "evidence": [
+     "tfm2_comptest_unlock.rs:356-367 apply_one 원본 바이트 대조",
+     "tfm2_comptest_unlock.rs:733-744 install_hook12 진입 12B(범용 push8 2종)",
+     "tfm2_comptest_unlock.rs:3251-3259 install_hook_n 정확 대조 · :4115-4121 17B",
+     "ui_inject.rs:334-361 install_one 진입부 대조 없음(이미 내 훅인지만)",
+     "tfm2_comptest_unlock.rs:3409 UI_INJECT_ON=true · :4320 post_update 에서 uinj::install()",
+     "tfm2_comptest_unlock.rs:1775 CTXSNAP_ON=true · :1803·1809 CTX_CLONE/DROP 무검증 호출(:1955 liveb_detour 안)",
+     "tfm2_comptest_unlock.rs:2585 REFRESH_RVA 무검증 호출"
+    ],
+    "manifest_rva_065": 69,
+    "generic_push8": 17,
+    "H2": "LOADER 0x337890 이 다른 함수 중간 → 12B 덮어씀 → 그 코드 실행 시 크래시 · 나머지 훅은 대조 실패로 미설치",
+    "H1": "경계가 0x337890 위면 로더 무사 · 대조 통과한 훅 안 무검증 호출(CTX_CLONE 0x2a7c610 등)이 옮겨졌으면 크래시",
+    "logs": "<게임>\\mods\\tfm2_comptest_unlock\\tfm2_comptest_unlock.txt",
+    "fix_idea": "install_one 에 진입부 12B 대조 추가 또는 EXE 신원 게이트(소스 수정 = 사람 판단)"
+   }
+  },
+  {
+   "모드": "tfm2_elemental_serpen",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "로드됨 · arg_str 훅 무검증(init 즉시) → 크래시 위험 높음",
+   "자체 확인": "훅 12B 대조(대부분 범용 push8) · arg_str 확인 없음",
+   "권고": "핫픽스면 게임 켜기 전 끄기(필수)",
+   "risk": "HIGH",
+   "hotfix_action": "disable_before_launch",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "mixed",
+    "evidence": [
+     "lib.rs:2502-2515 install_serpen_hook 진입 12B 대조",
+     "lib.rs:2237-2246 install_tramp12 · :985-989 install_stub_generic · :1909-1918 mobatick",
+     "lib.rs:2736-2758 install_arg_str_hook 진입부 대조 없음(15B 이전·12B 덮어쓰기)",
+     "lib.rs:2564 ensure_setup 에서 무조건 호출(init)",
+     "lib.rs:655 USE_UILOADER_HOOK=false → :736 무검증 UI 로더 훅은 이번엔 해당 없음",
+     "lib.rs:2296-2298 구조체(O_ENTITY_ACCESSOR)에서 읽은 함수포인터 호출"
+    ],
+    "manifest_rva_065": 18,
+    "generic_push8": 11,
+    "H2": "기동 즉시 0x1657a70(다른 함수 중간)에 덮어씀 → 크래시 위험 · 나머지 훅 미설치",
+    "H1": "훅이 살아남고 엔티티 구조체가 바뀌면 함수포인터 호출에서 즉사(취약점 지도 🔴)",
+    "logs": "E:\\claude\\tfm2\\logs\\game_mods\\tfm2_elemental_serpen\\serpen_probe.txt",
+    "fix_idea": "install_arg_str_hook 에 진입 15B 대조 추가(소스 수정 = 사람 판단)"
+   }
+  },
+  {
+   "모드": "banpick_view_plus",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "전면이동=훅 미설치 / 부분이동=무검증 헬퍼 호출 크래시",
+   "자체 확인": "훅3 진입 12·12·13B + 기하 13항 사전검사 · 헬퍼13 무검증",
+   "권고": "핫픽스면 끄기 권장(밴픽 연출만 사라짐)",
+   "risk": "MED",
+   "hotfix_action": "disable_recommended",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "entry_bytes+unguarded_calls",
+    "evidence": [
+     "showcase.rs:841-860 install_replace(외부훅 거절·프롤로그 대조)",
+     "showcase.rs:63-68 FX_SET/CARD_DRAW = 범용 push8 · ILLUST_GET 13B 고유",
+     "showcase.rs:897-921 훅 3개 독립 설치",
+     "showcase.rs:791-817 기하 패치 13항 전부 맞아야 일괄 적용",
+     "showcase.rs:29-52 · :222-224 gfn = base+RVA 무검증 호출 13개"
+    ],
+    "manifest_rva_065": 22,
+    "generic_push8": 8,
+    "H2": "훅 3개 대조 실패 → 쇼케이스 없음·기하 SKIP(안전)",
+    "H1": "훅(0x220dda0~0x22cb030) 유지 + NAME_GET 0x22f9770·SPRITE_CALC 0x22feb50·GAME_ALLOC 0x2f2dc50 이동 시 밴픽 연출 중 크래시",
+    "logs": "showcase_log.txt (hook A FAIL · geom patch SKIP)"
+   }
+  },
+  {
+   "모드": "tfm2_champ_pos_lock",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "대개 훅 미설치 → 포지션 제한 무시(크래시 위험 낮음)",
+   "자체 확인": "훅 4종 진입 12B 대조(범용 push8) · 자동스왑 고유 12B",
+   "권고": "켜 둬도 됨 · 제한이 안 걸리는 것 주의",
+   "risk": "LOW",
+   "hotfix_action": "keep_feature_off",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "entry_bytes",
+    "evidence": [
+     "pick_click_hook.rs:79 · swap_confirm_hook.rs:41 · legacy_assign.rs:75 · ui_kit/draft_scene_stable.rs:78 (12B, 외부훅이면 체인)",
+     "auto_swap.rs:64-67 select_swap 고유 12B 대조 후에만 호출",
+     "lib.rs:341-346 install_once 각자 독립"
+    ],
+    "manifest_rva_065": 4,
+    "generic_push8": 3,
+    "H2": "훅 미설치 → 회색 처리·클릭 차단·AI 규칙 조용히 미적용",
+    "H1": "일부 훅만 설치 가능",
+    "logs": "champ_pos_lock_*.txt"
+   }
+  },
+  {
+   "모드": "tfm2_champion_exclude",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "훅 미설치 → 제외 목록 무시(바닐라대로 신챔프 추가)",
+   "자체 확인": "진입 17B 정확 대조 · 다른 모드 훅이면 체인",
+   "권고": "켜 둬도 됨 · 시즌 패치 진행은 마이그 후",
+   "risk": "LOW",
+   "hotfix_action": "keep_feature_off",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "entry_bytes_exact",
+    "evidence": ["hook.rs:12 HOOK_ORIG 17B", "hook.rs:161-173 일치·외부훅 아니면 install SKIPPED"],
+    "manifest_rva_065": 1,
+    "generic_push8": 0,
+    "logs": "<게임>\\mods\\tfm2_champion_exclude\\champion_exclude.txt (HOOK FAIL)"
+   }
+  },
+  {
+   "모드": "tfm2_level_cap",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "2곳 독립 → 미설치/한쪽만 → 상한 바닐라·경험치 바 깨짐",
+   "자체 확인": "사이트 2곳 원본 7B 정확 대조",
+   "권고": "켜 둬도 됨 · 레벨업 진행은 마이그 후",
+   "risk": "LOW",
+   "hotfix_action": "keep_feature_off",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "entry_bytes_exact",
+    "evidence": ["lib.rs:112-125 RVA·원본 7B", "lib.rs:420-426 byte mismatch 면 Err", "lib.rs:466-475 두 사이트 독립 설치", "lib.rs:115-118 한쪽만 설치 시 경험치 바 깨짐 주석"],
+    "manifest_rva_065": 2,
+    "generic_push8": 0,
+    "logs": "<게임>\\mods\\tfm2_level_cap\\tfm2_level_cap.txt (byte mismatch)"
+   }
+  },
+  {
+   "모드": "training_view_plus",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "UI 는 뜨나 서버 적용이 오류로 끝남(아무것도 안 씀)",
+   "자체 확인": "구조 가드①② + 함수 7종 진입 8~12B 정확 대조",
+   "권고": "켜 둬도 됨",
+   "risk": "LOW",
+   "hotfix_action": "keep",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "struct+entry_bytes_exact",
+    "evidence": ["ui_kit/training_plan_stable.rs:113 가드① · :115 가드② · :120-135 가드③(7종 정확·drop_res 첫 바이트)", "training_view_plus/src/lib.rs:294-296 Err → '오류:' 표시"],
+    "manifest_rva_065": "ui_kit 8",
+    "generic_push8": "ui_kit 공유"
+   }
+  },
+  {
+   "모드": "facility_view_plus",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "생산은 서버 반영 · 즉시 화면 동기만 실패",
+   "자체 확인": "구조 가드①② + 함수 3종 첫 1B 느슨(team_sync)",
+   "권고": "켜 둬도 됨",
+   "risk": "LOW",
+   "hotfix_action": "keep",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "struct+weak_first_byte",
+    "evidence": ["ui_kit/team_sync_stable.rs:68 가드① · :71 가드② · :77-83 가드③ 첫 1바이트만", "facility_view_plus/src/lib.rs:327-328 동기 실패 시 '(화면 반영은 다음 진행 시)'"],
+    "note": "0.6.4·0.6.3 exe 에서는 3함수 동시 통과 없음 · 무작위 첫 바이트 통과율 build/send 5.0%·drop 15.4%"
+   }
+  },
+  {
+   "모드": "custom_tier_assignment",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "티어 저장은 반영 · 즉시 동기만 실패 · raw 읽기 자가검증",
+   "자체 확인": "team_sync 가드①②③(느슨) + client_db 팀ID 자가검증",
+   "권고": "켜 둬도 됨",
+   "risk": "LOW",
+   "hotfix_action": "keep",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "struct+weak_first_byte",
+    "evidence": ["ui_kit/team_sync_stable.rs:68-83", "ui_kit/client_db_stable.rs:56 player_team_id 자가검증(읽기 전용)", "custom_tier_assignment/src/lib.rs:581"]
+   }
+  },
+  {
+   "모드": "tfm2_detail_tactics",
+   "활성": "ON",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "SHA 불일치 → 100전술 전부 FAILED·원본 유지(안전)",
+   "자체 확인": "EXE SHA256 전체 대조 + 창 218 바이트 대조",
+   "권고": "켜 둬도 안전 · track_update 후 재생성·재배포",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": true,
+   "detail": {
+    "guard": "exe_sha256",
+    "evidence": ["micro.rs:216-218 exe 파일 SHA256 == sites.rs:5 EXE_SHA256", "micro.rs:222 실패 시 전 전술 ST_FAILED 후 반환", "micro.rs:226 · :193 창 바이트 재대조", "micro.rs:204-208 panic 시 전부 원본 유지", "배포 dll(SHA256 878D82D1…) 안에 기준 SHA 문자열·'게임 EXE SHA256 불일치' 존재"],
+    "observed": "E:\\claude\\tfm2\\logs\\game_mods\\tfm2_detail_tactics\\detail_tactics.log 1-44행: SHA 불일치 후 전 사이트 calls=0 applied=0 (그 세션 exe 미상)",
+    "manifest_rva_065": 321,
+    "generic_push8": 0
+   }
+  },
+  {
+   "모드": "tfm2_mod_order",
+   "활성": "ON",
+   "deps": ">=0.6.0",
+   "정식패치(0.6.6)": "계속 로드(상한 없음 · stable 전용)",
+   "핫픽스(0.6.5 유지)": "무관(RVA·코드쓰기 없음)",
+   "자체 확인": "해당 없음(RVA 0)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true,
+   "detail": {"evidence": ["src/lib.rs #[path] = common/log_dir.rs 뿐", "manifest notes 'SDK 전용 — 재빌드만'"]}
+  },
+  {
+   "모드": "Spectator_Chat",
+   "활성": "ON",
+   "deps": ">=0.6.0",
+   "정식패치(0.6.6)": "계속 로드(상한 없음 · stable 전용)",
+   "핫픽스(0.6.5 유지)": "무관(stable 훅·UI 만)",
+   "자체 확인": "해당 없음(RVA 0)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true,
+   "detail": {"evidence": ["src/lib.rs:1-10 stable 재작성(StableMatchHook·game_time 라벨)", "ui_kit/ui_kit_stable.rs = stable API 만(GetAsyncKeyState 외 raw 없음)"]}
+  },
+  {
+   "모드": "roster_view_plus",
+   "활성": "ON",
+   "deps": ">=0.6.0",
+   "정식패치(0.6.6)": "계속 로드(상한 없음 · stable 전용)",
+   "핫픽스(0.6.5 유지)": "무관(RVA·코드쓰기 없음)",
+   "자체 확인": "해당 없음(RVA 0)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true,
+   "detail": {"evidence": ["src/lib.rs grep: RVA·transmute·read_unaligned 없음"]}
+  },
+  {
+   "모드": "recruitment_view_plus",
+   "활성": "ON",
+   "deps": ">=0.6.0",
+   "정식패치(0.6.6)": "계속 로드(상한 없음 · stable 전용)",
+   "핫픽스(0.6.5 유지)": "무관(RVA·코드쓰기 없음)",
+   "자체 확인": "해당 없음(RVA 0)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true,
+   "detail": {"evidence": ["src/lib.rs grep: RVA·transmute·read_unaligned 없음"]}
+  },
+  {
+   "모드": "coaching_staff_view_plus",
+   "활성": "ON",
+   "deps": ">=0.6.0",
+   "정식패치(0.6.6)": "계속 로드(상한 없음 · stable 전용)",
+   "핫픽스(0.6.5 유지)": "무관(RVA·코드쓰기 없음)",
+   "자체 확인": "해당 없음(RVA 0)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true,
+   "detail": {"evidence": ["src/lib.rs grep: RVA·transmute·read_unaligned 없음"]}
+  },
+  {
+   "모드": "leefs_variety",
+   "활성": "ON(워크샵 3738384222)",
+   "deps": ">=0.4.0",
+   "정식패치(0.6.6)": "계속 로드(콘텐츠 · 코드 없음)",
+   "핫픽스(0.6.5 유지)": "무관(dll 없음)",
+   "자체 확인": "해당 없음(dll 없음)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true
+  },
+  {
+   "모드": "leefs_variety2",
+   "활성": "ON(워크샵 3743143109)",
+   "deps": ">=0.4.0",
+   "정식패치(0.6.6)": "계속 로드(콘텐츠 · 코드 없음)",
+   "핫픽스(0.6.5 유지)": "무관(dll 없음)",
+   "자체 확인": "해당 없음(dll 없음)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true
+  },
+  {
+   "모드": "leefs_variety3",
+   "활성": "ON(워크샵 3748325543)",
+   "deps": ">=0.4.0",
+   "정식패치(0.6.6)": "계속 로드(콘텐츠 · 코드 없음)",
+   "핫픽스(0.6.5 유지)": "무관(dll 없음)",
+   "자체 확인": "해당 없음(dll 없음)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true
+  },
+  {
+   "모드": "leefs_variety4",
+   "활성": "ON(워크샵 3755409850)",
+   "deps": ">=0.4.0",
+   "정식패치(0.6.6)": "계속 로드(콘텐츠 · 코드 없음)",
+   "핫픽스(0.6.5 유지)": "무관(dll 없음)",
+   "자체 확인": "해당 없음(dll 없음)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true
+  },
+  {
+   "모드": "leefs_variety5",
+   "활성": "ON(워크샵 3767908673)",
+   "deps": ">=0.4.0",
+   "정식패치(0.6.6)": "계속 로드(콘텐츠 · 코드 없음)",
+   "핫픽스(0.6.5 유지)": "무관(dll 없음)",
+   "자체 확인": "해당 없음(dll 없음)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true
+  },
+  {
+   "모드": "touhou_project",
+   "활성": "ON(워크샵 3738888753)",
+   "deps": ">=0.4.0",
+   "정식패치(0.6.6)": "계속 로드(콘텐츠 · 코드 없음)",
+   "핫픽스(0.6.5 유지)": "무관(dll 없음)",
+   "자체 확인": "해당 없음(dll 없음)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep",
+   "version_bump": "loads",
+   "loaded_on_hotfix": true
+  },
+  {
+   "모드": "tfm2_lane_tactics",
+   "활성": "OFF",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "지금 OFF=로드 안 됨 · 켜면 훅1 대개 미설치",
+   "자체 확인": "passive_plan 진입 12B 대조(범용 push8)",
+   "권고": "OFF 유지(상세전술 검수로 꺼 둔 상태)",
+   "risk": "LOW",
+   "hotfix_action": "keep_off",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": false,
+   "detail": {"evidence": ["src/lib.rs:24-26 RVA·PROLOG_PASSIVE_PLAN", "src/lib.rs:403 install_wrap", "REPORT\\tfm2_detail_tactics\\01_인게임검수_정리.md:104 lane_tactics 끔"]}
+  },
+  {
+   "모드": "tfm2_tactics_verify",
+   "활성": "OFF",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "OFF · 켜도 SHA 불일치로 설치 거절",
+   "자체 확인": "EXE SHA256 대조",
+   "권고": "OFF 유지",
+   "risk": "NONE",
+   "hotfix_action": "keep_off",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": false,
+   "detail": {"evidence": ["src/lib.rs:42-47 SHA 불일치면 '아무것도 설치하지 않음'", "src/sites.rs:2 BASELINE_EXE_SHA256 = daf040db…"]}
+  },
+  {
+   "모드": "tfm2_ai_analysis_verify",
+   "활성": "OFF",
+   "deps": ">=0.6.5, <0.6.6",
+   "정식패치(0.6.6)": "자동 비활성(deps 상한)",
+   "핫픽스(0.6.5 유지)": "OFF · 기준 SHA=0.6.4 라 무장 안 됨",
+   "자체 확인": "EXE SHA256 대조",
+   "권고": "OFF 유지",
+   "risk": "NONE",
+   "hotfix_action": "keep_off",
+   "version_bump": "auto_disabled",
+   "loaded_on_hotfix": false,
+   "detail": {"evidence": ["src/generated.rs:2 BASELINE_EXE_SHA256 = a1d05045…(0.6.4)", "src/engine.rs:401 armed && identity && sha==baseline 일 때만"]}
+  },
+  {
+   "모드": "tfm2_flow_capture",
+   "활성": "OFF",
+   "deps": ">=0.6.0",
+   "정식패치(0.6.6)": "켜면 로드(상한 없음 · stable)",
+   "핫픽스(0.6.5 유지)": "OFF · 켜도 무관(RVA 0)",
+   "자체 확인": "해당 없음(RVA 0)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep_off",
+   "version_bump": "loads_if_enabled",
+   "loaded_on_hotfix": false,
+   "detail": {"evidence": ["MIG\\manifest\\tfm2_flow_capture.json notes: 0.8.0 stable 재작성·RVA·raw 0"]}
+  },
+  {
+   "모드": "tfm2_meta_item_delegate",
+   "활성": "OFF",
+   "deps": ">=0.6.0",
+   "정식패치(0.6.6)": "켜면 로드(상한 없음 · stable)",
+   "핫픽스(0.6.5 유지)": "OFF · 켜도 무관(RVA 0)",
+   "자체 확인": "해당 없음(RVA 0)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep_off",
+   "version_bump": "loads_if_enabled",
+   "loaded_on_hotfix": false,
+   "detail": {"evidence": ["MIG\\manifest\\tfm2_meta_item_delegate.json notes: RVA 0"]}
+  },
+  {
+   "모드": "legacy_save_patcher",
+   "활성": "OFF",
+   "deps": ">=0.5.0",
+   "정식패치(0.6.6)": "켜면 로드(상한 없음 · stable)",
+   "핫픽스(0.6.5 유지)": "OFF · 켜도 무관(소스에 RVA 없음)",
+   "자체 확인": "해당 없음(RVA 0 · 소스 기준)",
+   "권고": "조치 불요",
+   "risk": "NONE",
+   "hotfix_action": "keep_off",
+   "version_bump": "loads_if_enabled",
+   "loaded_on_hotfix": false,
+   "detail": {"evidence": ["legacy_save_patcher_stable\\src grep: GetModuleHandle·VirtualProtect·transmute·RVA 없음"], "unverified": "배포 dll(2026-09-16) ↔ 소스 일치 미확인"}
+  },
+  {
+   "모드": "tfm2_ibhook_probe",
+   "활성": "OFF",
+   "deps": ">=0.1.0",
+   "정식패치(0.6.6)": "켜면 로드(상한 없음 · stable)",
+   "핫픽스(0.6.5 유지)": "OFF · 켜도 무관(stable 훅 프로브)",
+   "자체 확인": "해당 없음(RVA 0)",
+   "권고": "OFF 유지(진단용)",
+   "risk": "NONE",
+   "hotfix_action": "keep_off",
+   "version_bump": "loads_if_enabled",
+   "loaded_on_hotfix": false,
+   "detail": {"evidence": ["src/lib.rs:1-26 스테이블 ABI 아이템빌드 훅 프로브"]}
+  }
+ ],
+ "not_loaded": {
+  "why": "enabled_mods 미등재 + deps 상한 < 0.6.5 → 정식·핫픽스 어느 쪽이든 로드 안 됨",
+  "mods": ["Match_Info_Exporter(>=0.5.3, <0.5.4)", "TFM2_Meta_Dashboard(>=0.5.8, <0.5.9)", "_tfm2_ui_inject.disabled(>=0.5.3, <0.5.4)", "crm_probe(>=0.5.3, <0.5.4)", "finance_view_plus(>=0.6.0, <0.6.1)", "map_skin_selector(>=0.5.3, <0.5.4)", "packet_interceptor(>=0.5.3, <0.5.4)", "plan_perf(>=0.5.3, <0.5.4)", "player_trade_system_test79_stable_pending_ui(>=0.5.8, <0.5.9)", "pts_ui_dump(>=0.5.8, <0.5.9)", "sim_probe(>=0.5.3, <0.5.4)", "statistics_view_plus(>=0.5.8, <0.5.9)", "sylas(>=0.6.0, <0.6.1)", "teemo_standalone_v32(>=0.5.3, <0.5.4)", "tfm2_active_probe(>=0.5.3, <0.5.4)", "tfm2_ai_adjust(>=0.5.8, <0.5.9)", "tfm2_ai_adjust_2(>=0.5.3, <0.5.4)", "tfm2_ai_banpick_probe(>=0.5.8, <0.5.9)", "tfm2_ai_bugfix(>=0.5.8, <0.5.9)", "tfm2_aim_lead(>=0.5.3, <0.5.4)", "tfm2_bancard_keep(>=0.5.8, <0.5.9)", "tfm2_banpick_order(>=0.5.8, <0.5.9)", "tfm2_draft_overlay(>=0.6.0, <0.6.1)", "tfm2_fog(>=0.5.3, <0.5.4)", "tfm2_fog_damage_fix(>=0.5.3, <0.5.4)", "tfm2_html_overlay(>=0.5.8, <0.5.9)", "tfm2_item_build(>=0.5.8, <0.5.9)", "tfm2_item_editor(>=0.5.3, <0.5.4)", "tfm2_item_tactics(>=0.5.8, <0.5.9)", "tfm2_itemnet_tune(>=0.5.3, <0.5.4)", "tfm2_judge_verify(>=0.5.8, <0.5.9)", "tfm2_judge_verify060(>=0.6.0, <0.6.1)", "tfm2_match_seed_probe(>=0.5.3, <0.5.4)", "tfm2_meta_champion_tiers(>=0.5.8, <0.5.9)", "tfm2_mod_scroll_fix(>=0.5.3, <0.5.4)", "tfm2_move_capture(>=0.5.3, <0.5.4)", "tfm2_move_guard(>=0.5.3, <0.5.4)", "tfm2_panic_probe(>=0.5.3, <0.5.4)", "tfm2_scrim(>=0.5.3, <0.5.4)", "tfm2_setfeed_probe(>=0.5.4, <0.5.5)", "tfm2_stat_exp(>=0.5.5, <0.5.6)", "tfm2_tactics_probe(>=0.5.3, <0.5.4)", "tfm2_transfer_tweak(>=0.5.3, <0.5.4)", "tfm2_ver_probe(>=0.6.0, <0.6.1)", "tfm2_viewresult_probe(>=0.5.3, <0.5.4)", "ult_replicas(>=0.5.3, <0.5.4)"],
+  "no_mod_info": ["base_unpacked", "community_reaction_mod(로컬 미러)", "release", "tfm2_banpick_illust", "tfm2_ui_probe", "tfm2_view_plus"]
+ },
+ "patchday_steps": [
+  "1. 업데이트 감지 → 게임 켜기 전에 python -X utf8 MIG\\patchday\\run_patchday.py (detect 가 정식/핫픽스 판정)",
+  "2. 정식(0.6.6): 그대로 켜도 됨 — 상한 10종 자동 비활성 · MIG\\README.md 절차로 마이그",
+  "3. 핫픽스(0.6.5): 게임 종료 상태에서 mods.json 백업 → enabled_mods 에서 tfm2_comptest_unlock·tfm2_elemental_serpen(필수)·banpick_view_plus(권장) 제거(또는 폴더 이름 바꾸기) → 켠 뒤 모드 메뉴로 꺼졌는지 확인",
+  "4. 마이그·재빌드·재배포(deploy-verify PASS) 후 다시 넣기",
+  "5. H1/H2 확인: python -X utf8 MIG\\_patchday\\_tmp\\hotfix_exposure\\pdata_shift.py F:\\claude\\tfm2\\tfm2_0.6.5\\TeamfightManager2.exe=<새 exe>"
+ ],
+ "unverified": [
+  "크래시 실제 발생 여부(게임 실행 안 함) — 근거는 코드 + 다른 버전 exe 주소 모의 실험까지",
+  "0.6.5+x / 0.6.5-x / 0.6.5_x 판정은 semver 규칙·exe 문자열 기반 추정",
+  "deps 불일치 모드가 enabled_mods 에 남는다는 것 = 백업 비교 간접 근거",
+  "mods.json 을 게임 밖에서 고치는 것이 먹는지(10-2x activate_trial.py 는 먹음 · 06-18 runbook 은 무효라 기록)"
+ ]
+}

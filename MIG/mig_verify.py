@@ -35,6 +35,7 @@ MODS = [
   'tfm2_comptest_unlock', 'tfm2_elemental_serpen', 'tfm2_champ_pos_lock',
   'training_view_plus', 'facility_view_plus', 'custom_tier_assignment',  # 자체 RVA 0 이지만 ui_kit RE 헬퍼(#[path]) 소비 = 재빌드 대상(0.6.1 발견)
   'tfm2_tactics_verify',  # 2026-10-22 편입 — 상세전술 튜닝 검증(sites.rs 는 tools/gen_sites.py 생성물, 정본 = tools/targets/probe_targets_<버전>.json · 패치 시 tools/migrate_targets.py)
+  'tfm2_detail_tactics',  # 2026-10-27 편입 — 상세전술(sites.rs 는 tools/gen_sites.py 생성물, 정본 = tools/targets/*_<버전>.json · 패치 시 tools/track_update.py)
   'tfm2_lane_tactics',   # 2026-10-14 0.6.4 회차 편입(0.6.3 v0.1.4 마이그분 · passive_plan wrap)
   'ui_kit',   # 공유모듈(dll 없음) — 0.5.7 사고 1·2 의 근원
 ]
