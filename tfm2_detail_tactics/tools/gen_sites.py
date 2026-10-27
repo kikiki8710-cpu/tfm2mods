@@ -9,8 +9,11 @@
      ③ .text 전체의 rel32 분기 바이트 패턴(E9 / 0F 8x) — 우연 일치도 거절(보수적).
   4. 판단 주체 위치(subjects)를 붙인다. unsupported 지점이 하나라도 있는 전술은 통째로 뺀다(전술 단위 all-or-nothing).
 
-사용: python -I tools/gen_sites.py --exe <TeamfightManager2.exe> [--ver 0.6.5]
-패치 대응: 새 버전 knobs/subjects 를 만든 뒤 이 스크립트만 다시 돌린다(소스에 RVA 리터럴을 직접 쓰지 않는다).
+사용: python -X utf8 tools/gen_sites.py --exe <TeamfightManager2.exe> [--ver 0.6.5]
+  (-I 는 스크립트 폴더 import 를 막아 gen_extras 를 못 찾는다 — 쓰지 말 것)
+패치 대응: 새 버전 knobs/subjects/extra_*_<ver>.json 을 만든 뒤 이 스크립트만 다시 돌린다(소스에 RVA 리터럴을 직접 쓰지 않는다).
+  --ver 는 knobs/subjects 뿐 아니라 gen_extras 의 extra_*_<ver>.json 에도 쓰인다.
+  ★targets 어디든 "review" 키(track_update.py 초안의 검토 미완 표시)가 있으면 아무것도 쓰지 않고 중단한다.
 """
 import argparse, hashlib, json, re, struct, sys
 from pathlib import Path
@@ -213,14 +216,40 @@ def dynamic_instruction(ins):
     return bytes(code)
 
 
+def review_hits(node, path, out):
+    """targets JSON 안의 "review" 키 위치를 모은다(track_update.py 초안의 검토 미완 표시)."""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k == "review":
+                out.append(f"{path}.review = {json.dumps(v, ensure_ascii=False)[:160]}")
+            review_hits(v, f"{path}.{k}", out)
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            review_hits(v, f"{path}[{i}]", out)
+
+
+def review_guard(ver):
+    """검토가 안 끝난 초안(review 키)이 빌드로 새지 않게 — 하나라도 있으면 아무것도 쓰기 전에 중단."""
+    tdir = ROOT / "tools" / "targets"
+    names = [f"knobs_{ver}.json", f"subjects_{ver}.json"] + [f"extra_{p}_{ver}.json" for p in ("lane", "combat", "ops", "verified")]
+    hits = []
+    for nm in names:
+        p = tdir / nm
+        if p.exists():
+            review_hits(json.loads(p.read_text(encoding="utf-8")), nm, hits)
+    if hits:
+        raise SystemExit(f"검토 미완(review 키) {len(hits)}건 — 사람 판정 후 review 키를 지우고 다시 실행:\n" + "\n".join(hits))
+
+
 def main():
     import gen_extras
-    gen_extras.write_catalog()
     ap = argparse.ArgumentParser()
     ap.add_argument("--exe", required=True)
     ap.add_argument("--ver", default="0.6.5")
     ap.add_argument("--out", default=str(ROOT / "src" / "sites.rs"))
     a = ap.parse_args()
+    review_guard(a.ver)
+    gen_extras.write_catalog(a.ver)
     knobs = json.loads((ROOT / "tools" / "targets" / f"knobs_{a.ver}.json").read_text(encoding="utf-8"))
     subj = json.loads((ROOT / "tools" / "targets" / f"subjects_{a.ver}.json").read_text(encoding="utf-8"))
     pe = PE(a.exe)
@@ -354,7 +383,7 @@ def main():
                                 asm=asm, func=fn[0], first_len=prefix_len+first.size, dynamic=b"" if tf[0] == "toggle" else prefix+dynamic_instruction(first)))
             log.append(f"[창] {kid} {s['rva']} len={len(winbytes)} {' ; '.join(f'{i.mnemonic} {i.op_str}' for i in win)}"
                        f" | 함수 {fn[0]:#x} | 주체 {sj['src']}")
-    patches.extend(gen_extras.load(pe,sha,md,starts,ends,order,func_cache,interior_all,log))
+    patches.extend(gen_extras.load(pe,sha,md,starts,ends,order,func_cache,interior_all,log,ver=a.ver))
     # ③ .text 전체 rel32 패턴
     hits = text_rel32_hits(pe, interior_all.keys())
     if hits:

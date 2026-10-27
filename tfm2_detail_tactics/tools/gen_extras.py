@@ -5,20 +5,24 @@ from capstone import CS_GRP_JUMP, CS_GRP_CALL, CS_GRP_RET
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 ROOT = Path(__file__).resolve().parent.parent
 
-def records():
-    docs = [json.loads((ROOT/'tools'/'targets'/f'extra_{part}_0.6.5.json').read_text(encoding='utf-8')) for part in ('lane','combat','ops')]
+DEFAULT_VER = '0.6.5'
+
+
+def records(ver=DEFAULT_VER):
+    """원천 = tools/targets/extra_{lane,combat,ops,verified}_<ver>.json (ver = gen_sites --ver)."""
+    docs = [json.loads((ROOT/'tools'/'targets'/f'extra_{part}_{ver}.json').read_text(encoding='utf-8')) for part in ('lane','combat','ops')]
     rows = sorted([t for d in docs for t in d['tactics']], key=lambda t:t['audit_id'])
     assert len(rows)==56 and len({t['audit_id'] for t in rows})==56
     assert len({t['id'] for t in rows})==56
-    verified=json.loads((ROOT/'tools/targets/extra_verified_0.6.5.json').read_text(encoding='utf-8'))
+    verified=json.loads((ROOT/'tools'/'targets'/f'extra_verified_{ver}.json').read_text(encoding='utf-8'))
     assert len(verified['tactics'])==12
     # 기존 88개 저장 순서를 고정하고 검증 후보는 후방에만 추가한다.
     docs.append(verified);rows.extend(verified['tactics'])
     assert len(rows)==68 and len({t['id'] for t in rows})==68
     return docs, rows
 
-def write_catalog():
-    _,rows=records()
+def write_catalog(ver=DEFAULT_VER):
+    _,rows=records(ver)
     q=lambda s:json.dumps(s,ensure_ascii=False)
     lines=['    // BEGIN GENERATED EXTRAS — tools/gen_extras.py']
     for t in rows:
@@ -54,9 +58,9 @@ def write_catalog():
     s=s.replace('    match id {',visibility+'    match id {',1)
     path.write_text(s,encoding='utf-8',newline='\n')
 
-def load(pe,sha,md,starts,ends,order,func_cache,interior_all,log):
+def load(pe,sha,md,starts,ends,order,func_cache,interior_all,log,ver=DEFAULT_VER):
     from gen_sites import find_func,parse_src,JCC
-    docs,rows=records();assert all(d['exe_sha256'].lower()==sha.lower() for d in docs)
+    docs,rows=records(ver);assert all(d['exe_sha256'].lower()==sha.lower() for d in docs)
     patches=[]
     for t in rows:
         assert t['min']<=t['low']<=t['max'] and t['min']<=t['high']<=t['max']
