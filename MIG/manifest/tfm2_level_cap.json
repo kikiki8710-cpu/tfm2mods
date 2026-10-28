@@ -9,20 +9,20 @@
  "entries": [
   {
    "name": "RVA_UI_CMP",
-   "value": "0x8742ce",
-   "ver": "0.6.5",
+   "value": "0x9e450b",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:124"
    ],
    "sect": ".text",
-   "bytes": "483b88100d00000f87ef0a00",
+   "bytes": "483b88100d00000f87c80c00",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_LEN_LOAD",
-   "value": "0x130e9e4",
-   "ver": "0.6.5",
+   "value": "0x18c2be4",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:112"

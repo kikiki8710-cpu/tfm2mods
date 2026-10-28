@@ -7,10 +7,10 @@
 use crate::draft_scene::SwapState;
 use std::sync::atomic::{AtomicU64, AtomicU8, Ordering};
 
-pub const RVA_SELECT_SWAP: usize = 0x22a0bc0;
-const PROL: [u8; 12] = [0x48, 0x83, 0xec, 0x28, 0x80, 0xb9, 0x69, 0x04, 0x00, 0x00, 0x00, 0x0f];
+pub const RVA_SELECT_SWAP: usize = 0x2ee35e0;
+const PROL: [u8; 12] = [0x48, 0x83, 0xec, 0x28, 0x80, 0xb9, 0x81, 0x04, 0x00, 0x00, 0x00, 0x0f];
 const OFF_SELECTED_TAG: usize = 0x0;
-const OFF_SENT: usize = 0x466;
+const OFF_SENT: usize = 0x47e; // ★0.7.0 +0x18(0.6.x=0x466) · PROL byte6 0x69→0x81 = `cmp byte [rcx+0x481],0`
 
 #[link(name = "kernel32")]
 extern "system" {
@@ -57,7 +57,7 @@ pub fn try_auto(st: &SwapState, my_side: usize) -> Option<String> {
     if best_n <= cur_n || want == *cur { DONE_KEY.store(key, Ordering::Relaxed); return Some(format!("autoswap: 개선 불가(맞춤 {}/{} 최적 {}) — 무동작", cur_n, cur.len(), best_n)); }
     let Some(scene) = crate::draft_scene::scene() else { return None };
     unsafe {
-        if !readable(scene, 0x478) { return None; }
+        if !readable(scene, 0x490) { return None; } // ★0.7.0 씬 0x478→0x490
         let base = GetModuleHandleW(core::ptr::null());
         if base == 0 { return None; }
         let f = base + RVA_SELECT_SWAP;

@@ -24,7 +24,7 @@ pub(crate) fn structure_rcx(f:&Frame,v:i64)->Option<u64> {Some(f.reg(1)?.wrappin
 pub(crate) fn structure_rdx(f:&Frame,v:i64)->Option<u64> {Some(f.reg(2)?.wrapping_mul(valid(v,0,100)?))}
 pub(crate) fn respawn_seconds(f:&Frame,v:i64)->Option<u64> {
     let seconds=valid(v,1,120)?;
-    let tps=f.scalar(Src::Mem2(13,8,0x12f8))?;
+    let tps=f.scalar(Src::Mem2(15,8,0x12f8))?; // 0.7.0 r15=[rsi+8] (0.6.5 r13)
     Some(tps.wrapping_mul(seconds))
 }
 pub(crate) fn damage_increment(f:&Frame,v:i64)->Option<u64> {
@@ -36,7 +36,7 @@ pub(crate) fn finish_increment2(f:&Frame,v:i64)->Option<u64> {
     let n=valid(v,1,30)?;
     Some(f.reg(14)?.wrapping_mul(n.wrapping_sub(2)))
 }
-pub(crate) fn camp_survival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.scalar(Src::Mem(5,0x10))?,valid(v,0,300)?))}
+pub(crate) fn camp_survival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.scalar(Src::Mem(5,-0x18))?,valid(v,0,300)?))} // 0.7.0 TPS=[rbp-0x18] (0.6.5 [rbp+0x10]=신 컨텍스트 포인터)
 pub(crate) fn camp_arrival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.reg(1)?>>1,valid(v,0,300)?))}
 fn tower_radius(v:i64, base:u64)->Option<u64> {Some(scale(base,valid(v,50,150)?))}
 pub(crate) fn tower_radius_high(f:&Frame,v:i64)->Option<u64> {let _=f;let r=tower_radius(v,140_000)?;Some(r*r+1)}

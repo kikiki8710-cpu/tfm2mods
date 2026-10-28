@@ -264,7 +264,7 @@ fn apply_server(ctx: &mut StableServerCtx<'_>, cmd: &StableCommand<'_>) -> Strin
         let share = 100 / top.len();
         per_role[r] = Some(top.iter().map(|n| format!("{}:{}", n, share)).collect::<Vec<_>>().join("|"));
     }
-    // 포지션 = Team.last_starting[포지션 idx] = athlete id (선발 5명) · 벤치 = season_statistics[*].by_position 최다 출전 포지션 · 둘 다 없으면 제외
+    // 포지션 = Team.last_starting[포지션 idx] = athlete id (선발 5명) · 벤치 = season_statistics[*].by_position 최다 출전 포지션 · ★0.7.0 그다음 stat 포지션 적성 최댓값 · 넷 다 없으면 제외
     let starting: Vec<i64> = ctx.team_get_json(team, "last_starting").and_then(|s| serde_json::from_str::<Value>(&s).ok()).and_then(|v| v.as_array().map(|a| a.iter().filter_map(|x| x.as_i64()).collect())).unwrap_or_default();
     fn pos_by_stats(root: &Value) -> Option<usize> {
         let mut cnt = [0i64; 5];
@@ -273,23 +273,48 @@ fn apply_server(ctx: &mut StableServerCtx<'_>, cmd: &StableCommand<'_>) -> Strin
         let (i, &m) = cnt.iter().enumerate().max_by_key(|(_, c)| **c)?;
         if m > 0 { Some(i) } else { None }
     }
+    // ★0.7.0(10-28): 4번째 출처 = AthleteStat 포지션 적성 5칸(stat.top/jungle/mid/bottom/support) 최댓값.
+    //   서브 PC 0.7.0 실측 「포지션 미확인 8」 = 8명 전원이 위 3출처 모두 실패. 0.6.5→0.7.0 에서 Team(last_starting = [Option<id>;5] → null)·
+    //   Athlete·AthleteSeasonStatistics(by_position)·Contract 직렬화는 필드·오프셋 동일(RE 2026-10-28_0.7.0-포지션미확인) — 스키마가 아니라
+    //   "그 팀이 공식 경기를 한 번도 안 치른 세이브"(last_starting 전부 null + 시즌 통계 빈 값)에서 셋 다 비는 구조적 공백이었다.
+    //   stat 5칸은 모든 선수에 항상 있고 게임 UI 주포지션 표시의 재료다(메모리 tfm2-position-proficiency-unused) — 동점이면 top→support 순 첫 칸(추정).
+    fn pos_by_aptitude(root: &Value) -> Option<usize> {
+        const K: [&str; 5] = ["top", "jungle", "mid", "bottom", "support"];
+        fn five(m: &serde_json::Map<String, Value>) -> Option<[f64; 5]> {
+            let mut a = [0f64; 5];
+            for (i, k) in K.iter().enumerate() { a[i] = m.get(*k)?.as_f64()?; }
+            Some(a)
+        }
+        fn walk(v: &Value) -> Option<[f64; 5]> {
+            match v { Value::Object(m) => five(m).or_else(|| m.values().find_map(walk)), Value::Array(a) => a.iter().find_map(walk), _ => None }
+        }
+        let a = root.get("stat").and_then(walk).or_else(|| walk(root))?;
+        let mut best = 0usize;
+        for i in 1..5 { if a[i] > a[best] { best = i; } }
+        if a[best] > 0.0 { Some(best) } else { None }
+    }
     // 선수
     let mut set: Vec<(u64, String)> = Vec::new();
     let mut clear: Vec<u64> = Vec::new();
     let mut nopos = 0;
+    let mut src = [0usize; 4]; // ★0.7.0: 출처별 집계(선발·필드·통계·적성) — DBG 로그로 다음 회귀 때 어느 출처가 죽었는지 바로 보이게
     for id in ctx.record_ids(RecordKindV1::Athlete) {
         let Some(c) = ctx.athlete_get_json(id, "contract").and_then(|s| serde_json::from_str::<Value>(&s).ok()) else { continue };
         if find_team_id(&c) != Some(team as i64) { continue; }
         let root = ctx.athlete_get_json(id, "").and_then(|s| serde_json::from_str::<Value>(&s).ok());
-        let pos = starting.iter().position(|a| *a == id as i64).filter(|p| *p < 5).or_else(|| root.as_ref().and_then(find_position)).or_else(|| root.as_ref().and_then(pos_by_stats));
-        let Some(pos) = pos else { nopos += 1; continue };
+        let pos = starting.iter().position(|a| *a == id as i64).filter(|p| *p < 5).map(|p| (0usize, p))
+            .or_else(|| root.as_ref().and_then(find_position).map(|p| (1, p)))
+            .or_else(|| root.as_ref().and_then(pos_by_stats).map(|p| (2, p)))
+            .or_else(|| root.as_ref().and_then(pos_by_aptitude).map(|p| (3, p)));
+        let Some((s, pos)) = pos else { nopos += 1; log(&format!("[server] 포지션 미확인 athlete={} root={}B", id, root.as_ref().map(|r| r.to_string().len()).unwrap_or(0))); continue };
+        src[s] += 1;
         match roles[pos] {
             0 => {}
             1 => clear.push(id as u64),
             r => { if let Some(v) = &per_role[r] { set.push((id as u64, v.clone())); } }
         }
     }
-    log(&format!("[server] team={} roles={:?} set={} clear={} nopos={} tiers={} cats={}", team, roles, set.len(), clear.len(), nopos, tiers.len(), cats.len()));
+    log(&format!("[server] team={} roles={:?} set={} clear={} nopos={} src(선발/필드/통계/적성)={:?} last_starting={:?} tiers={} cats={}", team, roles, set.len(), clear.len(), nopos, src, starting, tiers.len(), cats.len()));
     if set.is_empty() && clear.is_empty() { return format!("변경 없음(대상 선수 0 · 포지션 미확인 {})", nopos); }
     match training_plan::apply(ctx, team, &set, &clear) {
         Ok(m) => { log(&format!("[server] {}", m)); format!("적용 완료: 설정 {}명 · 팀 훈련 따름 {}명{}", set.len(), clear.len(), if nopos > 0 { format!(" (포지션 미확인 {}명 제외)", nopos) } else { String::new() }) }

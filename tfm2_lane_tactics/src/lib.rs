@@ -19,9 +19,9 @@ mod log_dir; // 로그 폴더(_log_root.txt 있으면 그 아래, 없으면 모�
 const MOD_ID: &str = "tfm2_lane_tactics";
 
 // ── 0.6.4 상수(근거 = mods_report\tfm2_lane_tactics\RE\2026-10-14_G7 · 0.6.3 = G6) ──
-const GAME_VER: (u32, u32, u32) = (0, 6, 5);
+const GAME_VER: (u32, u32, u32) = (0, 7, 0);
 /// passive_plan (0.6.1 0xd40310 → 0.6.2 0xd3a0f0 → 0.6.3 0xd5d860 → 0.6.4 0xd5c300(진입 32B 유일) · 소스 plan\handler\assign.rs)
-const RVA_PASSIVE_PLAN: usize = 0xd5b2e0;
+const RVA_PASSIVE_PLAN: usize = 0xe52ab0;
 /// 진입부 12B(0.6.2 와 동일) = push rbp,r15,r14,r13,r12,rsi,rdi,rbx (RIP 상대 없음 · 명령 경계 12)
 const PROLOG_PASSIVE_PLAN: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 
@@ -30,14 +30,14 @@ const PLAN_TAG: usize = 0x0;          // BigPlan tag(qword · u32 비교 안전)
 const PL_WAIT: usize = 0x11e;         // 1 = sub_plan 즉시 LineWait(서포터 hold) (0x11f)
 const PL_FLAGS: usize = 0x120;        // byte != 0 = 고정(웨이브 우선·SplitEpic 등) — 건드리지 않음 (0.6.2 = u32 bit0)
 const PL_LINE: usize = 0x124;         // LineType u8 (Top0 Mid1 Bottom2) · ⚠0.6.1 은 +0x123(0.6.2 에선 플래그 바이트)
-const RET_CODE: usize = 0x348;        // 발원 코드 u8 (BigPlan 0x348B 뒤) (0x370)
-const LPH_PLAN_TAG: usize = 0x1670;   // 현재 커밋된 plan ★0.6.5 +0x30 (0.6.4 0x1640 · 0.6.3 0x1598 · 0.6.2 0xfc0)
-const LPH_PLAN_LINE: usize = 0x1794;  // = +0x1670 + 0x124 (0.6.4 0x1764 · 0.6.3 0x16bc · 0.6.2 0x10e4)
-const LPH_DEST_TAG: usize = 0x14e0;   // 목적지 hold Option(bit0) ★0.6.5 +0x30 (0.6.4 0x14b0 · 0.6.3 0x1408 · 0.6.2 0xe70) · ⚠0.6.3 은 hold 가 커밋을 막지 않음 → 진단 읽기만
-const LPH_LATCH_LINE: usize = 0x2a6f; // v2_apply 래치 라인(0xff = None) ★0.6.5 +0x48 (0.6.4 0x2a27 · 0.6.3 0x297f · 0.6.2 0x26bf)
+const RET_CODE: usize = 0x400;        // ★0.7.0 BigPlan 0x400B(0.6.5 0x348) // 발원 코드 u8 (BigPlan 0x348B 뒤) (0x370)
+const LPH_PLAN_TAG: usize = 0x16a0;   // ★0.7.0 +0x30(0.6.5 0x1670) // 현재 커밋된 plan ★0.6.5 +0x30 (0.6.4 0x1640 · 0.6.3 0x1598 · 0.6.2 0xfc0)
+const LPH_PLAN_LINE: usize = 0x17c4;  // ★0.7.0 = 0x16a0+0x124(0.6.5 0x1794) // = +0x1670 + 0x124 (0.6.4 0x1764 · 0.6.3 0x16bc · 0.6.2 0x10e4)
+const LPH_DEST_TAG: usize = 0x1510;   // ★0.7.0 +0x30(0.6.5 0x14e0) // 목적지 hold Option(bit0) ★0.6.5 +0x30 (0.6.4 0x14b0 · 0.6.3 0x1408 · 0.6.2 0xe70) · ⚠0.6.3 은 hold 가 커밋을 막지 않음 → 진단 읽기만
+const LPH_LATCH_LINE: usize = 0x2c47; // ★0.7.0 +0x1d8(0.6.5 0x2a6f) // v2_apply 래치 라인(0xff = None) ★0.6.5 +0x48 (0.6.4 0x2a27 · 0.6.3 0x297f · 0.6.2 0x26bf)
 const PS_TEAM: usize = 0x820;         // ★0.6.5 Player +0x20 (0.6.4 0x800 · 0xa00)
 const PS_POS: usize = 0x8b0;          // ★0.6.5 Player +0x20 (0.6.4 0x890 · 0xa90)
-const BB_STRIDE: usize = 0xae0;       // ★0.6.5 imul 0xae0 19회 (0.6.4 0xac8 · 0.6.2 0x5e0 · 0.6.1 0x5c8)
+const BB_STRIDE: usize = 0xea0;       // ★0.7.0 imul 0xea0(0.6.5 0xae0) // ★0.6.5 imul 0xae0 19회 (0.6.4 0xac8 · 0.6.2 0x5e0 · 0.6.1 0x5c8)
 const BB_CLAIM: usize = 0x808;        // ★0.6.5 +0x18 (0.6.4 0x7f0) · 라인 점유 tag u8(0=Line) · +1 = line · +pos*0x20 (0.6.2 +0x318 · 0.6.1 +0x300)
 const CACHE_TICK: usize = 0x1b8;      // 게임 line_phase 가 읽는 tick 필드(0.6.3 · 0.6.2 는 vt+0x28 호출)
 const CACHE_CHAMP: usize = 0x238;     // player_champion[team*0x28 + pos*8] (0x1e0)

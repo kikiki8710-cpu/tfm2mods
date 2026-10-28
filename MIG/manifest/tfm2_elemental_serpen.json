@@ -18,15 +18,15 @@
     "src/lib.rs:2029"
    ],
    "sect": ".text",
-   "bytes": "24b00000000f28bc24a00000",
+   "bytes": "89dc498b9dc8feffff450f10",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "0.6.2(09-30): RVA 아님 — 처치버프 캐시 키 해시 솔트(`klen ^ .. ^ 0xbadb3`). 재핀 금지"
   },
   {
    "name": "UIPARSER_RVA",
-   "value": "0x1abe30",
-   "ver": "0.6.5",
+   "value": "0x1fee70",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:626"
@@ -37,8 +37,8 @@
   },
   {
    "name": "UILOADER_RVA",
-   "value": "0x337890",
-   "ver": "0.6.5",
+   "value": "0x3a94f0",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:625"
@@ -49,34 +49,34 @@
   },
   {
    "name": "LAUNCHER_RET_A",
-   "value": "0xc848b5",
-   "ver": "0.6.5",
+   "value": "0xbc1695",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:511"
    ],
    "sect": ".text",
-   "bytes": "90488b8588e7030048ff4810",
+   "bytes": "90488b8598fa030048ff4810",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "★0.6.0: 런처 콜사이트 전수(9/9 대응)로 ret=call+5 확정. ⚠0.5.8 매니페스트가 소스(09-04 재핀)와 어긋나 있었음(0x893cb9/0x898c0b/0x1c50704 = 소스 밖 stale)"
   },
   {
    "name": "LAUNCHER_RET_B",
-   "value": "0xc88baf",
-   "ver": "0.6.5",
+   "value": "0xbc5a04",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:513"
    ],
    "sect": ".text",
-   "bytes": "9048899df8e20300488b8588",
+   "bytes": "9048899d18f70300488b8598",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "★0.6.0: 런처 콜사이트 전수(9/9 대응)로 ret=call+5 확정. ⚠0.5.8 매니페스트가 소스(09-04 재핀)와 어긋나 있었음(0x893cb9/0x898c0b/0x1c50704 = 소스 밖 stale)"
   },
   {
    "name": "SPAWN_HOOKS",
-   "value": "0xb073c0",
-   "ver": "0.6.5",
+   "value": "0xa00e70",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:490"
@@ -87,8 +87,8 @@
   },
   {
    "name": "SPAWN_HOOKS",
-   "value": "0xb080f0",
-   "ver": "0.6.5",
+   "value": "0xa01ba0",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:490"
@@ -99,8 +99,8 @@
   },
   {
    "name": "RENDER_STEP_RVA",
-   "value": "0x87abe0",
-   "ver": "0.6.5",
+   "value": "0x9eaf50",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:928"
@@ -111,8 +111,8 @@
   },
   {
    "name": "SERPEN_RVA",
-   "value": "0x186f1e0",
-   "ver": "0.6.5",
+   "value": "0x1d49aa0",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:39"
@@ -123,8 +123,8 @@
   },
   {
    "name": "DMGB_RVA",
-   "value": "0x130c680",
-   "ver": "0.6.5",
+   "value": "0x18c0480",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1953"
@@ -135,20 +135,20 @@
   },
   {
    "name": "DMGA_RVA",
-   "value": "0x176a6c0",
-   "ver": "0.6.5",
+   "value": "0x167a710",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1950"
    ],
    "sect": ".text",
-   "bytes": "415741564155415456575553",
+   "bytes": "554157415641554154565753",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "LAUNCHER_RVA",
-   "value": "0x15ad190",
-   "ver": "0.6.5",
+   "value": "0x189e2a0",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:502"
@@ -159,8 +159,8 @@
   },
   {
    "name": "RUNNER_CTOR_RVA",
-   "value": "0x15aedd0",
-   "ver": "0.6.5",
+   "value": "0x189fae0",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:955"
@@ -171,8 +171,8 @@
   },
   {
    "name": "MOBATICK_RVA",
-   "value": "0x15fc1d0",
-   "ver": "0.6.5",
+   "value": "0x16b4050",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:416"
@@ -183,8 +183,8 @@
   },
   {
    "name": "ARG_STR_RVA",
-   "value": "0x1657a70",
-   "ver": "0.6.5",
+   "value": "0x199aed0",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2688"
@@ -195,33 +195,33 @@
   },
   {
    "name": "LAUNCHER_RET_D",
-   "value": "0x29994ba",
-   "ver": "0.6.5",
+   "value": "0x2ec5eaa",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:526"
    ],
    "sect": ".text",
-   "bytes": "90488b8560c70100488d90f0",
+   "bytes": "90488b8560c70100488d9098",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "LAUNCHER_RET_C",
-   "value": "0x21203d4",
-   "ver": "0.6.5",
+   "value": "0x2de7693",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:518"
    ],
    "sect": ".text",
-   "bytes": "90488b85e8d70100488d90d8",
+   "bytes": "90488b8558e90100488d9080",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "★0.6.0: 런처 콜사이트 전수(9/9 대응)로 ret=call+5 확정. ⚠0.5.8 매니페스트가 소스(09-04 재핀)와 어긋나 있었음(0x893cb9/0x898c0b/0x1c50704 = 소스 밖 stale)"
   },
   {
    "name": "KEYRES_RVA",
-   "value": "0x25538f0",
-   "ver": "0.6.5",
+   "value": "0x2462330",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2145"
@@ -232,8 +232,8 @@
   },
   {
    "name": "UIALLOC_RVA",
-   "value": "0x2f2dc50",
-   "ver": "0.6.5",
+   "value": "0x356f190",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:633"

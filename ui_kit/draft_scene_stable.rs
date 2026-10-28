@@ -12,17 +12,17 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 pub const GAME_VER: &str = "0.6.2";
-pub const RVA_UPDATE: usize = 0x2360f30;
+pub const RVA_UPDATE: usize = 0x2fd22e0;
 pub const PROL_UPDATE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 pub const OFF_RULE: usize = 0xce;
 pub const OFF_PICK1: usize = 0x168;
 pub const OFF_PICK2: usize = 0x180;
 pub const OFF_ORDER_A: usize = 0x198;
 pub const OFF_ORDER_B: usize = 0x1b0;
-pub const OFF_PHASE: usize = 0x3a8;
-pub const OFF_T1_ID: usize = 0x3f8;
-pub const OFF_T2_ID: usize = 0x400;
-pub const OFF_SENT: usize = 0x466;
+pub const OFF_PHASE: usize = 0x3c0; // ★0.7.0 +0x18(0.6.x=0x3a8)
+pub const OFF_T1_ID: usize = 0x410; // ★0.7.0 +0x18(0.6.x=0x3f8)
+pub const OFF_T2_ID: usize = 0x418; // ★0.7.0 +0x18(0.6.x=0x400) — view_plus 판정 HIGH(UPDATE `lea rdx,[r12+0x418]`) / pos_lock 판정 MED(추정) · 인게임 swapdiag 로 확인
+pub const OFF_SENT: usize = 0x47e; // ★0.7.0 +0x18(0.6.x=0x466)
 pub const PHASE_SWAP: u32 = 7;
 /// 히트가 이만큼의 tick 동안 안 늘면 씬 포인터를 stale 로 본다(씬 해제 후 재사용 페이지 오독 방지).
 const STALE_TICKS: u64 = 30;
@@ -130,7 +130,7 @@ pub fn hits() -> u64 { HITS.load(Ordering::Relaxed) }
 static SNAP: Mutex<Option<Vec<u8>>> = Mutex::new(None);
 pub fn scene_diff() -> Option<String> {
     let s = scene()?;
-    let cur: Vec<u8> = unsafe { if !readable(s, 0x478) { return None } core::slice::from_raw_parts(s as *const u8, 0x478).to_vec() };
+    let cur: Vec<u8> = unsafe { if !readable(s, 0x490) { return None } core::slice::from_raw_parts(s as *const u8, 0x490).to_vec() };
     let mut g = SNAP.lock().unwrap_or_else(|e| e.into_inner());
     let Some(base) = g.as_ref() else { *g = Some(cur); return Some("스냅샷 채록".into()) };
     let mut out: Vec<String> = Vec::new();
@@ -203,7 +203,7 @@ unsafe fn read_vec_u64(base: usize) -> Option<Vec<u64>> {
 pub fn read() -> Option<SwapState> {
     let s = scene()?;
     unsafe {
-        if !readable(s, 0x478) { return None; }
+        if !readable(s, 0x490) { return None; } // ★0.7.0 씬 0x478→0x490(추정 MED · 마지막 필드 0x470→0x488)
         let phase = rd_u32(s + OFF_PHASE)?;
         let rule = rd_u8(s + OFF_RULE)?;
         let sent = rd_u8(s + OFF_SENT)?;

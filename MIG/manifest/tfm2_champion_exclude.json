@@ -9,8 +9,8 @@
  "entries": [
   {
    "name": "HOOK_RVA",
-   "value": "0x1b52d00",
-   "ver": "0.6.5",
+   "value": "0x1e74c50",
+   "ver": "0.7.0",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hook.rs:10"

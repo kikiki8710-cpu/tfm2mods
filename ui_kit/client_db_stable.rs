@@ -20,7 +20,7 @@ pub const OFF_REPLAY_PLAYED: usize = 0xbd8;  // ★0.6.3 [r8+0xbf0] — ⚠0.6.2
 pub const OFF_REPLAY_EV_CAP: usize = 0xcb0;  // ★0.6.3 +0x30 — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
 pub const OFF_REPLAY_EV_PTR: usize = 0xcb8;  // ★0.6.3 [r8+0xcd0] — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
 pub const OFF_REPLAY_EV_LEN: usize = 0xcc0;  // ★0.6.3 [r8+0xcd8] — ⚠0.6.2 에서 이미 이동(0.6.2 마이그 누락 · db=RcBox+0x18, 게임 disp−0x18)
-pub const OFF_PLAYER_TEAM: usize = 0xf0e8; // ★0.6.4 −0x138(0.6.2~0.6.3=0xf220) // ★0.6.2(0.6.1=0xf178) +0xa8 · 153/155 함수 정렬 투표
+pub const OFF_PLAYER_TEAM: usize = 0xf3c8; // ★0.7.0 +0x2e0(0.6.4~0.6.5=0xf0e8 · game disp 0xf100→0xf3e0 57표 · RE champion_exclude 2026-10-28) // ★0.6.4 −0x138(0.6.2~0.6.3=0xf220) // ★0.6.2(0.6.1=0xf178) +0xa8 · 153/155 함수 정렬 투표
 const OFF_CTX_STATE: usize = 0x30;
 
 #[link(name = "kernel32")]
@@ -80,7 +80,7 @@ pub fn play_cursor(ctx: &StableClient<'_>) -> Option<PlayCursor> {
 ///   ⚠**왜 필요한가**: stable `ctx.champion_names()` 는 모드 챔피언이 늘수록 급격히 느려진다
 ///   (09-28 실측 60종 1.6ms → 98종 577ms). 밴픽 진입·주기 점검에서 부르면 그만큼 프레임이 멈춘다 → 이 raw 읽기(≈0.3ms)로 대체.
 ///   레이아웃 stale 가드: len ≤ 4096 · 문자열 1..=64B · 유효 UTF-8·제어문자/공백 없음(모드 챔프 id 에 비ASCII 가능). 하나라도 어긋나면 None(호출측이 champion_names 로 폴백).
-pub const OFF_AVAIL_CHAMPS: usize = 0xe6b0; // ★0.6.4 −0x138(0.6.2~0.6.3=0xe7e8 · 신 ptr/len 0xe6b8/0xe6c0 정렬 4/4) // ★0.6.2(0.6.1=0xe740) +0xa8 · cap/ptr/len 0xe7e8/0xe7f0/0xe7f8 투표 19/32/39
+pub const OFF_AVAIL_CHAMPS: usize = 0xe8d8; // ★0.7.0 +0x228(0.6.4~0.6.5=0xe6b0 · 0xe6b0..0xe6d8 대역 일괄 · RE champion_exclude 2026-10-28) // ★0.6.4 −0x138(0.6.2~0.6.3=0xe7e8 · 신 ptr/len 0xe6b8/0xe6c0 정렬 4/4) // ★0.6.2(0.6.1=0xe740) +0xa8 · cap/ptr/len 0xe7e8/0xe7f0/0xe7f8 투표 19/32/39
 pub fn available_champion_ids(ctx: &StableClient<'_>) -> Option<Vec<String>> {
     let db = client_db(ctx)?;
     unsafe {

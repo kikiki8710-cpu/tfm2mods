@@ -279,6 +279,19 @@ def main():
             continue
         tbv = subj.get("toggle_by_value", {}).get(kid)
         for s in k["sites"]:
+            if s.get("form") == "extra":
+                # 추가 검사 창(즉치 없는 자리에 검사를 더하는 창): extras 와 같은 검증(gen_extras.build_site) +
+                # 첫 명령 asm 대조 + calc 필수. 판단 주체는 다른 노브 지점처럼 subjects 에서 읽는다.
+                sj = subj["sites"][s["rva"]]
+                if "calc" not in s["tf"]:
+                    raise SystemExit(f"{kid} {s['rva']}: 추가 검사 창은 calc 변환만 허용")
+                rv = int(s["rva"], 16)
+                fi = next(md.disasm(pe.read(rv, 16), 0x140000000 + rv))
+                if f"{fi.mnemonic} {fi.op_str}".strip() != s["first_asm"] or fi.size != s["first_len"]:
+                    raise SystemExit(f"{kid} {s['rva']}: 첫 명령 불일치 '{fi.mnemonic} {fi.op_str}' != '{s['first_asm']}'")
+                patches.append(gen_extras.build_site(pe, md, starts, ends, func_cache, interior_all, log, t,
+                                                     f"{kid}@{s['rva']}", s, sj["src"], sj.get("team_chk"), f"[추가검사창] {kid}"))
+                continue
             value_rva = int(s["rva"], 16)
             sj = subj["sites"][s["rva"]]
             rva=int(sj.get('patch_start',s['rva']),16)
@@ -383,7 +396,9 @@ def main():
                                 asm=asm, func=fn[0], first_len=prefix_len+first.size, dynamic=b"" if tf[0] == "toggle" else prefix+dynamic_instruction(first)))
             log.append(f"[창] {kid} {s['rva']} len={len(winbytes)} {' ; '.join(f'{i.mnemonic} {i.op_str}' for i in win)}"
                        f" | 함수 {fn[0]:#x} | 주체 {sj['src']}")
-    patches.extend(gen_extras.load(pe,sha,md,starts,ends,order,func_cache,interior_all,log,ver=a.ver))
+    extra_patches, extra_unsupported = gen_extras.load(pe,sha,md,starts,ends,order,func_cache,interior_all,log,ver=a.ver)
+    patches.extend(extra_patches)
+    unsupported.extend(extra_unsupported)
     # ③ .text 전체 rel32 패턴
     hits = text_rel32_hits(pe, interior_all.keys())
     if hits:

@@ -59,57 +59,71 @@ def write_catalog(ver=DEFAULT_VER):
     path.write_text(s,encoding='utf-8',newline='\n')
 
 def load(pe,sha,md,starts,ends,order,func_cache,interior_all,log,ver=DEFAULT_VER):
-    from gen_sites import find_func,parse_src,JCC
+    """반환 = (patches, unsupported). 전술에 "unsupported"(이유) 가 있으면 sites 가 비어 있어야 하고 창을 만들지 않는다
+    (= knobs 의 subjects unsupported 와 같은 처리 — 전술 단위 원본 유지, sites.rs UNSUPPORTED 로 보냄)."""
     docs,rows=records(ver);assert all(d['exe_sha256'].lower()==sha.lower() for d in docs)
-    patches=[]
+    patches=[];unsupported=[]
     for t in rows:
         assert t['min']<=t['low']<=t['max'] and t['min']<=t['high']<=t['max']
+        if t.get('unsupported'):
+            assert not t['sites'],(t['audit_id'],'unsupported 전술은 sites 를 비워야 한다')
+            kid='extra_'+t['audit_id'].lower();unsupported.append((kid,t['unsupported']))
+            log.append(f"[미지원] {kid} ({t['id']}): {t['unsupported']}")
+            continue
         assert t['sites'],t['audit_id']
-        for idx,s in enumerate(t['sites']):
-            rva=int(s['rva'],16); win=bytes.fromhex(s['win_hex']);dyn=bytes.fromhex(s['dynamic_hex']);first=s['first_len']
-            assert len(win)>=5 and pe.read(rva,len(win))==win,(t['id'],s['rva'],'bytes')
-            ins=list(md.disasm(win,0x140000000+rva));assert sum(i.size for i in ins)==len(win)
-            bounds={i.address-0x140000000-rva for i in ins}|{len(win)}
-            assert first in bounds and 0<first<=len(win),(t['id'],'fragment boundary')
-            branches=[]
-            for i in ins:
-                off=i.address-0x140000000-rva
-                assert not i.group(CS_GRP_CALL) and not i.group(CS_GRP_RET)
-                assert not any(o.type==X86_OP_MEM and o.mem.base==X86_REG_RIP for o in i.operands)
-                if i.group(CS_GRP_JUMP):
-                    assert off>=first and i.operands[0].type==X86_OP_IMM
-                    branches.append((off,i.size,JCC.get(i.mnemonic),i.operands[0].imm-0x140000000))
-            di=list(md.disasm(dyn,0));assert dyn and sum(i.size for i in di)==len(dyn)
-            assert not any(i.group(CS_GRP_JUMP) or i.group(CS_GRP_CALL) or i.group(CS_GRP_RET) for i in di)
-            fn=find_func(starts,ends,rva);assert fn and rva+len(win)<=fn[1]
-            if fn not in func_cache:
-                tg=set()
-                for i in md.disasm(pe.read(fn[0],fn[1]-fn[0]),0x140000000+fn[0]):
-                    if (i.group(CS_GRP_JUMP) or i.group(CS_GRP_CALL)) and i.operands and i.operands[0].type==X86_OP_IMM:tg.add(i.operands[0].imm-0x140000000)
-                    if i.mnemonic=='lea' and len(i.operands)==2 and i.operands[1].type==X86_OP_MEM and i.operands[1].mem.base==X86_REG_RIP:
-                        tb=i.address+i.size+i.operands[1].mem.disp-0x140000000
-                        raw=pe.read(tb,8192) if pe.off(tb) is not None else b'';mode=None
-                        for j in range(len(raw)//4):
-                            e=struct.unpack_from('<i',raw,4*j)[0]
-                            if mode is None:mode='rel' if fn[0]<=tb+e<fn[1] else ('abs' if fn[0]<=e<fn[1] else None)
-                            if mode is None:break
-                            cand=tb+e if mode=='rel' else e
-                            if not fn[0]<=cand<fn[1]:break
-                            tg.add(cand)
-                func_cache[fn]=tg
-            interior=set(range(rva+1,rva+len(win)));assert not interior&func_cache[fn],(t['id'],s['rva'],'incoming branch')
-            for h in interior:interior_all[h]=(t['id'],s['rva'])
-            tf=s['tf']
-            if 'calc' in tf:
-                assert re.fullmatch(r'(extra_(lane|combat|ops)|verified_candidates)::[a-z0-9_]+',tf['calc'])
-                trans='Tf::Compute(crate::'+tf['calc']+')'
-            elif tf['kind']=='Add':trans=f"Tf::Add({tf['value']})"
-            elif tf['kind']=='Sq1':trans='Tf::Sq1'
-            elif tf['kind']=='Map':trans=f"Tf::Map {{ on: {tf['on']}, off: {tf['off']} }}"
-            else:raise ValueError(tf)
-            fields=[f'Field {{ off: 0, width: 8, tf: {trans}, max: i64::MAX }}']
-            asm=' ; '.join(i.mnemonic+' '+i.op_str for i in ins)
-            patches.append(dict(name=f"extra_{t['audit_id'].lower()}@{s['rva']}",tactic=order['extra_'+t['audit_id'].lower()],rva=rva,win=win,fields=fields,branches=branches,src=parse_src(s['src']),chk=parse_src(s.get('team_chk')),asm=asm,func=fn[0],first_len=first,dynamic=dyn))
-            log.append(f"[추가창] {t['audit_id']} {s['rva']} {asm} | 주체 {s['src']}")
-    assert len({p['tactic'] for p in patches})==68
-    return patches
+        for s in t['sites']:
+            patches.append(build_site(pe,md,starts,ends,func_cache,interior_all,log,order['extra_'+t['audit_id'].lower()],
+                                      f"extra_{t['audit_id'].lower()}@{s['rva']}",s,s['src'],s.get('team_chk'),f"[추가창] {t['audit_id']}"))
+    assert len({p['tactic'] for p in patches})+len(unsupported)==68
+    return patches,unsupported
+
+
+def build_site(pe,md,starts,ends,func_cache,interior_all,log,tactic,name,s,src,team_chk,label):
+    """추가창 형식 지점 1개를 검증해 patch dict 로 만든다(extras 와 knobs 의 "form":"extra" 지점이 같은 검증을 쓴다).
+    s = {rva, win_hex, first_len, dynamic_hex, tf} · src/team_chk = 판단 주체 JSON."""
+    from gen_sites import find_func,parse_src,JCC
+    rva=int(s['rva'],16); win=bytes.fromhex(s['win_hex']);dyn=bytes.fromhex(s['dynamic_hex']);first=s['first_len']
+    assert len(win)>=5 and pe.read(rva,len(win))==win,(name,'bytes')
+    ins=list(md.disasm(win,0x140000000+rva));assert sum(i.size for i in ins)==len(win)
+    bounds={i.address-0x140000000-rva for i in ins}|{len(win)}
+    assert first in bounds and 0<first<=len(win),(name,'fragment boundary')
+    branches=[]
+    for i in ins:
+        off=i.address-0x140000000-rva
+        assert not i.group(CS_GRP_CALL) and not i.group(CS_GRP_RET)
+        assert not any(o.type==X86_OP_MEM and o.mem.base==X86_REG_RIP for o in i.operands)
+        if i.group(CS_GRP_JUMP):
+            assert off>=first and i.operands[0].type==X86_OP_IMM
+            branches.append((off,i.size,JCC.get(i.mnemonic),i.operands[0].imm-0x140000000))
+    di=list(md.disasm(dyn,0));assert dyn and sum(i.size for i in di)==len(dyn)
+    assert not any(i.group(CS_GRP_JUMP) or i.group(CS_GRP_CALL) or i.group(CS_GRP_RET) for i in di)
+    fn=find_func(starts,ends,rva);assert fn and rva+len(win)<=fn[1]
+    if fn not in func_cache:
+        tg=set()
+        for i in md.disasm(pe.read(fn[0],fn[1]-fn[0]),0x140000000+fn[0]):
+            if (i.group(CS_GRP_JUMP) or i.group(CS_GRP_CALL)) and i.operands and i.operands[0].type==X86_OP_IMM:tg.add(i.operands[0].imm-0x140000000)
+            if i.mnemonic=='lea' and len(i.operands)==2 and i.operands[1].type==X86_OP_MEM and i.operands[1].mem.base==X86_REG_RIP:
+                tb=i.address+i.size+i.operands[1].mem.disp-0x140000000
+                raw=pe.read(tb,8192) if pe.off(tb) is not None else b'';mode=None
+                for j in range(len(raw)//4):
+                    e=struct.unpack_from('<i',raw,4*j)[0]
+                    if mode is None:mode='rel' if fn[0]<=tb+e<fn[1] else ('abs' if fn[0]<=e<fn[1] else None)
+                    if mode is None:break
+                    cand=tb+e if mode=='rel' else e
+                    if not fn[0]<=cand<fn[1]:break
+                    tg.add(cand)
+        func_cache[fn]=tg
+    interior=set(range(rva+1,rva+len(win)));assert not interior&func_cache[fn],(name,'incoming branch')
+    for h in interior:interior_all[h]=(name,s['rva'])
+    tf=s['tf']
+    if 'calc' in tf:
+        assert re.fullmatch(r'(extra_(lane|combat|ops)|verified_candidates)::[a-z0-9_]+',tf['calc'])
+        trans='Tf::Compute(crate::'+tf['calc']+')'
+    elif tf['kind']=='Add':trans=f"Tf::Add({tf['value']})"
+    elif tf['kind']=='Sq1':trans='Tf::Sq1'
+    elif tf['kind']=='Map':trans=f"Tf::Map {{ on: {tf['on']}, off: {tf['off']} }}"
+    else:raise ValueError(tf)
+    fields=[f'Field {{ off: 0, width: 8, tf: {trans}, max: i64::MAX }}']
+    asm=' ; '.join(i.mnemonic+' '+i.op_str for i in ins)
+    log.append(f"{label} {s['rva']} {asm} | 주체 {src}")
+    return dict(name=name,tactic=tactic,rva=rva,win=win,fields=fields,branches=branches,src=parse_src(src),chk=parse_src(team_chk),asm=asm,func=fn[0],first_len=first,dynamic=dyn)
