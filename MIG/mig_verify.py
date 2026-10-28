@@ -34,15 +34,16 @@ MODS = [
   'tfm2_level_cap', 'tfm2_champion_exclude', 'banpick_view_plus',
   'tfm2_comptest_unlock', 'tfm2_elemental_serpen', 'tfm2_champ_pos_lock',
   'training_view_plus', 'facility_view_plus', 'custom_tier_assignment',  # 자체 RVA 0 이지만 ui_kit RE 헬퍼(#[path]) 소비 = 재빌드 대상(0.6.1 발견)
-  'tfm2_tactics_verify',  # 2026-10-22 편입 — 상세전술 튜닝 검증(sites.rs 는 tools/gen_sites.py 생성물, 정본 = tools/targets/probe_targets_<버전>.json · 패치 시 tools/migrate_targets.py)
+  # ~~'tfm2_tactics_verify'~~ → 2026-10-29 유저 지시로 일시 보류(EXCLUDED_MODS). 0.7.0 주소 108곳 STALE — 되살릴 때 tools/migrate_targets.py 재핀부터
   'tfm2_detail_tactics',  # 2026-10-27 편입 — 상세전술(sites.rs 는 tools/gen_sites.py 생성물, 정본 = tools/targets/*_<버전>.json · 패치 시 tools/track_update.py)
-  'tfm2_lane_tactics',   # 2026-10-14 0.6.4 회차 편입(0.6.3 v0.1.4 마이그분 · passive_plan wrap)
+  # ~~'tfm2_lane_tactics'~~ → 2026-10-29 유저 지시로 영구 제외(0.7.0 상수만 고친 것이 마지막)
   'ui_kit',   # 공유모듈(dll 없음) — 0.5.7 사고 1·2 의 근원
 ]
 # 제외 모드 매니페스트는 manifest\ 에 보존(값 = 마지막 마이그 버전). 재개 시 여기 다시 넣고 check.
 EXCLUDED_MODS = ['tfm2_ai_adjust', 'tfm2_item_tactics', 'tfm2_banpick_order', 'tfm2_banpick_illust', 'tfm2_draft_overlay',
                  'tfm2_flow_capture', 'tfm2_stat_exp', 'tfm2_bancard_keep', 'sylas', 'tfm2_html_overlay',
-                 'tfm2_mod_order', 'Spectator_Chat', 'community_reaction_mod', 'tfm2_meta_item_delegate']
+                 'tfm2_mod_order', 'Spectator_Chat', 'community_reaction_mod', 'tfm2_meta_item_delegate',
+                 'tfm2_lane_tactics', 'tfm2_tactics_verify']  # 2026-10-29: lane = 영구 제외, tactics_verify = 일시 보류
 SKIP_DIRS = {'target', '_archive', 'backup_0.2.26', 'release', '_classic_058', '_bak', '_art_src'}  # _classic_058 = 0.6.0 stable 전환 때 남긴 클래식 소스(죽은 RVA) — 매니페스트 오염 방지(2026-09-22)
 
 

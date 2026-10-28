@@ -85,6 +85,22 @@ main:match_ui {
       }
     }
 
+    #turn_pill:color {
+      ignore_event: true;
+      visible: false;
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      width: 0px;
+      height: 40px;
+      color: #ffe45eff;
+
+      rounding: Uniform {
+        rounding: 20;
+      }
+    }
+
     #desc:label {
       @"asset/base/style/main#label";
       width: 1084px;
@@ -228,6 +244,18 @@ main:match_ui {
           source: "asset/base/aseprite_resources/team_logo";
         }
       }
+      #name_hl:color {
+        ignore_event: true;
+        visible: false;
+        y: 0px;
+        width: 0px;
+        height: 30px;
+        color: #ffe45eff;
+
+        rounding: Uniform {
+          rounding: 6;
+        }
+      }
       #name:label {
         @"asset/base/style/main#bold_label";
         x: 500px;
@@ -274,6 +302,18 @@ main:match_ui {
           anchor_y: 0.5;
           pivot_y: 0.5;
           source: "asset/base/aseprite_resources/team_logo";
+        }
+      }
+      #name_hl:color {
+        ignore_event: true;
+        visible: false;
+        y: 0px;
+        width: 0px;
+        height: 30px;
+        color: #ffe45eff;
+
+        rounding: Uniform {
+          rounding: 6;
         }
       }
       #name:label {
@@ -1351,13 +1391,14 @@ main:match_ui {
     }
 
     #stat:color {
+      x: 10px;
       color: #00000000;
       rounding: Uniform {
         rounding: 12;
       }
 
       width: 1230px;
-      height: 62px;
+      height: 78px;
 
       #header:color {
         color: #0f1016ff;
@@ -1373,43 +1414,123 @@ main:match_ui {
       }
 
     #name:label {
+      y: 2px;
       @"asset/base/style/main#label";
-      x: 141px;
-      visible: false;
-      height: 33px;
-      width: 266px;
+      x: 0px;
+      visible: true;
+      height: 24px;
+      width: 300px;
 
-      align_x: Center;
+      align_x: Left;
       align_y: Center;
 
-      size: 24;
+      size: 20;
 
       color: #e8e8e8ff;
       text: "";
     }
 
     #category:label {
+      y: 2px;
       @"asset/base/style/main#label";
-      x: 407px;
-      visible: false;
-      width: 131px;
-      height: 33px;
+      x: 0px;
+      visible: true;
+      width: 240px;
+      height: 24px;
 
-      align_x: Right;
+      align_x: Left;
       align_y: Center;
 
-      size: 18;
+      size: 16;
 
-      color: #e8e8e8ff;
+      color: #8a8c96ff;
       text: "";
+    }
+
+    #levels:label {
+      @"asset/base/style/main#label";
+      ignore_event: true;
+      anchor_x: 1;
+      pivot_x: 1;
+      x: -300px;
+      y: 2px;
+      width: 360px;
+      height: 24px;
+      size: 16;
+      align_x: Right;
+      align_y: Center;
+      color: #8a8c96ff;
+      text: "#asset/base/text/ui?banpick.stat_levels_legend";
+    }
+
+    #up_dot:color {
+      ignore_event: true;
+      anchor_x: 1;
+      pivot_x: 1;
+      x: -200px;
+      y: 9px;
+      width: 10px;
+      height: 10px;
+      color: #3bd49aff;
+
+      rounding: Uniform {
+        rounding: 5;
+      }
+    }
+
+    #up:label {
+      @"asset/base/style/main#label";
+      ignore_event: true;
+      anchor_x: 1;
+      pivot_x: 1;
+      x: -120px;
+      y: 2px;
+      width: 160px;
+      height: 24px;
+      size: 16;
+      align_x: Right;
+      align_y: Center;
+      color: #8a8c96ff;
+      text: "#asset/base/text/ui?banpick.patch_up";
+    }
+
+    #down_dot:color {
+      ignore_event: true;
+      anchor_x: 1;
+      pivot_x: 1;
+      x: -60px;
+      y: 9px;
+      width: 10px;
+      height: 10px;
+      color: #ffa24dff;
+
+      rounding: Uniform {
+        rounding: 5;
+      }
+    }
+
+    #down:label {
+      @"asset/base/style/main#label";
+      ignore_event: true;
+      anchor_x: 1;
+      pivot_x: 1;
+      x: 0px;
+      y: 2px;
+      width: 120px;
+      height: 24px;
+      size: 16;
+      align_x: Right;
+      align_y: Center;
+      color: #8a8c96ff;
+      text: "#asset/base/text/ui?banpick.patch_down";
     }
 
     #stats:empty {
       width: 1228px;
       height: 50px;
 
-      x: 10px;
-      y: 8px;
+      x: 0px;
+      y: 28px;
 
       child_type: Table {
         spacing_x: 4px;
@@ -1534,7 +1655,7 @@ main:match_ui {
 
           #lv1:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1545,8 +1666,9 @@ main:match_ui {
           }
 
           #sep:label {
+            visible: false;
             @"asset/base/style/main#label";
-            width: 20px;
+            width: 0px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1558,9 +1680,9 @@ main:match_ui {
           }
           
           #lvup:label {
-            visible: false;
+            visible: true;
             @"asset/base/style/main#label";
-            width: 0px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1572,7 +1694,7 @@ main:match_ui {
           
           #lvmax:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1702,7 +1824,7 @@ main:match_ui {
 
           #lv1:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1713,8 +1835,9 @@ main:match_ui {
           }
 
           #sep:label {
+            visible: false;
             @"asset/base/style/main#label";
-            width: 20px;
+            width: 0px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1726,9 +1849,9 @@ main:match_ui {
           }
           
           #lvup:label {
-            visible: false;
+            visible: true;
             @"asset/base/style/main#label";
-            width: 0px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1740,7 +1863,7 @@ main:match_ui {
           
           #lvmax:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1870,7 +1993,7 @@ main:match_ui {
 
           #lv1:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1881,8 +2004,9 @@ main:match_ui {
           }
 
           #sep:label {
+            visible: false;
             @"asset/base/style/main#label";
-            width: 20px;
+            width: 0px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1894,9 +2018,9 @@ main:match_ui {
           }
           
           #lvup:label {
-            visible: false;
+            visible: true;
             @"asset/base/style/main#label";
-            width: 0px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -1908,7 +2032,7 @@ main:match_ui {
           
           #lvmax:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2038,7 +2162,7 @@ main:match_ui {
 
           #lv1:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2049,8 +2173,9 @@ main:match_ui {
           }
 
           #sep:label {
+            visible: false;
             @"asset/base/style/main#label";
-            width: 20px;
+            width: 0px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2062,9 +2187,9 @@ main:match_ui {
           }
           
           #lvup:label {
-            visible: false;
+            visible: true;
             @"asset/base/style/main#label";
-            width: 0px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2076,7 +2201,7 @@ main:match_ui {
           
           #lvmax:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2206,7 +2331,7 @@ main:match_ui {
 
           #lv1:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2217,8 +2342,9 @@ main:match_ui {
           }
 
           #sep:label {
+            visible: false;
             @"asset/base/style/main#label";
-            width: 20px;
+            width: 0px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2230,9 +2356,9 @@ main:match_ui {
           }
           
           #lvup:label {
-            visible: false;
+            visible: true;
             @"asset/base/style/main#label";
-            width: 0px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2244,7 +2370,7 @@ main:match_ui {
           
           #lvmax:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2374,7 +2500,7 @@ main:match_ui {
 
           #lv1:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2385,8 +2511,9 @@ main:match_ui {
           }
 
           #sep:label {
+            visible: false;
             @"asset/base/style/main#label";
-            width: 20px;
+            width: 0px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2398,9 +2525,9 @@ main:match_ui {
           }
           
           #lvup:label {
-            visible: false;
+            visible: true;
             @"asset/base/style/main#label";
-            width: 0px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2412,7 +2539,7 @@ main:match_ui {
           
           #lvmax:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2542,7 +2669,7 @@ main:match_ui {
 
           #lv1:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2553,8 +2680,9 @@ main:match_ui {
           }
 
           #sep:label {
+            visible: false;
             @"asset/base/style/main#label";
-            width: 20px;
+            width: 0px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2566,9 +2694,9 @@ main:match_ui {
           }
           
           #lvup:label {
-            visible: false;
+            visible: true;
             @"asset/base/style/main#label";
-            width: 0px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2580,7 +2708,7 @@ main:match_ui {
           
           #lvmax:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2710,7 +2838,7 @@ main:match_ui {
 
           #lv1:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2721,8 +2849,9 @@ main:match_ui {
           }
 
           #sep:label {
+            visible: false;
             @"asset/base/style/main#label";
-            width: 20px;
+            width: 0px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2734,9 +2863,9 @@ main:match_ui {
           }
           
           #lvup:label {
-            visible: false;
+            visible: true;
             @"asset/base/style/main#label";
-            width: 0px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2748,7 +2877,7 @@ main:match_ui {
           
           #lvmax:label {
             @"asset/base/style/main#label";
-            width: 65px;
+            width: 50px;
             height: 23px;
             size: 16;
             y: 1px;
@@ -2764,9 +2893,9 @@ main:match_ui {
 
     #skill1:color {
       width: 410px;
-      height: 173px;
+      height: 157px;
       x: 5px;
-      y: 63px;
+      y: 79px;
 
       color: #161721ff;
       rounding: Uniform {
@@ -2782,7 +2911,7 @@ main:match_ui {
 
       #data:empty {
         width: 390px;
-        height: 153px;
+        height: 137px;
 
         #icon_slot:empty {
           width: 83px;
@@ -2859,13 +2988,26 @@ main:match_ui {
               text: "#asset/base/text/champion?stat.cooltime";
             }
           }
+          #name:label {
+            @"asset/base/style/main#bold_label";
+            ignore_event: true;
+            x: 103px;
+            y: 0px;
+            width: 287px;
+            height: 24px;
+            size: 16;
+            align_x: Left;
+            align_y: Center;
+            color: #e8e8e8ff;
+            text: "";
+          }
         }
 
         #bar:color {
           color: #4a4c56ff;
           width: 1px;
           x: 93px;
-          height: 153px;
+          height: 137px;
         }
 
         #desc:label {
@@ -2873,10 +3015,10 @@ main:match_ui {
           x: 103px;
 
           width: 287px;
-          height: 153px;
+          height: 113px;
 
-          anchor_y: 0.5;
-          pivot_y: 0.5;
+          anchor_y: 1;
+          pivot_y: 1;
 
           size: 16;
           line_height: 22.4;
@@ -2888,9 +3030,9 @@ main:match_ui {
 
     #skill2:color {
       width: 410px;
-      height: 173px;
+      height: 157px;
       x: 420px;
-      y: 63px;
+      y: 79px;
 
       color: #161721ff;
       rounding: Uniform {
@@ -2906,7 +3048,7 @@ main:match_ui {
 
       #data:empty {
         width: 390px;
-        height: 153px;
+        height: 137px;
 
         #icon_slot:empty {
           width: 83px;
@@ -2983,13 +3125,26 @@ main:match_ui {
               text: "#asset/base/text/champion?stat.cooltime";
             }
           }
+          #name:label {
+            @"asset/base/style/main#bold_label";
+            ignore_event: true;
+            x: 103px;
+            y: 0px;
+            width: 287px;
+            height: 24px;
+            size: 16;
+            align_x: Left;
+            align_y: Center;
+            color: #e8e8e8ff;
+            text: "";
+          }
         }
 
         #bar:color {
           color: #4a4c56ff;
           width: 1px;
           x: 93px;
-          height: 153px;
+          height: 137px;
         }
 
         #desc:label {
@@ -2997,10 +3152,10 @@ main:match_ui {
           x: 103px;
 
           width: 287px;
-          height: 153px;
+          height: 113px;
 
-          anchor_y: 0.5;
-          pivot_y: 0.5;
+          anchor_y: 1;
+          pivot_y: 1;
 
           size: 16;
           line_height: 22.4;
@@ -3012,9 +3167,9 @@ main:match_ui {
 
     #ult:color {
       width: 410px;
-      height: 173px;
+      height: 157px;
       x: 835px;
-      y: 63px;
+      y: 79px;
 
       color: #161721ff;
       rounding: Uniform {
@@ -3030,7 +3185,7 @@ main:match_ui {
 
       #data:empty {
         width: 390px;
-        height: 153px;
+        height: 137px;
 
         #icon_slot:empty {
           width: 83px;
@@ -3107,13 +3262,26 @@ main:match_ui {
               text: "#asset/base/text/champion?stat.cooltime";
             }
           }
+          #name:label {
+            @"asset/base/style/main#bold_label";
+            ignore_event: true;
+            x: 103px;
+            y: 0px;
+            width: 287px;
+            height: 24px;
+            size: 16;
+            align_x: Left;
+            align_y: Center;
+            color: #e8e8e8ff;
+            text: "";
+          }
         }
 
         #bar:color {
           color: #4a4c56ff;
           width: 1px;
           x: 93px;
-          height: 153px;
+          height: 137px;
         }
 
         #desc:label {
@@ -3121,10 +3289,10 @@ main:match_ui {
           x: 103px;
 
           width: 287px;
-          height: 153px;
+          height: 113px;
 
-          anchor_y: 0.5;
-          pivot_y: 0.5;
+          anchor_y: 1;
+          pivot_y: 1;
 
           size: 16;
           line_height: 22.4;
