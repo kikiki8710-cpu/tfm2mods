@@ -293,12 +293,12 @@ pub fn option_contents(ctx: &StableClient<'_>) -> Option<String> {
 static OPT_ROOTS_LOGGED: AtomicUsize = AtomicUsize::new(0);
 static RULE_DIAG: AtomicBool = AtomicBool::new(false);
 /// ★0.6.0(09-17, RE `RE\2026-09-17_0.6.0-GamePlayOption-…`): 옵션 값을 UI 로 못 읽음(pause 팝업 안 selectable = None) →
-/// ClientDatabase 의 GamePlayOption 을 raw 로 읽는다. banpick_style u8 cdb+0x738(0/1/2) · room_practice_ban_count u64 cdb+0x720
+/// ClientDatabase 의 GamePlayOption 을 raw 로 읽는다. banpick_style u8 ~~cdb+0x738~~ → cdb+0x739(0.7.0)(0/1/2) · room_practice_ban_count u64 cdb+0x720
 /// (0=기본) · available len cdb+0xe750. 실효 밴 수 = 게임 공식(5v5): (1≤n≤5 && avail ≥ 2n+20·style+15) ? n : default,
 /// default = (avail≥40 ? 3 : 2), avail < 2·default+20·style+15 면 default=2. 옵션 화면이 아니어도 120프레임마다 관측(밴픽 전 확정).
 const OFF_BAN_COUNT: usize = 0x720;
 const OFF_TWO_PHASE: usize = 0x733;
-const OFF_BANPICK_STYLE: usize = 0x738;
+const OFF_BANPICK_STYLE: usize = 0x739; // ★0.7.0 +1(0.6.x=0x738 은 다른 필드 — 클래식인데 1 로 읽힘. RE `RE\2026-10-29_0.7.0-banpick_style-오프셋.md`)
 const OFF_AVAIL_LEN: usize = 0xe8e8; // ★0.7.0 +0x228(0.6.4~0.6.5=0xe6c0) // ★0.6.4 ClientDatabase −0x138(0.6.2~0.6.3=0xe7f8) // ★0.6.2(0.6.1=0xe750) ClientDatabase +0xa8
 static RULE_LOGGED: AtomicU64 = AtomicU64::new(u64::MAX);
 fn observe_rule_raw(ctx: &StableClient<'_>) {
