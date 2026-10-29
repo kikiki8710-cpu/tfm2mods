@@ -52,9 +52,8 @@ pub const CATEGORIES: &[Category] = &[
         "gank_abort_hp",
         "gank_abort_tower",
         "gank_call_accept_hp",
-        "liner_roam_self_hp",
+        // liner_roam_self_hp·liner_roam_call_chance 는 뺐다(2026-10-29, tactics::RETIRED)
         "liner_roam_lane_healthy_hp",
-        "liner_roam_call_chance",
         "shared_battle_role_markers",
         "gank_reevaluate_seconds",
         "enemy_base_allies_radius",
@@ -191,9 +190,10 @@ mod tests {
             }
             assert_eq!(tactic_at(tab, category.ids.len()), None);
         }
-        assert_eq!(seen.iter().filter(|x| **x).count(), 61);
-        // 숨김은 저장 카탈로그 삭제가 아니다. 기존32종은 모두 남는다.
-        assert!(seen[..32].iter().all(|x| *x));
+        assert_eq!(seen.iter().filter(|x| **x).count(), 59);
+        // 숨김은 저장 카탈로그 삭제가 아니다. 기존32종은 뺀 전술(RETIRED)을 빼고 모두 남는다.
+        for t in 0..32 { assert_eq!(seen[t], !tactics::retired(t), "{}", tactics::TACTICS[t].id); }
+        for id in tactics::RETIRED { assert!(!seen[tactics::index_of(id).unwrap()]); }
         for id in ["kill_bonus_cap", "shared_battle_role_markers", "boss_reposition_improvement", "movement_skill_period_margin"] {
             assert!(seen[tactics::index_of(id).unwrap()]);
         }

@@ -214,9 +214,14 @@ static ARMED: AtomicBool = AtomicBool::new(false);
 pub fn index_of(id: &str) -> Option<usize> { TACTICS.iter().position(|d| d.id == id) }
 
 pub fn level(t: usize, col: usize) -> u8 { if t < N && col < 6 { LEVEL[t][col].load(Relaxed) } else { 0 } }
+/// 빼 둔 전술(2026-10-29 유저 지시). 카탈로그·세이브 형식은 그대로 두고 단계만 항상 0(원본)으로 둔다.
+/// 0.7.0 의 새 로밍 경로(코드 4 = Player+0x2c5)가 라인 로밍이 아니라 「상대 정글 침투 선호」 특성으로 밝혀져,
+/// 라인 로밍용 값이 상대 정글 침투 결정에 섞이는 것을 막으려고 세 전술을 통째로 뺐다.
+pub const RETIRED: &[&str] = &["liner_roam_self_hp", "liner_roam_call_chance", "roam_retry_extra_seconds"];
+pub fn retired(t: usize) -> bool { t < N && RETIRED.contains(&TACTICS[t].id) }
 pub fn set_level(t: usize, col: usize, lv: u8) {
     if t >= N || col >= 6 { return; }
-    let max = if TACTICS[t].kind == Kind::Toggle { LV_LOW } else { LV_HIGH };
+    let max = if retired(t) { LV_BASE } else if TACTICS[t].kind == Kind::Toggle { LV_LOW } else { LV_HIGH };
     LEVEL[t][col].store(lv.min(max), Relaxed);
     STATE_VER.fetch_add(1, Relaxed);
 }
@@ -310,8 +315,8 @@ mod tests {
         {let _update=config_update();assert!(config_revision().is_none());
          for t in 0..N{for col in 0..6{set_level(t,col,LV_LOW);}}}
         assert!(!config_unchanged(revision));
-        let txt=state_text();assert_eq!(apply_state_text(&txt),100);
-        for t in 0..N{for col in 0..6{assert_eq!(level(t,col),LV_LOW);}}
+        let txt=state_text();assert_eq!(apply_state_text(&txt),N-RETIRED.len()); // 뺀 전술은 0 이라 저장 줄이 없다
+        for t in 0..N{for col in 0..6{assert_eq!(level(t,col),if retired(t){LV_BASE}else{LV_LOW});}}
         clear_levels();
     }
     #[test]
@@ -328,6 +333,18 @@ mod tests {
         assert_eq!(apply_state_text("combat_retreat_hp 1 0 0 0 0 0 extra\n"),0);
         assert_eq!(apply_state_text("combat_retreat_hp 1 0 0 0 0 0\n"),1);
         assert_eq!(level(0,0),1);
+        clear_levels();
+    }
+    #[test]
+    fn retired_tactics_stay_at_base_even_from_old_saves() {
+        clear_levels();
+        set_my_athletes(&[101]);
+        set_armed(true);
+        assert_eq!(apply_state_text("v1\nliner_roam_self_hp 2 2 2 2 2 0\nliner_roam_call_chance 1 1 1 1 1 0\nroam_retry_extra_seconds 2 0 2 2 2 0\ncombat_retreat_hp 2 0 0 0 0 0\n"), 4);
+        for id in RETIRED { let t = index_of(id).unwrap(); assert!(retired(t)); for c in 0..6 { assert_eq!(level(t, c), LV_BASE); } assert_eq!(value_for(t, 101, 0), None); }
+        assert_eq!(level(index_of("combat_retreat_hp").unwrap(), 0), LV_HIGH); // 나머지는 그대로
+        assert!(!state_text().contains("liner_roam_self_hp"));
+        set_armed(false);
         clear_levels();
     }
     #[test]
