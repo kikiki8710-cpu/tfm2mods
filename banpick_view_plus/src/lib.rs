@@ -170,6 +170,7 @@ static ILLUST: Mutex<Option<std::sync::Arc<Illust>>> = Mutex::new(None);
 static LAST_LAYOUT: Mutex<(f32, f32)> = Mutex::new((-1.0, -1.0));
 static LAST_BG: Mutex<Option<String>> = Mutex::new(None);
 static LAST_SPLASH: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
+static BLUE_NAME: Mutex<Option<HashMap<String, (String, String)>>> = Mutex::new(None); // 블루 이름 경로 → (이름 글자, 적용한 속성)
 
 #[link(name = "kernel32")]
 extern "system" {
@@ -206,6 +207,7 @@ fn mod_dir() -> Option<String> {
 /// ★10-14 레드 ⚙ 클릭 불가 진단: 모드 폴더에 `bp_diag.flag` 가 있으면(밴픽 화면 진입 때 확인) DBG 없이도 debug.log 기록 + ⚙ 위치 히트 노드 덤프.
 static DIAG: AtomicBool = AtomicBool::new(false);
 static DIAG_LAST: Mutex<String> = Mutex::new(String::new());
+static SLOTKIDS_LAST: Mutex<String> = Mutex::new(String::new());
 static ZTEST_LOGGED: AtomicBool = AtomicBool::new(false);
 fn log(s: &str) {
     if !DBG && !DIAG.load(Ordering::Relaxed) { return; }
@@ -949,6 +951,58 @@ impl StableExtension for Ext {
                     let sp = key_sp;
                     lm.insert(sp, w);
                 }
+            }
+            // ── 블루 슬롯 주장 배지(기존 스타일)
+            // ★10-29(0.7.0): 게임은 주장 「C」를 이름 라벨의 자식으로 x = min(글자폭, 64) + 6 에 붙인다 — 왼쪽 정렬 가정
+            //   (RE `REPORT\banpick_view_plus\RE\2026-10-29_0.7.0-밴픽신규UI노드RE.md` §2-1 B). view_plus 블루 이름은 오른쪽 정렬
+            //   (x 194 · w 96 → 끝 290)이라 C 가 글자 끝과 겹치고 슬롯 밖으로 잘렸다.
+            //   ⟹ 배지가 있으면 배지 위치로 글자폭을 역산해 왼쪽 정렬로 바꾸고 「이름 + 6 + 배지 26」이 290 에 끝나게 x 를 옮긴다.
+            //   글자폭은 이름이 바뀔 때만 다시 잰다(옮긴 직후 프레임은 rect 가 덜 갱신돼 잘못 잴 수 있음 → 진동 방지).
+            //   신규 스타일은 배지가 상태 노드 자식이라 이 경로를 안 탄다.
+            {
+                let mut g = BLUE_NAME.lock().unwrap_or_else(|e| e.into_inner());
+                let cache = g.get_or_insert_with(HashMap::new);
+                for n in 0..5 {
+                    let slot = format!("main.blue_picks.pick_slot_{}", n);
+                    let k = match ctx.ui_node_rect(&slot) { Some(r) if r.2 > 0.0 => r.2 / 300.0, _ => continue };
+                    for st in ["wait", "in_turn", "done"] {
+                        let name = format!("{}.{}.name", slot, st);
+                        if !ctx.ui_exists(&name) { continue; }
+                        let text = ctx.ui_text(&name).unwrap_or_default();
+                        let badge = format!("{}.captain_badge", name);
+                        let has = ctx.ui_exists(&badge);
+                        if let Some((t0, p0)) = cache.get(&name) {
+                            if *t0 == text && p0.starts_with("align_x: Left") == has { continue; }
+                        }
+                        let want = if has {
+                            match (ctx.ui_node_rect(&name), ctx.ui_node_rect(&badge)) {
+                                (Some(nr), Some(br)) if nr.2 > 0.0 && br.2 > 0.0 => {
+                                    let tw = ((br.0 - nr.0) / k - 6.0).clamp(0.0, 64.0);
+                                    format!("align_x: Left; x: {:.0}px;", 290.0 - 32.0 - tw)
+                                }
+                                _ => continue, // 레이아웃 전 — 다음 프레임에
+                            }
+                        } else { "align_x: Right; x: 194px;".to_string() };
+                        let ok = ctx.ui_set_properties(&name, &want);
+                        log(&format!("captain name {} '{}' badge={} → {} ({})", name, text, has, want, ok));
+                        cache.insert(name, (text, want));
+                    }
+                }
+            }
+            // 진단(bp_diag.flag): 픽 슬롯 상태 노드 자식 목록 — 게임이 붙인 captain/promise 배지 위치 확인용(바뀔 때만)
+            if DIAG.load(Ordering::Relaxed) {
+                let mut v = Vec::new();
+                for team in ["blue", "red"] { for n in 0..5 { for st in ["wait", "in_turn", "done"] {
+                    let p = format!("main.{}_picks.pick_slot_{}.{}", team, n, st);
+                    if ctx.ui_visible(&p) != Some(true) { continue; }
+                    let kids = ctx.ui_child_names(&p);
+                    let cap: Vec<String> = kids.iter().filter(|k| k.contains("badge")).map(|k| format!("{}={:?}", k, ctx.ui_node_rect(&format!("{}.{}", p, k)))).collect();
+                    let nb = ctx.ui_exists(&format!("{}.name.captain_badge", p));
+                    v.push(format!("{}:{} kids={:?} badges={:?} name.cb={}", team, n, kids, cap, nb));
+                } } }
+                let s = v.join(" | ");
+                let mut last = SLOTKIDS_LAST.lock().unwrap_or_else(|e| e.into_inner());
+                if *last != s { log(&format!("slotkids {}", s)); *last = s; }
             }
             // ── 이름 색
             let axes = AXES.lock().unwrap_or_else(|e| e.into_inner()).clone().unwrap_or_default();

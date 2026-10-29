@@ -242,6 +242,53 @@ pick_slot:color_icon_button {
       ignore_event: true;
     }
 
+
+    #center:color {
+      x: 145px;
+      y: 20px;
+
+      width: 2px;
+      height: 134px;
+
+      color: #4a4c56ff;
+
+      ignore_event: true;
+    }
+
+    #champion:empty {
+      width: 137px;
+      height: 184px;
+
+      x: 6px;
+      y: -10px;
+
+      #icon:image {
+        width: 137px;
+        height: 172px;
+
+        ignore_event: true;
+      }
+    }
+    #bp_splash:image {
+      ignore_event: true;
+      x: 0px;
+      y: 1px;
+      width: 284px;
+      height: 172px;
+      visible: false;
+      source: "asset/banpick_view_plus/asset/hover_ph";
+    }
+    #bp_dim:color {
+      x: 0px;
+      y: 114px;
+      width: 284px;
+      height: 59px;
+      color: #23252fa6;
+      visible: false;
+      ignore_event: true;
+      rounding: Individual { top_left: 0; top_right: 0; bottom_left: 8; bottom_right: 8; }
+    }
+
     #position:image {
       x: 10px;
       y: 117px;
@@ -351,56 +398,6 @@ pick_slot:color_icon_button {
       color: #e8e8e8ff;
       size: 16;
       text: "ABCD";
-    }
-
-    #center:color {
-      x: 145px;
-      y: 20px;
-
-      width: 2px;
-      height: 134px;
-
-      color: #4a4c56ff;
-
-      ignore_event: true;
-    }
-
-    #champion:empty {
-      width: 137px;
-      height: 184px;
-
-      x: 6px;
-      y: -10px;
-
-      #icon:image {
-        width: 137px;
-        height: 172px;
-
-        ignore_event: true;
-      }
-    }
-
-
-    #bp_dim:color {
-      x: 0px;
-      y: 114px;
-      width: 284px;
-      height: 59px;
-      z: 305;
-      color: #23252fa6;
-      visible: false;
-      ignore_event: true;
-      rounding: Individual { top_left: 0; top_right: 0; bottom_left: 8; bottom_right: 8; }
-    }
-    #bp_splash:image {
-      ignore_event: true;
-      x: 0px;
-      y: 1px;
-      width: 284px;
-      height: 172px;
-      z: 300;
-      visible: false;
-      source: "asset/banpick_view_plus/asset/hover_ph";
     }
 
     #bp_skin_cycle:color_icon_button {
