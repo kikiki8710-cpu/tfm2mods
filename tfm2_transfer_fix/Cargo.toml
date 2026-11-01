@@ -1,0 +1,21 @@
+[package]
+name = "tfm2_transfer_fix"
+version = "0.1.0"
+edition = "2021"
+
+# stable ABI 껍데기(mod-api-stable) + raw RVA 바이트 패치·입구 훅. 게임 0.7.0 전용(패치마다 재핀).
+# 빌드: %USERPROFILE%\.cargo\bin\cargo.exe build --release   (툴체인 무관)
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+mod-api-stable = { path = "../sdk_060_stable/mod-api-stable" }
+
+[workspace]
+
+[profile.release]
+# opt-level 2/3 = detour frame bloat -> STATUS_STACK_OVERFLOW (CLAUDE.md sec.2, 2026-07-18). keep 1.
+opt-level = 1
+overflow-checks = false
