@@ -41,6 +41,8 @@
 !/tfm2_tactics_verify/
 !/tfm2_detail_tactics/
 !/tfm2_champion_exclude/
+# 2026-11-01 0.7.0 이적·연봉 산식 오류 수정 모드(신설)
+!/tfm2_transfer_fix/
 !/tfm2_html_overlay/
 !/tfm2_html_overlay_stable/
 !/legacy_save_patcher_stable/
