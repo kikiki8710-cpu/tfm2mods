@@ -37,6 +37,7 @@ MODS = [
   # ~~'tfm2_tactics_verify'~~ → 2026-10-29 유저 지시로 일시 보류(EXCLUDED_MODS). 0.7.0 주소 108곳 STALE — 되살릴 때 tools/migrate_targets.py 재핀부터
   'tfm2_detail_tactics',  # 2026-10-27 편입 — 상세전술(sites.rs 는 tools/gen_sites.py 생성물, 정본 = tools/targets/*_<버전>.json · 패치 시 tools/track_update.py)
   # ~~'tfm2_lane_tactics'~~ → 2026-10-29 유저 지시로 영구 제외(0.7.0 상수만 고친 것이 마지막)
+  'tfm2_transfer_fix',  # 2026-11-01 편입(유저 지시) — 0.7.0 이적·연봉 산식 오류 수정 · RVA 8곳(바이트 패치·rip disp 재지향·입구 훅) · 문서 REPORT\tfm2_transfer_fix\02
   'ui_kit',   # 공유모듈(dll 없음) — 0.5.7 사고 1·2 의 근원
 ]
 # 제외 모드 매니페스트는 manifest\ 에 보존(값 = 마지막 마이그 버전). 재개 시 여기 다시 넣고 check.
