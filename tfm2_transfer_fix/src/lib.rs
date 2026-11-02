@@ -21,8 +21,11 @@
 //
 // ③ 연봉·선수가치 배율 P 상·하한 — `0x150ca20(rcx=SalaryBasis*, xmm1=능력값) → xmm0=P`, 호출자 13곳
 //    P 는 해마다 상한 없이 누적 곱해지고 백분위 누적최대를 거친다 ⟹ 유저 팀 굿즈 수입이 크면 상위 1% 가 9~18배.
-//    수정: 함수 입구 5B(push r14/rsi/rdi/rbx)를 jmp rel32 로 → 스텁이 원본을 부른 뒤 xmm0 을 [min, max] 로 자른다.
-//          스텁은 실측 통계(호출 수 · 원래 P 최솟값/최댓값 · 상·하한에 걸린 횟수)를 남긴다.
+//    수정: 함수 입구 5B(push r14/rsi/rdi/rbx)를 jmp rel32 로 → 스텁이 원본을 부른 뒤 xmm0 을 max 로 자르고,
+//          min > 0 일 때만 min 으로 올린다. 스텁은 실측 통계(호출 수 · 원래 P 최솟값/최댓값 · 상·하한에 걸린 횟수)를 남긴다.
+//    ★이건 계산 실수 수정이 아니라 게임에 없던 안전장치다(설계 의도 = 리그 재정 되먹임, 조율 실패).
+//      그래서 기본값 = 상한 5.0 · 하한 없음 — 평소 게임 계산은 그대로 두고 폭주할 때만 자른다(유저 결정 2026-11-02).
+//      ~~v0.1.0 기본 0.8~2.0~~: ② 수정과 겹쳐 하한 0.8 이 게임 식의 낮은 값(0.67 등)을 끌어올렸다(실측 164만 회).
 //
 // 안전 규칙
 //   · 모든 패치는 ①원본 바이트 ②(재지향이면) 원 대상 RVA ③원 상수 값을 대조하고, 하나라도 다르면 그 패치만 건너뛰고 로그.
@@ -142,7 +145,7 @@ impl Default for Cfg {
     fn default() -> Self {
         Cfg { spread_floor_fix: true, spread_c: 0.95, spread_default: 0.23,
               double_apply_fix: true,
-              mult_clamp: true, mult_min: 0.8, mult_max: 2.0 }
+              mult_clamp: true, mult_min: 0.0, mult_max: 5.0 }   // mult_min 0 = 하한 없음
     }
 }
 
@@ -162,11 +165,15 @@ spread_default = 0.23
 # ② 첫 시즌 종료 때 연봉 보정이 두 번 곱해지는 오류 수정 (1 = 켬, 0 = 끔)
 double_apply_fix = 1
 
-# ③ 연봉·선수가치 배율 제한 (1 = 켬, 0 = 끔 · 바닐라는 제한 없음)
-#    바닐라: 해마다 상한 없이 누적돼 상위 선수 연봉·이적료가 계속 오른다.
+# ③ 연봉·선수가치 배율 상한 (1 = 켬, 0 = 끔 · 바닐라는 제한 없음)
+#    바닐라: 배율이 해마다 상한 없이 누적돼, 시즌이 쌓이면 상위 선수 연봉·이적료가 크게 치솟을 수 있다.
+#    기본 상한 5.0 = 평소엔 거의 걸리지 않고 폭주할 때만 자르는 안전장치(게임 계산은 최대한 그대로).
+#    ★연봉·이적료가 너무 많이 오른다 싶으면 salary_mult_max 를 낮추세요 (예: 3.0, 더 세게는 2.0).
+#      참고: 첫 연도 전환 직후 배율은 0.67 ~ 1.85 였다(② 수정 켬 · 2026-11 실측).
 salary_mult_clamp = 1
-salary_mult_min = 0.8
-salary_mult_max = 2.0
+salary_mult_max = 5.0
+#    하한 (0 = 없음 · 기본). 낮은 연봉이 너무 떨어진다 싶을 때만 0.05 ~ 1 사이 값을 넣으세요 (예: 0.8).
+salary_mult_min = 0
 ";
 
 fn load_config() -> (Cfg, Vec<String>) {
@@ -196,8 +203,8 @@ fn load_config() -> (Cfg, Vec<String>) {
                 _ => notes.push(format!("spread_c={} 범위(0.05~3) 밖 → {}", v, c.spread_c)) },
             "spread_default" => match f(v) { Some(x) if (0.01..=3.0).contains(&x) => c.spread_default = x,
                 _ => notes.push(format!("spread_default={} 범위(0.01~3) 밖 → {}", v, c.spread_default)) },
-            "salary_mult_min" => match f(v) { Some(x) if (0.05..=1.0).contains(&x) => c.mult_min = x,
-                _ => notes.push(format!("salary_mult_min={} 범위(0.05~1) 밖 → {}", v, c.mult_min)) },
+            "salary_mult_min" => match f(v) { Some(x) if x == 0.0 || (0.05..=1.0).contains(&x) => c.mult_min = x,
+                _ => notes.push(format!("salary_mult_min={} 범위(0 또는 0.05~1) 밖 → {}", v, c.mult_min)) },
             "salary_mult_max" => match f(v) { Some(x) if (1.0..=100.0).contains(&x) => c.mult_max = x,
                 _ => notes.push(format!("salary_mult_max={} 범위(1~100) 밖 → {}", v, c.mult_max)) },
             _ => notes.push(format!("모르는 키 무시: {}", k)),
@@ -282,9 +289,10 @@ unsafe fn redirect(base: usize, page: usize, s: &RipSite) -> Result<String, Stri
 fn emit_mov_rax(s: &mut Vec<u8>, imm: u64) { s.extend_from_slice(&[0x48, 0xb8]); s.extend_from_slice(&imm.to_le_bytes()); }
 
 /// ③ 배율 함수 스텁 + 트램폴린을 page+STUB_OFF 에 조립. 반환 = (스텁 주소, 트램폴린 주소).
-///   스텁: sub rsp,0x28 → call tramp(원본) → add rsp,0x28 → 통계 → [clamp] → ret
+///   스텁: sub rsp,0x28 → call tramp(원본) → add rsp,0x28 → 통계 → [상한] → [하한] → ret
 ///   진입 rsp ≡ 8 (mod 16) → sub 0x28 후 call 하면 원본 진입 정렬이 원래와 같다. 원본의 홈 영역 = 우리가 비운 0x28.
-unsafe fn build_p_stub(page: usize, fn_abs: usize, clamp: bool) -> (usize, usize) {
+///   하한을 끄면(min = 0) 하한 코드를 아예 넣지 않는다 — NaN 도 바닐라처럼 그대로 통과.
+unsafe fn build_p_stub(page: usize, fn_abs: usize, clamp_hi: bool, clamp_lo: bool) -> (usize, usize) {
     let stub = page + STUB_OFF;
     let mut s: Vec<u8> = Vec::new();
     s.extend_from_slice(&[0x48, 0x83, 0xec, 0x28]);                 // sub rsp,0x28
@@ -302,8 +310,8 @@ unsafe fn build_p_stub(page: usize, fn_abs: usize, clamp: bool) -> (usize, usize
     s.extend_from_slice(&[0xf2, 0x0f, 0x10, 0x08]);                 // movsd xmm1,[rax]
     s.extend_from_slice(&[0xf2, 0x0f, 0x5d, 0xc8]);                 // minsd xmm1,xmm0
     s.extend_from_slice(&[0xf2, 0x0f, 0x11, 0x08]);                 // movsd [rax],xmm1
-    if clamp {
-        // 상한: xmm0 > hi 이면 hi (NaN 이면 건너뜀 → 아래 하한에서 lo 로)
+    if clamp_hi {
+        // 상한: xmm0 > hi 이면 hi (NaN 이면 건너뜀)
         emit_mov_rax(&mut s, (page + SLOT_PHI) as u64);
         s.extend_from_slice(&[0xf2, 0x0f, 0x10, 0x08]);             // movsd xmm1,[rax]
         s.extend_from_slice(&[0x66, 0x0f, 0x2e, 0xc1]);             // ucomisd xmm0,xmm1
@@ -312,6 +320,8 @@ unsafe fn build_p_stub(page: usize, fn_abs: usize, clamp: bool) -> (usize, usize
         s.extend_from_slice(&[0xf0, 0x48, 0xff, 0x00]);             // lock inc qword [rax]
         s.extend_from_slice(&[0x66, 0x0f, 0x28, 0xc1]);             // movapd xmm0,xmm1
         s[jbe_at + 1] = (s.len() - (jbe_at + 2)) as u8;
+    }
+    if clamp_lo {
         // 하한: xmm0 < lo 또는 NaN 이면 lo
         emit_mov_rax(&mut s, (page + SLOT_PLO) as u64);
         s.extend_from_slice(&[0xf2, 0x0f, 0x10, 0x08]);             // movsd xmm1,[rax]
@@ -337,7 +347,7 @@ unsafe fn build_p_stub(page: usize, fn_abs: usize, clamp: bool) -> (usize, usize
     (stub, stub + tramp_off)
 }
 
-unsafe fn hook_p_fn(base: usize, page: usize, clamp: bool) -> Result<String, String> {
+unsafe fn hook_p_fn(base: usize, page: usize, clamp_hi: bool, clamp_lo: bool) -> Result<String, String> {
     let site = base.wrapping_add(RVA_P_FN);
     if !readable(site, ORIG_P_FN.len()) { return Err(format!("읽기 불가 @0x{:x}", RVA_P_FN)); }
     let cur: [u8; 9] = read_bytes(site);
@@ -345,12 +355,12 @@ unsafe fn hook_p_fn(base: usize, page: usize, clamp: bool) -> Result<String, Str
         return Err(format!("입구가 이미 다른 훅({:02x?}) — 체인 안 함, 건너뜀", &cur[..5]));
     }
     if cur != ORIG_P_FN { return Err(format!("바이트 불일치 cur={:02x?} want={:02x?} (RVA stale?)", cur, ORIG_P_FN)); }
-    let (stub, tramp) = build_p_stub(page, site, clamp);
+    let (stub, tramp) = build_p_stub(page, site, clamp_hi, clamp_lo);
     let rel = stub as i64 - (site as i64 + 5);
     if rel < i32::MIN as i64 || rel > i32::MAX as i64 { return Err("rel32 범위 초과".into()); }
     let mut j = [0u8; 5]; j[0] = 0xe9; j[1..5].copy_from_slice(&(rel as i32).to_le_bytes());
     write_code(site, &j)?;
-    Ok(format!("훅 @0x{:x} stub=0x{:x} tramp=0x{:x} clamp={}", site, stub, tramp, clamp))
+    Ok(format!("훅 @0x{:x} stub=0x{:x} tramp=0x{:x} 상한={} 하한={}", site, stub, tramp, clamp_hi, clamp_lo))
 }
 
 // ───────────────────────────── 진입 ─────────────────────────────
@@ -359,9 +369,10 @@ fn init(host: &StableHost) -> StableMod {
     let (cfg, notes) = load_config();
     log(&format!("\n[{}ms] === {} INIT (게임 {}) ===\n", now_ms(), MOD_ID, GAME_VER));
     for n in &notes { log(&format!("[cfg] {}\n", n)); }
-    log(&format!("[cfg] ①호가하한제거={} c={} 기본s={} | ②이중적용수정={} | ③배율제한={} [{}, {}]\n",
+    let lo_txt = if cfg.mult_min > 0.0 { format!("{}", cfg.mult_min) } else { "없음".to_string() };
+    log(&format!("[cfg] ①호가하한제거={} c={} 기본s={} | ②이중적용수정={} | ③배율제한={} 상한={} 하한={}\n",
                  cfg.spread_floor_fix, cfg.spread_c, cfg.spread_default, cfg.double_apply_fix,
-                 cfg.mult_clamp, cfg.mult_min, cfg.mult_max));
+                 cfg.mult_clamp, cfg.mult_max, lo_txt));
 
     let mut results: Vec<(String, Result<String, String>)> = Vec::new();
     unsafe {
@@ -390,7 +401,7 @@ fn init(host: &StableHost) -> StableMod {
             results.push(("②10분위 초기값 1.0".into(), patch_fixed(base, RVA_PCS_INIT, &ORIG_PCS_INIT, &NEW_PCS_INIT)));
         }
         // ③ 훅은 통계를 위해 제한이 꺼져 있어도 설치한다(clamp 코드만 빠짐).
-        results.push(("③배율 훅".into(), hook_p_fn(base, page, cfg.mult_clamp)));
+        results.push(("③배율 훅".into(), hook_p_fn(base, page, cfg.mult_clamp, cfg.mult_clamp && cfg.mult_min > 0.0)));
     }
     let fails: Vec<&(String, Result<String, String>)> = results.iter().filter(|(_, r)| r.is_err()).collect();
     if fails.is_empty() {

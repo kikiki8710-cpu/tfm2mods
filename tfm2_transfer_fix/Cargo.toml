@@ -1,6 +1,6 @@
 [package]
 name = "tfm2_transfer_fix"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 # stable ABI 껍데기(mod-api-stable) + raw RVA 바이트 패치·입구 훅. 게임 0.7.0 전용(패치마다 재핀).
