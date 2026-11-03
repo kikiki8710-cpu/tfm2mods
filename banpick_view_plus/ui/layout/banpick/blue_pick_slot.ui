@@ -26,7 +26,6 @@ pick_slot:color_icon_button {
     y: 1px;
     width: 284px;
     height: 172px;
-    z: 300;
     visible: false;
     source: "asset/banpick_view_plus/asset/hover_ph";
   }
@@ -36,7 +35,6 @@ pick_slot:color_icon_button {
     y: 114px;
     width: 284px;
     height: 59px;
-    z: 305;
     color: #23252fa6;
     visible: false;
     ignore_event: true;

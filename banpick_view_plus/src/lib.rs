@@ -171,6 +171,7 @@ static LAST_LAYOUT: Mutex<(f32, f32)> = Mutex::new((-1.0, -1.0));
 static LAST_BG: Mutex<Option<String>> = Mutex::new(None);
 static LAST_SPLASH: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
 static BLUE_NAME: Mutex<Option<HashMap<String, (String, String)>>> = Mutex::new(None); // 블루 이름 경로 → (이름 글자, 적용한 속성)
+static PROF_X: Mutex<Option<HashMap<String, (f32, f32)>>> = Mutex::new(None); // 픽 완료 블록 경로 → (숙련 제목 x, 알약 x) ui px — fix_card_labels 가 매 프레임 씀
 
 #[link(name = "kernel32")]
 extern "system" {
@@ -311,6 +312,13 @@ fn read_enabled_mods() -> Vec<String> {
     let Ok(t) = std::fs::read_to_string(format!(r"{}\config\game\mods.json", dir)) else { return Vec::new() };
     serde_json::from_str::<Value>(&t).ok().and_then(|v| v.get("enabled_mods").and_then(|a| a.as_array()).map(|a| a.iter().filter_map(|x| x.as_str().map(str::to_string)).collect())).unwrap_or_default()
 }
+/// 0.7.0 환경설정 UI 스타일(`config\game\base.json` `ui_style` = Classic | Light | Dark). 신규(Light·Dark)면 true. 파일·키가 없으면 false(기존).
+fn read_new_ui_style() -> bool {
+    let Some(dir) = exe_dir() else { return false };
+    let Ok(t) = std::fs::read_to_string(format!(r"{}\config\game\base.json", dir)) else { return false };
+    serde_json::from_str::<Value>(&t).ok().and_then(|v| v.get("ui_style").and_then(|s| s.as_str()).map(|s| s != "Classic")).unwrap_or(false)
+}
+static NEW_UI: AtomicBool = AtomicBool::new(false);
 fn find_mod_dir(id: &str) -> Option<String> {
     let dir = exe_dir()?;
     let local = format!(r"{}\mods\{}", dir, id);
@@ -531,8 +539,24 @@ fn name_map(ctx: &StableClient<'_>) -> HashMap<String, String> {
 ///   2/3 프레임은 게임 위치로 보여 **깜빡인다**(유저 제보 09-23).
 ///   비용 절감 = 슬롯0의 이름 rect 만 먼저 보고(프로브), 이미 맞으면 나머지는 건드리지 않는다.
 ///   대기·차례 슬롯("?" 일러)도 같은 배치 — 정보가 "?" 위로 올라온다.
+///   ★11-04: 블루 `name` 은 x 만이 아니라 정렬까지 여기서 쓴다 — 주장 배지 보정(아래 BLUE_NAME)이 정한 값을 매 프레임 그대로.
+///   ~~x 194 고정~~: 보정이 3프레임 주기로 1회만 쓰고 캐시로 건너뛰는데 이 함수가 x 를 194 로 되돌렸고, 세트가 바뀌어 게임이
+///   이름 라벨을 새로 만들면 정렬도 .ui 의 Right 로 돌아가 캐시와 어긋났다 → 「Show...」 끝 글자에 C 가 겹침(유저 제보 사진, 0.7.0).
 const CARD_POS_BLUE: [(&str, f32, f32); 3] = [("name", 194.0, 137.0), ("position", 268.0, 117.0), ("proficiency_top", 10.0, 140.0)];
 const CARD_POS_RED: [(&str, f32, f32); 3] = [("name", 10.0, 137.0), ("position", 10.0, 117.0), ("proficiency_top", 166.0, 140.0)];
+/// ★11-04(0.7.0 신규 스타일): 게임이 픽 완료 카드의 「숙련도 보너스」 제목·알약을 **매 프레임** 일러 위쪽(제목 y≈33·알약 y≈58)으로 옮긴다
+///   (기존 스타일은 .ui 값이 그대로 산다 — 10-29 실측). 일러 얼굴을 가린다는 유저 제보 → 하단 반투명 판 윗줄(y 114~138,
+///   숙련 챔피언 얼굴 `proficiency_top` 바로 위 · 포지션 아이콘 반대쪽)에 고정한다. 이름·얼굴과 안 겹친다.
+///   신규 다크 실측(11-04 진단 rect): 게임이 제목 폭을 136 으로 늘려 가운데 정렬(글자 ≈102px) · 알약 60×24.
+///   ⟹ 제목은 왼쪽 정렬 + fit_width(폭 = 글자폭)로 바꾸고, 3프레임 패스에서 실제 폭을 재서 알약을 바로 뒤에 둔다(언어 무관).
+///   블루 = 왼쪽(얼굴 위)부터 [제목][알약] · 레드 = 오른쪽 끝(280)에 맞춰 [제목][알약]. 아래 값은 첫 측정 전 기본값(한국어 기준).
+const PROF_Y: i32 = 116;
+const PROF_GAP: f32 = 6.0;
+const PROF_BLUE_X0: f32 = 18.0;
+const PROF_RED_X1: f32 = 280.0;
+const PROF_DEFAULT_BLUE: (f32, f32) = (18.0, 126.0);
+const PROF_DEFAULT_RED: (f32, f32) = (110.0, 218.0);
+const BLUE_NAME_DEFAULT: &str = "align_x: Right; x: 194px;";
 fn card_block(ctx: &StableClient<'_>, slot: &str) -> Option<String> {
     for b in ["done", "in_turn", "wait"] {
         let p = format!("{}.{}", slot, b);
@@ -543,13 +567,27 @@ fn card_block(ctx: &StableClient<'_>, slot: &str) -> Option<String> {
 fn fix_card_labels(ctx: &mut StableClient<'_>) {
     // ★x/y 는 **무조건 매 프레임** 덮어쓴다. rect 를 보고 "어긋났을 때만" 고치면, 우리가 고친 프레임엔
     //   맞다고 읽혀 건너뛰고 → 그 사이 게임이 되돌려 → 격프레임으로 왔다갔다 = 깜빡임(유저 제보 2회).
+    let names = BLUE_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone().unwrap_or_default();
+    let prof = PROF_X.lock().unwrap_or_else(|e| e.into_inner()).clone().unwrap_or_default();
     for team in ["blue", "red"] {
-        let want = if team == "blue" { CARD_POS_BLUE } else { CARD_POS_RED };
+        let blue = team == "blue";
+        let want = if blue { CARD_POS_BLUE } else { CARD_POS_RED };
         for n in 0..5 {
             let slot = format!("main.{}_picks.pick_slot_{}", team, n);
             let Some(blk) = card_block(ctx, &slot) else { continue };
             for (nm, wx, wy) in want {
-                ctx.ui_set_properties(&format!("{}.{}", blk, nm), &format!("x: {}px; y: {}px; z: 310;", wx as i32, wy as i32));
+                let p = format!("{}.{}", blk, nm);
+                if blue && nm == "name" {
+                    let ax = names.get(&p).map(|(_, w)| w.as_str()).unwrap_or(BLUE_NAME_DEFAULT);
+                    ctx.ui_set_properties(&p, &format!("{} y: {}px; z: 310;", ax, wy as i32));
+                } else {
+                    ctx.ui_set_properties(&p, &format!("x: {}px; y: {}px; z: 310;", wx as i32, wy as i32));
+                }
+            }
+            if blk.ends_with(".done") && NEW_UI.load(Ordering::Relaxed) {
+                let (tx, bx) = prof.get(&blk).copied().unwrap_or(if blue { PROF_DEFAULT_BLUE } else { PROF_DEFAULT_RED });
+                ctx.ui_set_properties(&format!("{}.proficiency_badge_title", blk), &format!("anchor_x: 0; pivot_x: 0; anchor_y: 0; pivot_y: 0; align_x: Left; fit_width: true; x: {}px; y: {}px; z: 310;", tx as i32, PROF_Y));
+                ctx.ui_set_properties(&format!("{}.proficiency_badge", blk), &format!("anchor_x: 0; pivot_x: 0; anchor_y: 0; pivot_y: 0; x: {}px; y: {}px; z: 310;", bx as i32, PROF_Y));
             }
         }
     }
@@ -598,6 +636,10 @@ impl StableExtension for Ext {
                 *LAST_LAYOUT.lock().unwrap_or_else(|e| e.into_inner()) = (-1.0, -1.0);
                 *LAST_BG.lock().unwrap_or_else(|e| e.into_inner()) = None;
                 *LAST_SPLASH.lock().unwrap_or_else(|e| e.into_inner()) = None;
+                *BLUE_NAME.lock().unwrap_or_else(|e| e.into_inner()) = None;
+                *PROF_X.lock().unwrap_or_else(|e| e.into_inner()) = None;
+                NEW_UI.store(read_new_ui_style(), Ordering::Relaxed);
+                log(&format!("UI 스타일 신규={}", NEW_UI.load(Ordering::Relaxed)));
                 DIM_STATE.store(false, Ordering::Relaxed);
                 // 스킨 관련 버튼은 이 판에서 제외 → 숨김
                 for p in [format!("{}.bp_skin_pack_cycle", PANEL)] { set_vis(ctx, &p, false); }
@@ -923,7 +965,10 @@ impl StableExtension for Ext {
                     let slot = format!("main.{}_picks.pick_slot_{}", if *is_blue { "blue" } else { "red" }, n);
                     let done = format!("{}.done", slot);
                     let done_vis = ctx.ui_visible(&done).unwrap_or(false);
-                    // 픽 완료 = done.bp_splash / 대기·차례 = 슬롯 루트 bp_splash_q (둘 다 .ui 정의, z 300 > 게임 아이콘)
+                    // 픽 완료 = done.bp_splash / 대기·차례 = 슬롯 루트 bp_splash_q (둘 다 .ui 정의)
+                    //   ★11-04: ~~bp_splash_q z 300 · bp_dim_q z 305~~ → z 없음. 게임이 대기·차례 슬롯에 붙이는 주장 C·선수 요청(promise) 배지는
+                    //   z 가 없어 「?」 그림 밑에 깔렸다(유저 제보: 픽 전엔 주장 표시가 안 보임). 두 노드는 슬롯 루트의 첫 자식이라 z 없이도
+                    //   wait/in_turn/done 보다 먼저 그려진다(10-29 done 쪽 해결과 같은 원리 — 형제 순서).
                     let sp = if done_vis { format!("{}.bp_splash", done) } else { format!("{}.bp_splash_q", slot) };
                     let other = if done_vis { format!("{}.bp_splash_q", slot) } else { format!("{}.bp_splash", done) };
                     set_vis(ctx, &other, false);
@@ -958,7 +1003,8 @@ impl StableExtension for Ext {
             //   (x 194 · w 96 → 끝 290)이라 C 가 글자 끝과 겹치고 슬롯 밖으로 잘렸다.
             //   ⟹ 배지가 있으면 배지 위치로 글자폭을 역산해 왼쪽 정렬로 바꾸고 「이름 + 6 + 배지 26」이 290 에 끝나게 x 를 옮긴다.
             //   글자폭은 이름이 바뀔 때만 다시 잰다(옮긴 직후 프레임은 rect 가 덜 갱신돼 잘못 잴 수 있음 → 진동 방지).
-            //   신규 스타일은 배지가 상태 노드 자식이라 이 경로를 안 탄다.
+            //   ★11-04: 정한 값은 캐시에만 두고 실제 쓰기는 `fix_card_labels` 가 매 프레임 한다(게임이 라벨을 새로 만들어도 따라감).
+            //   ~~신규 스타일은 배지가 상태 노드 자식이라 이 경로를 안 탄다~~ — 신규 다크 제보 사진에서도 C 가 이름 옆(= 이름 라벨 자식)이었다.
             {
                 let mut g = BLUE_NAME.lock().unwrap_or_else(|e| e.into_inner());
                 let cache = g.get_or_insert_with(HashMap::new);
@@ -982,10 +1028,31 @@ impl StableExtension for Ext {
                                 }
                                 _ => continue, // 레이아웃 전 — 다음 프레임에
                             }
-                        } else { "align_x: Right; x: 194px;".to_string() };
+                        } else { BLUE_NAME_DEFAULT.to_string() };
                         let ok = ctx.ui_set_properties(&name, &want);
                         log(&format!("captain name {} '{}' badge={} → {} ({})", name, text, has, want, ok));
                         cache.insert(name, (text, want));
+                    }
+                }
+            }
+            // ── 숙련도 보너스 [제목][알약] 배치 측정(PROF_Y 위 주석) — 제목 실제 폭(fit_width)·알약 폭을 재서 x 를 정한다. 쓰기는 fix_card_labels.
+            //   신규 스타일만(기존 스타일은 게임이 안 옮겨 .ui 배치가 그대로 산다).
+            if NEW_UI.load(Ordering::Relaxed) {
+                let mut g = PROF_X.lock().unwrap_or_else(|e| e.into_inner());
+                let m = g.get_or_insert_with(HashMap::new);
+                for team in ["blue", "red"] {
+                    for n in 0..5 {
+                        let slot = format!("main.{}_picks.pick_slot_{}", team, n);
+                        let done = format!("{}.done", slot);
+                        if ctx.ui_visible(&done) != Some(true) { continue; }
+                        let k = match ctx.ui_node_rect(&slot) { Some(r) if r.2 > 0.0 => r.2 / 300.0, _ => continue };
+                        let (Some(tr), Some(br)) = (ctx.ui_node_rect(&format!("{}.proficiency_badge_title", done)), ctx.ui_node_rect(&format!("{}.proficiency_badge", done))) else { continue };
+                        if tr.2 <= 0.0 || br.2 <= 0.0 { continue; }
+                        let (tw, pw) = (tr.2 / k, br.2 / k);
+                        let want = if team == "blue" { (PROF_BLUE_X0, PROF_BLUE_X0 + tw + PROF_GAP) } else { let bx = PROF_RED_X1 - pw; (bx - PROF_GAP - tw, bx) };
+                        if m.get(&done).map(|o| (o.0 - want.0).abs() < 0.5 && (o.1 - want.1).abs() < 0.5).unwrap_or(false) { continue; }
+                        log(&format!("prof {} title_w={:.0} pill_w={:.0} → x {:.0}/{:.0}", done, tw, pw, want.0, want.1));
+                        m.insert(done, want);
                     }
                 }
             }
@@ -997,8 +1064,8 @@ impl StableExtension for Ext {
                     if ctx.ui_visible(&p) != Some(true) { continue; }
                     let kids = ctx.ui_child_names(&p);
                     let cap: Vec<String> = kids.iter().filter(|k| k.contains("badge")).map(|k| format!("{}={:?}", k, ctx.ui_node_rect(&format!("{}.{}", p, k)))).collect();
-                    let nb = ctx.ui_exists(&format!("{}.name.captain_badge", p));
-                    v.push(format!("{}:{} kids={:?} badges={:?} name.cb={}", team, n, kids, cap, nb));
+                    let nb = ctx.ui_node_rect(&format!("{}.name.captain_badge", p));
+                    v.push(format!("{}:{}.{} kids={:?} badges={:?} name={:?} name.cb={:?}", team, n, st, kids, cap, ctx.ui_node_rect(&format!("{}.name", p)), nb));
                 } } }
                 let s = v.join(" | ");
                 let mut last = SLOTKIDS_LAST.lock().unwrap_or_else(|e| e.into_inner());
