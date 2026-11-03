@@ -28,6 +28,10 @@ const BTN_ADD: &str = "fvp_btn_add";
 const BTN_NEW: &str = "fvp_btn_new";
 const POPUP: &str = "fvp_popup";
 const TOAST: &str = "fvp_toast";
+/// 게임 「전체 재고 관리 위임」/「위임 해제」 버튼(facility.ui `x 20 · y 701 · w 240`). 우리 버튼을 이 오른쪽에 둔다.
+/// ★11-04: ~~우리 버튼 x 20/192~~ — 위임 버튼과 같은 자리라 글자가 겹쳤다(유저 제보 사진 · 0.7.0 신규 UI).
+const GAME_BTN: &str = "restock_delegate_btn";
+const BTN_X0_AFTER_GAME: i32 = 20 + 240 + 12;
 const COUNT_MIN: i64 = 100;
 const COUNT_MAX: i64 = 100_000;
 
@@ -147,8 +151,9 @@ impl StableExtension for Ext {
             //   add 만 사라진 경우 6프레임마다 new/popup/toast 가 계속 쌓였다(구조상 가능 · 로컬 미재현 = 추정).
             //   → 노드별로 없을 때만 스폰(멱등).
             if !ctx.ui_exists(&b_add) || !ctx.ui_exists(&b_new) || !ctx.ui_exists(&popup) || !ctx.ui_exists(&toast) {
-                let ok1 = ctx.ui_exists(&b_add) || ctx.ui_spawn_source(PANEL, &btn_src(BTN_ADD, 20, "전체 추가 생산"));
-                let ok2 = ctx.ui_exists(&b_new) || ctx.ui_spawn_source(PANEL, &btn_src(BTN_NEW, 192, "전체 신규 생산"));
+                let x0 = if ctx.ui_exists(&format!("{}.{}", PANEL, GAME_BTN)) { BTN_X0_AFTER_GAME } else { 20 };
+                let ok1 = ctx.ui_exists(&b_add) || ctx.ui_spawn_source(PANEL, &btn_src(BTN_ADD, x0, "전체 추가 생산"));
+                let ok2 = ctx.ui_exists(&b_new) || ctx.ui_spawn_source(PANEL, &btn_src(BTN_NEW, x0 + 172, "전체 신규 생산"));
                 let ok3 = ctx.ui_exists(&popup) || ctx.ui_spawn_source(VIEW, &popup_src());
                 let ok4 = ctx.ui_exists(&toast) || ctx.ui_spawn_source(PANEL, &toast_src());
                 log(&format!("스폰 add={} new={} popup={} toast={} add_rect={:?} popup_rect={:?}", ok1, ok2, ok3, ok4, ctx.ui_node_rect(&b_add), ctx.ui_node_rect(&popup)));
