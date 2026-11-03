@@ -34,6 +34,9 @@ const POS_KEYS: [&str; 5] = ["line_top", "line_jungle", "line_mid", "line_bottom
 const ROLE_KEYS: [&str; 7] = ["role_keep", "role_team", "role_melee", "role_range", "role_magician", "role_util", "role_assassin"];
 const ROLE_IDS: [&str; 7] = ["r_keep", "r_team", "r_melee", "r_range", "r_magician", "r_util", "r_assassin"];
 const PANEL_X: i32 = 400; const PANEL_Y: i32 = 110; const PANEL_W: i32 = 640; const PANEL_H: i32 = 570;
+const AUTO_ON_COLOR: &str = "#37d5b3ff"; const AUTO_OFF_COLOR: &str = "#e8e8e8ff";
+/// 적용 버튼을 다시 눌러도 결과 문구가 같으면 반응이 없어 보인다 → 「적용 중…」을 최소 이만큼 보인 뒤 결과로 바꾼다.
+const APPLY_MIN_SHOW: std::time::Duration = std::time::Duration::from_millis(600);
 const ROW_Y0: i32 = 150; const ROW_H: i32 = 46; const DD_X: i32 = 180; const DD_W: i32 = 220; const DD_H: i32 = 36;
 
 #[link(name = "kernel32")]
@@ -45,8 +48,10 @@ fn mod_dir() -> Option<String> {
     let exe = String::from_utf16_lossy(&buf[..n]);
     Some(format!("{}\\mods\\{}", std::path::Path::new(&exe).parent()?.display(), MOD_ID))
 }
+/// ★11-04: `mods\training_view_plus\tvp_diag.flag` 가 있으면 DBG 빌드가 아니어도 tvp_log.txt 를 남긴다(배포 dll 로 현장 진단).
+static DIAG: AtomicBool = AtomicBool::new(false);
 fn log(s: &str) {
-    if !DBG { return; }
+    if !DBG && !DIAG.load(Ordering::Relaxed) { return; }
     if let Some(d) = mod_dir() { use std::io::Write; let d = log_dir::log_dir(&d); let _ = std::fs::create_dir_all(&d); let _ = std::fs::OpenOptions::new().append(true).create(true).open(format!("{d}\\tvp_log.txt")).and_then(|mut f| writeln!(f, "[f{}] {}", FRAME.load(Ordering::Relaxed), s)); }
 }
 
@@ -57,6 +62,7 @@ static CFG_LOADED: AtomicBool = AtomicBool::new(false);
 fn cfg_load() {
     if CFG_LOADED.swap(true, Ordering::Relaxed) { return; }
     let Some(d) = mod_dir() else { return };
+    DIAG.store(std::path::Path::new(&format!("{d}\\tvp_diag.flag")).exists(), Ordering::Relaxed);
     let Ok(t) = std::fs::read_to_string(format!("{d}\\{MOD_ID}.cfg")) else { return };
     let mut r = ROLES.lock().unwrap_or_else(|e| e.into_inner());
     for line in t.lines() {
@@ -88,6 +94,8 @@ static LAST_DAY: AtomicI64 = AtomicI64::new(i64::MIN);
 static STATUS: Mutex<Option<String>> = Mutex::new(None);
 static SPAWN_FAIL: AtomicUsize = AtomicUsize::new(0);
 static HAD_PANEL: AtomicBool = AtomicBool::new(false);
+static APPLY_AT: Mutex<Option<std::time::Instant>> = Mutex::new(None);
+static PENDING_RESULT: Mutex<Option<String>> = Mutex::new(None);
 
 fn push_click(s: &str) { CLICKS.lock().unwrap_or_else(|e| e.into_inner()).push(s.to_string()); }
 fn t(ctx: &StableClient<'_>, k: &str) -> String { ctx.i18n(&format!("{}{}", I18N, k)).unwrap_or_else(|| k.to_string()) }
@@ -95,20 +103,22 @@ fn t(ctx: &StableClient<'_>, k: &str) -> String { ctx.i18n(&format!("{}{}", I18N
 fn panel_source() -> String {
     let mut s = format!(
 "#{PANEL}:color {{ visible: false; x: {PANEL_X}px; y: {PANEL_Y}px; width: {PANEL_W}px; height: {PANEL_H}px; color: #4a4c56ff; stroke: 1; back_color: #161721ff; rounding: Uniform {{ rounding: 12; }}
-  #title:label {{ @\"asset/base/style/main#bold_label\"; x: 24px; y: 18px; width: 580px; height: 36px; size: 22; align_y: Center; text: \"{I18N}title\"; }}
-  #desc:label {{ @\"asset/base/style/main#label\"; x: 24px; y: 58px; width: 592px; height: 80px; size: 14; line_height: 20; color: #a3a9b6ff; align_y: Center; text: \"{I18N}desc\"; }}
+  #title:label {{ @\"asset/base/style/main#bold_label\"; ignore_event: true; x: 24px; y: 18px; width: 580px; height: 36px; size: 22; align_y: Center; text: \"{I18N}title\"; }}
+  #desc:label {{ @\"asset/base/style/main#label\"; ignore_event: true; x: 24px; y: 58px; width: 592px; height: 80px; size: 14; line_height: 20; color: #a3a9b6ff; align_y: Center; text: \"{I18N}desc\"; }}
   #close_x:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; anchor_x: 1; pivot_x: 1; x: -20px; y: 18px; width: 36px; height: 36px; icon: {{ source: \"asset/base/ui/icons/cross\"; rect: {{ x: 10; y: 10; w: 16; h: 16; }} }} }}
 ");
     for i in 0..5 {
         let y = ROW_Y0 + i as i32 * ROW_H;
-        s.push_str(&format!("  #pos{i}:label {{ @\"asset/base/style/main#bold_label\"; x: 32px; y: {y}px; width: 130px; height: {DD_H}px; size: 17; align_y: Center; text: \"{I18N}{}\"; }}\n", POS_KEYS[i]));
+        s.push_str(&format!("  #pos{i}:label {{ @\"asset/base/style/main#bold_label\"; ignore_event: true; x: 32px; y: {y}px; width: 130px; height: {DD_H}px; size: 17; align_y: Center; text: \"{I18N}{}\"; }}\n", POS_KEYS[i]));
         s.push_str(&dd::button_source(&format!("dd{i}"), DD_X, y, DD_W, DD_H, &format!("{I18N}role_keep"), 15).replace("\n#", "\n  #"));
     }
     let ya = ROW_Y0 + 5 * ROW_H + 8;
-    s.push_str(&format!("  #auto_l:label {{ @\"asset/base/style/main#bold_label\"; x: 32px; y: {ya}px; width: 300px; height: 34px; size: 16; align_y: Center; text: \"{I18N}auto\"; }}\n"));
-    s.push_str(&format!("  #auto_b:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; x: {DD_X}px; y: {ya}px; width: 100px; height: 34px; text: {{ text: \"{I18N}off\"; font: \"asset/base/font/set/bold\"; size: 15; align_x: Center; align_y: Center; }} }}\n"));
-    s.push_str(&format!("  #note:label {{ @\"asset/base/style/main#label\"; x: 24px; y: {}px; width: 592px; height: 44px; size: 13; line_height: 18; color: #858d9dff; align_y: Center; text: \"{I18N}note\"; }}\n", ya + 40));
-    s.push_str(&format!("  #status:label {{ @\"asset/base/style/main#label\"; x: 24px; y: {}px; width: 592px; height: 24px; size: 14; color: #37d5b3ff; align_y: Center; text: \"\"; }}\n", PANEL_H - 78));
+    s.push_str(&format!("  #auto_l:label {{ @\"asset/base/style/main#bold_label\"; ignore_event: true; x: 32px; y: {ya}px; width: 144px; height: 34px; size: 16; align_y: Center; text: \"{I18N}auto\"; }}\n"));
+    // ★11-04: ~~`text: { … }`(버튼 자체 글자)~~ — `ui_set_text` 로 안 바뀌어 눌러도(auto=1 저장됨) 「끔」 그대로 보였다(서브 PC 실측 · 0.7.0).
+    //   ⟹ 풀다운 버튼과 같은 자식 라벨 방식(`.label` 은 ui_set_text 로 바뀐다).
+    s.push_str(&format!("  #auto_b:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; x: {DD_X}px; y: {ya}px; width: 100px; height: 34px;\n    #label:label {{ ignore_event: true; width: 100px; height: 34px; font: \"asset/base/font/set/bold\"; size: 15; color: {AUTO_OFF_COLOR}; align_x: Center; align_y: Center; text: \"{I18N}off\"; }}\n  }}\n"));
+    s.push_str(&format!("  #note:label {{ @\"asset/base/style/main#label\"; ignore_event: true; x: 24px; y: {}px; width: 592px; height: 44px; size: 13; line_height: 18; color: #858d9dff; align_y: Center; text: \"{I18N}note\"; }}\n", ya + 40));
+    s.push_str(&format!("  #status:label {{ @\"asset/base/style/main#label\"; ignore_event: true; x: 24px; y: {}px; width: 592px; height: 24px; size: 14; color: #37d5b3ff; align_y: Center; text: \"\"; }}\n", PANEL_H - 78));
     s.push_str(&format!("  #apply:color_icon_button {{ @\"asset/base/style/main#primary_button\"; x: {}px; y: {}px; width: 180px; height: 40px; text: {{ text: \"{I18N}apply\"; font: \"asset/base/font/set/bold\"; size: 17; align_x: Center; align_y: Center; }} }}\n", PANEL_W - 24 - 180 - 12 - 140, PANEL_H - 52));
     s.push_str(&format!("  #close:color_icon_button {{ @\"asset/base/style/main#tertiary_button\"; x: {}px; y: {}px; width: 140px; height: 40px; text: {{ text: \"{I18N}close\"; font: \"asset/base/font/set/bold\"; size: 17; align_x: Center; align_y: Center; }} }}\n", PANEL_W - 24 - 140, PANEL_H - 52));
     s.push_str("}\n");
@@ -150,7 +160,11 @@ fn build_payload(ctx: &StableClient<'_>) -> String {
 fn tick(ctx: &mut StableClient<'_>) {
     let f = FRAME.fetch_add(1, Ordering::Relaxed);
     cfg_load();
-    for ev in ctx.take_events() { if ev.event == EVT { let m = String::from_utf8_lossy(&ev.payload).to_string(); log(&format!("서버 응답: {}", m)); set_status(m); } }
+    for ev in ctx.take_events() { if ev.event == EVT { let m = String::from_utf8_lossy(&ev.payload).to_string(); log(&format!("서버 응답: {}", m)); *PENDING_RESULT.lock().unwrap_or_else(|e| e.into_inner()) = Some(m); } }
+    {
+        let shown = APPLY_AT.lock().unwrap_or_else(|e| e.into_inner()).map(|t0| t0.elapsed() >= APPLY_MIN_SHOW).unwrap_or(true);
+        if shown { if let Some(m) = PENDING_RESULT.lock().unwrap_or_else(|e| e.into_inner()).take() { set_status(m); } }
+    }
     if ctx.client_scene_kind() != Some(ClientSceneKindV1::Main) { if ACTIVE.swap(false, Ordering::Relaxed) { PANEL_OPEN.store(false, Ordering::Relaxed); } return; }
     // 매일 자동
     if let (Some((y, m, d)), true) = (ctx.game_date(), ctx.ui_exists("main.top.right")) {
@@ -163,6 +177,7 @@ fn tick(ctx: &mut StableClient<'_>) {
         let ok = ctx.send_command(CMD, p.as_bytes());
         log(&format!("send_command {} ({}B) → {}", CMD, p.len(), ok));
         set_status(t(ctx, "applying"));
+        *APPLY_AT.lock().unwrap_or_else(|e| e.into_inner()) = Some(std::time::Instant::now());
     }
     if f % 3 != 0 { return; }
     let vis = ctx.ui_exists(VIEW) && ctx.ui_visible(VIEW_ROOT).unwrap_or(false);
@@ -206,10 +221,20 @@ fn tick(ctx: &mut StableClient<'_>) {
     if ctx.ui_visible(&p) != Some(open) { ctx.ui_set_visible(&p, open); }
     if !open { for i in 0..5 { let l = format!("{VIEW}.dl{i}"); if ctx.ui_visible(&l) == Some(true) { ctx.ui_set_visible(&l, false); } } return; }
     let edge = dd::click_edge();
+    if edge && DIAG.load(Ordering::Relaxed) {
+        // 클릭 판정 진단: 누른 자리와 버튼 rect(1920×1080) — 클릭 핸들러가 안 오면 「클릭 …」 줄 없이 이 줄만 남는다
+        let r = |k: &str| ctx.ui_node_rect(&format!("{p}.{k}"));
+        log(&format!("edge cur={:?} auto_b={:?} apply={:?} close={:?} panel={:?}", dd::cursor_ui(), r("auto_b"), r("apply"), r("close"), ctx.ui_node_rect(&p)));
+    }
     let roles = *ROLES.lock().unwrap_or_else(|e| e.into_inner());
     for i in 0..5 { dd::tick(ctx, &format!("{p}.dd{i}"), &format!("{VIEW}.dl{i}"), &ROLE_IDS, &DD_OPEN[i], roles[i], &format!("{I18N}{}", ROLE_KEYS[roles[i]]), edge); }
-    let auto_txt = t(ctx, if AUTO.load(Ordering::Relaxed) { "on" } else { "off" });
-    if ctx.ui_text(&format!("{p}.auto_b")).as_deref() != Some(&auto_txt) { ctx.ui_set_text(&format!("{p}.auto_b"), &auto_txt); }
+    let on = AUTO.load(Ordering::Relaxed);
+    let auto_txt = t(ctx, if on { "on" } else { "off" });
+    let al = format!("{p}.auto_b.label");
+    if ctx.ui_text(&al).as_deref() != Some(&auto_txt) {
+        ctx.ui_set_text(&al, &auto_txt);
+        ctx.ui_set_properties(&al, &format!("color: {};", if on { AUTO_ON_COLOR } else { AUTO_OFF_COLOR }));
+    }
     if let Some(s) = STATUS.lock().unwrap_or_else(|e| e.into_inner()).clone() { if ctx.ui_text(&format!("{p}.status")).as_deref() != Some(&s) { ctx.ui_set_text(&format!("{p}.status"), &s); } }
 }
 
