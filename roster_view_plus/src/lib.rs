@@ -21,6 +21,11 @@ const VIEW: &str = "main.top.right.squad";
 const NA: usize = 12;
 const STAT_KEYS: [&str; NA] = ["last_hit", "skill_avoid", "skill_hit", "control_speed", "positioning", "judgement", "mental", "concentration", "order", "roaming", "aggressive", "ego"];
 const HIDE_COLS: [&str; 10] = ["age", "salary", "main_position", "position", "game", "kill", "death", "assist", "level", "rating"];
+/// ★11-04(0.7.0 신규 스타일): 선수단에 「경기 기록 / 상태·계약」 탭(`data.view_tabs`)이 생겼다. 상태 탭에선 게임이 나이·연봉·포지션 + 체력·컨디션·
+///   스트레스·잔여 계약을 보이는데, 능력치 모드가 숨긴 헤더는 그대로 숨어 있고 우리 칸은 오른쪽 밖으로 밀려 표가 뒤섞였다(서브 PC 실측).
+///   ⟹ 능력치 모드는 「경기 기록」 탭 전용: 상태 탭(= `category.stamina` 가 보임)이면 우리 노드를 걷고 두 탭 공통 칸만 되살린다(경기 칸은 게임이 이미 숨김).
+const STATUS_COL: &str = "stamina";
+const SHARED_COLS: [&str; 4] = ["age", "salary", "main_position", "position"];
 const HDR_ID: &str = "rvp_hdr";
 const VAL_ID: &str = "rvp_vals";
 const FACE_ID: &str = "rvp_faces";
@@ -40,6 +45,13 @@ static CLICK_REGISTERED: AtomicBool = AtomicBool::new(false); // ★09-19: 뷰 �
 static VAL_DX: Mutex<Option<f32>> = Mutex::new(None);
 static LAYOUT: Mutex<Option<(f32, f32, f32, f32, f32, f32)>> = Mutex::new(None); // (face_x, face_w, col_x, col_w, scale, right_lim) ui px · right_lim = 헤더 x 좌표계의 가시폭 오른쪽 한계
 static STATS: Mutex<Option<HashMap<usize, ([i64; NA], Vec<(String, i64)>)>>> = Mutex::new(None);
+/// ★11-04(0.7.0 신규 다크 유저 화면): 레이아웃이 얼굴 스트립을 `name` 헤더 바로 뒤로 가정했지만 행에서는 name_slot 뒤에 **오버롤(72px)** 이
+///   먼저 온다(LeftToRight) → 스트립 끝이 능력치 헤더 시작보다 오른쪽 → 값 정렬(VAL_DX)이 값을 왼쪽으로 당겨 첫 칸(몬스터 처치)이 얼굴 밑에 깔렸다.
+///   ⟹ 값 정렬 측정 뒤, 실제 행의 얼굴 스트립 오른쪽 끝을 재서 헤더가 그보다 왼쪽이면 헤더 시작을 「스트립 끝 + 8」로 옮기고 칸 폭을 다시 나눈다.
+static FACE_FIT: AtomicU64 = AtomicU64::new(0); // 보정 횟수(활성마다 0) — 최대 2회
+const FACE_FIT_MAX: u64 = 2;
+/// `mods\roster_view_plus\rvp_diag.flag` 가 있으면 DBG 빌드가 아니어도 debug.log 를 남긴다(INIT 때 1회 확인).
+static DIAG: AtomicBool = AtomicBool::new(false);
 
 #[link(name = "kernel32")]
 extern "system" { fn GetModuleFileNameW(module: usize, buf: *mut u16, size: u32) -> u32; }
@@ -51,7 +63,7 @@ fn mod_dir() -> Option<String> {
     exe.rfind(|c| c == '\\' || c == '/').map(|i| format!(r"{}\mods\{}", &exe[..i], MOD_ID))
 }
 fn log(s: &str) {
-    if !DBG { return; }
+    if !DBG && !DIAG.load(Ordering::Relaxed) { return; }
     if let Some(d) = mod_dir() {
         use std::io::Write;
         if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(format!(r"{}\debug.log", log_dir::log_dir(&d))) {
@@ -166,19 +178,21 @@ impl StableExtension for Ext {
                 log(&format!("토글 스폰 {} rect={:?}", ok, ctx.ui_node_rect(&btn)));
                 if ok && !CLICK_REGISTERED.swap(true, Ordering::Relaxed) { ctx.ui_register_click(&btn, "", |_c| { let v = !SHOW.load(Ordering::Relaxed); SHOW.store(v, Ordering::Relaxed); save_show(v); log(&format!("토글 클릭 → show={}", v)); }); }
             }
-            let show = SHOW.load(Ordering::Relaxed);
+            let status_tab = ctx.ui_visible(&format!("{}.{}", cat, STATUS_COL)) == Some(true);
+            let show = SHOW.load(Ordering::Relaxed) && !status_tab;
             let applied = APPLIED.load(Ordering::Relaxed);
             let rows: Vec<String> = ctx.ui_child_names(&contents);
             if show != applied {
-                // 게임 컬럼 표시 전환
-                for c in HIDE_COLS { let p = format!("{}.{}", cat, c); if ctx.ui_exists(&p) { ctx.ui_set_visible(&p, !show); } }
-                for r in &rows { for c in HIDE_COLS { let p = format!("{}.{}.{}", contents, r, c); if ctx.ui_exists(&p) { ctx.ui_set_visible(&p, !show); } } }
+                // 게임 컬럼 표시 전환 — 상태 탭으로 비킬 때는 두 탭 공통 칸만 되살린다(경기 칸은 상태 탭에서 게임이 숨겨 둔 상태)
+                let cols: &[&str] = if status_tab { &SHARED_COLS } else { &HIDE_COLS };
+                for c in cols { let p = format!("{}.{}", cat, c); if ctx.ui_exists(&p) { ctx.ui_set_visible(&p, !show); } }
+                for r in &rows { for c in cols { let p = format!("{}.{}.{}", contents, r, c); if ctx.ui_exists(&p) { ctx.ui_set_visible(&p, !show); } } }
                 if !show {
                     let h = format!("{}.{}", cat, HDR_ID); if ctx.ui_exists(&h) { ctx.ui_remove_node(&h); }
                     for r in &rows { for id in [VAL_ID, FACE_ID] { let p = format!("{}.{}.{}", contents, r, id); if ctx.ui_exists(&p) { ctx.ui_remove_node(&p); } } }
                 }
                 APPLIED.store(show, Ordering::Relaxed);
-                log(&format!("모드 전환 show={}", show));
+                log(&format!("모드 전환 show={} 상태탭={}", show, status_tab));
             }
             if !show { return; }
             // 레이아웃(1회): name 헤더 오른쪽부터 [얼굴 스트립][12 컬럼]. 배율 = 카테고리 실측폭 / (게임 헤더 rect 로 추정 불가) → 헤더 스폰 후 실측.
@@ -229,8 +243,27 @@ impl StableExtension for Ext {
                     }
                 }
             }
+            // ── 얼굴 스트립 ↔ 헤더 겹침 보정(FACE_FIT 주석) — 값 정렬을 잰 뒤에만(그 전엔 값 위치가 임시)
+            if val_dx.is_some() && FACE_FIT.load(Ordering::Relaxed) < FACE_FIT_MAX {
+                let fr = rows.iter().find_map(|r| ctx.ui_node_rect(&format!("{}.{}.{}", contents, r, FACE_ID)).filter(|x| x.2 > 1.0));
+                if let (Some(fr), Some(hr)) = (fr, ctx.ui_node_rect(&format!("{}.rvp_h0", hdr))) {
+                    let need = fr.0 + fr.2 + 8.0 * scale; // 스크린 px: 스트립 끝 + 8
+                    if hr.0 + 1.0 < need {
+                        let ncx = cx + (need - hr.0) / scale;
+                        let ncw = ((right_lim - ncx) / NA as f32).min(85.0).max(40.0);
+                        let n = FACE_FIT.fetch_add(1, Ordering::Relaxed) + 1;
+                        log(&format!("얼굴/헤더 겹침 보정 #{}: faces={:?} h0={:?} → col_x {:.0}→{:.0} col_w {:.0}→{:.0}", n, fr, hr, cx, ncx, cw, ncw));
+                        *LAYOUT.lock().unwrap_or_else(|e| e.into_inner()) = Some((fx, fw, ncx, ncw, scale, right_lim));
+                        *VAL_DX.lock().unwrap_or_else(|e| e.into_inner()) = None;
+                        ctx.ui_remove_node(&hdr);
+                        for r in &rows { let p = format!("{}.{}.{}", contents, r, VAL_ID); if ctx.ui_exists(&p) { ctx.ui_remove_node(&p); } }
+                        return;
+                    }
+                    FACE_FIT.store(FACE_FIT_MAX, Ordering::Relaxed); // 안 겹침 — 이번 활성에선 더 안 본다
+                }
+            }
             let val_dx = val_dx.unwrap_or(0.0);
-            let box_w = ((fw - (MAX_PROF as f32 - 1.0) * PROF_GAP) / MAX_PROF as f32).min(PROF_BOX).floor();
+            let box_w =((fw - (MAX_PROF as f32 - 1.0) * PROF_GAP) / MAX_PROF as f32).min(PROF_BOX).floor();
             for r in rows {
                 let Ok(aid) = r.parse::<usize>() else { continue };
                 let row = format!("{}.{}", contents, r);
@@ -267,11 +300,13 @@ fn deactivate() {
         *LAYOUT.lock().unwrap_or_else(|e| e.into_inner()) = None;
         *VAL_DX.lock().unwrap_or_else(|e| e.into_inner()) = None;
         *STATS.lock().unwrap_or_else(|e| e.into_inner()) = None;
+        FACE_FIT.store(0, Ordering::Relaxed);
     }
 }
 fn init(host: &StableHost) -> StableMod {
     host.log(LogLevel::Info, "roster_view_plus (stable 0.6.0)");
     SHOW.store(load_show(), Ordering::Relaxed);
+    DIAG.store(mod_dir().map(|d| std::path::Path::new(&format!(r"{}\rvp_diag.flag", d)).exists()).unwrap_or(false), Ordering::Relaxed);
     let v = host.game_version();
     log(&format!("INIT game {}.{}.{} host_abi={} show={}", v.major, v.minor, v.patch, host.abi_level(), SHOW.load(Ordering::Relaxed)));
     let mut d = StableMod::new(MOD_ID);
