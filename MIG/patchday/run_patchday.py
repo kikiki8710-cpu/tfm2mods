@@ -70,9 +70,9 @@ except Exception:
     pass
 
 # ───────────────────────────────────────────────────────────── 기준(현행) — 회차가 끝나면 여기만 갱신
-BASE_VER = '0.7.0'
-BASE_SHA = 'D678E01285B7A9EDBA2C7EE1067CEA93A54F979D769EAAE9F0D8309D18FF7D30'
-BASE_SIZE = 93235712
+BASE_VER = '0.7.1'
+BASE_SHA = 'BD011C426A3F5ED4C411C7D9379448D306E091A9BD83E5E201C81D3EBFDD1D6B'
+BASE_SIZE = 94043136
 
 ROOT = r'F:\claude\tfm2mods'
 MIGD = os.path.join(ROOT, 'MIG')

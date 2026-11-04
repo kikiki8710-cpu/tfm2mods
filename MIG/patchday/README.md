@@ -106,6 +106,13 @@ python -X utf8 MIG\patchday\run_patchday.py --only addrbook      # ①-b 주소�
    python -X utf8 F:\claude\tfm2mods\tfm2_detail_tactics\tools\gen_sites.py --exe F:\claude\tfm2\tfm2_<라벨>\TeamfightManager2.exe --ver <라벨>
    ```
    (knobs 의 `exe_sha256` 이 신 exe 와 다르면 중단 · 지점마다 asm·즉치=기본값 변환을 대조 · 생성물 `src\sites.rs` 는 손으로 고치지 않는다)
+   ★생성 뒤 **기본값 등가 검사**(2026-11-04 신설) — 콜백 입력 레지스터·dyn 조각을 기계로 잡는 유일한 검사다. 콜백을 고쳤으면 그 도구의 `PORT`·`RELATION` 도 같이 고친다:
+   ```
+   python -X utf8 F:\claude\tfm2mods\tfm2_detail_tactics\tools\verify_default_equiv.py
+   python -X utf8 F:\claude\tfm2mods\tfm2_detail_tactics\tools\verify_default_equiv.py --samples 12 --mutate
+   ```
+   (첫 줄 종료코드 0 = 전 창 일치 · 둘째 줄 = 음성 대조, 불일치가 나와야 정상. 불일치가 나면 창 앞 명령이 만든 입력 관계인지 디스어셈으로 먼저 본다 — 0.7.1 첫 실행의 4창이 그랬다)
+   + 호출자 프레임 검사 `callerframe_scan.py`·`callercase_scan.py`(`MIG\_patchday\0.7.1\detail_tactics\widen\` · 경로의 버전만 바꿔 쓴다). 추적기 AUTO 는 호출자 프레임을 보지 않는다(0.7.0·0.7.1 회귀 원인).
 4. 빌드·유닛테스트(게임 폴더 복사 안 함):
    ```
    powershell -NoProfile -ExecutionPolicy Bypass -File F:\claude\tfm2mods\tfm2_detail_tactics\build_local.ps1 -RunTests
