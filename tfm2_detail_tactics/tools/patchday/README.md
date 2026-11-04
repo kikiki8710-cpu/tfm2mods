@@ -4,7 +4,7 @@
 새 exe 에서 어디로 갔고 **어떻게 바뀌었는지**를 `tools/track_update.py` 가 판정한다.
 이 폴더의 `baseline_<버전>.json` 이 기준선(현행 버전에서 `snapshot` 으로 만든 것)이다.
 
-- 현재 기준선: `baseline_0.6.5.json` (exe sha256 `DAF040DB…11D30B5`, 2026-10-27 생성)
+- 현재 기준선: `baseline_0.7.1.json` (exe sha256 `BD011C42…`, 2026-11-04 생성)
 - 도구 전체 설명·판정 어휘 = `tools/track_update.py` 첫 docstring
 
 ## 패치 당일 순서

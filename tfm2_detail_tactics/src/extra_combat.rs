@@ -38,6 +38,22 @@ pub(crate) fn heal_r14(f: &Frame, v: i64) -> Option<u64> {
 pub(crate) fn shield_r14(f: &Frame, v: i64) -> Option<u64> {
     Some(f.reg(14)?.wrapping_mul(n(v, 0, 10)? + 1))
 }
+/// 0.7.1: 아군 대상 함수 창 0x1084e1a `lea rcx,[rcx+rsi*2]` — 피해평가 합 rsi.
+pub(crate) fn heal_rsi(f: &Frame, v: i64) -> Option<u64> {
+    Some(f.reg(1)?.wrapping_add(f.reg(6)?.wrapping_mul(n(v, 0, 10)?)))
+}
+/// 0.7.1: 아군 대상 함수 창 0x1084e2c `lea rcx,[rsi+rsi*2]`.
+pub(crate) fn shield_rsi(f: &Frame, v: i64) -> Option<u64> {
+    Some(f.reg(6)?.wrapping_mul(n(v, 0, 10)? + 1))
+}
+/// 0.7.1: 자기 대상 함수 창 0x1089788 `lea rdx,[rdx+rcx*2]` — 잃은 체력 rdx · 합 rcx · 결과 rdx.
+pub(crate) fn heal_rdx_rcx(f: &Frame, v: i64) -> Option<u64> {
+    Some(f.reg(2)?.wrapping_add(f.reg(1)?.wrapping_mul(n(v, 0, 10)?)))
+}
+/// 0.7.1: 자기 대상 함수 창 0x108979a `lea rcx,[rcx+rcx*2]`.
+pub(crate) fn shield_rcx(f: &Frame, v: i64) -> Option<u64> {
+    Some(f.reg(1)?.wrapping_mul(n(v, 0, 10)? + 1))
+}
 pub(crate) fn buff_arrival_ticks(f: &Frame, v: i64) -> Option<u64> {
     let twice_tps = f.reg(1)?;
     // 원래 입력은 직전 ADD RCX,RCX의 결과다. 홀수는 계약 밖이므로 원본 복귀.
@@ -60,19 +76,20 @@ pub(crate) fn front_ally_cap(_f: &Frame, v: i64) -> Option<u64> {
 pub(crate) fn front_ally_total_cap(_f: &Frame, v: i64) -> Option<u64> {
     Some(n(v, 1, 400)? * 60 / 100)
 }
+/// 0.7.1: 창 0x110836f 나눌 위험값 r14 (0.7.0 = r9). 창이 위치평가 바깥 함수로 옮겨 갔다.
 pub(crate) fn wave_risk_divisor(f: &Frame, v: i64) -> Option<u64> {
-    Some(((f.reg(9)? as i64) / n(v, 1, 32)? as i64) as u64)
+    Some(((f.reg(14)? as i64) / n(v, 1, 32)? as i64) as u64)
 }
 pub(crate) fn risk_retreat_high(_f: &Frame, v: i64) -> Option<u64> {
     Some(n(v, 1, 50)? * 24 / 10)
 }
-/// 0.7.0: 창 0x1015310 시점 H 는 rcx (0.6.5 = rax).
+/// 0.7.1: 창 0x107afff 시점 H 는 rax (0.7.0 = rcx · 0.6.5 = rax).
 pub(crate) fn risk_retreat_pressure(f: &Frame, v: i64) -> Option<u64> {
-    Some(f.reg(1)?.wrapping_mul(n(v, 1, 50)? * 2))
+    Some(f.reg(0)?.wrapping_mul(n(v, 1, 50)? * 2))
 }
-/// 0.7.0: 피제수 r14 판(0.6.5 = rdi). 몫은 dyn 이 rax 로 넣는다(창 0x105f9bd).
+/// 0.7.1: 피제수 r12 판(0.7.0 = r14 · 0.6.5 = rdi). 몫은 dyn 이 rax 로 넣는다(창 0x1094dc8).
 pub(crate) fn unseen_risk_divisor(f: &Frame, v: i64) -> Option<u64> {
-    Some(((f.reg(14)? as i64) / n(v, 1, 32)? as i64) as u64)
+    Some(((f.reg(12)? as i64) / n(v, 1, 32)? as i64) as u64)
 }
 pub(crate) fn relocate_inner(_f: &Frame, v: i64) -> Option<u64> {
     Some(n(v, 25, 200)? * 8_000 / 100)

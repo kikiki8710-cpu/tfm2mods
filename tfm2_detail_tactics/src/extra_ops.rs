@@ -30,13 +30,13 @@ pub(crate) fn respawn_seconds(f:&Frame,v:i64)->Option<u64> {
 pub(crate) fn damage_increment(f:&Frame,v:i64)->Option<u64> {
     Some(f.reg(0)?.wrapping_mul(valid(v,1,10)?-1))
 }
-pub(crate) fn finish_seconds3(f:&Frame,v:i64)->Option<u64> {Some(f.reg(14)?.wrapping_mul(valid(v,1,30)?))}
+pub(crate) fn finish_seconds3(f:&Frame,v:i64)->Option<u64> {Some(f.reg(15)?.wrapping_mul(valid(v,1,30)?))} // 0.7.1 TPS=r15 (0.7.0 r14 = 이제 컨텍스트 포인터)
 pub(crate) fn finish_increment2(f:&Frame,v:i64)->Option<u64> {
     // 원래 ADD의 CF/OF까지 유지하도록 전체 결과가 아니라 덧셈 항을 반환한다.
     let n=valid(v,1,30)?;
-    Some(f.reg(14)?.wrapping_mul(n.wrapping_sub(2)))
+    Some(f.reg(15)?.wrapping_mul(n.wrapping_sub(2)))
 }
-pub(crate) fn camp_survival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.scalar(Src::Mem(5,-0x18))?,valid(v,0,300)?))} // 0.7.0 TPS=[rbp-0x18] (0.6.5 [rbp+0x10]=신 컨텍스트 포인터)
+pub(crate) fn camp_survival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.scalar(Src::Mem(5,-0x20))?,valid(v,0,300)?))} // 0.7.1 TPS=[rbp-0x20] (0.7.0 [rbp-0x18] = 이제 [rbp+0x28] 복사값)
 pub(crate) fn camp_arrival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.reg(1)?>>1,valid(v,0,300)?))}
 fn tower_radius(v:i64, base:u64)->Option<u64> {Some(scale(base,valid(v,50,150)?))}
 pub(crate) fn tower_radius_high(f:&Frame,v:i64)->Option<u64> {let _=f;let r=tower_radius(v,140_000)?;Some(r*r+1)}

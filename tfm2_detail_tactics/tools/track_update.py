@@ -1260,11 +1260,12 @@ def cmd_snapshot(a):
             src_file, et = ex[t['knob']]
             pos_mask, audit = et['pos_mask'], et['audit_id']
             tab_json = et.get('tab')
+            unsupported = et.get('unsupported')
         else:
-            src_file, audit, tab_json = 'knobs', None, None
+            src_file, audit, tab_json, unsupported = 'knobs', None, None, None
             pos_mask = base_rules.get(t['id'], base_default)
         tac_out.append(dict(t, source=src_file, audit_id=audit, tab=tab_of.get(t['id']), tab_json=tab_json,
-                            visible=t['id'] in tab_of, pos_mask=pos_mask, windows=[]))
+                            visible=t['id'] in tab_of, pos_mask=pos_mask, windows=[], unsupported=unsupported))
     win_out = []
     caller_cache = {}
     nret_bad = 0
@@ -1323,7 +1324,7 @@ def cmd_snapshot(a):
         win_out.append(rec)
         tac_out[w['tactic']]['windows'].append(wi)
     for t in tac_out:
-        if not t['windows']:
+        if not t['windows'] and not t['unsupported']:
             raise SystemExit('창 없는 전술: %s' % t['id'])
     inputs = {}
     for p in [ROOT / 'src' / 'sites.rs', ROOT / 'src' / 'tactics.rs', ROOT / 'src' / 'presentation.rs',

@@ -254,7 +254,8 @@ pub(crate) fn replay_ab_snapshot()->serde_json::Value {
     #[test] fn complete_catalog_has_relocatable_windows_and_default_bypass(){
         // 0.7.0: 218 − other_lane_collapse 12(16→4) − same_lane_partner 1(0xd3dae1 소실) − lane_opportunity_enemy_limit 1(D) = 204
         //  + 범위 확장(10-28): other_lane_collapse 3번째 라인 2창 + liner_roam_self_hp 전술 로밍 추가검사창 1 = 207
-        assert_eq!(tactics::N,100);assert_eq!(sites::PATCHES.len(),207);
+        //  + 0.7.1: candidate_move_budget 사전 거르기 창 0xf89cc2 = 208
+        assert_eq!(tactics::N,100);assert_eq!(sites::PATCHES.len(),208);
         let mut counts=[0usize;tactics::N];
         for p in sites::PATCHES{
             counts[p.tactic]+=1;assert!(!matches!(p.src,Src::None));
@@ -287,25 +288,25 @@ pub(crate) fn replay_ab_snapshot()->serde_json::Value {
         } else {out.push((path,s));}
     }
     #[test] fn tactical_roam_self_hp_window_adds_check_only_when_applied(){
-        // 0.7.0 범위 확장: 전술 로밍 경로 0xe3e78c `test r14,r14 ; je 0xe3eafb` 에 자기 HP 검사를 더하는 창.
+        // 0.7.0 범위 확장: 전술 로밍 경로(0.7.1 0xe40164) `test r12,r12 ; je 0xe404b4` 에 자기 HP 검사를 더하는 창.
         platform::init_safe_reader().unwrap();
-        let (i,p)=sites::PATCHES.iter().enumerate().find(|(_,p)|p.name=="liner_roam_self_hp_41@0xe3e78c").unwrap();
+        let (i,p)=sites::PATCHES.iter().enumerate().find(|(_,p)|p.name=="liner_roam_self_hp_41@0xe40164").unwrap();
         assert_eq!(tactics::TACTICS[p.tactic].id,"liner_roam_self_hp");
-        assert_eq!(p.win,&[0x4d,0x85,0xf6,0x0f,0x84,0x66,0x03,0x00,0x00]);assert_eq!(p.first_len,3);
+        assert_eq!(p.win,&[0x4d,0x85,0xe4,0x0f,0x84,0x47,0x03,0x00,0x00]);assert_eq!(p.first_len,3);
         assert_eq!(p.dynamic,&[0x41,0x53,0x4c,0x8b,0x5c,0x24,0xf8,0x4d,0x85,0xdb,0x41,0x5b]);
-        assert_eq!(p.branches.len(),1);assert_eq!((p.branches[0].off,p.branches[0].cc,p.branches[0].target_rva),(3,Some(4),0xe3eafb));
-        // 원본 경로(기본값) = 창 그대로 재배치 — 앞 3바이트가 원래 test r14,r14.
-        assert_eq!(&relocated(p,0x140000000,false).unwrap()[..3],&[0x4d,0x85,0xf6]);
+        assert_eq!(p.branches.len(),1);assert_eq!((p.branches[0].off,p.branches[0].cc,p.branches[0].target_rva),(3,Some(4),0xe404b4));
+        // 원본 경로(기본값) = 창 그대로 재배치 — 앞 3바이트가 원래 test r12,r12.
+        assert_eq!(&relocated(p,0x140000000,false).unwrap()[..3],&[0x4d,0x85,0xe4]);
         let mut entity=vec![0u64;0x700/8];let e=entity.as_ptr() as u64;
-        let mut f:Frame=unsafe{std::mem::zeroed()};put_reg(&mut f,14,e);
+        let mut f:Frame=unsafe{std::mem::zeroed()};put_reg(&mut f,12,e);
         let calc=|f:&Frame,v|transform(&p.fields[0],v,f);
         for (hp,max,v,pass) in [(40u64,100u64,41i64,false),(41,100,41,true),(40,100,40,true),(0,0,1,false),(0,0,0,true),(1000,1000,127,false),(5,3,100,true)]{
             entity[0x668/8]=hp;entity[0x620/8]=max;
             assert_eq!(calc(&f,v),Some(if pass{e}else{0}),"hp={hp} max={max} v={v}");
         }
-        put_reg(&mut f,14,0);assert_eq!(calc(&f,41),Some(0)); // 엔티티 없음 = 원래도 je 성립
-        put_reg(&mut f,14,e);assert_eq!(calc(&f,128),None);    // 범위 밖 값은 원본
-        put_reg(&mut f,14,8);assert_eq!(calc(&f,41),None);     // 못 읽는 엔티티는 원본
+        put_reg(&mut f,12,0);assert_eq!(calc(&f,41),Some(0)); // 엔티티 없음 = 원래도 je 성립
+        put_reg(&mut f,12,e);assert_eq!(calc(&f,128),None);    // 범위 밖 값은 원본
+        put_reg(&mut f,12,8);assert_eq!(calc(&f,41),None);     // 못 읽는 엔티티는 원본
         let _=i;
     }
     #[test] fn cache_slot_checks_candidate_identity_and_rejects_ambiguous_sources(){
@@ -337,8 +338,8 @@ pub(crate) fn replay_ab_snapshot()->serde_json::Value {
     #[test] fn final_four_sites_use_own_subject_and_all_known_caller_paths(){
         platform::init_safe_reader().unwrap();
         let mut f:WideFixture=unsafe{std::mem::zeroed()};
-        // 0.7.0: jungle_stop 사례 stackmem:0x150:0x3490 까지 담도록 부모 프레임을 0x4000 으로.
-        let mut parent=vec![0u64;0x4000/8];let mut context=[0u64;4];let mut team_mem=[0u64;2];
+        // 0.7.1: jungle_stop 사례가 mem:rbp:0x37e0·0x2ee0 이라 context 도 프레임 크기로(0.7.0 은 stackmem:0x150:0x3490).
+        let mut parent=vec![0u64;0x4000/8];let mut context=vec![0u64;0x4000/8];let mut team_mem=[0u64;2];
         let mut cache=vec![0u64;0x300/8];let mut player=vec![0u64;0x900/8];
         let ptr=player.as_ptr() as u64;let entity=0x12345678;let athlete=0x123456789abu64;
         let base=platform::module_base().unwrap();let mut seen=std::collections::HashSet::new();
@@ -475,7 +476,7 @@ pub(crate) fn replay_ab_snapshot()->serde_json::Value {
         #[repr(C)] struct Fixture { frame:Frame, stack:[u64;32] }
         let mut f:Fixture=unsafe{std::mem::zeroed()};
         let mut player=vec![0u64;0x900/8]; let ptr=player.as_ptr() as u64;
-        let mut parent=vec![0u64;0x2000/8]; // 사례별 StackMem 두 번째 변위에 Player 를 둔다(0.7.0 base_defense 0xebfbdb = 0x480 · 범위 확장 handler 0xe3cf7b = 0x1bb0).
+        let mut parent=vec![0u64;0x4000/8]; // 사례별 StackMem 두 번째 변위에 Player 를 둔다(0.7.1 base_defense 0x680 · handler 0x2ee0).
         let mut cache=vec![0u64;0x300/8]; let operation=[cache.as_ptr() as u64];
         let athlete=0x123456789abu64; let base=platform::module_base().unwrap();
         tactics::clear_levels();tactics::reset_values();tactics::set_my_athletes(&[athlete]);tactics::set_armed(true);

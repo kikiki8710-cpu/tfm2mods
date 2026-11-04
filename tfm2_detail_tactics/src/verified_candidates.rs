@@ -32,9 +32,10 @@ pub(crate) fn ops_gather_square(f:&Frame,v:i64)->Option<u64>{
     Some(r*r)
 }
 
+/// 0.7.1: 창 0x10b2318 `lea rcx,[r12+0xa]` — 점수가 r12 (0.7.0 = rsi). 이름은 targets 호환으로 유지.
 pub(crate) fn combat_rsi_add(f: &crate::micro::Frame, v: i64) -> Option<u64> {
     if !(0..=1000).contains(&v) { return None; }
-    Some(f.reg(6)?.wrapping_add(v as u64))
+    Some(f.reg(12)?.wrapping_add(v as u64))
 }
 
 pub(crate) fn combat_negative(_f: &crate::micro::Frame, v: i64) -> Option<u64> {
