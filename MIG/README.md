@@ -217,10 +217,10 @@ sylas `+0x1e0→0x1f0` 5개 함수, serpen MOBATICK Δ+0x38 등)
 ## ★★0.6.0 추가 (2026-09-16): repin 값은 후보다 — 정렬·콜타깃·orig 로 교차검증한 뒤 apply
 0.6.0 은 함수 +15,147(+11%) 전면 재컴파일. `repin.py plan` 187/222 "해결" 중 **오답 15 + 함수시작 오답 3**(bancard PATCH_RVA 12B 유일·banpick_illust IMG_BUILD 32B 유일·sylas CLONE 32B 유일 — 전부 BYTES_UNIQUE)이 섞여 있었다. 그대로 apply 했으면 명령 한복판 훅 = 0.5.8 크래시 재판.
 ```
-python MIG\sitealign.py --map MIGepin_map_<v>.json --old .. --new .. --oldpkl .. --newpkl .. --oldcg .. --newcg .. --write MIGepin_map_<v>.aligned.json
+python MIG\sitealign.py --map MIG\repin_map_<v>.json --old .. --new .. --oldpkl .. --newpkl .. --oldcg .. --newcg .. --write MIG\repin_map_<v>.aligned.json
       # MID_* 전건: owner 명령열 정렬(LOOSE 키·틈 사영·거대함수 창) → AGREE / DISAGREE(정렬값) / NO_ALIGN. 2분.
       # DISAGREE 는 콜사이트면 call 타깃 ↔ 독립 재핀된 피호출 함수 일치로, 바이트패치면 orig 바이트로 확정.
-python MIGieldmap.py --mod <MOD> ... --json      # 축②: 함수별 (구off→신off) 이동표 + trace()
+python MIG\fieldmap.py --mod <MOD> ... --json      # 축②: 함수별 (구off→신off) 이동표 + trace()
 python MIG\constevid.py <MOD> --old .. --new ..    # 축②: 소스 `const X: usize = 0x..` 상수별 정렬 증거 → 불변/이동후보
 ```
 - **함수시작 채택 규칙**: (콜러 수 · callee 사영 · size 비) 3종 중 2종 일치. `BYTES_UNIQUE` 라도 20B 연장이 0건이면 WEAK.
