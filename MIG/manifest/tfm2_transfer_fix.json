@@ -6,36 +6,12 @@
  "offsets": [],
  "entries": [
   {
-   "name": "RVA_PCS_INIT",
-   "value": "0x1ca4a7a",
-   "ver": "0.7.1",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/lib.rs:69"
-   ],
-   "sect": ".text",
-   "bytes": "f20f10b3a000000041b85000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "RVA_P_FN",
-   "value": "0x1ca4c00",
-   "ver": "0.7.1",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/lib.rs:74"
-   ],
-   "sect": ".text",
-   "bytes": "41565657534883ec48660f29",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
    "name": "RIP_SITES",
    "value": "0x140ddda",
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:61"
+    "src/lib.rs:58"
    ],
    "sect": ".text",
    "bytes": "f20f1005ae6fcf02488b4500",
@@ -47,7 +23,7 @@
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:63"
+    "src/lib.rs:60"
    ],
    "sect": ".text",
    "bytes": "f20f10057f6fcf0266410f11",
@@ -59,7 +35,7 @@
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:57"
+    "src/lib.rs:54"
    ],
    "sect": ".text",
    "bytes": "f20f103d156fcf02f20f5fc7",
@@ -71,7 +47,7 @@
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:49"
+    "src/lib.rs:46"
    ],
    "sect": ".text",
    "bytes": "f20f5fc7f20f5805116fcf02",
@@ -83,22 +59,34 @@
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:59"
+    "src/lib.rs:56"
    ],
    "sect": ".text",
    "bytes": "f20f5805116fcf02f20f5ec7",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
-   "name": "INLINE@src/lib.rs:65",
+   "name": "INLINE@src/lib.rs:62",
    "value": "0x140dfdb",
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:65"
+    "src/lib.rs:62"
    ],
    "sect": ".text",
    "bytes": "660f2805bd6dcf02660f1604",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_P_FN",
+   "value": "0x1ca4c00",
+   "ver": "0.7.1",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:66"
+   ],
+   "sect": ".text",
+   "bytes": "41565657534883ec48660f29",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -107,9 +95,9 @@
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:57",
-    "src/lib.rs:61",
-    "src/lib.rs:63"
+    "src/lib.rs:54",
+    "src/lib.rs:58",
+    "src/lib.rs:60"
    ],
    "sect": ".rdata",
    "bytes": "666666666666ee3f66666666",
@@ -121,19 +109,19 @@
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:59"
+    "src/lib.rs:56"
    ],
    "sect": ".rdata",
    "bytes": "666666666666eebf66666666",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
-   "name": "INLINE@src/lib.rs:65",
+   "name": "INLINE@src/lib.rs:62",
    "value": "0x4104da0",
    "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:65"
+    "src/lib.rs:62"
    ],
    "sect": ".rdata",
    "bytes": "666666666666ee3f00000000",
