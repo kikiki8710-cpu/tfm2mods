@@ -466,7 +466,29 @@ fn publish_attrs(pool: Vec<Attr>, elder: Option<Attr>) {
     let b: &'static mut AttrSnap = Box::leak(Box::new(AttrSnap { pool, elder }));
     ATTR_SNAP.store(b as *mut AttrSnap, Ordering::Release);
 }
-static ELDER_AFTER: AtomicU32 = AtomicU32::new(3); // 내부 0-based(=config 4번째부터). config에서 1-based로 입력.
+// ★LoL 장로 규칙(2026-11-04 · ~~elder_after = 양팀 합산 N번째부터~~ 폐기): 한 팀의 세르펜 스택이 N 이 되면 그 다음부터 장로.
+static ELDER_STACKS: AtomicU32 = AtomicU32::new(4); // config elder_stacks. LoL = 4.
+// 처치 순서(팀 나열)를 앞에서 세어 어느 팀이든 N 에 닿은 처치의 다음 웨이브 번호를 낸다. 그 웨이브부터 전부 장로.
+//   ⚠장로 여부는 처치 팀에 달려 있어 (seed,fp) 공유표(ws.waves)에 담지 말 것 — 같은 경기 클론마다 처치 팀이 다르다.
+//   sim 은 World 자기 이력, 화면은 SCREEN_KILLS 로 각각 판정한다.
+fn elder_start(teams: impl Iterator<Item = u64>, n: u64) -> Option<u64> {
+    let mut c = [0u64; 2];
+    for (i, t) in teams.enumerate() {
+        if t > 1 { continue; }
+        c[t as usize] += 1;
+        if c[t as usize] >= n { return Some(i as u64 + 1); }
+    }
+    None
+}
+// 화면 처치 이력 기준 장로 시작 웨이브. 장로를 안 쓰면 None.
+fn screen_elder_start(sk: &[(u64, u64, u64)]) -> Option<u64> {
+    if !CFG_ELDER.load(Ordering::Relaxed) || !attrs().is_some_and(|s| s.elder.is_some()) { return None; }
+    elder_start(sk.iter().map(|k| k.0), ELDER_STACKS.load(Ordering::Relaxed) as u64)
+}
+// sim 측: World 의 serpen_logs 기준 장로 시작 웨이브. sim 스레드에서만 부를 것(메인 스레드 읽기는 grow 재할당 stale).
+unsafe fn world_elder_start(kptr: usize, klen: usize, n: u64) -> Option<u64> {
+    elder_start((0..klen).map(|i| safe_read_u64(kptr + i * 16).unwrap_or(u64::MAX)), n)
+}
 // ★★키 = (seed, fp) 파티션 (07-24 버그수정): 게임이 Bo 시리즈 세트들에 같은 seed를 재사용함이
 //   실측 확정(같은 seed 웨이브 스폰 24204/28703 이중 타임라인·같은 웨이브 팀 뒤집힘 킬·킬재기록 3948회).
 //   fp = 챔피언 구성 지문(world_fingerprint) — 세트마다 밴픽/사이드가 달라 fp가 갈리고, 같은 세트의
@@ -1325,12 +1347,15 @@ fn probe_flush() {
                 if i == ELDER_IDX { elder.as_ref().map(|a| a.display_name.clone()).unwrap_or_else(|| "?".into()) }
                 else { pool.get(i as usize).map(|a| a.display_name.clone()).unwrap_or_else(|| format!("idx{}", i)) }
             };
+            let wes = elder_start(w.kills.iter().map(|k| k.0), ELDER_STACKS.load(Ordering::Relaxed) as u64);
             for team in 0..2u64 {
                 let mut cnt: HashMap<i32, u32> = HashMap::new();
                 for (t, ktick, ki) in w.kills.iter() {
                     if *ktick > played { continue; } // 재생 기준(미래 처치 제외)
                     if *t != team { continue; }
-                    if let Some(&(_, a)) = w.waves.get(ki) { *cnt.entry(a).or_insert(0) += 1; } // 색=처치 인덱스의 웨이브
+                    // 색=처치 인덱스의 웨이브 (ws.waves 는 원소만 담는다 — 장로는 처치 이력으로 판정)
+                    let a = if wes.is_some_and(|e| *ki >= e) { Some(ELDER_IDX) } else { w.waves.get(ki).map(|&(_, a)| a) };
+                    if let Some(a) = a { *cnt.entry(a).or_insert(0) += 1; }
                 }
                 let mut list: Vec<String> = cnt.iter().map(|(a, c)| format!("{} x{}", nm(*a), c)).collect();
                 list.sort();
@@ -1425,7 +1450,7 @@ fn load_cfg() {
         let (k, v) = (k.trim(), v.split('#').next().unwrap_or("").trim()); // 인라인 주석(#) 제거
         let on = v == "1" || v.eq_ignore_ascii_case("true");
         match k {
-            // 실기능 스위치(원소/장로 온오프·elder_after)의 정본은 config/serpen.cfg(load_attrs) — 여기선 진단만.
+            // 실기능 스위치(원소/장로 온오프·elder_stacks)의 정본은 config/serpen.cfg(load_attrs) — 여기선 진단만.
             "probe_log" => CFG_PROBE_LOG.store(on, Ordering::Relaxed), // 진단 로그 파일(기본 off)
             // 장로 버프 UI 표시 지연(tick): 처치 후 사망 연출 여유분만큼 늦게 띄워 "장로 살아있는데 버프 뜸" 방지.
             //   버프 지속시간은 처치 기준 그대로(표시 시작만 지연). 기본 90(3초).
@@ -1669,10 +1694,10 @@ fn load_attrs() {
                 if let Some((k, v)) = line.trim().split_once('=') {
                     let (k, v) = (k.trim(), v.split('#').next().unwrap_or("").trim()); // 인라인 주석(#) 제거
                     let on = v == "1" || v.eq_ignore_ascii_case("true");
-                    // ★elder_after는 config에서 1-based("N번째부터 장로")로 입력받아 내부 0-based로 변환.
-                    //   예: config 4 → 내부 3 → wave_idx>=3(=4번째 세르펜)부터 장로. 끄기=elder_enabled=0.
+                    // ★elder_stacks = 한 팀이 이 스택에 닿으면 다음 세르펜부터 장로. 끄기=elder_enabled=0.
+                    //   구 키 elder_after 는 읽지 않는다(cfg 에 남아 있어도 무시 → 기본값 4).
                     match k {
-                        "elder_after" => ELDER_AFTER.store(v.parse::<u32>().unwrap_or(4).max(1) - 1, Ordering::Relaxed),
+                        "elder_stacks" => ELDER_STACKS.store(v.parse::<u32>().unwrap_or(4).max(1), Ordering::Relaxed),
                         "elemental_enabled" => CFG_ELEMENTAL.store(on, Ordering::Relaxed), // 원소 온오프(serpen.cfg)
                         "elder_enabled" => CFG_ELDER.store(on, Ordering::Relaxed),         // 장로 온오프(serpen.cfg)
                         // ★스프라이트 위치 보정 — 재빌드 없이 게임 재시작만으로 조정 가능.
@@ -1696,8 +1721,8 @@ fn load_attrs() {
     }
     pool.sort_by(|a, b| a.name.cmp(&b.name)); // 결정론 순서(파일시스템 순서 비의존)
     let names: Vec<&str> = pool.iter().map(|a| a.name.as_str()).collect();
-    log_push(format!("[{}ms] config 로드: 풀 {}종={:?} 장로={} elder_after={}",
-        now_ms(), pool.len(), names, elder.is_some(), ELDER_AFTER.load(Ordering::Relaxed)));
+    log_push(format!("[{}ms] config 로드: 풀 {}종={:?} 장로={} elder_stacks={}",
+        now_ms(), pool.len(), names, elder.is_some(), ELDER_STACKS.load(Ordering::Relaxed)));
     publish_attrs(pool, elder);   // ★락 없는 스냅샷 발행(구본은 leak — ATTR_SNAP 주석 참조)
     *WORLDS.lock().unwrap_or_else(|e| e.into_inner()) = Some(HashMap::new());
 }
@@ -1747,17 +1772,18 @@ unsafe fn execute_pass(w: usize) {
     //   → 배경 경기는 seed read 1회로 즉시 탈출. 화면 경기 식별 = CURRENT_MATCH_DETECT.md.
     let rs = RENDER_SEED.load(Ordering::Relaxed);
     if rs == 0 || safe_read_u64(w + SEED_OFF) != Some(rs) { return; }
-    let ea = ELDER_AFTER.load(Ordering::Relaxed) as u64;
-    // 빠른 탈출: 아직 장로 웨이브를 아무도 처치 안 했으면 끝(대부분의 경기·틱이 여기서 리턴)
+    let n = ELDER_STACKS.load(Ordering::Relaxed) as u64;
+    // 빠른 탈출: 장로 처치는 한 팀이 N 스택이 된 다음에만 나오므로 처치 N개 이하면 끝(대부분의 경기·틱이 여기서 리턴)
     let klen = safe_read_u64(w + KILLS_LEN_OFF).unwrap_or(0);
-    if klen == 0 || klen > 128 || (ea > 0 && klen <= ea) { return; }
+    if klen == 0 || klen > 128 || klen <= n { return; }
     let Some(kptr) = safe_read_u64(w + KILLS_PTR_OFF) else { return };
     if kptr < 0x10000 { return; }
+    let Some(es) = world_elder_start(kptr as usize, klen as usize, n) else { return };
     let cur = safe_read_u64(w + SIM_TICK_OFF).unwrap_or(0);
     let dur = EXEC_DURATION.load(Ordering::Relaxed);
-    // 장로 웨이브(인덱스 >= elder_after) 처치 팀 중, 버프가 아직 유효한 팀
+    // 장로 웨이브(인덱스 >= es) 처치 팀 중, 버프가 아직 유효한 팀
     let mut et = [false; 2];
-    for i in (ea as usize)..(klen as usize) {
+    for i in (es as usize)..(klen as usize) {
         let e = kptr as usize + i * 16;
         let t = safe_read_u64(e).unwrap_or(u64::MAX);
         let kt = safe_read_u64(e + 8).unwrap_or(0);
@@ -2025,10 +2051,10 @@ unsafe fn exec_amp(tgt: u64, ainfo: u64, dmg: u64) -> Option<u64> {
     if dp < 0x10000 || dl == 0 || dl > 4096 { AMP_REJ[3].fetch_add(1, Ordering::Relaxed); return None; }
     if tgt < dp || tgt >= dp + dl * CHAMP_STRIDE || (tgt - dp) % CHAMP_STRIDE != 0 {
         AMP_REJ[4].fetch_add(1, Ordering::Relaxed); return None; }
-    // 공격팀의 장로 버프 활성? (이 World의 serpen_logs[i>=elder_after] + duration 창)
-    let ea = ELDER_AFTER.load(Ordering::Relaxed) as u64;
+    // 공격팀의 장로 버프 활성? (이 World의 serpen_logs[i>=장로 시작 웨이브] + duration 창)
+    let n = ELDER_STACKS.load(Ordering::Relaxed) as u64;
     let klen = safe_read_u64(w + KILLS_LEN_OFF).unwrap_or(0);
-    if klen == 0 || klen > 128 || (ea > 0 && klen <= ea) { return None; }
+    if klen == 0 || klen > 128 || klen <= n { return None; }
     let kptr = safe_read_u64(w + KILLS_PTR_OFF)?;
     if kptr < 0x10000 { return None; }
     let cur_tick = safe_read_u64(w + SIM_TICK_OFF).unwrap_or(0);
@@ -2044,12 +2070,14 @@ unsafe fn exec_amp(tgt: u64, ainfo: u64, dmg: u64) -> Option<u64> {
         EA_MASK[eslot].load(Ordering::Relaxed) & (1 << team) != 0
     } else {
         let mut mask = 0u64;
-        for i in (ea as usize)..(klen as usize) {
-            let e = kptr as usize + i * 16;
-            let Some(t) = safe_read_u64(e) else { continue };
-            if t > 1 { continue; }
-            let kt = safe_read_u64(e + 8).unwrap_or(0);
-            if dur == 0 || cur_tick <= kt.saturating_add(dur) { mask |= 1 << t; }
+        if let Some(es) = world_elder_start(kptr as usize, klen as usize, n) {
+            for i in (es as usize)..(klen as usize) {
+                let e = kptr as usize + i * 16;
+                let Some(t) = safe_read_u64(e) else { continue };
+                if t > 1 { continue; }
+                let kt = safe_read_u64(e + 8).unwrap_or(0);
+                if dur == 0 || cur_tick <= kt.saturating_add(dur) { mask |= 1 << t; }
+            }
         }
         EA_ADDR[eslot].store(w as u64, Ordering::Relaxed);
         EA_MASK[eslot].store(mask, Ordering::Relaxed);
@@ -2278,17 +2306,40 @@ fn splitmix64(mut x: u64) -> u64 {
     z = (z ^ (z >> 27)).wrapping_mul(0x94D049BB133111EB);
     z ^ (z >> 31)
 }
-// 가중 선택: 풀에서 hash로 인덱스 (weight 비례)
-fn weighted_pick(pool: &[Attr], h: u64) -> i32 {
-    let total: u64 = pool.iter().map(|a| a.weight.max(1) as u64).sum();
+// 가중 선택: 남은 후보 중 hash로 후보 자리 하나 (weight 비례)
+fn weighted_pick(pool: &[Attr], left: &[usize], h: u64) -> usize {
+    let total: u64 = left.iter().map(|&i| pool[i].weight.max(1) as u64).sum();
     if total == 0 { return 0; }
     let mut r = h % total;
-    for (i, a) in pool.iter().enumerate() {
-        let w = a.weight.max(1) as u64;
-        if r < w { return i as i32; }
+    for (k, &i) in left.iter().enumerate() {
+        let w = pool[i].weight.max(1) as u64;
+        if r < w { return k; }
         r -= w;
     }
-    (pool.len() - 1) as i32
+    left.len() - 1
+}
+// ★LoL 원소 순서(2026-11-04): 앞 N-1 마리는 속성이 겹치지 않고, 그 뒤로는 N-1 번째 속성이 계속 나온다(N = elder_stacks).
+//   (seed, fp, 웨이브) 만의 순수 함수라 같은 경기 클론끼리 항상 같은 값이다. fp 는 Bo 세트가 seed 를 재사용해서 넣는다.
+fn element_for_wave(pool: &[Attr], seed: u64, fp: u64, wave_idx: u64, n: u32) -> i32 {
+    let mut left: Vec<usize> = (0..pool.len()).collect();
+    let last = (n.max(2) as u64 - 2).min(pool.len() as u64 - 1); // 새 속성이 나오는 마지막 웨이브(0-based)
+    let mut pick = 0;
+    for step in 0..=wave_idx.min(last) {
+        let h = splitmix64(seed ^ fp.rotate_left(17) ^ (step + 1).wrapping_mul(0x9E3779B97F4A7C15));
+        pick = left.remove(weighted_pick(pool, &left, h));
+    }
+    pick as i32
+}
+// 이 World 에서 이 웨이브가 장로인가. 처치 이력이 World 마다 달라 매 틱 자기 값으로 본다.
+//   보통은 카운터 2개만 읽고 끝나고, 한 팀이 N 스택이 된 뒤에만 이력을 훑는다(막 죽은 웨이브가 자기 처치로 장로가 되지 않게).
+unsafe fn wave_is_elder(w: usize, wave_idx: u64, n: u64) -> bool {
+    let cb = safe_read_u64(w + KILLS_BLUE_OFF).unwrap_or(0);
+    let cr = safe_read_u64(w + KILLS_RED_OFF).unwrap_or(0);
+    if cb.max(cr) < n { return false; }
+    let klen = safe_read_u64(w + KILLS_LEN_OFF).unwrap_or(0);
+    let Some(kptr) = safe_read_u64(w + KILLS_PTR_OFF) else { return false };
+    if klen == 0 || klen > 128 || kptr < 0x10000 { return false; }
+    world_elder_start(kptr as usize, klen as usize, n).is_some_and(|es| wave_idx >= es)
 }
 
 // 세르펜 detour 본체: 엔티티 획득 → 리스폰 감지 → 속성 배정(결정론) → +0x108 템플릿 덮기.
@@ -2303,7 +2354,7 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     // 템플릿 이름이 serpen_permanent_buff(len 21)인지 = 안전 게이트
     if safe_read_i32(ent + O_SERPEN_TEMPLATE) != Some(21) { return; }
 
-    let elder_after = ELDER_AFTER.load(Ordering::Relaxed);
+    let elder_n = ELDER_STACKS.load(Ordering::Relaxed);
     // ★2026-08-02: 여기서 POOL/ELDER Mutex 2개를 잡고 **함수 끝까지 들고 있었다**(가드 스코프=함수 전체).
     //   8 sim 워커 + 렌더 스레드가 매 틱 같은 락을 두고 경합 → 락 슬로우패스 park 가 이 모드 최대 비용원.
     //   ⇒ 무락 스냅샷(&'static)으로 교체. attr 참조가 'static 이라 가드 수명 문제도 사라진다.
@@ -2320,6 +2371,10 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     // ★(seed, fp) 파티션 (07-24): 같은 seed를 쓰는 다른 세트/타임라인과 상태 분리. fp 미확정이면
     //   이 틱은 배정 보류(세르펜 등장 시점엔 드래프트 완료 = 사실상 항상 확정).
     let Some(fp) = (unsafe { fp_for_world(rcx as usize) }) else { GATE_N[1].fetch_add(1, Ordering::Relaxed); return; };
+    let wave_idx = safe_read_u64(rcx as usize + CAMP_WAVE_IDX).unwrap_or(u64::MAX);
+    let spawn_tick = safe_read_u64(rcx as usize + CAMP_SPAWN_TICK).unwrap_or(0);
+    let is_elder = CFG_ELDER.load(Ordering::Relaxed) && elder.is_some()
+        && wave_is_elder(rcx as usize, wave_idx, elder_n as u64);
     let mut wg = WORLDS.lock().unwrap_or_else(|e| e.into_inner());
     let worlds = wg.get_or_insert_with(HashMap::new);
     let ws = worlds.entry((seed, fp)).or_default(); // 키 = (경기 시드, 세트 지문)
@@ -2336,28 +2391,22 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     //   구: wall-clock 500ms 갭으로 전멸 추정 + a5 추적 + spawn_count 자체 집계 + tick 순서 재현
     //   신: respawn_count(웨이브 인덱스) / next_respawn_tick(이 웨이브 스폰 tick, 웨이브 내내 불변)
     //   → 스폰 tick이 정확해지고(구: 감지 지연으로 수천 틱 늦음), 재시뮬해도 같은 값이 재생산된다.
-    let wave_idx = safe_read_u64(rcx as usize + CAMP_WAVE_IDX).unwrap_or(u64::MAX);
-    let spawn_tick = safe_read_u64(rcx as usize + CAMP_SPAWN_TICK).unwrap_or(0);
     if wave_idx == u64::MAX { GATE_N[1].fetch_add(1, Ordering::Relaxed); return; } // 캠프 필드 무효
     ws.wave_idx = wave_idx;
     ws.spawn_tick = spawn_tick;
-    // 속성 = f(seed, spawn_tick). 장로 = respawn_count가 elder_after 이상(0-based → N번째부터 장로).
-    ws.current = match ws.waves.get(&wave_idx) {
+    // 원소 = f(seed, fp, 웨이브) → ws.waves(클론 공유). 장로 = 이 World 의 처치 이력(is_elder) → 공유표에 안 담는다.
+    let base = match ws.waves.get(&wave_idx) {
         Some(&(_, a)) => a, // 이미 정한 웨이브(재시뮬 포함) → 그 색 그대로
         None => {
             // ★온오프 스위치(serpen.cfg): 장로/원소 독립. 둘다 off면 이 웨이브=바닐라(VANILLA_ATTR=-2).
-            let use_elder = CFG_ELDER.load(Ordering::Relaxed);
             let use_ele = CFG_ELEMENTAL.load(Ordering::Relaxed);
-            // elder_after는 내부 0-based(config 1-based−1). wave_idx>=elder_after면 장로. 끄기=use_elder(elder_enabled).
-            let a = if use_elder && wave_idx >= elder_after as u64 && elder.is_some() {
-                ELDER_IDX
-            } else if use_ele && !pool.is_empty() {
-                weighted_pick(pool, splitmix64(seed ^ spawn_tick.wrapping_mul(0x9E3779B97F4A7C15)))
+            let a = if use_ele && !pool.is_empty() {
+                element_for_wave(pool, seed, fp, wave_idx, elder_n)
             } else {
-                VANILLA_ATTR // 원소 off & (장로 off 또는 비장로 웨이브) → 색/버프 없음(바닐라)
+                VANILLA_ATTR // 원소 off → 장로 웨이브가 아니면 색/버프 없음(바닐라)
             };
             ws.waves.insert(wave_idx, (spawn_tick, a));
-            let picked = if a == ELDER_IDX {
+            let picked = if is_elder {
                 elder.as_ref().map(|x| x.display_name.clone()).unwrap_or_default()
             } else if a == VANILLA_ATTR { "바닐라".to_string() }
             else { pool.get(a as usize).map(|x| x.display_name.clone()).unwrap_or_default() };
@@ -2386,6 +2435,7 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
             a
         }
     };
+    ws.current = if is_elder { ELDER_IDX } else { base };
     // ◆진단(07-24 제보): 화면 경기(sim측)의 웨이브/속성 전이 = "실제 부여될 버프" 스트림 실측.
     //   dedup = 웨이브 비트마스크(진행도 다른 클론 핑퐁 방지 — Option 페어는 초당 수백 줄 실사고).
     if CFG_PROBE_LOG.load(Ordering::Relaxed) && seed == LIVE_SEED.load(Ordering::Relaxed) {
@@ -2663,9 +2713,12 @@ fn build_tooltip_text(team: u64) -> String {
     {
         let skg = SCREEN_KILLS.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(sk) = skg.as_ref() {
+            let es = screen_elder_start(sk);
             for (t, ki, _gt) in sk.iter() {
                 if *t != team { continue; }
-                if let Some(&(_, a)) = ws.waves.get(ki) { *cnt.entry(a).or_insert(0) += 1; } // 원소 = 웨이브 배정표
+                // 장로 = 화면 처치 이력 / 원소 = 웨이브 배정표
+                let a = if es.is_some_and(|e| *ki >= e) { Some(ELDER_IDX) } else { ws.waves.get(ki).map(|&(_, a)| a) };
+                if let Some(a) = a { *cnt.entry(a).or_insert(0) += 1; }
             }
         }
     }
@@ -2851,11 +2904,11 @@ fn update_tooltip(ctx: &mut StableClient<'_>) {
 }
 // ═══════════ 색↔버프 경계 불변식 (재설계 2026-07-26) ═══════════
 //   화면 처치수 total=N  ⟺  지금 화면 세르펜 = 웨이브 N (waves[N])  ⟺  N번째 처치 = 화면킬 ki=N-1.
-//   장로 판정 기준은 세 표시축 모두 **내부 elder_after**(= config 1-based − 1 = 0-based, L1404):
-//     · 색(스프라이트) : waves[total] == ELDER_IDX   (배정 = serpen_apply_attr L2074: wave_idx >= elder_after)
-//     · 버프창          : SCREEN_KILLS latest_ki >= ea (= ELDER_AFTER, L2607)
-//     · 처형            : execute_pass (장로 웨이브 처치 후 execute_duration 창)
-//   ⟹ 색·버프·처형이 **화면 카운터 축에서 동일 N**을 참조 → 화면 안에서 서로 어긋나지 않는다.
+//   장로 판정 기준(2026-11-04 · LoL 규칙) = 한 팀이 elder_stacks 에 닿은 처치의 다음 웨이브 es:
+//     · 색(스프라이트) : total >= es (es = screen_elder_start(SCREEN_KILLS)) · 그 전은 waves[total]
+//     · 버프창          : SCREEN_KILLS latest_ki >= es
+//     · 처형            : exec_amp (World 자기 serpen_logs 의 es 이후 처치 + execute_duration 창)
+//   ⟹ 색·버프는 화면 이력, 처형·sim 템플릿은 World 이력으로 같은 규칙을 본다. 화면 타임라인과 그 World 는 처치 순서가 같다.
 //   ⚠ "재생 화면 ≠ 확정 결과"(되감기 시 색↔확정 divergence)는 게임 thread_rng(sim-ahead) 한계라
 //     이 불변식 밖 = 모드로 제거 불가. 별개 과제(MEM\DONE.md 관전≠확정, 재조사금지).
 // ─────────────────────────────────────────────────────────────
@@ -2879,8 +2932,6 @@ fn update_elder_buff_ui(ctx: &mut StableClient<'_>) {
         d.parse::<u64>().ok()
     };
     if ls != 0 {
-        let use_elder = CFG_ELDER.load(Ordering::Relaxed); // 장로 off면 버프 계산 skip(색은 계속)
-        let ea = ELDER_AFTER.load(Ordering::Relaxed) as u64;
         let wg = WORLDS.lock().unwrap_or_else(|e| e.into_inner());
         let ws = wg.as_ref().and_then(|w| pick_live(w, ls));
         // ★처치 ki별 "화면에 뜬 game_time"을 영구 저장(경기 바뀌면 초기화). 만료 후 되감기해도
@@ -2930,10 +2981,11 @@ fn update_elder_buff_ui(ctx: &mut StableClient<'_>) {
         let sk_total = SERPEN_CNT_ONSCREEN[0].load(Ordering::Relaxed) + SERPEN_CNT_ONSCREEN[1].load(Ordering::Relaxed);
         if (sk.len() as u64) > sk_total { sk.truncate(sk_total as usize); }
         // ── 2) 장로 버프 창 판정 — 팀 귀속 소스 = SCREEN_KILLS (ws.kills 의존 제거: 클론 복불복 절연) ──
-        if use_elder {
+        let es = screen_elder_start(sk); // 장로 off·미도달이면 None → 버프 계산 skip(색은 계속)
+        if let Some(es) = es {
             for team in 0..2usize {
                 let Some(&(_, latest_ki, _)) = sk.iter().rev().find(|(t, _, _)| *t == team as u64) else { continue };
-                if latest_ki < ea { continue; }        // 장로 아님
+                if latest_ki < es { continue; }        // 장로 아님
                 // 이 처치가 화면에 처음 뜬 game_time을 기록(있으면 유지). 되감기해도 이 값이 창 기준.
                 let gt = *gtk.entry(latest_ki).or_insert_with(|| {
                     let c = ELDER_ANOMALY_N.fetch_add(1, Ordering::Relaxed);
@@ -2955,7 +3007,10 @@ fn update_elder_buff_ui(ctx: &mut StableClient<'_>) {
         //   시계 기반 resolve_color_from_played(앞섬)는 색을 미리 바꿔 장로가 일찍 회색이 됐다.
         let total = SERPEN_CNT_ONSCREEN[0].load(Ordering::Relaxed) + SERPEN_CNT_ONSCREEN[1].load(Ordering::Relaxed);
         if let Some(ws) = ws {
-            if let Some(&(_, attr)) = ws.waves.get(&total) {
+            let wave_attr = |k: u64| -> Option<i32> {
+                if es.is_some_and(|e| k >= e) { Some(ELDER_IDX) } else { ws.waves.get(&k).map(|&(_, a)| a) }
+            };
+            if let Some(attr) = wave_attr(total) {
                 let prev = CURRENT_ATTR.swap(attr, Ordering::Relaxed);
                 PLAYED_RESOLVED.store(1, Ordering::Relaxed);
                 // ◆진단(07-24 제보): 렌더색 전이 = "외형" 스트림 실측 (sim웨이브전이·킬적립과 시간축 대조)
@@ -2972,7 +3027,7 @@ fn update_elder_buff_ui(ctx: &mut StableClient<'_>) {
             // ★죽는 모션용 직전 웨이브 (2026-07-19): 처치 순간 카운터가 즉시 올라가 CURRENT_ATTR이
             //   다음 세르펜으로 바뀌는데, 그때 죽는 애니가 아직 재생 중이라 "다음 세르펜의 죽는 모션"이
             //   나왔다. 죽는 프레임을 그릴 땐 이 값(방금 죽은 웨이브 = total-1)을 쓴다.
-            let prev = if total == 0 { None } else { ws.waves.get(&(total - 1)).map(|&(_, a)| a) };
+            let prev = if total == 0 { None } else { wave_attr(total - 1) };
             PREV_ATTR.store(prev.unwrap_or_else(|| CURRENT_ATTR.load(Ordering::Relaxed)), Ordering::Relaxed);
         }
     }
