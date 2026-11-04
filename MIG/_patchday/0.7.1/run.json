@@ -1,0 +1,178 @@
+{
+ "label": "0.7.1",
+ "tok": "071",
+ "rehearse": false,
+ "hotfix": false,
+ "base_ver": "0.7.0",
+ "base_sha": "D678E01285B7A9EDBA2C7EE1067CEA93A54F979D769EAAE9F0D8309D18FF7D30",
+ "new_sha": "BD011C426A3F5ED4C411C7D9379448D306E091A9BD83E5E201C81D3EBFDD1D6B",
+ "new_size": 94043136,
+ "new_exe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Teamfight Manager2\\TeamfightManager2.exe",
+ "new_exe_used": "F:\\claude\\tfm2\\tfm2_0.7.1\\TeamfightManager2.exe",
+ "new_pkl": "F:\\claude\\tfm2mods\\_fnidx_071.pkl",
+ "new_cg": "F:\\claude\\tfm2mods\\_cg_071.pkl",
+ "mods": [
+  "tfm2_level_cap",
+  "tfm2_champion_exclude",
+  "banpick_view_plus",
+  "tfm2_comptest_unlock",
+  "tfm2_elemental_serpen",
+  "tfm2_champ_pos_lock",
+  "training_view_plus",
+  "facility_view_plus",
+  "custom_tier_assignment",
+  "tfm2_detail_tactics",
+  "tfm2_transfer_fix",
+  "ui_kit"
+ ],
+ "mods_added_outside_MODS": [],
+ "stages": [
+  {
+   "stage": "detect",
+   "no": 0,
+   "status": "OK",
+   "rc": 0,
+   "sec": 0.4,
+   "note": "0.7.0 → 0.7.1 · sha BD011C426A3F5ED4 · 94043136 B",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\logs\\00_detect.log",
+   "outputs": [],
+   "at": "2026-11-04 17:02:41"
+  },
+  {
+   "stage": "backup",
+   "no": 1,
+   "status": "OK",
+   "rc": 0,
+   "sec": 3.2,
+   "note": "TeamfightManager2.exe: 복사 완료 94043136 B · sha BD011C426A3F5ED4 / bundle.game_data: 복사 완료 1156606899 B · sha A005B7789CE61A7F",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\logs\\01_backup.log",
+   "outputs": [
+    "F:\\claude\\tfm2\\tfm2_0.7.1\\TeamfightManager2.exe",
+    "F:\\claude\\tfm2\\tfm2_0.7.1\\bundle.game_data"
+   ],
+   "at": "2026-11-04 16:56:15",
+   "_prev": true
+  },
+  {
+   "stage": "fnindex",
+   "no": 2,
+   "status": "OK",
+   "rc": 0,
+   "sec": 45.8,
+   "note": "기준 _fnidx_070.pkl: 검증 통과 — 메타 경로 sha 일치 · 경계 165552/165552 일치 · skel 표본 48 일치 / 생성 후 검증: 메타 경로 sha 일치 · 경계 166780/166780 일치 · skel 표본 48 일치",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\logs\\02_fnindex.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\_fnidx_071.pkl"
+   ],
+   "at": "2026-11-04 16:57:01",
+   "_prev": true
+  },
+  {
+   "stage": "callgraph",
+   "no": 3,
+   "status": "OK",
+   "rc": 0,
+   "sec": 28.4,
+   "note": "기준 _cg_070.pkl: 검증 통과 — callee 146469개 · 표본 40 일치 / 생성 후 검증: callee 147375개 · 표본 40 일치",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\logs\\03_callgraph.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\_cg_071.pkl"
+   ],
+   "at": "2026-11-04 16:57:29",
+   "_prev": true
+  },
+  {
+   "stage": "aidiff",
+   "no": 4,
+   "status": "REVIEW",
+   "rc": 0,
+   "sec": 147.5,
+   "note": "EDITED 98 · MERGED 0 · 사라짐 38 · 새로 생김 65",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\logs\\04_aidiff.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\aidiff.md"
+   ],
+   "at": "2026-11-04 16:59:57",
+   "_prev": true
+  },
+  {
+   "stage": "check",
+   "no": 5,
+   "status": "REVIEW",
+   "rc": 1,
+   "sec": 0.2,
+   "note": "STALE·INVALID 469 (모드 12개 중 9개)",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\logs\\05_check.log",
+   "outputs": [],
+   "at": "2026-11-04 16:59:57",
+   "_prev": true
+  },
+  {
+   "stage": "repin",
+   "no": 6,
+   "status": "REVIEW",
+   "rc": 0,
+   "sec": 114.6,
+   "note": "대상 469 · 엔진 해결 363 · 실패 106 · 사람 판정 필요 169(apply 대상 22 + 생성물 모드 147) · 동형 클론 주의 11",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\logs\\06_repin.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\repin_map.json",
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\repin_map.aligned.json",
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\repin_fncheck.json"
+   ],
+   "at": "2026-11-04 17:01:52",
+   "_prev": true
+  },
+  {
+   "stage": "offsets",
+   "no": 7,
+   "status": "REVIEW",
+   "rc": 1,
+   "sec": 1.2,
+   "note": "변화 3개 모드 · 19개 함수 (기준 = repin_map.aligned.json)",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\logs\\07_offsets.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\offsets_shifts.json"
+   ],
+   "at": "2026-11-04 17:02:42"
+  },
+  {
+   "stage": "detail_tactics",
+   "no": 8,
+   "status": "SKIP",
+   "rc": null,
+   "sec": 0.0,
+   "note": "--only",
+   "log": null,
+   "outputs": [],
+   "at": "2026-11-04 17:02:42"
+  },
+  {
+   "stage": "addrbook",
+   "no": 9,
+   "status": "SKIP",
+   "rc": null,
+   "sec": 0.0,
+   "note": "--only",
+   "log": null,
+   "outputs": [],
+   "at": "2026-11-04 17:02:42"
+  },
+  {
+   "stage": "summary",
+   "no": 10,
+   "status": "OK",
+   "rc": 0,
+   "sec": 0.0,
+   "note": "SUMMARY.md",
+   "log": null,
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.1\\SUMMARY.md"
+   ],
+   "at": "2026-11-04 17:02:42"
+  }
+ ],
+ "nondestructive_warnings": [],
+ "total_sec": 1.7,
+ "finished": "2026-11-04 17:02:42"
+}

@@ -1,0 +1,292 @@
+{
+ "tfm2_comptest_unlock": {
+  "0xe7329": [
+   "0xe7269",
+   "HIGH(미사용·RPLY_ON=false) · 엔진 FAIL→정렬값 채택: owner 0xe72c0→0xe7200(496B skel 동일·12클론 중 콜러 2개의 skel 순서(d91a,5f50)와 콜러-함수 거리(−0x8a0/−0x5f0) 일치하는 유일 후보), +0x69 명령 문맥 동일"
+  ],
+  "0xe7334": [
+   "0xe7274",
+   "HIGH(미사용) · 엔진 FAIL→정렬값 채택: 동 owner 0xe7200+0x74, RPLY 와 Δ0xb 유지·문맥 동일"
+  ],
+  "0x1fee70": [
+   "0x1fedb0",
+   "HIGH · 엔진값 · fncheck STRONG(콜러 5/5·callee 1.0·size 동일)·skel 동일. 파서 필드·즉값 불변(ui_inject 는 stable 전환 후 호출 경로 없음)"
+  ],
+  "0x2298c0": [
+   "0x229800",
+   "HIGH(위치) · 엔진 BYTES_UNIQUE 20B·STRONG(콜러 1/1)·skel 동일 · 소스 dd_addr_valid 기대 프롤로그는 0.6.5 이전부터 불일치(호출 경로 제거=기존 상태)"
+  ],
+  "0x3a94f0": [
+   "0x3a93f0",
+   "HIGH · 엔진 CLONE 후보 0x3a93f0 확정: 레이아웃 문자열 4종 lea 직후 call 투표 53/53(구 0x3a94f0 도 53/53), 35클론 콜러 순위 300/67/64/63/43 ↔ 구 300/67/64/63/43, HOOK12 12B 동일. 실사용(ASSETS 캡처)"
+  ],
+  "0x4cbcc0": [
+   "0x4cbb90",
+   "MED(죽은 상수) · 엔진 BYTES_UNIQUE 64B AGREE, owner +0x20 동일(함수 중간 — 원래부터 inert)"
+  ],
+  "0x4cbd7b": [
+   "0x4cbc4b",
+   "MED(죽은 상수) · 엔진 BYTES_UNIQUE 12B AGREE, owner +0xdb 동일"
+  ],
+  "0x854050": [
+   "0x8543f0",
+   "MED(죽은 상수·소스 정의만) · 엔진 BYTES_UNIQUE 12B 값 채택(FAIL_OWNER 는 EH 펑클릿이라 정상): 펑클릿 0x854040→0x8543e0 39B 바이트 동일, 부모 0x853d70→0x854110(672B)·뒤 0x854140→0x8544e0(828B) 같은 Δ+0x3a0"
+  ],
+  "0xc1e037": [
+   "0xaecd3a",
+   "HIGH · 엔진 FAIL·정렬값 0xaecd37 오답(한 명령 앞 = mov r12,rcx) → 0xaecd3a: DRIVE 0xc1dfd0→0xaeccd0(callee 투표 92, 2위 30·콜러 1/1), ORACLE 호출 순번 259/421/438 동일, 19B 패턴 `mov [rbp+0x16c50],-1; mov [rbp+0x10],-1`. ★DRIVE_ORIG [3] b0→50"
+  ],
+  "0xc1e04a": [
+   "0xaecd4d",
+   "HIGH · 엔진 FAIL·정렬값 0xaecd45 오답(둘째 스틸 명령 = 스틸 범위 안으로 복귀) → 0xaecd4d = DRIVE site+0x13 `mov [rbp+0x3758],-1`"
+  ],
+  "0xf1e950": [
+   "0xee7ac0",
+   "MED(죽은 상수·프롤로그 검증 Err 로 inert) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x1a0 동일 · 신값도 DEDUP_INS_PROLOGUE 불일치 확인(오설치 없음)"
+  ],
+  "0x1126182": [
+   "0x111a682",
+   "MED(inert — INSERT 프로브가 프롤로그 Err) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x312 동일"
+  ],
+  "0x10f2c90": [
+   "0xf186d0",
+   "MED(죽은 상수) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x2c0 동일 · 신값 ENQ_PROLOGUE 불일치 확인"
+  ],
+  "0x1074840": [
+   "0x10e8970",
+   "MED(죽은 상수) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x70 동일 · 신값 INSERT_PROLOGUE 불일치 확인"
+  ],
+  "0x1608900": [
+   "0x17cdfa0",
+   "HIGH · 엔진 BYTES_UNIQUE 32B·STRONG(콜러 1/1)·skel 동일·HPUSH_PROLOGUE 12B MATCH(실사용)"
+  ],
+  "0x1349c68": [
+   "0x1389d48",
+   "MED(죽은 상수·INT3 프로브 호출 비활성) · 엔진 MID_OWNER_CG_MULTI_caller AGREE owner +0x8b8 동일"
+  ],
+  "0x186fcf0": [
+   "0x1461be0",
+   "MED(죽은 상수·SIM_PROBE_ON=false) · 엔진 BYTES_UNIQUE 20B AGREE owner +0x10 동일"
+  ],
+  "0x19b7ad6": [
+   "0x151ff95",
+   "MED(죽은 상수·훅 비활성) · 엔진 BYTES_UNIQUE 12B AGREE: 구값=`mov r9,[rbp+0x28]` +3 ↔ 신 0x151ff92 +3, 앞뒤 문맥 동일(원래부터 명령 중간)"
+  ],
+  "0x19fbb70": [
+   "0x16473c0",
+   "LOW(죽은 상수·HYBRID 비활성) · 엔진 BYTES_UNIQUE 12B(`mov [rcx+0x30],rdx; ret` 뒤 패딩 포함 동일 위치)"
+  ],
+  "0x17c2060": [
+   "0x16b9930",
+   "LOW(죽은 상수·SNAP_ON=false) · 엔진 BYTES_UNIQUE 12B 동일 위치(구값부터 함수 끝 뒤)"
+  ],
+  "0x1896cf0": [
+   "0x1474070",
+   "HIGH · 엔진 BYTES_UNIQUE 32B·STRONG(콜러 16/16·callee 0.95·size 1.05)·DRIVE 내 호출 순번 259/421/438 동일·HOOK12 MATCH·`mov rcx,[rdx+0x1b40]`(G_OFF 신값)·인자 rcx/rdx/r8/r9b 동일. 실사용(tickmap)"
+  ],
+  "0x1ca6b60": [
+   "0x19846d0",
+   "LOW(죽은 상수) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x120 동일"
+  ],
+  "0x1cd7020": [
+   "0x1a30a30",
+   "LOW(죽은 상수·SIM_PROBE_ON=false) · 엔진 BYTES_UNIQUE 32B AGREE owner +0x1b20 동일"
+  ],
+  "0x1533c6e": [
+   "0x1ccba6e",
+   "LOW(기록용 no-op · orig==fixed 75 10) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x3a5e 동일 위치 승계. 원 사이트는 0.7.0 에서 소멸(판정 null), 이 값은 그 자리의 아무 명령(`movaps xmm10,..`)이라 orig 불일치 → apply_one Err = 쓰기 없음"
+  ],
+  "0x257fa80": [
+   "0x2806360",
+   "HIGH · 엔진 CLONE 후보 0x2806360 확정: 신 ARRIVE 0x28640d0 가 +0x3ac/+0x610 에서 2회 호출(구 동일), RPLY2·RPLY3 콜러 일치, 필드 전부 −0x60. ⚠구 1개가 신 2개로 분화(0x2806360 콜러 14·0x216aaf0 콜러 13, 본문·callee 동일 — 러너 vtable drop 은 0x216aaf0 호출) 둘 다 같은 drop"
+  ],
+  "0x2e8e890": [
+   "0x2821c80",
+   "HIGH · 엔진 FN_UNIQUE·STRONG(콜러 4/4)·skel 동일·WARN_PROLOGUE 13B MATCH"
+  ],
+  "0x2e9e260": [
+   "0x2831650",
+   "HIGH · 엔진 BYTES_UNIQUE 48B·STRONG(콜러 27/27)·HOOK12 MATCH·rcx=assets/rdx=node 계약 동일(본문 차이 = 드롭플래그 2명령 삭제뿐)"
+  ],
+  "0x2e9e3be": [
+   "0x28317ae",
+   "HIGH · 엔진 AGREE·dr_inline_a orig 4c0f44e2 MATCH"
+  ],
+  "0x2ea4f60": [
+   "0x2838340",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·명령열 ratio 1.0·HOOK12 MATCH. 러너 필드 −0x60 만 변경"
+  ],
+  "0x2ea578c": [
+   "0x2838b6c",
+   "HIGH · 엔진 AGREE 0x2838b6c(imm 05). ★PAGE_SIG [3] df→7f: 신 `41 c6 86 7f 21 00 00 05`(R_STATE 0x217f)"
+  ],
+  "0x2ea8d10": [
+   "0x283c0f0",
+   "HIGH · 엔진 BYTES_UNIQUE 48B·STRONG(콜러 5/5)·명령열 ratio 1.0·HOOK12 MATCH"
+  ],
+  "0x2ea8f06": [
+   "0x283c2e6",
+   "HIGH · 엔진 AGREE·dr_inline_b orig 4120c5 MATCH"
+  ],
+  "0x2ea93b1": [
+   "0x283c791",
+   "HIGH · 엔진 AGREE·allow_dup orig 7547 MATCH"
+  ],
+  "0x2eaa173": [
+   "0x283d553",
+   "HIGH · 엔진 BYTES_UNIQUE 12B AGREE 0x283d553: `mov [rbp+0x278],0x14` imm 위치·TAKE_SIG c7 85 78 02 00 00 MATCH"
+  ],
+  "0x2eb9920": [
+   "0x284cd00",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·명령열 ratio 1.0·HOOK12 MATCH·CMD_TAG/PKT_DISC 0x1e 동일·★CMD_STRIDE 0x1e90"
+  ],
+  "0x2eb9bf3": [
+   "0x284cfd3",
+   "HIGH · 엔진 AGREE·collect_err orig 745f MATCH"
+  ],
+  "0x2eb9c1d": [
+   "0x284cffd",
+   "HIGH · 엔진 AGREE·collected orig 7510 MATCH"
+  ],
+  "0x2eb9c29": [
+   "0x284d009",
+   "HIGH · 엔진 AGREE·roster_count orig 0f8369010000 MATCH(fixed e96a01000090 유효)"
+  ],
+  "0x2eba365": [
+   "0x284d745",
+   "HIGH · 엔진 AGREE·run_push orig 0f84c1f9ffff MATCH"
+  ],
+  "0x2ebb490": [
+   "0x284e870",
+   "HIGH · 엔진 BYTES_UNIQUE 48B·STRONG·명령열 ratio 1.0·HOOK12 MATCH"
+  ],
+  "0x2ebf6d0": [
+   "0x2852ab0",
+   "HIGH · 엔진 FN_HEAD_UNIQUE·STRONG·size 동일 29166B·HOOK12 MATCH·r8+0xa8 시드·+0x38/+0x40 동일"
+  ],
+  "0x2ed0480": [
+   "0x2863860",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·명령열 ratio 1.0·HOOK12 MATCH(미설치 RPLY2_ON=false)"
+  ],
+  "0x2ed0cf0": [
+   "0x28640d0",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·명령열 ratio 1.0. ★ARRIVE_PROLOGUE 40 3e→40 3d(frame 0x3e40→0x3d40)"
+  ],
+  "0x2ed0d04": [
+   "0x28640e4",
+   "HIGH · 엔진 AGREE·DELAY_ORIG 15B MATCH(`sub rsp,rax; lea rbp,[rsp+0x80]; and rsp,-0x80`). ★shim `sub rsp` 상수 0x3d40"
+  ],
+  "0x2ed0d13": [
+   "0x28640f3",
+   "HIGH · 엔진 AGREE·`mov rbx,rsp`"
+  ],
+  "0x2ed1568": [
+   "0x2864948",
+   "HIGH · 엔진 AGREE·`xor eax,eax; lea rsp,[rbp+0x3cc0]; pop×7; ret`(★shim 0x3cc0)"
+  ],
+  "0x2138fb0": [
+   "0x21f81b0",
+   "HIGH · 엔진 BYTES_UNIQUE 48B·STRONG·명령열 ratio 1.0·HOOK12 MATCH"
+  ],
+  "0x213a680": [
+   "0x21f9880",
+   "HIGH · 엔진 FN_HEAD_UNIQUE·STRONG·size 동일 4312B·HOOK12 MATCH·`[r12+0x258]` 시드 동일 · 차이 = 프레임·0x1e10·edx 상수 2→1 뿐"
+  ],
+  "0x2fbdf37": [
+   "0x2941b27",
+   "HIGH · 엔진 AGREE 0x2941b27: `xor r15d,r15d; cmp r14d,r12d; cmove r15,rax` · orig 4c0f44f8 MATCH(지난 회차 값 그대로)"
+  ],
+  "0x2fbdf77": [
+   "0x2941b67",
+   "HIGH · 엔진 AGREE·btn5v5_warn orig 8B MATCH"
+  ],
+  "0x2fbe311": [
+   "0x2941f01",
+   "HIGH · 엔진 AGREE·panel_btn_daily orig 20c1 MATCH"
+  ],
+  "0x2fbe313": [
+   "0x2941f03",
+   "HIGH · 엔진 AGREE·roster_min_a orig 8B MATCH"
+  ],
+  "0x2fc8a70": [
+   "0x294c660",
+   "MED(inert 범위 상수) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x10 동일"
+  ],
+  "0x220f510": [
+   "0x2125af0",
+   "HIGH · 엔진 CLONE 후보 0x2125af0 확정: 6클론 중 LIVEB·RPLY3·서버핸들러를 콜러로 갖는 유일 함수, RPLY3 호출 2곳 대응(+0x12c/+0x672a), size 동일 60198B"
+  ],
+  "0x284eed0": [
+   "0x2073b70",
+   "HIGH · 엔진 FN_HEAD_UNIQUE·STRONG(콜러 1/1·callee 0.99·size 1.005)·패치 3곳 내부·메시지 점프표 170→171(끝에 1칸 추가)·comp_test 아암 idx 28 동일. pdata (0x2073b70,0x20a2080)"
+  ],
+  "0x2860cdf": [
+   "0x2085f67",
+   "HIGH · 엔진 0x208597f 오답·sitealign 정렬값 0x2085f67 채택: 시그 `48 83 b8 d0 01 00 00 04 0f 86` 신 exe 전역 1히트 0x2085f60 +7, 앞 `cmp [rax+0x1dc],esi; jne` 뒤 `mov byte[rsp+0x20],1` 동형, orig 04 MATCH"
+  ],
+  "0x2864e56": [
+   "0x2089c3f",
+   "HIGH · 엔진 0x2089af6 오답(call 중간)·sitealign 정렬값 0x2089c3f 채택: `mov rax,[rbx+0x1d0]; cmp rax,4` 전역 1히트 +10, 앞 `cmp [rbx+0x1dc],esi; jne` 뒤 `jbe; mov byte[rbp+0x528a4],1; mov ecx,1; mov edx,1` 동형, orig 04 MATCH"
+  ],
+  "0x2868dc6": [
+   "0x208ded9",
+   "HIGH · 엔진 AGREE 0x208ded9 `sub rax,5` imm(앞 mov rax,[rdx+0x768]·뒤 cmovb) orig 05 MATCH"
+  ],
+  "0x287d008": [
+   "0x20a2080",
+   "HIGH · 엔진 FAIL→확정 0x20a2080 = 신 서버핸들러 .pdata 끝(구와 같은 정의), 크기 0x2e510=189712"
+  ],
+  "0x28ae4e0": [
+   "0x20d33b0",
+   "HIGH · 엔진 BYTES_UNIQUE 64B·STRONG(콜러 1/1)·명령열 ratio 1.0·skel 동일·HOOK12 MATCH"
+  ],
+  "0x28ae8a7": [
+   "0x20d3777",
+   "HIGH · 엔진 AGREE 0x20d3777 `add rbx,rbx; mov rax,rbx; mov bl,2; cmp rdx,rax` orig 4801db MATCH"
+  ],
+  "0x28ae945": [
+   "0x20d3815",
+   "HIGH · 엔진 AGREE 0x20d3815 `sete cl; or cl,al; jne` orig 0f85d4000000 MATCH(변위 d4 유지)"
+  ],
+  "0x28bd7b0": [
+   "0x20e1920",
+   "HIGH · 엔진 BYTES_UNIQUE 32B·STRONG·명령열 ratio 1.0·HOOK12_ALT MATCH"
+  ],
+  "0x28f2ac0": [
+   "0x2113130",
+   "MED(죽은 상수·CONC_PROBE_ON=false) · 엔진 MID_OWNER_UNIQUE AGREE owner +0xe0 동일(명령 중간 그대로)"
+  ],
+  "0x236d170": [
+   "0x2b7dfa0",
+   "MED(CONC_PROBE inert) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x7d0 동일(명령 중간 — 원래부터 hook12 Err)"
+  ],
+  "0x26760c0": [
+   "0x2d3acf0",
+   "HIGH · 엔진 MID_OWNER_CG_NONE·STRONG(콜러 3/3·callee 1.0·size 0.894)·HOOK12 MATCH(실사용 ctx 딥클론). rcx=dst/rdx=src 동일, `lea rcx,[rsi+0xce0]; mov r8d,0xe60` = 팀 상태 2칸 복사 · 본문 재컴파일이나 계약 유지"
+  ],
+  "0x27da127": [
+   "0x201eddc",
+   "MED(죽은 상수·inert 범위) · 엔진 BYTES_UNIQUE 12B AGREE: `inc r15` +2 → 0x201eddc, 앞 shl rcx,4 Vec push 동형. LO<HI 유지"
+  ],
+  "0x34a9590": [
+   "0x353db40",
+   "HIGH · 엔진 BYTES_UNIQUE 32B·STRONG"
+  ],
+  "0x356f190": [
+   "0x3603550",
+   "HIGH · 엔진 FN_UNIQUE·STRONG"
+  ],
+  "0x40f2377": [
+   "0x414dd9c",
+   "LOW(무의미 — warn 로그 분류용·CONC_PROBE 꺼짐) · 엔진 BYTES_UNIQUE 32B(.rdata 엉뚱한 문자열 추적값 승계)"
+  ],
+  "0x40f23af": [
+   "0x414ddd4",
+   "LOW(무의미) · 엔진 BYTES_UNIQUE 32B(.rdata)"
+  ],
+  "0x419b3b0": [
+   "0x42134e0",
+   "HIGH · 엔진 FAIL→확정 0x42134e0: .rdata 전수에서 size 0x2180·align 0x10 + 자기참조 [5]=vt−0x48·[8]=vt−0x28 일치 유일, ctor lea 참조 유일 0x2175913(`mov r8d,0x2180 … lea rdx,[rip+vt]; mov rax,rsi; add rsp,0xf4e8`, 구 0x25abc53 동형), slot4 0x2904420=GM·[7] 98B 동일"
+  ]
+ }
+}

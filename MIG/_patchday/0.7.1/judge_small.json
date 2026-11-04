@@ -1,0 +1,36 @@
+{
+ "tfm2_level_cap": {
+  "0x9e450b": [
+   "0x90552b",
+   "HIGH · `cmp r64,[reg+0xd10]` .text 전수 1건(0.7.0 의 rbp 베이스 오탐은 사라짐) · owner 0x9dc660→0x8fd680 skel SAME·8299/8299 명령·+0x7eab 동일(유일 차이 = TLS disp 1줄) · 뒤 jmp 타깃 0x9061c9 = mov rax,[rax+0xd08] · orig 7B 483b88100d0000 불변 · 진입분기 0 · 엔진값·정렬 AGREE 일치"
+  ],
+  "0x18c2be4": [
+   "0x14a7164",
+   "HIGH · 방법①(len 로드+0xd08+sub [..*8-8]) .text 전수 1건 · owner 0x18c2770→0x14a6cf0 skel SAME·435/435 명령 무차이·+0x474 동일·callers 3/3·콜슬롯 9/9 · orig 7B 488b90100d0000 불변 · 레지스터 rax=GameSetting·r14=level·rdx 목적 불변 · 진입분기 0 · 엔진값·정렬 EXACT 일치"
+  ]
+ },
+ "tfm2_champion_exclude": {
+  "0x1e74c50": [
+   "0x1ee7850",
+   "HIGH · skel SAME·size 331·86/86 명령 무차이·클론 1/1 · callers 1/1(콜러 0x2c8d810 은 재작성됐으나 콜사이트 규약 동일: rcx=&out, rdx=&iter, 반환 뒤 out+8/+0x10) · 콜슬롯 5/5 · 17B HOOK_ORIG 일치 · 48B 유일 · 엔진값 일치"
+  ]
+ },
+ "tfm2_champ_pos_lock": {
+  "0x1536080": [
+   "0x1ccde80",
+   "HIGH · skel SAME·size 2569·497/497 명령 무차이·클론 1/1 · 콜러 계보 0x1c3dfc0→0x17f6a00 일치 · 콜슬롯 16/16 · panic 위치표 line/col 12건 동일 · PROL 12B 일치 · 엔진값 일치"
+  ],
+  "0x2ee35e0": [
+   "0x2876590",
+   "HIGH · skel SAME·size 423·97/97 명령 무차이(즉값·disp 포함) · 콜러 계보 2/2(0x23a3510·0x23f80d0) · 콜슬롯 4/4 · 32B 유일 · PROL 12B(byte6 0x81) 일치 · 엔진값 일치"
+  ],
+  "0x2dae960": [
+   "0x23a2d60",
+   "HIGH · skel 만 다름(size 1821→1816 · 패킷 alloc 인자 `mov ecx,8; mov edx,0x740`→`mov ecx,0x740` 1곳 + 프레임 0x1f98→0x1f38) · 그 외 392/394 무차이 · 표 슬롯 0x4232240/48 = 구 0x42029e0/e8 · 표 머리 size 0x20 동일 · `mov qword [rcx],0x23`·[rbx+0x28]/[rbx+0x30]·\"champions.contents.\" 유지 · 뒤 함수 +0x8c0 = SWAP_CONFIRM 인접 유지 · PROL 12B 일치 · 32B 유일 · 엔진값 일치"
+  ],
+  "0x2daf220": [
+   "0x23a3620",
+   "HIGH · skel SAME·size 1197·259/259 · 차이 = 프레임 0x1f88→0x1f28·stride imul/memcpy 0x1ef0→0x1e90(모드 미사용) · 콜러 계보 0x2e055f0→0x23f81e0 · 표 슬롯 0x422c990/98 · 문자열 swap.bottom.confirm · `mov qword [rax],0x27` 유지 · PROL 12B 일치 · 32B 유일 · 엔진값 일치"
+  ]
+ }
+}

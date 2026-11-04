@@ -43,35 +43,35 @@ use std::time::{SystemTime, UNIX_EPOCH};
 const MOD_ID: &str = "tfm2_transfer_fix";
 const CFG_NAME: &str = "tfm2_transfer_fix.cfg";
 const LOG_NAME: &str = "tfm2_transfer_fix.txt";
-const GAME_VER: &str = "0.7.0";
+const GAME_VER: &str = "0.7.1";
 
-// ── ① s 식 (0.7.0) ──
-const RVA_S_MAX: usize = 0x1bdc2f9;                               // maxsd xmm0, xmm6  (s 하한)
-const ORIG_S_MAX: [u8; 4] = [0xf2, 0x0f, 0x5f, 0xc6];
+// ── ① s 식 (0.7.1 · c 레지스터 xmm6→xmm7) ──
+const RVA_S_MAX: usize = 0x140de7b;                               // maxsd xmm0, xmm7  (s 하한)
+const ORIG_S_MAX: [u8; 4] = [0xf2, 0x0f, 0x5f, 0xc7];
 const NOP4: [u8; 4] = [0x0f, 0x1f, 0x40, 0x00];                   // nop dword [rax+0]
 
 /// rip-rel 상수 로드 재지향 지점. 명령 = prefix(4B) + disp32, 길이 8B.
 struct RipSite { name: &'static str, rva: usize, prefix: [u8; 4], old_tgt: usize, old_val: f64, slot: usize }
 const RIP_SITES: [RipSite; 5] = [
-    // movsd xmm6,[c]          — s 식의 c (0.95)
-    RipSite { name: "s.c",    rva: 0x1bdc2f1, prefix: [0xf2, 0x0f, 0x10, 0x35], old_tgt: 0x4081cc0, old_val: 0.95,  slot: SLOT_C },
+    // movsd xmm7,[c]          — s 식의 c (0.95)
+    RipSite { name: "s.c",    rva: 0x140de73, prefix: [0xf2, 0x0f, 0x10, 0x3d], old_tgt: 0x4104d90, old_val: 0.95,  slot: SLOT_C },
     // addsd xmm0,[-c]         — s 식의 −c (−0.95)
-    RipSite { name: "s.-c",   rva: 0x1bdc2fd, prefix: [0xf2, 0x0f, 0x58, 0x05], old_tgt: 0x40820b8, old_val: -0.95, slot: SLOT_NEGC },
+    RipSite { name: "s.-c",   rva: 0x140de7f, prefix: [0xf2, 0x0f, 0x58, 0x05], old_tgt: 0x4104d98, old_val: -0.95, slot: SLOT_NEGC },
     // movsd xmm0,[0.95]       — 비교 표본 없음 기본값 ①
-    RipSite { name: "s.def1", rva: 0x1bdc25a, prefix: [0xf2, 0x0f, 0x10, 0x05], old_tgt: 0x4081cc0, old_val: 0.95,  slot: SLOT_DEF },
+    RipSite { name: "s.def1", rva: 0x140ddda, prefix: [0xf2, 0x0f, 0x10, 0x05], old_tgt: 0x4104d90, old_val: 0.95,  slot: SLOT_DEF },
     // movsd xmm0,[0.95]       — 비교 표본 없음 기본값 ②
-    RipSite { name: "s.def2", rva: 0x1bdc28a, prefix: [0xf2, 0x0f, 0x10, 0x05], old_tgt: 0x4081cc0, old_val: 0.95,  slot: SLOT_DEF },
+    RipSite { name: "s.def2", rva: 0x140de09, prefix: [0xf2, 0x0f, 0x10, 0x05], old_tgt: 0x4104d90, old_val: 0.95,  slot: SLOT_DEF },
     // movapd xmm0,[{0.95,0}]  — 기본값 ③ (16B 정렬 읽기 → 슬롯도 16B 정렬)
-    RipSite { name: "s.def3", rva: 0x1bdc45b, prefix: [0x66, 0x0f, 0x28, 0x05], old_tgt: 0x411a0f0, old_val: 0.95,  slot: SLOT_DEF },
+    RipSite { name: "s.def3", rva: 0x140dfdb, prefix: [0x66, 0x0f, 0x28, 0x05], old_tgt: 0x4104da0, old_val: 0.95,  slot: SLOT_DEF },
 ];
 
-// ── ② 10분위 보정 초기값 (0.7.0) ──
-const RVA_PCS_INIT: usize = 0x150c89a;
+// ── ② 10분위 보정 초기값 (0.7.1 — 게임이 호출 순서를 고쳐 초기값이 이미 1.0 · 패치는 결과 불변 · RE 2026-11-04_0.7.1-재핀판정-로직대조) ──
+const RVA_PCS_INIT: usize = 0x1ca4a7a;
 const ORIG_PCS_INIT: [u8; 8] = [0xf2, 0x0f, 0x10, 0xb3, 0xa0, 0x00, 0x00, 0x00]; // movsd xmm6,[rbx+0xa0]
 const NEW_PCS_INIT: [u8; 8] = [0x66, 0x0f, 0x57, 0xf6, 0x0f, 0x1f, 0x40, 0x00];  // xorpd xmm6,xmm6 ; nop4
 
-// ── ③ 배율 함수 입구 (0.7.0) ──
-const RVA_P_FN: usize = 0x150ca20;
+// ── ③ 배율 함수 입구 (0.7.1) ──
+const RVA_P_FN: usize = 0x1ca4c00;
 const ORIG_P_FN: [u8; 9] = [0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x48]; // push r14/rsi/rdi/rbx ; sub rsp,0x48
 const STOLEN: usize = 5;                                                           // 위 push 4개 = 위치 무관 명령
 
@@ -150,7 +150,7 @@ impl Default for Cfg {
 }
 
 const CFG_TEMPLATE: &str = "\
-# tfm2_transfer_fix 설정 (게임 0.7.0)
+# tfm2_transfer_fix 설정 (게임 0.7.1)
 # 형식: 키 = 값   (# 로 시작하는 줄은 무시. 고친 뒤 게임을 다시 켜야 적용)
 
 # ① AI 판매 호가 하한 제거 (1 = 켬, 0 = 끔)
@@ -163,13 +163,14 @@ spread_c = 0.95
 spread_default = 0.23
 
 # ② 첫 시즌 종료 때 연봉 보정이 두 번 곱해지는 오류 수정 (1 = 켬, 0 = 끔)
+#    0.7.1 부터 게임이 직접 고쳤다. 켜 둬도 결과는 같다.
 double_apply_fix = 1
 
 # ③ 연봉·선수가치 배율 상한 (1 = 켬, 0 = 끔 · 바닐라는 제한 없음)
 #    바닐라: 배율이 해마다 상한 없이 누적돼, 시즌이 쌓이면 상위 선수 연봉·이적료가 크게 치솟을 수 있다.
 #    기본 상한 5.0 = 평소엔 거의 걸리지 않고 폭주할 때만 자르는 안전장치(게임 계산은 최대한 그대로).
 #    ★연봉·이적료가 너무 많이 오른다 싶으면 salary_mult_max 를 낮추세요 (예: 3.0, 더 세게는 2.0).
-#      참고: 첫 연도 전환 직후 배율은 0.67 ~ 1.85 였다(② 수정 켬 · 2026-11 실측).
+#      참고: 0.7.0 첫 연도 전환 직후 배율은 0.67 ~ 1.85 였다(② 수정 켬 · 2026-11 실측).
 salary_mult_clamp = 1
 salary_mult_max = 5.0
 #    하한 (0 = 없음 · 기본). 낮은 연봉이 너무 떨어진다 싶을 때만 0.05 ~ 1 사이 값을 넣으세요 (예: 0.8).

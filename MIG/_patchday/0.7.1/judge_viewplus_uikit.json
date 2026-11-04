@@ -1,0 +1,162 @@
+{
+ "banpick_view_plus": {
+  "0x159060": [
+   "0x158fa0",
+   "HIGH · RVA_ASSET_GET · 클론 35개 중 콜슬롯 계보 63:0 · ILLUST_GET 콜슬롯(+0x74)·SPRITE_CALC 콜슬롯(+0x275) 이 둘 다 0x158fa0 · 가족 전체 투표 1:1(중복 없음) · 콜러 63=63 · 정규화 명령열 동일(nd0) · 엔진값 맞음"
+  ],
+  "0x1c8030": [
+   "0x1c7f70",
+   "HIGH · RVA_SUBMIT · skel 유일 · nd0 · 계보 180:0 · CARD_DRAW 콜슬롯 7곳 일치 · 콜러 84→85 · callee 4/4"
+  ],
+  "0x1c82b0": [
+   "0x1c81f0",
+   "HIGH · RVA_SUBMIT_TEXT · skel 유일 · nd0 · 계보 23:0 · CARD_DRAW 콜슬롯(+0xb2f) · 콜러 13=13 · callee 4/4"
+  ],
+  "0x1c8cc0": [
+   "0x1c8c00",
+   "HIGH · RVA_TEXT_BUILD · 0.7.0 오답 전례 재확인: 이번엔 엔진 정답 · skel 유일 1297B · nd0 · 계보 7:0 · CARD_DRAW 콜슬롯(+0xb1f) · 콜러 6=6 · CARD_DRAW nd0 라 13인자 셋업 동일"
+  ],
+  "0x1c9630": [
+   "0x1c9570",
+   "HIGH · RVA_IMG_UV · skel 유일 · nd0 · 계보 103:0 · CARD_DRAW 콜슬롯 2곳 · 콜러 62=62"
+  ],
+  "0x1c97d0": [
+   "0x1c9710",
+   "HIGH · RVA_IMG_BUILD · skel 유일 · 차이 2명령 = TLS 오프셋 0x18438→0x1a2b0 뿐 · 계보 102:0 · CARD_DRAW 콜슬롯 2곳 · 콜러 28=28 · callee 3/3"
+  ],
+  "0x1c9af0": [
+   "0x1c9a30",
+   "HIGH · RVA_IMG_FLAG · skel 유일 · nd0 · 계보 9:0 · CARD_DRAW 콜슬롯 2곳 · 콜러 6=6"
+  ],
+  "0x1cb0f0": [
+   "0x1cb030",
+   "HIGH · RVA_IMG_SHADER · skel 유일 · 차이 20명령 전부 TLS 오프셋 0x18438→0x1a2b0 · 계보 27:0 · CARD_DRAW 콜슬롯 2곳 · 콜러 20=20 · callee 6/6"
+  ],
+  "0x2ce4e00": [
+   "0x2f67450",
+   "HIGH · RVA_IMG_COLOR · skel 유일 2107B · nd0 · 계보 23:0 · CARD_DRAW 콜슬롯 2곳 · 콜러 10=10 · callee 2/2"
+  ],
+  "0x261f50": [
+   "0x261e90",
+   "HIGH · RVA_ANIM_GET · 클론 35개 중 콜슬롯 계보 69:0 · CARD_DRAW 콜슬롯(+0x5b1)·SPRITE_CALC 콜슬롯(+0x118) 일치 · 형제 0x261d30→0x261c70 63표로 분리 · 콜러 67=67 · 엔진값 맞음"
+  ],
+  "0x2ef8990": [
+   "0x288b930",
+   "HIGH · RVA_FX_SET(훅A) · skel 유일 · nd0 · 계보 2:0 · 콜러 1=1 · callee 7/7 · 진입 12B 소스 일치 · 0x288b97c `mov rax,[rcx+0x410]` 그대로(소스 인라인 0x410 불변)"
+  ],
+  "0x2f0e320": [
+   "0x28a12c0",
+   "HIGH · RVA_CARD_DRAW(훅B) · skel 유일 2997B · nd0 · 계보 3:0 · 콜러 1=1(컨테이너 A) · callee 14/14 · 콜 27개가 27/27 같은 상대오프셋·같은 함수 · 진입 12B 소스 일치"
+  ],
+  "0x2f18ad8": [
+   "0x28abc18",
+   "HIGH · RVA_D_CUT_LO · 컨테이너B 0x2f18a50→0x28abb90 정규화 명령열 완전 동일(1062B) · +0x88 불변 · 명령 +0x83 필드오프셋 5 · disp 타깃 0x4059a44 = -70.0"
+  ],
+  "0x2f18ae6": [
+   "0x28abc26",
+   "HIGH · RVA_D_CUT_HI · 컨테이너B +0x96 불변 · 명령 +0x91 · disp 타깃 0x4210974 = +70.0"
+  ],
+  "0x2f66e70": [
+   "0x28e82d0",
+   "HIGH · RVA_NAME_GET · skel 유일 · nd0 · 계보 3:0 · CARD_DRAW 콜슬롯1(+0x13f) · 콜러 3=3 · callee 6/6"
+  ],
+  "0x2f6c180": [
+   "0x28ed5e0",
+   "HIGH · RVA_SPRITE_CALC · skel 유일 · nd0 · 계보 4:0 · CARD_DRAW 콜슬롯(+0x7a4)·FX_SET 콜슬롯(+0x505) · 콜러 3=3 · callee 5/5"
+  ],
+  "0x2fcff5a": [
+   "0x295574a",
+   "HIGH · RVA_I_SNAP_H · 컨테이너A 0x2fcf6f0→0x2954ee0 정규화 명령열 완전 동일(8717B) · 명령 +0x866 `mov dword [rsp+0x20],0x43f00000` 필드오프셋 4 · 값 480.0"
+  ],
+  "0x2fcff70": [
+   "0x2955760",
+   "HIGH · RVA_D_SNAP_W · 컨테이너A 명령 +0x87c movss xmm3 · 필드오프셋 4 · disp 타깃 0x406ede0 = 360.0 · I_SNAP_H+0x16 유지"
+  ],
+  "0x2fd1002": [
+   "0x29567f2",
+   "HIGH · RVA_D_ZIG_X1 · 컨테이너A 명령 +0x190e movss xmm0 · disp 타깃 0x4267270 = -180.0"
+  ],
+  "0x2fd16e0": [
+   "0x2956ed0",
+   "HIGH · RVA_D_ZIG_X2 · 컨테이너A 명령 +0x1fec movss xmm5 · disp 타깃 0x4267270 = -180.0"
+  ],
+  "0x23cc2c0": [
+   "0x28d2ea0",
+   "HIGH · RVA_ILLUST_GET(훅C) · skel 유일 · nd0 · 계보 3:0 · CARD_DRAW 콜슬롯(+0x3aa) · 콜러 3=3 · 진입 13B 소스 일치(명령 경계 1,3,4,5,6,13)"
+  ],
+  "0x356f190": [
+   "0x3603550",
+   "HIGH · RVA_GAME_ALLOC · skel 유일 60B · nd0 · 계보 25212 · 콜러 13197→13169 · NAME_GET·FX_SET 콜슬롯 일치 · HeapAlloc tail-jmp 3인자 그대로"
+  ],
+  "0x420ea60": [
+   "0x42671e0",
+   "HIGH · RVA_C_CARD_RECT · 컨테이너A +0x618·+0xf02 movaps 참조 1:1 · 값 (-180,-240,360,480) · ⚠블록 간격 SNAP=CARD+0x30(0.7.0 은 +0x20) — 사이에 다른 상수 0x42671f0 삽입, 소스는 각 RVA 를 따로 쓰므로 무관"
+  ],
+  "0x420ea80": [
+   "0x4267210",
+   "HIGH · RVA_C_SNAP_RECT · 컨테이너A +0x1345 movdqa 참조 1:1 · 값 (0,0,360,480)"
+  ],
+  "0x420ea90": [
+   "0x4267220",
+   "HIGH · RVA_C_NORMAL · 컨테이너A +0x16ef·+0x1843·+0x1f72 참조 1:1 · 값 (0.6866,0.7270)"
+  ],
+  "0x420eab0": [
+   "0x4267240",
+   "HIGH · RVA_C_LINE_DIR · 컨테이너A +0x17b6·+0x18e5·+0x1fdb 참조 1:1 · 값 (360,340)"
+  ],
+  "0x420eac0": [
+   "0x4267250",
+   "HIGH · RVA_C_LINE_START · 컨테이너A +0x17bd 참조 1:1 · 값 (-180,170)"
+  ],
+  "0x420ead0": [
+   "0x4267260",
+   "HIGH · RVA_C_LINE_ANCHOR · 컨테이너A +0x17c8·+0x1fe2 참조 1:1 · 값 (0,170)"
+  ]
+ },
+ "ui_kit": {
+  "0x216d50": [
+   "0x216c90",
+   "HIGH · DD_SETOPT_RVA · skel 유일 · nd0 · 계보 10:0 · 콜러 11=11 · 0x216cb0 `mov [rcx+0x1810],rdx`·stride 0xf8·+0xe0 불변"
+  ],
+  "0x351e10": [
+   "0x351d10",
+   "HIGH · RVA_DROP_MAP · 클론 2개 · 계보 275:3(형제 0x1ac100→0x1ac040 322표로 분리) · 신 DROP_PLAN 꼬리 jmp 0x351d10 · 신 SANITIZE 콜슬롯7 = 0x351d10 · PROL 12B 소스 일치 · 엔진값 맞음"
+  ],
+  "0x364070": [
+   "0x363f70",
+   "HIGH · RVA_DROP_PLAN · skel 유일 · nd0 · 계보 34:0 · callee 2/2 · PROL 8B 소스 일치"
+  ],
+  "0xa315c0": [
+   "0x9520f0",
+   "HIGH · RVA_INSERT · 클론 5개 · 계보 9:0(형제 0xa30f60→0x951a90 23표로 분리) · 신 SANITIZE 콜슬롯6 = 0x9520f0 · PROL 12B 소스 일치 · 엔진값 맞음"
+  ],
+  "0x28f2de0": [
+   "0x213cff0",
+   "HIGH · RVA_CLONE · 클론 2개 · 계보 16:0(형제 0x2e62540→0x2462e70 12표) · 대핸들러 clone→RESPONSE 시퀀스 5곳 직접 확인 · PUSH8 소스 일치 · 엔진값 맞음"
+  ],
+  "0x27a29e0": [
+   "0x1fb4cf0",
+   "HIGH · RVA_DROP(=training_plan RVA_DROP_RES) · 엔진 FAIL→확정(pdata 없는 leaf) · 바이트 패턴 4곳 중 E8/E9 262회 전부 대핸들러 0x2073b70(구 258) · BUILD→SEND→DROP 시퀀스 0x2077421 직접 확인 · 꼬리 jmp 0x1fc0850 = 구 0x27ae5d0 의 skel 짝 · ⚠니치 sub 0x59→0x5a · 첫 바이트 0x48(가드③ 통과)"
+  ],
+  "0x2802060": [
+   "0x21ecc70",
+   "HIGH · RVA_SEND · 클론 5개 · 계보 265:0(형제 0x28021d0→0x21ecde0 55표) · nd0 · 대핸들러 안 262회(구 258) · PROL_SEND 12B 소스 일치 · 엔진값 맞음"
+  ],
+  "0x28aac40": [
+   "0x20cfbe0",
+   "HIGH · RVA_BUILD · skel 유일 · nd0 · 콜러 2=2(대핸들러+232B 헬퍼) · 대핸들러 BUILD 콜 0x20773a0 직접 확인 · 헬퍼 0x202e230 이 `mov qword [rsi],0x10` 유지"
+  ],
+  "0x28c5a30": [
+   "0x20e9bb0",
+   "HIGH · RVA_SANITIZE · skel 유일 · 차이 2명령 = TLS 오프셋뿐 · 유일 콜러 = 신 대핸들러 · 콜슬롯 10개 대응 · PUSH8 소스 일치"
+  ],
+  "0x2fd22e0": [
+   "0x2957ac0",
+   "HIGH · RVA_UPDATE · 엔진 FAIL→확정 · head 일치 3개(19390/69767/140794B) 중 유일 대형 · 콜러 0=0 · vtable 절대포인터 1곳 0x4217898(구 0x419f768), 앞뒤 슬롯 사영 동일(+2 슬롯이 컨테이너A 0x2954ee0) · 니모닉 코사인 0.999994(2위 0.9969) · callee 148/158 · 진입 rdx=씬(`movss xmm0,[rdx+0x464]`) 유지 · PROL 12B 소스 일치"
+  ],
+  "0x2803cb0": [
+   "0x202ee60",
+   "HIGH · RVA_RESPONSE · 클론 2개 · 계보 4:0(형제 0x2803df0→0x202efa0 5표) · 0x202ee60 은 `mov qword [rsi],0x11`, 형제는 0x30 · 대핸들러 콜 6곳(구 6, 태그 뒤 memcpy 0x740·UNICAST 0x5b 동일 패턴) · PROL 8B 소스 일치 · 엔진값 맞음"
+  ]
+ }
+}

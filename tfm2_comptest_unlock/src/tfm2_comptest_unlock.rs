@@ -77,7 +77,7 @@ const PATCHES: &[Patch] = &[
     //   sub rax,5 @0xf3411a(imm8 +3)·+0x710 stamina 되쓰기 유일확정·orig 05 실측MATCH.
     // 0.5.2: ~~0.5.1 0xf3411d~~ → 0xe93b2d. 컨테이너(서버핸들러) 0xf1d2c0→0xe7ccd0(cos=1.0000·align=0.9994·
     //   28056→28038 instr·big-fn 유일후보) 후 명령어 difflib 정렬 instr#17396→#17396, `sub rax,5` 동일·orig 05 실측 MATCH.
-    Patch { name: "no_stamina_cost", rva: 0x2868dc6,   // ★0.5.5(구0.5.4=0x20ecf0c) 마스크시그 k=1 유일·orig 05 실측·cont5=0x216e870 // 0.5.4(구0.5.3=0x17f6f44) `sub rax,5` imm
+    Patch { name: "no_stamina_cost", rva: 0x208ded9,   // ★0.5.5(구0.5.4=0x20ecf0c) 마스크시그 k=1 유일·orig 05 실측·cont5=0x216e870 // 0.5.4(구0.5.3=0x17f6f44) `sub rax,5` imm
             orig: &[0x05], fixed: &[0x00] },
     // (2a) 일일 무제한 [서버+클라 공유]: 잔여계산 함수(remaining=max(0,5-count))를 통째
     //     `mov eax,5; ret`로 대체 → 항상 5회 남음. 클라 UI게이트 + 서버 재검사#1 동시통과.
@@ -97,19 +97,19 @@ const PATCHES: &[Patch] = &[
     //   레코드 write(reset/increment) 경로는 0x9d67a3/0x9d6c9b/0x9d6cb4 별도 주소 = 카운터 기록 무영향.
     //   서버 권위 게이트는 daily_inc_gate(아래)가 담당 — 0x17f239c 실측 재검증 PASS(cmp rax,4·+0x1d0/+0x1dc 문맥).
     // 사이트 A: 클러스터 0x18d9411~(추정: comp_test 팝업/툴팁), cmove @0x18d9436.
-    Patch { name: "dr_inline_a", rva: 0x2e9e3be,   // ★0.5.5(구0.5.4=0x2306164) 마스크시그 k=1·orig 4c0f44e2·cont5=0x1a8aa10 // 0.5.4 재핀(구0.5.3=0x18d9436)
+    Patch { name: "dr_inline_a", rva: 0x28317ae,   // ★0.5.5(구0.5.4=0x2306164) 마스크시그 k=1·orig 4c0f44e2·cont5=0x1a8aa10 // 0.5.4 재핀(구0.5.3=0x18d9436)
             orig: &[0x4c, 0x0f, 0x44, 0xe2],       // cmove r12,rdx
             fixed: &[0x0f, 0x1f, 0x40, 0x00] },    // 4B nop → used=0(xor r12d 선행)
     // 사이트 B: ★진짜 클라 게이트(2차 스윕 디컴 확정) — `if(4<count && rec_id==outer_id) ok=0` 후
     //   `[node+0x261]=!ok`(run 버튼)·`[open_tactics+0x261]`에 같은 r13b 공유 → 한 방에 둘 다 해제.
-    Patch { name: "dr_inline_b", rva: 0x2ea8f06,   // ★0.5.5(구0.5.4=0x2310c86) 마스크시그 k=1·orig 4120c5·cont5=0x1a95570(=CGATE) // 0.5.4 재핀(구0.5.3=0x18e3fd6)
+    Patch { name: "dr_inline_b", rva: 0x283c2e6,   // ★0.5.5(구0.5.4=0x2310c86) 마스크시그 k=1·orig 4120c5·cont5=0x1a95570(=CGATE) // 0.5.4 재핀(구0.5.3=0x18e3fd6)
             orig: &[0x41, 0x20, 0xc5],             // and r13b,al (exhausted 플래그 합성)
             fixed: &[0x45, 0x30, 0xed] },          // xor r13b,r13b → exhausted=0, 직후 je 항상 taken
     // ~~사이트 C: RUN 핸들러 0x18f18c7 cmove~~ → ★제거(2026-07-30 2차 스윕): 게이트가 아니라
     //   클라가 요청 페이로드에 넣는 **시드 성분**(seed = (used|X<<32) ^ epoch_ms)이었음.
     //   서버는 자기 레코드로 판정하므로 무의미 + 시드 변화 부작용 회피 위해 원본 유지.
     // 사이트 D: 버튼 빌더A 컨테이너 0x19866f0(앵커) 내부, cmove @0x1987a3d — 버튼 회색화의 실체.
-    Patch { name: "dr_inline_d", rva: 0x2fbdf37,   // ★0.5.5(구0.5.4=0x23ce6bc) 마스크시그 k=1·orig 4c0f44f8·cont5=0x1afcc20 // 0.5.4 재핀(구0.5.3=0x1987a3d)
+    Patch { name: "dr_inline_d", rva: 0x2941b27,   // ★0.5.5(구0.5.4=0x23ce6bc) 마스크시그 k=1·orig 4c0f44f8·cont5=0x1afcc20 // 0.5.4 재핀(구0.5.3=0x1987a3d)
             orig: &[0x4c, 0x0f, 0x44, 0xf8],       // ★0.7.0 cmove r15,rax(r14→r15 재배정 · `xor r15d,r15d; cmp r14d,r12d; cmove r15,rax` · RE 2026-10-28_0.7.0-재핀판정) // ★0.6.5 4c0f44f0 cmove r14,rax(레지스터 재배정 · `xor r14d,r14d; cmp r12d,r15d; cmove r14,rax` · RE 2026-10-21_0.6.5-재핀판정) // ~0.6.4 cmove r15,rax(4c0f44f8)
             fixed: &[0x0f, 0x1f, 0x40, 0x00] },
     // ★★2026-08-08 신규 — **훈련 패널의 조합테스트 진입 버튼(5v5 / 라인전) 일일게이트**.
@@ -122,7 +122,7 @@ const PATCHES: &[Patch] = &[
     //   부작용 없음: `and`가 세운 플래그는 바로 다음 `cmp rbx,0xa`가 덮고, `al`은 직후 `mov eax,1`로 사망.
     //   실행 자체는 팝업 사전게이트(0x2310a90)와 서버 게이트가 독립 재검증하므로 OOB 위험도 없다.
     //   마이그 시그(.text 전역 1히트) = `45 39 E6 0F 94 C0 49 83 FD 05 0F 93 C1 20 C1` @0x23cead5(+0xD 지점).
-    Patch { name: "panel_btn_daily_gate", rva: 0x2fbe311,   // ★0.5.5(구0.5.4=0x23ceae2) 마스크시그 k=1·orig 20c1·cont5=0x1afcc20
+    Patch { name: "panel_btn_daily_gate", rva: 0x2941f01,   // ★0.5.5(구0.5.4=0x23ceae2) 마스크시그 k=1·orig 20c1·cont5=0x1afcc20
             orig: &[0x20, 0xc1],                   // and cl, al   (cl = exhausted)
             fixed: &[0x30, 0xc9] },                // xor cl, cl
     // (2b) 일일 무제한 [서버 증가게이트]: `cmp rax,4`(count) 의 imm8을 4→127 → 카운터가 5 이상이어도
@@ -136,7 +136,7 @@ const PATCHES: &[Patch] = &[
     //   cmp rax,imm8은 sign-extend라 ff=-1=unsigned max ⟹ jbe(unsigned) 항상 taken = 진짜 무제한.
     //   사이트 검증(2차): 명령 시작 0x17f2399 `48 83 f8 04`, imm8=+3=0x17f239c·전역 시퀀스 1히트(클론 없음)·
     //   no_stamina_cost와 같은 pdata 함수 0x17e0240..0x180924f = 라이브 확정.
-    Patch { name: "daily_inc_gate", rva: 0x2864e56,   // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x1a435d9 · cmp rax,4 전역 1히트 //   // ★0.5.5(구0.5.4=0x20e8246) 마스크시그 k=1·orig 04·cont5=0x216e870 // 0.5.4(구0.5.3=0x17f239c) `cmp rax,4` imm
+    Patch { name: "daily_inc_gate", rva: 0x2089c3f,   // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x1a435d9 · cmp rax,4 전역 1히트 //   // ★0.5.5(구0.5.4=0x20e8246) 마스크시그 k=1·orig 04·cont5=0x216e870 // 0.5.4(구0.5.3=0x17f239c) `cmp rax,4` imm
             orig: &[0x04], fixed: &[0xff] },
     // ★★(2b-2) 서버 **사전거부 게이트** [game_core] — 0.5.3 일일제한 잔존의 진범(2026-07-30 2차 스윕).
     //   서버 핸들러엔 daily 게이트가 **2개**: ①위 inc_gate(카운터 증가 지점) ②이 pre-gate(수락 판정).
@@ -146,7 +146,7 @@ const PATCHES: &[Patch] = &[
     //   = 유저가 본 "오늘은 더 이상…" 안내문구의 실체. code 1 생산지는 exe 전체 이 2곳뿐(둘 다 daily 직후).
     //   전체 명령 실측: `48 83 b8 d0 01 00 00 04 | 0f 86 05 2d 00 00`(전역 1히트·클론 없음).
     //   imm8 ff(-1, sign-extend) → jbe 항상 taken = 무제한. inc_gate와 같은 라이브 함수 내.
-    Patch { name: "server_pregate", rva: 0x2860cdf,   // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x1a40804 · `48 83 b8 d0 01 00 00 04 0f 86`+7 //   // ★0.5.5(구0.5.4=0x20e5471) 마스크시그 k=1·orig 04·cont5=0x216e870 // 0.5.4 재핀(구0.5.3=0x17ef5f6) `cmp qword [rax+0x1d0],4`
+    Patch { name: "server_pregate", rva: 0x2085f67,   // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x1a40804 · `48 83 b8 d0 01 00 00 04 0f 86`+7 //   // ★0.5.5(구0.5.4=0x20e5471) 마스크시그 k=1·orig 04·cont5=0x216e870 // 0.5.4 재핀(구0.5.3=0x17ef5f6) `cmp qword [rax+0x1d0],4`
             orig: &[0x04], fixed: &[0xff] },
     // (3) 선수 중복 허용 [클라]: setup 게이트 내 athlete_id HashSet dedup(len!=count) →
     //     duplicate_players 거부 jne를 NOP. 서버는 중복 무검증(6차). 이게 되면 로스터"10명 이상"
@@ -170,12 +170,12 @@ const PATCHES: &[Patch] = &[
     //   (`mov [rbp-0x60],r15; cmp qword[rbp+0x50],0; je ...` — 스택슬롯 -0x58→-0x60 프레임 시프트만).
     //   ⇒ 0.5.1에서 인게임 검증(07-20)된 그 게이트가 맞음. fixed(6B nop)는 무변경.
     // 0.5.3(2026-07-30): 컨테이너 0xec71b0→0x1830900, 문맥점수 11/11 만점. ⚠점프 거리 cd→d4 변경.
-    Patch { name: "server_dedup_real", rva: 0x28ae945,   // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x1a82773 · SREG 0x2265f40 등록루프 · jne 변위 d3→d8 //   // ★0.5.5(구0.5.4=0x2126f73) 2방법(마스크시그 k=1 + 컨테이너델타 off=0x473)·orig 0f85d3000000 실측 // 0.5.4(구0.5.3=0x1830df0)
+    Patch { name: "server_dedup_real", rva: 0x20d3815,   // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x1a82773 · SREG 0x2265f40 등록루프 · jne 변위 d3→d8 //   // ★0.5.5(구0.5.4=0x2126f73) 2방법(마스크시그 k=1 + 컨테이너델타 off=0x473)·orig 0f85d3000000 실측 // 0.5.4(구0.5.3=0x1830df0)
             orig: &[0x0f, 0x85, 0xd4, 0x00, 0x00, 0x00],   // ★0.7.0: jne 변위 d8→d4 (0x28ae945 · `test rsi,rsi; sete cl; or cl,al; jne` 병합 · 6B nop 유지 · RE 2026-10-28_0.7.0-재핀판정) // ★0.6.4: jne 변위 d3→d8 (0x2a16920 · SwissSet insert 0x1a54060 직후 test al,al · RE 2026-10-14_0.6.4-재핀판정) // ★0.6.2: jne 변위 d8→d3 (0x23019d4 → 0x2301aad, sitealign + 문맥 test al,al 직후 확인)
             fixed: &[0x66, 0x0f, 0x1f, 0x44, 0x00, 0x00] },
     // 0.5.2: ~~0.5.1 0x1615495~~ → 0xd00ee5. 컨테이너 0x1615030→0xd00a80 = **L1-UNIQUE(스켈레톤 바이트동일
     //   ·357→357 instr·align=1.0000)** ⇒ 함수 내부 오프셋 전부 보존, instr#291→#291·orig 75 76 실측 MATCH.
-    Patch { name: "allow_dup_players", rva: 0x2ea93b1,   // ★0.5.5(구0.5.4=0x2311131) 컨테이너 difflib(cont 0x2310a90→0x1a95570)·orig 7547 실측 // 0.5.4(구0.5.3=0x18e4481)
+    Patch { name: "allow_dup_players", rva: 0x283c791,   // ★0.5.5(구0.5.4=0x2311131) 컨테이너 difflib(cont 0x2310a90→0x1a95570)·orig 7547 실측 // 0.5.4(구0.5.3=0x18e4481)
             orig: &[0x75, 0x47], fixed: &[0x90, 0x90] },
     // (5) ★서버 dedup [game_core] — 선수중복 최종 열쇠: 서버 comp_test 핸들러(0x13d4af0) 로스터
     //     빌드 루프의 참가자 유일-필터. 0x13e376b `HashSet.insert(id)` → 0x13e3773 `jne`(75 10)가
@@ -191,7 +191,7 @@ const PATCHES: &[Patch] = &[
     //   진짜 등록 dedup = 위 server_dedup_real 0xf67b91 (패치 완료·인게임 검증). 이 주소는 기록용으로만 유지.
     // 0.5.2: ~~0.5.1 0xf2bbea~~ → 0xe8b5fa(서버핸들러 컨테이너 정렬 instr#11112→#11112·orig 75 10 MATCH).
     //   ★기록용 no-op(orig==fixed)이라 동작 무관하지만, 주소를 맞춰 둬야 "이 사이트는 여기"라는 기록이 유효.
-    Patch { name: "server_dedup", rva: 0x1533c6e,   // ★0.5.5(구0.5.4=0x20e42d1) 컨테이너 difflib·orig 7510 실측·no-op 유지 // 0.5.4(구0.5.3=0x17ee49c)
+    Patch { name: "server_dedup", rva: 0x1ccba6e,   // ★0.5.5(구0.5.4=0x20e42d1) 컨테이너 difflib·orig 7510 실측·no-op 유지 // 0.5.4(구0.5.3=0x17ee49c)
             orig: &[0x75, 0x10], fixed: &[0x75, 0x10] },
     // ★(10) 훈련탭 "조합 테스트 5v5" 버튼 활성 조건 = 로스터 보유인원 ≥10 → **≥5로 완화** (2026-07-20).
     //   disabled = (로스터수 < 10) OR (일일잔여 == 0). 로스터수 = FUN_1415fc8e0 반환 Vec<u64>.len
@@ -211,7 +211,7 @@ const PATCHES: &[Patch] = &[
     //   warn `cmp rbx,0xa`→`cmp rdi,0xa`. 후속 명령열(mov eax,1 / mov eax,0x38; mov ecx,0x32; cmovb)로
     //   동일 사이트임을 확인(컨테이너 0xd95450→0x19866f0 안에서 유일).
     //   ⛔주의: imm 을 정규화한 자동매칭은 `cmp r12,0x30` 을 오답으로 집었다 — imm 0xa 고정이 필수.
-    Patch { name: "btn5v5_roster_min_a", rva: 0x2fbe313,     // ★0.5.5(구0.5.4=0x23ceae4) 마스크시그 k=1·orig 4883fb0a0fb6f9b8·cont5=0x1afcc20 // 0.5.4(구0.5.3=0x1987e64) cmp rbx,0xa → 5
+    Patch { name: "btn5v5_roster_min_a", rva: 0x2941f03,     // ★0.5.5(구0.5.4=0x23ceae4) 마스크시그 k=1·orig 4883fb0a0fb6f9b8·cont5=0x1afcc20 // 0.5.4(구0.5.3=0x1987e64) cmp rbx,0xa → 5
             orig:  &[0x48, 0x83, 0xfb, 0x0a, 0x0f, 0xb6, 0xf9, 0xb8],
             fixed: &[0x48, 0x83, 0xfb, 0x05, 0x0f, 0xb6, 0xf9, 0xb8] },
     // ⛔0.5.3 미해결: `cmp r13,0xa; setb r13b` 사이트가 0.5.3 에 없다(레지스터·형태 모두 변경 추정).
@@ -220,7 +220,7 @@ const PATCHES: &[Patch] = &[
     Patch { name: "btn5v5_roster_min_b", rva: 0,             // ⬜0.5.3 미해결(구0.5.2=0xcf7b68)
             orig:  &[0x49, 0x83, 0xfd, 0x0a, 0x41, 0x0f, 0x92, 0xc5],
             fixed: &[0x49, 0x83, 0xfd, 0x05, 0x41, 0x0f, 0x92, 0xc5] },
-    Patch { name: "btn5v5_warn_text",    rva: 0x2fbdf77,     // ★0.5.5(구0.5.4=0x23ce6fc) 마스크시그 k=1·orig 4883ff0ab8380000·cont5=0x1afcc20 // 0.5.4(구0.5.3=0x1987a7d) cmp rdi,0xa → 5
+    Patch { name: "btn5v5_warn_text",    rva: 0x2941b67,     // ★0.5.5(구0.5.4=0x23ce6fc) 마스크시그 k=1·orig 4883ff0ab8380000·cont5=0x1afcc20 // 0.5.4(구0.5.3=0x1987a7d) cmp rdi,0xa → 5
             orig:  &[0x48, 0x83, 0xff, 0x0a, 0xb8, 0x38, 0x00, 0x00],
             fixed: &[0x48, 0x83, 0xff, 0x05, 0xb8, 0x38, 0x00, 0x00] },
     // ★(11) ★★진짜 벽(2026-07-23 규명) = **서버측 로스터 인원 게이트** [game_core].
@@ -250,7 +250,7 @@ const PATCHES: &[Patch] = &[
     //   레지스터가 r15→rsi, reason 이 dil→bl 로 바뀌었다. 컨테이너 0xec71b0→0x1830900 안에서
     //   `lea r?,[r?+r?]` 직후 `cmp rdx,rax; jb` 인 사이트가 **유일**(0x1830d2e) ⟹ 확정.
     //   패치도 그에 맞춰 재작성: `lea rax,[rsi+rsi]`(4B) → `mov rax,rsi`(3B) + nop.
-    Patch { name: "server_roster_min", rva: 0x28ae8a7,  // ★0.5.5(구0.5.4=0x2126ed0) 2방법(마스크시그 k=1 + 컨테이너델타 off=0x3d0)·orig 4801db 실측·필요치 2×N → 1×N // 0.5.4(구0.5.3=0x1830d2e)
+    Patch { name: "server_roster_min", rva: 0x20d3777,  // ★0.5.5(구0.5.4=0x2126ed0) 2방법(마스크시그 k=1 + 컨테이너델타 off=0x3d0)·orig 4801db 실측·필요치 2×N → 1×N // 0.5.4(구0.5.3=0x1830d2e)
             // ★0.6.4: 명령 형태 다시 0.6.1 형 — `add rbx,rbx; mov rax,rbx; mov bl,2; cmp rdx,rax; jb` (0x2a16881 · 신 exe 에 `lea rax,[r15+r15]` 0건)
             //   ⟹ add 를 nop3 = rax=1×N (이력 커밋 1f045a2 와 같은 바이트) · 루프 출구 je 가 이 주소로 들어오지만 같은 길이 nop 이라 무해
             //   ~~0.6.2~0.6.3: `lea rax,[r15+r15]`(4B) → `mov rax,r15; nop`~~
@@ -267,7 +267,7 @@ const PATCHES: &[Patch] = &[
     //   (jae→jmp 변환 rel32 재계산도 불필요: orig 변위가 그대로 0x14a라 fixed `e9 4b 01 00 00 90` 유효.)
     // 0.5.3(2026-07-30): RUN 컨테이너 0xd0a440→0x18f1180. ⚠jae 변위가 0x14a→0x15e 로 바뀌어
     //   fixed 의 jmp rel32 도 재계산했다: 타겟 0x18f160f - 명령끝 0x18f14b0 = 0x15f.
-    Patch { name: "roster_count_gate", rva: 0x2eb9c29,   // ★0.5.5(구0.5.4=0x231e155) 마스크시그 k=1·cont5=0x1aa2930(=RUN) // 0.5.4(구0.5.3=0x18f14ab)
+    Patch { name: "roster_count_gate", rva: 0x284d009,   // ★0.5.5(구0.5.4=0x231e155) 마스크시그 k=1·cont5=0x1aa2930(=RUN) // 0.5.4(구0.5.3=0x18f14ab)
             // ⚠orig 바뀜: jae 변위 0x14d→0x161(0f8361010000). fixed jmp rel32 = disp+1 = 0x162(e962010000 90)로 재계산(타깃 0x1aa2d8f 동일).
             // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) jae 변위 0x161→0x172(0x1c65260 실측·타깃 0x1c653d8) → fixed jmp disp 0x173.
             // ★0.6.3(2026-10-07) jae 변위 0x172→0x169(0x2437ac9 실측) → fixed jmp disp 0x16a.
@@ -275,19 +275,19 @@ const PATCHES: &[Patch] = &[
             fixed: &[0xe9, 0x6a, 0x01, 0x00, 0x00, 0x90] },
     // (8) collected != required 게이트 [클라]: 0x101c330 `jne →abort`. collect 반환 len != required면 abort.
     //     collect 무-dedup(중복10개 push)이면 ==여야 하나, 실측 막힘 → 이 게이트가 실제 abort일 가능성. NOP.
-    Patch { name: "collected_gate", rva: 0x2eb9c1d,  // ★0.5.5(구0.5.4=0x231e142) 마스크시그 k=1·cont5=0x1aa2930 // 0.5.4(구0.5.3=0x18f149f)
+    Patch { name: "collected_gate", rva: 0x284cffd,  // ★0.5.5(구0.5.4=0x231e142) 마스크시그 k=1·cont5=0x1aa2930 // 0.5.4(구0.5.3=0x18f149f)
             // ⚠orig 바뀜: jne 변위 0x17→0x10(7510).
             orig: &[0x75, 0x10], fixed: &[0x90, 0x90] },
     // (9) ⚠collect==-1 게이트 [클라, 위험]: 0x101c318 `je →abort`. collect가 슬롯서 -1(미선택) 반환시 abort.
     //     NOP=무효슬롯도 진행→garbage build→서버 크래시 위험. 판정용: 크래시=drop커밋 -1 확정(근본).
-    Patch { name: "collect_err_gate", rva: 0x2eb9bf3,  // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x23a513f · je 변위 52→5f //  // ★0.5.5(구0.5.4=0x231e127) 마스크시그 k=1·cont5=0x1aa2930 // 0.5.4(구0.5.3=0x18f1484)
+    Patch { name: "collect_err_gate", rva: 0x284cfd3,  // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x23a513f · je 변위 52→5f //  // ★0.5.5(구0.5.4=0x231e127) 마스크시그 k=1·cont5=0x1aa2930 // 0.5.4(구0.5.3=0x18f1484)
             // ⚠orig 바뀜: je 변위 0x57→0x52(7452).
             orig: &[0x74, 0x5f], fixed: &[0x90, 0x90] },
     // (6) run 핸들러 r15 게이트 [클라]: 0x101c9e1 `cmp r15,-1; je 0x14101c453` (r15=빌드산출물).
     //     — r15(빌드산출물 [rbp+0x1a50])==-1이면 메일박스 push 전 조용히 abort(서버 미전송).
     //     je NOP → r15==-1여도 push 강행(서버 전송). ⚠무효 빌드면 서버가 깨진 0x19c0 메시지 받아
     //     크래시 위험(세이브 백업됨). 실험: sim진입=성공 / 크래시=빌드 진짜무효.
-    Patch { name: "run_push_gate", rva: 0x2eba365,  // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x23a5865 · je 변위 fa05→f9d1 //  // ★0.5.5(구0.5.4=0x231e838) 컨테이너 difflib(cont 0x231de30→0x1aa2930) // 0.5.4(구0.5.3=0x18f1b95)
+    Patch { name: "run_push_gate", rva: 0x284d745,  // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 구0.5.8=0x23a5865 · je 변위 fa05→f9d1 //  // ★0.5.5(구0.5.4=0x231e838) 컨테이너 difflib(cont 0x231de30→0x1aa2930) // 0.5.4(구0.5.3=0x18f1b95)
             // ⚠orig 바뀜: je 변위 fa12→fa05(0f8405faffff). fixed 6×NOP 불변.
             // ★0.6.3(2026-10-07) je 변위 f9d1→f9c1(0x2438205 실측). fixed 6×NOP 불변.
             orig: &[0x0f, 0x84, 0xc1, 0xf9, 0xff, 0xff],
@@ -455,7 +455,7 @@ unsafe fn install_disp_hook() -> Result<String, String> {
 //   아니라 0xca6b20 함수 **중간**이고 INSERT_PROLOGUE와 불일치 ⇒ install_insert_probe가 프롤로그 검증에서
 //   Err 반환 = **훅이 설치된 적 없음**(진단 로깅훅이라 무증상). 0.5.2에서도 해당 주소 바이트가 프롤로그와
 //   불일치함을 확인(=오후킹 위험 없는 inert). ⇒ 재핀 대상이 아니라 **정리 대상**(필요해지면 ghidra-re).
-const INSERT_RVA: usize = 0x1074840; // ⬜죽은 상수(inert·함수시작 아님·0.5.1값 유지)
+const INSERT_RVA: usize = 0x10e8970; // ⬜죽은 상수(inert·함수시작 아님·0.5.1값 유지)
 const INSERT_PROLOGUE: [u8; 14] = [0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x30, 0x48, 0x89, 0xd6];
 // 진단 로깅 필터 range(동작 무영향). 0.5.2 재도출:
 //   서버 = comp_test 서버핸들러 함수 범위. ~~0.5.0_3 0x13d4af0..0x1412575(2세대 STALE)~~ →
@@ -464,10 +464,10 @@ const INSERT_PROLOGUE: [u8; 14] = [0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x4
 //     — 0.5.1 RUN=0x161eab0은 이 범위 **밖**이라 in_client가 상시 false였다)~~ →
 //     0.5.2 **0xcf0000..0xda0000**(RUN 0xd0a440·COLLECT 0xd0bd80·SLOT 0xd1acf0·LOADING 0xd186f0·
 //     btn5v5 빌더 0xcf7970/0xd95450 전부 포함).
-const CT_REGION_LO: usize = 0x284eed0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x20d5bf0) 서버핸들러 .pdata 함수 시작(실측)       // 0.5.4(구0.5.3=0x17e0240)
-const CT_REGION_HI: usize = 0x287d008; // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 서버 comp_test 핸들러 pdata 0x220f040..0x223b9bb 끝 (구0.5.7=0x230bc07) // 0.5.6(구0.5.5=0x219775c, inert·insert_detour 미발화·모노리스 0x2031a00+델타)   // ★0.5.5(구0.5.4=0x20ff156) = .pdata 함수 끝(실측)       // 0.5.4(구0.5.3=0x180920f)
-const CT_CLIENT_LO: usize = 0x27da127; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2300000) 클라 사이트 0x1a8ab76~0x1afe394 포괄(소비처 insert_detour inert)       // 0.5.4(구0.5.3=0x18c0000)
-const CT_CLIENT_HI: usize = 0x2fc8a70; // 0.5.6(구0.5.5=0x1b00000, inert·신 클라사이트 max 0x1b0b054 커버)   // ★0.5.5(구0.5.4=0x23e0000)       // 0.5.4(구0.5.3=0x19a0000)
+const CT_REGION_LO: usize = 0x2073b70; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x20d5bf0) 서버핸들러 .pdata 함수 시작(실측)       // 0.5.4(구0.5.3=0x17e0240)
+const CT_REGION_HI: usize = 0x20a2080; // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 서버 comp_test 핸들러 pdata 0x220f040..0x223b9bb 끝 (구0.5.7=0x230bc07) // 0.5.6(구0.5.5=0x219775c, inert·insert_detour 미발화·모노리스 0x2031a00+델타)   // ★0.5.5(구0.5.4=0x20ff156) = .pdata 함수 끝(실측)       // 0.5.4(구0.5.3=0x180920f)
+const CT_CLIENT_LO: usize = 0x201eddc; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2300000) 클라 사이트 0x1a8ab76~0x1afe394 포괄(소비처 insert_detour inert)       // 0.5.4(구0.5.3=0x18c0000)
+const CT_CLIENT_HI: usize = 0x294c660; // 0.5.6(구0.5.5=0x1b00000, inert·신 클라사이트 max 0x1b0b054 커버)   // ★0.5.5(구0.5.4=0x23e0000)       // 0.5.4(구0.5.3=0x19a0000)
 static INSERT_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static INSERT_CALLER: AtomicUsize = AtomicUsize::new(0);   // shim이 [rsp](리턴주소) 저장
 static PROBE_LOGS: AtomicU64 = AtomicU64::new(0);          // region 로깅 횟수(상한)
@@ -484,7 +484,7 @@ const ATH_ID_HI: usize = 0x100000;
 //   실측 교차확인: OLD `call 0x140c5d910`@0x161547b(5B) → retaddr 0x1615480 / NEW `call 0x141177a10`@0xd00ecb
 //   → retaddr 0xd00ed0. 그 callee(0xc5d910→0x1177a10)는 server_dedup_real이 호출하는 SwissSet insert와 동일 함수.
 // ⚠단 이 값은 현재 **inert**: 소비처 insert_detour는 INSERT_RVA(죽은 상수)로 설치되므로 발화하지 않는다.
-const FORGE_CALLERS: &[usize] = &[0x1126182]; // 0.5.2(구0.5.1=0x1615480, 컨테이너 L1-UNIQUE 델타·retaddr 실측확인)
+const FORGE_CALLERS: &[usize] = &[0x111a682]; // 0.5.2(구0.5.1=0x1615480, 컨테이너 L1-UNIQUE 델타·retaddr 실측확인)
 static FORGE_CTR: AtomicU64 = AtomicU64::new(1);
 static FORGE_HITS: AtomicU64 = AtomicU64::new(0);
 
@@ -569,7 +569,7 @@ unsafe fn install_insert_probe() -> Result<String, String> {
 //   프롤로그 14B: 55 48 83 EC 30 48 8D 6C 24 30 48 C7 45 F8 (온전, rip-rel 없음).
 // ⛔ENQ_RVA = **죽은 상수**(0.5.0_3부터 STALE·0.5.2 미마이그). 0.5.1 실측 = 0xca6b20 함수 중간이고
 //   ENQ_PROLOGUE 불일치 ⇒ 설치된 적 없음. 0.5.2에서도 프롤로그 불일치 = inert(오후킹 위험 없음). 정리 대상.
-const ENQ_RVA: usize = 0x10f2c90; // ⬜죽은 상수(inert·0.5.1값 유지)
+const ENQ_RVA: usize = 0xf186d0; // ⬜죽은 상수(inert·0.5.1값 유지)
 // ★18B 온전 경계: 마지막 `48 C7 45 F8 FE FF FF FF`(mov [rbp-8],-2)는 8B 명령 → 14B로 자르면 imm32 잘려 크래시.
 const ENQ_PROLOGUE: [u8; 18] = [0x55, 0x48, 0x83, 0xec, 0x30, 0x48, 0x8d, 0x6c, 0x24, 0x30, 0x48, 0xc7, 0x45, 0xf8, 0xfe, 0xff, 0xff, 0xff];
 static ENQ_TRAMP: AtomicUsize = AtomicUsize::new(0);
@@ -626,10 +626,10 @@ unsafe fn install_enq_hook() -> Result<String, String> {
 // ── (8) [진단] run/서버 핸들러 진입 훅 — 제출이 서버까지 가는지 판정 ────────────────
 // run 핸들러(제출) 0x101c030, 서버 핸들러(comp_test arm) 0x13d4af0. 둘 다 push8개 12B 프롤로그.
 //   START시 서버 핸들러 발화 O = 제출 서버도달(서버 arm abort 범인) / X = 클라 멈춤(클라 게이트 범인).
-const RUN_RVA: usize = 0x2eb9920; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x231de30) 3방법(마스크시그 k=8 + 내부 3사이트 cont5 일치 + 콜그래프투표)·HOOK_PROLOGUE12 실측 MATCH // 0.5.4(구0.5.3=0x18f1180)
+const RUN_RVA: usize = 0x284cd00; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x231de30) 3방법(마스크시그 k=8 + 내부 3사이트 cont5 일치 + 콜그래프투표)·HOOK_PROLOGUE12 실측 MATCH // 0.5.4(구0.5.3=0x18f1180)
 // ⛔SRV_RVA = **죽은 상수**(0.5.0_3부터 STALE). 어차피 `let _ = (SRV_RVA,...)`로 훅 비활성(크래시 방지).
 //   0.5.1·0.5.2 모두 이 주소는 함수시작 아님 = inert. 참고: 0.5.2 서버핸들러 실주소는 CT_REGION_LO(0xe7ccd0).
-const SRV_RVA: usize = 0x19b7ad6; // ⬜미확정(죽은 상수·훅 비활성·0.5.1값 유지)
+const SRV_RVA: usize = 0x151ff95; // ⬜미확정(죽은 상수·훅 비활성·0.5.1값 유지)
 const HOOK_PROLOGUE12: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 // push 순서 변형(rbp가 뒤쪽) — 0xf794c0(카테고리→아이템id)이 이 패턴. 길이·경계는 동일해 12B 스틸 가능.
 const HOOK_PROLOGUE12_ALT: [u8; 12] = [0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53];
@@ -793,7 +793,7 @@ extern "win64" fn loading_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -
 //   (exe 파일 덤프 55 41 57 41 56 41 55 41 54 56 57 53). 본문 catch_unwind + passthrough.
 // ⚠프로브 빌드 전용 — 릴리스 전 CONC_PROBE_ON=false + LOG_ENABLED=false 복귀 (배포체크리스트).
 const CONC_PROBE_ON: bool = false;   // 릴리스(진단 훅 8종 미설치). ⚠기능 훅은 CONC_ON 게이트로 분리됨
-const SIMBODY_RVA: usize = 0x28f2ac0; // 0.5.6 재핀   // ⬜0.5.5 미확정(skeleton NONE=본문변경, CONC_PROBE_ON=false로 inert·install_hook12 자체검증 fail-safe·0.5.4값 유지) // 0.5.4 sim 실행 본체
+const SIMBODY_RVA: usize = 0x2113130; // 0.5.6 재핀   // ⬜0.5.5 미확정(skeleton NONE=본문변경, CONC_PROBE_ON=false로 inert·install_hook12 자체검증 fail-safe·0.5.4값 유지) // 0.5.4 sim 실행 본체
 static SIMBODY_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static SIMBODY_HITS: AtomicU64 = AtomicU64::new(0);
 
@@ -894,7 +894,7 @@ fn tick_count(tid: u32) {
 // ⚠이 detour는 **sim 스레드**에서 3만+회 돈다 — alloc·lock·format!·파일IO 절대 금지, 원시 read +
 //   원자 store만. 로깅은 UI 스레드(post_update)에서 값이 변할 때만.
 // 목적 2가지: ①실시간 표시가 실효 있는지 가를 **sim 벽시계 소요시간** 실측 ②스코어 배선 검증.
-const G_OFF: usize = 0x1ba0;  // ★0.6.3 Game 대역 −0x220(run_tick mov rcx,[rdx+0x1ba0] 12표) // ctrl → game (0.5.5 불변)
+const G_OFF: usize = 0x1b40;  // ★0.7.1 Δ−0x60([팀 상태;2] stride 0x760→0x730 · ORACLE mov rcx,[rdx+0x1b40]) // ★0.6.3 Game 대역 −0x220(run_tick mov rcx,[rdx+0x1ba0] 12표) // ctrl → game (0.5.5 불변)
 // ★0.5.5(2026-08-12): provider(=game) 대역 +0x168 균일 시프트(serpen 세션 실측 + ghidra-re 명령확정).
 //   킬증가 @0.5.4 0x140982d↔0.5.5 0x14fe3aa `inc [rdx+0xeca0]/[rdx+0xeca8]` + 동시read @0x14ed5f3 등 5쌍 일관.
 //   game(ctrl+0x1dc0)=serpen provider 동일 구조체. SEED+0x10=팀0·SEED+0x18=팀1 상대배치 유지.
@@ -1083,7 +1083,7 @@ const CONC_RUNS_MAX: u64 = 10;
 //   순차(0) = 기록 1건 끝날 때마다 1발(동시 sim 없음). 병렬(1) = 클릭 시 N발 동시.
 static PAR_RT: AtomicU64 = AtomicU64::new(1);
 #[inline] fn par_on() -> bool { PARALLEL_ON && PAR_RT.load(Ordering::Relaxed) != 0 }
-const CMD_STRIDE: usize = 0x1ef0;  // ★0.6.3 RUN imul 0x1ef0 // 커맨드 Vec 원소 크기
+const CMD_STRIDE: usize = 0x1e90;  // ★0.7.1 RUN imul 0x1e90 // ★0.6.3 RUN imul 0x1ef0 // 커맨드 Vec 원소 크기
 const CMD_TAG: usize = 0x8000_0000_0000_0014;  // ★0.6.3 niche 인코딩(RUN movabs 0x8000000000000014) // 커맨드 tag(검증용)
 const PKT_DISC: usize = 0x1e;          // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) RUN 0x1c65b6c `mov qword [rax],0x1e` (구0.5.8=0x1c) — 틀리면 시드변조·match_register 전부 스킵          // 패킷 discriminant = comp_test RUN(검증용)
 const PKT_SEED_OFF: usize = 0x68;      // 패킷 내 seed(u64) 위치
@@ -1190,8 +1190,8 @@ unsafe fn conc_next_shot(node: usize, cmdvec: usize) {
 //   반환 AL 0xff=성공 / 4=챔피언 / 3=요청 내 중복 / 2=로스터부족 / 0=조회실패.
 //   ⚠서버 스레드에서 호출 = 멀티스레드 — 로그는 앞 32회만, 본문은 catch_unwind.
 //   **호출 횟수 = 서버 도달 건수** ⟹ 제출 5건 중 몇 건이 서버에 닿았는지 직접 카운트.
-const CGATE_RVA: usize = 0x2ea8d10; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2310a90) 마스크시그 k=12 + dr_inline_b/allow_dup 컨테이너·push8 확인
-const SREG_RVA: usize = 0x28ae4e0; // 0.5.6 재핀    // ★0.5.5(구0.5.4=0x2126b00) skeleton UNIQUE size1400(§7.5 일치)
+const CGATE_RVA: usize = 0x283c0f0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2310a90) 마스크시그 k=12 + dr_inline_b/allow_dup 컨테이너·push8 확인
+const SREG_RVA: usize = 0x20d33b0; // 0.5.6 재핀    // ★0.5.5(구0.5.4=0x2126b00) skeleton UNIQUE size1400(§7.5 일치)
 static CGATE_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static SREG_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static CGATE_HITS: AtomicU64 = AtomicU64::new(0);
@@ -1238,7 +1238,7 @@ extern "win64" fn sreg_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> u
 // 프롤로그 12B push8 실측 MATCH. 서버 스레드 호출 = 로그 cap + catch_unwind.
 // ⚠이름 주의: 기존 `FORGE_*`(0xd00ed0 계열)는 **비활성 insert 프로브**의 것 — 무관하다.
 //   이쪽은 경기 형성(match forge) = `MFORGE_*`.
-const MFORGE_RVA: usize = 0x236d170;   // ★0.5.5(구0.5.4=0x2123590) skeleton UNIQUE size3101 (CONC_PROBE inert)
+const MFORGE_RVA: usize = 0x2b7dfa0;   // ★0.5.5(구0.5.4=0x2123590) skeleton UNIQUE size3101 (CONC_PROBE inert)
 static MFORGE_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static MFORGE_HITS: AtomicU64 = AtomicU64::new(0);
 
@@ -1267,7 +1267,7 @@ extern "win64" fn mforge_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) ->
 // ★v7 폴링의 "도착 1회"는 **착시일 수 있다**: 클라 드레인 루프가 한 프레임에 응답을 전부 소비하면
 //   결과 생성이 한 프레임에 N회 일어나는데, 프레임당 1회 폴링은 그것을 전이 1회로 접어버린다.
 //   이 카운터가 그 모호함을 없앤다. 프롤로그 12B push8 + 프레임 0xb8(**__chkstk 없음**) = 훅 안전.
-const RESULT_RVA: usize = 0x2138fb0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x235b270) skeleton UNIQUE size540 (CONC_PROBE inert)
+const RESULT_RVA: usize = 0x21f81b0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x235b270) skeleton UNIQUE size540 (CONC_PROBE inert)
 static RESULT_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static RESULT_HITS: AtomicU64 = AtomicU64::new(0);
 
@@ -1291,8 +1291,8 @@ extern "win64" fn result_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) ->
 //   ①CSEND `0x230c910` = 클라 record&send 진입(state 4→5, 1건 = 기록패킷 1발) → **클라가 보낸 건수**
 //   ②HPUSH `0x13006b0` = `Vec<CompTestHistoryEntry>::push`(유일 쓰기 사이트) → **실제 저장된 건수**
 // forge(경기 형성) 카운터와 합치면: forge N / CSEND M / HPUSH K 로 계층별 손실이 한 판에 드러난다.
-const CSEND_RVA: usize = 0x2ea4f60; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x230c910) PAGE_IMM owner·push8 12B 실측 MATCH
-const HPUSH_RVA: usize = 0x1608900; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x13006b0) skeleton UNIQUE size153·HPUSH_PROLOGUE 실측 MATCH // 커스텀 프롤로그(push rbp,rsi,rdi; sub rsp,0x60; lea rbp,[rsp+0x60])
+const CSEND_RVA: usize = 0x2838340; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x230c910) PAGE_IMM owner·push8 12B 실측 MATCH
+const HPUSH_RVA: usize = 0x17cdfa0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x13006b0) skeleton UNIQUE size153·HPUSH_PROLOGUE 실측 MATCH // 커스텀 프롤로그(push rbp,rsi,rdi; sub rsp,0x60; lea rbp,[rsp+0x60])
 const HPUSH_PROLOGUE: [u8; 12] = [0x55, 0x56, 0x57, 0x48, 0x83, 0xec, 0x60, 0x48, 0x8d, 0x6c, 0x24, 0x60];
 static CSEND_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static HPUSH_TRAMP: AtomicUsize = AtomicUsize::new(0);
@@ -1305,11 +1305,11 @@ static HPUSH_HITS: AtomicU64 = AtomicU64::new(0);
 //   러너 포인터를 확보해야 v6의 "결과 큐잉"(슬롯을 매 프레임 비워 덮어쓰기 방지)이 가능하다.
 fn runner_probe(p: usize) -> String {
     unsafe {
-        if p < 0x10000 || !readable(p + R_STATE, 1) || !readable(p + 0x1f70, 8) {
+        if p < 0x10000 || !readable(p + R_STATE, 1) || !readable(p + R_ENTRY, 8) {
             return "-".into();
         }
         let st = core::ptr::read_unaligned((p + R_STATE) as *const u8);
-        let slot = core::ptr::read_unaligned((p + 0x1f70) as *const u64);
+        let slot = core::ptr::read_unaligned((p + R_ENTRY) as *const u64);
         // 상태머신은 0..=5, 슬롯은 -1(빈칸) 또는 유효 데이터
         let plausible = st <= 5;
         format!("st={}{} slot=0x{:x}", st, if plausible { "★" } else { "" }, slot)
@@ -1322,7 +1322,7 @@ fn runner_probe(p: usize) -> String {
 //   읽는다. comp_test를 한 판 더 돌리면 그 중 하나가 바뀌어 앞 경기 재시뮬이 달라진다(= 관측 증상).
 //   ⟹ **어느 덩어리가 바뀌는지**만 확정하면 수정 범위가 그 하나로 좁혀진다. 이 프로브는 **읽기 전용**.
 const CD_PROBE_ON: bool = false;     // 릴리스(지문 계산이 매 경기 도는 부하 제거). 재조사 시 true
-const CD_RC_OFF: usize = 0x2198;  // ★0.6.3 러너 −0x230 // runner → Rc<RefCell<ClientData>>
+const CD_RC_OFF: usize = 0x2138;  // ★0.7.1 러너 −0x60(RPLY3 [rsi+0x2138]) // ★0.6.3 러너 −0x230 // runner → Rc<RefCell<ClientData>>
 
 fn fnv1a(addr: usize, len: usize) -> u64 {
     unsafe {
@@ -1510,13 +1510,13 @@ static FZ_LOGS: AtomicU64 = AtomicU64::new(0);
 //   재시험 전까지 기본 OFF. (사본 확보(`snap_take`)는 일반 스택에서 도므로 계속 켜 둔다.)
 const RPLY_ON: bool = false;                // ← 스왑 훅 설치 여부(재시험 시에만 true)
 const SNAP_ON: bool = false;                // ★0.6.0: OFF — CD_RC_OFF/CHAMP_OFF/CHAMP_SZ(0.5.x 실측)가 0.6.0 미재검증. 09-17 11:41 유저 세션 크래시(MOD→CLONE_CHAMP+0x8c→AV 0x27) = snap_take 경로. RPLY_ON=false 라 기능 손실 없음(사본 확보만 중단). 재활성 = 오프셋 3종 0.6.0 재실측 후.
-const RPLY_RVA: usize = 0xe7329;          // ★0.5.5(구0.5.4=0x2323bb2) 컨테이너 difflib. ⚠RPLY_ON=false로 inert — RPLY_ORIG 18B는 0.5.5 본문변경으로 불일치(재활성 시 install_mid가 byte mismatch로 fail-safe, 재작성 필요) // 스왑 훅(프레임 확보 후·첫 clone 직전)
+const RPLY_RVA: usize = 0xe7269;          // ★0.5.5(구0.5.4=0x2323bb2) 컨테이너 difflib. ⚠RPLY_ON=false로 inert — RPLY_ORIG 18B는 0.5.5 본문변경으로 불일치(재활성 시 install_mid가 byte mismatch로 fail-safe, 재작성 필요) // 스왑 훅(프레임 확보 후·첫 clone 직전)
 const RPLY_ORIG: [u8; 18] = [0x49,0x8d,0x90,0x80,0x19,0x00,0x00,   // lea rdx,[r8+0x1980]
                              0x48,0x8d,0x4d,0xe0,                   // lea rcx,[rbp-0x20]
                              0x4c,0x89,0x85,0xe0,0x90,0x01,0x00];   // mov [rbp+0x190e0],r8
-const RPLY_RESUME_RVA: usize = 0xe7334;   // ★0.5.5(구0.5.4=0x2323bc4) (RPLY_ON=false inert)
-const CLONE_CHAMP_RVA: usize = 0x220f510; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x193d560) RPLY_RESUME 사이트의 call 타깃으로 확정 // ChampionInfoSheet::clone(rcx=dst 0x7A90, rdx=&src)
-const DROP_CHAMP_RVA: usize = 0x17c2060; // 0.5.6 재핀    // ⬜0.5.5 미확정(5후보 byte동일 monomorphized drop, RPLY_ON=false로 inert·0.5.4값 유지) // ChampionInfoSheet::drop_in_place(rcx=&val)
+const RPLY_RESUME_RVA: usize = 0xe7274;   // ★0.5.5(구0.5.4=0x2323bc4) (RPLY_ON=false inert)
+const CLONE_CHAMP_RVA: usize = 0x2125af0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x193d560) RPLY_RESUME 사이트의 call 타깃으로 확정 // ChampionInfoSheet::clone(rcx=dst 0x7A90, rdx=&src)
+const DROP_CHAMP_RVA: usize = 0x16b9930; // 0.5.6 재핀    // ⬜0.5.5 미확정(5후보 byte동일 monomorphized drop, RPLY_ON=false로 inert·0.5.4값 유지) // ChampionInfoSheet::drop_in_place(rcx=&val)
 const CHAMP_OFF: usize = 0x1980;
 const CHAMP_SZ: usize = 0x7a90;
 const CD_SZ: usize = 0xe460;                // Rc 할당 전체(RcBox 헤더 포함)
@@ -1603,7 +1603,7 @@ unsafe fn snap_take(runner: usize, seed: u64) {
     SNAP_SEED[slot].store(seed, Ordering::Release);
     if RPLY_LOGS.fetch_add(1, Ordering::Relaxed) < 12 {
         // ★기록 시점의 엔트리 지문도 함께 남긴다 — 다시보기 시점과 대조하기 위해.
-        let (ei, ep, en) = entry_fp(runner + 0x1f70);
+        let (ei, ep, en) = entry_fp(runner + R_ENTRY);
         log(&format!("[rply] 사본 확보 seed=0x{:x} slot={} | 엔트리 inline={:016x} 선수{}명={:016x}\n",
             seed, slot, ei, en, ep));
     }
@@ -1686,7 +1686,7 @@ unsafe extern "win64" fn rply_shim() {
 // ⛔v80에서 OFF — 챔피언 데이터·선수 배열 교체는 **원인이 아니었다**(둘 다 실행됐으나 결과 불일치).
 //   기록 자체가 sim 입력이 아니므로 기록을 손보는 방식은 전부 무효. (35) 컨텍스트 스냅샷으로 대체.
 const RPLY2_ON: bool = false;
-const RPLY2_RVA: usize = 0x2ed0480; // 0.5.6 재핀         // ★0.5.5(구0.5.4=0x2326820) skeleton UNIQUE size1344 (RPLY2_ON=false inert) // 상세(.detail) 버튼 경로 — 대조군으로만 유지
+const RPLY2_RVA: usize = 0x2863860; // 0.5.6 재핀         // ★0.5.5(구0.5.4=0x2326820) skeleton UNIQUE size1344 (RPLY2_ON=false inert) // 상세(.detail) 버튼 경로 — 대조군으로만 유지
 static RPLY2_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static RPLY2_HITS: AtomicU64 = AtomicU64::new(0);
 
@@ -1752,8 +1752,8 @@ extern "win64" fn rply2_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> 
 //   설치 로직은 그대로 쓰고 RVA만 바꾸면 된다. 참조 전수 스캔(직접호출 2건 / 절대QWORD 0 / rip-rel 0)으로
 //   **간접 호출이 없음**도 확인됐다.
 // ★자체 증명: 복귀주소가 `0x1ccb596`이면 다시보기, `0x2326891`이면 상세. 그 외 값은 존재할 수 없다.
-const RPLY3_RVA: usize = 0x2ebf6d0; // 0.5.6 재핀         // ★0.5.5(구0.5.4=0x2323aa0) 마스크시그 k=8·push8 확인 // 재시뮬 진입점(= 다시보기·상세 공통)
-const LIVEB_RVA: usize = 0x213a680; // 0.5.6 재핀         // ★0.5.5(구0.5.4=0x235bf20) skeleton UNIQUE size3930·push8 확인 // 원본 경기 빌더(대조군, 읽기 전용)
+const RPLY3_RVA: usize = 0x2852ab0; // 0.5.6 재핀         // ★0.5.5(구0.5.4=0x2323aa0) 마스크시그 k=8·push8 확인 // 재시뮬 진입점(= 다시보기·상세 공통)
+const LIVEB_RVA: usize = 0x21f9880; // 0.5.6 재핀         // ★0.5.5(구0.5.4=0x235bf20) skeleton UNIQUE size3930·push8 확인 // 원본 경기 빌더(대조군, 읽기 전용)
 static RPLY3_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static LIVEB_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static RPLY3_HITS: AtomicU64 = AtomicU64::new(0);
@@ -1773,9 +1773,9 @@ static LIVEB_HITS: AtomicU64 = AtomicU64::new(0);
 //   **보관할 때도 넘겨줄 때도 반드시 클론을 거쳐야** 하고(단순 memcpy 금지 = 이중 해제),
 //   보관본은 오직 우리만 게임 drop 함수로 해제한다.
 const CTXSNAP_ON: bool = true;
-const CTX_SZ: usize = 0x1e70;  // ★0.6.3 ARRIVE memcpy 0x1e70 
-const CTX_CLONE_RVA: usize = 0x26760c0; // 0.5.6 재핀     // ★0.5.5(구0.5.4=0x23e11e0) skeleton UNIQUE size5570·push8 확인 // (rcx=dst 0x20A0, rdx=src) -> rax=dst, 논리적 딥클론
-const CTX_DROP_RVA: usize = 0x257fa80;      // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) ARRIVE 2회 호출·size 0x376·maxoff 0x2080·헤드 [rcx+0x1dc0]/[+0x1dc8] = 0.5.8 0x1bc2e10 바이트동일 (자동값 0x1d07790 = CLONE_CHAMP 중간 → 크래시)      // ★0.5.5(구0.5.4=0x22df620) ghidra-re 2방법: ARRIVE(0x1aab950) 실호출 대상 + 러너 vtable drop 타입짝(원소drop FUN_141851730 공유)·최고접근오프셋 0x2080<0x20A0 // (rcx=&ctx) 정식 drop
+const CTX_SZ: usize = 0x1e10;  // ★0.7.1 ARRIVE memcpy 0x1e10 // ★0.6.3 ARRIVE memcpy 0x1e70 
+const CTX_CLONE_RVA: usize = 0x2d3acf0; // 0.5.6 재핀     // ★0.5.5(구0.5.4=0x23e11e0) skeleton UNIQUE size5570·push8 확인 // (rcx=dst 0x20A0, rdx=src) -> rax=dst, 논리적 딥클론
+const CTX_DROP_RVA: usize = 0x2806360;      // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) ARRIVE 2회 호출·size 0x376·maxoff 0x2080·헤드 [rcx+0x1dc0]/[+0x1dc8] = 0.5.8 0x1bc2e10 바이트동일 (자동값 0x1d07790 = CLONE_CHAMP 중간 → 크래시)      // ★0.5.5(구0.5.4=0x22df620) ghidra-re 2방법: ARRIVE(0x1aab950) 실호출 대상 + 러너 vtable drop 타입짝(원소drop FUN_141851730 공유)·최고접근오프셋 0x2080<0x20A0 // (rcx=&ctx) 정식 drop
 const LIVE_SEED_OFF: usize = 0x258;         // request+0x258 = 시드
 // ★v81 — 상한 12 → **40**. 유저 실측: 1경기씩은 일치하는데 **병렬 10경기는 전부 불일치**였다.
 //   12칸이면 10경기 한 번에 거의 가득 차고, 두 번째 회차에 앞엣것이 밀려난다. 보관본이 없으면
@@ -2037,9 +2037,9 @@ unsafe fn cd_probe(tag: &str, node: usize) {
 extern "win64" fn csend_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> usize {
     // 진입 시 러너 상태(+0x240c)·미소비 슬롯(+0x21a0) 스냅샷 — 4가 아니면 원본도 즉시 exit.
     let (st, slot) = unsafe {
-        if readable(rcx + R_STATE, 1) && readable(rcx + 0x1f70, 8) {
+        if readable(rcx + R_STATE, 1) && readable(rcx + R_ENTRY, 8) {
             (core::ptr::read_unaligned((rcx + R_STATE) as *const u8) as i64,
-             core::ptr::read_unaligned((rcx + 0x1f70) as *const u64) as i64)
+             core::ptr::read_unaligned((rcx + R_ENTRY) as *const u64) as i64)
         } else { (-1, 0) }
     };
     let stub = CSEND_TRAMP.load(Ordering::Relaxed);
@@ -2056,9 +2056,9 @@ extern "win64" fn csend_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> 
         //   ⚠v70 결함: 러너를 `rcx`(인자)에서 찾았는데 **러너는 인자가 아니라 `node(rdx)+0x230`**이다
         //   (이 함수 아래쪽 주석에 이미 적혀 있던 사실 — 그래서 사본이 0건이었다).
         if let Some(rn) = runner_of(rdx) {
-            if readable(rn + 0x1f70 + E_SEED_OFF, 8)
-                && core::ptr::read_unaligned((rn + 0x1f70) as *const u64) != u64::MAX {
-                let seed = core::ptr::read_unaligned((rn + 0x1f70 + E_SEED_OFF) as *const u64);
+            if readable(rn + R_ENTRY + E_SEED_OFF, 8)
+                && core::ptr::read_unaligned((rn + R_ENTRY) as *const u64) != u64::MAX {
+                let seed = core::ptr::read_unaligned((rn + R_ENTRY + E_SEED_OFF) as *const u64);
                 snap_take(rn, seed);
             }
         }
@@ -2172,13 +2172,14 @@ extern "win64" fn hpush_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> 
 //   바꿔 __chkstk 프로브를 먼저 태우거나, 훅 지점을 **호출자 쪽(0xa15e20)**으로 옮기는 대안 검토.
 //   상세 = 03_시행착오.md 2026-08-08 "결과 큐잉 v6 크래시".
 const QUEUE_ON: bool = false;
-const ARRIVE_RVA: usize = 0x2ed0cf0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2327080) 다중앵커 투표 37/37·ARRIVE_PROLOGUE 15B 실측 MATCH (QUEUE_ON=false inert)
+const ARRIVE_RVA: usize = 0x28640d0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2327080) 다중앵커 투표 37/37·ARRIVE_PROLOGUE 15B 실측 MATCH (QUEUE_ON=false inert)
 const ARRIVE_PROLOGUE: [u8; 15] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53,
-                                   0xb8, 0x40, 0x3e, 0x00, 0x00];  // ★0.6.3 mov eax,0x3e40 
-const RUNNER_VT_RVA: usize = 0x419b3b0; // 0.5.7 재핀(ctor lea 참조 유일 0x22c3072→0x257a392 + vtable 슬롯지문 0/4 match_fn 일치) // 0.5.6=0x34afda8(구0.5.5=0x348db28, slot4 매핑 일치·ctor lea 참조 1곳@0x22c3072)   // ★0.5.5(구0.5.4=0x33b91f8) ghidra-re 2방법: vtable 구조지문(size 0x2410·중복슬롯) .rdata 전수유일 + ctor lea rdx 참조 1곳(@0x21121e5)·R_STATE +0x240c 유지 // node+0x238 == base+이 값 이어야 comp_test 러너
+                                   0xb8, 0x40, 0x3d, 0x00, 0x00];  // ★0.7.1 mov eax,0x3d40 // ★0.6.3 mov eax,0x3e40 
+const RUNNER_VT_RVA: usize = 0x42134e0; // 0.5.7 재핀(ctor lea 참조 유일 0x22c3072→0x257a392 + vtable 슬롯지문 0/4 match_fn 일치) // 0.5.6=0x34afda8(구0.5.5=0x348db28, slot4 매핑 일치·ctor lea 참조 1곳@0x22c3072)   // ★0.5.5(구0.5.4=0x33b91f8) ghidra-re 2방법: vtable 구조지문(size 0x2410·중복슬롯) .rdata 전수유일 + ctor lea rdx 참조 1곳(@0x21121e5)·R_STATE +0x240c 유지 // node+0x238 == base+이 값 이어야 comp_test 러너
 const NODE_RUNNER_OFF: usize = 0x230;     // runner = *(node + 0x230)
-const R_STATE: usize = 0x21df;  // ★0.7.0 러너 꼬리 재배치(0x21dc→0x21df · 신 0x21dc=word 필드 · RE 2026-10-28_0.7.0-재핀판정) // ★0.6.3 러너 −0x230(0x240c→0x21dc) // 0 idle/1 setup/2 tactics/3 running/4 도착/5 기록완료
-const DETAIL_SZ: usize = 0x1e70;  // ★0.6.3 0x20a0→0x1e70 // arg3
+const R_ENTRY: usize = 0x1f10;  // ★0.7.1 러너 엔트리 슬롯 −0x60(ARRIVE·CSEND [r14+0x1f10] · 구 리터럴 0x1f70 19곳을 상수로)
+const R_STATE: usize = 0x217f;  // ★0.7.1 러너 0x21e0→0x2180(−0x60 · CSEND [r14+0x217f] · 러너 마지막 바이트) // ★0.7.0 러너 꼬리 재배치(0x21dc→0x21df · 신 0x21dc=word 필드 · RE 2026-10-28_0.7.0-재핀판정) // ★0.6.3 러너 −0x230(0x240c→0x21dc) // 0 idle/1 setup/2 tactics/3 running/4 도착/5 기록완료
+const DETAIL_SZ: usize = 0x1e10;  // ★0.7.1 // ★0.6.3 0x20a0→0x1e70 // arg3
 const ENTRY_SZ: usize = 0xe0;             // arg4
 const QUEUE_CAP: usize = 16;              // 폭주 방지 상한(초과분은 원본 동작 = 덮어쓰기)
 
@@ -2317,9 +2318,9 @@ fn watch_tick() {
     if node == 0 { return; }
     unsafe {
         let runner = match runner_of(node) { Some(r) => r, None => return };
-        if !readable(runner + 0x1f70, 8) { return; }
+        if !readable(runner + R_ENTRY, 8) { return; }
         let st = runner_state(runner) as u64;
-        let slot = core::ptr::read_unaligned((runner + 0x1f70) as *const u64);
+        let slot = core::ptr::read_unaligned((runner + R_ENTRY) as *const u64);
         let prev_st = WATCH_LAST_ST.swap(st, Ordering::Relaxed);
         let prev_slot = WATCH_LAST_SLOT.swap(slot, Ordering::Relaxed);
         if st == prev_st && slot == prev_slot { return; }          // 변화 없으면 침묵
@@ -2344,7 +2345,7 @@ fn watch_tick() {
 //   0x32=no_attempts / 0x3d=not_enough_lane_roster / 0x38=champion_required 또는 duplicate_players
 //   (0x38 두 종은 ptr로 구분: champion=0x33ddf8a, duplicate=0x33ddfc2)
 // 프롤로그 13B(`push rbp,r14,rsi,rdi,rbx` + `sub rsp,0xb0`) — `__chkstk` 없음 = 훅 안전.
-const WARN_RVA: usize = 0x2e8e890; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x22f6d00) skeleton UNIQUE size458·WARN_PROLOGUE 13B 실측 MATCH (CONC_PROBE inert)
+const WARN_RVA: usize = 0x2821c80; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x22f6d00) skeleton UNIQUE size458·WARN_PROLOGUE 13B 실측 MATCH (CONC_PROBE inert)
 const WARN_PROLOGUE: [u8; 13] = [0x55, 0x41, 0x56, 0x56, 0x57, 0x53,
                                  0x48, 0x81, 0xec, 0xb0, 0x00, 0x00, 0x00];
 static WARN_TRAMP: AtomicUsize = AtomicUsize::new(0);
@@ -2358,8 +2359,8 @@ extern "win64" fn warn_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> u
         let why = match (r8, rva) {
             (0x32, _) => "일일 5회 초과(no_attempts)",
             (0x3d, _) => "★인원부족(not_enough_lane_roster) = 가용 로스터 목록이 비었음",
-            (0x38, 0x40f2377) => "★챔피언 미지정(champion_required)",
-            (0x38, 0x40f23af) => "선수 중복(duplicate_players)",
+            (0x38, 0x414dd9c) => "★챔피언 미지정(champion_required)",
+            (0x38, 0x414ddd4) => "선수 중복(duplicate_players)",
             (0x38, _) => "len 0x38(챔피언/중복 중 하나 — ptr 미상)",
             (0, _) => "통과(문구 없음)",
             _ => "기타",
@@ -2386,9 +2387,9 @@ extern "win64" fn warn_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> u
 // ⚠`runner+0x240c` = **UI 페이지**(0 setup/1 history/2 champion/3 tactics/4·5 summary).
 //   기존 코드 주석의 "상태머신 0 idle/1 setup/…"은 오독 — 동작에는 영향 없었으나 의미가 다르다.
 const RESULTVIEW_ON: bool = true;
-const TAKE_RVA: usize = 0x2eaa173; // 0.5.7 재핀(match_mid UNIQUE, mov dword[rbp+0x278],0x14 주변16B 동일) // 0.5.6=0x1aafa9a      // ★0.5.5(구0.5.4=0x2311d43) 마스크시그 k=1·imm32 14000000 실측·cont5=0x1a96710 // imm32 = 기록탭 목록 take 한도(기본 0x14)
+const TAKE_RVA: usize = 0x283d553; // 0.5.7 재핀(match_mid UNIQUE, mov dword[rbp+0x278],0x14 주변16B 동일) // 0.5.6=0x1aafa9a      // ★0.5.5(구0.5.4=0x2311d43) 마스크시그 k=1·imm32 14000000 실측·cont5=0x1a96710 // imm32 = 기록탭 목록 take 한도(기본 0x14)
 const TAKE_DEFAULT: u32 = 0x14;
-const PAGE_IMM_RVA: usize = 0x2ea578c; // 0.5.7 재핀(패턴 41c6860c24000005 전역유일 0x1ac36a5+7) // 0.5.6=0x1aaae2c  // ★0.5.5(구0.5.4=0x230d0ec) 고정패턴 41c6860c24000005 전역유일·imm off+7 // imm8 = 기록 완료 후 이동할 페이지(기본 5=summary)
+const PAGE_IMM_RVA: usize = 0x2838b6c; // 0.5.7 재핀(패턴 41c6860c24000005 전역유일 0x1ac36a5+7) // 0.5.6=0x1aaae2c  // ★0.5.5(구0.5.4=0x230d0ec) 고정패턴 41c6860c24000005 전역유일·imm off+7 // imm8 = 기록 완료 후 이동할 페이지(기본 5=summary)
 const PAGE_SUMMARY: u8 = 5;
 const PAGE_HISTORY: u8 = 1;
 static RV_ACTIVE: AtomicBool = AtomicBool::new(false);   // 배치 결과화면 모드 진행 중
@@ -2402,7 +2403,7 @@ static RV_SETUP_FRAMES: AtomicU64 = AtomicU64::new(0);   // 준비화면 연속 
 //   마이그 누락 시 엉뚟한 명령을 훼손한다. (0.5.7 실사고: TAKE/PAGE_IMM가 0.5.6 RVA로 남아
 //   결과목록 화면이 빈 채 남았다.) ⇒ 쓰기 전 명령 오프코드를 대조하고 틀리면 포기한다.
 const TAKE_SIG: [u8; 6] = [0xc7, 0x85, 0x78, 0x02, 0x00, 0x00];        // mov dword[rbp+0x278], imm32
-const PAGE_SIG: [u8; 7] = [0x41, 0xc6, 0x86, 0xdf, 0x21, 0x00, 0x00];  // ★0.7.0 R_STATE 0x21df // ★0.6.3 R_STATE 0x21dc // mov byte[r14+0x240c], imm8
+const PAGE_SIG: [u8; 7] = [0x41, 0xc6, 0x86, 0x7f, 0x21, 0x00, 0x00];  // ★0.7.1 R_STATE 0x217f // ★0.7.0 R_STATE 0x21df // ★0.6.3 R_STATE 0x21dc // mov byte[r14+0x240c], imm8
 static POKE_NG_LOGGED: AtomicU64 = AtomicU64::new(0);
 unsafe fn poke_site_ok(rva: usize, sig: &[u8], tag: &str) -> bool {
     let base = exe_base(); if base == 0 { return false; }
@@ -2481,7 +2482,7 @@ unsafe fn resultview_arm_if_last(k: u64) -> bool {
 // 방법(RE\2026-08-08 토글조사): 팝업 refresh `0x2306000(rcx=assets, rdx=node)`를 직접 호출.
 //   assets = 게임 에셋 매니저(모드 `Assets`가 아님) → 로더 체인 훅에서 캐시한 값 사용.
 //   ⚠shadow-call이므로 catch_unwind + 3중 가드(assets/node/page 검증), UI 스레드에서만.
-const REFRESH_RVA: usize = 0x2e9e260; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2306000) dr_inline_a 컨테이너·push8 확인(직접 CALL)
+const REFRESH_RVA: usize = 0x2831650; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2306000) dr_inline_a 컨테이너·push8 확인(직접 CALL)
 static REFRESH_REQ: AtomicU64 = AtomicU64::new(0);   // >0 = N프레임 뒤 refresh
 static REFRESH_DONE: AtomicU64 = AtomicU64::new(0);
 
@@ -2883,20 +2884,20 @@ const PAR_OBSERVE_ONLY: bool = false;
 //       `lea rsp,[rbp+0x4240]` → pop×7 → ret)로 점프. 훅 지점이 **모든 소유권 등록 이전**이라
 //       이 경로는 detail/entry를 drop하지 않는다 = 우리가 소유권을 가져간다.
 //   ⚠호출자가 detail/entry를 **자기 스택 버퍼**에 담아 넘기므로 리턴 즉시 사라진다 ⟹ 반드시 복사.
-const DELAY_RVA: usize = 0x2ed0d04; // 0.5.7 재핀(ARRIVE+0x14, ORIG 15B MATCH) // 0.5.6=0x1ac4bc4   // ★0.5.5(구0.5.4=0x2327094) 컨테이너 difflib(cont 0x2327080→0x1aab950)·DELAY_ORIG 15B 실측 MATCH
+const DELAY_RVA: usize = 0x28640e4; // 0.5.7 재핀(ARRIVE+0x14, ORIG 15B MATCH) // 0.5.6=0x1ac4bc4   // ★0.5.5(구0.5.4=0x2327094) 컨테이너 difflib(cont 0x2327080→0x1aab950)·DELAY_ORIG 15B 실측 MATCH
 const DELAY_ORIG: [u8; 15] = [0x48,0x29,0xc4, 0x48,0x8d,0xac,0x24,0x80,0x00,0x00,0x00,
                               0x48,0x83,0xe4,0x80];
-const DELAY_RESUME_RVA: usize = 0x2ed0d13; // 0.5.7 재핀(mov rbx,rsp 확인) // 0.5.6=0x1ac4bd3   // ★0.5.5(구0.5.4=0x23270a3) 컨테이너 difflib(mov rbx,rsp)
-const EPILOG_RVA: usize = 0x2ed1568; // 0.5.7 재핀(xor eax,eax + lea rsp,[rbp+0x4240] 확인) // 0.5.6=0x1ac5409     // ★0.5.5(구0.5.4=0x232790a) 컨테이너 difflib(xor eax,eax) // → lea rsp,[rbp+..] → pop×7 → ret
-const ARRIVE_FN_RVA: usize = 0x2ed0cf0; // 0.5.6 재핀  // ★0.5.5(구0.5.4=0x2327080) 투표 37/37 // 재주입 시 직접 호출할 결과 도착 함수
-const DETAIL_SZ2: usize = 0x1e70;  // ★0.6.3 0x20a0→0x1e70 
+const DELAY_RESUME_RVA: usize = 0x28640f3; // 0.5.7 재핀(mov rbx,rsp 확인) // 0.5.6=0x1ac4bd3   // ★0.5.5(구0.5.4=0x23270a3) 컨테이너 difflib(mov rbx,rsp)
+const EPILOG_RVA: usize = 0x2864948; // 0.5.7 재핀(xor eax,eax + lea rsp,[rbp+0x4240] 확인) // 0.5.6=0x1ac5409     // ★0.5.5(구0.5.4=0x232790a) 컨테이너 difflib(xor eax,eax) // → lea rsp,[rbp+..] → pop×7 → ret
+const ARRIVE_FN_RVA: usize = 0x28640d0; // 0.5.6 재핀  // ★0.5.5(구0.5.4=0x2327080) 투표 37/37 // 재주입 시 직접 호출할 결과 도착 함수
+const DETAIL_SZ2: usize = 0x1e10;  // ★0.7.1 // ★0.6.3 0x20a0→0x1e70 
 const ENTRY_SZ2: usize = 0xe0;
-const DRIVE_RVA: usize = 0xc1e037; // 0.5.7 재핀(owner 0x888cc0->0xb62c80 HEAD_UNIQUE, off=0x60) // 0.5.6=0x888d20   // ★0.5.5(구0.5.4=0xa289c0) 컨테이너델타 UNIQUE(off=0x60)·DRIVE_ORIG 22B 실측 MATCH
+const DRIVE_RVA: usize = 0xaecd3a; // 0.5.7 재핀(owner 0x888cc0->0xb62c80 HEAD_UNIQUE, off=0x60) // 0.5.6=0x888d20   // ★0.5.5(구0.5.4=0xa289c0) 컨테이너델타 UNIQUE(off=0x60)·DRIVE_ORIG 22B 실측 MATCH
 // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 0.6.0 진입부 19B: mov [rbp+0x16e90],-1 (11B) + mov [rbp+0x18],-1 (8B; 구 [rbp+0x2070] 11B 가 8B 인코딩으로)
-const DRIVE_ORIG: [u8; 19] = [0x48,0xc7,0x85,0xb0,0x6c,0x01,0x00,0xff,0xff,0xff,0xff,  // ★0.7.0: 프레임 0x18048→0x18028(−0x20) ⟹ [rbp+0x16cb0] (신 0xc1e037 실측) // ★0.6.4: 프레임 0x180d8→0x18058(−0x80) ⟹ [rbp+0x16ca0] + [rbp+0x10] (신 0x85943a 실측) // ★0.6.3: 프레임 0x18308→0x180d8 ⟹ [rbp+0x16cb8] // ★0.6.2: 프레임 0x18248→0x18308(+0xc0) ⟹ [rbp+0x16e80]→[rbp+0x16ee8] (2026-09-30 실측 +0x6a) // ~~★0.6.1: 프레임 0x18258→0x18248(−0x10) ⟹ [rbp+0x16e90]→[rbp+0x16e80] (2026-09-22 실측 +0x6a)
+const DRIVE_ORIG: [u8; 19] = [0x48,0xc7,0x85,0x50,0x6c,0x01,0x00,0xff,0xff,0xff,0xff,  // ★0.7.1: 프레임 0x18028→0x17fd8(−0x50) ⟹ [rbp+0x16c50] (신 0xaecd3a 실측) // ★0.7.0: 프레임 0x18048→0x18028(−0x20) ⟹ [rbp+0x16cb0] (신 0xc1e037 실측) // ★0.6.4: 프레임 0x180d8→0x18058(−0x80) ⟹ [rbp+0x16ca0] + [rbp+0x10] (신 0x85943a 실측) // ★0.6.3: 프레임 0x18308→0x180d8 ⟹ [rbp+0x16cb8] // ★0.6.2: 프레임 0x18248→0x18308(+0xc0) ⟹ [rbp+0x16e80]→[rbp+0x16ee8] (2026-09-30 실측 +0x6a) // ~~★0.6.1: 프레임 0x18258→0x18248(−0x10) ⟹ [rbp+0x16e90]→[rbp+0x16e80] (2026-09-22 실측 +0x6a)
                               0x48,0xc7,0x45,0x10,0xff,0xff,0xff,0xff];   // ★0.6.4 [rbp+0x10] (0.6.0~0.6.3 [rbp+0x18])
-const DRIVE_RESUME_RVA: usize = 0xc1e04a; // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) = DRIVE+0x13 (구 +0x16 규칙 폐기; 구0.5.8=0x8e6a96) // 0.5.7 재핀(DRIVE+0x16) // 0.5.6=0x888d36   // ★0.5.5(구0.5.4=0xa289d6) 컨테이너델타(off=0x76)
-const A15E20_RVA: usize = 0x854050;   // ★0.5.5(구0.5.4=0xa15e20) 다중앵커 투표 50/50 size974→988
+const DRIVE_RESUME_RVA: usize = 0xaecd4d; // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) = DRIVE+0x13 (구 +0x16 규칙 폐기; 구0.5.8=0x8e6a96) // 0.5.7 재핀(DRIVE+0x16) // 0.5.6=0x888d36   // ★0.5.5(구0.5.4=0xa289d6) 컨테이너델타(off=0x76)
+const A15E20_RVA: usize = 0x8543f0;   // ★0.5.5(구0.5.4=0xa15e20) 다중앵커 투표 50/50 size974→988
 const PAYLOAD_SZ: usize = 0x268;
 const OUT_SZ: usize = 0x740;
 
@@ -2914,7 +2915,7 @@ static PAR_OUTBUF: AtomicUsize = AtomicUsize::new(0);   // 재주입용 0x740 ou
 //   v32는 엔트리만 되돌려서, 두 번째부터 `+0x2280`을 만들 수 없었다(팝업 draw가 그걸
 //   `+0x20f0`에서 만드는데 그 Rc는 **첫 결과 때 이미 소비**됨) ⟹ `0x230c910`이 즉시 bail = 기록 1건.
 //   ⟹ 세 조각을 함께 빼돌리고 함께 되돌린다.
-const DETAIL_B_OFF: usize = 0x2050;  // ★0.6.3 0x2280→0x2050 
+const DETAIL_B_OFF: usize = 0x1ff0;  // ★0.7.1 러너 −0x60(ARRIVE·CSEND) // ★0.6.3 0x2280→0x2050 
 const DETAIL_B_SZ: usize = 0xa0;
 const RCH_OFF: usize = 0x50;  // ★0.6.3 0x20f0→0x50(재배치·ARRIVE cmp [r15+0x50],-1) 
 // ⛔`0x1a18460`은 **결과상세 생성기가 아니다** — RE 확정(2026-08-08): crossbeam bounded(1) 채널의
@@ -2969,8 +2970,8 @@ unsafe fn par_runner() -> usize {
 #[inline] unsafe fn par_busy(runner: usize) -> bool {
     if runner == 0 { return false; }
     if runner_state(runner) == 4 { return true; }
-    if readable(runner + 0x1f70, 8) {
-        return core::ptr::read_unaligned((runner + 0x1f70) as *const u64) != u64::MAX;
+    if readable(runner + R_ENTRY, 8) {
+        return core::ptr::read_unaligned((runner + R_ENTRY) as *const u64) != u64::MAX;
     }
     false
 }
@@ -3007,8 +3008,8 @@ extern "win64" fn par_delay_check(a1: usize, node: usize, pd: usize, pe: usize) 
         // ★comp_test 러너인지 확인 = 타입태그 검사(`*(node+0x238)==base+0x33b91f8`).
         //   이 훅 지점은 도착 함수의 다운캐스트 게이트보다 **앞**이라, 이 검사를 우리가 대신 한다.
         let runner = match runner_of(node) { Some(r) => r, None => return };
-        if !readable(runner + 0x1f70, ENTRY_SZ2) || !readable(runner + RCH_OFF, 16) { return; }
-        let e_head = core::ptr::read_unaligned((runner + 0x1f70) as *const u64);
+        if !readable(runner + R_ENTRY, ENTRY_SZ2) || !readable(runner + RCH_OFF, 16) { return; }
+        let e_head = core::ptr::read_unaligned((runner + R_ENTRY) as *const u64);
         let rc_tag = core::ptr::read_unaligned((runner + RCH_OFF) as *const u32);   // ★dword 니치
         if e_head == u64::MAX && rc_tag == u32::MAX { return; }   // 실을 게 없음(첫 도착)
         let mut q = par_lock();
@@ -3017,8 +3018,8 @@ extern "win64" fn par_delay_check(a1: usize, node: usize, pd: usize, pe: usize) 
         let mut e: Box<[u8; ENTRY_SZ2]> = Box::new([0u8; ENTRY_SZ2]);
         let has_e = e_head != u64::MAX;
         if has_e {
-            core::ptr::copy_nonoverlapping((runner + 0x1f70) as *const u8, e.as_mut_ptr(), ENTRY_SZ2);
-            core::ptr::write_unaligned((runner + 0x1f70) as *mut u64, u64::MAX);
+            core::ptr::copy_nonoverlapping((runner + R_ENTRY) as *const u8, e.as_mut_ptr(), ENTRY_SZ2);
+            core::ptr::write_unaligned((runner + R_ENTRY) as *mut u64, u64::MAX);
         }
         // ② Receiver(16B) move-out — **열지 않고 그대로** 보관한다
         let mut rc = [u64::MAX, 0u64];
@@ -3074,16 +3075,16 @@ extern "win64" fn par_drive_rust(p2: usize, p3: usize, p4: usize) {
         //   ⟹ 모드는 결과를 만들지도 꺼내지도 않으므로 **짝이 어긋날 경로가 원천적으로 없다**.
         let runner = par_runner();
         if runner == 0 { return; }
-        if !readable(runner + 0x1f70, ENTRY_SZ2) || !readable(runner + RCH_OFF, 16)
+        if !readable(runner + R_ENTRY, ENTRY_SZ2) || !readable(runner + RCH_OFF, 16)
             || !readable(runner + DETAIL_B_OFF, DETAIL_B_SZ) || !readable(runner + R_STATE, 1) { return; }
         // 러너가 완전히 비었을 때만 싣는다(진행 중인 결과를 밀어내면 그게 곧 소멸이다).
         //   기록이 끝나면 `0x230d0c7`이 `+0x21a0`을 -1로, draw가 `+0x20f0`을 -1로 되돌려 게이트가 열린다.
-        if core::ptr::read_unaligned((runner + 0x1f70) as *const u64) != u64::MAX { return; }
+        if core::ptr::read_unaligned((runner + R_ENTRY) as *const u64) != u64::MAX { return; }
         if core::ptr::read_unaligned((runner + RCH_OFF) as *const u32) != u32::MAX { return; }
         if core::ptr::read_unaligned((runner + DETAIL_B_OFF) as *const u64) != u64::MAX { return; }
         let item = { let mut q = par_lock(); if q.is_empty() { return; } q.remove(0) };
         if item.has_e {
-            core::ptr::copy_nonoverlapping(item.e.as_ptr(), (runner + 0x1f70) as *mut u8, ENTRY_SZ2);
+            core::ptr::copy_nonoverlapping(item.e.as_ptr(), (runner + R_ENTRY) as *mut u8, ENTRY_SZ2);
         }
         if item.rc[0] != u64::MAX {
             core::ptr::write_unaligned((runner + RCH_OFF) as *mut u64, item.rc[0]);
@@ -3092,8 +3093,8 @@ extern "win64" fn par_drive_rust(p2: usize, p3: usize, p4: usize) {
         if item.has_d2 {
             core::ptr::copy_nonoverlapping(item.d2.as_ptr(), (runner + DETAIL_B_OFF) as *mut u8, DETAIL_B_SZ);
         }
-        core::ptr::write_unaligned((runner + 0x21da) as *mut u8, 1);      // 신규결과 플래그
-        core::ptr::write_unaligned((runner + 0x21d4) as *mut f32, 0.0);   // 진행도 리셋
+        core::ptr::write_unaligned((runner + 0x217a) as *mut u8, 1);      // 신규결과 플래그
+        core::ptr::write_unaligned((runner + 0x2174) as *mut f32, 0.0);   // 진행도 리셋
         core::ptr::write_unaligned((runner + R_STATE) as *mut u8, 4);      // 상태 = 결과 대기/도착
         core::mem::forget(item);                              // 내부 힙 소유권이 게임으로
         let k = PAR_REPLAYED.fetch_add(1, Ordering::Relaxed);
@@ -3124,14 +3125,14 @@ unsafe extern "win64" fn par_delay_shim() {
         //   `48 81 E4 80 FF FF FF` = `and rsp, 0xFFFFFF80` **상위 32비트가 0으로 잘려** rsp가
         //   4GB 아래로 날아간다 ⟹ 즉사(VEH도 못 돎, 세이브 로드만으로도 죽는 증상과 정합).
         //   ⟹ **원본과 동일한 바이트를 직접 박는다.**
-        "sub rsp, 0x3e40",  // ★0.6.3 ARRIVE 프레임 0x42c0→0x3e40 
+        "sub rsp, 0x3d40",  // ★0.7.1 ARRIVE 프레임 0x3e40→0x3d40 // ★0.6.3 ARRIVE 프레임 0x42c0→0x3e40 
         "lea rbp, [rsp+0x80]",
         ".byte 0x48, 0x83, 0xe4, 0x80",   // and rsp, -0x80  (원본 바이트 그대로)
         "jmp qword ptr [rip + {res}]",
         // 보류 = 에필로그가 요구하는 rbp만 세팅하고 함수의 유일한 리턴 경로로 점프.
         //   이 시점은 detail/entry가 러너에 등록되기 **전**이라 게임이 drop하지 않는다 = 소유권이 우리 것.
         "2:",
-        "lea rbp, [rsp-0x3dc0]",  // ★0.6.3 rbp 0x4240→0x3dc0(EPILOG lea rsp,[rbp+0x3dc0]) 
+        "lea rbp, [rsp-0x3cc0]",  // ★0.7.1 rbp 0x3dc0→0x3cc0(EPILOG lea rsp,[rbp+0x3cc0]) // ★0.6.3 rbp 0x4240→0x3dc0(EPILOG lea rsp,[rbp+0x3dc0]) 
         "jmp qword ptr [rip + {epi}]",
         chk = sym par_delay_check,
         res = sym PAR_RESUME,
@@ -3149,13 +3150,13 @@ unsafe extern "win64" fn par_drive_shim() {
         //   ⟹ `sub 0x20`(shadow space만, %16=0)이 정답. 지연 shim은 push 4 + sub 0x30으로 이미 맞았고,
         //   그래서 v19(지연만)는 멀쩡했는데 v20(드라이버 켬)만 죽었다.
         "push rcx", "push rdx", "push r8", "push r9", "push r10", "push r11",
-        "mov r8, [rbp+0x18020]",  // ★0.7.0 frame 0x18028(−0x20) → p4 [rbp+0x18020] (슬롯 사용횟수 237/15/10/15/1 · RE 2026-10-28_0.7.0-재핀판정) // ★0.6.5 frame 0x18048(−0x10) → p4 [rbp+0x18040] (슬롯 사용횟수 227/16/8/15/1 일치 · RE 2026-10-21_0.6.5-재핀판정) // ★0.6.4 frame 0x18058 → p4 [rbp+0x18050] (인자 슬롯 전부 −0x80 · 사용 횟수 동일) // ★0.6.3 frame 0x180d8 → p4 [rbp+0x180d0] // ★0.6.2 frame: 0x18308 → p4 = [rbp+0x18300] (신 함수 본문 사용처 6/6 동일위치) // ~~0.6.1 frame: sub rsp,0x18248 → p4 = [rbp+0x18240]~~ (0.6.0 0x18258→0x18250 · 구 0x17480)
+        "mov r8, [rbp+0x17fd0]",  // ★0.7.1 frame 0x17fd8(−0x50) → p4 [rbp+0x17fd0] (슬롯 사용횟수 236/15/10/15/1 · RE 2026-11-04_0.7.1-재핀판정) // ★0.7.0 frame 0x18028(−0x20) → p4 [rbp+0x18020] (슬롯 사용횟수 237/15/10/15/1 · RE 2026-10-28_0.7.0-재핀판정) // ★0.6.5 frame 0x18048(−0x10) → p4 [rbp+0x18040] (슬롯 사용횟수 227/16/8/15/1 일치 · RE 2026-10-21_0.6.5-재핀판정) // ★0.6.4 frame 0x18058 → p4 [rbp+0x18050] (인자 슬롯 전부 −0x80 · 사용 횟수 동일) // ★0.6.3 frame 0x180d8 → p4 [rbp+0x180d0] // ★0.6.2 frame: 0x18308 → p4 = [rbp+0x18300] (신 함수 본문 사용처 6/6 동일위치) // ~~0.6.1 frame: sub rsp,0x18248 → p4 = [rbp+0x18240]~~ (0.6.0 0x18258→0x18250 · 구 0x17480)
         "sub rsp, 0x20",
         "call {drv}",
         "add rsp, 0x20",
         "pop r11", "pop r10", "pop r9", "pop r8", "pop rdx", "pop rcx",
         // 스틸한 원본 2명령 재현
-        "mov qword ptr [rbp+0x16cb0], -1",  // ★0.7.0 0x16ca0→0x16cb0 // ★0.6.4 0x16cb8→0x16ca0 // ★0.6.3 0x16ee8→0x16cb8 // ★0.6.2 (0.6.1 0x16e80) (0.6.0 0x16e90 · 구 0x16bb8)
+        "mov qword ptr [rbp+0x16c50], -1",  // ★0.7.1 0x16cb0→0x16c50 // ★0.7.0 0x16ca0→0x16cb0 // ★0.6.4 0x16cb8→0x16ca0 // ★0.6.3 0x16ee8→0x16cb8 // ★0.6.2 (0.6.1 0x16e80) (0.6.0 0x16e90 · 구 0x16bb8)
         "mov qword ptr [rbp+0x10], -1",      // ★0.6.4 (0.6.0~0.6.3 [rbp+0x18] · 구 0x2070)
         "jmp qword ptr [rip + {res}]",
         drv = sym par_drive_rust,
@@ -3224,7 +3225,7 @@ unsafe fn install_parallel() {
 //   0x13c4e90 함수 중간(`66 0f 6e c1 ...`)이라 **선언 프롤로그와 불일치 = install_hook_n이 Err = 미설치**.
 //   ⇒ 이 두 진단 카운터는 0.5.1 내내 0이었다(로그를 그렇게 읽지 말 것). 0.5.2에서도 프롤로그 불일치 = inert.
 //   재핀하려면 ghidra-re 필요(SwissTable insert 모노모픽 copy 다수 = 정적 변별 난이도 높음).
-const DEDUP_INS_RVA: usize = 0xf1e950; // ⬜미확정(죽은 상수·inert·0.5.1값 유지)
+const DEDUP_INS_RVA: usize = 0xee7ac0; // ⬜미확정(죽은 상수·inert·0.5.1값 유지)
 const SPAWN_CP_RVA: usize = 0x13f7c7d;   // ⬜미확정(죽은 상수·inert 확인필·0.5.1값 유지)
 const DEDUP_INS_PROLOGUE: [u8; 14] = [0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x30, 0x48, 0x89, 0xd6];
 const SPAWN_CP_PROLOGUE: [u8; 19] = [0x55, 0x56, 0x57, 0x53, 0x48, 0x81, 0xec, 0x18, 0x0f, 0x00, 0x00, 0x48, 0x8d, 0xac, 0x24, 0x80, 0x00, 0x00, 0x00];
@@ -3285,7 +3286,7 @@ unsafe fn install_hook_n(rva: usize, prologue: &[u8], tramp: &AtomicUsize, detou
 // ⛔죽은 상수(0.5.0_2 기준). 0.5.2에서도 미마이그 — **하지만 이건 그대로 두는 게 안전**: install_push_probe는
 //   프롤로그 검증 없이 INT3를 blind write하는 유일한 경로라 주소가 틀리면 명령 중간을 파괴한다.
 //   현재 init()에서 `let _ = install_push_probe;`로 **호출 자체를 비활성**했으므로 무해. 재활성 금지(ghidra-re 선행).
-const PUSH_RVA: usize = 0x1349c68;   // ⬜미확정(죽은 상수·프로브 호출 비활성 상태·0.5.1값 유지)
+const PUSH_RVA: usize = 0x1389d48;   // ⬜미확정(죽은 상수·프로브 호출 비활성 상태·0.5.1값 유지)
 static PUSH_HITS: AtomicU64 = AtomicU64::new(0);
 static PUSH_ORIG: AtomicU64 = AtomicU64::new(0);
 static VEH_INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -3427,7 +3428,7 @@ fn sel_to_item_id(sel: usize, finals: &[(u64, String)]) -> u64 {
 // ⚠0.5.1 = 0x2450f40 (구 0.5.0_3 = 0x2416070). 프롤로그 검증으로 오식별 방지.
 // 0.5.2: ~~0.5.1 0x2450f40~~ → 0x242f250 (**L1-UNIQUE**·53 instr·12B 프롤로그 실측 MATCH).
 //   ⚠0.5.1 때의 "구 0x2416070 금지" 경고와 동류 — 반드시 이 값만 쓸 것.
-const FN_DD_SETOPT_RVA: usize = 0x2298c0; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x1bfc80) 다중앵커 투표 14/14 size2428 동일(자체 프롤로그 검증 있음)
+const FN_DD_SETOPT_RVA: usize = 0x229800; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x1bfc80) 다중앵커 투표 14/14 size2428 동일(자체 프롤로그 검증 있음)
 static DD_VALID: AtomicUsize = AtomicUsize::new(0);   // 0=미판정 1=유효 2=무효
 
 #[repr(C)]
@@ -3492,7 +3493,7 @@ unsafe fn dump_mod_items(db: usize) {
 
 // 0.5.2: ~~0.5.1 0xf794c0~~ → 0xed8770 (**L1-UNIQUE**·198 instr·HOOK_PROLOGUE12_ALT 실측 MATCH).
 //   07-21 인게임 검증된 comp_test 아이템칸 모드템 주입 POST 훅.
-const ITEMCONV_RVA: usize = 0x28bd7b0; // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 콜그래프(0x2262a60 내 2회 연속 호출)·HOOK_PROLOGUE12_ALT·pdata 0x2278dc0..0x22791a9 (구0.5.8=0x1a96640) // // 0.5.6 재핀   // ★0.5.5 ghidra-re 2방법: movzx 앵커 0fb64325.. 전역유일 + HOOK_PROLOGUE12_ALT 실측·.pdata 엔트리. ⚠구값 ~~0x18429d0~~은 실은 0.5.3값(0.5.4 재핀 누락으로 0.5.4 내내 프롤로그검증 실패=죽어있었음)
+const ITEMCONV_RVA: usize = 0x20e1920; // ★0.6.0(ghidra-re 2026-09-17, RE6-09-17_0.6.0-잔여재핀) 콜그래프(0x2262a60 내 2회 연속 호출)·HOOK_PROLOGUE12_ALT·pdata 0x2278dc0..0x22791a9 (구0.5.8=0x1a96640) // // 0.5.6 재핀   // ★0.5.5 ghidra-re 2방법: movzx 앵커 0fb64325.. 전역유일 + HOOK_PROLOGUE12_ALT 실측·.pdata 엔트리. ⚠구값 ~~0x18429d0~~은 실은 0.5.3값(0.5.4 재핀 누락으로 0.5.4 내내 프롤로그검증 실패=죽어있었음)
 static ITEMCONV_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static ITEMCONV_HITS: AtomicU64 = AtomicU64::new(0);
 static ITEM_OVERRIDE: Mutex<Vec<[u64; 3]>> = Mutex::new(Vec::new());   // 슬롯(0~9) → 아이템 id 3개(0=미지정)
@@ -3589,7 +3590,7 @@ unsafe fn install_itemconv_hook() -> Result<String, String> {
         .map(|s| format!("itemconv 0xf794c0 {}", s))
 }
 
-const COLLECT_RVA: usize = 0x2ebb490; // 0.5.6 재핀   // ★0.5.5 ghidra-re 2방법: TypeId+cmovb+mov rsi,[rsi+0x1788] 결합시그 유일 + push8 12B 실측·.pdata 엔트리. ⚠구값 ~~0x18f2b50~~은 실은 0.5.3값(0.5.4선 죽어있었음) // (구0.5.1=0x16203f0, 145 instr)
+const COLLECT_RVA: usize = 0x284e870; // 0.5.6 재핀   // ★0.5.5 ghidra-re 2방법: TypeId+cmovb+mov rsi,[rsi+0x1788] 결합시그 유일 + push8 12B 실측·.pdata 엔트리. ⚠구값 ~~0x18f2b50~~은 실은 0.5.3값(0.5.4선 죽어있었음) // (구0.5.1=0x16203f0, 145 instr)
 static COLLECT_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static COLLECT_HITS: AtomicU64 = AtomicU64::new(0);
 
@@ -3680,7 +3681,7 @@ static GAME_CTX: AtomicU64 = AtomicU64::new(0);   // ef1ea0 rdx=game_ctx(athlete
 //   동점 후보 2개)였으나 **콜그래프 앵커링으로 확정**: 콜사이트 수가 OLD 199 ↔ 0xe3b200 **199로 정확히 일치**
 //   (경합 후보 0x82bff0은 93개 = 탈락), 콜러 컨테이너 3개도 1:1 대응(그 중 서버핸들러 0xf1d2c0→0xe7ccd0은
 //   독립 확정분과 자기일치). ATH_GET_PROLOGUE 17B 실측 MATCH. 신뢰도 HIGH.
-const ATH_GET_SC_RVA: usize = 0x186fcf0; // 0.5.6 재핀           // ⬜0.5.5 미확정(SIM_PROBE_ON=false로 inert·0.5.4값 유지) // shadow-call: rcx=game_ctx+0x16b90, rdx=&id → rax(0=miss), athlete*=[rax]
+const ATH_GET_SC_RVA: usize = 0x1461be0; // 0.5.6 재핀           // ⬜0.5.5 미확정(SIM_PROBE_ON=false로 inert·0.5.4값 유지) // shadow-call: rcx=game_ctx+0x16b90, rdx=&id → rax(0=miss), athlete*=[rax]
 static SELECTED_IDS: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];   // UI 선택 athlete_id(중복 포함)
 static SELECTED_N: AtomicUsize = AtomicUsize::new(0);
 // ★server_dedup_real(0xf67b91)로 중복 등록이 진짜로 되므로 스탯/이름 주입은 불필요 → OFF.
@@ -3742,7 +3743,7 @@ const SIM_PROBE_ON: bool = false;
 // ★0.5.4(2026-08-08 ghidra-re 재핀): ~~0xeb6590(오답 — 재조사 시 켰다면 엉뚱한 함수 후킹)~~ → **0x13b3150**.
 //   근거=Game+0x1dc0/0x1dc8(engine)·+0x1dd0/0x1dd8(mode)·init플래그 +0x208a·SEED +0x40c 전 항목 0.5.1 채록과 일치(HIGH).
 //   완주 폴러(feedback.rs, 구 0x206dc10)=0x148a7c0 · sim 실행 본체(구 0x1a511a0 계열)=0x237c030.
-const ORACLE_RVA: usize = 0x1896cf0; // 0.5.6 재핀  // ★0.5.5(구0.5.4=0x13b3150) skeleton UNIQUE size5417·push8 확인 // 1틱 오케(run one tick), 프롤로그=HOOK_PROLOGUE12
+const ORACLE_RVA: usize = 0x1474070; // 0.5.6 재핀  // ★0.5.5(구0.5.4=0x13b3150) skeleton UNIQUE size5417·push8 확인 // 1틱 오케(run one tick), 프롤로그=HOOK_PROLOGUE12
 static ORACLE_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static ORACLE_GATE: AtomicBool = AtomicBool::new(false);      // loading ACCEPT시 ON = comp_test 스코프
 static ORACLE_CAPTURED: AtomicBool = AtomicBool::new(false);
@@ -3764,8 +3765,8 @@ extern "win64" fn oracle_detour(rcx: usize, rdx: usize, r8: usize, r9: usize, a5
             let game = rdx;
             let rd = |p: usize| -> u64 { if readable(p, 8) { *(p as *const u64) } else { 0 } };
             ORACLE_GAME.store(game as u64, Ordering::Relaxed);
-            ORACLE_MODEVT.store(rd(game + 0x1bb8), Ordering::Relaxed);
-            ORACLE_ENGVT.store(rd(game + 0x1ba8), Ordering::Relaxed);
+            ORACLE_MODEVT.store(rd(game + 0x1b58), Ordering::Relaxed);
+            ORACLE_ENGVT.store(rd(game + 0x1b48), Ordering::Relaxed);
             ORACLE_SEED.store(r8 as u64, Ordering::Relaxed);
         }));
     }
@@ -3777,9 +3778,9 @@ extern "win64" fn oracle_detour(rcx: usize, rdx: usize, r8: usize, r9: usize, a5
     if ORACLE_GATE.load(Ordering::Relaxed) && !ORACLE_ENT_LOGGED.load(Ordering::Relaxed) {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
             let game = rdx;
-            if !readable(game + 0x1e5a, 1) || *((game + 0x1e5a) as *const u8) != 1 { return; }   // init 완료
-            if !readable(game + 0x1ba0, 8) { return; }
-            let engine = *((game + 0x1ba0) as *const usize);
+            if !readable(game + 0x1dfa, 1) || *((game + 0x1dfa) as *const u8) != 1 { return; }   // init 완료
+            if !readable(game + 0x1b40, 8) { return; }
+            let engine = *((game + 0x1b40) as *const usize);
             if engine < 0x10000 || !readable(engine + 0x848, 8) { return; }
             let base = *((engine + 0x840) as *const usize);
             let count = *((engine + 0x848) as *const usize);
@@ -3815,9 +3816,9 @@ extern "win64" fn oracle_detour(rcx: usize, rdx: usize, r8: usize, r9: usize, a5
     if ORACLE_GATE.load(Ordering::Relaxed) && A2_WRITE_ON.load(Ordering::Relaxed) {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
             let game = rdx;
-            if !readable(game + 0x1e5a, 1) || *((game + 0x1e5a) as *const u8) != 1 { return; }
-            if !readable(game + 0x1ba0, 8) { return; }
-            let engine = *((game + 0x1ba0) as *const usize);
+            if !readable(game + 0x1dfa, 1) || *((game + 0x1dfa) as *const u8) != 1 { return; }
+            if !readable(game + 0x1b40, 8) { return; }
+            let engine = *((game + 0x1b40) as *const usize);
             if engine < 0x10000 || !readable(engine + 0x848, 8) { return; }
             let base = *((engine + 0x840) as *const usize);
             let count = *((engine + 0x848) as *const usize);
@@ -3933,7 +3934,7 @@ unsafe fn install_oracle_probe() -> Result<String, String> {
 // 0.5.2: ~~0.5.1 0x162f500~~ → **0xd1acf0**. L1~L3 NO-MATCH(264→261 instr·align=0.819)지만 코사인
 //   0.99988 vs 2nd 0.99501로 갭 충분 + 콜사이트 2↔2, 콜러 컨테이너 0x1617e60→**0xd038a0이 L1-UNIQUE**로
 //   독립 확정되어 자기일치. PROL-OK push8 12B. 신뢰도 HIGH.
-const SLOT_RVA: usize = 0x1cd7020;   // ⬜0.5.5 미확정(SIM_PROBE_ON=false로 inert·install_hook12 fail-safe·0.5.4값 유지)
+const SLOT_RVA: usize = 0x1a30a30;   // ⬜0.5.5 미확정(SIM_PROBE_ON=false로 inert·install_hook12 fail-safe·0.5.4값 유지)
 static SLOT_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static SLOT_HITS: AtomicU64 = AtomicU64::new(0);
 
@@ -3949,7 +3950,7 @@ static SLOT_HITS: AtomicU64 = AtomicU64::new(0);
 //   dealloc = 범용 함수가 **인라인화로 소멸**(0.5.2 형태의 함수가 0.5.3 .text 에 없음)
 //           ⟹ 그 본문과 동일한 `HeapFree(GetProcessHeap(), 0, ptr)` 를 직접 호출한다.
 //           (0.5.2 본문의 `align>16 → ptr-8` 보정은 align=1 호출이라 해당 없음)
-const RUST_ALLOC_RVA: usize = 0x34a9590; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x28f7df0) 다중앵커 투표 62/62 size927 동일 (game_alloc 소비처=slot/cosmetic OFF = inert)
+const RUST_ALLOC_RVA: usize = 0x353db40; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x28f7df0) 다중앵커 투표 62/62 size927 동일 (game_alloc 소비처=slot/cosmetic OFF = inert)
 static SELECTED_NAMES: Mutex<Vec<String>> = Mutex::new(Vec::new());
 
 unsafe fn game_alloc(size: usize, _align: usize) -> usize {
@@ -4062,11 +4063,11 @@ unsafe fn install_slot_probe() -> Result<String, String> {
 //   ②HYBRID는 "선수중복"의 **폐기된 프로토타입**이고 진짜 해법은 server_dedup_real(07-20 인게임 검증완)
 //   ③CT_ARM_LO/HI(comp_test arm 범위)가 0.5.0_2 기준이라 재도출 안 됨 = 되살리면 필터가 상시 false.
 //   되살리려면 ghidra-re로 CT_ARM 범위부터 재확정할 것. 현 상태 = 프롤로그 검증 fail-safe로 inert(0.5.2 확인필).
-const ATH_GET_RVA: usize = 0x4cbcc0; // ⬜죽은 상수(0.4.x 잔재·훅 비활성·실체=ATH_GET_SC_RVA)
-const ATH_GET_JE_TARGET_RVA: usize = 0x4cbd7b; // ⬜죽은 상수(위와 동일)
+const ATH_GET_RVA: usize = 0x4cbb90; // ⬜죽은 상수(0.4.x 잔재·훅 비활성·실체=ATH_GET_SC_RVA)
+const ATH_GET_JE_TARGET_RVA: usize = 0x4cbc4b; // ⬜죽은 상수(위와 동일)
 const ATH_GET_PROLOGUE: [u8; 17] = [0x56, 0x57, 0x48, 0x83, 0xec, 0x28, 0x48, 0x83, 0x79, 0x18, 0x00, 0x0f, 0x84, 0xaa, 0x00, 0x00, 0x00];
-const CT_ARM_LO: usize = 0x19fbb70;              // ⬜미확정(0.5.0_2 기준·HYBRID 비활성이라 inert)
-const CT_ARM_HI: usize = 0x1ca6b60;              // ⬜미확정(위와 동일)
+const CT_ARM_LO: usize = 0x16473c0;              // ⬜미확정(0.5.0_2 기준·HYBRID 비활성이라 inert)
+const CT_ARM_HI: usize = 0x19846d0;              // ⬜미확정(위와 동일)
 const HYBRID_ENABLED: bool = true;
 static HYBRID_ACTIVE: AtomicBool = AtomicBool::new(false);  // ★comp_test 실행 중에만 true(세이브 로드 레이스 회피)
 static ATH_GET_TRAMP: AtomicUsize = AtomicUsize::new(0);

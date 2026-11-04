@@ -1,0 +1,48 @@
+{
+ "tfm2_transfer_fix": {
+  "0x150c89a": [
+   "0x1ca4a7a",
+   "HIGH · 엔진값=정렬값(BYTES_UNIQUE·EXACT) · owner 0x1ca4a40(구 0x150c860 · skel 동일 · size 440=440 · 정규화 diff 0) +0x3a · orig 8B f20f10b3a0000000 불변 · ⚠지점은 맞지만 ②는 0.7.1 에서 게임이 고쳐 패치 불필요(0x12bfb42 호출이 pay_correction 갱신 앞으로 이동 + 새 게임은 10칸 사전 충전) — 제거 권고"
+  ],
+  "0x150ca20": [
+   "0x1ca4c00",
+   "HIGH · 엔진값 · 함수시작 3종 일치(콜러 10/10 · callee 사영 1.0 · size 1056=1056) · 콜사이트 13:13 전수 대응 · 정규화 diff 0 · orig 9B 41565657534883ec48 불변 · 앞 5B 뒤 명령 경계 동일"
+  ],
+  "0x1bdc25a": [
+   "0x140ddda",
+   "HIGH · FAIL→정렬값 확정 · owner 0x140d7f0(구 0x1bdbdb0 · 콜러 1:1 0x1b8ae10->0x142e6d0 · callee 사영 일치 · 식 전체 나란히 대조) +0x5ea · movsd xmm0,[0x4104d90]=0.95 · prefix f20f1005 불변 · 뒤 명령열 동형(표본 없음 ①: movupd [out],xmm0 / byte +0x18=0 / +0x10=v)"
+  ],
+  "0x1bdc28a": [
+   "0x140de09",
+   "HIGH · FAIL→정렬값 확정 · owner 0x140d7f0(구 0x1bdbdb0 · 콜러 1:1 0x1b8ae10->0x142e6d0 · callee 사영 일치 · 식 전체 나란히 대조) +0x619 · movsd xmm0,[0x4104d90]=0.95 · prefix f20f1005 불변 · 표본 없음 ②(색인 비고 팀도 없음)"
+  ],
+  "0x1bdc2f1": [
+   "0x140de73",
+   "HIGH · FAIL→정렬값 확정 · owner 0x140d7f0(구 0x1bdbdb0 · 콜러 1:1 0x1b8ae10->0x142e6d0 · callee 사영 일치 · 식 전체 나란히 대조) +0x683 · ★명령이 movsd xmm7,[0x4104d90] 으로 레지스터 변경 → 소스 prefix f20f1035→f20f103d 필수(lib.rs:57)"
+  ],
+  "0x1bdc2f9": [
+   "0x140de7b",
+   "HIGH · FAIL→정렬값 확정 · owner 0x140d7f0(구 0x1bdbdb0 · 콜러 1:1 0x1b8ae10->0x142e6d0 · callee 사영 일치 · 식 전체 나란히 대조) +0x68b · ★maxsd xmm0,xmm7 = f20f5fc7 → 소스 ORIG_S_MAX c6→c7 필수(lib.rs:50) · NOP4 교체는 그대로 유효"
+  ],
+  "0x1bdc2fd": [
+   "0x140de7f",
+   "HIGH · FAIL→정렬값 확정 · owner 0x140d7f0(구 0x1bdbdb0 · 콜러 1:1 0x1b8ae10->0x142e6d0 · callee 사영 일치 · 식 전체 나란히 대조) +0x68f · addsd xmm0,[0x4104d98]=-0.95 · prefix f20f5805 불변"
+  ],
+  "0x1bdc45b": [
+   "0x140dfdb",
+   "HIGH · FAIL→정렬값 확정 · owner 0x140d7f0(구 0x1bdbdb0 · 콜러 1:1 0x1b8ae10->0x142e6d0 · callee 사영 일치 · 식 전체 나란히 대조) +0x7eb · movapd xmm0,[0x4104da0]={0.95,0} · prefix 660f2805 불변 · 뒤 movhpd xmm0,[rbx+rdi*4] 동형(표본 없음 ③)"
+  ],
+  "0x4081cc0": [
+   "0x4104d90",
+   "HIGH · ★엔진 오답(0x4104da0) 정정 · 코드 rip 역추적: s.c 0x140de73 · s.def1 0x140ddda · s.def2 0x140de09 세 곳 모두 대상 0x4104d90 · 값 0.95 · 엔진값이면 세 패치 전부 「원 대상 불일치」로 스킵"
+  ],
+  "0x40820b8": [
+   "0x4104d98",
+   "HIGH · 엔진 FAIL→확정 · 코드 rip 역추적: s.-c 0x140de7f 대상 · 값 -0.95 · 참조 함수 5:5 대응(s·board·book·floor·0x1df9b20)"
+  ],
+  "0x411a0f0": [
+   "0x4104da0",
+   "HIGH · 엔진값(코드 역추적 일치) · s.def3 0x140dfdb 대상 · 값 {0.95,0.0} · 0x4104da0 %16==0 · 참조 1:1(이 movapd 뿐)"
+  ]
+ }
+}

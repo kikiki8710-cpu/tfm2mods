@@ -7,8 +7,8 @@
  "entries": [
   {
    "name": "RVA_PCS_INIT",
-   "value": "0x150c89a",
-   "ver": "0.7.0",
+   "value": "0x1ca4a7a",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:69"
@@ -19,8 +19,8 @@
   },
   {
    "name": "RVA_P_FN",
-   "value": "0x150ca20",
-   "ver": "0.7.0",
+   "value": "0x1ca4c00",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:74"
@@ -31,80 +31,80 @@
   },
   {
    "name": "RIP_SITES",
-   "value": "0x1bdc25a",
-   "ver": "0.7.0",
+   "value": "0x140ddda",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:61"
    ],
    "sect": ".text",
-   "bytes": "f20f10055e5a4a02488b4500",
+   "bytes": "f20f1005ae6fcf02488b4500",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RIP_SITES",
-   "value": "0x1bdc28a",
-   "ver": "0.7.0",
+   "value": "0x140de09",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:63"
    ],
    "sect": ".text",
-   "bytes": "f20f10052e5a4a02660f1106",
+   "bytes": "f20f10057f6fcf0266410f11",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RIP_SITES",
-   "value": "0x1bdc2f1",
-   "ver": "0.7.0",
+   "value": "0x140de73",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:57"
    ],
    "sect": ".text",
-   "bytes": "f20f1035c7594a02f20f5fc6",
+   "bytes": "f20f103d156fcf02f20f5fc7",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_S_MAX",
-   "value": "0x1bdc2f9",
-   "ver": "0.7.0",
+   "value": "0x140de7b",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:49"
    ],
    "sect": ".text",
-   "bytes": "f20f5fc6f20f5805b35d4a02",
+   "bytes": "f20f5fc7f20f5805116fcf02",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RIP_SITES",
-   "value": "0x1bdc2fd",
-   "ver": "0.7.0",
+   "value": "0x140de7f",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:59"
    ],
    "sect": ".text",
-   "bytes": "f20f5805b35d4a02f20f5ec6",
+   "bytes": "f20f5805116fcf02f20f5ec7",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "INLINE@src/lib.rs:65",
-   "value": "0x1bdc45b",
-   "ver": "0.7.0",
+   "value": "0x140dfdb",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:65"
    ],
    "sect": ".text",
-   "bytes": "660f28058ddc5302660f1604",
+   "bytes": "660f2805bd6dcf02660f1604",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RIP_SITES",
-   "value": "0x4081cc0",
-   "ver": "0.7.0",
+   "value": "0x4104d90",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:57",
@@ -112,25 +112,25 @@
     "src/lib.rs:63"
    ],
    "sect": ".rdata",
-   "bytes": "666666666666ee3f00000000",
+   "bytes": "666666666666ee3f66666666",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RIP_SITES",
-   "value": "0x40820b8",
-   "ver": "0.7.0",
+   "value": "0x4104d98",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:59"
    ],
    "sect": ".rdata",
-   "bytes": "666666666666eebfe90b21e7",
+   "bytes": "666666666666eebf66666666",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "INLINE@src/lib.rs:65",
-   "value": "0x411a0f0",
-   "ver": "0.7.0",
+   "value": "0x4104da0",
+   "ver": "0.7.1",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:65"
