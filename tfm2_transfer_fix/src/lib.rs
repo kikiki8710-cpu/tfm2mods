@@ -1,4 +1,4 @@
-// tfm2_transfer_fix — 0.7.0 이적·연봉 산식의 계산 오류 3가지를 바로잡는다
+// tfm2_transfer_fix — 0.7.0 이적·연봉 산식의 문제 ~~3가지~~ → 2가지를 바로잡는다(v0.2.2 · 구 ③ = 지금 ②)
 // =====================================================================================
 // 근거 = 정적 RE(게임 0.7.0 · exe sha256 D678E012… · 2026-11-01)
 //   REPORT\tfm2_transfer_tweak\RE\2026-11-01_0.7.0_*  (A·B·C·D·E·F·G · 실측·설계판정)
@@ -13,19 +13,16 @@
 //          rip-rel disp32 를 우리 상수 칸으로 재지향한다 — 원 상수(.rdata)는 다른 코드도 읽을 수 있어 건드리지 않는다.
 //    파급: 같은 s 가 셀러 바닥가(base·e^{s·t})와 재계약 동료시장 견인 상한(e^s)에도 쓰여 함께 낮아진다.
 //
-// ② 10분위 연봉 보정 첫 생성 이중 적용 — `0x150c860`(SalaryBasis 갱신, 연도 전환 때 1회)
-//    pay_corrections 가 비어 있으면(실측: 0.7.0 첫 시즌 세이브 전부) 「방금 갱신한」 전체 pay_correction 으로
-//    10칸을 채운 뒤 같은 해 분위 인자를 또 곱한다 ⟹ 같은 해 인자가 두 번 곱해진다(확실한 실수).
-//    수정: 초기값 로드 `movsd xmm6,[rbx+0xa0]`(8B)를 `xorpd xmm6,xmm6 + nop4` 로 →
-//          바로 뒤 원본 코드의 (값 ≤ 0 이면 1.0) 분기가 초기값을 1.0 으로 만든다.
+// ~~② 10분위 연봉 보정 첫 생성 이중 적용~~ → 0.7.1 에서 게임이 호출 순서를 고쳐 v0.2.2 에서 삭제
+//    (0.7.0 판 패치 = 초기값 로드 `movsd xmm6,[rbx+0xa0]` → `xorpd xmm6,xmm6` · RE 2026-11-04_0.7.1-재핀판정-로직대조)
 //
-// ③ 연봉·선수가치 배율 P 상·하한 — `0x150ca20(rcx=SalaryBasis*, xmm1=능력값) → xmm0=P`, 호출자 13곳
+// ② 연봉·선수가치 배율 P 상·하한 — `0x150ca20(rcx=SalaryBasis*, xmm1=능력값) → xmm0=P`, 호출자 13곳
 //    P 는 해마다 상한 없이 누적 곱해지고 백분위 누적최대를 거친다 ⟹ 유저 팀 굿즈 수입이 크면 상위 1% 가 9~18배.
 //    수정: 함수 입구 5B(push r14/rsi/rdi/rbx)를 jmp rel32 로 → 스텁이 원본을 부른 뒤 xmm0 을 max 로 자르고,
 //          min > 0 일 때만 min 으로 올린다. 스텁은 실측 통계(호출 수 · 원래 P 최솟값/최댓값 · 상·하한에 걸린 횟수)를 남긴다.
 //    ★이건 계산 실수 수정이 아니라 게임에 없던 안전장치다(설계 의도 = 리그 재정 되먹임, 조율 실패).
 //      그래서 기본값 = 상한 5.0 · 하한 없음 — 평소 게임 계산은 그대로 두고 폭주할 때만 자른다(유저 결정 2026-11-02).
-//      ~~v0.1.0 기본 0.8~2.0~~: ② 수정과 겹쳐 하한 0.8 이 게임 식의 낮은 값(0.67 등)을 끌어올렸다(실측 164만 회).
+//      ~~v0.1.0 기본 0.8~2.0~~: 구 ② 수정과 겹쳐 하한 0.8 이 게임 식의 낮은 값(0.67 등)을 끌어올렸다(실측 164만 회).
 //
 // 안전 규칙
 //   · 모든 패치는 ①원본 바이트 ②(재지향이면) 원 대상 RVA ③원 상수 값을 대조하고, 하나라도 다르면 그 패치만 건너뛰고 로그.
@@ -65,12 +62,7 @@ const RIP_SITES: [RipSite; 5] = [
     RipSite { name: "s.def3", rva: 0x140dfdb, prefix: [0x66, 0x0f, 0x28, 0x05], old_tgt: 0x4104da0, old_val: 0.95,  slot: SLOT_DEF },
 ];
 
-// ── ② 10분위 보정 초기값 (0.7.1 — 게임이 호출 순서를 고쳐 초기값이 이미 1.0 · 패치는 결과 불변 · RE 2026-11-04_0.7.1-재핀판정-로직대조) ──
-const RVA_PCS_INIT: usize = 0x1ca4a7a;
-const ORIG_PCS_INIT: [u8; 8] = [0xf2, 0x0f, 0x10, 0xb3, 0xa0, 0x00, 0x00, 0x00]; // movsd xmm6,[rbx+0xa0]
-const NEW_PCS_INIT: [u8; 8] = [0x66, 0x0f, 0x57, 0xf6, 0x0f, 0x1f, 0x40, 0x00];  // xorpd xmm6,xmm6 ; nop4
-
-// ── ③ 배율 함수 입구 (0.7.1) ──
+// ── ② 배율 함수 입구 (0.7.1) ──
 const RVA_P_FN: usize = 0x1ca4c00;
 const ORIG_P_FN: [u8; 9] = [0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x48]; // push r14/rsi/rdi/rbx ; sub rsp,0x48
 const STOLEN: usize = 5;                                                           // 위 push 4개 = 위치 무관 명령
@@ -138,13 +130,11 @@ fn log(s: &str) {
 
 struct Cfg {
     spread_floor_fix: bool, spread_c: f64, spread_default: f64,
-    double_apply_fix: bool,
     mult_clamp: bool, mult_min: f64, mult_max: f64,
 }
 impl Default for Cfg {
     fn default() -> Self {
         Cfg { spread_floor_fix: true, spread_c: 0.95, spread_default: 0.23,
-              double_apply_fix: true,
               mult_clamp: true, mult_min: 0.0, mult_max: 5.0 }   // mult_min 0 = 하한 없음
     }
 }
@@ -162,15 +152,11 @@ spread_c = 0.95
 # 비교할 시장 표본이 없을 때 쓰는 호가 폭 (바닐라 0.95 = 2.59배 · 0.23 = 1.26배)
 spread_default = 0.23
 
-# ② 첫 시즌 종료 때 연봉 보정이 두 번 곱해지는 오류 수정 (1 = 켬, 0 = 끔)
-#    0.7.1 부터 게임이 직접 고쳤다. 켜 둬도 결과는 같다.
-double_apply_fix = 1
-
-# ③ 연봉·선수가치 배율 상한 (1 = 켬, 0 = 끔 · 바닐라는 제한 없음)
+# ② 연봉·선수가치 배율 상한 (1 = 켬, 0 = 끔 · 바닐라는 제한 없음)
 #    바닐라: 배율이 해마다 상한 없이 누적돼, 시즌이 쌓이면 상위 선수 연봉·이적료가 크게 치솟을 수 있다.
 #    기본 상한 5.0 = 평소엔 거의 걸리지 않고 폭주할 때만 자르는 안전장치(게임 계산은 최대한 그대로).
 #    ★연봉·이적료가 너무 많이 오른다 싶으면 salary_mult_max 를 낮추세요 (예: 3.0, 더 세게는 2.0).
-#      참고: 0.7.0 첫 연도 전환 직후 배율은 0.67 ~ 1.85 였다(② 수정 켬 · 2026-11 실측).
+#      참고: 0.7.0 첫 연도 전환 직후 배율은 0.67 ~ 1.85 였다(2026-11 실측).
 salary_mult_clamp = 1
 salary_mult_max = 5.0
 #    하한 (0 = 없음 · 기본). 낮은 연봉이 너무 떨어진다 싶을 때만 0.05 ~ 1 사이 값을 넣으세요 (예: 0.8).
@@ -198,7 +184,7 @@ fn load_config() -> (Cfg, Vec<String>) {
         let f = |v: &str| v.parse::<f64>().ok().filter(|x| x.is_finite());
         match k {
             "spread_floor_fix" => c.spread_floor_fix = b(v),
-            "double_apply_fix" => c.double_apply_fix = b(v),
+            "double_apply_fix" => {}   // v0.2.2 삭제 — 옛 cfg 에 남은 줄은 조용히 넘긴다
             "salary_mult_clamp" => c.mult_clamp = b(v),
             "spread_c" => match f(v) { Some(x) if (0.05..=3.0).contains(&x) => c.spread_c = x,
                 _ => notes.push(format!("spread_c={} 범위(0.05~3) 밖 → {}", v, c.spread_c)) },
@@ -289,7 +275,7 @@ unsafe fn redirect(base: usize, page: usize, s: &RipSite) -> Result<String, Stri
 
 fn emit_mov_rax(s: &mut Vec<u8>, imm: u64) { s.extend_from_slice(&[0x48, 0xb8]); s.extend_from_slice(&imm.to_le_bytes()); }
 
-/// ③ 배율 함수 스텁 + 트램폴린을 page+STUB_OFF 에 조립. 반환 = (스텁 주소, 트램폴린 주소).
+/// ② 배율 함수 스텁 + 트램폴린을 page+STUB_OFF 에 조립. 반환 = (스텁 주소, 트램폴린 주소).
 ///   스텁: sub rsp,0x28 → call tramp(원본) → add rsp,0x28 → 통계 → [상한] → [하한] → ret
 ///   진입 rsp ≡ 8 (mod 16) → sub 0x28 후 call 하면 원본 진입 정렬이 원래와 같다. 원본의 홈 영역 = 우리가 비운 0x28.
 ///   하한을 끄면(min = 0) 하한 코드를 아예 넣지 않는다 — NaN 도 바닐라처럼 그대로 통과.
@@ -371,8 +357,8 @@ fn init(host: &StableHost) -> StableMod {
     log(&format!("\n[{}ms] === {} INIT (게임 {}) ===\n", now_ms(), MOD_ID, GAME_VER));
     for n in &notes { log(&format!("[cfg] {}\n", n)); }
     let lo_txt = if cfg.mult_min > 0.0 { format!("{}", cfg.mult_min) } else { "없음".to_string() };
-    log(&format!("[cfg] ①호가하한제거={} c={} 기본s={} | ②이중적용수정={} | ③배율제한={} 상한={} 하한={}\n",
-                 cfg.spread_floor_fix, cfg.spread_c, cfg.spread_default, cfg.double_apply_fix,
+    log(&format!("[cfg] ①호가하한제거={} c={} 기본s={} | ②배율제한={} 상한={} 하한={}\n",
+                 cfg.spread_floor_fix, cfg.spread_c, cfg.spread_default,
                  cfg.mult_clamp, cfg.mult_max, lo_txt));
 
     let mut results: Vec<(String, Result<String, String>)> = Vec::new();
@@ -398,11 +384,8 @@ fn init(host: &StableHost) -> StableMod {
                 results.push((format!("①{}", s.name), redirect(base, page, s)));
             }
         }
-        if cfg.double_apply_fix {
-            results.push(("②10분위 초기값 1.0".into(), patch_fixed(base, RVA_PCS_INIT, &ORIG_PCS_INIT, &NEW_PCS_INIT)));
-        }
-        // ③ 훅은 통계를 위해 제한이 꺼져 있어도 설치한다(clamp 코드만 빠짐).
-        results.push(("③배율 훅".into(), hook_p_fn(base, page, cfg.mult_clamp, cfg.mult_clamp && cfg.mult_min > 0.0)));
+        // ② 훅은 통계를 위해 제한이 꺼져 있어도 설치한다(clamp 코드만 빠짐).
+        results.push(("②배율 훅".into(), hook_p_fn(base, page, cfg.mult_clamp, cfg.mult_clamp && cfg.mult_min > 0.0)));
     }
     let fails: Vec<&(String, Result<String, String>)> = results.iter().filter(|(_, r)| r.is_err()).collect();
     if fails.is_empty() {
