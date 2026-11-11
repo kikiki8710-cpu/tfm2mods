@@ -40,7 +40,7 @@ for i, l in enumerate(lines):
         title = title.replace(GALL, '').strip()
         assert title and img, l
         rows.append((head, title, l))
-        out.append('<p>%s</p>' % esc(l))
+        out.append('<p><a href="%s" target="_blank">%s</a></p>' % (esc(l), esc(l)))  # URL 줄도 링크로(유저 확정판 11-11)
         out.append(CARD.replace('{URL}', esc(l)).replace('{IMG}', esc(img)).replace('{TITLE}', esc(title)).replace('{DESC}', esc(desc)))
         out.append('<p><br></p>' if i == len(lines) - 1 else '<p><br></p><p><br></p>')
         time.sleep(0.4)
@@ -55,8 +55,8 @@ s = ''.join(out)
 assert '\n' not in s
 urls = [r[2] for r in rows]
 assert len(set(urls)) == len(urls), '같은 URL'
-pairs = re.findall(r'<p>(https://[^<]*)</p><div class="og-div" contenteditable="false"><a href="([^"]*)"', s)
-assert len(pairs) == len(urls) and all(a == b for a, b in pairs), '카드 주소 불일치'
+pairs = re.findall(r'<p><a href="([^"]*)" target="_blank">(https://[^<]*)</a></p><div class="og-div" contenteditable="false"><a href="([^"]*)"', s)
+assert len(pairs) == len(urls) and all(a == b == c for a, b, c in pairs), '카드 주소 불일치'
 open(dst, 'w', encoding='utf-8', newline='').write(s)
 for h, t, u in rows:
     print('%-34s %-34s no=%s' % (h, t, re.search(r'no=(\d+)', u).group(1)))
