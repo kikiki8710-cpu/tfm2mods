@@ -7,7 +7,7 @@
 use crate::draft_scene::SwapState;
 use std::sync::atomic::{AtomicU64, AtomicU8, Ordering};
 
-pub const RVA_SELECT_SWAP: usize = 0x2876590;
+pub const RVA_SELECT_SWAP: usize = 0x2f31020;
 const PROL: [u8; 12] = [0x48, 0x83, 0xec, 0x28, 0x80, 0xb9, 0x81, 0x04, 0x00, 0x00, 0x00, 0x0f];
 const OFF_SELECTED_TAG: usize = 0x0;
 const OFF_SENT: usize = 0x47e; // ★0.7.0 +0x18(0.6.x=0x466) · PROL byte6 0x69→0x81 = `cmp byte [rcx+0x481],0`

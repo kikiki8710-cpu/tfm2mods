@@ -1,6 +1,6 @@
 {
  "mod": "banpick_view_plus",
- "game_ver": "0.7.1",
+ "game_ver": "0.7.2",
  "fns": {
   "0x158fa0": {
    "name": "RVA_ASSET_GET",
@@ -151,7 +151,7 @@
     "0xbc": 2
    }
   },
-  "0x2f67450": {
+  "0x2ac7830": {
    "name": "RVA_IMG_COLOR",
    "size": 2107,
    "offs": {
@@ -162,7 +162,7 @@
     "0x20": 8,
     "0x8c": 6,
     "0x28": 10,
-    "0x38": 10,
+    "0x38": 8,
     "0x48": 8,
     "0x58": 6,
     "0xac": 2,
@@ -201,7 +201,7 @@
     "0x18": 1
    }
   },
-  "0x288b930": {
+  "0x2f463d0": {
    "name": "RVA_FX_SET",
    "size": 1460,
    "offs": {
@@ -225,7 +225,7 @@
     "0x3bc": 1
    }
   },
-  "0x28a12c0": {
+  "0x2f5bd60": {
    "name": "RVA_CARD_DRAW",
    "size": 2997,
    "offs": {
@@ -234,14 +234,14 @@
     "0x48": 1
    }
   },
-  "0x28e82d0": {
+  "0x2f9a890": {
    "name": "RVA_NAME_GET",
    "size": 331,
    "offs": {
     "0x10": 2
    }
   },
-  "0x28ed5e0": {
+  "0x2f9fba0": {
    "name": "RVA_SPRITE_CALC",
    "size": 1405,
    "offs": {
@@ -253,7 +253,7 @@
     "0x20": 1
    }
   },
-  "0x28d2ea0": {
+  "0x277d4a0": {
    "name": "RVA_ILLUST_GET",
    "size": 617,
    "offs": {
@@ -266,7 +266,7 @@
     "0x24": 1
    }
   },
-  "0x3603550": {
+  "0x367c910": {
    "name": "RVA_GAME_ALLOC",
    "size": 60,
    "offs": {}

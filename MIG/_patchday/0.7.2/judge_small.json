@@ -1,0 +1,36 @@
+{
+ "tfm2_level_cap": {
+  "0x90552b": [
+   "0xccea0b",
+   "HIGH · `cmp r64,[reg+0xd10]` .text 전수 양쪽 1건 · owner 0x8fd680→0xcc6b60 size 40747·8299/8299 명령·사이트 +0x7eab 동일(유일 차이 = TLS 블록 disp 0x1a2b0→0x21900 1줄) · 다음 0xd08 접근 site+0xc9e = 0xccf6a9 mov rax,[rax+0xd08] · orig 7B 483b88100d0000 불변 · 진입분기 0 · 엔진값·정렬 AGREE 일치"
+  ],
+  "0x14a7164": [
+   "0x14a25b4",
+   "HIGH · 방법①(len 로드+0xd08+sub [..*8-8]) .text 전수 양쪽 1건 · owner 0x14a6cf0→0x14a2140 사이트 +0x474 동일·사이트 앞뒤 25명령 무차이 · ⚠owner 는 바뀜(435→461 명령: 레벨업 뒤 TLS 이벤트 기록 push 신설 + 레지스터 재배치, 레벨업·need_exp 인덱싱 로직 불변) · orig 7B 488b90100d0000 불변 · rax=GameSetting·r14=level·rdx 목적 불변 · 진입분기 0 · 엔진값·정렬 EXACT 일치"
+  ]
+ },
+ "tfm2_champion_exclude": {
+  "0x1ee7850": [
+   "0x1f615a0",
+   "HIGH · skel SAME·size 331·86/86 명령 무차이(즉값·disp 포함)·skel 클론 1/1 · 콜슬롯 5/5 · 앞 48B 신 exe 유일 · 17B HOOK_ORIG 일치 · 콜러 0x2c8d810→0x28273b0(재작성 5552→4514B, 짝 없음)이나 콜사이트 규약 동일: rcx=&out, rdx=&iter, 반환 뒤 out+0x10 len·out+8 ptr · 엔진값 일치"
+  ]
+ },
+ "tfm2_champ_pos_lock": {
+  "0x1ccde80": [
+   "0x17999b0",
+   "HIGH · skel SAME·size 2569·497/497 명령 무차이·클론 1/1 · 콜러 계보 0x17f6a00→0x1c88ab0(skel1) 일치 · 콜슬롯 16/16 · rip 데이터 36/36(차이 = panic 위치표의 파일 포인터뿐, line/col 동일) · PROL 12B 일치 · 엔진값 일치"
+  ],
+  "0x2876590": [
+   "0x2f31020",
+   "HIGH · skel SAME·size 423·97/97 명령 무차이(즉값·disp 포함) · 콜러 계보 2/2(0x23a3510→0x2416a80, 0x23f80d0→0x246bce0) · 콜슬롯 4/4 · 12B 유일 · PROL 12B(byte6 0x81) 일치 · 엔진값 일치"
+  ],
+  "0x23a2d60": [
+   "0x24162d0",
+   "HIGH · skel SAME·size 1816·393/393(차이 = TypeId 해시 movabs 6줄) · 표 슬롯 0x42aac10/18(머리 size 0x20·align 8 동일) · 콜슬롯 27/27 수 일치(skel 불일치 4 = 접두 비교 헬퍼 0x28a8c30→0x2f636d0 의 SIMD→memcmp 코드젠 변화 1 + 함수 중간 진입 0x2880a30→0x2f3b4c0(같은 skel·+0xb0) 1 + 임포트 썽크 2) · `mov qword [rcx],0x23`·[rbx+0x28]/[rbx+0x30]·\"champions.contents.\" 유지 · +0x8c0 = SWAP_CONFIRM 인접 유지 · PROL 12B 일치 · 32B 유일 · 엔진값 일치"
+  ],
+  "0x23a3620": [
+   "0x2416b90",
+   "HIGH · skel SAME·size 1197·259/259(차이 = TypeId 해시 movabs 8줄, 프레임 0x1f28·stride 0x1e90 불변) · 콜러 계보 0x23f81e0→0x246bdf0(skel1) · 표 슬롯 0x42a5360/68(머리 size 0xc8 동일) · 문자열 swap.bottom.confirm · `mov qword [rax],0x27` 유지 · PROL 12B 일치 · 32B 유일 · 엔진값 일치"
+  ]
+ }
+}

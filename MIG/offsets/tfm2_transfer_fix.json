@@ -1,8 +1,8 @@
 {
  "mod": "tfm2_transfer_fix",
- "game_ver": "0.7.1",
+ "game_ver": "0.7.2",
  "fns": {
-  "0x1ca4c00": {
+  "0x1770350": {
    "name": "RVA_P_FN",
    "size": 1056,
    "offs": {

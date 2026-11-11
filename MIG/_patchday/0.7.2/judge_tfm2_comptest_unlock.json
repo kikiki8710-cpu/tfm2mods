@@ -1,0 +1,312 @@
+{
+ "tfm2_comptest_unlock": {
+  "0x3a93f0": [
+   "0x3a92f0",
+   "HIGH · 엔진 CLONE 후보 0x3a92f0 확정: 콜슬롯 계보 투표 558 대 1(구 콜러 300의 신 짝에서 같은 콜 순번 타깃), 28클론 중 콜러 300/300 일치 유일, HOOK12 12B 동일. 실사용(ASSETS 캡처) ※serpen UILOADER 같은 값"
+  ],
+  "0x4cbb90": [
+   "0x4cba90",
+   "MED(죽은 상수) · 엔진 BYTES_UNIQUE 64B AGREE, owner 0x4cbb70→0x4cba70 +0x20 동일(원래 명령 중간 — inert)"
+  ],
+  "0x4cbc4b": [
+   "0x4cbb4b",
+   "MED(죽은 상수) · 엔진 BYTES_UNIQUE 12B AGREE, owner +0xdb `je` 동일"
+  ],
+  "0x8543f0": [
+   "0x854150",
+   "MED(죽은 상수·소스 정의만) · 엔진 FAIL_OWNER→확정 0x854150: EH 펑클릿 마스크 패턴(콜 rel32 와일드) 동형 26개 중 콜타깃 0x7fb9a0(구 0x7fbec0 짝)인 9개 서수 4/9 동일, 앞 함수 672B/45B 배치 동일, 펑클릿 0x8543e0→0x854140 +0x10, 부모 0x854110→0x853e70 Δ−0x2a0 일치"
+  ],
+  "0xaecd3a": [
+   "0xb3d8fa",
+   "HIGH · 엔진 AGREE: DRIVE 0xaeccd0→0xb3d890(콜러 1/1) +0x6a 동일, 앞 `mov r12,rcx` 뒤 19B `mov [rbp+0x16c50],-1; mov [rbp+0x10],-1` 바이트 동일 = DRIVE_ORIG MATCH, 프레임 0x17fd8·p4 슬롯 사용횟수 236/15/10/15/1 동일"
+  ],
+  "0xaecd4d": [
+   "0xb3d90d",
+   "HIGH · 엔진 AGREE: DRIVE site+0x13 `mov [rbp+0x3758],-1` 동일(스틸 범위 밖 복귀점)"
+  ],
+  "0xee7ac0": [
+   "0xefcda0",
+   "MED(죽은 상수·프롤로그 검증 Err 로 inert) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x1a0 동일 · 신값 DEDUP_INS_PROLOGUE 불일치 확인(오설치 없음)"
+  ],
+  "0x111a682": [
+   "0x10f1112",
+   "MED(inert — INSERT 프로브 Err) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x312 동일"
+  ],
+  "0xf186d0": [
+   "0xee96a0",
+   "MED(죽은 상수) · 엔진 MID_OWNER_HEAD_UNIQUE AGREE owner +0x2c0 동일 · 신값 ENQ_PROLOGUE 불일치"
+  ],
+  "0x10e8970": [
+   "0x10f2990",
+   "MED(죽은 상수) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x70 동일 · 신값 INSERT_PROLOGUE 불일치"
+  ],
+  "0x17cdfa0": [
+   "0x1aeee70",
+   "HIGH · 엔진 FAIL→확정 0x1aeee70: 유일 콜러 서버 핸들러 0x2073b70→0x20e7560 명령열 정렬(ratio 0.991)로 콜사이트 0x208bad5→0x20ff443 의 call 타깃, 콜러 1/1, 본문 = Vec<0xe0>::push + 0x1e(30) 초과분 제거 동일 의미(drain 인라인 재컴파일 153→231B). ★HPUSH_PROLOGUE 12B→13B 교체 필수"
+  ],
+  "0x1389d48": [
+   "0x14029c8",
+   "MED(죽은 상수·INT3 프로브 호출 비활성) · 엔진 MID_OWNER_CG_MULTI_caller AGREE owner +0x8b8 동일(명령 중간 그대로)"
+  ],
+  "0x1461be0": [
+   "0x144a9b0",
+   "MED(죽은 상수·SIM_PROBE_ON=false) · 엔진 BYTES_UNIQUE 20B AGREE owner +0x10 동일"
+  ],
+  "0x151ff95": [
+   "0x156e3f5",
+   "MED(죽은 상수·훅 비활성) · 엔진 BYTES_UNIQUE 12B AGREE owner +0x985 = `mov r9,[rbp+0x28]` +3 동일"
+  ],
+  "0x16473c0": [
+   "0x19f69d0",
+   "LOW(죽은 상수·HYBRID 비활성) · 엔진 BYTES_UNIQUE 12B(`mov [rcx+0x30],rdx; ret; int3` 패딩 포함 동일 위치). ⚠신 LO 0x19f69d0 > HI 0x196bb70 역전 — 소비처 비활성이라 무해"
+  ],
+  "0x16b9930": [
+   "0x15c8130",
+   "LOW(죽은 상수·SNAP_ON=false) · 엔진 BYTES_UNIQUE 12B 동일 위치(구값부터 drop 함수 아님 = 명령열 중간 `cmp [r9],0x6b636974`)"
+  ],
+  "0x1474070": [
+   "0x145aa60",
+   "HIGH · 엔진 MID_OWNER_CG_NONE·STRONG(콜러 16/16·callee 1.0·size 0.958)·HOOK12 MATCH·입구 `mov rcx,[rdx+0x1b40]; mov rax,[rdx+0x1b48]; call [rax+0x138]` 동일(G_OFF 0x1b40 유지)·인자 rcx/rdx/r8/r9b 동일. 본문 재컴파일(26183→25077B) — tick_detour 는 a2 만 읽음. 실사용(tickmap)"
+  ],
+  "0x19846d0": [
+   "0x196bb70",
+   "LOW(죽은 상수) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x120 동일"
+  ],
+  "0x1a30a30": [
+   "0x14f8fd0",
+   "LOW(죽은 상수·SIM_PROBE_ON=false) · 엔진 BYTES_UNIQUE 32B AGREE owner +0x1b20 동일"
+  ],
+  "0x1ccba6e": [
+   "0x179759e",
+   "LOW(기록용 no-op · orig==fixed 75 10) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x3a5e 승계(`movaps xmm10,..` = orig 불일치 → apply_one Err = 쓰기 없음)"
+  ],
+  "0x2806360": [
+   "0x23b1bb0",
+   "HIGH · 엔진 CLONE 후보 0x23b1bb0 확정: 콜슬롯 계보 투표 11/11(2위 없음), 신 ARRIVE 0x2f1eb50 가 +0x3ac/+0x610 2회 호출(구 동일 위치), 명령열 ratio 1.0. 분화 쌍 0x216aaf0→0x21dc240(러너 vtable drop 이 호출) 그대로"
+  ],
+  "0x2821c80": [
+   "0x2edc630",
+   "HIGH · 엔진 FN_UNIQUE·STRONG(콜러 4/4)·ratio 1.0·WARN_PROLOGUE 13B MATCH"
+  ],
+  "0x2831650": [
+   "0x2eec0c0",
+   "HIGH · 엔진 BYTES_UNIQUE 48B·STRONG(콜러 27/27)·HOOK12 MATCH·차이 = TypeId 상수 6개·드롭플래그 1명령 삽입뿐(rcx/rdx 계약 동일)"
+  ],
+  "0x28317ae": [
+   "0x2eec21e",
+   "HIGH · 엔진 AGREE·dr_inline_a orig 4c0f44e2 MATCH(문맥 `xor r12d,r12d; cmp eax,[r8+0xf45c]; cmove r12,rdx` 동일)"
+  ],
+  "0x2838340": [
+   "0x2ef2dc0",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·명령열 ratio 1.0·HOOK12 MATCH·러너 변위 0x1f10/0x1ff0/0x217f 불변"
+  ],
+  "0x2838b6c": [
+   "0x2ef35ec",
+   "HIGH · 엔진 AGREE(imm 05) · PAGE_SIG `41 c6 86 7f 21 00 00` MATCH(불변)"
+  ],
+  "0x283c0f0": [
+   "0x2ef6b70",
+   "HIGH · 엔진 BYTES_UNIQUE 48B·STRONG(콜러 5/5)·ratio 1.0·HOOK12 MATCH·차이 = TypeId·TLS 변위(gs:[0x58] 기준 0x1a2b0→0x21900)뿐"
+  ],
+  "0x283c2e6": [
+   "0x2ef6d66",
+   "HIGH · 엔진 AGREE·dr_inline_b orig 4120c5 MATCH"
+  ],
+  "0x283c791": [
+   "0x2ef7211",
+   "HIGH · 엔진 AGREE·allow_dup orig 7547 MATCH"
+  ],
+  "0x283d553": [
+   "0x2ef7fd3",
+   "HIGH · 엔진 BYTES_UNIQUE 12B AGREE: `mov qword [rbp+0x278],0x14` imm 위치·TAKE_SIG c7 85 78 02 00 00 MATCH"
+  ],
+  "0x284cd00": [
+   "0x2f07780",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·명령열 ratio 1.0·HOOK12 MATCH·CMD_TAG 0x8000000000000014·PKT_DISC 0x1e·PKT_SEED_OFF 0x68·CMD_STRIDE 0x1e90 불변"
+  ],
+  "0x284cfd3": [
+   "0x2f07a53",
+   "HIGH · 엔진 AGREE·collect_err orig 745f MATCH"
+  ],
+  "0x284cffd": [
+   "0x2f07a7d",
+   "HIGH · 엔진 AGREE·collected orig 7510 MATCH"
+  ],
+  "0x284d009": [
+   "0x2f07a89",
+   "HIGH · 엔진 AGREE·roster_count orig 0f8369010000 MATCH, jae 타깃 site+0x16f 동일 → fixed e96a01000090 유효"
+  ],
+  "0x284d745": [
+   "0x2f081c5",
+   "HIGH · 엔진 AGREE·run_push orig 0f84c1f9ffff MATCH"
+  ],
+  "0x284e870": [
+   "0x2f092f0",
+   "HIGH · 엔진 BYTES_UNIQUE 48B·STRONG·명령열 ratio 1.0·HOOK12 MATCH"
+  ],
+  "0x2852ab0": [
+   "0x2f0d530",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·size 동일 29166B·ratio 1.0·HOOK12 MATCH·r8+0xa8 시드·+0x38/+0x40·CD_RC_OFF 0x2138 불변"
+  ],
+  "0x2863860": [
+   "0x2f1e2e0",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·ratio 1.0·HOOK12 MATCH(RPLY2_ON=false 미설치)"
+  ],
+  "0x28640d0": [
+   "0x2f1eb50",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·ratio 1.0·ARRIVE_PROLOGUE 15B MATCH(frame 0x3d40 불변)"
+  ],
+  "0x28640e4": [
+   "0x2f1eb64",
+   "HIGH · 엔진 AGREE·DELAY_ORIG 15B MATCH(`sub rsp,rax; lea rbp,[rsp+0x80]; and rsp,-0x80`) · shim `sub rsp,0x3d40` 불변"
+  ],
+  "0x28640f3": [
+   "0x2f1eb73",
+   "HIGH · 엔진 AGREE·`mov rbx,rsp`"
+  ],
+  "0x2864948": [
+   "0x2f1f3c8",
+   "HIGH · 엔진 AGREE·`xor eax,eax; lea rsp,[rbp+0x3cc0]; pop×7; ret`(shim 0x3cc0 불변)"
+  ],
+  "0x21f81b0": [
+   "0x22665c0",
+   "HIGH · 엔진 BYTES_UNIQUE 48B·STRONG·ratio 1.0·HOOK12 MATCH"
+  ],
+  "0x21f9880": [
+   "0x2267c90",
+   "HIGH · 엔진 FN_UNIQUE·STRONG·size 동일 4312B·ratio 1.0·HOOK12 MATCH·`[r12+0x258]` 시드 불변"
+  ],
+  "0x2941b27": [
+   "0x2ffd1a7",
+   "HIGH · 엔진 AGREE: `xor r15d,r15d; cmp r14d,r12d; cmove r15,rax` · dr_inline_d orig 4c0f44f8 MATCH"
+  ],
+  "0x2941b67": [
+   "0x2ffd1e7",
+   "HIGH · 엔진 AGREE·btn5v5_warn orig 4883ff0ab8380000 MATCH"
+  ],
+  "0x2941f01": [
+   "0x2ffd581",
+   "HIGH · 엔진 AGREE·panel_btn_daily orig 20c1 MATCH"
+  ],
+  "0x2941f03": [
+   "0x2ffd583",
+   "HIGH · 엔진 AGREE·roster_min_a orig 4883fb0a0fb6f9b8 MATCH"
+  ],
+  "0x294c660": [
+   "0x3007d40",
+   "MED(inert 범위 상수) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x10 동일"
+  ],
+  "0x2125af0": [
+   "0x219b7e0",
+   "HIGH · 엔진 CLONE 후보 0x219b7e0 확정: 콜슬롯 계보 투표 37(2위 없음), 6클론 중 콜러 23/23 일치, size 60198B 동일(소비처 snap_take 는 SNAP_ON=false)"
+  ],
+  "0x2073b70": [
+   "0x20e7560",
+   "HIGH · 엔진 FN_HEAD_UNIQUE·STRONG(콜러 1/1·size 0.999)·메시지 점프표 171=171·comp_test 아암 idx 28 슬라이스 47블록 정규화 multiset 동일·패치 3곳 내부. pdata (0x20e7560,0x21159f2)"
+  ],
+  "0x2085f67": [
+   "0x20f98d0",
+   "HIGH · 엔진값 정답(=sitealign AGREE): 시그 `48 83 b8 d0 01 00 00 04 0f 86` 신 exe 전역 1히트 0x20f98c9 +7, 앞 `mov rax,[rax]; cmp [rax+0x1dc],esi; jne` 뒤 `jbe; mov byte[rsp+0x20],1` 동형, orig 04 MATCH"
+  ],
+  "0x2089c3f": [
+   "0x20fd5a8",
+   "HIGH · 엔진 0x20fd62f 오답(`je` rel32 중간)·sitealign 정렬값 0x20fd5a8 채택: `mov rax,[rbx+0x1d0]; cmp rax,4` 전역 1히트 0x20fd59e +10, 핸들러 안 `cmp rax,4` 12개 중 서수 2(구 2/12), 앞 `cmp [rbx+0x1dc],esi; jne` 뒤 `jbe; mov byte[rbp+0x528c4],1; mov ecx,1; mov edx,1` 동형, orig 04 MATCH"
+  ],
+  "0x208ded9": [
+   "0x2101847",
+   "HIGH · 엔진 AGREE: `mov rax,[rdx+0x768]; sub rax,5` 전역 1히트 0x210183d, imm(+3) 0x2101847 · 뒤 cmovb·되쓰기 동일 · orig 05 MATCH"
+  ],
+  "0x20a2080": [
+   "0x21159f2",
+   "HIGH(inert 범위 상수) · 엔진 FAIL→확정 0x21159f2 = 신 서버핸들러 .pdata 끝(=LO+size 189586, 구와 같은 정의). 구는 끝=다음 함수 시작이었으나 신은 다음 함수 0x2115a00(패딩 14B) — 배타 상한이라 동작 동일"
+  ],
+  "0x20d33b0": [
+   "0x2147360",
+   "HIGH · 엔진 BYTES_UNIQUE 64B·STRONG(콜러 1/1)·명령열 ratio 1.0·HOOK12 MATCH"
+  ],
+  "0x20d3777": [
+   "0x2147727",
+   "HIGH · 엔진 AGREE `add rbx,rbx; mov rax,rbx; mov bl,2; cmp rdx,rax` orig 4801db MATCH"
+  ],
+  "0x20d3815": [
+   "0x21477c5",
+   "HIGH · 엔진 AGREE `test rsi,rsi; sete cl; or cl,al; jne` orig 0f85d4000000 MATCH(변위 d4 유지)"
+  ],
+  "0x20e1920": [
+   "0x2155610",
+   "HIGH · 엔진 BYTES_UNIQUE 32B·STRONG·ratio 1.0·HOOK12_ALT MATCH"
+  ],
+  "0x2113130": [
+   "0x2189060",
+   "MED(죽은 상수·CONC_PROBE_ON=false) · 엔진 MID_OWNER_UNIQUE AGREE owner +0xe0 동일(명령 중간 — HOOK12 Err fail-safe)"
+  ],
+  "0x2b7dfa0": [
+   "0x271b320",
+   "MED(CONC_PROBE inert) · 엔진 MID_OWNER_UNIQUE AGREE owner +0x7d0 동일(명령 중간 — HOOK12 Err)"
+  ],
+  "0x2d3acf0": [
+   "0x28d3a70",
+   "HIGH · 엔진 FN_UNIQUE·STRONG(콜러 3/3)·ratio 1.0·HOOK12 MATCH·rcx=dst/rdx=src 동일. 차이 1곳 = `call [vt(ctx+0x1b48)+0x328→0x338]`(dyn Game 트레잇 슬롯 +2 — 모드는 이 슬롯을 직접 안 부름)"
+  ],
+  "0x201eddc": [
+   "0x2090f9f",
+   "MED(죽은 상수·inert 범위) · 엔진 0x2090fcc 오답(다른 명령)·sitealign 정렬값 0x2090f9f 채택: owner 0x201dfc0→0x20901b0(GM) 안 `shl rcx,4; movdqu [rax+rcx],xmm10; inc` Vec push 동형 유일, `inc rsi`(구 inc r15) +2 규칙 유지. LO<HI"
+  ],
+  "0x353db40": [
+   "0x35b6f00",
+   "HIGH · 엔진 BYTES_UNIQUE 32B·STRONG(콜러 2/2·size 동일)"
+  ],
+  "0x3603550": [
+   "0x367c910",
+   "HIGH · 엔진 FN_UNIQUE·STRONG(콜러 13169/13262·size 동일)"
+  ],
+  "0x414dd9c": [
+   "0x41fd5ec",
+   "LOW(무의미 — warn 로그 분류용·CONC_PROBE 꺼짐) · 엔진 BYTES_UNIQUE 32B(.rdata ShieldBearer 문자열 — 지난 회차부터 엉뚱한 추적값 승계)"
+  ],
+  "0x414ddd4": [
+   "0x41fd624",
+   "LOW(무의미) · 엔진 BYTES_UNIQUE 32B(.rdata, 위와 같음)"
+  ],
+  "0x42134e0": [
+   "0x428cd90",
+   "HIGH · 엔진 FAIL→확정 0x428cd90(.rdata): ctor 0x2175600→0x21e6950(GM·894B) 같은 +0x313 `lea rdx,[rip+vt]`(신 exe 유일 참조), 자기참조 [5]=vt−0x48·[8]=vt−0x28, [1]=0x2180·[2]=0x10, slot0 0x21649c0→0x21d6110·slot4 0x2904420→0x2fdbc40(둘 다 GM)·[7] 98B skel 동일. 실사용(runner_of)"
+  ],
+  "0xe7269": [
+   "0xe7269",
+   "HIGH(미사용·RPLY_ON=false) · PASS 진짜(주소 그대로): owner 0xe7200 이 같은 주소·496B·skel 동일·명령열 ratio 1.0, 12클론이지만 콜러 2개(0xe6960 d91a…·0xe6c10 5f50…)도 같은 주소·skel·677B 동일이고 둘 다 콜 순번 3 이 0xe7200, 사이트 앞뒤 48B 동일"
+  ],
+  "0xe7274": [
+   "0xe7274",
+   "HIGH(미사용) · PASS 진짜: 같은 owner 0xe7200 +0x74(RPLY 와 Δ0xb), 48B 문맥 동일"
+  ],
+  "0x1fedb0": [
+   "0x1fedb0",
+   "HIGH · PASS 진짜: GM 자기 자신(skel 유일 클론 1)·3084B 동일·콜러 5/5 사영 포함·콜슬롯 계보 투표 5/5→0x1fedb0·callee 사영 7/7·ratio 1.0(차이 = TLS 변위 0x1a2b0→0x21900 뿐) — serpen UIPARSER 판정과 일치"
+  ],
+  "0x229800": [
+   "0x229800",
+   "MED(죽은 상수 — dd_addr_valid 호출처 0) · PASS 는 주소상 진짜(GM 자기 자신·2428B·callee 4/4)이나 ★이 함수는 드롭다운 set_options 가 아니다: `[rcx+0x1810]` 저장 없음·콜러 1. 실체는 ui_kit DD_SETOPT_RVA 0x216c90(0.7.2 도 주소 그대로: GM 자기 자신·315B·콜러 11/11·계보 10·첫 store `mov [rcx+0x1810],rdx`) ⟹ comptest 쪽이 낡은 추적값(0.5.7 ui_kit 재핀 때 갈라짐). 소스 기대 프롤로그 `55 41 57 41 56 56 57 53 48 81 ec 88` 은 둘 다 불일치"
+  ],
+  "0x13f7c7d": [
+   "0x1ed510d",
+   "LOW(죽은 상수·inert — 프롤로그 검증 Err) · ⚠구 주소의 신 함수는 다른 함수(0x13f7c60 이 1054B→51B 썽크). 구 owner 0x13f7c60(skel 2b8e…·1054B)의 신 클론 3개 중 콜러 배치(구 0x1e78400/0x1e78b50 간격 0x750 = 신 0x1e47380/0x1e47ad0)로 2번째 = 0x1ed50f0 +0x1d, 바이트 `48 89 4d f8 48 89 55 f0 48 83 fa 02` 동일. 클론 서수 대응이라 LOW. 구값·신값 모두 SPAWN_CP_PROLOGUE(19B 함수 시작형) 불일치 → 설치 안 됨 = 그대로 두어도 무해"
+  ],
+  "0x142a1b0": [
+   "0x1e7f6c0",
+   "MED(죽은 상수·CONC_PROBE_ON=false) · ⚠구 주소의 신 함수는 다른 함수(0x14298f0 4612B). 구 owner 0x1428af0(9739B)→0x1e7df70(9888B): cand 17표(2위 4)·유일 콜러 0x21beb40→GM 0x222ce60 일치, owner 정렬(ratio 0.907)로 +0x16c0 `add rdx,8` → 0x1e7f6c0, 바이트 16B 동일(owner 내 2히트 서수 1 동일). 함수 중간이라 HOOK12 Err = inert"
+  ],
+  "0x100000": [
+   "0x100000",
+   "HIGH(RVA 아님 — 그대로) · ATH_ID_HI = 선수 id 상한(:478, :518 `rdx < ATH_ID_HI` 범위 비교). 매니페스트 ignore 정당"
+  ],
+  "0x202070": [
+   "0x202070",
+   "HIGH(RVA 아님 — 그대로) · fnv1a 길이 상한 ≈2MB 리터럴(:1330 `len > 0x202070`). 매니페스트 이름 CD_RC_OFF 는 오표기(진짜 CD_RC_OFF = :1325 0x2138, §4 불변). 0.6.2 오치환 원복 이력대로 재핀 금지"
+  ],
+  "0x1000000": [
+   "0x1000000",
+   "HIGH(RVA 아님 — 그대로) · 크래시 로거의 「이 모드 dll 안인가」 범위 16MB(:2735·:2757·:2776 `a - mod_base < 0x1000000`). exe 쪽 범위는 0x8000000 이고 신 SizeOfImage 0x5a48000 < 0x8000000 이라 그것도 그대로 유효"
+  ]
+ }
+}

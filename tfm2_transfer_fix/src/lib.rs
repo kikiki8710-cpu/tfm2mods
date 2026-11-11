@@ -40,30 +40,30 @@ use std::time::{SystemTime, UNIX_EPOCH};
 const MOD_ID: &str = "tfm2_transfer_fix";
 const CFG_NAME: &str = "tfm2_transfer_fix.cfg";
 const LOG_NAME: &str = "tfm2_transfer_fix.txt";
-const GAME_VER: &str = "0.7.1";
+const GAME_VER: &str = "0.7.2";
 
-// ── ① s 식 (0.7.1 · c 레지스터 xmm6→xmm7) ──
-const RVA_S_MAX: usize = 0x140de7b;                               // maxsd xmm0, xmm7  (s 하한)
-const ORIG_S_MAX: [u8; 4] = [0xf2, 0x0f, 0x5f, 0xc7];
+// ── ① s 식 (0.7.2 · c 레지스터 xmm7→xmm6 — 0.7.0 바이트로 복귀) ──
+const RVA_S_MAX: usize = 0x1ee5585;                               // maxsd xmm0, xmm6  (s 하한)
+const ORIG_S_MAX: [u8; 4] = [0xf2, 0x0f, 0x5f, 0xc6];
 const NOP4: [u8; 4] = [0x0f, 0x1f, 0x40, 0x00];                   // nop dword [rax+0]
 
 /// rip-rel 상수 로드 재지향 지점. 명령 = prefix(4B) + disp32, 길이 8B.
 struct RipSite { name: &'static str, rva: usize, prefix: [u8; 4], old_tgt: usize, old_val: f64, slot: usize }
 const RIP_SITES: [RipSite; 5] = [
-    // movsd xmm7,[c]          — s 식의 c (0.95)
-    RipSite { name: "s.c",    rva: 0x140de73, prefix: [0xf2, 0x0f, 0x10, 0x3d], old_tgt: 0x4104d90, old_val: 0.95,  slot: SLOT_C },
+    // movsd xmm6,[c]          — s 식의 c (0.95)
+    RipSite { name: "s.c",    rva: 0x1ee557d, prefix: [0xf2, 0x0f, 0x10, 0x35], old_tgt: 0x417f630, old_val: 0.95,  slot: SLOT_C },
     // addsd xmm0,[-c]         — s 식의 −c (−0.95)
-    RipSite { name: "s.-c",   rva: 0x140de7f, prefix: [0xf2, 0x0f, 0x58, 0x05], old_tgt: 0x4104d98, old_val: -0.95, slot: SLOT_NEGC },
+    RipSite { name: "s.-c",   rva: 0x1ee5589, prefix: [0xf2, 0x0f, 0x58, 0x05], old_tgt: 0x41cdf00, old_val: -0.95, slot: SLOT_NEGC },
     // movsd xmm0,[0.95]       — 비교 표본 없음 기본값 ①
-    RipSite { name: "s.def1", rva: 0x140ddda, prefix: [0xf2, 0x0f, 0x10, 0x05], old_tgt: 0x4104d90, old_val: 0.95,  slot: SLOT_DEF },
+    RipSite { name: "s.def1", rva: 0x1ee54ee, prefix: [0xf2, 0x0f, 0x10, 0x05], old_tgt: 0x417f630, old_val: 0.95,  slot: SLOT_DEF },
     // movsd xmm0,[0.95]       — 비교 표본 없음 기본값 ②
-    RipSite { name: "s.def2", rva: 0x140de09, prefix: [0xf2, 0x0f, 0x10, 0x05], old_tgt: 0x4104d90, old_val: 0.95,  slot: SLOT_DEF },
+    RipSite { name: "s.def2", rva: 0x1ee5516, prefix: [0xf2, 0x0f, 0x10, 0x05], old_tgt: 0x417f630, old_val: 0.95,  slot: SLOT_DEF },
     // movapd xmm0,[{0.95,0}]  — 기본값 ③ (16B 정렬 읽기 → 슬롯도 16B 정렬)
-    RipSite { name: "s.def3", rva: 0x140dfdb, prefix: [0x66, 0x0f, 0x28, 0x05], old_tgt: 0x4104da0, old_val: 0.95,  slot: SLOT_DEF },
+    RipSite { name: "s.def3", rva: 0x1ee56dc, prefix: [0x66, 0x0f, 0x28, 0x05], old_tgt: 0x4271e80, old_val: 0.95,  slot: SLOT_DEF },
 ];
 
-// ── ② 배율 함수 입구 (0.7.1) ──
-const RVA_P_FN: usize = 0x1ca4c00;
+// ── ② 배율 함수 입구 (0.7.2) ──
+const RVA_P_FN: usize = 0x1770350;
 const ORIG_P_FN: [u8; 9] = [0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x48]; // push r14/rsi/rdi/rbx ; sub rsp,0x48
 const STOLEN: usize = 5;                                                           // 위 push 4개 = 위치 무관 명령
 
@@ -140,7 +140,7 @@ impl Default for Cfg {
 }
 
 const CFG_TEMPLATE: &str = "\
-# tfm2_transfer_fix 설정 (게임 0.7.1)
+# tfm2_transfer_fix 설정 (게임 0.7.2)
 # 형식: 키 = 값   (# 로 시작하는 줄은 무시. 고친 뒤 게임을 다시 켜야 적용)
 
 # ① AI 판매 호가 하한 제거 (1 = 켬, 0 = 끔)

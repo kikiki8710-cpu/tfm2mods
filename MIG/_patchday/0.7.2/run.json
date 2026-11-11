@@ -1,0 +1,174 @@
+{
+ "label": "0.7.2",
+ "tok": "072",
+ "rehearse": false,
+ "hotfix": false,
+ "base_ver": "0.7.1",
+ "base_sha": "BD011C426A3F5ED4C411C7D9379448D306E091A9BD83E5E201C81D3EBFDD1D6B",
+ "new_sha": "4B324F3127953A67EE1972F0D8CEB0673BB4FACCAAB530F0538DA64DD70319FB",
+ "new_size": 94603776,
+ "new_exe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Teamfight Manager2\\TeamfightManager2.exe",
+ "new_exe_used": "F:\\claude\\tfm2\\tfm2_0.7.2\\TeamfightManager2.exe",
+ "new_pkl": "F:\\claude\\tfm2mods\\_fnidx_072.pkl",
+ "new_cg": "F:\\claude\\tfm2mods\\_cg_072.pkl",
+ "mods": [
+  "tfm2_level_cap",
+  "tfm2_champion_exclude",
+  "banpick_view_plus",
+  "tfm2_comptest_unlock",
+  "tfm2_elemental_serpen",
+  "tfm2_champ_pos_lock",
+  "training_view_plus",
+  "facility_view_plus",
+  "custom_tier_assignment",
+  "tfm2_detail_tactics",
+  "tfm2_transfer_fix",
+  "ui_kit"
+ ],
+ "mods_added_outside_MODS": [],
+ "stages": [
+  {
+   "stage": "detect",
+   "no": 0,
+   "status": "OK",
+   "rc": 0,
+   "sec": 0.6,
+   "note": "0.7.1 → 0.7.2 · sha 4B324F3127953A67 · 94603776 B",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\00_detect.log",
+   "outputs": [],
+   "at": "2026-11-11 14:23:53"
+  },
+  {
+   "stage": "backup",
+   "no": 1,
+   "status": "OK",
+   "rc": 0,
+   "sec": 6.5,
+   "note": "TeamfightManager2.exe: 복사 완료 94603776 B · sha 4B324F3127953A67 / bundle.game_data: 복사 완료 1156635523 B · sha BD9FF71E1E1A5280",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\01_backup.log",
+   "outputs": [
+    "F:\\claude\\tfm2\\tfm2_0.7.2\\TeamfightManager2.exe",
+    "F:\\claude\\tfm2\\tfm2_0.7.2\\bundle.game_data"
+   ],
+   "at": "2026-11-11 14:23:59"
+  },
+  {
+   "stage": "fnindex",
+   "no": 2,
+   "status": "OK",
+   "rc": 0,
+   "sec": 145.0,
+   "note": "기준 _fnidx_071.pkl: 검증 통과 — 메타 경로 sha 일치 · 경계 166780/166780 일치 · skel 표본 48 일치 / 생성 후 검증: 메타 경로 sha 일치 · 경계 167313/167313 일치 · skel 표본 48 일치",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\02_fnindex.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\_fnidx_072.pkl"
+   ],
+   "at": "2026-11-11 14:26:24"
+  },
+  {
+   "stage": "callgraph",
+   "no": 3,
+   "status": "OK",
+   "rc": 0,
+   "sec": 95.5,
+   "note": "기준 _cg_071.pkl: 검증 통과 — callee 147375개 · 표본 40 일치 / 생성 후 검증: callee 147611개 · 표본 40 일치",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\03_callgraph.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\_cg_072.pkl"
+   ],
+   "at": "2026-11-11 14:28:00"
+  },
+  {
+   "stage": "aidiff",
+   "no": 4,
+   "status": "REVIEW",
+   "rc": 0,
+   "sec": 417.5,
+   "note": "EDITED 157 · MERGED 0 · 사라짐 10 · 새로 생김 159",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\04_aidiff.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\aidiff.md"
+   ],
+   "at": "2026-11-11 14:34:59"
+  },
+  {
+   "stage": "check",
+   "no": 5,
+   "status": "REVIEW",
+   "rc": 1,
+   "sec": 0.6,
+   "note": "STALE·INVALID 454 (모드 12개 중 9개)",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\05_check.log",
+   "outputs": [],
+   "at": "2026-11-11 14:34:59"
+  },
+  {
+   "stage": "repin",
+   "no": 6,
+   "status": "REVIEW",
+   "rc": 0,
+   "sec": 274.2,
+   "note": "대상 454 · 엔진 해결 329 · 실패 125 · 사람 판정 필요 208(apply 대상 22 + 생성물 모드 186) · 동형 클론 주의 9",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\06_repin.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\repin_map.json",
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\repin_map.aligned.json",
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\repin_fncheck.json"
+   ],
+   "at": "2026-11-11 14:39:33"
+  },
+  {
+   "stage": "offsets",
+   "no": 7,
+   "status": "REVIEW",
+   "rc": 1,
+   "sec": 2.9,
+   "note": "변화 3개 모드 · 10개 함수 (기준 = repin_map.aligned.json)",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\07_offsets.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\offsets_shifts.json"
+   ],
+   "at": "2026-11-11 14:39:36"
+  },
+  {
+   "stage": "detail_tactics",
+   "no": 8,
+   "status": "REVIEW",
+   "rc": 1,
+   "sec": 169.0,
+   "note": "검토 필요 항목 있음(정상) · 전술 AUTO 18 · REVIEW 82 · 창 208(자동 41) · 기본값 변경 전술 1",
+   "log": "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\logs\\08_detail_tactics.log",
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\detail_tactics"
+   ],
+   "at": "2026-11-11 14:42:25"
+  },
+  {
+   "stage": "addrbook",
+   "no": 9,
+   "status": "SKIP",
+   "rc": null,
+   "sec": 0.0,
+   "note": "--skip",
+   "log": null,
+   "outputs": [],
+   "at": "2026-11-11 14:42:25"
+  },
+  {
+   "stage": "summary",
+   "no": 10,
+   "status": "OK",
+   "rc": 0,
+   "sec": 0.1,
+   "note": "SUMMARY.md",
+   "log": null,
+   "outputs": [
+    "F:\\claude\\tfm2mods\\MIG\\_patchday\\0.7.2\\SUMMARY.md"
+   ],
+   "at": "2026-11-11 14:42:26"
+  }
+ ],
+ "nondestructive_warnings": [],
+ "total_sec": 1114.0,
+ "finished": "2026-11-11 14:42:26"
+}

@@ -1,0 +1,44 @@
+{
+ "tfm2_transfer_fix": {
+  "0x140ddda": [
+   "0x1ee54ee",
+   "HIGH · FAIL_OWNER→확정 · owner 0x1ee5060(구 0x140d7f0 · 유일 콜러 메모 캐시 0x142e6d0→0x1e950c0(콜러 사영 9/10·콜 순서 2:2) · callee 사영 7/10 직접+3 은 다시 떼어 낸 v 0x17bbba0 경유 · size 2596→2096 · 식 전체 나란히 대조 동일) +0x48e · 표본 없음 ①(걸러 낸 표본 0개: 구 +0x438 je ↔ 신 +0x274 je) · movsd xmm0,[0x417f630]=0.95 · prefix f20f1005 불변 · 뒤 movupd [out],xmm0 / byte +0x18=0 / +0x10=v 동형"
+  ],
+  "0x140de09": [
+   "0x1ee5516",
+   "HIGH · FAIL_OWNER→확정 · owner 0x1ee5060(구 0x140d7f0 · 유일 콜러 메모 캐시 0x142e6d0→0x1e950c0(콜러 사영 9/10·콜 순서 2:2) · callee 사영 7/10 직접+3 은 다시 떼어 낸 v 0x17bbba0 경유 · size 2596→2096 · 식 전체 나란히 대조 동일) +0x4b6 · 표본 없음 ②(색인 비고 팀도 없음: 구 +0x355 je ↔ 신 +0x34e je, 둘 다 [rax+0x20]==0) · movsd xmm0,[0x417f630]=0.95 · prefix f20f1005 불변"
+  ],
+  "0x140de73": [
+   "0x1ee557d",
+   "HIGH · FAIL_OWNER→확정 · owner 0x1ee5060(구 0x140d7f0 · 유일 콜러 메모 캐시 0x142e6d0→0x1e950c0(콜러 사영 9/10·콜 순서 2:2) · callee 사영 7/10 직접+3 은 다시 떼어 낸 v 0x17bbba0 경유 · size 2596→2096 · 식 전체 나란히 대조 동일) +0x51d · ★명령이 movsd xmm6,[0x417f630] 으로 레지스터 변경(c: xmm7→xmm6) → 소스 prefix f20f103d→f20f1035 필수(lib.rs:54) · old_tgt 0x4104d90→0x417f630"
+  ],
+  "0x140de7b": [
+   "0x1ee5585",
+   "HIGH · FAIL_OWNER→확정 · owner 0x1ee5060(구 0x140d7f0 · 유일 콜러 메모 캐시 0x142e6d0→0x1e950c0(콜러 사영 9/10·콜 순서 2:2) · callee 사영 7/10 직접+3 은 다시 떼어 낸 v 0x17bbba0 경유 · size 2596→2096 · 식 전체 나란히 대조 동일) +0x525 · ★maxsd xmm0,xmm6 = f20f5fc6 → 소스 ORIG_S_MAX c7→c6 필수(lib.rs:47) · NOP4 교체 그대로 유효(xmm6 은 뒤 divsd/mulsd/addsd 에서만 c 로 읽힘)"
+  ],
+  "0x140de7f": [
+   "0x1ee5589",
+   "HIGH · FAIL_OWNER→확정 · owner 0x1ee5060(구 0x140d7f0 · 유일 콜러 메모 캐시 0x142e6d0→0x1e950c0(콜러 사영 9/10·콜 순서 2:2) · callee 사영 7/10 직접+3 은 다시 떼어 낸 v 0x17bbba0 경유 · size 2596→2096 · 식 전체 나란히 대조 동일) +0x529 · addsd xmm0,[0x41cdf00]=-0.95 · prefix f20f5805 불변 · old_tgt 0x4104d98→0x41cdf00"
+  ],
+  "0x140dfdb": [
+   "0x1ee56dc",
+   "HIGH · FAIL_OWNER→확정 · owner 0x1ee5060(구 0x140d7f0 · 유일 콜러 메모 캐시 0x142e6d0→0x1e950c0(콜러 사영 9/10·콜 순서 2:2) · callee 사영 7/10 직접+3 은 다시 떼어 낸 v 0x17bbba0 경유 · size 2596→2096 · 식 전체 나란히 대조 동일) +0x67c · 표본 없음 ③ movapd xmm0,[0x4271e80]={0.95,0} · prefix 660f2805 불변 · 뒤 movhpd xmm0,[rdi+rax*4](중앙값) 동형 · old_tgt 0x4104da0→0x4271e80"
+  ],
+  "0x1ca4c00": [
+   "0x1770350",
+   "HIGH · 엔진값(BYTES_UNIQUE 32B) · callee 사영 1/1 · size 1056=1056 · 정규화 diff 0(즉값·변위 포함 243/243 명령 동일, 다른 것은 패닉 Location 포인터 4개뿐) · orig 9B 41565657534883ec48 불변 · 콜사이트 구 13 → 신 18 전수 대응(13곳 짝 + 0x142e140 인라인 3곳·F_human 의 Val 인라인 1곳·0x1c9ae40 인라인 1곳으로 늘어남 — 전부 call 이라 입구 훅이 다 받음)"
+  ],
+  "0x4104d90": [
+   "0x417f630",
+   "HIGH · 엔진 FAIL→코드 rip 역추적 확정 · s.c 0x1ee557d · s.def1 0x1ee54ee · s.def2 0x1ee5516 세 곳 모두 대상 0x417f630 · 값 0.95(666666666666ee3f)"
+  ],
+  "0x4104d98": [
+   "0x41cdf00",
+   "HIGH · 엔진 FAIL→코드 rip 역추적 확정 · s.-c 0x1ee5589 대상 · 값 -0.95(666666666666eebf) · ⚠0.7.1 처럼 0.95 바로 뒤 칸이 아니다(상수 풀 재배치)"
+  ],
+  "0x4104da0": [
+   "0x4271e80",
+   "HIGH · 엔진값(BYTES_UNIQUE 12B) = 코드 역추적 일치 · s.def3 0x1ee56dc 대상 · 값 {0.95,0.0} · 0x4271e80 %16==0(movapd 정렬)"
+  ]
+ }
+}

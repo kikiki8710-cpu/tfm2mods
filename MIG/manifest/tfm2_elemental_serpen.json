@@ -26,7 +26,7 @@
   {
    "name": "UIPARSER_RVA",
    "value": "0x1fedb0",
-   "ver": "0.7.1",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:626"
@@ -37,8 +37,8 @@
   },
   {
    "name": "UILOADER_RVA",
-   "value": "0x3a93f0",
-   "ver": "0.7.1",
+   "value": "0x3a92f0",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:625"
@@ -49,34 +49,34 @@
   },
   {
    "name": "LAUNCHER_RET_A",
-   "value": "0xa90240",
-   "ver": "0.7.1",
+   "value": "0xadeb1b",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:511"
    ],
    "sect": ".text",
-   "bytes": "90488b8558fa030048ff4810",
+   "bytes": "90488b85a013040048ff4810",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "★0.6.0: 런처 콜사이트 전수(9/9 대응)로 ret=call+5 확정. ⚠0.5.8 매니페스트가 소스(09-04 재핀)와 어긋나 있었음(0x893cb9/0x898c0b/0x1c50704 = 소스 밖 stale)"
   },
   {
    "name": "LAUNCHER_RET_B",
-   "value": "0xa945af",
-   "ver": "0.7.1",
+   "value": "0xae4140",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:513"
    ],
    "sect": ".text",
-   "bytes": "9048899dd8f60300488b8558",
+   "bytes": "904088bdd80f0400488b85a0",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "★0.6.0: 런처 콜사이트 전수(9/9 대응)로 ret=call+5 확정. ⚠0.5.8 매니페스트가 소스(09-04 재핀)와 어긋나 있었음(0x893cb9/0x898c0b/0x1c50704 = 소스 밖 stale)"
   },
   {
    "name": "SPAWN_HOOKS",
-   "value": "0x921fc0",
-   "ver": "0.7.1",
+   "value": "0xce5220",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:490"
@@ -87,8 +87,8 @@
   },
   {
    "name": "SPAWN_HOOKS",
-   "value": "0x922cf0",
-   "ver": "0.7.1",
+   "value": "0xce5f50",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:490"
@@ -99,8 +99,8 @@
   },
   {
    "name": "RENDER_STEP_RVA",
-   "value": "0x90bf70",
-   "ver": "0.7.1",
+   "value": "0xcd5450",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:928"
@@ -111,8 +111,8 @@
   },
   {
    "name": "SERPEN_RVA",
-   "value": "0x1aa38e0",
-   "ver": "0.7.1",
+   "value": "0x157c9a0",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:39"
@@ -123,8 +123,8 @@
   },
   {
    "name": "DMGB_RVA",
-   "value": "0x14a4a20",
-   "ver": "0.7.1",
+   "value": "0x149fea0",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1953"
@@ -135,20 +135,20 @@
   },
   {
    "name": "DMGA_RVA",
-   "value": "0x149ad70",
-   "ver": "0.7.1",
+   "value": "0x18675c0",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1950"
    ],
    "sect": ".text",
-   "bytes": "415741564155415456575553",
+   "bytes": "554157415641554154565753",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "LAUNCHER_RVA",
-   "value": "0x147baa0",
-   "ver": "0.7.1",
+   "value": "0x1462250",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:502"
@@ -159,8 +159,8 @@
   },
   {
    "name": "RUNNER_CTOR_RVA",
-   "value": "0x147d2f0",
-   "ver": "0.7.1",
+   "value": "0x1463980",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:955"
@@ -171,8 +171,8 @@
   },
   {
    "name": "MOBATICK_RVA",
-   "value": "0x193fa40",
-   "ver": "0.7.1",
+   "value": "0x18a2df0",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:416"
@@ -183,8 +183,8 @@
   },
   {
    "name": "ARG_STR_RVA",
-   "value": "0x2720080",
-   "ver": "0.7.1",
+   "value": "0x1986ed0",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2688"
@@ -195,8 +195,8 @@
   },
   {
    "name": "LAUNCHER_RET_D",
-   "value": "0x285928a",
-   "ver": "0.7.1",
+   "value": "0x2f13d0a",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:526"
@@ -207,8 +207,8 @@
   },
   {
    "name": "LAUNCHER_RET_C",
-   "value": "0x23da78f",
-   "ver": "0.7.1",
+   "value": "0x244e21f",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:518"
@@ -220,8 +220,8 @@
   },
   {
    "name": "KEYRES_RVA",
-   "value": "0x2ab9360",
-   "ver": "0.7.1",
+   "value": "0x2c41c90",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2145"
@@ -232,8 +232,8 @@
   },
   {
    "name": "UIALLOC_RVA",
-   "value": "0x3603550",
-   "ver": "0.7.1",
+   "value": "0x367c910",
+   "ver": "0.7.2",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:633"

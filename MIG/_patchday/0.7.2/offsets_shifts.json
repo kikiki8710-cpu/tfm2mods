@@ -1,0 +1,285 @@
+{
+ "tfm2_level_cap": {
+  "status": "nobaseline",
+  "rows": []
+ },
+ "tfm2_champion_exclude": {
+  "status": "match",
+  "baseline_ver": "0.7.1",
+  "rows": []
+ },
+ "banpick_view_plus": {
+  "status": "match",
+  "baseline_ver": "0.7.1",
+  "rows": []
+ },
+ "tfm2_comptest_unlock": {
+  "status": "shift",
+  "baseline_ver": "0.7.1",
+  "rows": [
+   {
+    "fn": "HPUSH_RVA",
+    "old": "0x17cdfa0",
+    "note": "재핀 실패 — 지문 대조 불가"
+   },
+   {
+    "fn": "ORACLE_RVA",
+    "old": "0x1474070",
+    "new": "0x145aa60",
+    "how": "MID_OWNER_CG_NONE",
+    "delta": 88,
+    "npairs": 5,
+    "pairs": [
+     [
+      "0x4b8",
+      "0x510"
+     ],
+     [
+      "0x4c0",
+      "0x518"
+     ],
+     [
+      "0xb20",
+      "0xb78"
+     ],
+     [
+      "0xb28",
+      "0xb80"
+     ],
+     [
+      "0xb30",
+      "0xb88"
+     ]
+    ],
+    "lost": [
+     "0x188",
+     "0x340",
+     "0x358",
+     "0x35a",
+     "0x35e",
+     "0x3d0",
+     "0x4a8",
+     "0x4b8",
+     "0x4c0",
+     "0xb18",
+     "0xb20",
+     "0xb28"
+    ],
+    "born": [
+     "0x238",
+     "0x348",
+     "0x350",
+     "0x448",
+     "0x44a",
+     "0x44e",
+     "0x510",
+     "0x518",
+     "0xb78",
+     "0xb80",
+     "0xb88",
+     "0x1458"
+    ],
+    "cand": "STRONG",
+    "note": null
+   },
+   {
+    "fn": "CT_REGION_LO",
+    "old": "0x2073b70",
+    "new": "0x20e7560",
+    "how": "FN_HEAD_UNIQUE",
+    "delta": 1,
+    "npairs": 1,
+    "pairs": [
+     [
+      "0x1fa",
+      "0x1fb"
+     ]
+    ],
+    "lost": [
+     "0x1fa",
+     "0x1298"
+    ],
+    "born": [
+     "0x1fb"
+    ],
+    "cand": "STRONG",
+    "note": null
+   },
+   {
+    "fn": "CT_REGION_HI",
+    "old": "0x20a2080",
+    "note": "재핀 실패 — 지문 대조 불가"
+   }
+  ]
+ },
+ "tfm2_elemental_serpen": {
+  "status": "shift",
+  "baseline_ver": "0.7.1",
+  "rows": [
+   {
+    "fn": "SERPEN_RVA",
+    "old": "0x1aa38e0",
+    "note": "재핀 실패 — 지문 대조 불가"
+   },
+   {
+    "fn": "DMGB_RVA",
+    "old": "0x14a4a20",
+    "new": "0x149fea0",
+    "how": "MID_OWNER_CG_NONE",
+    "delta": 8,
+    "npairs": 4,
+    "pairs": [
+     [
+      "0x58",
+      "0x60"
+     ],
+     [
+      "0x70",
+      "0x78"
+     ],
+     [
+      "0x238",
+      "0x240"
+     ],
+     [
+      "0x248",
+      "0x250"
+     ]
+    ],
+    "lost": [
+     "0x58",
+     "0x70",
+     "0x238",
+     "0x248",
+     "0x2c0",
+     "0x2c8"
+    ],
+    "born": [
+     "0x60",
+     "0x78",
+     "0x240",
+     "0x250"
+    ],
+    "cand": "STRONG",
+    "note": null
+   },
+   {
+    "fn": "DMGA_RVA",
+    "old": "0x149ad70",
+    "new": "0x18675c1",
+    "how": "MID_OWNER_CG_NONE_caller",
+    "note": "재핀 후보값이 함수시작 아님"
+   },
+   {
+    "fn": "LAUNCHER_RVA",
+    "old": "0x147baa0",
+    "new": "0x147baa0",
+    "how": "PASS(바이트 그대로)",
+    "delta": -6864,
+    "npairs": 7,
+    "pairs": [
+     [
+      "0x1b40",
+      "0x70"
+     ],
+     [
+      "0x1bb0",
+      "0xe0"
+     ],
+     [
+      "0x1de0",
+      "0x310"
+     ],
+     [
+      "0x1de8",
+      "0x318"
+     ],
+     [
+      "0x1df0",
+      "0x320"
+     ],
+     [
+      "0x1df8",
+      "0x328"
+     ],
+     [
+      "0x1e00",
+      "0x330"
+     ]
+    ],
+    "lost": [
+     "0x18",
+     "0x20",
+     "0x28",
+     "0x30",
+     "0x38",
+     "0x40",
+     "0x48",
+     "0xce0",
+     "0x1308",
+     "0x1508",
+     "0x1b40",
+     "0x1b48"
+    ],
+    "born": [
+     "0x68",
+     "0x70",
+     "0xe0",
+     "0x180",
+     "0x310",
+     "0x318",
+     "0x320",
+     "0x328",
+     "0x330",
+     "0x338",
+     "0x8b8",
+     "0x8c0"
+    ],
+    "cand": null,
+    "note": null
+   },
+   {
+    "fn": "MOBATICK_RVA",
+    "old": "0x193fa40",
+    "note": "재핀 실패 — 지문 대조 불가"
+   }
+  ]
+ },
+ "tfm2_champ_pos_lock": {
+  "status": "match",
+  "baseline_ver": "0.7.1",
+  "rows": []
+ },
+ "training_view_plus": {
+  "status": "nobaseline",
+  "rows": []
+ },
+ "facility_view_plus": {
+  "status": "nobaseline",
+  "rows": []
+ },
+ "custom_tier_assignment": {
+  "status": "nobaseline",
+  "rows": []
+ },
+ "tfm2_detail_tactics": {
+  "status": "nobaseline",
+  "rows": []
+ },
+ "tfm2_transfer_fix": {
+  "status": "match",
+  "baseline_ver": "0.7.1",
+  "rows": []
+ },
+ "ui_kit": {
+  "status": "shift",
+  "baseline_ver": "0.7.1",
+  "rows": [
+   {
+    "fn": "RVA_UPDATE",
+    "old": "0x2957ac0",
+    "note": "재핀 실패 — 지문 대조 불가"
+   }
+  ]
+ }
+}
