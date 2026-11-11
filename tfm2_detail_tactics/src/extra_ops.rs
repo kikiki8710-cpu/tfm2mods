@@ -36,7 +36,7 @@ pub(crate) fn finish_increment2(f:&Frame,v:i64)->Option<u64> {
     let n=valid(v,1,30)?;
     Some(f.reg(15)?.wrapping_mul(n.wrapping_sub(2)))
 }
-pub(crate) fn camp_survival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.scalar(Src::Mem(5,-0x20))?,valid(v,0,300)?))} // 0.7.1 TPS=[rbp-0x20] (0.7.0 [rbp-0x18] = 이제 [rbp+0x28] 복사값)
+pub(crate) fn camp_survival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.scalar(Src::Mem(5,-0x10))?,valid(v,0,300)?))} // 0.7.2 TPS=[rbp-0x10] (0.7.1 [rbp-0x20] · 0.7.0 [rbp-0x18])
 pub(crate) fn camp_arrival_margin(f:&Frame,v:i64)->Option<u64> {Some(scale(f.reg(1)?>>1,valid(v,0,300)?))}
 fn tower_radius(v:i64, base:u64)->Option<u64> {Some(scale(base,valid(v,50,150)?))}
 pub(crate) fn tower_radius_high(f:&Frame,v:i64)->Option<u64> {let _=f;let r=tower_radius(v,140_000)?;Some(r*r+1)}

@@ -76,9 +76,9 @@ pub(crate) fn front_ally_cap(_f: &Frame, v: i64) -> Option<u64> {
 pub(crate) fn front_ally_total_cap(_f: &Frame, v: i64) -> Option<u64> {
     Some(n(v, 1, 400)? * 60 / 100)
 }
-/// 0.7.1: 창 0x110836f 나눌 위험값 r14 (0.7.0 = r9). 창이 위치평가 바깥 함수로 옮겨 갔다.
+/// 0.7.2: 창 0x112c3eb 나눌 위험값 r13 (0.7.1 = r14 · 0.7.0 = r9). 창이 위치평가 바깥 함수로 옮겨 갔다.
 pub(crate) fn wave_risk_divisor(f: &Frame, v: i64) -> Option<u64> {
-    Some(((f.reg(14)? as i64) / n(v, 1, 32)? as i64) as u64)
+    Some(((f.reg(13)? as i64) / n(v, 1, 32)? as i64) as u64)
 }
 pub(crate) fn risk_retreat_high(_f: &Frame, v: i64) -> Option<u64> {
     Some(n(v, 1, 50)? * 24 / 10)
@@ -87,9 +87,9 @@ pub(crate) fn risk_retreat_high(_f: &Frame, v: i64) -> Option<u64> {
 pub(crate) fn risk_retreat_pressure(f: &Frame, v: i64) -> Option<u64> {
     Some(f.reg(0)?.wrapping_mul(n(v, 1, 50)? * 2))
 }
-/// 0.7.1: 피제수 r12 판(0.7.0 = r14 · 0.6.5 = rdi). 몫은 dyn 이 rax 로 넣는다(창 0x1094dc8).
+/// 0.7.2: 피제수 rdi 판(0.7.1 = r12 · 0.7.0 = r14 · 0.6.5 = rdi). 몫은 dyn 이 rax 로 넣는다(창 0x1156e2f).
 pub(crate) fn unseen_risk_divisor(f: &Frame, v: i64) -> Option<u64> {
-    Some(((f.reg(12)? as i64) / n(v, 1, 32)? as i64) as u64)
+    Some(((f.reg(7)? as i64) / n(v, 1, 32)? as i64) as u64)
 }
 pub(crate) fn relocate_inner(_f: &Frame, v: i64) -> Option<u64> {
     Some(n(v, 25, 200)? * 8_000 / 100)
@@ -119,13 +119,18 @@ pub(crate) fn candidate_move_budget(f: &Frame, v: i64) -> Option<u64> {
     // 32M을 (K+2)M으로 바꿔 결과와 마지막 SUB의 flags를 보존한다.
     Some(f.reg(0)?.wrapping_mul(n(v, 0, 120)? + 2))
 }
-/// 0.7.0: 현위치 피해 r14 판(0.6.5 = rdi). dyn 이 r14 에 결과를 넣고 뒤 xor edi/sub rax,r14 를 재실행(창 0x106058e).
+/// 0.7.2: 첫 창 0xf05073 `lea r8,[rcx+rcx]; shl rcx,5; sub rcx,r8` — M 이 rcx 인 판(나머지 두 창은 rax 판 그대로).
+pub(crate) fn candidate_move_budget_rcx(f: &Frame, v: i64) -> Option<u64> {
+    Some(f.reg(1)?.wrapping_mul(n(v, 0, 120)? + 2))
+}
+/// 0.7.2: 현위치 피해 rdi 판(0.7.0~0.7.1 = r14 · 0.6.5 = rdi). 창 0x1157891 `shr rdi,1`.
 pub(crate) fn forward_credit_percent(f: &Frame, v: i64) -> Option<u64> {
-    Some((f.reg(14)? as u128 * n(v, 0, 100)? as u128 / 100) as u64)
+    Some((f.reg(7)? as u128 * n(v, 0, 100)? as u128 / 100) as u64)
 }
 pub(crate) fn move_penalty_negative(_f: &Frame, v: i64) -> Option<u64> {
     Some(n(v, 0, 1_000)?.wrapping_neg())
 }
+/// 0.7.2: 창 0x1010b66 `lea r13,[r12-6]` — 기준 점수 r12(0.7.1 = r13).
 pub(crate) fn move_penalty_result(f: &Frame, v: i64) -> Option<u64> {
-    Some(f.reg(13)?.wrapping_sub(n(v, 0, 1_000)?))
+    Some(f.reg(12)?.wrapping_sub(n(v, 0, 1_000)?))
 }

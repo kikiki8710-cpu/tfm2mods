@@ -1,0 +1,714 @@
+##### EDITED 0xedd140->0x106f840 plan\big_plan\battle.rs 3908B->3455B jcc 59->80 | imm cmp 0x1e 1->0; imm cmp 0x32 0->1; imm cmp 0x4 1->0; imm cmp 0x5 0->1; imm cmp 0
+=== 0xedd140 -> 0x106f840  ratio 0.275  ops 8
+  delete @o0xedd21a/n0x106f987: [call(ext) mov 8 call(fight_check.rs) call(ext) cmp 0x5f5e1001 cmp 4 vcall(0x208) cmp 15 cmp 255 cmp 255 add 253 add -3 op 0x5851f42d4c957f2d shr 57 op 68] -> []
+  delete @o0xedd5a0/n0x106f9b3: [add 16 add 16 shl 5 mov 8 add 1146] -> []
+  replace @o0xedd718/n0x106f9df: [op 0x5851f42d4c957f2d shr 57 op 68 shl 5 add 16 add 16 shl 5 mov 8] -> [call(ext) imul 4112 call(ext) cmp 50]
+  insert @o0xedd981/n0x106fb5c: [] -> [call(ext) shl 3 call(ext) add 8 cmp 5 mov 23]
+  delete @o0xeddb53/n0x106ff04: [mov 10000 call(ext) imul 100 shr 32 LOC(battle.rs:2624) call(ext) cmp 255 cmp 255] -> []
+  delete @o0xeddef1/n0x107005c: [cmp 30] -> []
+  replace @o0xeddf8e/n0x10700a4: [mov 16 add 16 mov 16 add 16] -> [mov 9 mov 15 imul 4112 op 0xe8d4a5100]
+  insert @o0xede03c/n0x1070191: [] -> [call(ext) add 528 op 0xe8d4a5100 call(ext) call(ext) op 0xe8d4a5100 call(ext) call(ext) op 0xe8d4a5100 call(ext) call(ext) op 0xe8d4a5100 call(ext) call(ext) mov 3438 mov 4 call(ext) call(ext) mov 3443 call(ext) mov 261 mov 3455 mov 3 LOC(battle.rs:3405)]
+
+##### EDITED 0xee1810->0x106b890 plan\big_plan\battle.rs 15653B->15856B jcc 320->292 | imm cmp 0x28 0->1; imm cmp 0x32 1->0; imm cmp 0x4 5->6; imm cmp 0x5 8->4; imm c
+=== 0xee1810 -> 0x106b890  ratio 0.606  ops 58
+  insert @o0xee1883/n0x106b930: [] -> [cmp 3 call(ext) op 0xcbf29ce484222325 op 0x100000001b3 add 7 cmp 10 cmp 5 cmp 8 shr 8 cmp 9 shl 8 cmp 3 shl 24 shl 32 shl 40]
+  delete @o0xee18c9/n0x106bb83: [add 568] -> []
+  delete @o0xee1a1d/n0x106bc14: [shl 16 shl 8] -> []
+  insert @o0xee1b2f/n0x106bc82: [] -> [add 8 call(finish_race.rs)]
+  replace @o0xee1b3d/n0x106bd05: [mov 812] -> [mov 899]
+  insert @o0xee1b65/n0x106bd5a: [] -> [call(plan\handler\gates.rs) op 0x100000001b3 shl 16 imul 4112 call(ext) op 0xcbf29ce484222325 op 0x100000001b3 shl 5 mov 6 op 0x3a35294401 mov 6 mov 6 add 8 cmp 6 cmp 6 op 0x100000001b3 cmp 4 op 0x100000001b3 shl 8]
+  replace @o0xee1b9d/n0x106c272: [and 0xffff00 shr 8 cmp 255 mov 255 mov 4] -> [cmp 3]
+  replace @o0xee1c0e/n0x106c2ae: [mov 5 call(ai_utils.rs) mov 255 mov 255 mov 5 mov 255] -> [or 5]
+  delete @o0xee1c79/n0x106c2d6: [and 65280] -> []
+  replace @o0xee1c90/n0x106c2f0: [cmp 3 cmp 3 shl 5 shl 4 op 0xd693a4001 cmp 3 call(ai_utils.rs) and 254] -> [vcall(0x40) mov 255 add 456 call(ext) cmp 255 call(ext) and 65534]
+  replace @o0xee1fc7/n0x106c5a5: [imul 3864] -> [imul 4112]
+  replace @o0xee206e/n0x106c632: [imul 3864] -> [imul 4112]
+  replace @o0xee2142/n0x106c731: [add 568] -> [add 528]
+  insert @o0xee2178/n0x106c767: [] -> [shr 8]
+  delete @o0xee24e6/n0x106cab6: [shr 32] -> []
+  replace @o0xee2574/n0x106cb2a: [shr 3 op 0x20c49ba5e353f7cf shr 4 cmp 100 mov 100 cmp 49999 mov 50 imul 1800 imul 0x10624dd3 shr 38 mov 50 mov 100 mov 100 imul 550 shr 3 imul 8389 shr 20 mov 500 cmp 50 mov 50] -> [call(ext)]
+  delete @o0xee261c/n0x106cb3b: [shr 18 add 400 imul 1311] -> []
+  replace @o0xee262f/n0x106cb3e: [and 62 mov 863] -> [and 2046 mov 952]
+  insert @o0xee2671/n0x106cbca: [] -> [shr 32]
+  replace @o0xee26f1/n0x106ccaf: [imul 3864] -> [imul 4112 add 8 cmp 40]
+  insert @o0xee2768/n0x106cd45: [] -> [vcall(0x28)]
+  delete @o0xee276f/n0x106cd80: [vcall(0x28)] -> []
+  replace @o0xee27d4/n0x106cda9: [call(ext) call(ext) add 30000 vcall(0xf8) vcall(0x168) add 120 vcall(0x28) call(plan\big_plan\fight_model.rs) call(ext) call(ext) add 30000 vcall(0xf8) vcall(0x168) add 120 vcall(0x28) call(plan\big_plan\fight_model.rs) call(ext) call(ext) add 30000 vcall(0xf8) vcall(0x168) add 120 vcall(0x28) call(plan\big_plan\fight_model.rs) call(ext) call(ext) add 30000 vcall(0xf8) vcall(0x168) add 120 vcall(0] -> [call(fight_check.rs) call(fight_check.rs)]
+  replace @o0xee2ecf/n0x106cfb9: [mov 897] -> [mov 987]
+  insert @o0xee2f4e/n0x106d0b6: [] -> [vcall(0x208) call(ext) xor 4 cmp 4 shl 3 mov 0x1000000]
+  replace @o0xee2f55/n0x106d2e5: [mov 908] -> [mov 998]
+  insert @o0xee3014/n0x106d392: [] -> [mov 255 shl 3 add 248 mov 0x40302 imul 4112 mov 1223 mov 3 op 255 cmp 255 mov 337 cmp 255 call(plan\big_plan\defense_nexus.rs) call(ext) op 0x10001000000 call(ext) call(ext) and 0xfffffffe mov 255 add 912 call(ext) call(ext)]
+  insert @o0xee31d5/n0x106dbb7: [] -> [call(ext) cmp 3]
+  replace @o0xee361a/n0x106e040: [op 0x5851f42d4c957f2d shr 57 op 68 shl 5 add 16 add 16] -> [call(ext) mov 8 call(ext)]
+  delete @o0xee3752/n0x106e140: [mov 8 shl 5] -> []
+  insert @o0xee3ac8/n0x106e3a7: [] -> [cmp 3]
+  replace @o0xee3aed/n0x106e435: [imul 3864] -> [imul 4112]
+  replace @o0xee3b0d/n0x106e455: [add 2448 add 2456] -> [add 2688 add 2696]
+  delete @o0xee3b45/n0x106e4a1: [cmp 3 cmp 255] -> []
+  insert @o0xee3d0a/n0x106e625: [] -> [mov 456 mov 408]
+  delete @o0xee3d68/n0x106e6db: [mov 255 vcall(0x40) add 416 add 464 vcall(0x208) imul 100 shl 5 shl 8 call(ext) mov 4 mov 982 mov 4] -> []
+  replace @o0xee4218/n0x106e9d6: [mov 1029] -> [mov 1124]
+  replace @o0xee44cb/n0x106eca3: [mov 1009] -> [mov 1104]
+  replace @o0xee4586/n0x106ed6f: [imul 3864] -> [imul 4112]
+  insert @o0xee462f/n0x106edfb: [] -> [op 0x53d1ac100]
+  insert @o0xee46a5/n0x106ee27: [] -> [op 0x53d1ac100]
+  insert @o0xee46c7/n0x106eeab: [] -> [op 0x53d1ac100]
+  insert @o0xee473d/n0x106eed7: [] -> [op 0x53d1ac100]
+  insert @o0xee475f/n0x106ef5b: [] -> [op 0x53d1ac100]
+  insert @o0xee47d5/n0x106ef87: [] -> [op 0x53d1ac100]
+  insert @o0xee47f7/n0x106f00b: [] -> [op 0x53d1ac100]
+  insert @o0xee486d/n0x106f037: [] -> [op 0x53d1ac100]
+  replace @o0xee499e/n0x106f215: [call(plan\big_plan\fight_model.rs) cmp 5 call(plan\big_plan\fight_model.rs) cmp 5 call(plan\big_plan\fight_model.rs) cmp 5 call(plan\big_plan\fight_model.rs) cmp 5 call(plan\big_plan\fight_model.rs) cmp 5] -> [add 40 call(plan\big_plan\battle.rs)]
+  replace @o0xee4aeb/n0x106f299: [mov 1060] -> [mov 1155]
+  replace @o0xee4b48/n0x106f304: [mov 1077] -> [mov 1172]
+  replace @o0xee4c05/n0x106f3da: [call(plan\big_plan\defense_nexus.rs)] -> [call(ext)]
+  replace @o0xee4c37/n0x106f41a: [mov 3548] -> [mov 3744]
+  replace @o0xee4cb2/n0x106f4c1: [mov 3565 cmp 3] -> [mov 3761]
+  insert @o0xee4d68/n0x106f545: [] -> [imul 100 shl 5 shl 8]
+  delete @o0xee4e41/n0x106f5b3: [xor 4 cmp 4 shl 3 mov 0x1000000 mov 255 shl 3 add 248 mov 0x40302 imul 3864 mov 1205 mov 3 op 255 cmp 255 mov 337 cmp 255 call(plan\big_plan\defense_nexus.rs) call(ext) call(ext) and 0xfffffffe mov 255 add 232 add 440 add 1144 call(ext) call(ext) mov 1029] -> []
+  replace @o0xee5415/n0x106f5c1: [mov 1009] -> [mov 1077 mov 1124 mov 4 mov 1104]
+  delete @o0xee546a/n0x106f62a: [call(ext)] -> []
+  delete @o0xee548c/n0x106f63b: [call(ext) mov 16 add 16] -> []
+
+##### EDITED 0xee6880->0x104e5b0 plan\big_plan\battle.rs 1721B->303B jcc 82->8 | imm cmp 0x3 2->0; imm cmp 0x4 2->0; imm cmp 0x5 6->2; imm op 0x17 1->0; imm op 0x238 
+=== 0xee6880 -> 0x104e5b0  ratio 0.280  ops 5
+  delete @o0xee6908/n0x104e617: [cmp 5 mov 23 imul 3864 add 568 vcall(0x40) vcall(0x40) vcall(0x40) mov 3 call(plan\team_plan.rs) vcall(0x40) cmp 3 vcall(0x40) cmp 4 vcall(0x40) cmp 5] -> []
+  delete @o0xee6b83/n0x104e657: [vcall(0x40)] -> []
+  replace @o0xee6c1c/n0x104e65d: [add 8 call(plan\big_plan\fight_model.rs) vcall(0x40)] -> [imul 4112 shl 5]
+  delete @o0xee6d01/n0x104e6b6: [add 8 call(plan\big_plan\fight_model.rs) cmp 3 vcall(0x40) cmp 5 add 8 call(plan\big_plan\fight_model.rs) cmp 4 vcall(0x40) cmp 5 add 8 call(plan\big_plan\fight_model.rs)] -> []
+  replace @o0xee6f23/n0x104e6c9: [LOC(team_plan.rs:720)] -> [LOC(blackboard.rs:259) mov 5]
+
+##### EDITED 0xf15990->0xee61b0 finish_race.rs 488B->488B jcc 8->8 |
+=== 0xf15990 -> 0xee61b0  ratio 1.000  ops 0
+
+##### EDITED 0xf16070->0xee7140 finish_race.rs 660B->714B jcc 18->22 | imm cmp 0x4 0->4
+=== 0xf16070 -> 0xee7140  ratio 0.882  ops 1
+  insert @o0xf161e5/n0xee722c: [] -> [cmp 4 cmp 4 cmp 4 cmp 4]
+
+##### EDITED 0xf16310->0xee7410 finish_race.rs 661B->661B jcc 18->18 |
+=== 0xf16310 -> 0xee7410  ratio 1.000  ops 0
+
+##### EDITED 0xf39260->0xfc9010 plan\big_plan\defense_nexus.rs 7077B->7667B jcc 125->115 | imm cmp 0x100 2->1; imm cmp 0x3 3->0; imm cmp 0x4 0->1; imm op 0x8 6->0; im
+=== 0xf39260 -> 0xfc9010  ratio 0.582  ops 23
+  insert @o0xf393ae/n0xfc90f5: [] -> [shl 40]
+  replace @o0xf393f9/n0xfc91c7: [add 368] -> [add 320]
+  replace @o0xf3952d/n0xfc92e1: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf395d5/n0xfc9389: [vcall(0x210)] -> [vcall(0x220)]
+  replace @o0xf39703/n0xfc94a7: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf397ac/n0xfc9546: [vcall(0x210)] -> [vcall(0x220) add 8 add 528 add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x228) add 100 op 0x28f5c28f5c28f5c3 vcall(0x220) shl 3 add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x228) add 100 op 0x28f5c28f5c28f5c3 vcall(0x220)]
+  replace @o0xf398df/n0xfc9a03: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf39984/n0xfc9aab: [vcall(0x210)] -> [vcall(0x220)]
+  replace @o0xf39ab3/n0xfc9bbb: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf39b5c/n0xfc9c5d: [vcall(0x210)] -> [vcall(0x220)]
+  replace @o0xf39c7c/n0xfc9d77: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf39d21/n0xfc9e1c: [vcall(0x210)] -> [vcall(0x220)]
+  replace @o0xf39e3d/n0xfc9f2c: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf39ee6/n0xfc9fce: [vcall(0x210) add 8 add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x218) add 100 op 0x28f5c28f5c28f5c3 vcall(0x210) shl 3 add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x218) add 100 op 0x28f5c28f5c28f5c3 vcall(0x210)] -> [vcall(0x220)]
+  replace @o0xf3a41e/n0xfca15b: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf3a4c0/n0xfca1f6: [vcall(0x210) add 8 shl 5 add 8 cmp 3 shl 3 add 8 add 8 cmp 3 shl 3 add 8 add 8 cmp 3 shl 3] -> [vcall(0x220)]
+  replace @o0xf3a7a0/n0xfca2f7: [test 256 add 568] -> [add 528 add 528]
+  replace @o0xf3a8cd/n0xfca447: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf3a96f/n0xfca502: [vcall(0x210)] -> [vcall(0x220)]
+  replace @o0xf3aa6d/n0xfca604: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf3ab10/n0xfca6ba: [vcall(0x210) call(ext) call(ext) call(ext)] -> [vcall(0x220) add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x228) add 100 op 0x28f5c28f5c28f5c3 vcall(0x220) add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x228) add 100 op 0x28f5c28f5c28f5c3 vcall(0x220) add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x228) add 100 op 0x28f5c28f5c28f5c3 vcall(0x220) imul 4112 shl 5 cmp 4]
+  insert @o0xf3ad22/n0xfcac8b: [] -> [shl 40 shl 32 shl 24]
+  insert @o0xf3ad5e/n0xfcacce: [] -> [shl 40 shl 32 shl 24 shl 16 shl 8 shr 32]
+
+##### EDITED 0xf3ae10->0xfc79f0 plan\big_plan\defense_nexus.rs 762B->864B jcc 24->13 | imm cmp 0x5 2->0; imm cmp 0x6 1->0; imm cmp 0x8 3->0; imm op 0x170 1->0; imm op
+=== 0xf3ae10 -> 0xfc79f0  ratio 0.146  ops 3
+  insert @o0xf3ae3e/n0xfc7a64: [] -> [add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(reg) add 100 op 0x28f5c28f5c28f5c3 vcall(reg)]
+  replace @o0xf3ae54/n0xfc7c01: [add 368 cmp 8 shl 5 mov 389 mov 10 mov 48 add 16 cmp 6 cmp 8 mov 433 add 144 cmp 5 cmp 8 mov 427 mov 10 add 208 cmp 5] -> [add 100 op 0x28f5c28f5c28f5c3 shl 3 vcall(0x70) add 100 op 0x28f5c28f5c28f5c3 vcall(0x58) add 8]
+  delete @o0xf3b0f7/n0x0: [LOC(defense_nexus.rs:752) call(ext)] -> []
+
+##### EDITED 0xf3b110->0xfcae60 plan\big_plan\defense_nexus.rs 2514B->2306B jcc 77->59 | imm cmp 0x3 3->0; imm op 0x8 6->0; imm op 0x80 0->1; imm op 0xc0 0->1; layout
+=== 0xf3b110 -> 0xfcae60  ratio 0.755  ops 10
+  replace @o0xf3b18b/n0xfcaedb: [add 368] -> [add 320]
+  replace @o0xf3b1f0/n0xfcaf53: [add 8 cmp 3 shl 3 add 8 add 8 cmp 3 shl 3 add 8 add 8 cmp 3 add 8] -> [call(ext)]
+  insert @o0xf3b4ce/n0xfcb0f3: [] -> [add 128]
+  insert @o0xf3b552/n0xfcb1b2: [] -> [add 192]
+  replace @o0xf3b651/n0xfcb2d7: [imul 3864 add 2448] -> [imul 4112 add 2688]
+  replace @o0xf3b6ee/n0xfcb36a: [imul 3864] -> [imul 4112]
+  replace @o0xf3b72f/n0xfcb3a6: [imul -3864] -> [imul -4112]
+  replace @o0xf3b8fd/n0xfcb586: [imul 3864] -> [imul 4112]
+  delete @o0xf3ba7d/n0xfcb6d1: [shl 4 LOC(defense_nexus.rs:393) call(ext)] -> []
+  insert @o0x0/n0xfcb712: [] -> [LOC(defense_nexus.rs:438) call(ext) LOC(simulation.rs:1951) call(ext) LOC(simulation.rs:1949) call(ext) LOC(simulation.rs:1950) call(ext)]
+
+##### EDITED 0xf3d000->0xfccec0 plan\big_plan\defense_nexus.rs 235B->622B jcc 11->24 | imm cmp 0x3 1->2; imm op 0x140 0->1; imm op 0x8 1->3; vcall+ +40 0->1; calls {3
+=== 0xf3d000 -> 0xfccec0  ratio 0.609  ops 3
+  insert @o0xf3d03c/n0xfccefb: [] -> [vcall(0x40)]
+  insert @o0xf3d050/n0xfccf72: [] -> [shl 5 add 320 add 8 cmp 3 shl 3 add 8]
+  replace @o0xf3d0d8/n0xfcd118: [LOC(defense_nexus.rs:745)] -> [LOC(game.rs:241)]
+
+##### EDITED 0xf3d0f0->0xfc6f80 plan\big_plan\defense_nexus.rs 1062B->2468B jcc 19->57 | imm cmp 0x3 0->1; imm cmp 0x5 0->2; imm cmp 0x6 0->1; imm cmp 0x8 0->3; imm o
+=== 0xf3d0f0 -> 0xfc6f80  ratio 0.578  ops 4
+  insert @o0xf3d160/n0xfc6fca: [] -> [op 0x7fffffffffffffff add 8 call(ext)]
+  replace @o0xf3d220/n0xfc71a9: [imul 3864 add 568] -> [imul 4112 add 528]
+  insert @o0xf3d4f5/n0xfc74c0: [] -> [call(ext) shl 3 add 8 cmp 3 or 4 shl 5 add 320 cmp 8 shl 5 mov 389 mov 10 mov 48 cmp 6 cmp 8 mov 433 add 128 cmp 5 cmp 8 mov 427 mov 10 add 192 cmp 5 or 8]
+  insert @o0x0/n0xfc78e7: [] -> [LOC(defense_nexus.rs:807) call(ext) LOC(defense_nexus.rs:814) call(ext) LOC(defense_nexus.rs:777) call(ext) LOC(defense_nexus.rs:788) call(ext)]
+
+##### EDITED 0xf60250->0x10cc4f0 plan\big_plan\fight_model.rs 38440B->38476B jcc 906->909 | imm cmp 0x4 45->48; imm op 0x10 2->0; imm op 0x7e 1->0; imm op 0xccd 1->0;
+=== 0xf60250 -> 0x10cc4f0  ratio 0.937  ops 41
+  replace @o0xf603d1/n0x10cc64f: [imul 3864] -> [imul 4112]
+  replace @o0xf603e7/n0x10cc665: [add 2448 add 2456 call(ai_utils.rs) call(ext) imul 3864 shl 4 add 2448 add 2456] -> [add 2688 add 2696]
+  replace @o0xf605ad/n0x10cc738: [imul 3864] -> [imul 4112]
+  replace @o0xf605c3/n0x10cc74e: [add 2448 add 2456] -> [add 2688 add 2696 cmp 3 cmp 4 add 1624 add 1632 call(ai_utils.rs) call(ext) imul 4112 shl 4 add 2688 add 2696 add 1632]
+  replace @o0xf60661/n0x10cc935: [imul 3864] -> [imul 4112]
+  replace @o0xf60677/n0x10cc94b: [add 2448 add 2456 cmp 3] -> [add 2688 add 2696]
+  replace @o0xf6074e/n0x10cc9df: [imul 3864] -> [imul 4112]
+  replace @o0xf60764/n0x10cc9f5: [add 2448 add 2456] -> [add 2688 add 2696 add 1632]
+  replace @o0xf60ad0/n0x10ccd62: [imul 3277 shr 15 and 126] -> [imul 52429 shr 19 and 0xfffffffe]
+  delete @o0xf60c63/n0x10ccf0a: [op 0xbf58476d1ce4e5b9] -> []
+  insert @o0xf6110f/n0x10cd3b4: [] -> [cmp 29 shl 4]
+  delete @o0xf6133a/n0x10cd68b: [cmp 29 shl 4] -> []
+  replace @o0xf6181a/n0x10cdb26: [imul 3864] -> [imul 4112]
+  delete @o0xf618d1/n0x10cdbeb: [shl 4 cmp 29] -> []
+  insert @o0xf61b96/n0x10cddee: [] -> [cmp 29 shl 4]
+  replace @o0xf61e22/n0x10ce109: [call(ext) call(ext)] -> [call(fight_check.rs) call(fight_check.rs)]
+  delete @o0xf61fe3/n0x10ce2dc: [op 0x53d1ac100] -> []
+  delete @o0xf6202b/n0x10ce34b: [op 0x53d1ac100] -> []
+  insert @o0xf6221b/n0x10ce3f6: [] -> [op 0x53d1ac100]
+  replace @o0xf622e8/n0x10ce5d8: [call(ext) call(ext)] -> [call(fight_check.rs) call(fight_check.rs)]
+  replace @o0xf63677/n0x10cf9b5: [and -16 add 16 vcall(reg)] -> [call(fight_check.rs)]
+  replace @o0xf6383a/n0x10cfb52: [and -16 add 16 vcall(reg)] -> [call(fight_check.rs)]
+  replace @o0xf64448/n0x10d0808: [vcall(0x260)] -> [vcall(0x278)]
+  delete @o0xf6467e/n0x10d0a6d: [add 1632] -> []
+  insert @o0xf64791/n0x10d0b2c: [] -> [add 1632 cmp 4]
+  insert @o0xf647e4/n0x10d0bb8: [] -> [cmp 4]
+  replace @o0xf65ac4/n0x10d1ed2: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf65b72/n0x10d1f80: [vcall(0x210)] -> [vcall(0x220)]
+  replace @o0xf65cd4/n0x10d20e2: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf65d83/n0x10d2191: [vcall(0x210)] -> [vcall(0x220)]
+  replace @o0xf65f69/n0x10d2362: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xf66017/n0x10d2410: [vcall(0x210)] -> [vcall(0x220)]
+  delete @o0xf66cc2/n0x10d30b6: [cmp 3] -> []
+  insert @o0xf66e42/n0x10d3126: [] -> [cmp 5 cmp 5 cmp 3]
+  delete @o0xf670de/n0x10d34d6: [cmp 5] -> []
+  delete @o0xf67215/n0x10d35cd: [cmp 5] -> []
+  insert @o0xf674cb/n0x10d3802: [] -> [cmp 5 cmp 5 cmp 5 cmp 5]
+  delete @o0xf67627/n0x10d3ade: [cmp 5 cmp 5 cmp 5 cmp 5] -> []
+  insert @o0xf6854f/n0x10d48e2: [] -> [cmp 4 cmp 4]
+  delete @o0xf6869d/n0x10d4c81: [cmp 4 cmp 4 cmp 4] -> []
+  insert @o0xf68aa5/n0x10d4d1c: [] -> [cmp 4]
+
+##### EDITED 0xf6e650->0x10e6fa0 plan\big_plan\fight_model.rs 4906B->5213B jcc 85->97 | imm cmp 0x3e8 0->1; imm op 0x1010 0->1; imm op 0x3f 1->0; imm op 0x40000000000
+=== 0xf6e650 -> 0x10e6fa0  ratio 0.861  ops 6
+  insert @o0xf6e7a4/n0x10e70f7: [] -> [mov 16 cmp 1000 call(ext) imul 4112 add 8 vcall(0xf8) vcall(0x168) vcall(0x28) add 120 cmp 3 cmp 4 cmp 5 cmp 6 cmp 7]
+  replace @o0xf6ee96/n0x10e7a89: [cmp 3 cmp 4 cmp 5 cmp 6 cmp 7] -> [op 0x4000000000000]
+  insert @o0xf6f57f/n0x10e8020: [] -> [sar 63 cmp 255 cmp 255]
+  delete @o0xf6f5c2/n0x10e8101: [and 63] -> []
+  delete @o0xf6f60f/n0x10e8173: [mov 16 sar 63 cmp 255 cmp 255] -> []
+  insert @o0xf6f94f/n0x10e83c3: [] -> [call(ext) LOC(fight_model.rs:227)]
+
+##### EDITED 0xf77870->0x10f1b40 plan\big_plan\fight_model.rs 595B->606B jcc 14->14 |
+=== 0xf77870 -> 0x10f1b40  ratio 0.955  ops 1
+  replace @o0xf779e8/n0x10f1cbc: [imul 3864] -> [imul 4112]
+
+##### EDITED 0xf7c420->0x1016620 finish_race.rs 382B->382B jcc 8->8 |
+=== 0xf7c420 -> 0x1016620  ratio 1.000  ops 0
+
+##### EDITED 0xf7c5a0->0x10168e0 finish_race.rs 1144B->940B jcc 27->23 | imm op 0x10 1->0; imm op 0xfffffffffffffff0 1->0
+=== 0xf7c5a0 -> 0x10168e0  ratio 0.811  ops 14
+  replace @o0xf7c63a/n0x101697c: [and -16 add 16] -> [call(ext)]
+  delete @o0xf7c68c/n0x1016998: [call(ext)] -> []
+  insert @o0xf7c69a/n0x101699f: [] -> [imul 100 shr 32]
+  delete @o0xf7c6d6/n0x10169da: [vcall(reg) imul 100 shr 32] -> []
+  delete @o0xf7c761/n0x1016a50: [vcall(0x48)] -> []
+  insert @o0xf7c791/n0x1016a60: [] -> [vcall(reg)]
+  delete @o0xf7c7a3/n0x1016a69: [vcall(0x38)] -> []
+  delete @o0xf7c832/n0x1016afa: [vcall(0x48)] -> []
+  insert @o0xf7c862/n0x1016b0a: [] -> [vcall(reg)]
+  delete @o0xf7c874/n0x1016b13: [vcall(0x38)] -> []
+  delete @o0xf7c903/n0x1016ba4: [vcall(0x48)] -> []
+  insert @o0xf7c933/n0x1016bb4: [] -> [vcall(reg)]
+  delete @o0xf7c945/n0x1016bbd: [vcall(0x38)] -> []
+  replace @o0xf7ca01/n0x1016c77: [vcall(0x38)] -> [vcall(reg)]
+
+##### EDITED 0xf7ca20->0xeed250 finish_race.rs 2086B->320B jcc 41->11 | imm cmp 0x1000000 1->0; imm cmp 0x28 1->0; imm cmp 0x3 3->0; imm cmp 0x4 3->0; imm cmp 0x5 1->
+=== 0xf7ca20 -> 0xeed250  ratio 0.200  ops 6
+  insert @o0xf7ca6f/n0xeed26b: [] -> [shl 5 shl 6 shl 7 add 56 shl 5 add 16 add 24 LOC(finish_race.rs:1060)]
+  replace @o0xf7caae/n0xeed307: [call(ext) cmp 3 call(ext) cmp 3 shl 3] -> [imul 0xf4240]
+  delete @o0xf7cbc4/n0xeed338: [add 8 cmp 40 call(ext) vcall(0x90) add 100 imul 100 shr 32 cmp 4 mov 3 cmp 3 vcall(0x90) add 100 imul 100 shr 32 and -16 add 16 vcall(0x208) and -16 add 16 vcall(0x58) call(ext) imul 1000 shr 32 and -16 add 16 vcall(0x208) and -16 add 16 vcall(0x58) call(ext) imul 1000 shr 32 op 0x28f5c28f5c28f5c3 add 100 call(ext) add -22 and 0xfffffffe cmp 0x1000000 shr 12 cmp 0xffffff and -16 add 16 vcall(0x218] -> []
+  delete @o0xf7d1c6/n0xeed33f: [mov 4 mov 4 call(ext) LOC(utils.rs:71) call(ext) LOC(utils.rs:69) mov 4096] -> []
+  insert @o0xf7d22c/n0xeed384: [] -> [mov 3]
+  delete @o0xf7d233/n0x0: [mov 3 LOC(finish_race.rs:707) call(ext)] -> []
+
+##### EDITED 0xf887f0->0xf0e5f0 fight_check.rs 819B->948B jcc 15->25 | imm cmp 0x3 0->2; imm cmp 0x5 0->1; imm cmp 0xa 1->0; imm op 0xa 1->0; imm op 0x3 0->1; imm op 
+=== 0xf887f0 -> 0xf0e5f0  ratio 0.417  ops 4
+  replace @o0xf888b8/n0xf0e693: [add 568] -> [add 528 op 0x9e3779b97f4a7c15 shr 29 shr 29 shr 61 shr 32]
+  insert @o0xf88900/n0xf0e79b: [] -> [cmp 3 add 1216 add 1160 cmp 5 and -16 add 16 vcall(0xb8) shl 6]
+  replace @o0xf8898b/n0xf0e906: [call(fight_check.rs) call(fight_check.rs) cmp 10 shl 4] -> [call(ext) cmp 3 mov 3 call(ext) LOC(local.rs:428) call(ext)]
+  delete @o0xf88b0f/n0x0: [LOC(fight_check.rs:531) mov 10 call(ext)] -> []
+
+##### EDITED 0xf8af90->0xf07fa0 fight_check.rs 7882B->11367B jcc 164->210 | imm cmp 0x3 4->13; imm cmp 0x5 2->7; imm cmp 0xf 3->1; imm op 0x10 10->11; imm op 0x210 0-
+=== 0xf8af90 -> 0xf07fa0  ratio 0.535  ops 27
+  delete @o0xf8afef/n0xf0801e: [cmp 15 add 568 mov 3 mov 4 cmp 15 add 568 mov 4 call(fight_check.rs) call(ext)] -> []
+  replace @o0xf8b34d/n0xf0809d: [vcall(0xa0)] -> [vcall(0xa8)]
+  insert @o0xf8b435/n0xf081b8: [] -> [call(fight_check.rs) cmp 3 cmp 5 call(fight_check.rs) shr 32 and -16 and -16]
+  replace @o0xf8b447/n0xf082de: [vcall(0x100) call(ext)] -> [vcall(0xe0)]
+  replace @o0xf8b517/n0xf084ca: [shr 32 mov 3 call(ext)] -> [call(fight_check.rs) and -16 cmp 3 cmp 5 and -16 and -16]
+  replace @o0xf8b594/n0xf08594: [vcall(0x100) call(ext)] -> [vcall(0xe0) mov 3 call(fight_check.rs)]
+  replace @o0xf8b664/n0xf08781: [call(ext) mov 3 add 80] -> [xor 3 call(fight_check.rs) and -16 cmp 3 cmp 5 and -16 and -16]
+  replace @o0xf8b6fa/n0xf0888b: [vcall(0x100) call(ext)] -> [vcall(0xe0) mov 3 call(fight_check.rs)]
+  replace @o0xf8b7ca/n0xf08a41: [call(ext) vcall(reg) vcall(reg) call(ext) and -16 add 16 vcall(0x100) call(ext) add 80 add 288 add -288 call(ext) call(ext) call(ext)] -> [mov 3 mov 3]
+  insert @o0xf8bbcc/n0xf08d50: [] -> [op 0x28f5c28f5c28f5c3]
+  insert @o0xf8bc1c/n0xf08d9e: [] -> [add 1440]
+  insert @o0xf8bd01/n0xf08def: [] -> [cmp 3 cmp 5]
+  replace @o0xf8bf58/n0xf091ac: [call(ext)] -> [and -16 and -16 and -16]
+  replace @o0xf8bfae/n0xf09247: [vcall(0x100)] -> [vcall(0xe0) mov 3 call(fight_check.rs) xor 3 call(fight_check.rs)]
+  insert @o0xf8c032/n0xf094aa: [] -> [xor 3 call(fight_check.rs) add 288 add -288 call(ext) cmp 3 op 0xaaaaaaaaaaaaaaab imul 1000 shr 32 shr 32 cmp 3 cmp 3 mov 3 add 80 cmp 3 cmp 3 xor 3 call(fight_check.rs) and -16 and -16 and -16]
+  replace @o0xf8c05a/n0xf098c1: [vcall(reg)] -> [vcall(0xe0) mov 3 call(fight_check.rs)]
+  delete @o0xf8c224/n0xf09bb7: [vcall(reg) vcall(reg) cmp 3 mov 3] -> []
+  replace @o0xf8c308/n0xf09bcd: [vcall(0xe0) call(ext) add 288 add -288 call(ext) call(ext) call(ext) op 0xaaaaaaaaaaaaaaab imul 1000 shr 32 shr 32 and -16 add 16 vcall(0xe8)] -> [vcall(0xf0)]
+  insert @o0xf8c762/n0xf09dbc: [] -> [and -16 and -16 and -16 and -16 add 16 vcall(reg) mov 3 call(fight_check.rs) call(ext) op 0x28f5c28f5c28f5c3 op 0x28f5c28f5c28f5c3 add 528 add 100 cmp 3 cmp 5 add 80 xor 3 call(fight_check.rs) and -16 and -16 and -16 and -16 add 16 vcall(0xe0) mov 3 call(fight_check.rs) add 288 add -288]
+  delete @o0xf8c888/n0xf0a50d: [add 568 add 100 op 0x28f5c28f5c28f5c3] -> []
+  insert @o0xf8c9aa/n0xf0a555: [] -> [and -16 and -16 and -16 and -16 add 16 vcall(reg) mov 3 call(fight_check.rs)]
+  delete @o0xf8ca66/n0xf0a8f3: [op 0x28f5c28f5c28f5c3] -> []
+  delete @o0xf8cb19/n0xf0a9a3: [op 0x28f5c28f5c28f5c3] -> []
+  delete @o0xf8cbcc/n0xf0aa53: [op 0x28f5c28f5c28f5c3] -> []
+  replace @o0xf8cc7f/n0xf0aaf6: [op 0x28f5c28f5c28f5c3] -> [vcall(reg)]
+  insert @o0xf8cd10/n0xf0ab47: [] -> [vcall(reg) vcall(reg)]
+  delete @o0xf8cd80/n0xf0abe5: [vcall(reg) vcall(reg) call(fight_check.rs) LOC(fight_check.rs:198) call(ext) LOC(fight_check.rs:202) call(ext)] -> []
+
+##### EDITED 0xf8cef0->0xf0ac60 fight_check.rs 5650B->6499B jcc 108->121 | imm cmp 0x5 1->2; imm op 0x28f5c28f5c28f5c3 3->4; imm op 0x3 3->7; imm op 0x4 3->5; imm op 
+=== 0xf8cef0 -> 0xf0ac60  ratio 0.784  ops 15
+  insert @o0xf8d2a9/n0xf0affc: [] -> [mov 0x186a0 shr 32 add -288 op 0x7fffffffffffffff op 0xe38e38e38e38e38f shr 8 op 0x7fffffffffffffff add 288]
+  delete @o0xf8d314/n0xf0b18c: [mov 3] -> []
+  insert @o0xf8d350/n0xf0b1e5: [] -> [mov 3 mov 3]
+  insert @o0xf8d3d5/n0xf0b2bc: [] -> [shl 5]
+  insert @o0xf8d466/n0xf0b332: [] -> [add 1432]
+  insert @o0xf8d5b0/n0xf0b374: [] -> [cmp 3 add 1440 cmp 5 add 4 add 4]
+  replace @o0xf8d7bf/n0xf0b742: [and -16 add 16 vcall(reg)] -> [call(fight_check.rs)]
+  insert @o0xf8dc5b/n0xf0bbb4: [] -> [call(fight_check.rs) and -16 and -16 and -16 and -16 add 16]
+  replace @o0xf8dcd0/n0xf0bcb2: [call(ext)] -> [mov 3 call(fight_check.rs) op 0x28f5c28f5c28f5c3]
+  delete @o0xf8dd54/n0xf0be6e: [vcall(reg) vcall(reg) vcall(reg) vcall(reg)] -> []
+  insert @o0xf8dfab/n0xf0c04d: [] -> [mov 3]
+  replace @o0xf8dfdd/n0xf0c0a1: [cmp 3] -> [shl 4 call(fight_check.rs) and -16 and -16 and -16]
+  replace @o0xf8e0a3/n0xf0c1d5: [call(ext)] -> [mov 3 call(fight_check.rs)]
+  delete @o0xf8e33d/n0xf0c56b: [call(ext)] -> []
+  delete @o0xf8e392/n0xf0c5a5: [mov 0x186a0 shr 32 add -288 op 0x7fffffffffffffff op 0xe38e38e38e38e38f shr 8 op 0x7fffffffffffffff add 288] -> []
+
+##### EDITED 0xf8e820->0xf0c8a0 fight_check.rs 1170B->934B jcc 22->32 | imm cmp 0x3 2->1; imm cmp 0x4 1->0; imm cmp 0x5 2->1; imm op 0x210 0->1; imm op 0x3 1->2; imm 
+=== 0xf8e820 -> 0xf0c8a0  ratio 0.568  ops 5
+  delete @o0xf8e99c/n0xf0ca21: [vcall(0x90) add 100 imul 100 shr 32 vcall(0x90) add 100 imul 100 shr 32] -> []
+  delete @o0xf8ea9c/n0xf0ca3b: [vcall(0x90) add 100 imul 100 shr 32 cmp 3 shl 5 add 1416 add 1424 cmp 4] -> []
+  delete @o0xf8eb4b/n0xf0ca5b: [cmp 5 shl 4 add 1432 add 1440 vcall(0xa8) shr 32] -> []
+  insert @o0xf8ebd7/n0xf0caa6: [] -> [add 528 call(ext) mov 3 mov 4 call(ext)]
+  insert @o0x0/n0xf0cc20: [] -> [LOC(fight_check.rs:306) call(ext) LOC(fight_check.rs:310) call(ext)]
+
+##### EDITED 0xf91c70->0xf101e0 fight_check.rs 3515B->3590B jcc 81->81 | imm op 0x10 2->0; imm op 0x100 0->1; imm op 0x1090 2->0; imm op 0x130 1->0; imm op 0x350 2->0
+=== 0xf91c70 -> 0xf101e0  ratio 0.897  ops 14
+  delete @o0xf91d57/n0xf1031c: [imul 4240 imul 4240] -> []
+  delete @o0xf91df5/n0xf1036c: [imul 848] -> []
+  insert @o0xf91eb2/n0xf103f3: [] -> [call(fight_check.rs) call(fight_check.rs)]
+  insert @o0xf91ee3/n0xf104f5: [] -> [call(fight_check.rs) cmp 15]
+  insert @o0xf91ef0/n0xf1055c: [] -> [call(ext) call(fight_check.rs)]
+  delete @o0xf91f29/n0xf1060e: [imul 848 call(ext)] -> []
+  delete @o0xf91f9e/n0xf10694: [cmp 15] -> []
+  delete @o0xf922bb/n0xf10946: [and -16 add 16 vcall(0x58)] -> []
+  delete @o0xf9238f/n0xf109c3: [shr 32] -> []
+  delete @o0xf92426/n0xf10a50: [add 8] -> []
+  replace @o0xf924cb/n0xf10abe: [add 304] -> [add 256]
+  insert @o0xf92533/n0xf10b05: [] -> [op 0x53d1ac101]
+  delete @o0xf92645/n0xf10c71: [and -16 add 16 vcall(0x58)] -> []
+  delete @o0xf92727/n0xf10cf3: [shr 32] -> []
+
+##### EDITED 0xf93140->0xf11700 fight_check.rs 2737B->2874B jcc 51->53 | imm cmp 0x40 1->0; imm cmp 0x400 0->1; imm op 0x40 2->1; imm op 0x400 0->1; imm op 0x40000000
+=== 0xf93140 -> 0xf11700  ratio 0.952  ops 4
+  insert @o0xf936c5/n0xf11c82: [] -> [op 0x4000000000000]
+  replace @o0xf938b4/n0xf11ef4: [shr 58] -> [shr 54]
+  replace @o0xf93ae5/n0xf12132: [cmp 64] -> [cmp 1024]
+  replace @o0xf93be4/n0xf1222d: [mov 64] -> [mov 1024]
+
+##### EDITED 0xf93e00->0xf12440 fight_check.rs 12315B->16310B jcc 280->370 | imm cmp 0x10000 0->1; imm cmp 0x1000000 1->2; imm cmp 0x3 3->4; imm cmp 0x5 2->3; imm cmp
+=== 0xf93e00 -> 0xf12440  ratio 0.677  ops 50
+  replace @o0xf93ee4/n0xf12520: [imul 3864] -> [imul 4112]
+  replace @o0xf940d7/n0xf12727: [op 0x9e3779b97f4a7c15 shl 24 op 29] -> [shr 3]
+  delete @o0xf94142/n0xf1273b: [shr 3] -> []
+  insert @o0xf941a7/n0xf12792: [] -> [op 0x9e3779b97f4a7c15 cmp 15 add 528 mov 4 mov 3 call(ext)]
+  delete @o0xf94236/n0xf129a9: [mov 1000] -> []
+  delete @o0xf9425b/n0xf129bc: [mov 100] -> []
+  insert @o0xf942b5/n0xf129ef: [] -> [mov 100]
+  insert @o0xf94357/n0xf12a6e: [] -> [call(ext) mov 314 mov 0xffffffff shl 24 op 29 mov 1000 add 528 mov 10 imul 19200 add 50024 mov 8]
+  insert @o0xf943be/n0xf12c45: [] -> [call(ext)]
+  insert @o0xf943fc/n0xf12d0f: [] -> [call(fight_check.rs)]
+  replace @o0xf94422/n0xf12d5e: [imul 4240 imul 848] -> [mov 6 cmp 15 mov 4 mov 176 mov 232 mov 200 mov 240 mov 184 mov 488 mov 272 mov 192 mov 208]
+  replace @o0xf9446a/n0xf12eb5: [op 0x20c49ba5e353f7cf] -> [cmp 15 call(ext) cmp 15 call(ext) cmp 15 cmp 3 cmp 4 cmp 5 and -16 add 16 vcall(0x290) shl 3 cmp 4 cmp 5 cmp 3 and -16 add 16 vcall(0x290) mov 3 call(ext) vcall(0x38) vcall(0x18) cmp 65535 cmp 10 imul 1920 shl 6 shl 4 shl 4 op 0x9e3779b97f4a7c15 op 0xc9714fbcda3ac11 shr 5 imul 61 cmp 15 mov 4 mov 3 call(ext) cmp 15 mov 3 mov 4 call(ext) mov 3 call(ext) shl 7 test 4 mov 65792 mov 256 and 4 shl 14 c]
+  delete @o0xf944f3/n0xf13754: [shr 4 call(ext)] -> []
+  delete @o0xf94547/n0xf13761: [cmp 15 op 0x20c49ba5e353f7cf mov 6 mov 232 op 0x9e3779b97f4a7c15 shr 30 op 0xbf58476d1ce4e5b9 shr 27 op 0x94d049bb133111eb shr 31 shr 3 shr 4 call(ext) op 0x20c49ba5e353f7cf cmp 15 op 0x20c49ba5e353f7cf op 0x9e3779b97f4a7c15 shr 30 op 0xbf58476d1ce4e5b9 shr 27 op 0x94d049bb133111eb shr 31 shr 3 shr 4 call(ext) op 0x20c49ba5e353f7cf cmp 15 op 0x20c49ba5e353f7cf cmp 4 op 0x9e3779b97f4a7c15 shr 30 op] -> []
+  insert @o0xf94986/n0xf137ff: [] -> [op 0x20c49ba5e353f7cf]
+  insert @o0xf94997/n0xf13822: [] -> [op 0x28f5c28f5c28f5c3]
+  insert @o0xf94a06/n0xf138b1: [] -> [shr 3 op 0x20c49ba5e353f7cf shr 4 op 0x28f5c28f5c28f5c3 cmp 5 op 0x9e3779b97f4a7c15 shr 30 op 0xbf58476d1ce4e5b9 shr 27 op 0x94d049bb133111eb shr 31 shr 3 op 0x20c49ba5e353f7cf shr 4]
+  insert @o0xf94ac2/n0xf13a9a: [] -> [op 0x9e3779b97f4a7c15 shr 30 op 0xbf58476d1ce4e5b9 shr 27 op 0x94d049bb133111eb shr 31 shr 3 op 0x20c49ba5e353f7cf shr 4 op 0x9e3779b97f4a7c15 shr 30 op 0xbf58476d1ce4e5b9 shr 27 op 0x94d049bb133111eb shr 31 shr 3 op 0x20c49ba5e353f7cf shr 4]
+  insert @o0xf94b09/n0xf13d05: [] -> [cmp 9 call(ext)]
+  replace @o0xf94b2e/n0xf13f16: [shl 3 cmp 4 shl 3 cmp 4 op 0x28f5c28f5c28f5c3 op 0x20c49ba5e353f7cf call(ext)] -> [test 8 mov 4 mov 4]
+  delete @o0xf94d79/n0xf140a8: [cmp 5 cmp 3 and -16 add 16 vcall(0x270) cmp 5 and -16 add 16 vcall(0x270)] -> []
+  delete @o0xf94fb8/n0xf14212: [op 0x20c49ba5e353f7cf mov 176 mov 200] -> []
+  replace @o0xf95210/n0xf1444d: [mov 240 mov 184 mov 488 mov 272 mov 192 mov 208] -> [call(ext) call(ext) call(ext) call(ext) imul 0x3b9aca00 call(ext) mov 315 mov 0xffffffff]
+  replace @o0xf9532e/n0xf145b0: [shr 4] -> [add 100 op 0x28f5c28f5c28f5c3]
+  delete @o0xf953dc/n0xf146d7: [and -16 add 16 vcall(reg)] -> []
+  delete @o0xf95660/n0xf14938: [add 8] -> []
+  replace @o0xf956b4/n0xf14946: [vcall(0x218) add 100 op 0x28f5c28f5c28f5c3] -> [vcall(0x228)]
+  insert @o0xf957cd/n0xf149f0: [] -> [shr 4 call(ext) call(ext) imul 0x3b9aca00 call(ext) mov 316 mov 0xffffffff]
+  delete @o0xf9588a/n0xf14bc3: [vcall(0xf8) and -16 add 16] -> []
+  replace @o0xf95962/n0xf14c70: [vcall(0x90)] -> [vcall(reg)]
+  replace @o0xf959df/n0xf14ced: [vcall(0x80)] -> [vcall(reg)]
+  replace @o0xf95ada/n0xf14dd6: [vcall(0x88)] -> [vcall(reg)]
+  delete @o0xf95b08/n0xf14e10: [add 568] -> []
+  replace @o0xf95b6a/n0xf14e66: [vcall(0x90)] -> [vcall(reg)]
+  replace @o0xf95b91/n0xf14e97: [vcall(0x40)] -> [vcall(reg)]
+  insert @o0xf95cd3/n0xf14fc5: [] -> [call(ext) call(ext) imul 0x3b9aca00 call(ext) mov 317 mov 0xffffffff]
+  replace @o0xf95cef/n0xf150aa: [vcall(0x98)] -> [vcall(0xa0)]
+  replace @o0xf95e6e/n0xf15261: [vcall(0xb8)] -> [vcall(0xc0)]
+  insert @o0xf96126/n0xf154e7: [] -> [shl 5]
+  delete @o0xf96241/n0xf1568e: [imul 1000 op 0x3ff00000000] -> []
+  insert @o0xf96458/n0xf15838: [] -> [cmp 127]
+  insert @o0xf96aa0/n0xf15e9e: [] -> [op 0x20c49ba5e353f7cf]
+  delete @o0xf96aa4/n0xf15eb4: [op 0x20c49ba5e353f7cf] -> []
+  insert @o0xf96b70/n0xf15f86: [] -> [call(ext) call(ext) imul 0x3b9aca00]
+  insert @o0xf96c84/n0xf16123: [] -> [imul 1000 op 0x3ff00000000]
+  insert @o0xf96c9d/n0xf16177: [] -> [call(ext) LOC(ai_reactive.rs:521) mov 11]
+  replace @o0xf96d0c/n0xf16200: [LOC(fight_check.rs:1587)] -> [LOC(rx.rs:161) mov 10]
+  insert @o0xf96d77/n0xf16270: [] -> [call(ext) LOC(fight_check.rs:306) call(ext) LOC(fight_check.rs:310) call(ext) LOC(fight_check.rs:306) call(ext) LOC(fight_check.rs:1787)]
+  insert @o0xf96dc0/n0xf16311: [] -> [mov 10 call(ext) LOC(fight_check.rs:310) call(ext) LOC(fight_check.rs:306) call(ext) LOC(fight_check.rs:2036)]
+  insert @o0xf96dd7/n0xf16383: [] -> [call(ext) LOC(fight_check.rs:306) call(ext) LOC(fight_check.rs:310)]
+
+##### EDITED 0xf990e0->0xf18680 fight_check.rs 751B->769B jcc 15->15 | layout  0->0
+=== 0xf990e0 -> 0xf18680  ratio 0.933  ops 1
+  replace @o0xf991a3/n0xf18749: [add 568] -> [add 528]
+
+##### EDITED 0xf9c1b0->0x101d560 finish_race.rs 2488B->2612B jcc 48->52 | imm cmp 0xf 0->1; imm op 0x210 0->1; imm op 0x8000000000000 0->1; layout  0->0; calls {157: 
+=== 0xf9c1b0 -> 0x101d560  ratio 0.919  ops 4
+  insert @o0xf9c24d/n0x101d5de: [] -> [shr 3 op 0x8000000000000]
+  replace @o0xf9c507/n0x101d8a1: [imul 3864 add 2448] -> [add 528 imul 4112 add 2688]
+  insert @o0xf9c877/n0x101dc03: [] -> [cmp 15]
+  insert @o0xf9c87d/n0x101dc2b: [] -> [call(ext)]
+
+##### EDITED 0xf9cbf0->0x101e020 finish_race.rs 28298B->42917B jcc 570->916 | imm cmp 0x15 3->4; imm cmp 0x1d 22->26; imm cmp 0x2710 0->2; imm cmp 0x3 12->33; imm cmp
+=== 0xf9cbf0 -> 0x101e020  ratio 0.664  ops 77
+  replace @o0xf9cbfc/n0x101e02c: [mov 4136] -> [mov 5208]
+  replace @o0xf9ce61/n0x101e2a5: [add 568 add 608 call(ext)] -> [add 528 add 40 call(finish_race.rs)]
+  insert @o0xf9d0f5/n0x101e51d: [] -> [shl 5]
+  insert @o0xf9d2a5/n0x101e70a: [] -> [add 128 mov 389]
+  delete @o0xf9d2ae/n0x101e737: [mov 389 op 0x53d1be5f81] -> []
+  replace @o0xf9d2d2/n0x101e750: [cmp 3 shl 5] -> [mov 448 mov 432]
+  insert @o0xf9d340/n0x101e7bb: [] -> [mov 480 mov 464]
+  insert @o0xf9d390/n0x101e80a: [] -> [mov 512 mov 496]
+  insert @o0xf9d40b/n0x101e8d3: [] -> [op 0x53d1be5f81]
+  replace @o0xf9d455/n0x101e93d: [mov 433 mov 427 cmp 3] -> [mov 389]
+  delete @o0xf9d626/n0x101ebe7: [add 8] -> []
+  replace @o0xf9d6d3/n0x101ebf2: [vcall(0x218)] -> [vcall(0x228)]
+  insert @o0xf9d96b/n0x101ede9: [] -> [cmp 4 call(ext) call(ext) call(fight_check.rs)]
+  replace @o0xf9d976/n0x101f017: [vcall(0x218)] -> [vcall(0x228)]
+  insert @o0xf9de13/n0x101f4b5: [] -> [cmp 10000 mov 10000 op 0x346dc5d63886594b shr 11]
+  insert @o0xf9de4b/n0x101f593: [] -> [add 288 add 288 call(ext) call(ext) call(ext) imul 10000 shr 32 shl 5 mov 288 call(ext) add 288]
+  insert @o0xf9e055/n0x101f8be: [] -> [mov 8 call(fight_check.rs) op 0x3ffffffffffffffe]
+  insert @o0xf9e134/n0x101fa08: [] -> [call(ext)]
+  delete @o0xf9e306/n0x101fcda: [and -16 add 16 vcall(reg) call(ext)] -> []
+  delete @o0xf9e514/n0x101fddd: [mov 8 call(fight_check.rs) op 0x3ffffffffffffffe] -> []
+  delete @o0xf9e8da/n0x10200d1: [shr 32] -> []
+  insert @o0xf9ea77/n0x10201e3: [] -> [shr 32]
+  delete @o0xf9ea7b/n0x1020251: [mov 0xffffffff mov 0xffffffff] -> []
+  insert @o0xf9efba/n0x1020759: [] -> [mov 256 cmp 8 mov 389 shl 5 shl 3 add 8 cmp 3 add 8 cmp 8 mov 433 shl 5 shl 3 add 8 cmp 3 add 8 cmp 8 mov 427 shl 5 shl 3 add 8 cmp 3 add 8]
+  insert @o0xf9effa/n0x1020b3b: [] -> [mov 0xffffffff]
+  replace @o0xf9f06b/n0x1020baf: [imul 3864 add 2448] -> [imul 4112 add 2688 add 3644 call(ext)]
+  insert @o0xf9f0e7/n0x1020c57: [] -> [add 8]
+  replace @o0xf9f129/n0x1020c9f: [shl 8 add 256] -> [shl 6 add 320]
+  delete @o0xf9f47f/n0x1020ff5: [call(finish_race.rs) call(finish_race.rs) call(ext) call(finish_race.rs) call(finish_race.rs)] -> []
+  replace @o0xf9f812/n0x1021076: [call(finish_race.rs)] -> [shl 5]
+  replace @o0xf9f8c6/n0x10212b2: [shl 8] -> [imul 10000 shr 32 call(ext) call(ext) call(ext) call(ext) cmp 10000 mov 10000 op 0x346dc5d63886594b shr 11 call(ext) call(ext) call(ext) call(ext) shl 6]
+  replace @o0xf9f90a/n0x10215b7: [mov 192] -> [mov 256]
+  replace @o0xf9f95b/n0x102160b: [shl 8] -> [shl 6]
+  replace @o0xf9f9fc/n0x10216ab: [vcall(0x218)] -> [vcall(0x228)]
+  delete @o0xf9fcab/n0x102193a: [call(ext)] -> []
+  replace @o0xf9fd4f/n0x10219e0: [shl 8] -> [shl 6]
+  insert @o0xf9fe51/n0x1021adb: [] -> [call(ext) mov 8 mov 8 mov 8 vcall(0x40) mov 8 imul 60 mov 8 cmp 8 shl 4 call(ext) shl 4 call(ext) add 16 shl 4 cmp 3 cmp 9 mov 427 mov 433 mov 389 cmp 3 mov 80000 mov 0xc8320 mov 0x23280 mov 0xd6d80 mov 0x23280 mov 0xc7768 shl 5 add 32 shl 6 add 32 add -32 imul 120 call(ext) call(finish_race.rs) shl 5 shl 5 add 4096 add 8 op 0x53d1be5f81 add 8 cmp 3 and -16 add 16 vcall(0x228) add 100 op 0x28f5c28]
+  delete @o0xf9fea7/n0x1022943: [mov 0xffffffff] -> []
+  replace @o0xfa002b/n0x1022acf: [shl 8] -> [shl 6]
+  replace @o0xfa009a/n0x1022b4a: [add 256 add 256 add 256 add 256] -> [add 320 add 320 add 320 add 320]
+  insert @o0xfa0206/n0x1022c98: [] -> [LOC(finish_race.rs:978) mov 5 call(ext) LOC(finish_race.rs:748) call(ext) LOC(utils.rs:71) call(ext) LOC(entity.rs:2314) call(ext) cmp 21 mov 8 add 8 add 8 cmp 8 add -8 LOC(finish_race.rs:966) mov 5 call(ext) LOC(free_dist.rs:113) call(ext) LOC(finish_race.rs:734) call(ext) LOC(finish_race.rs:734) mov 4 call(ext) LOC(finish_race.rs:888) mov 5 call(ext) LOC(utils.rs:69) mov 4096 call(ext) LOC(finis]
+  insert @o0xfa02f2/n0x10231ab: [] -> [add 24 call(ext)]
+  insert @o0xfa0ac2/n0x10239ea: [] -> [op 0x3fffffffffffffff cmp 3 cmp 4]
+  replace @o0xfa0eaf/n0x1023ed0: [shl 8] -> [add 24 add 24 add 24 add 24 shl 5 add 32 shl 6 add 16 add 16 add 16 cmp 5 shl 4 add 24 shl 4 add 1104 add 24 shl 4 add 24 shl 6]
+  insert @o0xfa0fcf/n0x1024532: [] -> [cmp 3 cmp 3]
+  insert @o0xfa10c3/n0x10245a1: [] -> [cmp 3 cmp 3 cmp 4 cmp 4 add 240 mov 3 cmp 4 cmp 4 cmp 5 cmp 5 add 360 mov 4 mov 3 cmp 5]
+  insert @o0xfa11e2/n0x10248b3: [] -> [shl 4 shl 4 shl 5 shl 6 call(finish_race.rs) call(finish_race.rs) shr 32 call(finish_race.rs) shl 5 cmp 3 shl 4 add -32 call(finish_race.rs) shl 4 shl 7 shl 5 add 32 shl 6 shl 4 add 3648 shl 5 shl 6]
+  replace @o0xfa13ab/n0x102506a: [shl 5] -> [shl 7]
+  insert @o0xfa145f/n0x1025181: [] -> [shl 6 shl 4 cmp 4 add 253 shl 6]
+  replace @o0xfa1469/n0x1025256: [shl 8 shl 5] -> [shl 6 cmp 3 cmp 4 cmp 5]
+  insert @o0xfa1519/n0x1025320: [] -> [op 0x3fffffffffffffff]
+  replace @o0xfa152f/n0x1025371: [op 0x3fffffffffffffff] -> [cmp 4 cmp 4]
+  insert @o0xfa15f0/n0x10253fb: [] -> [add 16 add 16 cmp 80 shr 32 cmp 64 mov 3 shl 4]
+  insert @o0xfa1627/n0x1025545: [] -> [add 4096]
+  delete @o0xfa17d6/n0x10256d3: [shr 32 call(finish_race.rs)] -> []
+  replace @o0xfa1bf3/n0x1025a06: [shl 5] -> [cmp 4 cmp 4 cmp 4 add 16 add 16 cmp 80 cmp 64]
+  replace @o0xfa20c7/n0x1026054: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xfa2449/n0x10263eb: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xfa25a9/n0x102654c: [vcall(0x218)] -> [vcall(0x228) add 100 op 0x28f5c28f5c28f5c3]
+  delete @o0xfa2727/n0x102675c: [shr 32 add 100 op 0x28f5c28f5c28f5c3] -> []
+  insert @o0xfa2a6e/n0x10268f2: [] -> [shr 32 mov 5 mov 600 add 120 add 480 mov 5 mov 4 shr 32 imul 120 call(finish_race.rs)]
+  insert @o0xfa2adb/n0x1026c6d: [] -> [call(finish_race.rs) call(finish_race.rs) cmp 255 mov 255 cmp 4 and -4 add 4 op 238]
+  delete @o0xfa2cbb/n0x1026d6e: [call(ext) call(ext) imul 0x3b9aca00 shl 5 shl 8 add 120 imul 120 call(ext) call(ext) call(ext) imul 0x3b9aca00] -> []
+  delete @o0xfa2fc9/n0x1026d75: [mov 5 call(ext) LOC(finish_race.rs:629) call(ext) LOC(utils.rs:71)] -> []
+  replace @o0xfa309f/n0x1026dd6: [cmp 21 mov 8 add 8 add 8 cmp 8 add -8] -> [LOC(finish_race.rs:1181) call(ext) LOC(finish_race.rs:1157) call(ext)]
+  delete @o0xfa31ff/n0x1026f0a: [LOC(free_dist.rs:113) call(ext)] -> []
+  delete @o0xfa3230/n0x1026f29: [call(ext) LOC(finish_race.rs:908) call(ext) LOC(finish_race.rs:908) mov 4 call(ext) LOC(free_dist.rs:113)] -> []
+  replace @o0xfa3304/n0x1026fb2: [LOC(utils.rs:69) mov 4096] -> [LOC(free_dist.rs:113)]
+  replace @o0xfa3325/n0x1026fd1: [mov 5] -> [call(ext) LOC(finish_race.rs:1038) call(ext) LOC(finish_race.rs:1038)]
+  replace @o0xfa346e/n0x1027132: [LOC(free_dist.rs:113)] -> [LOC(finish_race.rs:1111) call(ext) LOC(finish_race.rs:1064) mov 3]
+  delete @o0xfa354c/n0x102722a: [LOC(free_dist.rs:113) call(ext) LOC(finish_race.rs:815) call(ext)] -> []
+  delete @o0xfa35d0/n0x102727b: [call(ext) LOC(finish_race.rs:822) call(ext) LOC(finish_race.rs:831) call(ext) LOC(finish_race.rs:831)] -> []
+  replace @o0xfa3722/n0x1027383: [LOC(simulation.rs:1996)] -> [LOC(finish_race.rs:1065) call(ext) LOC(finish_race.rs:1023) call(ext) LOC(finish_race.rs:1117) call(ext) LOC(finish_race.rs:1120) call(ext) LOC(finish_race.rs:1120) call(ext) LOC(finish_race.rs:1120) call(ext) LOC(finish_race.rs:1082) call(ext) LOC(finish_race.rs:1100) call(ext) LOC(finish_race.rs:1100) mov 4 call(ext) LOC(finish_race.rs:1100) call(ext) LOC(finish_race.rs:1107) call(ext) LOC(finis]
+  delete @o0xfa3897/n0x1027749: [LOC(finish_race.rs:833) call(ext) LOC(finish_race.rs:833) call(ext) LOC(finish_race.rs:833) call(ext) LOC(finish_race.rs:835) call(ext) LOC(finish_race.rs:835) call(ext) call(ext)] -> []
+  delete @o0xfa396c/n0x1027755: [call(ext) LOC(finish_race.rs:839) call(ext) LOC(finish_race.rs:839)] -> []
+  delete @o0xfa3a0f/n0x10277cc: [LOC(finish_race.rs:842) mov 4 call(ext)] -> []
+  insert @o0x0/n0x102782f: [] -> [mov 3 mov 3 mov 4 LOC(finish_race.rs:1023) call(ext) mov 4 LOC(finish_race.rs:1043) call(ext) LOC(finish_race.rs:1084) mov 5 mov 5 call(ext) cmp 4 add 120 and 3 cmp 4 and -4 add 4 add 480 imul 120 add 40 imul 120 add 120 cmp 3 cmp 3 mov 1120 call(ext) mov 560 mov 1120 call(ext) cmp 255 mov 255 call(ext) call(ext) imul 0x3b9aca00 vcall(reg) vcall(reg) shl 5 shl 6 add 120 imul 120 call(ext) call(ext]
+
+##### EDITED 0x111ee00->0x108c840 finish_race.rs 256B->260B jcc 4->4 | imm op 0x38 0->1; imm op 0x70 0->1
+=== 0x111ee00 -> 0x108c840  ratio 0.818  ops 1
+  replace @o0x111ee76/n0x108c8b2: [shl 5 shl 4] -> [imul 112 imul 56]
+
+##### EDITED 0x1122bd0->0x10a89d0 finish_race.rs 970B->688B jcc 7->8 | imm op 0xa08 0->1; calls {}->{64: 1} 0->0
+=== 0x1122bd0 -> 0x10a89d0  ratio 0.769  ops 3
+  insert @o0x1122f08/n0x10a8a20: [] -> [add 2568 add 8 shl 8]
+  delete @o0x1122f11/n0x10a8bf3: [add 8] -> []
+  insert @o0x1122f8d/n0x10a8c5d: [] -> [call(ext) LOC(finish_race.rs:193)]
+
+##### EDITED 0x1122fc0->0x10a8ca0 finish_race.rs 243B->317B jcc 6->8 | imm cmp 0x1f 0->1; imm cmp 0x20 1->0; imm op 0xa08 0->1; calls {}->{64: 1} 0->0
+=== 0x1122fc0 -> 0x10a8ca0  ratio 0.800  ops 2
+  replace @o0x1123027/n0x10a8d04: [cmp 32] -> [add 2568 cmp 31]
+  insert @o0x11230a6/n0x10a8dba: [] -> [call(ext) LOC(finish_race.rs:202)]
+
+##### EDITED 0x114d650->0x10f18e0 plan\big_plan\fight_model.rs 672B->593B jcc 15->15 | imm cmp 0x4 2->0; imm op 0x238 1->0; imm op 0x35a4e9000 1->0; imm op 0x4 2->0; 
+=== 0x114d650 -> 0x10f18e0  ratio 0.450  ops 5
+  replace @o0x114d671/n0x10f1904: [mov 8 mov 2152 mov 568] -> [cmp 5]
+  delete @o0x114d6e9/n0x10f1989: [cmp 4 mov 4] -> []
+  replace @o0x114d73a/n0x10f19bc: [cmp 4 mov 4 imul 3864 cmp 5] -> [imul 4112 call(ai_utils.rs)]
+  replace @o0x114d7f8/n0x10f1a51: [op 0x35a4e9000] -> [call(fight_check.rs) call(fight_check.rs) add 30000 add 8 LOC(fight_model.rs:1545)]
+  delete @o0x114d8c8/n0x0: [LOC(fight_model.rs:1821) call(ext) LOC(fight_model.rs:1822) call(ext)] -> []
+
+##### SHIFTED 0xec6fd0->0x104eee0 plan\big_plan\battle.rs 2209B->2216B jcc 69->69 | imm op 0xea600 1->0; layout  0->0
+=== 0xec6fd0 -> 0x104eee0  ratio 0.816  ops 6
+  replace @o0xec708b/n0x104ef9b: [imul 3864] -> [imul 4112]
+  replace @o0xec718e/n0x104f09e: [call(ext) call(ext)] -> [call(fight_check.rs) call(fight_check.rs)]
+  delete @o0xec7222/n0x104f132: [mov 0xea600] -> []
+  replace @o0xec7297/n0x104f1a7: [imul 3864] -> [imul 4112]
+  replace @o0xec72b0/n0x104f1c0: [add 2448 add 2456 add 568] -> [add 2688 add 2696 add 528]
+  replace @o0xec75ba/n0x104f4ca: [imul 3864 add 4952] -> [imul 4112 add 5440]
+
+##### IDENTICAL 0xecabb0->0x1051ec0 plan\big_plan\single_battle.rs 13405B->13400B jcc 260->255 | imm op 0x4 1->0; imm op 0x5 1->0; imm op 0xffff00 1->0; layout  0->0;
+=== 0xecabb0 -> 0x1051ec0  ratio 0.962  ops 7
+  replace @o0xecac1f/n0x1051f2c: [add 568] -> [add 528]
+  delete @o0xecacd5/n0x1051fe8: [and 0xffff00 shr 8 mov 4 call(ai_utils.rs) mov 5] -> []
+  replace @o0xecb94e/n0x1052bff: [imul 3864] -> [imul 4112]
+  replace @o0xecce06/n0x10540ef: [imul 3864] -> [imul 4112]
+  replace @o0xecd04d/n0x105433d: [imul 3864] -> [imul 4112]
+  replace @o0xecd8d2/n0x1054b4e: [call(ext)] -> [add 252 and 251 op 3 mov 4 call(fight_check.rs)]
+  delete @o0xecd9bb/n0x1054d09: [add 252 and 251 op 3 mov 4] -> []
+
+##### SHIFTED 0xed9ec0->0x1064000 plan\big_plan\battle.rs 960B->970B jcc 24->25 | offset-shift  0->0
+=== 0xed9ec0 -> 0x1064000  ratio 0.818  ops 4
+  replace @o0xed9fa9/n0x10640e9: [vcall(0x218)] -> [vcall(0x228)]
+  replace @o0xeda1b2/n0x10642fc: [mov 2964] -> [mov 3154]
+  replace @o0xeda1e3/n0x106432d: [mov 2968] -> [mov 3158]
+  replace @o0xeda252/n0x106439c: [mov 2973] -> [mov 3163]
+
+##### SHIFTED 0xedb270->0x10653e0 plan\big_plan\battle.rs 1558B->1581B jcc 27->27 | layout  0->0; calls {303: 1}->{2031: 1} 0->0; offset-shift  0->0
+=== 0xedb270 -> 0x10653e0  ratio 0.771  ops 6
+  replace @o0xedb35b/n0x10654cf: [call(plan\big_plan\battle.rs) mov 3329 mov 440] -> [call(plan\team_plan.rs) mov 3525 mov 912]
+  replace @o0xedb49b/n0x106560f: [imul 3864] -> [imul 4112]
+  replace @o0xedb603/n0x1065783: [mov 3345] -> [mov 3541]
+  replace @o0xedb71d/n0x10658a4: [mov 3341] -> [mov 3537]
+  replace @o0xedb744/n0x10658cb: [mov 3347] -> [mov 3543]
+  replace @o0xedb83b/n0x10659c2: [mov 3322] -> [mov 3518]
+
+##### SHIFTED 0xf36c60->0xfc5a20 plan\big_plan\defense_nexus.rs 4190B->4779B jcc 114->128 | imm op 0x488 1->0; imm op 0x10 0->4; imm op 0x6c0 0->2; imm op 0x5851f42d4
+=== 0xf36c60 -> 0xfc5a20  ratio 0.848  ops 9
+  replace @o0xf36ed0/n0xfc5cae: [add 568] -> [add 528]
+  replace @o0xf373e5/n0xfc61d9: [add 568] -> [add 528]
+  replace @o0xf374e4/n0xfc637c: [call(ext)] -> [imul 1728 add 16 add 16 op 0x5851f42d4c957f2d shr 57 op 68 add -27648 add 16 xor 65535 imul 1728 add -1720]
+  replace @o0xf375bc/n0xfc661e: [vcall(0xd8)] -> [vcall(0x120)]
+  replace @o0xf37636/n0xfc66b2: [add 1160] -> [and -16 add 16 vcall(reg)]
+  insert @o0xf376aa/n0xfc6768: [] -> [cmp 4]
+  delete @o0xf3770d/n0xfc680a: [cmp 4] -> []
+  replace @o0xf3779c/n0xfc6831: [vcall(0x50)] -> [vcall(0x10)]
+  replace @o0xf377eb/n0xfc687b: [vcall(0xd8)] -> [vcall(0x120)]
+
+##### SHIFTED 0xf3bcc0->0xfcb9a0 plan\big_plan\defense_nexus.rs 2777B->2777B jcc 66->66 | calls {591: 4}->{112: 4} 0->0
+=== 0xf3bcc0 -> 0xfcb9a0  ratio 0.975  ops 2
+  replace @o0xf3be94/n0xfcbb74: [imul 3864] -> [imul 4112]
+  replace @o0xf3c3e5/n0xfcc0c5: [vcall(0x218)] -> [vcall(0x228)]
+
+##### SHIFTED 0xf3e180->0xfcdd20 plan\big_plan\defense_nexus.rs 433B->482B jcc 12->13 | calls {239: 2}->{341: 2} 0->0
+=== 0xf3e180 -> 0xfcdd20  ratio 1.000  ops 0
+
+##### IDENTICAL 0xf463d0->0x10c2650 plan\big_plan\fight_model.rs 1784B->1800B jcc 41->41 | calls {11367: 2}->{1388: 2} 0->0
+=== 0xf463d0 -> 0x10c2650  ratio 0.985  ops 1
+  replace @o0xf46513/n0x10c2793: [imul 3864] -> [imul 4112]
+
+##### SHIFTED 0xf4bc20->0xec5540 plan\big_plan\death_battle.rs 16736B->17258B jcc 282->267 | imm cmp 0x64 0->2; imm op 0x1a0 1->0; imm op 0x1d0 1->0; imm op 0x20c49ba
+=== 0xf4bc20 -> 0xec5540  ratio 0.927  ops 17
+  insert @o0xf4bd13/n0xec55e6: [] -> [add 528]
+  delete @o0xf4bd39/n0xec5676: [and 0xffff00 shr 8 mov 4 call(ai_utils.rs) mov 5] -> []
+  insert @o0xf4befa/n0xec57b1: [] -> [cmp 3]
+  delete @o0xf4c6de/n0xec5fc9: [cmp 3] -> []
+  delete @o0xf4ca1a/n0xec6329: [cmp 3] -> []
+  insert @o0xf4cacc/n0xec6345: [] -> [cmp 3]
+  replace @o0xf4cce3/n0xec6587: [imul 3864] -> [imul 4112]
+  insert @o0xf4d2b7/n0xec6afb: [] -> [shr 3 op 0x20c49ba5e353f7cf shr 4 shr 3]
+  insert @o0xf4d2db/n0xec6b30: [] -> [shr 4 cmp 100 mov 100 mov 900 mov 1000 add 1000 vcall(reg) cmp 100 mov 5]
+  replace @o0xf4dc79/n0xec76e5: [imul 3864] -> [imul 4112]
+  replace @o0xf4dece/n0xec793f: [imul 3864] -> [imul 4112]
+  insert @o0xf4e398/n0xec7e4a: [] -> [vcall(0x208) call(plan\big_plan\fight_model.rs)]
+  delete @o0xf4e46b/n0xec8055: [vcall(0x208) call(plan\big_plan\fight_model.rs)] -> []
+  replace @o0xf4e7b9/n0xec829c: [call(ext)] -> [call(fight_check.rs)]
+  replace @o0xf4eb56/n0xec86d0: [vcall(0x40) add 464 cmp 3 add 416] -> [shl 16 add 768 call(ext)]
+  insert @o0xf4ec4c/n0xec8772: [] -> [cmp 3]
+  replace @o0xf4eff1/n0xec8b5d: [call(ext)] -> [call(fight_check.rs)]
+
+##### SHIFTED 0xf5ff80->0x10cacd0 plan\big_plan\fight_model.rs 715B->707B jcc 14->15 | imm op 0x11 0->1
+=== 0xf5ff80 -> 0x10cacd0  ratio 0.973  ops 1
+  insert @o0xf60054/n0x10cad3a: [] -> [mov 17]
+
+##### SHIFTED 0xf6bf60->0x10dc8a0 plan\big_plan\fight_model.rs 1414B->1328B jcc 28->28 | imm op 0x8 1->0; layout  0->0
+=== 0xf6bf60 -> 0x10dc8a0  ratio 0.937  ops 2
+  replace @o0xf6c024/n0x10dc961: [add 568 imul 3864] -> [add 528 imul 4112]
+  delete @o0xf6c1c3/n0x10dcb1e: [mov 8] -> []
+
+##### SHIFTED 0xf6cba0->0x10de020 plan\big_plan\fight_model.rs 1068B->970B jcc 22->26 | imm cmp 0x5 3->1; imm op 0x238 1->0; imm op 0x3 1->3; imm op 0x4 1->3; imm op 
+=== 0xf6cba0 -> 0x10de020  ratio 0.316  ops 4
+  replace @o0xf6cbc8/n0x10de05a: [add 568] -> [call(ai_utils.rs) op 0x9502f9000 call(ai_utils.rs) op 0x9502f9001 call(ai_utils.rs) mov 3]
+  insert @o0xf6cd1b/n0x10de1c9: [] -> [call(ai_utils.rs)]
+  insert @o0xf6cd70/n0x10de21a: [] -> [op 0x9502f9001 mov 4 call(ai_utils.rs) op 0x9502f9001 cmp 5 call(ai_utils.rs)]
+  replace @o0xf6cdaf/n0x10de370: [cmp 5 op 0x9502f9000 cmp 5 op 0x9502f9000 cmp 5 op 0x9502f9000] -> [call(ai_utils.rs) call(ai_utils.rs) mov 3 call(ai_utils.rs) mov 4 call(ai_utils.rs)]
+
+##### SHIFTED 0xf6df00->0x10e6820 plan\big_plan\fight_model.rs 625B->641B jcc 14->15 |
+=== 0xf6df00 -> 0x10e6820  ratio 1.000  ops 0
+
+##### SHIFTED 0xf75b80->0x10ee2f0 plan\big_plan\fight_model.rs 2471B->2503B jcc 39->39 | layout  0->0; calls {957: 1, 749: 2}->{749: 2, 2973: 1} 0->0
+=== 0xf75b80 -> 0x10ee2f0  ratio 0.857  ops 5
+  replace @o0xf75d70/n0x10ee4e0: [add 568 call(ext)] -> [add 528 call(fight_check.rs)]
+  replace @o0xf75ef6/n0x10ee5f9: [call(ext)] -> [call(plan\big_plan\fight_model.rs)]
+  replace @o0xf760d4/n0x10ee7cd: [imul 3864] -> [imul 4112]
+  insert @o0xf764c4/n0x10eec5d: [] -> [LOC(fight_model.rs:2063) call(ext)]
+  delete @o0xf76511/n0x0: [LOC(fight_model.rs:1246) call(ext)] -> []
+
+##### SHIFTED 0xf7bf20->0xef3390 fight_check.rs 929B->929B jcc 14->14 | vcall- +60 2->0; vcall+ +70 0->2
+=== 0xf7bf20 -> 0xef3390  ratio 0.842  ops 5
+  replace @o0xf7c0aa/n0xef351a: [vcall(0x1f8)] -> [vcall(0x208)]
+  replace @o0xf7c0f6/n0xef3566: [vcall(0x60) vcall(0x1a8)] -> [vcall(0x68) vcall(0x1b8)]
+  insert @o0xf7c16c/n0xef35dc: [] -> [vcall(0x70) mov 4]
+  delete @o0xf7c178/n0xef362d: [mov 4 vcall(0x60)] -> []
+  replace @o0xf7c1d1/n0xef3641: [vcall(0x68)] -> [vcall(0x70)]
+
+##### SHIFTED 0xf89270->0xf04e40 fight_check.rs 3826B->2905B jcc 68->58 | imm op 0xa 1->0; imm op 0xb 1->0; imm op 0x10 4->0; imm op 0x28 1->0; imm op 0x64 4->0; imm 
+=== 0xf89270 -> 0xf04e40  ratio 0.695  ops 12
+  replace @o0xf8930d/n0xf04e9e: [add 568] -> [mov 0xffffffff add 528]
+  replace @o0xf8936d/n0xf04f32: [add 568] -> [add 528]
+  replace @o0xf89456/n0xf05000: [shl 6 mov 192 call(ext) add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x218) and -16 add 16 vcall(0x210) add 100 op 0x28f5c28f5c28f5c3] -> [mov 16 mov 952 shl 5 call(fight_check.rs)]
+  delete @o0xf89634/n0xf0512e: [mov 952] -> []
+  replace @o0xf89732/n0xf051da: [shl 5 mov 10] -> [mov 12]
+  replace @o0xf897b9/n0xf05222: [mov 0xffffffff LOC(fight_check.rs:954)] -> [imul 240 mov 240]
+  replace @o0xf898f8/n0xf0534e: [mov 11 add 1216] -> [mov 13]
+  replace @o0xf89972/n0xf053a0: [mov 12 add 40 shl 6 mov 192] -> [mov 14 imul 240 mov 240]
+  replace @o0xf89a79/n0xf0545f: [add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x218) and -16 add 16 vcall(0x210) add 100 op 0x28f5c28f5c28f5c3] -> [call(fight_check.rs)]
+  replace @o0xf89eb5/n0xf0574e: [vcall(0x270)] -> [vcall(0x290)]
+  delete @o0xf89f33/n0xf057be: [and -16 add 16 vcall(reg)] -> []
+  insert @o0x0/n0xf05982: [] -> [LOC(fight_check.rs:1223) call(ext)]
+
+##### SHIFTED 0xf96fc0->0xf167d0 fight_check.rs 2705B->2035B jcc 41->35 | imm op 0xb 1->0; imm op 0xc 1->0; imm op 0x10 3->0; imm op 0x64 4->0; imm op 0x28f5c28f5c28f
+=== 0xf96fc0 -> 0xf167d0  ratio 0.673  ops 7
+  insert @o0xf97339/n0xf16ac9: [] -> [mov 16]
+  replace @o0xf97523/n0xf16cc9: [add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x218) and -16 add 16 vcall(0x210) add 100 op 0x28f5c28f5c28f5c3] -> [call(fight_check.rs)]
+  replace @o0xf9771d/n0xf16d9d: [mov 11] -> [mov 13]
+  replace @o0xf97759/n0xf16de5: [shl 6 mov 192] -> [imul 240 mov 240]
+  replace @o0xf977c3/n0xf16e42: [add 100 op 0x28f5c28f5c28f5c3 and -16 add 16 vcall(0x218) and -16 add 16 vcall(0x210) add 100 op 0x28f5c28f5c28f5c3] -> [call(fight_check.rs)]
+  replace @o0xf979c8/n0xf16f21: [mov 12] -> [mov 14]
+  replace @o0xf97a04/n0xf16f69: [shl 6 mov 192] -> [imul 240 mov 240]
+
+##### IDENTICAL 0x10ee730->0x10b7ff0 plan\big_plan\single_line.rs 5942B->5680B jcc 162->163 | imm cmp 0x3 4->5; imm cmp 0x5 1->2; imm op 0x10 4->0; imm op 0x50 4->0; 
+=== 0x10ee730 -> 0x10b7ff0  ratio 0.825  ops 20
+  replace @o0x10ee791/n0x10b8058: [add 568] -> [add 528]
+  replace @o0x10ee9bc/n0x10b8268: [imul 3864 add 80] -> [imul 4112 add 240]
+  insert @o0x10eea79/n0x10b82e2: [] -> [add 120]
+  replace @o0x10eec18/n0x10b84b3: [imul 3864] -> [imul 4112]
+  replace @o0x10eeddf/n0x10b867d: [vcall(0x60)] -> [vcall(0x68)]
+  replace @o0x10eee9d/n0x10b873c: [vcall(0x60)] -> [vcall(0x68)]
+  delete @o0x10eef13/n0x10b87af: [add 40] -> []
+  replace @o0x10ef19d/n0x10b8a17: [add 472 add 368 add 488] -> [add 432 add 320 add 448]
+  replace @o0x10ef301/n0x10b8b81: [vcall(0x60)] -> [vcall(0x68)]
+  replace @o0x10ef3cd/n0x10b8c4b: [vcall(0x60)] -> [vcall(0x68)]
+  replace @o0x10ef594/n0x10b8e2d: [add 80] -> [add 240]
+  replace @o0x10ef5be/n0x10b8e5a: [add 40] -> [add 120]
+  replace @o0x10ef651/n0x10b8eee: [imul 3864 add 80] -> [imul 4112 add 240]
+  replace @o0x10ef687/n0x10b8f21: [add 40] -> [add 120]
+  delete @o0x10ef73b/n0x10b8fdd: [mov 80] -> []
+  insert @o0x10ef7d9/n0x10b9054: [] -> [op 0x53d1ac100 call(ext)]
+  delete @o0x10ef82e/n0x10b912f: [op 0x53d1ac100 and -16 add 16 vcall(reg)] -> []
+  delete @o0x10ef8f5/n0x10b915e: [and -16 add 16 vcall(reg)] -> []
+  replace @o0x10ef985/n0x10b9190: [and -16 add 16 vcall(reg)] -> [cmp 5 cmp 3]
+  delete @o0x10efa15/n0x10b924b: [and -16 add 16 vcall(reg) call(ext)] -> []
+
+##### SHIFTED 0x111ec90->0x108c6d0 finish_race.rs 310B->318B jcc 9->9 | imm op 0x38 0->1; imm op 0x70 0->1
+=== 0x111ec90 -> 0x108c6d0  ratio 0.857  ops 1
+  replace @o0x111ed01/n0x108c73d: [shl 5 shl 4] -> [imul 112 imul 56]
+
+##### SHIFTED 0x1120eb0->0x10a5cf0 plan\big_plan\fight_model.rs 469B->481B jcc 15->15 | imm op 0x3f 1->0
+=== 0x1120eb0 -> 0x10a5cf0  ratio 0.966  ops 1
+  delete @o0x1120efa/n0x10a5d3a: [and 63] -> []
+
+##### SHIFTED 0x1121b00->0x1095ac0 fight_check.rs 562B->565B jcc 23->23 | imm cmp 0x3f 1->0; imm cmp 0x3ff 0->1; imm op 0x40 3->2; imm op 0x400 0->1
+=== 0x1121b00 -> 0x1095ac0  ratio 0.875  ops 2
+  replace @o0x1121b50/n0x1095b10: [cmp 63] -> [cmp 1023]
+  replace @o0x1121d17/n0x1095cda: [mov 64] -> [mov 1024]
+
+##### SHIFTED 0x1122430->0x10a8110 fight_check.rs 805B->1103B jcc 18->18 | imm op 0x28 1->0; calls {359: 1}->{481: 2} 0->0
+=== 0x1122430 -> 0x10a8110  ratio 0.651  ops 2
+  replace @o0x11224cc/n0x10a81aa: [add 40] -> [op 68 op 238]
+  insert @o0x11224df/n0x10a81f8: [] -> [mov 255 call(ext) shl 56 op 13 op 16 op 32 op 17 op 21 op 32 xor 255 op 13 op 16 op 32 op 17 op 21 op 32 op 13 op 16 op 32 op 17 op 21 op 32 op 13 op 16 op 17 op 21 op 32]
+
+##### SHIFTED 0x1151700->0xf91880 plan\big_plan\fight_model.rs 605B->702B jcc 14->16 | layout  0->0; calls {}->{870: 1} 0->0
+=== 0x1151700 -> 0xf91880  ratio 0.829  ops 4
+  replace @o0x1151765/n0xf91903: [mov 568] -> [mov 528]
+  replace @o0x11517ec/n0xf91999: [imul 3864] -> [imul 4112 call(ai_utils.rs)]
+  delete @o0x1151925/n0xf91b0b: [mov 5] -> []
+  insert @o0x1151941/n0xf91b1a: [] -> [mov 5]
+
+##### SHIFTED 0x1151eb0->0xf91b90 plan\big_plan\battle.rs 665B->743B jcc 16->18 | layout  0->0; calls {}->{870: 1} 0->0
+=== 0x1151eb0 -> 0xf91b90  ratio 0.769  ops 4
+  replace @o0x1151f37/n0xf91c2b: [mov 568] -> [mov 528]
+  replace @o0x1151fba/n0xf91cba: [imul 3864] -> [imul 4112 call(ai_utils.rs)]
+  insert @o0x11520bc/n0xf91dea: [] -> [call(ext) LOC(battle.rs:4045)]
+  delete @o0x1152121/n0xf91e63: [LOC(battle.rs:3847) call(ext)] -> []
+
+##### SHIFTED 0x115d360->0xfabe90 finish_race.rs 264B->440B jcc 8->11 | imm cmp 0x15 0->1; imm op 0x8 1->2; calls {}->{511: 1, 314: 1} 0->0
+=== 0x115d360 -> 0xfabe90  ratio 0.750  ops 2
+  insert @o0x115d453/n0xfabfde: [] -> [cmp 21 call(finish_race.rs) add 8]
+  insert @o0x0/n0xfac03d: [] -> [call(ext)]
+
+##### SHIFTED 0x115dcb0->0xf9f1b0 finish_race.rs 512B->512B jcc 19->19 | imm op 0x100 1->0; imm op 0x140 0->1; imm op 0xcccccccccccccccd 0->1
+=== 0x115dcb0 -> 0xf9f1b0  ratio 0.811  ops 2
+  replace @o0x115dd07/n0xf9f207: [shr 8] -> [shr 6 op 0xcccccccccccccccd]
+  replace @o0x115dd24/n0xf9f234: [add 256 shl 5] -> [add 320 shl 7]
+
+##### IDENTICAL 0xf2f320->0xfbbfd0 game_finish.rs 1180B->1180B jcc 27->27 | [약함] layout? 0x28,0x50 0->0
+=== 0xf2f320 -> 0xfbbfd0  ratio 0.857  ops 1
+  replace @o0xf2f470/n0xfbc120: [imul 3864 add 80 imul 3864 add 40] -> [imul 4112 add 240 imul 4112 add 120]
+
+##### SHIFTED 0xf3e540->0xfce110 plan\big_plan\defense_nexus.rs 337B->337B jcc 14->14 | [약함] layout? 0x28,0x50 0->0
+=== 0xf3e540 -> 0xfce110  ratio 0.769  ops 2
+  replace @o0xf3e572/n0xfce142: [imul 3864 add 40] -> [imul 4112 add 120]
+  replace @o0xf3e59c/n0xfce16c: [add 80] -> [add 240]
+
+##### IDENTICAL 0x10eff30->0x10b96e0 plan\big_plan\single_line.rs 3021B->3040B jcc 60->60 | [약함] layout  0->0; layout? 0x28,0x50 0->0
+=== 0x10eff30 -> 0x10b96e0  ratio 0.902  ops 3
+  replace @o0x10eff9c/n0x10b974c: [add 568 imul 3864] -> [add 528 imul 4112]
+  replace @o0x10f03d5/n0x10b9b8c: [imul 3864 add 80 add 40] -> [imul 4112 add 240 add 120]
+  replace @o0x10f040c/n0x10b9bc5: [imul 3864 add 80 add 40] -> [imul 4112 add 240 add 120]
+
+##### BLIND 0xf3de50->0xfcda00 plan\big_plan\defense_nexus.rs 806B->796B | 작은즉치 -{('cmp', 1): 3} +{('cmp', 0): 5}
+=== 0xf3de50 -> 0xfcda00  ratio 0.950  ops 1
+  replace @o0xf3dec8/n0xfcda7c: [add 368] -> [add 320]
+
+##### BLIND 0x1120c60->0x1092530 finish_race.rs 198B->181B | 작은즉치 -{} +{('cmp', 0): 1}
+=== 0x1120c60 -> 0x1092530  ratio 1.000  ops 0
+

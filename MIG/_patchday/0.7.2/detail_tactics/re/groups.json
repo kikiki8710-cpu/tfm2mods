@@ -1,0 +1,714 @@
+{
+ "G1": [
+  {
+   "id": "combat_retreat_hp",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "line_chase_retreat_hp",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "line_chase_target_guard_hp",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "crowd_retreat_weight",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "self_risk_ignore_hp",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "lowhp_ult_bonus_low",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "tower_tank_hits",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "kill_bonus_cap",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 6,
+   "nrev": 6
+  },
+  {
+   "id": "basic_trade_hp_divisor",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "support_cap_multiplier",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 4,
+   "nrev": 4
+  },
+  {
+   "id": "buff_arrival_value_seconds",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "structure_skill_bonus",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 2,
+   "nrev": 0
+  },
+  {
+   "id": "unseen_self_risk_divisor",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "candidate_move_budget_margin",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "forward_damage_credit_percent",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "battle_move_candidate_penalty",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "support_zero_net_penalty",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "enemy_base_allies_radius",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "tracked_target_chase_bonus",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "champion_ultimate_waste_penalty",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "skill_arrival_prediction_margin",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  }
+ ],
+ "G2": [
+  {
+   "id": "combat_avoid_hp",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "combat_avoid_count_margin",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "hazard_avoid_padding",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "ally_spacing_radius",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 5,
+   "nrev": 0
+  },
+  {
+   "id": "near_ally_link_margin",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "shared_battle_role_markers",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "boss_reposition_improvement",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "position_isolation_risk_percent",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "front_ally_risk_scale",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "battle_skill_safety_margin",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 4,
+   "nrev": 4
+  },
+  {
+   "id": "wave_position_risk_divisor",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "battle_risk_retreat_threshold",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 3,
+   "nrev": 2
+  },
+  {
+   "id": "battle_reposition_distance_scale",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 7,
+   "nrev": 3
+  }
+ ],
+ "G3": [
+  {
+   "id": "minion_damage_ratio",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 4,
+   "nrev": 0
+  },
+  {
+   "id": "support_minion_block",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "bot_duo_partner",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "tower_chase_own_hp",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "base_defense_hold_retreat_hp",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "base_defense_hold_nexus_hp",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "base_defense_hold_dmg_ratio",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "line_defense_approval_profile",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "ambush_engage_radius",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 2,
+   "nrev": 1
+  },
+  {
+   "id": "defense_leave_hp",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "lane_attack_move_allowance",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "lane_defense_support_margin",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "lane_wait_front_minion_distance",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "ambush_wait_accept_radius",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  }
+ ],
+ "G4": [
+  {
+   "id": "gank_abort_hp",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 2,
+   "nrev": 0
+  },
+  {
+   "id": "gank_abort_tower",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "gank_call_accept_hp",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "lane_assign_hp",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "liner_roam_self_hp",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "liner_roam_lane_healthy_hp",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 5,
+   "nrev": 0
+  },
+  {
+   "id": "liner_roam_call_chance",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "gank_call_rng",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "pre_gank_engage_profile",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 6,
+   "nrev": 6
+  },
+  {
+   "id": "battle_call_response_seconds",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "same_lane_gank_retry_seconds",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "base_battle_call_range",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "roam_retry_extra_seconds",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "early_gank_target_min_hp",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 2,
+   "nrev": 0
+  },
+  {
+   "id": "lane_exchange_advantage_ticks",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "lane_call_travel_seconds",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 2,
+   "nrev": 1
+  },
+  {
+   "id": "relay_undying_limit_centiseconds",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "gank_lane_tower_wave_profile",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 4,
+   "nrev": 2
+  },
+  {
+   "id": "support_roam_adc_min_hp",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "same_lane_partner_radius",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 5,
+   "nrev": 5
+  }
+ ],
+ "G5": [
+  {
+   "id": "lane_retreat_final",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "jg_gank_hp_start",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "jg_gank_hp_floor",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "jungle_safe_radius",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "jungle_stop_hp",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 4,
+   "nrev": 4
+  },
+  {
+   "id": "base_defense_min_enemies",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "gank_travel_deadline",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "chase_speed_ratio",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 2,
+   "nrev": 1
+  },
+  {
+   "id": "gank_reevaluate_seconds",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "gank_candidate_margin",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "epic_final_allies_min",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "boss_respawn_wait_seconds",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "active_recall_slack_profile",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "movement_skill_period_margin",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 4,
+   "nrev": 4
+  },
+  {
+   "id": "camp_time_margin_profile",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "purchase_recall_walk_ticks",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "purchase_recall_threat_radius",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "purchase_recall_threat_memory",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "camp_deadline_arrival_seconds",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 1,
+   "nrev": 1
+  }
+ ],
+ "G6": [
+  {
+   "id": "lane_opportunity_own_min",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "push_sustain_min_healthy",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "push_sustain_margin",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "pickoff_hp_bands",
+   "verdict": "REVIEW",
+   "worst": "SITE_MISSING",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "structure_retreat_keep_hp",
+   "verdict": "REVIEW",
+   "worst": "OWNER_MISSING",
+   "nwin": 1,
+   "nrev": 1
+  },
+  {
+   "id": "objective_power_allowance",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 2,
+   "nrev": 2
+  },
+  {
+   "id": "push_start_base",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 1,
+   "nrev": 0
+  },
+  {
+   "id": "other_lane_collapse_profile",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 6,
+   "nrev": 6
+  },
+  {
+   "id": "objective_lane_pressure_profile",
+   "verdict": "REVIEW",
+   "worst": "REG_RENAME",
+   "nwin": 9,
+   "nrev": 9
+  },
+  {
+   "id": "boss_poke_damage_factor",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 4,
+   "nrev": 4
+  },
+  {
+   "id": "lane_superiority_profile",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 3,
+   "nrev": 3
+  },
+  {
+   "id": "mia_notice_caution_profile",
+   "verdict": "REVIEW",
+   "worst": "LOGIC_CHANGED",
+   "nwin": 4,
+   "nrev": 4
+  },
+  {
+   "id": "lane_opportunity_enemy_limit",
+   "verdict": "AUTO",
+   "worst": "SAME",
+   "nwin": 0,
+   "nrev": 0
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+R 0xf3de50->0xfcda00 plan\big_plan\defense_nexus.rs 806B->796B | 작은즉치 -{('cmp', 1): 3} +{('cmp', 0): 5}
+R 0x10d1bd0->0xf6f6a0 plan\big_plan\passive_jungle.rs 1163B->1129B | 작은즉치 -{('cmp', 2): 1} +{('cmp', 1): 1} ; 분기 -{'jae': 1} +{'ja': 1}
+R 0x1120a80->0x10923e0 free_dist.rs 344B->273B | 작은즉치 -{} +{('cmp', 0): 1}
+R 0x1120da0->0x1092620 rl.rs 157B->157B | 분기 -{'je': 1} +{'jne': 1}
+R 0xfbc800->0xfe5080 small_action\around.rs 530B->546B | 분기 -{'je': 1} +{'jne': 1}
+R 0x10cf100->0xf6d270 path_finder.rs 423B->413B | 분기 -{'je': 1} +{'jne': 1}
+R 0x1120c60->0x1092530 finish_race.rs 198B->181B | 작은즉치 -{} +{('cmp', 0): 1}
+H 0xfb04e0->0x10ff640 no-loc 309B->314B | 작은즉치 -{('cmp', 0): 1} +{}
+H 0xfb0670->0x10ff7c0 no-loc 309B->314B | 작은즉치 -{('cmp', 0): 1} +{}
+H 0x1067de0->0x10b1e40 no-loc 219B->225B | 분기 -{'jne': 1} +{'je': 1}

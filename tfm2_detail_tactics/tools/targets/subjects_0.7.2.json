@@ -1,0 +1,634 @@
+{
+ "game_version": "0.7.2",
+ "note": "지점 시점(창 첫 명령 직전)에 판단 중인 선수(Player=PlayerState) 포인터가 어디 있는가. 근거 = mods_report/tfm2_detail_tactics/RE/2026-10-22_판단주체위치_전반16.md·후반16.md. 형식: reg:<r> / stack:<d>([진입 rsp+d]) / mem:<r>:<d>([r+d]) / stackmem:<d1>:<d2>([[진입 rsp+d1]+d2]). team_chk = 같은 시점 팀 값 위치(교차 확인, 다르면 원본). unsupported = 이번 버전에서 주체를 못 잡아 원본 유지(이유).",
+ "sites": {
+  "0x114a6ea": {
+   "src": "reg:r13"
+  },
+  "0x114924c": {
+   "src": "reg:r13"
+  },
+  "0x102b746": {
+   "src": "reg:rsi",
+   "team_chk": "reg:rdi"
+  },
+  "0x102b75d": {
+   "src": "reg:rsi",
+   "team_chk": "reg:rdi"
+  },
+  "0x102bbc7": {
+   "src": "reg:rsi",
+   "team_chk": "reg:rdi"
+  },
+  "0x10b949f": {
+   "src": "mem:rbp:0x1a8"
+  },
+  "0x114b0be": {
+   "src": "reg:r13"
+  },
+  "0x116d5be": {
+   "src": "mem:rbp:0x3f0",
+   "team_chk": "mem:rbp:0x320"
+  },
+  "0xf6d785": {
+   "src": "mem:rbp:0x1d0",
+   "team_chk": "mem:rbp:0x140"
+  },
+  "0xf6e187": {
+   "src": "mem:rbp:0x1d0",
+   "team_chk": "mem:rbp:0x140"
+  },
+  "0xf6d62a": {
+   "src": "mem:rbp:0x1d0",
+   "team_chk": "mem:rbp:0x140"
+  },
+  "0xf6d64f": {
+   "src": "mem:rbp:0x1d0",
+   "team_chk": "mem:rbp:0x140"
+  },
+  "0xf75b26": {
+   "src": "reg:r9",
+   "team_chk": "reg:rbx"
+  },
+  "0xf75b63": {
+   "src": "reg:r9",
+   "team_chk": "reg:rbx"
+  },
+  "0xf75c5e": {
+   "src": {
+    "kind": "cache_slot",
+    "cache": "reg:rdi",
+    "team": "reg:rbx",
+    "pos": "reg:r8",
+    "entity": "reg:r14"
+   },
+   "team_chk": "reg:rbx"
+  },
+  "0xe71949": {
+   "src": "reg:r12"
+  },
+  "0xf852cc": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x28",
+    "cases": [
+     {
+      "ret_rva": "0xf7181f",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf6f59b",
+      "src": "stackmem:0x100:0x3820"
+     }
+    ]
+   }
+  },
+  "0xf866f9": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x188",
+    "cases": [
+     {
+      "ret_rva": "0xf6d5fa",
+      "src": "mem:rbp:0x1d0"
+     },
+     {
+      "ret_rva": "0xf70b2b",
+      "src": "mem:rbp:0xd0"
+     },
+     {
+      "ret_rva": "0xf716f5",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf71ff4",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf722e4",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf85bfa",
+      "src": {
+       "kind": "caller",
+       "return_off": "0x1b8",
+       "cases": [
+        {
+         "ret_rva": "0xe427c3",
+         "src": "mem:rbp:0x2fa0"
+        },
+        {
+         "ret_rva": "0xe43035",
+         "src": "mem:rbp:0x2fa0"
+        },
+        {
+         "ret_rva": "0xe43802",
+         "src": "mem:rbp:0x2fa0"
+        }
+       ]
+      }
+     },
+     {
+      "ret_rva": "0xe3a75c",
+      "src": "stack:0x160"
+     }
+    ]
+   }
+  },
+  "0xf866ed": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x188",
+    "cases": [
+     {
+      "ret_rva": "0xf6d5fa",
+      "src": "mem:rbp:0x1d0"
+     },
+     {
+      "ret_rva": "0xf70b2b",
+      "src": "mem:rbp:0xd0"
+     },
+     {
+      "ret_rva": "0xf716f5",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf71ff4",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf722e4",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf85bfa",
+      "src": {
+       "kind": "caller",
+       "return_off": "0x1b8",
+       "cases": [
+        {
+         "ret_rva": "0xe427c3",
+         "src": "mem:rbp:0x2fa0"
+        },
+        {
+         "ret_rva": "0xe43035",
+         "src": "mem:rbp:0x2fa0"
+        },
+        {
+         "ret_rva": "0xe43802",
+         "src": "mem:rbp:0x2fa0"
+        }
+       ]
+      }
+     },
+     {
+      "ret_rva": "0xe3a75c",
+      "src": "stack:0x160"
+     }
+    ]
+   }
+  },
+  "0xf86639": {
+   "patch_start": "0xf86637",
+   "prefix_hex": "31 d2",
+   "src": {
+    "kind": "caller",
+    "return_off": "0x188",
+    "cases": [
+     {
+      "ret_rva": "0xf6d5fa",
+      "src": "mem:rbp:0x1d0"
+     },
+     {
+      "ret_rva": "0xf70b2b",
+      "src": "mem:rbp:0xd0"
+     },
+     {
+      "ret_rva": "0xf716f5",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf71ff4",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf722e4",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf85bfa",
+      "src": {
+       "kind": "caller",
+       "return_off": "0x1b8",
+       "cases": [
+        {
+         "ret_rva": "0xe427c3",
+         "src": "mem:rbp:0x2fa0"
+        },
+        {
+         "ret_rva": "0xe43035",
+         "src": "mem:rbp:0x2fa0"
+        },
+        {
+         "ret_rva": "0xe43802",
+         "src": "mem:rbp:0x2fa0"
+        }
+       ]
+      }
+     },
+     {
+      "ret_rva": "0xe3a75c",
+      "src": "stack:0x160"
+     }
+    ]
+   }
+  },
+  "0xf86631": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x188",
+    "cases": [
+     {
+      "ret_rva": "0xf6d5fa",
+      "src": "mem:rbp:0x1d0"
+     },
+     {
+      "ret_rva": "0xf70b2b",
+      "src": "mem:rbp:0xd0"
+     },
+     {
+      "ret_rva": "0xf716f5",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf71ff4",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf722e4",
+      "src": "mem:rbp:0x3820"
+     },
+     {
+      "ret_rva": "0xf85bfa",
+      "src": {
+       "kind": "caller",
+       "return_off": "0x1b8",
+       "cases": [
+        {
+         "ret_rva": "0xe427c3",
+         "src": "mem:rbp:0x2fa0"
+        },
+        {
+         "ret_rva": "0xe43035",
+         "src": "mem:rbp:0x2fa0"
+        },
+        {
+         "ret_rva": "0xe43802",
+         "src": "mem:rbp:0x2fa0"
+        }
+       ]
+      }
+     },
+     {
+      "ret_rva": "0xe3a75c",
+      "src": "stack:0x160"
+     }
+    ]
+   }
+  },
+  "0x1130afc": {
+   "src": "mem:rbp:0x250"
+  },
+  "0x1130b08": {
+   "src": "mem:rbp:0x250"
+  },
+  "0x1130b14": {
+   "src": "mem:rbp:0x250"
+  },
+  "0x1130b20": {
+   "src": "mem:rbp:0x250"
+  },
+  "0x10b5538": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x28",
+    "cases": [
+     {
+      "ret_rva": "0x10c6800",
+      "src": {
+       "kind": "cache_slot",
+       "cache": "mem:r10:0x8",
+       "team": "mem2:r10:0x10:0x0",
+       "pos": "const:0"
+      }
+     },
+     {
+      "ret_rva": "0x10c684a",
+      "src": {
+       "kind": "cache_slot",
+       "cache": "mem:r10:0x8",
+       "team": "mem2:r10:0x10:0x0",
+       "pos": "const:2"
+      }
+     },
+     {
+      "ret_rva": "0x10c6890",
+      "src": {
+       "kind": "cache_slot",
+       "cache": "mem:r10:0x8",
+       "team": "mem2:r10:0x10:0x0",
+       "pos": "const:3"
+      }
+     },
+     {
+      "ret_rva": "0x11bd111",
+      "src": {
+       "kind": "cache_slot",
+       "cache": "mem:r10:0x8",
+       "team": "mem2:r10:0x10:0x0",
+       "pos": "reg:r14"
+      }
+     },
+     {
+      "ret_rva": "0x11bd1a7",
+      "src": {
+       "kind": "cache_slot",
+       "cache": "mem:r10:0x8",
+       "team": "mem2:r10:0x10:0x0",
+       "pos": "reg:r12"
+      }
+     }
+    ]
+   },
+   "team_chk": "mem2:r10:0x10:0x0"
+  },
+  "0x10462f4": {
+   "src": "reg:rdi"
+  },
+  "0x1133942": {
+   "src": "reg:rsi"
+  },
+  "0xf867bb": {
+   "src": {
+    "kind": "cache_slot",
+    "cache": "reg:r15",
+    "team": "reg:rsi",
+    "pos": "reg:r12",
+    "entity": "reg:r13"
+   },
+   "team_chk": "reg:rsi"
+  },
+  "0xe4677d": {
+   "src": "mem:rbp:0x2fa0",
+   "team_chk": "mem:rbp:0x2f30"
+  },
+  "0xe7faec": {
+   "src": "stackmem:0x50:0x2fa0",
+   "team_chk": "reg:r15"
+  },
+  "0xe7fb52": {
+   "src": "stackmem:0x50:0x2fa0",
+   "team_chk": "reg:r15"
+  },
+  "0xe7fbb5": {
+   "src": "stackmem:0x50:0x2fa0",
+   "team_chk": "reg:r15"
+  },
+  "0xe7fc18": {
+   "src": "stackmem:0x50:0x2fa0",
+   "team_chk": "reg:r15"
+  },
+  "0xe7fc31": {
+   "src": "stackmem:0x50:0x2fa0",
+   "team_chk": "reg:r15"
+  },
+  "0xe50a81": {
+   "src": "mem:rbp:0x2fa0"
+  },
+  "0xfc317a": {
+   "src": {
+    "kind": "cache_player",
+    "operation": "rsi",
+    "entity": "r12",
+    "team_stack": "0xe0"
+   },
+   "team_chk": "stack:0xe0",
+   "why": "현재 cache champion+0x238 / Player+0x288 동일 team/pos 슬롯; RE/2026-10-23_위험회피_선수복구.md"
+  },
+  "0xeb6ef8": {
+   "src": "reg:r13",
+   "team_chk": "reg:r10"
+  },
+  "0xeb6ebe": {
+   "src": "reg:r13"
+  },
+  "0x10eeb38": {
+   "src": "stack:0x40"
+  },
+  "0x10eeb4b": {
+   "src": "stack:0x40"
+  },
+  "0x10eeb5c": {
+   "src": "stack:0x40"
+  },
+  "0x11c9e1d": {
+   "src": "mem:rbp:0x2d0",
+   "team_chk": "mem:rbp:0x250"
+  },
+  "0x11c9de2": {
+   "src": "mem:rbp:0x2d0",
+   "team_chk": "mem:rbp:0x250"
+  },
+  "0x11c9e07": {
+   "src": "mem:rbp:0x2d0",
+   "team_chk": "mem:rbp:0x250"
+  },
+  "0x11c9d56": {
+   "src": "mem:rbp:0x2d0",
+   "team_chk": "mem:rbp:0x250"
+  },
+  "0x103d149": {
+   "src": "stack:0x78",
+   "team_chk": "stack:0xa0"
+  },
+  "0x10bbc62": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x2d8",
+    "cases": [
+     {
+      "ret_rva": "0x10be11c",
+      "src": "mem:rbp:0x1c8"
+     },
+     {
+      "ret_rva": "0x10bc12c",
+      "src": "mem:rbp:0x1c8"
+     }
+    ]
+   },
+   "team_chk": "mem:rbp:0x180"
+  },
+  "0x116d5b8": {
+   "src": "mem:rbp:0x3f0",
+   "team_chk": "mem:rbp:0x320"
+  },
+  "0x11567db": {
+   "src": "mem:rbp:0x250",
+   "team_chk": null
+  },
+  "0xe4300f": {
+   "src": "mem:rbp:0x2fa0",
+   "team_chk": "mem:rbp:0x2f30"
+  },
+  "0xfc76cc": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x178",
+    "cases": [
+     {
+      "ret_rva": "0xe41678",
+      "src": "stackmem:0x170:0x2fa0"
+     },
+     {
+      "ret_rva": "0xe5960d",
+      "src": "stack:0x148"
+     },
+     {
+      "ret_rva": "0xe6e67c",
+      "src": "stack:0x150"
+     },
+     {
+      "ret_rva": "0xe6fc98",
+      "src": "stack:0x168"
+     },
+     {
+      "ret_rva": "0xea6a5e",
+      "src": "stack:0x170"
+     },
+     {
+      "ret_rva": "0xea7314",
+      "src": "stack:0x138"
+     },
+     {
+      "ret_rva": "0xeb45bd",
+      "src": "stack:0x140"
+     },
+     {
+      "ret_rva": "0xebab0d",
+      "src": "stack:0x140"
+     },
+     {
+      "ret_rva": "0xfd6681",
+      "src": "stack:0x158"
+     }
+    ]
+   },
+   "team_chk": "stack:0x100"
+  },
+  "0xfc778c": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x178",
+    "cases": [
+     {
+      "ret_rva": "0xe41678",
+      "src": "stackmem:0x170:0x2fa0"
+     },
+     {
+      "ret_rva": "0xe5960d",
+      "src": "stack:0x148"
+     },
+     {
+      "ret_rva": "0xe6e67c",
+      "src": "stack:0x150"
+     },
+     {
+      "ret_rva": "0xe6fc98",
+      "src": "stack:0x168"
+     },
+     {
+      "ret_rva": "0xea6a5e",
+      "src": "stack:0x170"
+     },
+     {
+      "ret_rva": "0xea7314",
+      "src": "stack:0x138"
+     },
+     {
+      "ret_rva": "0xeb45bd",
+      "src": "stack:0x140"
+     },
+     {
+      "ret_rva": "0xebab0d",
+      "src": "stack:0x140"
+     },
+     {
+      "ret_rva": "0xfd6681",
+      "src": "stack:0x158"
+     }
+    ]
+   },
+   "team_chk": "stack:0x100"
+  },
+  "0xfc785c": {
+   "src": {
+    "kind": "caller",
+    "return_off": "0x178",
+    "cases": [
+     {
+      "ret_rva": "0xe41678",
+      "src": "stackmem:0x170:0x2fa0"
+     },
+     {
+      "ret_rva": "0xe5960d",
+      "src": "stack:0x148"
+     },
+     {
+      "ret_rva": "0xe6e67c",
+      "src": "stack:0x150"
+     },
+     {
+      "ret_rva": "0xe6fc98",
+      "src": "stack:0x168"
+     },
+     {
+      "ret_rva": "0xea6a5e",
+      "src": "stack:0x170"
+     },
+     {
+      "ret_rva": "0xea7314",
+      "src": "stack:0x138"
+     },
+     {
+      "ret_rva": "0xeb45bd",
+      "src": "stack:0x140"
+     },
+     {
+      "ret_rva": "0xebab0d",
+      "src": "stack:0x140"
+     },
+     {
+      "ret_rva": "0xfd6681",
+      "src": "stack:0x158"
+     }
+    ]
+   },
+   "team_chk": "stack:0x100"
+  },
+  "0x11519b7": {
+   "src": "reg:r14",
+   "team_chk": "reg:rbx"
+  },
+  "0x1147abd": {
+   "src": "mem:rbp:0x140"
+  }
+ },
+ "toggle_by_value": {
+  "support_minion_block_role_4": {
+   "on": 4,
+   "off": 127,
+   "why": "cmp rdx,4 ; je → 서폿(4)만 막는다. 끔 = 127(어떤 포지션과도 같지 않음)"
+  }
+ }
+}

@@ -173,18 +173,21 @@ def tf_of(s):
 
 
 def dynamic_instruction(ins):
-    """r11에 읽은 동적 즉치로 첫 명령을 실행. r11/플래그/원래 rsp 보존."""
+    """임시 레지스터(r11 · 피연산자가 r11 이면 r10)에 읽은 동적 즉치로 첫 명령을 실행. 임시/플래그/원래 rsp 보존."""
     from capstone.x86 import X86_OP_REG
     def regno(op):
         name = ins.reg_name(op.reg)
         aliases = {"eax": "rax", "ecx": "rcx", "edx": "rdx"}
         return REGS.index(aliases.get(name, name))
     ops = ins.operands
-    if any(o.type == X86_OP_REG and regno(o) == 11 for o in ops):
-        raise ValueError("r11 operand refused")
-    # push r11; mov r11,[rsp-8] (진입 rsp-16의 콜백 결과)
-    code = bytearray.fromhex("41 53 4c 8b 5c 24 f8")
-    def rr(opcode, dst, src=11, wide=True):
+    used = {regno(o) for o in ops if o.type == X86_OP_REG}
+    # 0.7.2 기지 방어 lane2 창이 `cmp r11,5` 라 r11 을 피연산자로 쓰는 창이 생겼다 → 그때만 r10 을 임시로.
+    tmp = 10 if 11 in used else 11
+    if tmp in used:
+        raise ValueError("r10+r11 operands refused")
+    # push tmp; mov tmp,[rsp-8] (진입 rsp-16의 콜백 결과)
+    code = bytearray([0x41, 0x50 | (tmp & 7), 0x4c, 0x8b, 0x44 | ((tmp & 7) << 3), 0x24, 0xf8])
+    def rr(opcode, dst, src=tmp, wide=True):
         code.extend([0x40 | (8 if wide else 0) | (4 if src >= 8 else 0) | (1 if dst >= 8 else 0),
                      opcode, 0xc0 | ((src & 7) << 3) | (dst & 7)])
     if ins.mnemonic in ("cmp", "add") and ops[0].type == X86_OP_REG:
@@ -194,7 +197,7 @@ def dynamic_instruction(ins):
         if m.index or ins.reg_name(m.base) not in ("rbp", "rsp"):
             raise ValueError("unsupported cmp memory")
         base = ins.reg_name(m.base)
-        code.extend([0x4c, 0x39, 0x9d if base == "rbp" else 0x9c])
+        code.extend([0x4c, 0x39, 0x80 | ((tmp & 7) << 3) | (5 if base == "rbp" else 4)])
         if base == "rsp": code.append(0x24)
         code.extend(struct.pack("<i", m.disp + (8 if base == "rsp" else 0)))
     elif ins.mnemonic in ("mov", "movabs"):
@@ -202,7 +205,7 @@ def dynamic_instruction(ins):
     elif ins.mnemonic == "imul":
         dst, src = regno(ops[0]), regno(ops[1])
         if dst != src: rr(0x89, dst, src)
-        code.extend([0x4d if dst >= 8 else 0x49, 0x0f, 0xaf, 0xc3 | ((dst & 7) << 3)])
+        code.extend([0x4d if dst >= 8 else 0x49, 0x0f, 0xaf, 0xc0 | ((dst & 7) << 3) | (tmp & 7)])
     elif ins.mnemonic == "lea":
         m = ops[1].mem
         if m.index or ins.reg_name(m.base) != "rdx": raise ValueError("unsupported lea")
@@ -212,7 +215,7 @@ def dynamic_instruction(ins):
         code.append(0x9d)
     else:
         raise ValueError(f"unsupported dynamic instruction: {ins.mnemonic}")
-    code.extend([0x41, 0x5b])
+    code.extend([0x41, 0x58 | (tmp & 7)])
     return bytes(code)
 
 

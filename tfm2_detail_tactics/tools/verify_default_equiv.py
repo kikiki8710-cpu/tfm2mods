@@ -116,6 +116,8 @@ PORT = {k: opt(x) for k, x in {
     'radius_square_minus_one': lambda f, v: n(v, 1000, 65535) ** 2 - 1,
     'trade_hp_divisor': lambda f, v: f.reg(1) // n(v, 1, 32),
     'heal_rsi': lambda f, v: f.reg(1) + f.reg(6) * n(v, 0, 10),
+    'heal_r8': lambda f, v: f.reg(1) + f.reg(8) * n(v, 0, 10),
+    'shield_r8': lambda f, v: f.reg(8) * (n(v, 0, 10) + 1),
     'shield_rsi': lambda f, v: f.reg(6) * (n(v, 0, 10) + 1),
     'heal_rdx_rcx': lambda f, v: f.reg(2) + f.reg(1) * n(v, 0, 10),
     'shield_rcx': lambda f, v: f.reg(1) * (n(v, 0, 10) + 1),
@@ -124,10 +126,10 @@ PORT = {k: opt(x) for k, x in {
     'front_ally_distance_score': lambda f, v: (f.reg(0) // 4000) * n(v, 1, 400) // 100,
     'front_ally_cap': lambda f, v: n(v, 1, 400) * 25 // 100,
     'front_ally_total_cap': lambda f, v: n(v, 1, 400) * 60 // 100,
-    'wave_risk_divisor': lambda f, v: tdiv(s64(f.reg(14)), n(v, 1, 32)),
+    'wave_risk_divisor': lambda f, v: tdiv(s64(f.reg(13)), n(v, 1, 32)),
     'risk_retreat_high': lambda f, v: n(v, 1, 50) * 24 // 10,
     'risk_retreat_pressure': lambda f, v: f.reg(0) * (n(v, 1, 50) * 2),
-    'unseen_risk_divisor': lambda f, v: tdiv(s64(f.reg(12)), n(v, 1, 32)),
+    'unseen_risk_divisor': lambda f, v: tdiv(s64(f.reg(7)), n(v, 1, 32)),
     'relocate_inner': lambda f, v: rel(v, 8000),
     'relocate_mid': lambda f, v: rel(v, 30000),
     'relocate_self_near': lambda f, v: rel(v, 24000),
@@ -135,10 +137,11 @@ PORT = {k: opt(x) for k, x in {
     'relocate_mid_result': lambda f, v: f.reg(2) + f.reg(1) + rel(v, 30000),
     'relocate_outer_result': lambda f, v: f.reg(2) + f.reg(1) + rel(v, 70000),
     'candidate_move_budget': lambda f, v: f.reg(0) * (n(v, 0, 120) + 2),
-    'forward_credit_percent': lambda f, v: f.reg(14) * n(v, 0, 100) // 100,
+    'candidate_move_budget_rcx': lambda f, v: f.reg(1) * (n(v, 0, 120) + 2),
+    'forward_credit_percent': lambda f, v: f.reg(7) * n(v, 0, 100) // 100,
     'move_penalty_negative': lambda f, v: -n(v, 0, 1000),
-    'move_penalty_result': lambda f, v: f.reg(13) - n(v, 0, 1000),
-    'gank_deadline': lambda f, v: tpsm(f.mem(5, 0xb8), v) if rng(v) else None,
+    'move_penalty_result': lambda f, v: f.reg(12) - n(v, 0, 1000),
+    'gank_deadline': lambda f, v: tpsm(f.mem(5, 0x130), v) if rng(v) else None,
     'call_early': lambda f, v: tpsm(f.reg(1), v) if rng(v) else None,
     'call_diagnostic': lambda f, v: tpsm(f.reg(1), v) if rng(v) else None,
     'call_general': lambda f, v: tpsm(f.reg(0), v) if rng(v) else None,
@@ -148,11 +151,11 @@ PORT = {k: opt(x) for k, x in {
     'defense_risk': lambda f, v: 35 * v // 100 if rng(v) else None,
     'defense_long': lambda f, v: 25 * v // 100 if rng(v) else None,
     'defense_short': lambda f, v: 10 * v // 100 if rng(v) else None,
-    'gank_recheck': lambda f, v: tpsm(f.reg(15), v) if rng(v) else None,
+    'gank_recheck': lambda f, v: tpsm(f.reg(6), v) if rng(v) else None,
     'roam_extra': lambda f, v: tpsm(f.reg(1), v) if rng(v) else None,
     'lane_range_a': lambda f, v: f.reg(2) * (v + 2) if rng(v) else None,
-    'lane_range_b': lambda f, v: f.reg(12) * (v + 2) if rng(v) else None,
-    'lane_range_c': lambda f, v: f.reg(7) * (v + 2) if rng(v) else None,
+    'lane_range_b': lambda f, v: f.reg(3) * (v + 2) if rng(v) else None,
+    'lane_range_c': lambda f, v: f.reg(14) * (v + 2) if rng(v) else None,
     'superiority_hp': lambda f, v: 20 + 5 * v if rng(v) else None,
     'superiority_count': lambda f, v: 1 + v if rng(v) else None,
     'lane_call_cap': lambda f, v: tpsm(f.mem2(7, 8, 0x12f8), v) if rng(v) else None,
@@ -175,7 +178,7 @@ PORT = {k: opt(x) for k, x in {
     'damage_increment': lambda f, v: f.reg(0) * (n(v, 1, 10) - 1),
     'finish_seconds3': lambda f, v: f.reg(15) * n(v, 1, 30),
     'finish_increment2': lambda f, v: f.reg(15) * (n(v, 1, 30) - 2),
-    'camp_survival_margin': lambda f, v: scale(f.mem(5, -0x20), n(v, 0, 300)),
+    'camp_survival_margin': lambda f, v: scale(f.mem(5, -0x10), n(v, 0, 300)),
     'camp_arrival_margin': lambda f, v: scale(f.reg(1) >> 1, n(v, 0, 300)),
     'tower_radius_high': lambda f, v: scale(140000, n(v, 50, 150)) ** 2 + 1,
     'tower_radius_low': lambda f, v: scale(100000, n(v, 50, 150)) ** 2 + 1,
@@ -202,7 +205,7 @@ def _tps_rel(ptr, out, mul):
 
 
 def _gank_rel(regs, rd):
-    regs[0] = rd(RBP + 0xb8) * 4   # 0x10d0a73 lea rax,[rax*4] (rax = [rbp+0xb8] = TPS)
+    regs[0] = rd(RBP + 0x130) * 4   # 0.7.2 TPS = [rbp+0x130] (0xf6e3af 저장 · 0.7.1 [rbp+0xb8] · 0x10d0a73 lea rax,[rax*4])
 
 
 RELATION = {
@@ -210,16 +213,20 @@ RELATION = {
     'respawn_seconds': _tps_rel(15, 0, 5),    # lea rax,[rax+rax*4] 뒤 창이 ×3
     'lane_call_cap': _tps_rel(7, 1, 2),       # add rcx,rcx 뒤 창이 ×5
 }
-# 음성 대조: 0.7.0 콜백 입력(0.7.1 에서 틀린 값)
+# 음성 대조: 이전 버전 콜백 입력(0.7.2 에서 틀린 값). 0.7.2 에 입력이 바뀐 것은 0.7.1 값 · 그 밖은 0.7.0 값.
 MUTATE = {
     'risk_retreat_pressure': lambda f, v: f.reg(1) * (n(v, 1, 50) * 2),
-    'wave_risk_divisor': lambda f, v: tdiv(s64(f.reg(9)), n(v, 1, 32)),
-    'unseen_risk_divisor': lambda f, v: tdiv(s64(f.reg(14)), n(v, 1, 32)),
-    'lane_range_b': lambda f, v: f.reg(15) * (v + 2),
+    'wave_risk_divisor': lambda f, v: tdiv(s64(f.reg(14)), n(v, 1, 32)),
+    'unseen_risk_divisor': lambda f, v: tdiv(s64(f.reg(12)), n(v, 1, 32)),
+    'forward_credit_percent': lambda f, v: f.reg(14) * n(v, 0, 100) // 100,
+    'move_penalty_result': lambda f, v: f.reg(13) - n(v, 0, 1000),
+    'gank_recheck': lambda f, v: tpsm(f.reg(15), v),
+    'lane_range_b': lambda f, v: f.reg(12) * (v + 2),
+    'lane_range_c': lambda f, v: f.reg(7) * (v + 2),
     'finish_seconds3': lambda f, v: f.reg(14) * n(v, 1, 30),
     'finish_increment2': lambda f, v: f.reg(14) * (n(v, 1, 30) - 2),
-    'camp_survival_margin': lambda f, v: scale(f.mem(5, -0x18), n(v, 0, 300)),
-    'gank_deadline': lambda f, v: tpsm(f.mem(5, 0xc8), v),
+    'camp_survival_margin': lambda f, v: scale(f.mem(5, -0x20), n(v, 0, 300)),
+    'gank_deadline': lambda f, v: tpsm(f.mem(5, 0xb8), v),
     'combat_rsi_add': lambda f, v: f.reg(6) + n(v, 0, 1000),
 }
 

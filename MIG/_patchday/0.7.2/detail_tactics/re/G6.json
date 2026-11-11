@@ -1,0 +1,186 @@
+{
+ "tactics": {
+  "lane_opportunity_own_min": {
+   "grade": "AUTO",
+   "spec": "NONE",
+   "spec_note": "라인 기회를 볼 때 건강한(HP 50%↑) 아군 수를 세는 검사는 그대로다.",
+   "proposal": {"action": "PORT", "why": "창·주체(rdi=A2=Player, 호출처 eb71e0 rdx<-A4) 동일, 카운터 0x10488e0 은 변위만 다름", "user_text": ""},
+   "windows": {
+    "lane_opportunity_own_min_2@0xec142d": {"verdict": "EQUIV", "fix": {}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "push_sustain_min_healthy": {
+   "grade": "B",
+   "spec": "NONE",
+   "spec_note": "푸시를 계속할지 정하는 건강 인원 기준(3명)은 그대로다. 게임 내부에서 선수 정보를 담아 두는 자리만 바뀌었다.",
+   "proposal": {"action": "PORT", "why": "창 같음. 추적기 src mem:rbp:0x5c0 은 TPS 슬롯이라 오답, Player 는 r13(=A4)", "user_text": ""},
+   "windows": {
+    "push_sustain_min_healthy_3@0xeadb7e": {"verdict": "EQUIV_FIX", "fix": {"src": "reg:r13"}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "push_sustain_margin": {
+   "grade": "B",
+   "spec": "NONE",
+   "spec_note": "푸시 유지에 필요한 인원 여유(상대보다 2명) 판단은 그대로다.",
+   "proposal": {"action": "PORT", "why": "창 같음. src 는 [24]와 같은 이유로 r13", "user_text": ""},
+   "windows": {
+    "push_sustain_margin_2@0xeadb44": {"verdict": "EQUIV_FIX", "fix": {"src": "reg:r13"}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "pickoff_hp_bands": {
+   "grade": "B",
+   "spec": "MINOR",
+   "spec_note": "픽오프 대상의 체력 구간 기준은 그대로다. 코드가 푸시 판단 안에서 별도 함수로 다시 빠졌다. 픽오프를 할지 거르는 교전 판정 함수가 이번 패치에서 손질돼 실제 픽오프 빈도는 조금 달라질 수 있다(추정).",
+   "proposal": {"action": "PORT", "why": "같은 창 바이트가 새 함수 0x10463e0(opportunities.rs, 호출처 eb7789 1곳)으로 이동, 주체=A3=[rbp+0x98]", "user_text": ""},
+   "windows": {
+    "extra_c002@0xeaf6e6": {"verdict": "MOVED", "fix": {"rva": "0x104777b", "win_hex": "49 83 f8 51 41 8d 4c 12 32", "first_len": 4, "first_asm": "cmp r8, 0x51", "src": "mem:rbp:0x98", "team_chk": null, "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 d8 41 5b", "tf": {"kind": "Add", "value": 20}}},
+    "extra_c002@0xeaf6f2": {"verdict": "MOVED", "fix": {"rva": "0x1047787", "win_hex": "49 83 f8 3d 41 8d 44 12 78", "first_len": 4, "first_asm": "cmp r8, 0x3d", "src": "mem:rbp:0x98", "team_chk": null, "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 d8 41 5b", "tf": {"kind": "Add", "value": 0}}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "structure_retreat_keep_hp": {
+   "grade": "B",
+   "spec": "NONE",
+   "spec_note": "구조물을 치다가 후퇴 요청을 유지하는 체력 기준(65%)은 그대로다. 코드가 경로 탐색 함수와 합쳐져 위치만 옮겨졌다.",
+   "proposal": {"action": "PORT", "why": "trace.rs 함수가 0xf79e30(path_finder 인라인)으로 이동, aidiff 짝 실패로 OWNER_MISSING", "user_text": ""},
+   "windows": {
+    "extra_c003@0x10827b5": {"verdict": "MOVED", "fix": {"rva": "0xf7c6e7", "win_hex": "48 83 f8 41 0f 86 ec fa ff ff", "first_len": 4, "first_asm": "cmp rax, 0x41", "src": "mem:rbp:0xc80", "team_chk": "mem:rbp:0xb98", "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 d8 41 5b", "tf": {"kind": "Add", "value": 0}}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "objective_power_allowance": {
+   "grade": "A",
+   "spec": "NONE",
+   "spec_note": "오브젝트 전 전력 비교는 그대로다. 0.7.1 에 새로 생긴 핸들러 쪽 전력 비교도 같은 구조이고, 그 결과를 읽는 곳은 여전히 찾지 못했다(판단 영향 없음 = 추정).",
+   "proposal": {"action": "PORT", "why": "owner SHIFTED, 추적기 Caller 4사례·dyn 그대로 맞음", "user_text": ""},
+   "windows": {
+    "extra_c007@0xe946b2": {"verdict": "EQUIV", "fix": {}},
+    "extra_c007@0xe947b0": {"verdict": "EQUIV", "fix": {}}
+   },
+   "calc_fix": [],
+   "new_paths": [
+    "ret 0xe4ab66: 핸들러 0xe3c350 e4ab61 (에픽 전력 비교 → [+0x1740] 기록 · 직접 읽기 0건, 0.7.1 e46d9b 에 대응) · 값을 넣으려면 사례 src mem:rbp:0x78 추가",
+    "ret 0xe4abc5: 핸들러 0xe3c350 e4abc0 (세르펜 전력 비교 → [+0x1741] 기록 · 직접 읽기 0건, 0.7.1 e46dfa 에 대응) · 값을 넣으려면 사례 src mem:rbp:0x78 추가"
+   ],
+   "new_candidates": []
+  },
+  "push_start_base": {
+   "grade": "AUTO",
+   "spec": "NONE",
+   "spec_note": "푸시 개시 문턱(130+능력항)은 그대로다. 후보 라인을 거르는 교전 예측도 0.7.1 과 같은 방식이다.",
+   "proposal": {"action": "PORT", "why": "src reg:r8=A3=Player(호출처 3곳 r8<-A4), 함수 증가분은 0xf512c0 인라인", "user_text": ""},
+   "windows": {
+    "extra_c022@0xec0fb5": {"verdict": "EQUIV", "fix": {}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "other_lane_collapse_profile": {
+   "grade": "B",
+   "spec": "NONE",
+   "spec_note": "다른 라인 붕괴 검사(지표 -3000·단계 -2)는 그대로다. 라인 상태 데이터의 배치만 바뀌어 내부 조각을 고쳐야 한다.",
+   "proposal": {"action": "PORT", "why": "라인 상태 metric +0x10→+0x60 · stage +0x20→+0x70, dynamic_hex 만 재작성", "user_text": ""},
+   "windows": {
+    "extra_c023@0xebfcc2": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 52 4c 8b 54 24 f8 4d 39 53 60 41 5a"}},
+    "extra_c023@0xebfccc": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 52 4c 8b 54 24 f8 45 39 53 70 41 5a"}},
+    "extra_c023@0xebfcf6": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 39 58 60 41 5b"}},
+    "extra_c023@0xebfd00": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 53 4c 8b 5c 24 f8 45 39 58 70 41 5b"}},
+    "extra_c023@0xebfd34": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 39 5a 60 41 5b"}},
+    "extra_c023@0xebfd3e": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 53 4c 8b 5c 24 f8 44 39 5a 70 41 5b"}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "objective_lane_pressure_profile": {
+   "grade": "B",
+   "spec": "MINOR",
+   "spec_note": "오브젝트 전 라인 압박 판단은 그대로다. 바깥의 오브젝트 규율 판단에서 첫 아군만 따로 보던 특례가 없어졌지만 이 전술 값에는 닿지 않는다(추정).",
+   "proposal": {"action": "PORT", "why": "owner Location IDENTICAL, Caller 3사례 재계산 일치, 메모리 비교 3창만 dyn 변위 재작성", "user_text": ""},
+   "windows": {
+    "extra_c028@0x10a854d": {"verdict": "EQUIV", "fix": {}},
+    "extra_c028@0x10a855b": {"verdict": "EQUIV", "fix": {}},
+    "extra_c028@0x10a8564": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 53 4c 8b 5c 24 f8 44 39 5a 70 41 5b"}},
+    "extra_c028@0x10a85b9": {"verdict": "EQUIV", "fix": {}},
+    "extra_c028@0x10a85c3": {"verdict": "EQUIV", "fix": {}},
+    "extra_c028@0x10a85cc": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 52 4c 8b 54 24 f8 45 39 53 70 41 5a"}},
+    "extra_c028@0x10a85f9": {"verdict": "EQUIV", "fix": {}},
+    "extra_c028@0x10a8603": {"verdict": "EQUIV", "fix": {}},
+    "extra_c028@0x10a860c": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 52 4c 8b 54 24 f8 45 39 93 e8 00 00 00 41 5a"}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "boss_poke_damage_factor": {
+   "grade": "A",
+   "spec": "NONE",
+   "spec_note": "보스 견제 때 예상 피해를 체력과 비교하는 배수 판단은 그대로다.",
+   "proposal": {"action": "PORT", "why": "4창 rva·src(5번째 인자) 제안 일치, 예상피해 계산이 단일 호출로 바뀐 것뿐", "user_text": ""},
+   "windows": {
+    "extra_c035@0xfeff6e": {"verdict": "EQUIV", "fix": {}},
+    "extra_c035@0xfefa7d": {"verdict": "EQUIV", "fix": {}},
+    "extra_c035@0x1001181": {"verdict": "EQUIV", "fix": {}},
+    "extra_c035@0x10001fc": {"verdict": "EQUIV", "fix": {}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "lane_superiority_profile": {
+   "grade": "A",
+   "spec": "NONE",
+   "spec_note": "라인 수적우세 확정 조건(체력 25%·2명 이상)은 그대로다.",
+   "proposal": {"action": "PORT", "why": "3창 rva·src·team_chk 제안 일치, team 슬롯은 CFG 로 eafb58 경유 확인", "user_text": ""},
+   "windows": {
+    "extra_c057@0xea9386": {"verdict": "EQUIV", "fix": {}},
+    "extra_c057@0xea9562": {"verdict": "EQUIV", "fix": {}},
+    "extra_c057@0xea97fc": {"verdict": "EQUIV", "fix": {}}
+   },
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  },
+  "mia_notice_caution_profile": {
+   "grade": "B",
+   "spec": "NONE",
+   "spec_note": "실종 알림 조건은 그대로다. 실종 기억 데이터와 선수 정보를 담는 자리만 옮겨졌다.",
+   "proposal": {"action": "PORT", "why": "Player [rbp+0x2b8]→[rbp+0x2d0], 팀 r12→r13, 기억 필드 +0xa0 이동(창3 dyn)", "user_text": ""},
+   "windows": {
+    "extra_c060@0xeb5a7f": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x2d0", "team_chk": "reg:r13"}},
+    "extra_c060@0xeb5aaa": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x2d0", "team_chk": "reg:r13"}},
+    "extra_c060@0xeb5abe": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x2d0", "team_chk": "reg:r13", "dynamic_hex": "41 53 4c 8b 5c 24 f8 4e 39 9c ca 78 0d 00 00 41 5b"}},
+    "extra_c060@0xeb5ae0": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x2d0", "team_chk": "reg:r13"}}
+   },
+   "calc_fix": [],
+   "new_paths": [
+    "참고: owner 0xebb0c0 호출처 4곳 중 1곳이 새 handler.rs 함수 0xe56cb0(e5745b) — src 가 자기 프레임이라 사례 추가 불요"
+   ],
+   "new_candidates": []
+  },
+  "lane_opportunity_enemy_limit": {
+   "grade": "D",
+   "spec": "DEAD",
+   "spec_note": "0.7.0 에 사라진 「근접 적이 많으면 라인 기회 거절」은 0.7.2 에도 없다. 적이 2명 이상이면 교전 예측에 맡기는 구조 그대로다.",
+   "proposal": {"action": "DISABLE", "why": "범용 검사 꼬리 1044ca1 cmp r15d,2 → call 0x10440e0(교전 예측) 구조 불변, 상한 판단 부활 없음. 재정의하려면 창 0x1044ca1 + Caller(return_off 0x88, ret 0x1046310, Player rdx/stack:38)", "user_text": "이 전술이 조절하던 「근접 적 수 상한」 판단은 0.7.2 게임에도 여전히 없어서 계속 꺼 둡니다(켜도 효과가 없음)."},
+   "windows": {},
+   "calc_fix": [],
+   "new_paths": [],
+   "new_candidates": []
+  }
+ }
+}

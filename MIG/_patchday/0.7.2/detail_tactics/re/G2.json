@@ -1,0 +1,201 @@
+{
+  "group": "G2",
+  "title": "교전·위치 평가",
+  "old_ver": "0.7.1",
+  "new_ver": "0.7.2",
+  "date": "2026-11-11",
+  "method": "정적 판정(capstone · 게임 미실행 · 런타임 HITS/BAD_SUBJECT 미검증)",
+  "tactics": {
+    "combat_avoid_hp": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "창(HP 41% 미만이면 인원 조건 생략)과 그 앞뒤 명령이 구·신 바이트 단위로 같다. battle.rs 는 소스 행만 7줄 밀렸다.",
+      "proposal": {"action": "PORT", "why": "0x116d5b8 cmp rax,0x29; jb — 구 0x107d8ca 와 앞 40명령 동일. flow [rbp+0x3f0]<-A5 · [rbp+0x320]<-[A5+820].", "user_text": ""},
+      "windows": {
+        "combat_avoid_hp_41@0x107d8ca": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "combat_avoid_count_margin": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "적이 아군+2 이상일 때만 물러나는 비교가 그대로다.",
+      "proposal": {"action": "PORT", "why": "0x116d5be add rdx,2; cmp r12,rdx — 구 0x107d8d0 과 동일. Src·team_chk 동일(flow).", "user_text": ""},
+      "windows": {
+        "combat_avoid_count_margin_2@0x107d8d0": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "hazard_avoid_padding": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "위험 구역 비켜 걷기 여유 계산은 그대로다(owner 는 행만 밀림). 다만 이 전술이 선수를 찾는 게임 캐시의 배열 위치가 0x28 앞당겨져서, 모드 쪽 상수를 고치지 않으면 값이 조용히 안 먹는다.",
+      "proposal": {"action": "PORT", "why": "창·Src 표기(cache_player rsi/r12/stack 0xe0)는 그대로 맞다. 그러나 게임 lookup helper 0xe741b0→0xe7b200 이 champion 배열 +0x238→+0x210, Player 배열 +0x288→+0x260 으로 바뀌었다. micro.rs CachePlayer(L82-94)의 0x238/0x288 를 0x210/0x260 으로 고쳐야 한다(CacheSlot L64-73 도 같은 상수 — G1 판정과 맞출 것).", "user_text": ""},
+      "windows": {
+        "hazard_avoid_padding_6000@0xeec223": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [
+        {"fn": "Src::CachePlayer (그리고 CacheSlot)", "file": "micro.rs", "old": "at(cache,0x238+slot) / at(cache,0x288+slot)", "new": "at(cache,0x210+slot) / at(cache,0x260+slot)", "why": "구 0xe741b0 mov rax,[rcx+0x238] … mov rax,[rcx+rax*8+0x288] ↔ 신 0xe7b200 mov rax,[rcx+0x210] … mov rax,[rcx+rax*8+0x260] (+0x5b8 비교는 동일). hazard 창 0xfc317a 시점 [rsp+0x90]<-[A4+0] 이 그 helper 의 rcx(0xfc3546 mov rcx,[rsp+0x90]; call 0xe7b200). 그대로 두면 팀1 챔피언·팀0 Player 배열을 읽어 일치 실패 → None(BAD_SUBJECT·원본 유지, 오적용은 L87-94 가드가 막음). calc 콜백이 아니라 Src 해석 코드다."}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "ally_spacing_radius": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "창 5개 바이트·주체 슬롯이 그대로다(death_battle.rs 행만 1줄 밀림).",
+      "proposal": {"action": "PORT", "why": "flow [rbp+0x290]<-A5 · [rbp+0x1b8]<-[A5+820] 구·신 동일, 호출처 1↔1, calc radius_square* 는 프레임 입력 없음.", "user_text": ""},
+      "windows": {
+        "extra_c014@0xfddd5b": {"verdict": "EQUIV", "fix": {}},
+        "extra_c014@0xfddd7b": {"verdict": "EQUIV", "fix": {}},
+        "extra_c014@0xfddffd": {"verdict": "EQUIV", "fix": {}},
+        "extra_c014@0xfde018": {"verdict": "EQUIV", "fix": {}},
+        "extra_c014@0xfde051": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "near_ally_link_margin": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "창과 주체 슬롯이 그대로다(battle.rs 행만 밀림).",
+      "proposal": {"action": "PORT", "why": "flow [rsp+0x40]<-[A1+20] · [rsp+0x88]<-[[A1+20]+820] 구·신 동일(rsp 기준·자기 프레임), 호출처 6↔6, calc 없음.", "user_text": ""},
+      "windows": {
+        "extra_c015@0xec71b1": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "shared_battle_role_markers": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "창과 주체(rdx=2번째 인자)가 그대로다(engage.rs 행만 밀림).",
+      "proposal": {"action": "PORT", "why": "flow rdx<-A2 구·신 동일, 호출처 4↔4, calc 없음.", "user_text": ""},
+      "windows": {
+        "extra_c018@0xe5e9a1": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "boss_reposition_improvement": {
+      "grade": "A",
+      "spec": "NONE",
+      "spec_note": "재배치 개선값 비교식과 관문이 그대로다. 함수의 다른 변화는 후보 번호 매김·원소 크기·계측 코드뿐이다.",
+      "proposal": {"action": "PORT", "why": "추적기 제안(rva 0x1008977 · src mem:rbp:0x490) 이 맞다. flow [rbp+0x490]<-A7, 1004fb6 cmp [r15+0x820],0 (r15=[rbp+0x490]). 호출처 2↔2 인자 배치 동일.", "user_text": ""},
+      "windows": {
+        "extra_c034@0xff4a07": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "position_isolation_risk_percent": {
+      "grade": "A",
+      "spec": "MINOR",
+      "spec_note": "고립 가산 계산식은 그대로다. 위치 평가 안쪽 함수가 0.7.2 에서 크게 다시 짜여(새 항목 다수) 이 항목이 전체 위험에서 차지하는 비중은 달라질 수 있다(추정).",
+      "proposal": {"action": "PORT", "why": "추적기 제안(rva 0x11268e4 · src mem:rbp:0xa38 · win/dyn 그대로)이 맞다. 고립 블록 명령 단위 동일, calc isolated_percent reg(0)=5X 유지.", "user_text": ""},
+      "windows": {
+        "extra_c038@0x1111ce7": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": ["위치평가 래퍼 0x112ade0(구 0x1107180) 호출처 46→48. 창이 있는 안쪽 0x111e4e0 은 래퍼에서만 불린다(1↔1). Src 는 래퍼 A3(Player) 를 받은 안쪽 A3 이라 새 호출처에도 그대로 적용된다(새 호출처 개별 확인은 안 함)."],
+      "new_candidates": []
+    },
+    "front_ally_risk_scale": {
+      "grade": "A",
+      "spec": "MINOR",
+      "spec_note": "튼튼한 아군보다 앞설 때의 점수·두 상한 계산은 그대로다. 위치 평가 함수의 다른 항목이 크게 바뀌어 비중이 달라질 수 있다(추정).",
+      "proposal": {"action": "PORT", "why": "추적기 제안 3창(0x1128240·0x1128251·0x11282c4 · src mem:rbp:0xa38 · dyn 그대로)이 맞다. 루프 명령 단위 동일, 레지스터(rdx·eax·r12·esi) 동일.", "user_text": ""},
+      "windows": {
+        "extra_c039@0x1113476": {"verdict": "EQUIV", "fix": {}},
+        "extra_c039@0x1113487": {"verdict": "EQUIV", "fix": {}},
+        "extra_c039@0x11134f4": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "battle_skill_safety_margin": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "기술 범위에 더하는 안전 여유의 쓰임(거리가 범위+여유 안이면 사용)은 그대로다. 기술을 지금 쓸 수 있는지(남은 시간 180 이하) 따지는 계산이 새 도우미 함수로 옮겨졌고, 0.7.1 의 종류 0xf 쿨타임 보정 코드는 그 안으로 들어갔다(추정).",
+      "proposal": {"action": "PORT", "why": "W2 만 rva 를 고친다(추적기가 W1 과 같은 0x112ced3 을 줘 창이 겹친다). 문서 필드 reference_windows 는 0x112ce90 49 81 cf a0 86 01 00 (or r15,0x186a0) · function 0x112c7b0 으로 갱신(생성기는 안 읽음).", "user_text": ""},
+      "windows": {
+        "extra_c040@0x1108e59": {"verdict": "EQUIV", "fix": {}},
+        "extra_c040@0x1108ff1": {"verdict": "EQUIV_FIX", "fix": {
+          "rva": "0x112d05a",
+          "win_hex": "48 81 c3 50 c3 00 00",
+          "first_len": 7,
+          "first_asm": "add rbx, 0xc350",
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 01 db 41 5b"
+        }},
+        "extra_c040@0x1109343": {"verdict": "EQUIV", "fix": {}},
+        "extra_c040@0x110962c": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "wave_position_risk_divisor": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "웨이브 안전 조건(문턱 상수 전부)과 나눗셈은 그대로다. 위치 평가 래퍼에 캐시·거리 필터가 늘었지만 이 항목의 값과는 무관하다.",
+      "proposal": {"action": "PORT", "why": "나눌 위험값 레지스터가 r14→r13 이다. dyn 재작성 + calc wave_risk_divisor reg(14)→reg(13). rva·win·first_asm·function·src(mem:rbp:0x398) 는 추적기 초안이 맞다.", "user_text": ""},
+      "windows": {
+        "extra_c041@0x110836f": {"verdict": "EQUIV_FIX", "fix": {
+          "dynamic_hex": "49 8d 45 03 4d 85 ed 49 0f 49 c5 48 c1 f8 02 48 8b 44 24 f0"
+        }}
+      },
+      "calc_fix": [
+        {"fn": "wave_risk_divisor", "file": "extra_combat.rs", "old": "f.reg(14)", "new": "f.reg(13)", "why": "0x112c3eb lea rax,[r13+3]; test r13,r13; cmovns rax,r13; sar rax,2 — 나눌 위험값이 r13 이다(0.7.1 0x110836f 는 r14). 합류 0x112be4b add r13,[rbp+0x330] (구 0x1107dd0 add r14,…). 그대로 두면 r14(다른 값)를 나눈다. targets 에서 이 calc 는 이 창 하나만 쓴다."}
+      ],
+      "new_paths": ["위치평가 래퍼 0x112ade0 호출처 46→48 — 창이 래퍼 안에 있고 Src 가 래퍼 A3([rbp+0x398]) 라 새 호출처에도 자동 적용."],
+      "new_candidates": []
+    },
+    "battle_risk_retreat_threshold": {
+      "grade": "A",
+      "spec": "MINOR",
+      "spec_note": "문턱 K·2.4K·2K 비교와 battle.rs 의 후퇴 흐름은 0.7.1 그대로다. 바뀐 것은 셋: ①위험값을 만드는 위치평가 함수가 크게 다시 짜여 같은 K 라도 후퇴 빈도가 달라질 수 있다(추정) ②본진이 위협받을 때 조기 후퇴를 막는 조건이 '위협이 나에게 닿음'에서 '적 사거리 안이면서 넥서스가 목표' 또는 '내 상대 적이 본진을 칠 수 있음'으로 바뀌었다 ③'지금 잡을 수 있으면 후퇴 취소' 판단이 새 교전 모델로 바뀌었다(의미 추정).",
+      "proposal": {"action": "PORT", "why": "추적기 초안 3창(0x116a9b6 cmp rsi,0xa · 0x116ab62 cmp rsi,0x18 · 0x116ab8f shl rax,2 · dyn rsi 판) 이 맞다. calc risk_retreat_pressure reg(0)=H 유지(0x116ab74..0x116ab7f). 창 밖 변화는 효과 크기에만 영향 — 전술 설명은 그대로 둬도 맞다.", "user_text": ""},
+      "windows": {
+        "extra_c048@0x107ae1e": {"verdict": "EQUIV", "fix": {}},
+        "extra_c048@0x107afd2": {"verdict": "EQUIV", "fix": {}},
+        "extra_c048@0x107afff": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "battle_reposition_distance_scale": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "거리 5개의 뜻과 battle.rs 재배치 흐름은 0.7.1 그대로다. 추격 후보의 '아군과 함께 잡을 수 있나' 검사가 별도 함수에서 battle 안으로 들어왔을 뿐 같은 계산이다(추정). 본진 위협 때 조기 후퇴 대신 재배치로 가는 조건이 바뀌어 그 상황에서만 재배치 빈도가 달라질 수 있다.",
+      "proposal": {"action": "PORT", "why": "W6·W7 dyn 만 고친다(링 구조체 rbp+0xb0→+0xa8, 반경 슬롯 0xc0→0xb8 · 0xd8→0xd0). 나머지 5창은 추적기 초안 그대로. calc relocate_mid_result/outer_result 의 rdx·rcx 입력 유지.", "user_text": ""},
+      "windows": {
+        "extra_c050@0x107d10b": {"verdict": "EQUIV", "fix": {}},
+        "extra_c050@0x107e1ce": {"verdict": "EQUIV", "fix": {}},
+        "extra_c050@0x107b6a8": {"verdict": "EQUIV", "fix": {}},
+        "extra_c050@0x107b6c0": {"verdict": "EQUIV", "fix": {}},
+        "extra_c050@0x107b6c8": {"verdict": "EQUIV", "fix": {}},
+        "extra_c050@0x107b792": {"verdict": "EQUIV_FIX", "fix": {
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 9d b8 00 00 00 41 5b"
+        }},
+        "extra_c050@0x107b7b9": {"verdict": "EQUIV_FIX", "fix": {
+          "dynamic_hex": "41 53 4c 8b 5c 24 f8 4c 89 9d d0 00 00 00 41 5b"
+        }}
+      },
+      "calc_fix": [],
+      "new_paths": ["0x116df36 add rax,0x7530 (새 호출처 아님 · 인라인 사본): 0.7.1 별도 함수 0x10a5a70(10a5ae7 add r10,0x7530)이 battle owner 에 인라인된 사본 — 추격 후보 '아군 피해 합 ≥ 대상 HP' 검사의 아군별 거리 여유. 0.7.1 에서도 이 전술 범위 밖이었으므로 PORT 에는 넣지 않는다(넣으면 범위 확장 — 새 전술 후보 참고)."],
+      "new_candidates": [
+        {"where": "0x116df36", "asm": "add rax, 0x7530", "meaning": "추격(잡기) 후보를 넣기 전, 내 사거리+3만 안에 든 적을 아군들이 함께 잡을 수 있는지 셀 때 아군 한 명 한 명을 '닿는다'고 인정하는 거리 여유", "default": "30000 (사거리+3만 안의 아군 피해만 합산)", "why": "0.7.1 에는 battle 밖 함수에 있어 battle 주체로 닿지 못했다. 0.7.2 에서 battle 안(0x116a310)으로 들어와 같은 Src(mem:rbp:0x3f0, flow 확인)로 창을 걸 수 있다. W2(내 거리 여유)만 키우면 아군 합산 조건은 원래대로라 효과가 반쯤 막힌다 — W2 와 함께 묶을지(같은 relocate_mid 계산) 별도 전술로 둘지는 유저 판단. 창 6B·분기 유입 없음 확인, dyn 후보 41 53 4c 8b 5c 24 f8 4c 01 d8 41 5b."}
+      ]
+    }
+  }
+}

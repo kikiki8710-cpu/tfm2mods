@@ -69,7 +69,8 @@ use Scope::{Player as P, Team as T};
 /// 표 순서 = 전술 번호(저장·적용 장치가 이 번호를 쓴다 — 바꾸지 말고 뒤에 추가할 것).
 pub static TACTICS: &[TacticDef] = &[
     // ── 후퇴·교전 회피
-    v("combat_retreat_hp", "combat_retreat_hp_35", "전투 중 후퇴 체력(%)", "교전 중 체력이 이 값보다 낮으면 빠진다. 높을수록 일찍 빠진다", P, 35, 20, 50, 0, 127),
+    // 0.7.2 상한 126: 라인 수비 사본 창 0x11519b7 이 `cmp rax,v+1` 이라 127 은 1바이트 즉치를 넘는다(100 이상은 어느 값이든 「항상」)
+    v("combat_retreat_hp", "combat_retreat_hp_35", "전투 중 후퇴 체력(%)", "교전 중 체력이 이 값보다 낮으면 빠진다. 높을수록 일찍 빠진다", P, 35, 20, 50, 0, 126),
     v("line_chase_retreat_hp", "line_chase_retreat_hp_45", "라인·추적 중 즉시 후퇴 체력(%)", "라인전·추적 중 체력이 이 값 이하면 바로 후퇴", P, 45, 30, 60, 0, 127),
     v("line_chase_target_guard_hp", "line_chase_target_guard_hp_65", "추적 표적 유지 체력(%)", "체력이 이 값 이하면 쫓던 표적을 놓는다", P, 65, 50, 80, 0, 127),
     v("lane_retreat_final", "lane_retreat_final_50", "라인 후퇴 점수 문턱", "라인 후퇴 최종 점수가 이 값을 넘으면 후퇴. 낮을수록 잘 빠진다", P, 50, 35, 65, 0, 127),

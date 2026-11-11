@@ -1,0 +1,349 @@
+{
+  "group": "G1",
+  "game_from": "0.7.1",
+  "game_to": "0.7.2",
+  "created": "2026-11-11",
+  "global": {
+    "cache_layout": {
+      "verdict": "CHANGED",
+      "champion_array": {"old": "0x238", "new": "0x210"},
+      "player_array": {"old": "0x288", "new": "0x260"},
+      "entity_id": {"old": "0x5b8", "new": "0x5b8"},
+      "helper": {"old": "0xe741b0", "new": "0xe7b200", "len": 363, "diff_bytes": 14, "e8_callers": "160->184"},
+      "mod_fix": [
+        "micro.rs Src::CacheSlot / Src::CachePlayer (L64,69,71,73,87,89,94) 0x238->0x210, 0x288->0x260 + 테스트 픽스처 L322~504",
+        "verified_candidates.rs ops_gather_square (L27,28,31) 0x288+slot->0x260+slot, 0x238+slot->0x210+slot"
+      ],
+      "other_cache_fields_observed": ["+0x0/+0x8 -> +0x380/+0x388", "+0x1c8 -> +0x1a0", "+0x1d8..0x228 -> +0x1b0..0x200", "+0x170/+0x188 -> +0x140/+0x158"]
+    },
+    "player_offsets": {
+      "verdict": "SAME",
+      "evidence": "GamePlayer Debug 구 0x1c361f0(이름표 0x41e3660) / 신 0x14d9360(이름표 0x4195138) 32/32 필드 동일",
+      "athlete_id": "0x810", "team": "0x820", "position": "0x8b0"
+    },
+    "notes": [
+      "기술 점수 함수: 구 0x1093f10 + 구 0x1084b20(인라인) -> 신 0x11565f0. aidiff 의 0x1093f10->0x1147850 짝은 오답(0x1147850 은 0.7.2 신설).",
+      "0.7.2 신설 라인 수비 사전 판정 0x1151760(호출 0xf3bddf, 0xef7f8b) 이 combat_retreat_hp·self_risk_ignore_hp 의 같은 HP 35% 판정을 따로 가진다.",
+      "Skill vtable 일부 +8(+0x128->+0x130, +0x170->+0x180). Blackboard 팀 보폭 0xf18->0x1010(추정)."
+    ]
+  },
+  "tactics": {
+    "combat_retreat_hp": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "체력 문턱의 뜻은 그대로다. 문턱 위에서 후퇴를 막는 넥서스 방어 조건이 바뀌었다(특정 포지션 적이 넥서스를 위협하면 막는 검사가 새로 붙음 — 추정). 또 0.7.2 에 새로 생긴 라인 수비 빠른 판정에 같은 35% 판정이 따로 있다.",
+      "proposal": {"action": "PORT", "why": "창 2개 모두 같은 자리·같은 비교. 창1 주체만 r13 으로. 라인 수비 사본 0x11519b7 추가 권고(new_paths).", "user_text": ""},
+      "windows": {
+        "combat_retreat_hp_35@0x1087596": {"verdict": "EQUIV_FIX", "fix": {"src": "reg:r13"}},
+        "combat_retreat_hp_35@0x1086962": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [
+        "0x11519b7: 신설 0x1151760(라인 수비 사전 판정, 호출 0xf3bddf·0xef7f8b) 의 `cmp rax, 0x24; jb 0x11519e2`(HP% < 36 = 35 이하) — 같은 판단의 사본. knob 창 asm `cmp rax, 0x24` · imm_at 3 · tf 'v', 1 · src reg:r14(flow r14<-A3, 대안 stack:0x50) · team_chk reg:rbx([A3+0x820]) · 창 48 83 f8 24 72 25 안전"
+      ],
+      "new_candidates": []
+    },
+    "line_chase_retreat_hp": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "판단 함수가 행번호만 밀렸다(SHIFTED +33). 효과 변화 없음.",
+      "proposal": {"action": "PORT", "why": "같은 비교. 신 owner 는 Player 를 스택 0x78 에 두지 않고 rsi 에 둔다.", "user_text": ""},
+      "windows": {
+        "line_chase_retreat_hp_45@0xfa5f6d": {"verdict": "EQUIV_FIX", "fix": {"src": "reg:rsi"}},
+        "line_chase_retreat_hp_45@0xfa5f82": {"verdict": "EQUIV_FIX", "fix": {"src": "reg:rsi"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "line_chase_target_guard_hp": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "판단 함수가 행번호만 밀렸다. 효과 변화 없음.",
+      "proposal": {"action": "PORT", "why": "같은 비교(HP% 저장 슬롯만 [rsp+0x40]->[rsp+0xb8]). 주체 rsi · 팀 rdi.", "user_text": ""},
+      "windows": {
+        "line_chase_target_guard_hp_65@0xfa63e7": {"verdict": "EQUIV_FIX", "fix": {"src": "reg:rsi", "team_chk": "reg:rdi"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "crowd_retreat_weight": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "배율 300 과 표[75,100,200,60,80,150]는 그대로다. 이 값이 쓰이는 후퇴 경로 앞의 넥서스 방어 거부 조건이 바뀌어, 거부되는 상황이 조금 달라졌다(추정).",
+      "proposal": {"action": "PORT", "why": "창 바이트·앞뒤 동형. 주체 r13(rdi 는 나눗셈 제수).", "user_text": ""},
+      "windows": {
+        "crowd_retreat_weight_plus2_300@0x10889f2": {"verdict": "EQUIV_FIX", "fix": {"src": "reg:r13"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "self_risk_ignore_hp": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "체력 문턱의 뜻은 그대로다. 문턱 위에서 위험 무시가 켜지는 넥서스 조건이 바뀌었다(새 적 위협 검사 추가 — 추정). 라인 수비용 새 간이 판정에도 같은 35% 판정이 있다.",
+      "proposal": {"action": "PORT", "why": "창이 기술 점수 함수 재구성으로 0x11565f0 으로 옮겨졌다(SITE_MISSING 은 aidiff 짝 오류). 같은 꼴 imul rcx,rcx,0x23. 사본 0x1147abd 추가 권고(new_paths).", "user_text": ""},
+      "windows": {
+        "self_risk_ignore_hp_35@0x10940dc": {"verdict": "MOVED", "fix": {"rva": "0x11567db", "asm": "imul rcx, rcx, 0x23", "imm_at": 3, "src": "mem:rbp:0x250", "team_chk": null}}
+      },
+      "calc_fix": [],
+      "new_paths": [
+        "0x1147abd: 신설 0x1147850(라인 수비 간이 위험 판정, 유일 호출 0x1151997) 의 `imul rcx, rcx, 0x23; cmp rax, rcx; jbe` — 같은 판단의 사본. knob 창 asm `imul rcx, rcx, 0x23` · imm_at 3 · src mem:rbp:0x140(A2=Player, 쓰기 1건 0x114787c) · team_chk 없음 · 창 48 6b c9 23 48 39 c8 안전"
+      ],
+      "new_candidates": [
+        {"where": "0x11518f8", "asm": "movabs r10, 0x35a4e90001 ; cmp r12, r10 ; jae 0x115196c", "meaning": "0.7.2 신설 라인 수비 사전 판정(0x1151760)에서 행동 종류 11 일 때 팀별 기준점(기지 모서리 추정)으로부터 480000 넘게 떨어지면 간이 위험 판정(0x1147850, 위 사본 창이 있는 곳), 아니면 전체 점수 계산 — 추정", "default": "480000(거리, 비교는 거리²+1)", "why": "라인 수비 중 얼마나 멀리 나가면 위험을 따로 따지는지. 뜻 확정 전 노출 비권장(종류 11 이름·기준점이 자기/상대 쪽인지 런타임 확인 필요)"}
+      ]
+    },
+    "lowhp_ult_bonus_low": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "행번호만 밀렸다.",
+      "proposal": {"action": "PORT", "why": "추적기 SAME · src stack:0x78=A2 · team stack:0xa0=[A2+0x820] flow 확인 · 호출처 7->7.", "user_text": ""},
+      "windows": {
+        "lowhp_ult_bonus_low_14@0x109893b": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "tower_tank_hits": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "판단 함수가 행번호만 밀렸다. 효과 변화 없음.",
+      "proposal": {"action": "PORT", "why": "창·프레임 동일. 호출자 프레임 슬롯 4경우가 바뀌어 Caller 를 다시 썼다.", "user_text": ""},
+      "windows": {
+        "extra_c011@0x106a3b1": {"verdict": "EQUIV_FIX", "fix": {"src": {"kind": "caller", "return_off": "0x1b8", "cases": [
+          {"ret_rva": "0xf2110b", "src": {"kind": "caller", "return_off": "0x208", "cases": [
+            {"ret_rva": "0xecb011", "src": "stack:0x1f0"},
+            {"ret_rva": "0xf3683a", "src": "stackmem:0x1b0:0x710"},
+            {"ret_rva": "0x10c1cc6", "src": "stack:0x1f0"}]}},
+          {"ret_rva": "0xf399ba", "src": "stackmem:0x1b0:0x710"},
+          {"ret_rva": "0x1121541", "src": "stackmem:0x1b0:0xa38"},
+          {"ret_rva": "0x103073e", "src": "stack:0x200"},
+          {"ret_rva": "0x103098e", "src": "stack:0x240"}]}}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "kill_bonus_cap": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "판단 함수가 행번호만 밀렸다(SHIFTED +163). 효과 변화 없음.",
+      "proposal": {"action": "PORT", "why": "6창 1:1 동형(rva·win·dyn 추적기 맞음). 클로저 [A1+0] 저장 슬롯만 0x518->0x4f0.", "user_text": ""},
+      "windows": {
+        "extra_c013@0x108af43": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x4f0"}},
+        "extra_c013@0x108affa": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x4f0"}},
+        "extra_c013@0x108b016": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x4f0"}},
+        "extra_c013@0x108b0ec": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x4f0"}},
+        "extra_c013@0x108b156": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x4f0"}},
+        "extra_c013@0x108b21d": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x4f0"}}
+      },
+      "calc_fix": [],
+      "new_paths": [
+        "ret 0xf20f2d: 0xf20c80 이 0x114ce40 을 두 번 부른다(구 0x1021050 은 1번). 클로저 [A1+0]=Player(rsp+0x30=rdi=A3) — Src 가 callee 프레임이라 자동 포함, 추가 작업 없음"
+      ],
+      "new_candidates": []
+    },
+    "basic_trade_hp_divisor": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "행번호만 밀렸다.",
+      "proposal": {"action": "PORT", "why": "창 동일. 추적기 reg:rax 는 피해량 값 — Player 는 [rsp+0x80](쓰기 1건).", "user_text": ""},
+      "windows": {
+        "extra_c019@0x106e99a": {"verdict": "EQUIV_FIX", "fix": {"src": "stack:0x80"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "support_cap_multiplier": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "회복·실드 평가식은 그대로다(아군 대상 계산이 기술 점수 함수 안으로 다시 합쳐졌을 뿐).",
+      "proposal": {"action": "PORT", "why": "창1·2 는 세 항 합이 rsi->r8 로 옮겨 calc 만 기존 heal_r8/shield_r8 로 교체. 창3·4 그대로.", "user_text": ""},
+      "windows": {
+        "extra_c020@0x1084e1a": {"verdict": "EQUIV_FIX", "fix": {"tf": {"calc": "extra_combat::heal_r8"}}},
+        "extra_c020@0x1084e2c": {"verdict": "EQUIV_FIX", "fix": {"tf": {"calc": "extra_combat::shield_r8"}}},
+        "extra_c020@0x1089788": {"verdict": "EQUIV", "fix": {}},
+        "extra_c020@0x108979a": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [
+        {"fn": "heal_rsi", "file": "extra_combat.rs", "old": "heal_rsi: reg(1)+reg(6)*v", "new": "heal_r8(기존): reg(1)+reg(8)*v", "why": "신 창 0x1158a50 lea rcx,[rcx+r8*2] — 합 r8(0x1158a19 lea r8,[r15+rsi]; add r8,rdi). 신 rsi 는 다른 값"},
+        {"fn": "shield_rsi", "file": "extra_combat.rs", "old": "shield_rsi: reg(6)*(v+1)", "new": "shield_r8(기존): reg(8)*(v+1)", "why": "신 창 0x1158a62 lea rcx,[r8+r8*2]"}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "buff_arrival_value_seconds": {
+      "grade": "A",
+      "spec": "MINOR",
+      "spec_note": "기간(초) 창의 뜻은 그대로다. 곱해지는 지원 기술 가치를 만드는 계산(buff_value)이 0.7.2 에서 바뀌어 체감이 조금 다를 수 있다(추정).",
+      "proposal": {"action": "PORT", "why": "추적기 rva·win·src·dyn 전부 맞음. calc rcx(add rcx,rcx 직후) 유효.", "user_text": ""},
+      "windows": {
+        "extra_c021@0x1085466": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "structure_skill_bonus": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "행번호만 밀렸다.",
+      "proposal": {"action": "PORT", "why": "추적기 SAME · src rdi=A5=Player · calc rcx/rdx 유효 · 호출처 1->1.", "user_text": ""},
+      "windows": {
+        "extra_c031@0x105344a": {"verdict": "EQUIV", "fix": {}},
+        "extra_c031@0x10534a2": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "unseen_self_risk_divisor": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "시야 밖일 때 위험을 나누는 계산은 그대로다(창이 합쳐진 함수로 옮겨갔을 뿐).",
+      "proposal": {"action": "PORT", "why": "기술 점수 함수 재구성으로 0x11565f0 의 0x1156e2f 로 이동. 피제수 r12->rdi.", "user_text": ""},
+      "windows": {
+        "extra_c049@0x1094dc8": {"verdict": "MOVED", "fix": {
+          "rva": "0x1156e2f",
+          "win_hex": "48 ba 56 55 55 55 55 55 55 55 48 89 f8 48 f7 ea 48 89 d0 48 c1 e8 3f 48 01 d0",
+          "first_len": 26,
+          "first_asm": "movabs rdx, 0x5555555555555556",
+          "src": "mem:rbp:0x250",
+          "team_chk": null,
+          "dynamic_hex": "48 ba 56 55 55 55 55 55 55 55 48 89 f8 48 f7 ea 48 89 d0 48 c1 e8 3f 48 01 d0 48 8b 44 24 f0",
+          "function": ["0x11565f0", "0x1159a62"],
+          "tf": {"calc": "extra_combat::unseen_risk_divisor"}
+        }}
+      },
+      "calc_fix": [
+        {"fn": "unseen_risk_divisor", "file": "extra_combat.rs", "old": "f.reg(12)", "new": "f.reg(7)", "why": "신 창 0x1156e2f mov rax,rdi · 뒤 0x1156e4b cmovne rax,rdi. 위험값 = 0x1156df8 mov rdi,rax(call 0xefb290). 사용처 1곳"}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "candidate_move_budget_margin": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "행번호만 밀렸다. bombardier 예외도 그대로.",
+      "proposal": {"action": "PORT", "why": "사본 3개 짝을 다시 맞췄다(추적기는 창2·3 을 엉뚱한 사본에 붙임). 창1 은 rcx 판이라 dyn·calc 새로.", "user_text": ""},
+      "windows": {
+        "extra_c051@0xf8972e": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "4c 8d 04 09 48 8b 4c 24 f0 4c 29 c1", "tf": {"calc": "extra_combat::candidate_move_budget_rcx"}}},
+        "extra_c051@0xf89cc2": {"verdict": "EQUIV_FIX", "fix": {"rva": "0xf0557c", "win_hex": "48 8d 0c 00 48 c1 e0 05 48 29 c8", "first_asm": "lea rcx, [rax + rax]"}},
+        "extra_c051@0xf89e6c": {"verdict": "EQUIV_FIX", "fix": {"rva": "0xf0570c"}}
+      },
+      "calc_fix": [
+        {"fn": "candidate_move_budget_rcx", "file": "extra_combat.rs", "old": "(없음)", "new": "신규: Some(f.reg(1)?.wrapping_mul(n(v, 0, 120)? + 2))", "why": "창1 0xf05073 lea r8,[rcx+rcx]; shl rcx,5; sub rcx,r8 — M 이 rcx. 창2·3 은 기존 candidate_move_budget(rax) 그대로"}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "forward_damage_credit_percent": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "전진 후 피해 상쇄 계산은 그대로다(창이 합쳐진 함수로 옮겨갔을 뿐).",
+      "proposal": {"action": "PORT", "why": "0x11565f0 의 0x1157891 로 이동. 현재 위치 피해가 r14->rdi.", "user_text": ""},
+      "windows": {
+        "extra_c052@0x10959df": {"verdict": "MOVED", "fix": {
+          "rva": "0x1157891",
+          "win_hex": "48 d1 ef 31 f6 48 29 f8",
+          "first_len": 3,
+          "first_asm": "shr rdi, 1",
+          "src": "mem:rbp:0x250",
+          "team_chk": null,
+          "dynamic_hex": "48 8b 7c 24 f0",
+          "function": ["0x11565f0", "0x1159a62"],
+          "tf": {"calc": "extra_combat::forward_credit_percent"}
+        }}
+      },
+      "calc_fix": [
+        {"fn": "forward_credit_percent", "file": "extra_combat.rs", "old": "f.reg(14)", "new": "f.reg(7)", "why": "신 창 0x1157891 shr rdi,1 — 현재 위치 피해 = 0x1157861 mov rdi,rax(call 0x112fdc0). 사용처 1곳"}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "battle_move_candidate_penalty": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "두 판단 함수 모두 행번호만 밀렸다.",
+      "proposal": {"action": "PORT", "why": "창1 추적기 그대로. 창2 는 레지스터가 r14/r13 -> r13/r12 로 바뀌어 dyn·calc 수정.", "user_text": ""},
+      "windows": {
+        "extra_c053@0x10b17cb": {"verdict": "EQUIV", "fix": {}},
+        "extra_c053@0xfe0630": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "4c 8b 6c 24 f0"}}
+      },
+      "calc_fix": [
+        {"fn": "move_penalty_result", "file": "extra_combat.rs", "old": "f.reg(13)", "new": "f.reg(12)", "why": "신 창 0x1010b66 lea r13,[r12-6]; test al,al; cmove r13,r12 — 기준 점수 r12, 결과 r13. 사용처 1곳"}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "support_zero_net_penalty": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "-10 감점 판단은 그대로다(아군 쪽은 반환 대신 바로 합산하도록 합쳐졌을 뿐).",
+      "proposal": {"action": "PORT", "why": "창1 은 [rbp+0x500] 이 창 직전에 덮이므로 [rbp+0x250]. 창2 그대로.", "user_text": ""},
+      "windows": {
+        "extra_n005@0x1085c53": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x250"}},
+        "extra_n005@0x108a066": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "enemy_base_allies_radius": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "판단 그대로(행번호만 밀림). 모드 콜백이 읽는 캐시 위치만 바뀌었다.",
+      "proposal": {"action": "PORT", "why": "창·Caller 추적기 맞음. ops_gather_square 의 캐시 변위만 −0x28.", "user_text": ""},
+      "windows": {
+        "extra_n007@0xf2f15d": {"verdict": "EQUIV_FIX", "fix": {}}
+      },
+      "calc_fix": [
+        {"fn": "ops_gather_square", "file": "verified_candidates.rs", "old": "Mem(2,0x288+slot) / Mem(2,0x238+slot)", "new": "Mem(2,0x260+slot) / Mem(2,0x210+slot)", "why": "캐시 배열 −0x28(헬퍼 0xe7b200 · owner 0xfbbe05 mov r10,[rdx+r9*8+0x210]). 그대로면 Player 대조가 항상 실패해 원본으로 돈다"}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "tracked_target_chase_bonus": {
+      "grade": "A",
+      "spec": "NONE",
+      "spec_note": "행번호만 밀렸다.",
+      "proposal": {"action": "PORT", "why": "추적기 전 필드 맞음 · calc r12 유효.", "user_text": ""},
+      "windows": {
+        "extra_n009@0x10b2318": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "champion_ultimate_waste_penalty": {
+      "grade": "A",
+      "spec": "NONE",
+      "spec_note": "조건 5개 그대로, 행번호만 밀렸다.",
+      "proposal": {"action": "PORT", "why": "추적기 전 필드 맞음.", "user_text": ""},
+      "windows": {
+        "extra_n010@0x10b2b6e": {"verdict": "EQUIV", "fix": {}},
+        "extra_n010@0x10b2b61": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "skill_arrival_prediction_margin": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "변화 없음.",
+      "proposal": {"action": "PORT", "why": "추적기 SAME · src rdi=A3 · team mem:rsp:0x60=[A3+0x820] flow 확인.", "user_text": ""},
+      "windows": {
+        "extra_n012@0x106ef93": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    }
+  }
+}

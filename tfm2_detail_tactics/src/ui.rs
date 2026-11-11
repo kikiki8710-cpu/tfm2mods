@@ -56,7 +56,7 @@ fn centered_dropdown(src:String,w:usize,kit_text_inset:usize)->String{
 fn source()->String{
     let mut s=String::from("dt_modal:color { width:1740px; height:970px; anchor_x:0.5; pivot_x:0.5; anchor_y:0.5; pivot_y:0.5; visible:false; color:#161721ff; rounding:Uniform{rounding:12;}\n");
     s+=&label("title",30,18,1450,42,26,"상세전술");
-    s+=&label("hint",30,63,1680,30,16,"종류별 탭에서 전술을 고르고 풀다운으로 설정합니다. 확인하면 내 팀에 적용하고 이 세이브에 저장합니다.");
+    s+=&label("hint",30,63,1680,30,16,"종류별 탭에서 전술을 고르고 풀다운으로 설정합니다. 확인하면 내 팀에 적용합니다. 게임을 저장(저장하기·자동 저장)해야 다음 실행에도 남습니다.");
     s+=&label("status",30,95,1680,28,15,"");
     for(tab,category)in CATEGORIES.iter().enumerate(){
         s+=&button(&format!("tab{tab}"),30+tab*(1680/CATEGORIES.len()),132,1680/CATEGORIES.len()-10,category.name);

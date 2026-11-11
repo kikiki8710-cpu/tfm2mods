@@ -1,0 +1,191 @@
+{
+  "tactics": {
+    "minion_damage_ratio": {
+      "grade": "AUTO",
+      "spec": "NONE",
+      "spec_note": "미니언 피해를 위험으로 치는 표(49/29/17/10)와 계산은 그대로입니다. 호출한 쪽 함수가 커졌지만 판단 주체를 읽는 자리는 같습니다.",
+      "proposal": {"action": "PORT", "why": "창 함수 0x1130a70 명령열 동일. 호출자 0x11565f0(sub 0x5a8) 의 [rbp+0x250] <- A3(Player) — fl.py 0x1157891 · 쓰기 1156696 mov [rbp+0x250],r8 1회. 추적기 src mem:rbp:0x250 그대로 맞음.", "user_text": ""},
+      "windows": {
+        "minion_damage_ratio_49@0x11150ac": {"verdict": "EQUIV", "fix": {}},
+        "minion_damage_ratio_49@0x11150b8": {"verdict": "EQUIV", "fix": {}},
+        "minion_damage_ratio_49@0x11150c4": {"verdict": "EQUIV", "fix": {}},
+        "minion_damage_ratio_49@0x11150d0": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "support_minion_block": {
+      "grade": "A",
+      "spec": "MINOR",
+      "spec_note": "서폿이 라인 미니언 처리 상태에 들어가지 않게 막는 판단은 그대로입니다. 막지 않을 때 따르는 처리 함수는 라인 하나의 미니언 목록만 보도록 바뀌었습니다(추정).",
+      "proposal": {"action": "PORT", "why": "1133942 cmp rdx,4 ; je 즉시 거부 동일. rsi=[rbp+0x1d0]=A5 Player([rsi+0x8b0]/[rsi+0x820]). 새 6번째 인자(1133926 movzx r10d,[rbp+0x1d8])로 후보 목록 1개 선택 · 호출처 4→2 는 거부 뒤의 일.", "user_text": ""},
+      "windows": {
+        "support_minion_block_role_4@0x102b8ea": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "bot_duo_partner": {
+      "grade": "B",
+      "spec": "NONE",
+      "spec_note": "원딜·서폿 짝 확인은 그대로입니다. 다만 게임의 선수 캐시 배치가 바뀌어, 모드의 캐시 읽기 상수를 고치지 않으면 내 팀에 적용되지 않습니다.",
+      "proposal": {"action": "PORT", "why": "창 f867bb ja 와 cache_slot 레지스터(r15 캐시·rsi 팀·r12 포지션·r13 엔티티) 동일. 단 캐시 챔프 배열 +0x238→+0x210(f867dc), Player 배열 +0x288→+0x260(e9ad8e·1031c59) — micro.rs CacheSlot 상수 수정 전제(전역·G1 과 겹침).", "user_text": ""},
+      "windows": {
+        "bot_duo_partner_required@0x10e686b": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [
+        {"fn": "Frame::src_depth (Src::CacheSlot · Src::CachePlayer)", "file": "micro.rs", "old": "at(cache,0x238+slot) / at(cache,0x288+slot)", "new": "at(cache,0x210+slot) / at(cache,0x260+slot)", "why": "0.7.2 캐시 배열 −0x28 이동: f867dc mov rax,[rax+r13*8+0x210](구 10e688c +0x238) · 113396f [..+rdx*8+0x210](구 102b910 +0x238) · e9ad76 add rcx,0x210 ; e9ad8e mov rax,[rax+r9*8+0x260] · 1031c59 lea r10,[r8+0x260] → [rcx+0x820]/[rcx+0x8b0] 검사. 그대로면 entity 대조가 매번 실패해 BAD_SUBJECT(전역 수정 — G1 판단 우선)."}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "tower_chase_own_hp": {
+      "grade": "A",
+      "spec": "MINOR",
+      "spec_note": "타워 아래 추격의 내 체력 문턱 25/35/45 는 그대로입니다. 25% 조건과 짝을 이루는 '처치 가능' 판정이 보호막과 스킬 연계까지 보는 새 계산으로 바뀌었습니다.",
+      "proposal": {"action": "PORT", "why": "창 3개 동일(10eeb38/4b/5c), src stack:0x40 = A2 Player(flow · 10ee54a). goodA 짝 조건이 '예상 피해(0xf70c00) ≥ 대상 HP' → 새 fight_model 함수 0x10dd480 반환==1 로 교체(10eeaef cmp r8,1 ; sete). 문턱 값의 뜻은 같음. 0.7.1 targets 의 'goodA=수적 우위' 는 오기(구에서도 처치 가능 ∧ HP≥25).", "user_text": ""},
+      "windows": {
+        "tower_chase_own_hp_35@0xf76445": {"verdict": "EQUIV", "fix": {}},
+        "tower_chase_own_hp_35@0xf76458": {"verdict": "EQUIV", "fix": {}},
+        "tower_chase_own_hp_35@0xf76469": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "base_defense_hold_retreat_hp": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "넥서스 방어 중 HP 45% 이하 후퇴 판단은 그대로입니다. 후퇴를 막는 상위 조건이 새 위협 판정으로 다시 짜여, 이 문턱이 쓰이는 빈도가 달라질 수 있습니다(추정).",
+      "proposal": {"action": "PORT", "why": "11c9e1d cmp r13,0x2d ; jbe 11ca241(후퇴 후보) — 구 ja 와 분기만 뒤집힌 같은 판단. src mem:rbp:0x2d0=A5 맞음. team 은 r15 가 아니라 [rbp+0x250](11c9acf · flow [rbp+0x250] <- [A5+820], r15 <- [A6+0] 캐시). 후퇴 금지 r12b = 0xfcccf0 ∨ 게이트 비트로 재구성(구 ebx&0x10001).", "user_text": ""},
+      "windows": {
+        "base_defense_hold_retreat_hp_45@0xfa90bc": {"verdict": "EQUIV_FIX", "fix": {"team_chk": "mem:rbp:0x250"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "base_defense_hold_nexus_hp": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "넥서스 HP 50% 이하일 때 위협을 확인하는 판단은 그대로입니다. 이 판단에 들어가는 상위 조건이 다시 짜여 쓰이는 빈도가 달라질 수 있습니다(추정).",
+      "proposal": {"action": "PORT", "why": "11c9de2 cmp rax,0x32 ; ja / 11c9e07 cmp rax,0x32 ; jbe 11c9de8(call 0xfcf6e0 위협 확인) 동일. rax = 넥서스 [r15+팀*8+0x1a0] HP%. team_chk reg:r15 는 캐시 포인터 → mem:rbp:0x250.", "user_text": ""},
+      "windows": {
+        "base_defense_hold_nexus_hp_50@0xfa907e": {"verdict": "EQUIV_FIX", "fix": {"team_chk": "mem:rbp:0x250"}},
+        "base_defense_hold_nexus_hp_50@0xfa90a6": {"verdict": "EQUIV_FIX", "fix": {"team_chk": "mem:rbp:0x250"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "base_defense_hold_dmg_ratio": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "기지 방어 중 피해율 문턱 49% 와 뒤따르는 단계표(65/29·40/17·25/10)는 그대로입니다. 상위 조건 재구성으로 쓰이는 빈도가 달라질 수 있습니다(추정).",
+      "proposal": {"action": "PORT", "why": "11c9d56 cmp rax,0x31 ; ja 11c9da2 · 뒤 단계표 동일. team_chk reg:r15 → mem:rbp:0x250.", "user_text": ""},
+      "windows": {
+        "base_defense_hold_dmg_ratio_49@0xfa9000": {"verdict": "EQUIV_FIX", "fix": {"team_chk": "mem:rbp:0x250"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "line_defense_approval_profile": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "승인 기준 35·25·10 은 그대로입니다. 교전 예측 함수가 다시 크게 고쳐져 판단에 들어가는 지연값이 달라질 수 있습니다(추정). 주체 슬롯이 옮겨져 값을 고치지 않으면 내 팀에 적용되지 않습니다.",
+      "proposal": {"action": "PORT", "why": "창 3개 동일(ef7507/ef7525/ef759b). 프레임 0x278→0x238 로 Player 슬롯이 [rbp+0x160](ef73c8 mov [rbp+0x160],r14 · flow 3창 <- A4). 추적기 0x198 은 r10/rcx/rdx/r9 가 쓰이는 다른 지역변수.", "user_text": ""},
+      "windows": {
+        "extra_c016@0x10209de": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x160"}},
+        "extra_c016@0x10209f9": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x160"}},
+        "extra_c016@0x1020a75": {"verdict": "EQUIV_FIX", "fix": {"src": "mem:rbp:0x160"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "ambush_engage_radius": {
+      "grade": "A",
+      "spec": "NONE",
+      "spec_note": "매복 교전 대상 반경 판단은 그대로입니다. 함수 안 코드 배치만 바뀌었습니다.",
+      "proposal": {"action": "PORT", "why": "11ccd71 movabs rdx,0xe8d4a5101 ; cmp ; jb · ee1a8c movabs rdx,0xe8d4a5100 ; cmp ; ja 동일. src mem:rbp:25a0 = A5(flow · chkstk 0x25b8), stack:50 = 클로저+0x28 = [rbp+0x1258] <- A5(fl.py 0x11cce52). Location IDENTICAL.", "user_text": ""},
+      "windows": {
+        "extra_c027@0x100bda3": {"verdict": "EQUIV", "fix": {}},
+        "extra_c027@0xf1128c": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "defense_leave_hp": {
+      "grade": "A",
+      "spec": "NONE",
+      "spec_note": "방어 계획 이탈 체력 판단(위협 21%·일반 31%)은 그대로입니다. 적용 범위도 0.7.1 과 같이 한쪽 호출에만 걸립니다.",
+      "proposal": {"action": "PORT", "why": "fcb8fd cmp r15,0x15 / fcb908 cmp r15,0x1f 동일. Caller return_off 0x48(5 push + sub 0x20) · ret 0xfbb36a(fbb365 call 0xfcb7d0) · src reg:r14 <- A1(fcb7f2). 추적기 제안 그대로.", "user_text": ""},
+      "windows": {
+        "extra_c030@0xf3bc79": {"verdict": "EQUIV", "fix": {}},
+        "extra_c030@0xf3bc84": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "lane_attack_move_allowance": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "자기 이동 예산에 곱하는 접근 여유(기본 30)는 세 곳 모두 그대로입니다. 그 여유를 더하는 기준 사거리 계산이 새 공용 함수로 바뀌어 일부 챔피언·스킬에서 기준 사거리가 달라질 수 있습니다(추정).",
+      "proposal": {"action": "PORT", "why": "R=[엔티티+0x638]×30 창 3개 유지. b(line_defense)·c(라인 대기 헬퍼)는 나머지 사거리 항이 새 헬퍼 0xef4280/0x11b5730(rax 반환)로 아웃라인돼 R 레지스터가 rbx/r14 로 바뀜 → dyn·calc 둘 다 고쳐야 함.", "user_text": ""},
+      "windows": {
+        "extra_c054@0x102c061": {"verdict": "EQUIV", "fix": {}},
+        "extra_c054@0x1054cba": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "48 8d 0c 1b 41 53 4c 8b 5c 24 f8 4c 89 db 41 5b 48 29 cb"}},
+        "extra_c054@0x103029b": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "4b 8d 0c 36 41 53 4c 8b 5c 24 f8 4d 89 de 41 5b 49 29 ce"}}
+      },
+      "calc_fix": [
+        {"fn": "lane_range_b", "file": "extra_lane.rs", "old": "f.reg(12)", "new": "f.reg(3)", "why": "창 0xf36c5f 의 R 레지스터가 r12 → rbx: f36bf9 mov rbx,[r12+0x638] … f36c34 call 0xef4280 … f36c5f lea rcx,[rbx+rbx] ; shl rbx,5 ; sub rbx,rcx ; add rax,rbx. 신 창 시점 r12 = 자기 엔티티 포인터."},
+        {"fn": "lane_range_c", "file": "extra_lane.rs", "old": "f.reg(7)", "new": "f.reg(14)", "why": "창 0x11b9281 의 R 레지스터가 rdi → r14: 11b9216 mov r14,[r15+0x638] … 11b924f call 0x11b5730 … 11b9281 lea rcx,[r14+r14] ; shl r14,5 ; sub r14,rcx ; add rax,r14. 신 rdi = [r12+0x660](11b9233, 대상 y좌표)."}
+      ],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "lane_defense_support_margin": {
+      "grade": "A",
+      "spec": "MINOR",
+      "spec_note": "지원 인원 여유 판단과 적용 범위(라인 방어 호출만)는 그대로입니다. 같은 조건에 함께 쓰이는 교전 예측 값은 게임 수정의 영향을 받을 수 있습니다(추정).",
+      "proposal": {"action": "PORT", "why": "1186bf3 inc rax ; cmp rbx,rax ; seta sil 동일. Caller return_off 0x2d8(8 push + sub 0x298) · ret 0xf381ac · r15 <- A4(1186848 mov r15,r9) · 호출부 r9 <- A5 Player. 구조체 +0x20 플래그는 line_defense 만 1(f3815d). 추적기 제안 그대로.", "user_text": ""},
+      "windows": {
+        "extra_c055@0xff8677": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "lane_wait_front_minion_distance": {
+      "grade": "B",
+      "spec": "MINOR",
+      "spec_note": "선두 아군 미니언 기준 대기 거리(180000) 판단은 그대로입니다. 뒤로 물러날 거리를 재는 경로 길이 계산이 세분화되어, 이미 지나친 경유점을 빼고 재는 식으로 바뀌었습니다(추정).",
+      "proposal": {"action": "PORT", "why": "창 1(11ce530 movabs rcx,0x78b30c401) 동일. 창 2 는 11cebf8 sub r8,0x2bf20 ; cmovae r15,r8 로 값 레지스터 rcx→r8 — 추적기 dyn(sub rcx,r11) 오답, 자동 재생성은 sub 미지원. src mem:rbp:0x170 = A5 맞음.", "user_text": ""},
+      "windows": {
+        "extra_d002@0x105b27d": {"verdict": "EQUIV", "fix": {}},
+        "extra_d002@0x105b725": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 29 d8 41 5b"}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    },
+    "ambush_wait_accept_radius": {
+      "grade": "A",
+      "spec": "NONE",
+      "spec_note": "매복 대기 인정 반경 판단은 그대로입니다. 함수 안 코드 배치만 바뀌었습니다.",
+      "proposal": {"action": "PORT", "why": "11cc6cf movabs rcx,0x2540be400 ; jbe 11cc839 · 11ccae5 movabs rax,… ; jbe 11ccb7e 동일. 초과/통과 뒤 [state+9]=0/1·test dil,1 합류도 같음(블록 재배치). src mem:rbp:25a0 = A5.", "user_text": ""},
+      "windows": {
+        "extra_n008@0x100b3ff": {"verdict": "EQUIV", "fix": {}},
+        "extra_n008@0x100b5d5": {"verdict": "EQUIV", "fix": {}}
+      },
+      "calc_fix": [],
+      "new_paths": [],
+      "new_candidates": []
+    }
+  }
+}

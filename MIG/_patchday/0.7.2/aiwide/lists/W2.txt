@@ -1,0 +1,113 @@
+EDITED 0xedd140->0x106f840 plan\big_plan\battle.rs 3908B->3455B jcc 59->80 | imm cmp 0x1e 1->0; imm cmp 0x32 0->1; imm cmp 0x4 1->0; imm cmp 0x5 0->1; imm cmp 0x5f5e1001 1->0; imm cmp 0xf 1->0; imm op 0x10 8->0; imm op 0x1010 0->2; imm op 0x105 0->1; imm op 0x17 0->1; imm op 0x210 0->1; imm op 0x2710 1->0; imm op 0x3 0->1; imm op 0x4 0->1; imm op 0x47a 1->0; imm op 0x5851f42
+EDITED 0xee1810->0x106b890 plan\big_plan\battle.rs 15653B->15856B jcc 320->292 | imm cmp 0x28 0->1; imm cmp 0x32 1->0; imm cmp 0x4 5->6; imm cmp 0x5 8->4; imm cmp 0x6 1->3; imm cmp 0x64 1->0; imm cmp 0x8 0->1; imm cmp 0x9 0->1; imm cmp 0xa 0->1; imm cmp 0xc34f 1->0; imm op 0x4 2->0; imm op 0x5 1->0; imm op 0x10 4->0; imm op 0x32 3->0; imm op 0x3e 1->0; imm op 0x64 3->0; imm op 0
+EDITED 0xee6880->0x104e5b0 plan\big_plan\battle.rs 1721B->303B jcc 82->8 | imm cmp 0x3 2->0; imm cmp 0x4 2->0; imm cmp 0x5 6->2; imm op 0x17 1->0; imm op 0x238 1->0; imm op 0x3 1->0; imm op 0x5 0->1; imm op 0x8 5->1; vcall- +40 10->0; calls {2031: 1, 707: 5}->{484: 1} 0->0
+EDITED 0xf15990->0xee61b0 finish_race.rs 488B->488B jcc 8->8 | 
+EDITED 0xf16070->0xee7140 finish_race.rs 660B->714B jcc 18->22 | imm cmp 0x4 0->4
+EDITED 0xf16310->0xee7410 finish_race.rs 661B->661B jcc 18->18 | 
+EDITED 0xf39260->0xfc9010 plan\big_plan\defense_nexus.rs 7077B->7667B jcc 125->115 | imm cmp 0x100 2->1; imm cmp 0x3 3->0; imm cmp 0x4 0->1; imm op 0x8 6->0; imm op 0x10 0->3; imm op 0x64 0->6; imm op 0x210 0->2; imm op 0x1010 0->1; imm op 0x28f5c28f5c28f5c3 0->6; imm op 0xfffffffffffffff0 0->3; layout  0->0; vcall+ +220 0->3; vcall+ +228 0->3; calls {371: 3, 432: 2}->{887: 2} 0->0
+EDITED 0xf3ae10->0xfc79f0 plan\big_plan\defense_nexus.rs 762B->864B jcc 24->13 | imm cmp 0x5 2->0; imm cmp 0x6 1->0; imm cmp 0x8 3->0; imm op 0x170 1->0; imm op 0x185 1->0; imm op 0x1ab 1->0; imm op 0x1b1 1->0; imm op 0x28f5c28f5c28f5c3 0->4; imm op 0x30 1->0; imm op 0x64 0->4; imm op 0x8 0->1; imm op 0x90 1->0; imm op 0xa 2->0; imm op 0xd0 1->0; imm op 0xfffffffffffffff0 0->1; 
+EDITED 0xf3b110->0xfcae60 plan\big_plan\defense_nexus.rs 2514B->2306B jcc 77->59 | imm cmp 0x3 3->0; imm op 0x8 6->0; imm op 0x80 0->1; imm op 0xc0 0->1; layout  0->0; calls {}->{64: 3, 424: 1} 0->0
+EDITED 0xf3d000->0xfccec0 plan\big_plan\defense_nexus.rs 235B->622B jcc 11->24 | imm cmp 0x3 1->2; imm op 0x140 0->1; imm op 0x8 1->3; vcall+ +40 0->1; calls {32: 1}->{64: 1} 0->0
+EDITED 0xf3d0f0->0xfc6f80 plan\big_plan\defense_nexus.rs 1062B->2468B jcc 19->57 | imm cmp 0x3 0->1; imm cmp 0x5 0->2; imm cmp 0x6 0->1; imm cmp 0x8 0->3; imm op 0x4 0->1; imm op 0x8 0->3; imm op 0xa 0->2; imm op 0x30 0->1; imm op 0x80 0->1; imm op 0xc0 0->1; imm op 0x140 0->1; imm op 0x185 0->1; imm op 0x1ab 0->1; imm op 0x1b1 0->1; imm op 0x7fffffffffffffff 0->1; layout  0->0; c
+EDITED 0xf60250->0x10cc4f0 plan\big_plan\fight_model.rs 38440B->38476B jcc 906->909 | imm cmp 0x4 45->48; imm op 0x10 2->0; imm op 0x7e 1->0; imm op 0xccd 1->0; imm op 0x53d1ac100 1->0; imm op 0xbf58476d1ce4e5b9 1->0; imm op 0xfffffffffffffff0 2->0; imm op 0x658 0->1; imm op 0x660 0->3; imm op 0xcccd 0->1; imm op 0xfffffffe 0->1; layout  0->0; calls {1832: 2, 11367: 2, 948: 2}->{1388
+EDITED 0xf6e650->0x10e6fa0 plan\big_plan\fight_model.rs 4906B->5213B jcc 85->97 | imm cmp 0x3e8 0->1; imm op 0x1010 0->1; imm op 0x3f 1->0; imm op 0x4000000000000 0->1; imm op 0x78 0->1; imm op 0x8 5->6; vcall+ +168 0->1; vcall+ +28 0->1; vcall+ +f8 0->1; calls {1005: 1}->{64: 1, -1: 1, 408: 1} 0->0
+EDITED 0xf77870->0x10f1b40 plan\big_plan\fight_model.rs 595B->606B jcc 14->14 | 
+EDITED 0xf7c420->0x1016620 finish_race.rs 382B->382B jcc 8->8 | 
+EDITED 0xf7c5a0->0x10168e0 finish_race.rs 1144B->940B jcc 27->23 | imm op 0x10 1->0; imm op 0xfffffffffffffff0 1->0
+EDITED 0xf7ca20->0xeed250 finish_race.rs 2086B->320B jcc 41->11 | imm cmp 0x1000000 1->0; imm cmp 0x28 1->0; imm cmp 0x3 3->0; imm cmp 0x4 3->0; imm cmp 0x5 1->0; imm cmp 0xffffff 1->0; imm op 0x10 6->1; imm op 0x1000 1->0; imm op 0x18 0->1; imm op 0x28f5c28f5c28f5c3 2->0; imm op 0x3 2->1; imm op 0x38 0->1; imm op 0x3e8 2->0; imm op 0x4 3->0; imm op 0x64 6->0; imm
+EDITED 0xf887f0->0xf0e5f0 fight_check.rs 819B->948B jcc 15->25 | imm cmp 0x3 0->2; imm cmp 0x5 0->1; imm cmp 0xa 1->0; imm op 0xa 1->0; imm op 0x3 0->1; imm op 0x10 0->1; imm op 0x488 0->1; imm op 0x4c0 0->1; imm op 0x9e3779b97f4a7c15 0->1; imm op 0xfffffffffffffff0 0->1; layout  0->0; vcall+ +b8 0->1; calls {364: 1, 64: 1, 929: 2}->{206: 1, 402: 1, 50: 1, 3266: 
+EDITED 0xf8af90->0xf07fa0 fight_check.rs 7882B->11367B jcc 164->210 | imm cmp 0x3 4->13; imm cmp 0x5 2->7; imm cmp 0xf 3->1; imm op 0x10 10->11; imm op 0x210 0->1; imm op 0x238 3->0; imm op 0x28f5c28f5c28f5c3 6->4; imm op 0x3 11->22; imm op 0x4 2->0; imm op 0x5a0 0->1; imm op 0xfffffffffffffff0 8->32; vcall- +100 5->0; vcall+ +e0 0->5; calls {268: 1, 1378: 1, 591: 1, 
+EDITED 0xf8cef0->0xf0ac60 fight_check.rs 5650B->6499B jcc 108->121 | imm cmp 0x5 1->2; imm op 0x28f5c28f5c28f5c3 3->4; imm op 0x3 3->7; imm op 0x4 3->5; imm op 0x598 0->1; imm op 0x5a0 0->1; imm op 0xfffffffffffffff0 2->8; calls {47: 1, 3373: 2}->{1215: 3, 1076: 2} 0->0
+EDITED 0xf8e820->0xf0c8a0 fight_check.rs 1170B->934B jcc 22->32 | imm cmp 0x3 2->1; imm cmp 0x4 1->0; imm cmp 0x5 2->1; imm op 0x210 0->1; imm op 0x3 1->2; imm op 0x4 0->1; imm op 0x588 1->0; imm op 0x590 1->0; imm op 0x598 1->0; imm op 0x5a0 1->0; imm op 0x64 6->0; vcall- +90 3->0; vcall- +a8 1->0; calls {341: 2}->{64: 2, 650: 1, 2011: 1, 1200: 2} 0->0
+EDITED 0xf91c70->0xf101e0 fight_check.rs 3515B->3590B jcc 81->81 | imm op 0x10 2->0; imm op 0x100 0->1; imm op 0x1090 2->0; imm op 0x130 1->0; imm op 0x350 2->0; imm op 0x53d1ac101 2->3; imm op 0x8 11->10; imm op 0xfffffffffffffff0 2->0; vcall- +58 2->0; calls {638: 2}->{591: 2, 1563: 4} 0->0
+EDITED 0xf93140->0xf11700 fight_check.rs 2737B->2874B jcc 51->53 | imm cmp 0x40 1->0; imm cmp 0x400 0->1; imm op 0x40 2->1; imm op 0x400 0->1; imm op 0x4000000000000 0->1; calls {749: 1}->{432: 1} 0->0
+EDITED 0xf93e00->0xf12440 fight_check.rs 12315B->16310B jcc 280->370 | imm cmp 0x10000 0->1; imm cmp 0x1000000 1->2; imm cmp 0x3 3->4; imm cmp 0x5 2->3; imm cmp 0x7f 9->10; imm cmp 0x8 1->2; imm cmp 0x9 0->1; imm cmp 0xa 0->1; imm cmp 0xf 6->10; x a7549823741630c019d922071c896c90 0->1; imm op 0x10 2->0; imm op 0x350 1->0; imm op 0x1090 1->0; imm op 0x20c49ba5e353f7cf 3
+EDITED 0xf990e0->0xf18680 fight_check.rs 751B->769B jcc 15->15 | layout  0->0
+EDITED 0xf9c1b0->0x101d560 finish_race.rs 2488B->2612B jcc 48->52 | imm cmp 0xf 0->1; imm op 0x210 0->1; imm op 0x8000000000000 0->1; layout  0->0; calls {157: 1}->{1263: 1, -1: 1} 0->0
+EDITED 0xf9cbf0->0x101e020 finish_race.rs 28298B->42917B jcc 570->916 | imm cmp 0x15 3->4; imm cmp 0x1d 22->26; imm cmp 0x2710 0->2; imm cmp 0x3 12->33; imm cmp 0x4 10->28; imm cmp 0x40 0->2; imm cmp 0x5 2->8; imm cmp 0x50 0->2; imm cmp 0x60 0->1; imm cmp 0x8 5->9; imm cmp 0x9 0->1; imm op 0x100 3->0; imm op 0x260 1->0; imm op 0x1028 1->0; imm op 0x3 0->10; imm op 0x4 0
+EDITED 0x111ee00->0x108c840 finish_race.rs 256B->260B jcc 4->4 | imm op 0x38 0->1; imm op 0x70 0->1
+EDITED 0x1122bd0->0x10a89d0 finish_race.rs 970B->688B jcc 7->8 | imm op 0xa08 0->1; calls {}->{64: 1} 0->0
+EDITED 0x1122fc0->0x10a8ca0 finish_race.rs 243B->317B jcc 6->8 | imm cmp 0x1f 0->1; imm cmp 0x20 1->0; imm op 0xa08 0->1; calls {}->{64: 1} 0->0
+EDITED 0x114d650->0x10f18e0 plan\big_plan\fight_model.rs 672B->593B jcc 15->15 | imm cmp 0x4 2->0; imm op 0x238 1->0; imm op 0x35a4e9000 1->0; imm op 0x4 2->0; imm op 0x7530 0->1; imm op 0x868 1->0; calls {523: 1, 64: 1}->{2338: 2, 870: 1} 0->0
+SHIFTED 0xec6fd0->0x104eee0 plan\big_plan\battle.rs 2209B->2216B jcc 69->69 | imm op 0xea600 1->0; layout  0->0
+IDENTICAL 0xecabb0->0x1051ec0 plan\big_plan\single_battle.rs 13405B->13400B jcc 260->255 | imm op 0x4 1->0; imm op 0x5 1->0; imm op 0xffff00 1->0; layout  0->0; calls {849: 1}->{} 0->0
+SHIFTED 0xed9ec0->0x1064000 plan\big_plan\battle.rs 960B->970B jcc 24->25 | offset-shift  0->0
+SHIFTED 0xedb270->0x10653e0 plan\big_plan\battle.rs 1558B->1581B jcc 27->27 | layout  0->0; calls {303: 1}->{2031: 1} 0->0; offset-shift  0->0
+SHIFTED 0xf36c60->0xfc5a20 plan\big_plan\defense_nexus.rs 4190B->4779B jcc 114->128 | imm op 0x488 1->0; imm op 0x10 0->4; imm op 0x6c0 0->2; imm op 0x5851f42d4c957f2d 0->1; imm op 0xffffffffffff9400 0->1; imm op 0xfffffffffffff948 0->1; imm op 0xfffffffffffffff0 0->1; layout  0->0; calls {591: 1, 465: 1}->{638: 1} 0->0
+SHIFTED 0xf3bcc0->0xfcb9a0 plan\big_plan\defense_nexus.rs 2777B->2777B jcc 66->66 | calls {591: 4}->{112: 4} 0->0
+SHIFTED 0xf3e180->0xfcdd20 plan\big_plan\defense_nexus.rs 433B->482B jcc 12->13 | calls {239: 2}->{341: 2} 0->0
+IDENTICAL 0xf463d0->0x10c2650 plan\big_plan\fight_model.rs 1784B->1800B jcc 41->41 | calls {11367: 2}->{1388: 2} 0->0
+SHIFTED 0xf4bc20->0xec5540 plan\big_plan\death_battle.rs 16736B->17258B jcc 282->267 | imm cmp 0x64 0->2; imm op 0x1a0 1->0; imm op 0x1d0 1->0; imm op 0x20c49ba5e353f7cf 0->1; imm op 0x210 0->1; imm op 0x300 0->1; imm op 0x384 0->1; imm op 0x3e8 0->2; imm op 0x4 6->5; imm op 0x64 5->6; imm op 0xffff00 1->0; vcall- +40 1->0; calls {849: 1, 910: 1, 497: 1, -1: 5}->{-1: 5, 89: 1, 1183: 1
+SHIFTED 0xf5ff80->0x10cacd0 plan\big_plan\fight_model.rs 715B->707B jcc 14->15 | imm op 0x11 0->1
+SHIFTED 0xf6bf60->0x10dc8a0 plan\big_plan\fight_model.rs 1414B->1328B jcc 28->28 | imm op 0x8 1->0; layout  0->0
+SHIFTED 0xf6cba0->0x10de020 plan\big_plan\fight_model.rs 1068B->970B jcc 22->26 | imm cmp 0x5 3->1; imm op 0x238 1->0; imm op 0x3 1->3; imm op 0x4 1->3; imm op 0x9502f9000 4->2; imm op 0x9502f9001 1->4; calls {}->{870: 10} 0->0
+SHIFTED 0xf6df00->0x10e6820 plan\big_plan\fight_model.rs 625B->641B jcc 14->15 | 
+SHIFTED 0xf75b80->0x10ee2f0 plan\big_plan\fight_model.rs 2471B->2503B jcc 39->39 | layout  0->0; calls {957: 1, 749: 2}->{749: 2, 2973: 1} 0->0
+SHIFTED 0xf7bf20->0xef3390 fight_check.rs 929B->929B jcc 14->14 | vcall- +60 2->0; vcall+ +70 0->2
+SHIFTED 0xf89270->0xf04e40 fight_check.rs 3826B->2905B jcc 68->58 | imm op 0xa 1->0; imm op 0xb 1->0; imm op 0x10 4->0; imm op 0x28 1->0; imm op 0x64 4->0; imm op 0x4c0 1->0; imm op 0x28f5c28f5c28f5c3 4->0; imm op 0xfffffffffffffff0 5->0; imm op 0xd 0->1; imm op 0xe 0->1; imm op 0xf0 0->2; layout  0->0; vcall- +210 2->0; vcall- +218 2->0; calls {638: 1}->{591: 1, 11
+SHIFTED 0xf96fc0->0xf167d0 fight_check.rs 2705B->2035B jcc 41->35 | imm op 0xb 1->0; imm op 0xc 1->0; imm op 0x10 3->0; imm op 0x64 4->0; imm op 0x28f5c28f5c28f5c3 4->0; imm op 0xfffffffffffffff0 4->0; imm op 0xd 0->1; imm op 0xe 0->1; imm op 0xf0 0->2; layout  0->0; vcall- +210 2->0; vcall- +218 2->0; calls {}->{1145: 2} 0->0
+IDENTICAL 0x10ee730->0x10b7ff0 plan\big_plan\single_line.rs 5942B->5680B jcc 162->163 | imm cmp 0x3 4->5; imm cmp 0x5 1->2; imm op 0x10 4->0; imm op 0x50 4->0; imm op 0x1d8 1->0; imm op 0x1e8 1->0; imm op 0xfffffffffffffff0 4->0; imm op 0xf0 0->3; imm op 0x1b0 0->1; imm op 0x1c0 0->1; layout  0->0; layout? 0x28 0->0
+SHIFTED 0x111ec90->0x108c6d0 finish_race.rs 310B->318B jcc 9->9 | imm op 0x38 0->1; imm op 0x70 0->1
+SHIFTED 0x1120eb0->0x10a5cf0 plan\big_plan\fight_model.rs 469B->481B jcc 15->15 | imm op 0x3f 1->0
+SHIFTED 0x1121b00->0x1095ac0 fight_check.rs 562B->565B jcc 23->23 | imm cmp 0x3f 1->0; imm cmp 0x3ff 0->1; imm op 0x40 3->2; imm op 0x400 0->1
+SHIFTED 0x1122430->0x10a8110 fight_check.rs 805B->1103B jcc 18->18 | imm op 0x28 1->0; calls {359: 1}->{481: 2} 0->0
+SHIFTED 0x1151700->0xf91880 plan\big_plan\fight_model.rs 605B->702B jcc 14->16 | layout  0->0; calls {}->{870: 1} 0->0
+SHIFTED 0x1151eb0->0xf91b90 plan\big_plan\battle.rs 665B->743B jcc 16->18 | layout  0->0; calls {}->{870: 1} 0->0
+SHIFTED 0x115d360->0xfabe90 finish_race.rs 264B->440B jcc 8->11 | imm cmp 0x15 0->1; imm op 0x8 1->2; calls {}->{511: 1, 314: 1} 0->0
+SHIFTED 0x115dcb0->0xf9f1b0 finish_race.rs 512B->512B jcc 19->19 | imm op 0x100 1->0; imm op 0x140 0->1; imm op 0xcccccccccccccccd 0->1
+IDENTICAL 0xf2f320->0xfbbfd0 game_finish.rs 1180B->1180B jcc 27->27 | [약함] layout? 0x28,0x50 0->0
+SHIFTED 0xf3e540->0xfce110 plan\big_plan\defense_nexus.rs 337B->337B jcc 14->14 | [약함] layout? 0x28,0x50 0->0
+IDENTICAL 0x10eff30->0x10b96e0 plan\big_plan\single_line.rs 3021B->3040B jcc 60->60 | [약함] layout  0->0; layout? 0x28,0x50 0->0
+NEW 0xe3b1c0 fight_check.rs 1145B
+NEW 0xe9a390 fight_check.rs 333B
+NEW 0xea1800 finish_race.rs 319B
+NEW 0xea6090 finish_race.rs 1703B
+NEW 0xedf660 finish_race.rs 415B
+NEW 0xee6890 plan\big_plan\fight_model.rs 758B
+NEW 0xee6e30 finish_race.rs 770B
+NEW 0xee9280 plan\big_plan\fight_model.rs 351B
+NEW 0xef4280 fight_check.rs 1145B
+NEW 0xf036e0 fight_check.rs 1516B
+NEW 0xf04400 fight_check.rs 1563B
+NEW 0xf06630 fight_check.rs 1388B
+NEW 0xf0f9e0 fight_check.rs 1397B
+NEW 0xf18b10 fight_check.rs 1421B
+NEW 0xf96630 finish_race.rs 493B
+NEW 0xfa9100 fight_check.rs 1145B
+NEW 0xfac100 fight_check.rs 366B
+NEW 0xfac270 finish_race.rs 207B
+NEW 0xfb72b0 plan\big_plan\fight_model.rs 3675B
+NEW 0xfb8ce0 fight_check.rs 1150B
+NEW 0xfb9160 fight_check.rs 333B
+NEW 0x10167a0 finish_race.rs 320B
+NEW 0x1018960 fight_check.rs 1205B
+NEW 0x1056c70 plan\big_plan\battle.rs 7817B
+NEW 0x1079b90 fight_check.rs 2508B
+NEW 0x107c0c0 fight_check.rs 2338B
+NEW 0x108b240 plan\big_plan\fight_model.rs 432B
+NEW 0x108b430 plan\big_plan\fight_model.rs 578B
+NEW 0x108b6b0 plan\big_plan\fight_model.rs 3719B
+NEW 0x10b1ba0 plan\big_plan\fight_model.rs 214B
+NEW 0x10b5950 plan\big_plan\fight_model.rs 59B
+NEW 0x10b5990 plan\big_plan\fight_model.rs 104B
+NEW 0x10b5a00 plan\big_plan\fight_model.rs 821B
+NEW 0x10c2da0 fight_check.rs 1769B
+NEW 0x10c3490 fight_check.rs 1215B
+NEW 0x10c3950 fight_check.rs 1076B
+NEW 0x10cafa0 plan\big_plan\fight_model.rs 4400B
+NEW 0x10d5f30 plan\big_plan\fight_model.rs 17202B
+NEW 0x10da440 plan\big_plan\fight_model.rs 623B
+NEW 0x10dd480 plan\big_plan\fight_model.rs 2973B
+NEW 0x10de7b0 plan\big_plan\fight_model.rs 28959B
+NEW 0x1101c40 fight_check.rs 1145B
+NEW 0x11020c0 fight_check.rs 333B
+NEW 0x1129b40 fight_check.rs 1034B
+NEW 0x112ef10 fight_check.rs 1417B
+NEW 0x1144680 fight_check.rs 1145B
+NEW 0x1144b00 fight_check.rs 346B
+NEW 0x1160ed0 fight_check.rs 1150B
+NEW 0x11615b0 fight_check.rs 563B
+NEW 0x11b5730 fight_check.rs 1145B
+NEW 0x11b5bb0 fight_check.rs 333B
+BLIND 0xf3de50->0xfcda00 plan\big_plan\defense_nexus.rs 806B->796B | 작은즉치 -{('cmp', 1): 3} +{('cmp', 0): 5}
+BLIND 0x1120c60->0x1092530 finish_race.rs 198B->181B | 작은즉치 -{} +{('cmp', 0): 1}

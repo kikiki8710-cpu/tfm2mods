@@ -24,11 +24,11 @@ pub(crate) fn ops_gather_square(f:&Frame,v:i64)->Option<u64>{
     let pos=f.scalar(Src::StackMem(0x30,0x8b0))? & 0xffff_ffff;
     if team>1 || pos>4 || f.reg(9)?!=team*5{return None;}
     let slot=(team*0x28+pos*8) as i32;
-    if f.scalar(Src::Mem(2,0x288+slot))?!=player{return None;}
-    let champ=f.scalar(Src::Mem(2,0x238+slot))?;
+    if f.scalar(Src::Mem(2,crate::micro::CACHE_PLAYER+slot))?!=player{return None;}
+    let champ=f.scalar(Src::Mem(2,crate::micro::CACHE_CHAMP+slot))?;
     if champ<0x10000 || champ>=1u64<<48{return None;}
     // 슬롯 재확인은 관측 도중 roster가 바뀐 표본을 원본으로 돌린다.
-    if f.scalar(Src::Mem(2,0x288+slot))?!=player || f.scalar(Src::Mem(2,0x238+slot))?!=champ{return None;}
+    if f.scalar(Src::Mem(2,crate::micro::CACHE_PLAYER+slot))?!=player || f.scalar(Src::Mem(2,crate::micro::CACHE_CHAMP+slot))?!=champ{return None;}
     Some(r*r)
 }
 

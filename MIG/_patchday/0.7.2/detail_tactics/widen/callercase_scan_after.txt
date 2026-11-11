@@ -1,0 +1,199 @@
+  lane_retreat_final_50@0x10bbc62 src ['10be11c'] owner 10ba500 [rbp+0x1c8] w1/r10
+  lane_retreat_final_50@0x10bbc62 src ['10bc12c'] owner 10ba500 [rbp+0x1c8] w1/r10
+  jungle_safe_radius_150000@0xf852cc src ['f7181f'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_safe_radius_150000@0xf852cc src ['f6f59b'] 2단: 저장rbp=호출자 f6f070 의 push ; f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf866f9 src ['f6d5fa'] 호출자 f6d4d0 [rbp+0x1d0] w0/r9 (스택인자)
+  jungle_stop_hp_41@0xf866f9 src ['f70b2b'] 호출자 f70330 [rbp+0xd0] w0/r1 (스택인자)
+  jungle_stop_hp_41@0xf866f9 src ['f716f5'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf866f9 src ['f71ff4'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf866f9 src ['f722e4'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf866f9 src ['f85bfa'] ok → 중첩
+  jungle_stop_hp_41@0xf866f9 src ['f85bfa', 'e427c3'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf866f9 src ['f85bfa', 'e43035'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf866f9 src ['f85bfa', 'e43802'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf866f9 src ['e3a75c'] stack:0x160 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  jungle_stop_hp_41@0xf866ed src ['f6d5fa'] 호출자 f6d4d0 [rbp+0x1d0] w0/r9 (스택인자)
+  jungle_stop_hp_41@0xf866ed src ['f70b2b'] 호출자 f70330 [rbp+0xd0] w0/r1 (스택인자)
+  jungle_stop_hp_41@0xf866ed src ['f716f5'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf866ed src ['f71ff4'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf866ed src ['f722e4'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf866ed src ['f85bfa'] ok → 중첩
+  jungle_stop_hp_41@0xf866ed src ['f85bfa', 'e427c3'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf866ed src ['f85bfa', 'e43035'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf866ed src ['f85bfa', 'e43802'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf866ed src ['e3a75c'] stack:0x160 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  jungle_stop_hp_41@0xf86639 src ['f6d5fa'] 호출자 f6d4d0 [rbp+0x1d0] w0/r9 (스택인자)
+  jungle_stop_hp_41@0xf86639 src ['f70b2b'] 호출자 f70330 [rbp+0xd0] w0/r1 (스택인자)
+  jungle_stop_hp_41@0xf86639 src ['f716f5'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf86639 src ['f71ff4'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf86639 src ['f722e4'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf86639 src ['f85bfa'] ok → 중첩
+  jungle_stop_hp_41@0xf86639 src ['f85bfa', 'e427c3'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf86639 src ['f85bfa', 'e43035'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf86639 src ['f85bfa', 'e43802'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf86639 src ['e3a75c'] stack:0x160 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  jungle_stop_hp_41@0xf86631 src ['f6d5fa'] 호출자 f6d4d0 [rbp+0x1d0] w0/r9 (스택인자)
+  jungle_stop_hp_41@0xf86631 src ['f70b2b'] 호출자 f70330 [rbp+0xd0] w0/r1 (스택인자)
+  jungle_stop_hp_41@0xf86631 src ['f716f5'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf86631 src ['f71ff4'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf86631 src ['f722e4'] 호출자 f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  jungle_stop_hp_41@0xf86631 src ['f85bfa'] ok → 중첩
+  jungle_stop_hp_41@0xf86631 src ['f85bfa', 'e427c3'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf86631 src ['f85bfa', 'e43035'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf86631 src ['f85bfa', 'e43802'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  jungle_stop_hp_41@0xf86631 src ['e3a75c'] stack:0x160 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  lane_assign_hp_30@0x10b5538 src ['10c6800'] 하위 ('CacheSlot',)
+  lane_assign_hp_30@0x10b5538 src ['10c684a'] 하위 ('CacheSlot',)
+  lane_assign_hp_30@0x10b5538 src ['10c6890'] 하위 ('CacheSlot',)
+  lane_assign_hp_30@0x10b5538 src ['11bd111'] 하위 ('CacheSlot',)
+  lane_assign_hp_30@0x10b5538 src ['11bd1a7'] 하위 ('CacheSlot',)
+  base_defense_min_enemies_6@0xfc76cc src ['e41678'] e3c350 [rbp+0x2fa0] w1/r159
+  base_defense_min_enemies_6@0xfc76cc src ['e5960d'] stack:0x148 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc76cc src ['e6e67c'] stack:0x150 = owner 저장 r12 (호출 시점 호출자 r12 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc76cc src ['e6fc98'] stack:0x168 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc76cc src ['ea6a5e'] stack:0x170 = owner 저장 rbp (호출 시점 호출자 rbp 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc76cc src ['ea7314'] stack:0x138 = owner 저장 rbx (호출 시점 호출자 rbx 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc76cc src ['eb45bd'] stack:0x140 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc76cc src ['ebab0d'] stack:0x140 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc76cc src ['fd6681'] stack:0x158 = owner 저장 r13 (호출 시점 호출자 r13 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc778c src ['e41678'] e3c350 [rbp+0x2fa0] w1/r159
+  base_defense_min_enemies_6@0xfc778c src ['e5960d'] stack:0x148 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc778c src ['e6e67c'] stack:0x150 = owner 저장 r12 (호출 시점 호출자 r12 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc778c src ['e6fc98'] stack:0x168 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc778c src ['ea6a5e'] stack:0x170 = owner 저장 rbp (호출 시점 호출자 rbp 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc778c src ['ea7314'] stack:0x138 = owner 저장 rbx (호출 시점 호출자 rbx 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc778c src ['eb45bd'] stack:0x140 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc778c src ['ebab0d'] stack:0x140 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc778c src ['fd6681'] stack:0x158 = owner 저장 r13 (호출 시점 호출자 r13 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc785c src ['e41678'] e3c350 [rbp+0x2fa0] w1/r159
+  base_defense_min_enemies_6@0xfc785c src ['e5960d'] stack:0x148 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc785c src ['e6e67c'] stack:0x150 = owner 저장 r12 (호출 시점 호출자 r12 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc785c src ['e6fc98'] stack:0x168 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc785c src ['ea6a5e'] stack:0x170 = owner 저장 rbp (호출 시점 호출자 rbp 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc785c src ['ea7314'] stack:0x138 = owner 저장 rbx (호출 시점 호출자 rbx 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc785c src ['eb45bd'] stack:0x140 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc785c src ['ebab0d'] stack:0x140 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  base_defense_min_enemies_6@0xfc785c src ['fd6681'] stack:0x158 = owner 저장 r13 (호출 시점 호출자 r13 값 — 수동 확인)
+  extra_c006@0xe712eb src ['e6f69f'] e6ee30 [rbp+0x180] w1/r2
+  extra_c007@0xe9d932 src ['ea1048'] owner e9d840 [rbp+0x78] w1/r4
+  extra_c007@0xe9d932 src ['eac665'] owner e9d840 [rbp+0x78] w1/r4
+  extra_c007@0xe9d932 src ['eb1dbe'] owner e9d840 [rbp+0x78] w1/r4
+  extra_c007@0xe9d932 src ['e9e117'] owner e9d840 [rbp+0x78] w1/r4
+  extra_c007@0xe9da30 src ['ea1048'] owner e9d840 [rbp+0x78] w1/r4
+  extra_c007@0xe9da30 src ['eac665'] owner e9d840 [rbp+0x78] w1/r4
+  extra_c007@0xe9da30 src ['eb1dbe'] owner e9d840 [rbp+0x78] w1/r4
+  extra_c007@0xe9da30 src ['e9e117'] owner e9d840 [rbp+0x78] w1/r4
+  extra_c011@0x102c3bd src ['f2110b'] ok → 중첩
+  extra_c011@0x102c3bd src ['f2110b', 'ecb011'] stack:0x1f0 (owner 지역/인자 — 수동 확인)
+  extra_c011@0x102c3bd src ['f2110b', 'f3683a'] f36160 [rbp+0x710] w0/r47 (스택인자)
+  extra_c011@0x102c3bd src ['f2110b', '10c1cc6'] stack:0x1f0 (owner 지역/인자 — 수동 확인)
+  extra_c011@0x102c3bd src ['f399ba'] f36160 [rbp+0x710] w0/r47 (스택인자)
+  extra_c011@0x102c3bd src ['1121541'] 111e4e0 [rbp+0xa38] w1/r13
+  extra_c011@0x102c3bd src ['103073e'] stack:0x200 (owner 지역/인자 — 수동 확인)
+  extra_c011@0x102c3bd src ['103098e'] stack:0x240 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed020d src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed020d src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed020d src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c028@0xed021b src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed021b src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed021b src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c028@0xed0224 src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed0224 src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed0224 src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c028@0xed0279 src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed0279 src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed0279 src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c028@0xed0283 src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed0283 src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed0283 src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c028@0xed028c src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed028c src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed028c src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c028@0xed02b9 src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed02b9 src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed02b9 src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c028@0xed02c6 src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed02c6 src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed02c6 src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c028@0xed02cf src ['ea8285'] stack:0xe8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed02cf src ['ea9494'] stack:0xc8 (owner 지역/인자 — 수동 확인)
+  extra_c028@0xed02cf src ['ea97a7'] stack:0x60 = owner 저장 r15 (호출 시점 호출자 r15 값 — 수동 확인)
+  extra_c030@0xfcb8fd src ['fbb36a'] 하위 ('Reg', 14)
+  extra_c030@0xfcb908 src ['fbb36a'] 하위 ('Reg', 14)
+  extra_c032@0xfd2434 src ['ea766c'] stack:0x138 = owner 저장 rbx (호출 시점 호출자 rbx 값 — 수동 확인)
+  extra_c033@0x10559a8 src ['e5f47b'] stack:0x40 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  extra_c033@0x10559a8 src ['fd2ebf'] stack:0x58 = owner 저장 r14 (호출 시점 호출자 r14 값 — 수동 확인)
+  extra_c033@0x10559a8 src ['1167bb7'] ok → 중첩
+  extra_c033@0x10559a8 src ['1167bb7', 'e3ccd5'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_c033@0x10559a8 src ['1167bb7', 'e48e5a'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_c033@0x1106315 src ['e5f437'] stack:0x40 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  extra_c033@0x1106315 src ['ecd61c'] stack:0x38 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  extra_c033@0x1106315 src ['1167bdb'] ok → 중첩
+  extra_c033@0x1106315 src ['1167bdb', 'e3ccd5'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_c033@0x1106315 src ['1167bdb', 'e48e5a'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_c037@0x10c24e2 src ['1167c2c'] ok → 중첩
+  extra_c037@0x10c24e2 src ['1167c2c', 'e3ccd5'] e3c350 [rbp+0x2fa0] w1/r159
+  extra_c037@0x10c24e2 src ['1167c2c', 'e48e5a'] e3c350 [rbp+0x2fa0] w1/r159
+  extra_c037@0x10c24dd src ['1167c2c'] ok → 중첩
+  extra_c037@0x10c24dd src ['1167c2c', 'e3ccd5'] e3c350 [rbp+0x2fa0] w1/r159
+  extra_c037@0x10c24dd src ['1167c2c', 'e48e5a'] e3c350 [rbp+0x2fa0] w1/r159
+  extra_c042@0xf3e2d2 src ['fe5041'] stack:0x2c0 = owner 저장 rbp (호출 시점 호출자 rbp 값 — 수동 확인)
+  extra_c042@0xf3e2d2 src ['fe5a59'] fe57a0 [rbp+0x510] w0/r3 (스택인자)
+  extra_c042@0xf3e2d2 src ['f7c6a3'] f79e30 [rbp+0xc80] w0/r17 (스택인자)
+  extra_c042@0xf3e2d2 src ['1108f55'] 1108b90 [rbp+0xf50] w0/r32 (스택인자)
+  extra_c042@0xf3e2d2 src ['110ad40'] 1108b90 [rbp+0xf50] w0/r32 (스택인자)
+  extra_c042@0xf3e2d2 src ['11101b5'] 110f230 [rbp+0xcc0] w0/r10 (스택인자)
+  extra_c042@0xf3e2d2 src ['1111a68'] 110f230 [rbp+0xcc0] w0/r10 (스택인자)
+  extra_c042@0xf3e85c src ['fe5041'] stack:0x2c0 = owner 저장 rbp (호출 시점 호출자 rbp 값 — 수동 확인)
+  extra_c042@0xf3e85c src ['fe5a59'] fe57a0 [rbp+0x510] w0/r3 (스택인자)
+  extra_c042@0xf3e85c src ['f7c6a3'] f79e30 [rbp+0xc80] w0/r17 (스택인자)
+  extra_c042@0xf3e85c src ['1108f55'] 1108b90 [rbp+0xf50] w0/r32 (스택인자)
+  extra_c042@0xf3e85c src ['110ad40'] 1108b90 [rbp+0xf50] w0/r32 (스택인자)
+  extra_c042@0xf3e85c src ['11101b5'] 110f230 [rbp+0xcc0] w0/r10 (스택인자)
+  extra_c042@0xf3e85c src ['1111a68'] 110f230 [rbp+0xcc0] w0/r10 (스택인자)
+  extra_c042@0xf55a81 src ['fdd7a6'] fdc400 [rbp+0xe70] w0/r16 (스택인자)
+  extra_c042@0xf55a81 src ['fe4b23'] fe39d0 [rbp+0x730] w0/r19 (스택인자)
+  extra_c042@0xf55a81 src ['fe6cd2'] fe5e40 [rbp+0x750] w0/r12 (스택인자)
+  extra_c042@0xf55a81 src ['11060b2'] 1105a40 [rbp+0x520] w0/r4 (스택인자)
+  extra_c042@0xf55f4c src ['fdd7a6'] fdc400 [rbp+0xe70] w0/r16 (스택인자)
+  extra_c042@0xf55f4c src ['fe4b23'] fe39d0 [rbp+0x730] w0/r19 (스택인자)
+  extra_c042@0xf55f4c src ['fe6cd2'] fe5e40 [rbp+0x750] w0/r12 (스택인자)
+  extra_c042@0xf55f4c src ['11060b2'] 1105a40 [rbp+0x520] w0/r4 (스택인자)
+  extra_c055@0x1186bf3 src ['f381ac'] 하위 ('Reg', 15)
+  extra_c056@0x10c5fe3 src ['e3eeef'] e3c350 [rbp+0x2fa0] w1/r159
+  extra_c056@0x10c5fe3 team ['e3eeef'] e3c350 [rbp+0x2f30] w1/r72
+  extra_c061@0xe6e7c2 src ['e41ea9'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_c061@0xe6e7c2 src ['e423de'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_c061@0xe6e7c2 team ['e41ea9'] 호출자 e3c350 [rbp+0x2f30] w1/r72
+  extra_c061@0xe6e7c2 team ['e423de'] 호출자 e3c350 [rbp+0x2f30] w1/r72
+★ extra_d001@0xf6ee4c src ['f8cea7'] f8cc80 [rbp+-0x8] 쓰기0 ; f8cc80 [rbp+-0x8] w0/r0
+★ extra_d001@0xf6ee9a src ['f8cea7'] f8cc80 [rbp+-0x8] 쓰기0 ; f8cc80 [rbp+-0x8] w0/r0
+★ extra_d001@0xf6edfa src ['f8cea7'] f8cc80 [rbp+-0x8] 쓰기0 ; f8cc80 [rbp+-0x8] w0/r0
+★ extra_d001@0xf6eea9 src ['f8cea7'] f8cc80 [rbp+-0x8] 쓰기0 ; f8cc80 [rbp+-0x8] w0/r0
+  extra_d004@0xe7ef81 src ['e48a3d'] e3c350 [rbp+0x2fa0] w1/r159
+  extra_d004@0xe7ef81 src ['e430a2'] e3c350 [rbp+0x2fa0] w1/r159
+  extra_d004@0xe7ef81 team ['e48a3d'] e3c350 [rbp+0x2f30] w1/r72
+  extra_d004@0xe7ef81 team ['e430a2'] e3c350 [rbp+0x2f30] w1/r72
+  extra_n001@0x10310b6 src ['1074b19'] stack:0xb8 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  extra_n001@0x1031110 src ['1074b19'] stack:0xb8 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  extra_n002@0x1031168 src ['1074b19'] stack:0xb8 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  extra_n003@0x1031233 src ['1074b19'] stack:0xb8 = owner 저장 rdi (호출 시점 호출자 rdi 값 — 수동 확인)
+  extra_n004@0xeed914 src ['e46563'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_n004@0xeed914 src ['e5d264'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeed914 src ['e5ecf0'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeed9c9 src ['e46563'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_n004@0xeed9c9 src ['e5d264'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeed9c9 src ['e5ecf0'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeeda7e src ['e46563'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_n004@0xeeda7e src ['e5d264'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeeda7e src ['e5ecf0'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeedb33 src ['e46563'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_n004@0xeedb33 src ['e5d264'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeedb33 src ['e5ecf0'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeedbdc src ['e46563'] 호출자 e3c350 [rbp+0x2fa0] w1/r159
+  extra_n004@0xeedbdc src ['e5d264'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n004@0xeedbdc src ['e5ecf0'] 호출자 e5b6a0 [rbp+0x11e0] w0/r29 (스택인자)
+  extra_n006@0xf82f95 src ['f7256a'] f714c0 [rbp+0x3820] w0/r32 (스택인자)
+  extra_n007@0xfbbe0d src ['fbccdc'] stack:0x30 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+  extra_n007@0xfbbe0d src ['fbce6a'] stack:0x30 = owner 저장 rsi (호출 시점 호출자 rsi 값 — 수동 확인)
+사례 198 · ★ 4

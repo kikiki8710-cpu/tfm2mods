@@ -1,0 +1,366 @@
+{"tactics": {
+"lane_retreat_final": {
+  "grade": "A", "spec": "NONE",
+  "spec_note": "라인 후퇴 점수 합산과 50점 문턱(single_line·passive_line 둘 다)은 0.7.1 과 같다. 레지스터 배치만 바뀌었다.",
+  "proposal": {"action": "PORT", "why": "두 창 모두 같은 비교·같은 소비(single: mov [out+0x18],bl / passive: setge al; jl → [out+0x120] 사유 코드). 추적기 제안(rva·src·team_chk) 그대로 맞음.", "user_text": ""},
+  "windows": {
+    "lane_retreat_final_50@0x10efcdd": {"verdict": "EQUIV", "fix": {}},
+    "lane_retreat_final_50@0x10f25ba": {"verdict": "EQUIV", "fix": {}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"jg_gank_hp_start": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "갱 시작 체력 50% 판단은 그대로다. 체력%를 메모리 슬롯 대신 레지스터(r14)에 두도록 컴파일만 바뀌었다.",
+  "proposal": {"action": "PORT", "why": "창 위치·의미 동일. 단 창1 imm_at 이 구 꼴(cmp qword [rbp+0x108],0x32 의 7) 그대로라 gen_sites 즉치 검사에서 막히고, team_chk reg:r12 는 0.7.2 에서 팀이 아니라 컨텍스트 포인터([A6+8])라 매번 팀 불일치로 꺼진다.", "user_text": ""},
+  "windows": {
+    "jg_gank_hp_start_50@0x10cff15": {"verdict": "EQUIV_FIX", "fix": {"imm_at": 3, "team_chk": "mem:rbp:0x140"}},
+    "jg_gank_hp_start_50@0x10d084e": {"verdict": "EQUIV_FIX", "fix": {"team_chk": "mem:rbp:0x140"}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"jg_gank_hp_floor": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "갱 최소 체력 40% 판단은 그대로다.",
+  "proposal": {"action": "PORT", "why": "두 창 바이트·분기 동일. team_chk 만 r12 → [rbp+0x140](팀은 0xf6d592 mov [rbp+0x140],r8 에 저장, r12 는 [A6+8]).", "user_text": ""},
+  "windows": {
+    "jg_gank_hp_floor_40@0x10cfdd6": {"verdict": "EQUIV_FIX", "fix": {"team_chk": "mem:rbp:0x140"}},
+    "jg_gank_hp_floor_40@0x10cfdfb": {"verdict": "EQUIV_FIX", "fix": {"team_chk": "mem:rbp:0x140"}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"jungle_safe_radius": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "캠프 안전 반경(150000) 판단 함수는 그대로다(캐시의 챔피언 표 변위만 0x238→0x210).",
+  "proposal": {"action": "PORT", "why": "창 동일. Caller 두 번째 사례의 안쪽 변위가 구 본체 프레임 값(0x37e0)이라 0x3820 으로 고친다.", "user_text": ""},
+  "windows": {
+    "jungle_safe_radius_150000@0x10e3c0c": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x28", "cases": [
+        {"ret_rva": "0xf7181f", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf6f59b", "src": "stackmem:0x100:0x3820"}]}
+    }}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"jungle_stop_hp": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "11/21/41% 문턱과 80/70/0 점수는 그대로다. 핸들러가 직접 부르던 한 곳이 래퍼(체력·위치 사전검사) 경유로 바뀌었을 뿐이다.",
+  "proposal": {"action": "PORT", "why": "4창 바이트·위치 동일(0xf866f9·0xf866ed·0xf86639(patch_start 0xf86637)·0xf86631). 호출처 8→7(핸들러 직접 호출 소실, 래퍼 호출 2→3). Caller 사례를 전부 신 값으로 재작성.", "user_text": ""},
+  "windows": {
+    "jungle_stop_hp_41@0x10e5021": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x188", "cases": [
+        {"ret_rva": "0xf6d5fa", "src": "mem:rbp:0x1d0"},
+        {"ret_rva": "0xf70b2b", "src": "mem:rbp:0xd0"},
+        {"ret_rva": "0xf716f5", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf71ff4", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf722e4", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf85bfa", "src": {"kind": "caller", "return_off": "0x1b8", "cases": [
+          {"ret_rva": "0xe427c3", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe43035", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe43802", "src": "mem:rbp:0x2fa0"}]}},
+        {"ret_rva": "0xe3a75c", "src": "stack:0x160"}]}
+    }},
+    "jungle_stop_hp_41@0x10e5015": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x188", "cases": [
+        {"ret_rva": "0xf6d5fa", "src": "mem:rbp:0x1d0"},
+        {"ret_rva": "0xf70b2b", "src": "mem:rbp:0xd0"},
+        {"ret_rva": "0xf716f5", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf71ff4", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf722e4", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf85bfa", "src": {"kind": "caller", "return_off": "0x1b8", "cases": [
+          {"ret_rva": "0xe427c3", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe43035", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe43802", "src": "mem:rbp:0x2fa0"}]}},
+        {"ret_rva": "0xe3a75c", "src": "stack:0x160"}]}
+    }},
+    "jungle_stop_hp_41@0x10e4f61": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x188", "cases": [
+        {"ret_rva": "0xf6d5fa", "src": "mem:rbp:0x1d0"},
+        {"ret_rva": "0xf70b2b", "src": "mem:rbp:0xd0"},
+        {"ret_rva": "0xf716f5", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf71ff4", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf722e4", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf85bfa", "src": {"kind": "caller", "return_off": "0x1b8", "cases": [
+          {"ret_rva": "0xe427c3", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe43035", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe43802", "src": "mem:rbp:0x2fa0"}]}},
+        {"ret_rva": "0xe3a75c", "src": "stack:0x160"}]}
+    }},
+    "jungle_stop_hp_41@0x10e4f59": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x188", "cases": [
+        {"ret_rva": "0xf6d5fa", "src": "mem:rbp:0x1d0"},
+        {"ret_rva": "0xf70b2b", "src": "mem:rbp:0xd0"},
+        {"ret_rva": "0xf716f5", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf71ff4", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf722e4", "src": "mem:rbp:0x3820"},
+        {"ret_rva": "0xf85bfa", "src": {"kind": "caller", "return_off": "0x1b8", "cases": [
+          {"ret_rva": "0xe427c3", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe43035", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe43802", "src": "mem:rbp:0x2fa0"}]}},
+        {"ret_rva": "0xe3a75c", "src": "stack:0x160"}]}
+    }}
+  },
+  "calc_fix": [],
+  "new_paths": ["ret 0xe43035/0xe427c3/0xe43802: 핸들러→래퍼 0xf85b80 호출이 2→3곳(구 직접 호출 ret 0xe4067c 소실 — 그 경로가 래퍼 경유로 바뀐 것으로 판단)"],
+  "new_candidates": []
+},
+"base_defense_min_enemies": {
+  "grade": "B", "spec": "MINOR",
+  "gen_note": {"window": "base_defense_min_enemies_6@0xf3b0cc", "rva": "0xfc785c", "issue": "gen_sites.py dynamic_instruction 이 r11 피연산자를 거부(raise ValueError r11 operand refused) — 신 lane2 창이 cmp r11,5", "fix": "피연산자가 r11 이면 임시를 r10 으로 쓰는 분기 추가", "dynamic_hex": "41 52 4c 8b 54 24 f8 4d 39 d3 41 5a", "dynamic_asm": "push r10; mov r10,qword ptr [rsp-8]; cmp r11,r10; pop r10", "fallback": "보완 전에는 lane0·lane1 두 창만 승격(라인2 는 원본 기준으로 남음)"},
+  "knob_fix": {"default": 6, "why": "초안 knobs_0.7.2.json 의 default 2·VALUE_CHANGED 는 오탐. 신 기본 비교는 cmp rdi,6 / cmp rdi,5 / cmp r11,5 그대로(0xfc76cc·0xfc778c·0xfc785c). gen_sites 즉치 검사가 default+tf 와 대조하므로 6 으로 되돌려야 신 창이 통과한다."},
+  "spec_note": "라인별 기지 근처 적 수 기준(라인0 6 이상, 라인1·2 5 초과)은 그대로다 — '기본값 6→2' 는 추적기가 다른 함수의 팀 번호 검사(cmp rcx,1)를 잘못 짝지은 오탐이다. 0.7.2 는 '기지 방어 필요' 판단 4가지(넥서스 위협 3종 + 라인 적 수)를 한 함수로 묶어 팀마다 틱당 한 번만 계산해 둔다. 전술은 원래 팀 단위라 효과는 같다.",
+  "proposal": {"action": "PORT", "why": "판단이 0xf3ae10 단독 함수 → 통합·캐시 함수 0xfc6f80 안으로 옮겨갔고 비교·분기 의미는 동일(MOVED). 초안 창 0xfc7a0c(cmp rcx,1; ja 0xfc7d3d → defense_nexus.rs:499:18 패닉)는 팀 인덱스 범위 검사라 값을 넣으면 팀1 쪽에서 ud2 크래시 위험. 결과가 팀·틱 단위로 캐시되므로 신 호출처 9곳을 전부 등록해야 한다(미등록 경로가 먼저 계산하면 원본값이 캐시돼 그 틱 동안 전술이 안 듣는다).", "user_text": "",
+    "knob": {"default": 6, "low": 4, "high": 8, "min": 1, "max": 127,
+      "desc_keep": "기지 근처 적(미니언 포함 추정)이 이만큼 이상이면 방어하러 간다",
+      "desc_add": "(팀 단위 · 0.7.2 부터 넥서스 위협 판단과 함께 틱당 한 번 계산)",
+      "note": "범위·단계(4/6/8)·설명은 바꿀 근거 없음. tactics.rs 기본값 6 유지 · 초안 knobs default 2 만 되돌리면 된다."}},
+  "windows": {
+    "base_defense_min_enemies_6@0xf3af6c": {"verdict": "MOVED", "fix": {
+      "rva": "0xfc76cc", "asm": "cmp rdi, 6", "imm_at": 3,
+      "src": {"kind": "caller", "return_off": "0x178", "cases": [
+        {"ret_rva": "0xe41678", "src": "stackmem:0x170:0x2fa0"},
+        {"ret_rva": "0xe5960d", "src": "stack:0x148"},
+        {"ret_rva": "0xe6e67c", "src": "stack:0x150"},
+        {"ret_rva": "0xe6fc98", "src": "stack:0x168"},
+        {"ret_rva": "0xea6a5e", "src": "stack:0x170"},
+        {"ret_rva": "0xea7314", "src": "stack:0x138"},
+        {"ret_rva": "0xeb45bd", "src": "stack:0x140"},
+        {"ret_rva": "0xebab0d", "src": "stack:0x140"},
+        {"ret_rva": "0xfd6681", "src": "stack:0x158"}]},
+      "team_chk": "stack:0x100"
+    }},
+    "base_defense_min_enemies_6@0xf3b00c": {"verdict": "MOVED", "fix": {
+      "rva": "0xfc778c", "asm": "cmp rdi, 5", "imm_at": 3,
+      "src": {"kind": "caller", "return_off": "0x178", "cases": [
+        {"ret_rva": "0xe41678", "src": "stackmem:0x170:0x2fa0"},
+        {"ret_rva": "0xe5960d", "src": "stack:0x148"},
+        {"ret_rva": "0xe6e67c", "src": "stack:0x150"},
+        {"ret_rva": "0xe6fc98", "src": "stack:0x168"},
+        {"ret_rva": "0xea6a5e", "src": "stack:0x170"},
+        {"ret_rva": "0xea7314", "src": "stack:0x138"},
+        {"ret_rva": "0xeb45bd", "src": "stack:0x140"},
+        {"ret_rva": "0xebab0d", "src": "stack:0x140"},
+        {"ret_rva": "0xfd6681", "src": "stack:0x158"}]},
+      "team_chk": "stack:0x100"
+    }},
+    "base_defense_min_enemies_6@0xf3b0cc": {"verdict": "MOVED", "fix": {
+      "rva": "0xfc785c", "asm": "cmp r11, 5", "imm_at": 3,
+      "src": {"kind": "caller", "return_off": "0x178", "cases": [
+        {"ret_rva": "0xe41678", "src": "stackmem:0x170:0x2fa0"},
+        {"ret_rva": "0xe5960d", "src": "stack:0x148"},
+        {"ret_rva": "0xe6e67c", "src": "stack:0x150"},
+        {"ret_rva": "0xe6fc98", "src": "stack:0x168"},
+        {"ret_rva": "0xea6a5e", "src": "stack:0x170"},
+        {"ret_rva": "0xea7314", "src": "stack:0x138"},
+        {"ret_rva": "0xeb45bd", "src": "stack:0x140"},
+        {"ret_rva": "0xebab0d", "src": "stack:0x140"},
+        {"ret_rva": "0xfd6681", "src": "stack:0x158"}]},
+      "team_chk": "stack:0x100"
+    }}
+  },
+  "calc_fix": [],
+  "new_paths": [
+    "ret 0xe6e67c·0xe6fc98 (relays 0xe6e5a0·0xe6fbb0, 구 0xe68c88·0xe69575): 0.7.0~0.7.1 미등록(Player 미확정)이었으나 0.7.2 는 Player 를 rdx 로 직접 넘겨 확정 가능 — 캐시 때문에 등록 필수",
+    "ret 0xebab0d (0xebaad0, 구 0xeb2550): 0.7.1 미등록 — 등록 필수",
+    "ret 0xfd6681 (objective_handlers 0xfd65a0, 구 0xf1b920): 0.7.2 에서 새로 기지 방어 판단을 부름(구 0xe9cab7·0xe9d6bb 경로는 직접 호출이 사라지고 이쪽으로 정리된 것으로 추정)"
+  ],
+  "new_candidates": []
+},
+"gank_travel_deadline": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "갱 이동 기한(TPS×12) 판단은 그대로다. 레지스터와 프레임 슬롯만 바뀌었다.",
+  "proposal": {"action": "PORT", "why": "창(lea r15,[rax+rax*2]; mov rax,[r13+0x390]) 의미 동일. 초안 dyn(mov rsi,r11)은 TPS 를 든 rsi 를 덮고 r15 에 A3 포인터가 남아 기한이 포인터 크기가 된다 → mov r15,r11 로. team_chk r12 는 0.7.2 에서 팀이 아님. calc 입력 슬롯도 이동.", "user_text": ""},
+  "windows": {
+    "extra_c005@0x10d0a7b": {"verdict": "EQUIV_FIX", "fix": {"team_chk": "mem:rbp:0x140", "dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 df 41 5b"}}
+  },
+  "calc_fix": [
+    {"fn": "gank_deadline", "file": "extra_lane.rs", "old": "Mem(5,0xb8)", "new": "Mem(5,0x130)", "why": "신 TPS 저장 = 0xf6e3af mov [rbp+0x130],rax (창 5명령 앞, 직선 경로) · 소비 0xf6e458 add rax,[rbp+0x130]; cmp r15,rax. 신 [rbp+0xb8] 은 flow 상 [A7+0x20](다른 값) → valid_tps 통과 시 값 오염, 아니면 조용한 무효"}
+  ],
+  "new_paths": [], "new_candidates": []
+},
+"chase_speed_ratio": {
+  "grade": "A", "spec": "NONE",
+  "spec_note": "추격 속도비(×9 대 ×10) 비교와 앞 가드는 0.7.1 과 같다.",
+  "proposal": {"action": "PORT", "why": "창1 0x1054c02 lea rdx,[rdx+rdx*8]; cmp rax,rdx · 창2 0xec8282 lea rcx,[rcx+rcx*8]; cmp rax,rcx. Src 제안(mem:rbp:0x218·0x360) flow 로 확인(A4). calc rdx/rcx 유효.", "user_text": ""},
+  "windows": {
+    "extra_c010@0xecd8c0": {"verdict": "EQUIV", "fix": {}},
+    "extra_c010@0xf4e7a0": {"verdict": "EQUIV", "fix": {}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"gank_reevaluate_seconds": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "갱 재평가 간격(TPS×3) 판단은 그대로다.",
+  "proposal": {"action": "PORT", "why": "창 lea r8,[rsi+rsi*2]; cmovae rcx,rax. 초안 dyn(mov rdx,r11)이면 r8 에 A3 포인터가 남아 cmp rcx,r8 이 늘 jb → 내 선수 갱 판단이 매번 즉시 빠진다(조용한 오작동). TPS 는 이제 rsi(0xf6d512 mov rsi,[r11+0x12f8]) — calc 도 r15→rsi.", "user_text": ""},
+  "windows": {
+    "extra_c025@0x10cfcd5": {"verdict": "EQUIV_FIX", "fix": {"dynamic_hex": "41 53 4c 8b 5c 24 f8 4d 89 d8 41 5b"}}
+  },
+  "calc_fix": [
+    {"fn": "gank_recheck", "file": "extra_lane.rs", "old": "f.reg(15)", "new": "f.reg(6)", "why": "신 TPS = rsi (0xf6d512 mov rsi,[r11+0x12f8], 창 0xf6d529 lea r8,[rsi+rsi*2]). 신 r15 는 함수 안에서 창 전에 쓰이지 않은 호출자 값(flow 라벨 없음) → 값 오염/무효"}
+  ],
+  "new_paths": [], "new_candidates": []
+},
+"gank_candidate_margin": {
+  "grade": "A", "spec": "NONE",
+  "spec_note": "갱 후보 인원 비교(+1)는 0.7.1 과 같다.",
+  "proposal": {"action": "PORT", "why": "창 0xf6e281 inc rax; cmp rdi,rax (구 cmp rsi,rax). dyn add rax,r11 · Src mem:rbp:0x1d0(A5) 맞음.", "user_text": ""},
+  "windows": {
+    "extra_c026@0x10d0959": {"verdict": "EQUIV", "fix": {}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"epic_final_allies_min": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "에픽 최종 아군 인원 문턱 3 과 지터 계산은 그대로다. 함수 안에 선수 포인터가 더 남지 않아 읽는 곳만 호출자 쪽으로 옮긴다.",
+  "proposal": {"action": "PORT", "why": "창 0xfd2434 cmp r8,3; setae cl 동일. 초안 Src stack:58 은 0.7.2 에서 A1(0xfd0bd7 mov [rsp+0x58],rcx)을 가리켜 오답. Player(A3)는 rbx 로 받았다가 창 전에 재사용되므로 호출자(유일 0xea766c)의 rbx = 피호출 저장 rbx [rsp+0x138] 로 읽는다. 팀 교차확인 [rsp+0x88](0xfd0bbd mov [rsp+0x88],r13 = [A3+0x820]) 추가.", "user_text": ""},
+  "windows": {
+    "extra_c032@0xebb41c": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x178", "cases": [
+        {"ret_rva": "0xea766c", "src": "stack:0x138"}]},
+      "team_chk": "stack:0x88"
+    }}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"boss_respawn_wait_seconds": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "보스 리스폰 대기(TPS×15) 판단은 그대로다. 호출 경로의 프레임만 바뀌었다.",
+  "proposal": {"action": "PORT", "why": "두 함수(0x1055800 epic · 0x1106170 serpen) 구와 134/133 명령 거의 동일, 창·dyn·calc(Mem2(15,8,0x12f8)) 그대로. Caller: epic 호출자 0xfd2ebf 는 Player 가 r14(저장 [rsp+0x58]) · 디스패처 0x1167b50 프레임 축소(push2+0x38)로 중첩 return_off 0xc8→0xb8 · 핸들러 Player 슬롯 0x2ee0→0x2fa0 · 핸들러 ret 신 값.", "user_text": ""},
+  "windows": {
+    "extra_c033@0x10f8a73": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x68", "cases": [
+        {"ret_rva": "0xe5f47b", "src": "stack:0x40"},
+        {"ret_rva": "0xfd2ebf", "src": "stack:0x58"},
+        {"ret_rva": "0x1167bb7", "src": {"kind": "caller", "return_off": "0xb8", "cases": [
+          {"ret_rva": "0xe3ccd5", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe48e5a", "src": "mem:rbp:0x2fa0"}]}}]}
+    }},
+    "extra_c033@0x107fe80": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x68", "cases": [
+        {"ret_rva": "0xe5f437", "src": "stack:0x40"},
+        {"ret_rva": "0xecd61c", "src": "stack:0x38"},
+        {"ret_rva": "0x1167bdb", "src": {"kind": "caller", "return_off": "0xb8", "cases": [
+          {"ret_rva": "0xe3ccd5", "src": "mem:rbp:0x2fa0"},
+          {"ret_rva": "0xe48e5a", "src": "mem:rbp:0x2fa0"}]}}]}
+    }}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"active_recall_slack_profile": {
+  "grade": "B", "spec": "MINOR",
+  "spec_note": "여유 초(3초/2초) 비교와 넥서스 근접 예외 경로는 0.7.1 과 같다. 다만 비교 기준인 '마무리 예상 시간'을 만드는 함수(finish_race 0x101d560)가 또 편집돼 기준 시간이 조금 달라졌을 수 있다(추정·미검증).",
+  "proposal": {"action": "PORT", "why": "함수 0x10c2370 은 구 0x11604f0 과 필드 변위만 다름(ndiff 0.954). 창·dyn(mov/add r15,r11)·calc(r15=TPS, 0x10c24c3) 그대로. Caller 사슬만 신 값: 디스패처 ret 0x1167c2c · 중첩 return_off 0x128→0x118 · 핸들러 ret 0xe3ccd5/0xe48e5a · Player 슬롯 0x2fa0. 팀 교차확인 rsi([A4+0x820], 0x10c2383) 추가.", "user_text": ""},
+  "windows": {
+    "extra_c037@0x116065b": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0xc8", "cases": [
+        {"ret_rva": "0x1167c2c", "src": {"kind": "caller", "return_off": "0x118", "cases": [
+          {"ret_rva": "0xe3ccd5", "src": "stackmem:0x90:0x2fa0"},
+          {"ret_rva": "0xe48e5a", "src": "stackmem:0x90:0x2fa0"}]}}]},
+      "team_chk": "reg:rsi"
+    }},
+    "extra_c037@0x1160656": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0xc8", "cases": [
+        {"ret_rva": "0x1167c2c", "src": {"kind": "caller", "return_off": "0x118", "cases": [
+          {"ret_rva": "0xe3ccd5", "src": "stackmem:0x90:0x2fa0"},
+          {"ret_rva": "0xe48e5a", "src": "stackmem:0x90:0x2fa0"}]}}]},
+      "team_chk": "reg:rsi"
+    }}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"movement_skill_period_margin": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "이동기 절약 보행 여유(+60) 비교는 그대로다. 이 판단을 부르는 곳이 경로 A 에서 5→7곳으로 늘었다(이동 행동 함수 두 곳이 하나씩 더 부름).",
+  "proposal": {"action": "PORT", "why": "owner A 0xf3d980·B 0xf54f40 SHIFTED, 4창 바이트 동일. 호출자 프레임이 전부 커져(예: 0xfdc400 sub 0xe88) 2단 변위가 모두 바뀌었고 ret 도 대부분 바뀜 → Caller 전면 재작성(A 7사례·B 4사례).", "user_text": ""},
+  "windows": {
+    "extra_c042@0x10b388b": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x2c8", "cases": [
+        {"ret_rva": "0xfe5041", "src": "stack:0x2c0"},
+        {"ret_rva": "0xfe5a59", "src": "stackmem:0x2c0:0x510"},
+        {"ret_rva": "0xf7c6a3", "src": "stackmem:0x2c0:0xc80"},
+        {"ret_rva": "0x1108f55", "src": "stackmem:0x2c0:0xf50"},
+        {"ret_rva": "0x110ad40", "src": "stackmem:0x2c0:0xf50"},
+        {"ret_rva": "0x11101b5", "src": "stackmem:0x2c0:0xcc0"},
+        {"ret_rva": "0x1111a68", "src": "stackmem:0x2c0:0xcc0"}]}
+    }},
+    "extra_c042@0x10b3e15": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x2c8", "cases": [
+        {"ret_rva": "0xfe5041", "src": "stack:0x2c0"},
+        {"ret_rva": "0xfe5a59", "src": "stackmem:0x2c0:0x510"},
+        {"ret_rva": "0xf7c6a3", "src": "stackmem:0x2c0:0xc80"},
+        {"ret_rva": "0x1108f55", "src": "stackmem:0x2c0:0xf50"},
+        {"ret_rva": "0x110ad40", "src": "stackmem:0x2c0:0xf50"},
+        {"ret_rva": "0x11101b5", "src": "stackmem:0x2c0:0xcc0"},
+        {"ret_rva": "0x1111a68", "src": "stackmem:0x2c0:0xcc0"}]}
+    }},
+    "extra_c042@0x10c5131": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x2b8", "cases": [
+        {"ret_rva": "0xfdd7a6", "src": "stackmem:0x2b0:0xe70"},
+        {"ret_rva": "0xfe4b23", "src": "stackmem:0x2b0:0x730"},
+        {"ret_rva": "0xfe6cd2", "src": "stackmem:0x2b0:0x750"},
+        {"ret_rva": "0x11060b2", "src": "stackmem:0x2b0:0x520"}]}
+    }},
+    "extra_c042@0x10c55f5": {"verdict": "EQUIV_FIX", "fix": {
+      "src": {"kind": "caller", "return_off": "0x2b8", "cases": [
+        {"ret_rva": "0xfdd7a6", "src": "stackmem:0x2b0:0xe70"},
+        {"ret_rva": "0xfe4b23", "src": "stackmem:0x2b0:0x730"},
+        {"ret_rva": "0xfe6cd2", "src": "stackmem:0x2b0:0x750"},
+        {"ret_rva": "0x11060b2", "src": "stackmem:0x2b0:0x520"}]}
+    }}
+  },
+  "calc_fix": [],
+  "new_paths": ["owner A 0xf3d980 호출처 5→7: 0x1108b90(ret 0x1108f55·0x110ad40)·0x110f230(ret 0x11101b5·0x1111a68) 에 각각 1곳씩 늘어남(move_actions.rs:409~419 인라인 추정) — 위 Src 에 포함"],
+  "new_candidates": []
+},
+"camp_time_margin_profile": {
+  "grade": "B", "spec": "MINOR",
+  "spec_note": "캠프 경쟁 시간 여유(%) 비교 자체는 그대로다. 다만 '상대에게 내가 버티는 시간'을 셀 때 적 피해량을 보는 부분이 새 도우미 함수로 바뀌어 레벨에 따라 스킬까지 보는 것으로 보인다(추정). 기준 시간이 짧아져 캠프 포기가 조금 잦아질 수 있다.",
+  "proposal": {"action": "PORT", "why": "3창 의미 동일(TPS 슬롯 [rbp-0x20]→[rbp-0x10]). Src mem:rbp:0xd0(A5) · 창3 rcx=TPS 그대로. calc_survival 입력만 고친다. 창 밖 편집(passive_jungle.rs:295 열 이동)은 피해량 계산이 0x1160c80 으로 아웃라인된 것.", "user_text": ""},
+  "windows": {
+    "extra_c045@0x10d2e65": {"verdict": "EQUIV_FIX", "fix": {}},
+    "extra_c045@0x10d33fd": {"verdict": "EQUIV_FIX", "fix": {}},
+    "extra_c045@0x10d36bf": {"verdict": "EQUIV", "fix": {}}
+  },
+  "calc_fix": [
+    {"fn": "camp_survival_margin", "file": "extra_ops.rs", "old": "Mem(5,-0x20)", "new": "Mem(5,-0x10)", "why": "신 TPS 저장 = 0xf7087d mov [rbp-0x10],rax (flow: 두 창 시점 [rbp-0x10] <- [[[A6+8]+8]+12f8]), 창 add rax,[rbp-0x10]. 신 [rbp-0x20] 은 0xf7086e lea rax,[rbx+8]; mov [rbp-0x20],rax 포인터 → 검증 없이 scale(포인터,v) 를 더해 값 오염"}
+  ],
+  "new_paths": [], "new_candidates": []
+},
+"purchase_recall_walk_ticks": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "구매 귀환 도보시간(211틱) 판단은 그대로다. 호출 함수 주소만 바뀌었다.",
+  "proposal": {"action": "PORT", "why": "owner 0x1030e90(구 0xf50650, 필드만) 창 동일. 유일 호출자 0x1074a10(구 0x1162160, ndiff 필드만) ret 0x1074b19 · r8=rdi(A3=Player) → 저장 rdi [rsp+0xb8] 그대로. team_chk r14 유효.", "user_text": ""},
+  "windows": {
+    "extra_n001@0xf5086f": {"verdict": "EQUIV_FIX", "fix": {"src": {"kind": "caller", "return_off": "0xe8", "cases": [{"ret_rva": "0x1074b19", "src": "stack:0xb8"}]}}},
+    "extra_n001@0xf508d0": {"verdict": "EQUIV_FIX", "fix": {"src": {"kind": "caller", "return_off": "0xe8", "cases": [{"ret_rva": "0x1074b19", "src": "stack:0xb8"}]}}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"purchase_recall_threat_radius": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "구매 귀환 위협 반경(200000) 판단은 그대로다.",
+  "proposal": {"action": "PORT", "why": "창 0x1031168 movabs rbp,0x9502f9001 동일. Caller ret 만 0x1074b19. team_chk r13 유효.", "user_text": ""},
+  "windows": {
+    "extra_n002@0xf50928": {"verdict": "EQUIV_FIX", "fix": {"src": {"kind": "caller", "return_off": "0xe8", "cases": [{"ret_rva": "0x1074b19", "src": "stack:0xb8"}]}}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"purchase_recall_threat_memory": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "구매 귀환 위협 기억(120) 판단은 그대로다.",
+  "proposal": {"action": "PORT", "why": "창 0x1031233 add r15,0x78; mov rcx,rsi 동일. Caller ret 만 0x1074b19. team_chk r13 유효.", "user_text": ""},
+  "windows": {
+    "extra_n003@0xf509f3": {"verdict": "EQUIV_FIX", "fix": {"src": {"kind": "caller", "return_off": "0xe8", "cases": [{"ret_rva": "0x1074b19", "src": "stack:0xb8"}]}}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+},
+"camp_deadline_arrival_seconds": {
+  "grade": "B", "spec": "NONE",
+  "spec_note": "일반 캠프 기한 비교(+TPS×1)는 그대로다.",
+  "proposal": {"action": "PORT", "why": "함수 0xf82cf0 Location IDENTICAL, 창 add rax,[rcx+0x12f8] 동일, calc Mem(1,0x12f8) 유효. Caller 안쪽 변위가 구 본체 값(0x37e0) → 신 본체 Player 슬롯 0x3820.", "user_text": ""},
+  "windows": {
+    "extra_n006@0x10e1fa5": {"verdict": "EQUIV_FIX", "fix": {"src": {"kind": "caller", "return_off": "0x78", "cases": [{"ret_rva": "0xf7256a", "src": "stackmem:0x40:0x3820"}]}}}
+  },
+  "calc_fix": [], "new_paths": [], "new_candidates": []
+}
+}}
