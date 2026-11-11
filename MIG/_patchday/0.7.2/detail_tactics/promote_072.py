@@ -159,6 +159,30 @@ for kid, site, subj in NEW_KNOB_SITES:
     SUBJ[site['rva']] = copy.deepcopy(subj)
     log.append(f'{kid} 노브 창 추가 {site["rva"]} {site["asm"]}')
 
+# 전술 정의 보정(extras · 유저 승인분) — decisions_072.TACTIC_FIX: {전술 id: {필드: 값}} (desc·name·단계 등)
+TACTIC_FIX = {}
+NEW_TACTICS = []
+try:
+    from decisions_072 import TACTIC_FIX  # noqa: E402,F811
+    from decisions_072 import NEW_TACTICS  # noqa: E402,F811
+except ImportError:
+    pass
+for tid, fx in TACTIC_FIX.items():
+    t = next(x for x in base['tactics'] if x['id'] == tid)
+    assert t['source'] != 'knobs', (tid, 'knobs 전술 정의는 tactics.rs 손 표에서 고친다')
+    et = next(x for x in docs[t['source']]['tactics'] if x['audit_id'] == t['audit_id'])
+    for f, val in fx.items():
+        log.append(f'{tid} {f}: {json.dumps(et.get(f), ensure_ascii=False)[:60]} → {json.dumps(val, ensure_ascii=False)[:60]}')
+        et[f] = val
+
+# 새 전술(유저 승인분 · 0.7.2 신설 판단) — decisions_072.NEW_TACTICS: [(문서 키, 전술 dict)] · 표 끝에 붙는다(저장 번호 보존)
+for key, nt in NEW_TACTICS:
+    allids = {x['id'] for d in docs.values() if 'tactics' in d for x in d['tactics']}
+    allaud = {x.get('audit_id') for d in docs.values() if 'tactics' in d for x in d['tactics']}
+    assert nt['id'] not in allids and nt['audit_id'] not in allaud, (nt['id'], nt['audit_id'])
+    docs[key]['tactics'].append(copy.deepcopy(nt))
+    log.append(f'새 전술 {nt["audit_id"]} {nt["id"]} → {key} ({len(nt["sites"])}창)')
+
 # 새 창 (유저 승인분만 — decisions_072.NEW_SITES)
 for tid, like_rva, over in NEW_SITES:
     t = next(x for x in base['tactics'] if x['id'] == tid)
@@ -186,7 +210,7 @@ for d in docs.values():
     strip_review(d)
 
 (HERE / 'promote_072.log.txt').write_text('\n'.join(log) + '\n', encoding='utf-8', newline='\n')
-print(f'정정 {len(log)}줄 · 비활성 {unsup} · 창 삭제 {len(drop)} · 새 창 {len(NEW_SITES)} · 노브 새 창 {len(NEW_KNOB_SITES)}')
+print(f'정정 {len(log)}줄 · 비활성 {unsup} · 창 삭제 {len(drop)} · 새 창 {len(NEW_SITES)} · 노브 새 창 {len(NEW_KNOB_SITES)} · 새 전술 {len(NEW_TACTICS)}')
 if not DRY:
     for k, n in NAMES.items():
         ind = 2 if n.startswith('extra_') else 1

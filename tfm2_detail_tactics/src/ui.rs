@@ -68,12 +68,15 @@ fn source()->String{
       s+=&format!("#page{tab}:scroll_view {{ x:0px; y:229px; width:1720px; height:616px; speed:100; visible:false; bar_width:5; bar:{{source:\"asset/base/sprite/white\";color:#69bfcfff;hover:{{color:#ecfbf8ff;}}}} back:{{source:\"asset/base/sprite/white\";color:#00000000;}} #contents:empty {{width:1700px;height:{}px;\n",category.ids.len()*76);
       for row in 0..category.ids.len() {
         let y=row*76;
+        // 항목 구분선(위) — 풀다운보다 먼저 그려 가리지 않는다. 마지막 항목 아래 선은 루프 뒤.
+        s+=&format!("#sep{row}:color {{ ignore_event:true; x:30px; y:{y}px; width:1650px; height:1px; color:#3a3e52ff; }}\n");
         s+=&label(&format!("name{row}"),30,y,640,30,18,"");
         s+=&label(&format!("desc{row}"),30,y+30,640,44,14,"");
         for col in 0..5{s+=&centered_dropdown(dd::button_source(&format!("c{row}_{col}"),(690+col*200)as i32,(y+12)as i32,190,38,"",16),190,44);}
         s+=&centered_dropdown(dd::button_source(&format!("team{row}"),690,(y+12)as i32,990,38,"",16),990,44);
         s+=&centered_dropdown(dd::button_source(&format!("duo{row}"),1290,(y+12)as i32,390,38,"",16),390,44);
     }
+      s+=&format!("#sep_end:color {{ ignore_event:true; x:30px; y:{}px; width:1650px; height:1px; color:#3a3e52ff; }}\n",(category.ids.len()*76).saturating_sub(1));
       s+="}}\n";
     }
     s+=&label("category_info",30,862,1370,38,16,"");
