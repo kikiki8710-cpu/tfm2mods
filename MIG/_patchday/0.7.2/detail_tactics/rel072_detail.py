@@ -11,7 +11,7 @@ import sys
 import zipfile
 
 MOD = 'tfm2_detail_tactics'
-VER = '0.2.5'
+VER = '0.2.6'
 GAME = '0.7.2'
 ROOT = r'F:\claude\tfm2mods'
 SRC = os.path.join(ROOT, MOD, 'target', 'package', MOD + '.zip')
