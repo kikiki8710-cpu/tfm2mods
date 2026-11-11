@@ -1,0 +1,421 @@
+{
+ "tactics": {
+  "combat_retreat_hp": {
+   "name": "Combat Retreat HP (%)",
+   "desc": "Retreats during a fight when HP is below this value. Higher = retreats earlier."
+  },
+  "line_chase_retreat_hp": {
+   "name": "Lane/Chase Instant Retreat HP (%)",
+   "desc": "Retreats immediately during laning or a chase when HP is at or below this value."
+  },
+  "line_chase_target_guard_hp": {
+   "name": "Chase Target Hold HP (%)",
+   "desc": "Drops the chased target when HP is at or below this value."
+  },
+  "lane_retreat_final": {
+   "name": "Lane Retreat Score Threshold",
+   "desc": "Retreats when the final lane retreat score exceeds this value. Lower = retreats more easily."
+  },
+  "crowd_retreat_weight": {
+   "name": "Outnumbered Retreat Weight",
+   "desc": "Weight given toward retreating when enemies outnumber allies by 2 or more."
+  },
+  "combat_avoid_hp": {
+   "name": "Fight Avoidance HP (%)",
+   "desc": "Avoids fights when HP is below this value."
+  },
+  "combat_avoid_count_margin": {
+   "name": "Fight Avoidance Margin (players)",
+   "desc": "Avoids a fight when enemies outnumber allies by this many. Lower = more cautious."
+  },
+  "self_risk_ignore_hp": {
+   "name": "Ignore Danger HP (%)",
+   "desc": "At or above this HP, acts while ignoring nearby danger."
+  },
+  "jg_gank_hp_start": {
+   "name": "Gank Start HP (%)",
+   "desc": "The jungler starts a gank when at or above this HP."
+  },
+  "jg_gank_hp_floor": {
+   "name": "Gank Minimum HP (%)",
+   "desc": "Stops ganking when HP drops below this value mid-gank."
+  },
+  "gank_abort_hp": {
+   "name": "Gank Abort HP (%)",
+   "desc": "Abandons an ongoing gank when HP is below this value."
+  },
+  "gank_abort_tower": {
+   "name": "Abort Gank Under Enemy Tower",
+   "desc": "When off, keeps ganking even near an enemy tower."
+  },
+  "gank_call_accept_hp": {
+   "name": "Gank Call Accept Min HP (%)",
+   "desc": "HP needed to accept a gank call while on a lane plan. Also applies to the jungler when on a lane plan."
+  },
+  "jungle_safe_radius": {
+   "name": "Jungle Camp Safety Radius",
+   "desc": "Enemy laners and supports within this distance of a camp are treated as a threat."
+  },
+  "jungle_stop_hp": {
+   "name": "Stop Jungling HP (%)",
+   "desc": "The jungler stops jungling when HP is below this value."
+  },
+  "minion_damage_ratio": {
+   "name": "Minion Damage Sensitivity (%)",
+   "desc": "Treats it as danger when the expected minion damage rate exceeds this value. Lower = more cautious."
+  },
+  "lane_assign_hp": {
+   "name": "Lane Assignment HP (%)",
+   "desc": "HP threshold for Top, Mid and Bottom candidates. Jungle and Support are excluded by the game default rules."
+  },
+  "lane_opportunity_own_min": {
+   "name": "Lane Opportunity Min Allies (players)",
+   "desc": "Needs at least this many healthy allies in the lane area to treat it as an opportunity."
+  },
+  "support_minion_block": {
+   "name": "No Lane Minions for Support",
+   "desc": "When off, the Support also clears lane minions."
+  },
+  "bot_duo_partner": {
+   "name": "Bottom-Support Duo Check",
+   "desc": "When off, Bottom and Support move alone without their partner."
+  },
+  "liner_roam_self_hp": {
+   "name": "Roam Min Own HP (%)",
+   "desc": "Laners roam only when at or above this HP."
+  },
+  "liner_roam_lane_healthy_hp": {
+   "name": "Roam Target Lane: Healthy Ally HP (%)",
+   "desc": "When choosing a lane to roam to, allies at or above this HP count as healthy."
+  },
+  "liner_roam_call_chance": {
+   "name": "Roam Team Call Chance (/1000)",
+   "desc": "Chance of sending a team call when roaming."
+  },
+  "hazard_avoid_padding": {
+   "name": "Danger Zone Walk-Around Margin",
+   "desc": "Walks around danger zones with this much extra clearance."
+  },
+  "push_sustain_min_healthy": {
+   "name": "Push Sustain Min Allies (players)",
+   "desc": "An ongoing push continues only with at least this many healthy allies."
+  },
+  "push_sustain_margin": {
+   "name": "Push Sustain Margin (players)",
+   "desc": "Keeps pushing only when allies outnumber enemies by this many."
+  },
+  "tower_chase_own_hp": {
+   "name": "Under-Tower Chase Own HP (%)",
+   "desc": "Own HP needed to chase under an enemy tower (moves the 25/35/45 steps together)."
+  },
+  "base_defense_min_enemies": {
+   "name": "Base Defense Trigger Enemy Count",
+   "desc": "Goes to defend when this many or more enemies (minions likely included) are near the base."
+  },
+  "base_defense_hold_retreat_hp": {
+   "name": "Base Defense Retreat HP (%)",
+   "desc": "Backs off while defending the base when HP is below this value."
+  },
+  "base_defense_hold_nexus_hp": {
+   "name": "Relic Danger HP (%)",
+   "desc": "When Relic HP is at or below this value, stands ground unless facing lethal damage."
+  },
+  "base_defense_hold_dmg_ratio": {
+   "name": "Base Defense Damage Rate Threshold (%)",
+   "desc": "When the damage rate taken exceeds this value, treats it as danger regardless of HP."
+  },
+  "lowhp_ult_bonus_low": {
+   "name": "Low HP Ultimate Bonus",
+   "desc": "Added to the Ultimate usage score when HP is below 45%."
+  },
+  "gank_call_rng": {
+   "name": "Gank Call Accept Roll",
+   "desc": "Applies only when the evaluation is negative. Higher = harder to accept calls."
+  },
+  "pickoff_hp_bands": {
+   "name": "Pick-off Low HP Threshold (%)",
+   "desc": "Adjusts the lower HP threshold and the one 20 above it together. Higher = also prioritizes healthier enemies."
+  },
+  "structure_retreat_keep_hp": {
+   "name": "Structure Attack Retreat Hold HP (%)",
+   "desc": "When hitting an enemy structure during a chase with a retreat already requested, keeps that request at or below this HP."
+  },
+  "pre_gank_engage_profile": {
+   "name": "Lane Engage Before Gank Arrives",
+   "desc": "100 = game default HP35, range 200000. Higher = engages more readily. 0.7.2+: needs a visible enemy champion near (Gank Enemy Check Range)."
+  },
+  "gank_travel_deadline": {
+   "name": "Jungle Gank Travel Deadline",
+   "desc": "Uses the same seconds for the jungle gank plan deadline and the travel-time approval threshold."
+  },
+  "battle_call_response_seconds": {
+   "name": "Fight Call Response Time",
+   "desc": "Aligns the response seconds for arrival approval and diagnostics. The separate 6s Ultimate floor is kept."
+  },
+  "objective_power_allowance": {
+   "name": "Objective Strength Allowance",
+   "desc": "Margin added to the allies' total HP. Higher = looser conditions to go in."
+  },
+  "same_lane_gank_retry_seconds": {
+   "name": "Same Lane Gank Retry",
+   "desc": "Extra seconds that block a retry on the same lane. The time logged for stats is unchanged."
+  },
+  "chase_speed_ratio": {
+   "name": "Chase Speed Ratio (tenths)",
+   "desc": "Compares enemy move speed x10 with own speed x this value. Lower = stops chasing more easily over speed gaps."
+  },
+  "tower_tank_hits": {
+   "name": "Tower Tanking HP (hits)",
+   "desc": "Picks allies with enough HP to take this many tower hits as tank candidates. Team-wide. Lower = takes more risk."
+  },
+  "kill_bonus_cap": {
+   "name": "Kill Bonus Cap",
+   "desc": "Cap on the bonus for the chance to kill an enemy. Higher = prioritizes finishing attacks and skills."
+  },
+  "ally_spacing_radius": {
+   "name": "Ally Spacing Radius",
+   "desc": "Radius nearby allies keep between each other. Higher = stand farther apart."
+  },
+  "near_ally_link_margin": {
+   "name": "Nearby Ally Combo Range Margin",
+   "desc": "Extra distance beyond an ally's attack range still counted as able to combo. Higher = coordinates over a wider area."
+  },
+  "line_defense_approval_profile": {
+   "name": "Lane Defense Approval Caution",
+   "desc": "100 = risk 35, long-term score 25, short-term score 10. Higher = stricter approval."
+  },
+  "base_battle_call_range": {
+   "name": "Base Fight Call Allowance",
+   "desc": "Allowed band of a random roll out of 1000. Separate from approval of the base assist plan itself."
+  },
+  "shared_battle_role_markers": {
+   "name": "Fight Reference Role Markers",
+   "desc": "Threshold for the total of arrival role markers on both teams. Not a count of same-team votes."
+  },
+  "basic_trade_hp_divisor": {
+   "name": "Basic Attack Trade HP Margin (divisor)",
+   "desc": "Safe when HP is above own max HP / this value plus enemy basic attack damage. Higher = trades more aggressively."
+  },
+  "support_cap_multiplier": {
+   "name": "Heal/Shield Value Multiplier",
+   "desc": "Heals count up to lost HP + damage estimate x this value; shields up to damage estimate x (this value+1). Actual amounts unchanged."
+  },
+  "buff_arrival_value_seconds": {
+   "name": "Support Skill Arrival Window (s)",
+   "desc": "Lowers the value of slow-arriving support skills over this period. Higher = values late arrivals more."
+  },
+  "push_start_base": {
+   "name": "Push Start Base Score",
+   "desc": "Start threshold before stat adjustments. Higher = requires a higher score."
+  },
+  "other_lane_collapse_profile": {
+   "name": "Other Lane Collapse Alert",
+   "desc": "Adjusts other-lane metrics and stage thresholds together. Higher = gives up pushes earlier."
+  },
+  "gank_reevaluate_seconds": {
+   "name": "Jungle Gank Re-evaluation Interval",
+   "desc": "Re-evaluations sooner than this many seconds are put on hold, as in the game default."
+  },
+  "gank_candidate_margin": {
+   "name": "Gank Candidate Count Margin",
+   "desc": "Extra margin on the number of enemy candidates allowed when there are allied candidates."
+  },
+  "ambush_engage_radius": {
+   "name": "Ambush Target Radius",
+   "desc": "Radius for scanning enemy candidates during an ambush check. Vision and recent-sighting conditions are kept."
+  },
+  "objective_lane_pressure_profile": {
+   "name": "Pre-Objective Lane Pressure Threshold",
+   "desc": "Adjusts lane stage, metric and headcount thresholds together. Higher = more lane pressure candidates."
+  },
+  "roam_retry_extra_seconds": {
+   "name": "Roam Retry Extra Interval",
+   "desc": "Seconds added to the default interval. Skipped when there is no record of a last roam."
+  },
+  "defense_leave_hp": {
+   "name": "Defense Plan Leave HP (%)",
+   "desc": "HP threshold for normal defense. The threat path uses 10 below this value."
+  },
+  "structure_skill_bonus": {
+   "name": "Structure Skill Candidate Bonus",
+   "desc": "Bonus only to the first two skill scores aimed at type 4 structures in the Relic attack plan."
+  },
+  "epic_final_allies_min": {
+   "name": "Epic Final Ally Count Threshold",
+   "desc": "Headcount threshold after jitter adjustment. The enemy-adjustment-0 exception and pre-approval are kept."
+  },
+  "boss_respawn_wait_seconds": {
+   "name": "Boss Respawn Wait (s)",
+   "desc": "With no boss up, ends the plan if the remaining respawn time is longer than this value."
+  },
+  "boss_reposition_improvement": {
+   "name": "Boss Hunt Reposition Gain",
+   "desc": "Score improvement required for a local reposition. The existing distance fallback condition is kept."
+  },
+  "boss_poke_damage_factor": {
+   "name": "Boss Poke Damage Weight",
+   "desc": "Multiplier for comparing expected damage with HP. Higher = more conservative risk judgment."
+  },
+  "active_recall_slack_profile": {
+   "name": "Finish Strategy Recall End Slack (s)",
+   "desc": "Strategy 0 uses the chosen seconds, strategy 1 uses 1s less. Only adjusts the large-plan end check."
+  },
+  "position_isolation_risk_percent": {
+   "name": "Isolated Position Risk Bonus (%)",
+   "desc": "Position risk added with no allies nearby and 2+ enemies. Higher = avoids going in alone."
+  },
+  "front_ally_risk_scale": {
+   "name": "Stay Behind Tanky Allies (%)",
+   "desc": "Scales the risk score for standing ahead of tanky allies and its two caps together. Higher = tries to stand behind allies."
+  },
+  "battle_skill_safety_margin": {
+   "name": "Fight Skill Safety Margin",
+   "desc": "Safety margin added to skill range in chases and fights. Higher = safe spots are farther away. Out-of-vision cap keeps default rules."
+  },
+  "wave_position_risk_divisor": {
+   "name": "Wave Position Risk Discount (divisor)",
+   "desc": "Divides position risk by this value when the default wave safety condition is met. Higher = sees areas near the wave as safer."
+  },
+  "movement_skill_period_margin": {
+   "name": "Mobility Skill Saving Margin (updates)",
+   "desc": "Margin added when comparing walk time with skill cycle in mobility-saving mode. Not in seconds. Higher = saves mobility skills more."
+  },
+  "early_gank_target_min_hp": {
+   "name": "Early Gank Target Min HP",
+   "desc": "Minimum HP of an enemy considered as an early gank target. Different from the low-HP preference setting."
+  },
+  "camp_time_margin_profile": {
+   "name": "Camp Contest Time Margin (%)",
+   "desc": "Scales the 1s survival margin and the 0.5s margin for comparing enemy clear time by the same ratio."
+  },
+  "battle_risk_retreat_threshold": {
+   "name": "Fight Risk Retreat Threshold",
+   "desc": "Adjusts position risk K/2.4K and direct damage estimate ratio 2K together. Lower = retreats at smaller risks."
+  },
+  "unseen_self_risk_divisor": {
+   "name": "Unseen Self-Risk Discount (divisor)",
+   "desc": "Divides base self-risk by this value when unseen by enemies. Other risk bonuses stay. Higher = trusts staying hidden more."
+  },
+  "battle_reposition_distance_scale": {
+   "name": "Fight Reposition Distance Range (%)",
+   "desc": "Scales the 5 reposition candidate distances around enemies and self. Higher = searches a wider distance band."
+  },
+  "candidate_move_budget_margin": {
+   "name": "Attack/Skill Search Move Margin",
+   "desc": "Adds move budget x this value when gathering basic attack and first two skill candidates. Real range/effect caps kept. Not seconds."
+  },
+  "forward_damage_credit_percent": {
+   "name": "Advance Damage Offset (%)",
+   "desc": "Subtracts this share of current-position damage from post-move risk, floored at 0. Higher = sees advancing as less risky."
+  },
+  "battle_move_candidate_penalty": {
+   "name": "Fight Move Candidate Penalty",
+   "desc": "Penalty only for move candidates that meet the default conditions. Higher = picks moves less often vs attacks and skills."
+  },
+  "lane_attack_move_allowance": {
+   "name": "Lane Attack Approach Margin",
+   "desc": "Approach margin multiplied into own move budget. Higher = also considers farther attack candidates."
+  },
+  "lane_defense_support_margin": {
+   "name": "Lane Defense Assist Margin",
+   "desc": "Assist margin added to the number of other allies nearby. The default ability conditions are still required."
+  },
+  "lane_exchange_advantage_ticks": {
+   "name": "Lane Trade Time Advantage",
+   "desc": "Trade time-gap threshold for the final lane candidate. In update ticks. The separate headcount bypass is kept."
+  },
+  "lane_superiority_profile": {
+   "name": "Lane Numbers Advantage Caution",
+   "desc": "Low: assigned HP 20, 1 player. Default: 25, 2 players. High: 30, 3 players. Team-wide policy."
+  },
+  "lane_call_travel_seconds": {
+   "name": "Lane Gank Call Travel Limit",
+   "desc": "Applies the same seconds to the call-response travel cost cap and the accepted plan deadline."
+  },
+  "mia_notice_caution_profile": {
+   "name": "MIA Alert Caution",
+   "desc": "100 = wait 1/4s, remembered HP 60, distance 170000. Higher = waits longer and filters more strictly."
+  },
+  "relay_undying_limit_centiseconds": {
+   "name": "Ops Signal Undying Time Left",
+   "desc": "100 = game default 1s. Remaining-undying threshold in 0.01s units; once passed, the existing plan is released."
+  },
+  "gank_lane_tower_wave_profile": {
+   "name": "Gank Target Tower/Wave Caution",
+   "desc": "Adjusts tower radius, minion gap and wave position filters together. Higher = more conservative."
+  },
+  "lane_wait_front_minion_distance": {
+   "name": "Lead Ally Minion Wait Distance",
+   "desc": "Uses the same distance for the approach check against the lead allied minion and for the back-off distance."
+  },
+  "support_roam_adc_min_hp": {
+   "name": "Support Roam Bottom Min HP",
+   "desc": "Threshold for checking the allied Bottom's HP on the three known Support roam paths."
+  },
+  "purchase_recall_walk_ticks": {
+   "name": "Shopping Recall Walk Time",
+   "desc": "Walk-time threshold for recalling to buy items. Higher = allows longer walks back. Not in seconds."
+  },
+  "purchase_recall_threat_radius": {
+   "name": "Shopping Recall Threat Radius",
+   "desc": "Radius in which enemies count as threats for a shopping recall. Higher = watches farther enemies. Default distance/activity rules kept."
+  },
+  "purchase_recall_threat_memory": {
+   "name": "Shopping Recall Threat Memory",
+   "desc": "How long recently seen enemies are remembered as threats for a shopping recall. Higher = remembers longer. Not in seconds."
+  },
+  "same_lane_partner_radius": {
+   "name": "Same Lane Partner Radius",
+   "desc": "Radius in which a same-lane teammate counts as nearby. Higher = counts farther teammates. Separate out-of-range approval is kept."
+  },
+  "support_zero_net_penalty": {
+   "name": "Assist Zero Net Score Penalty",
+   "desc": "Penalty when the assist score, after meeting eligibility and subtracting travel cost, is exactly 0. Higher = picks that assist less."
+  },
+  "camp_deadline_arrival_seconds": {
+   "name": "Normal Camp Deadline Arrival Margin",
+   "desc": "Extra time (s) added when comparing a normal camp's deadline with arrival time. Higher = stricter about arriving in time."
+  },
+  "enemy_base_allies_radius": {
+   "name": "All Allies Near Enemy Base Radius",
+   "desc": "Radius for judging whether all present allies are near the enemy base. Uses the deciding player's setting. Higher = counts more widely."
+  },
+  "ambush_wait_accept_radius": {
+   "name": "Ambush Wait Radius",
+   "desc": "Radius, within the default position rules for ambush start/recheck, where waiting counts. Higher = wider. Enemy detection radius kept."
+  },
+  "tracked_target_chase_bonus": {
+   "name": "Tracked Target Out-of-Range Chase Bonus",
+   "desc": "Score added to chase candidates when the registered tracked target is out of range. Higher = chases that target more."
+  },
+  "champion_ultimate_waste_penalty": {
+   "name": "Champion Ultimate Waste Penalty",
+   "desc": "Penalty for champion-targeted Ultimate candidates that meet the default waste check. Higher = saves that Ultimate more. Power unchanged."
+  },
+  "lane_opportunity_enemy_limit": {
+   "name": "Lane Opportunity Enemy Limit",
+   "desc": "Max enemies allowed when checking a lane opportunity. Higher = considers opportunities even with more enemies."
+  },
+  "skill_arrival_prediction_margin": {
+   "name": "Skill Arrival Prediction Margin",
+   "desc": "Time margin added when predicting when a skill lands. Higher = larger margin. Not in seconds; skill speed and cooldown unchanged."
+  },
+  "nexus_finish_start_range": {
+   "name": "Relic Finish Start Range (%)",
+   "desc": "Pushes to end only if the enemy Relic or last buildings are in this range (100 = game default, about 250000). Higher = goes from farther."
+  },
+  "weak_team_finish_caution": {
+   "name": "Weak Team Finish Caution (%)",
+   "desc": "Weaker team = more careful finishing the Relic (100 = game default, up to 1.95x stricter). 0 = tries regardless of ability (0.7.1 style)."
+  },
+  "enemy_approach_engage_range": {
+   "name": "Enemy Approach Fight Request Range (%)",
+   "desc": "HP>60%, requests a fight if a seen enemy champion is in range (100 = game default 250000; Epic/Serpen: within 230000). Higher = farther."
+  },
+  "pre_gank_enemy_check_range": {
+   "name": "Gank Enemy Check Range (%)",
+   "desc": "Before the gank arrives, engaging is only considered with a seen enemy champion in range (100 = game default 250000). Higher = farther."
+  }
+ },
+ "note": "게임 UI 영어 용어를 따른다(넥서스 = Relic · 0.7.2 i18n en 실측 Nexus 0회/Relic 8회). 생성 = tools/gen_lang_en.py → src/lang_en.rs"
+}

@@ -1,5 +1,5 @@
 //! 게임 팀전술 창에 버튼 + 종류별 탭과 포지션별 상세전술 모달.
-use crate::{tactics::{self,Kind,Scope},save,presentation::{self,CATEGORIES}};
+use crate::{tactics::{self,Kind,Scope},save,presentation::{self,CATEGORIES},lang};
 use mod_api_stable::StableClient;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool,Ordering::Relaxed};
@@ -36,7 +36,7 @@ impl Editor {
 fn cell_level(e:&Editor,t:usize,col:usize)->Option<u8>{
     if col==COL_DUO{(e.draft[t][3]==e.draft[t][4]).then_some(e.draft[t][3])}else{Some(e.draft[t][col])}
 }
-fn cell_choice(t:usize,lv:Option<u8>)->String{lv.map(|lv|choice(t,lv)).unwrap_or_else(||"서로 다름 · 다시 선택".into())}
+fn cell_choice(t:usize,lv:Option<u8>)->String{lv.map(|lv|choice(t,lv)).unwrap_or_else(||lang::ui("서로 다름 · 다시 선택").into())}
 fn close_dropdown(e:&mut Editor){e.dropdown=None;DROPDOWN_OPEN.store(false,Relaxed);}
 static FIRED:Mutex<Option<std::collections::HashMap<String,u64>>>=Mutex::new(None);
 fn text(ctx:&mut StableClient<'_>,p:&str,s:&str){if ctx.ui_text(p).as_deref()!=Some(s){ctx.ui_set_text(p,s);}}
@@ -55,15 +55,15 @@ fn centered_dropdown(src:String,w:usize,kit_text_inset:usize)->String{
 }
 fn source()->String{
     let mut s=String::from("dt_modal:color { width:1740px; height:970px; anchor_x:0.5; pivot_x:0.5; anchor_y:0.5; pivot_y:0.5; visible:false; color:#161721ff; rounding:Uniform{rounding:12;}\n");
-    s+=&label("title",30,18,1450,42,26,"상세전술");
-    s+=&label("hint",30,63,1680,30,16,"종류별 탭에서 전술을 고르고 풀다운으로 설정합니다. 확인하면 내 팀에 적용합니다. 게임을 저장(저장하기·자동 저장)해야 다음 실행에도 남습니다.");
+    s+=&label("title",30,18,1450,42,26,lang::ui("상세전술"));
+    s+=&label("hint",30,63,1680,30,16,lang::ui("종류별 탭에서 전술을 고르고 풀다운으로 설정합니다. 확인하면 내 팀에 적용합니다. 게임을 저장(저장하기·자동 저장)해야 다음 실행에도 남습니다."));
     s+=&label("status",30,95,1680,28,15,"");
     for(tab,category)in CATEGORIES.iter().enumerate(){
-        s+=&button(&format!("tab{tab}"),30+tab*(1680/CATEGORIES.len()),132,1680/CATEGORIES.len()-10,category.name);
+        s+=&button(&format!("tab{tab}"),30+tab*(1680/CATEGORIES.len()),132,1680/CATEGORIES.len()-10,lang::ui(category.name));
         s+=&format!("#tab_mark{tab}:color {{ ignore_event:true; x:{}px; y:173px; width:{}px; height:3px; color:#69bfcfff; }}\n",30+tab*(1680/CATEGORIES.len()),1680/CATEGORIES.len()-10);
     }
-    s+=&label("name_header",30,184,640,35,17,"전술 / 적용 상태");
-    for(c,n)in tactics::POS_NAMES.iter().enumerate(){s+=&label(&format!("col{c}"),690+c*200,184,190,35,18,n).replace("align_y:Center;","align_x:Center; align_y:Center;");}
+    s+=&label("name_header",30,184,640,35,17,lang::ui("전술 / 적용 상태"));
+    for(c,n)in tactics::POS_NAMES.iter().enumerate(){s+=&label(&format!("col{c}"),690+c*200,184,190,35,18,lang::ui(n)).replace("align_y:Center;","align_x:Center; align_y:Center;");}
     for(tab,category)in CATEGORIES.iter().enumerate(){
       s+=&format!("#page{tab}:scroll_view {{ x:0px; y:229px; width:1720px; height:616px; speed:100; visible:false; bar_width:5; bar:{{source:\"asset/base/sprite/white\";color:#69bfcfff;hover:{{color:#ecfbf8ff;}}}} back:{{source:\"asset/base/sprite/white\";color:#00000000;}} #contents:empty {{width:1700px;height:{}px;\n",category.ids.len()*76);
       for row in 0..category.ids.len() {
@@ -80,9 +80,9 @@ fn source()->String{
       s+="}}\n";
     }
     s+=&label("category_info",30,862,1370,38,16,"");
-    s+=&button("reset",1450,862,230,"전부 기본으로");
-    s+=&label("config",30,916,1120,30,14,"단계별 숫자는 모드 폴더의 detail_tactics_values.cfg에서 바꾸면 자동 반영됩니다.");
-    s+=&button("cancel",1220,912,210,"취소");s+=&button("ok",1450,912,230,"확인");
+    s+=&button("reset",1450,862,230,lang::ui("전부 기본으로"));
+    s+=&label("config",30,916,1120,30,14,lang::ui("단계별 숫자는 모드 폴더의 detail_tactics_values.cfg에서 바꾸면 자동 반영됩니다."));
+    s+=&button("cancel",1220,912,210,lang::ui("취소"));s+=&button("ok",1450,912,230,lang::ui("확인"));
     for(id,w)in [("choices_player",190),("choices_team",990),("choices_duo",390)]{
       s+=&centered_dropdown(dd::list_source(id,690,234,w,38,16,&[("lv0",""),("lv1",""),("lv2","")]),w as usize,54);
     }
@@ -130,14 +130,14 @@ fn register_popup(ctx:&mut StableClient<'_>){
     });}}
 }
 fn choice(t:usize,lv:u8)->String {
-    if tactics::TACTICS[t].kind==Kind::Toggle {return if lv==0{"기본 · 켬"}else{"끔"}.into();}
-    format!("{} · {}",["기본","낮게","높게"][lv.min(2) as usize],tactics::value_of(t,lv))
+    if tactics::TACTICS[t].kind==Kind::Toggle {return lang::ui(if lv==0{"기본 · 켬"}else{"끔"}).into();}
+    format!("{} · {}",lang::ui(["기본","낮게","높게"][lv.min(2) as usize]),tactics::value_of(t,lv))
 }
 pub fn tick(ctx:&mut StableClient<'_>,frame:u64){
     if !ctx.ui_exists(PARENT){leave();if ctx.ui_exists(POP){ctx.ui_set_visible(POP,false);}return;}
     let entry=format!("{PARENT}.dt_open");
     if !ctx.ui_exists(&entry){
-        let src=button("dt_open",710,15,216,"상세전술").replacen('#',"",1);
+        let src=button("dt_open",710,15,216,lang::ui("상세전술")).replacen('#',"",1);
         if ctx.ui_spawn_source(PARENT,&src){
             ctx.ui_register_click(&entry,"",move |_|{
                 if !save::loaded(){return;}
@@ -149,11 +149,14 @@ pub fn tick(ctx:&mut StableClient<'_>,frame:u64){
             });
         }
     }
+    let lang_changed=frame%60==0&&lang::refresh(ctx);
+    if lang_changed||frame%60==0{text(ctx,&format!("{entry}.caption"),lang::ui("상세전술"));}
     let is_open=EDIT.lock().unwrap_or_else(|e|e.into_inner()).open;
     if is_open&&!ctx.ui_exists(POP){if !ctx.ui_spawn_source("main",&source()){crate::log("상세전술 모달 생성 실패");return;}register_popup(ctx);}
     if ctx.ui_exists(POP)&&ctx.ui_visible(POP)!=Some(is_open){ctx.ui_set_visible(POP,is_open);}
     if !is_open{for id in ["choices_player","choices_team","choices_duo"]{if ctx.ui_exists(POP){ctx.ui_set_visible(&format!("{POP}.{id}"),false);}}return;}
     let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());
+    if lang_changed{e.dirty=true;}
     let active=e.dropdown.map(|(_,col)|choice_id(col));
     for id in ["choices_player","choices_team","choices_duo"]{if active!=Some(id){ctx.ui_set_visible(&format!("{POP}.{id}"),false);}}
     if let Some((row,col))=e.dropdown{
@@ -173,9 +176,14 @@ pub fn tick(ctx:&mut StableClient<'_>,frame:u64){
         if !DROPDOWN_OPEN.load(Relaxed){e.dropdown=None;}
     }else{let _=dd::click_edge();}
     if !e.dirty&&frame%120!=0{return;}e.dirty=false;
-    text(ctx,&format!("{POP}.status"),if tactics::armed(){"내 팀 적용 준비됨"}else{"내 팀 선수 / 세이브 설정을 확인 중입니다. 확인이 끝나면 자동 적용합니다."});
+    text(ctx,&format!("{POP}.status"),lang::ui(if tactics::armed(){"내 팀 적용 준비됨"}else{"내 팀 선수 / 세이브 설정을 확인 중입니다. 확인이 끝나면 자동 적용합니다."}));
+    // 창을 만들 때 넣은 고정 문구도 현재 언어로(게임 중 언어 변경 대응 · text 는 같으면 쓰지 않는다)
+    for(id,s)in [("title","상세전술"),("hint","종류별 탭에서 전술을 고르고 풀다운으로 설정합니다. 확인하면 내 팀에 적용합니다. 게임을 저장(저장하기·자동 저장)해야 다음 실행에도 남습니다."),("name_header","전술 / 적용 상태"),
+                 ("config","단계별 숫자는 모드 폴더의 detail_tactics_values.cfg에서 바꾸면 자동 반영됩니다."),("reset.caption","전부 기본으로"),("cancel.caption","취소"),("ok.caption","확인")]{text(ctx,&format!("{POP}.{id}"),lang::ui(s));}
+    for(c,n)in tactics::POS_NAMES.iter().enumerate(){text(ctx,&format!("{POP}.col{c}"),lang::ui(n));}
+    for(tab,c)in CATEGORIES.iter().enumerate(){text(ctx,&format!("{POP}.tab{tab}.caption"),lang::ui(c.name));}
     let category=&CATEGORIES[e.tab];
-    text(ctx,&format!("{POP}.category_info"),&format!("{} · {}개 전술  |  적용되지 않는 포지션은 빈칸으로 표시합니다.",category.name,category.ids.len()));
+    text(ctx,&format!("{POP}.category_info"),&lang::category_info(category.name,category.ids.len()));
     for tab in 0..CATEGORIES.len(){
         let selected=tab==e.tab;let bg=if selected{"#274b5fff"}else{"#30343fff"};
         ctx.ui_set_properties(&format!("{POP}.tab{tab}"),&format!("btn: {{color:{bg}; back_color:{bg};}}"));
@@ -186,15 +194,15 @@ pub fn tick(ctx:&mut StableClient<'_>,frame:u64){
         let t=e.tactic(row).expect("category catalog");
         let base=format!("{POP}.page{}.contents",e.tab);
         let d=&tactics::TACTICS[t];
-        let st=tactics::status(t);let suffix=match st{tactics::ST_ACTIVE=>"",tactics::ST_UNSUPPORTED=>" · 이번 버전 미지원",tactics::ST_FAILED=>" · 설치 실패(원본 유지)",_=>" · 준비 중"};
-        text(ctx,&format!("{base}.name{row}"),&format!("{}{suffix}",d.name));
-        text(ctx,&format!("{base}.desc{row}"),d.desc);
+        let st=tactics::status(t);let suffix=match st{tactics::ST_ACTIVE=>"",tactics::ST_UNSUPPORTED=>lang::ui(" · 이번 버전 미지원"),tactics::ST_FAILED=>lang::ui(" · 설치 실패(원본 유지)"),_=>lang::ui(" · 준비 중")};
+        text(ctx,&format!("{base}.name{row}"),&format!("{}{suffix}",lang::tactic_name(t)));
+        text(ctx,&format!("{base}.desc{row}"),lang::tactic_desc(t));
         for col in 0..=COL_DUO{
             let path=row_path(e.tab,row,col);
             let show=cell_visible(t,col);
             if ctx.ui_visible(&path)!=Some(show){ctx.ui_set_visible(&path,show);}
             if !show{continue;}
-            let lv=cell_level(&e,t,col);let title=if st!=tactics::ST_ACTIVE{"원본 유지".into()}else{cell_choice(t,lv)};
+            let lv=cell_level(&e,t,col);let title=if st!=tactics::ST_ACTIVE{lang::ui("원본 유지").into()}else{cell_choice(t,lv)};
             text(ctx,&format!("{path}.label"),&title);
             let bg=if st!=tactics::ST_ACTIVE{"#292b33ff"}else{match lv{Some(1)=>"#274555ff",Some(2)=>"#60452bff",_=>"#30343fff"}};
             ctx.ui_set_properties(&path,&format!("btn: {{color:{bg}; back_color:{bg};}}"));
@@ -255,5 +263,18 @@ pub fn leave(){let mut e=EDIT.lock().unwrap_or_else(|e|e.into_inner());close_dro
     }
     #[test]fn generated_source_has_all_cells(){let s=source();for r in 0..CATEGORIES[0].ids.len(){assert!(s.contains(&format!("#team{r}:")));for c in 0..5{assert!(s.contains(&format!("#c{r}_{c}:")));}}assert_eq!(s.matches('{').count(),s.matches('}').count());
         if let Some(dir)=std::env::var_os("DT_EXPORT_DIR"){std::fs::create_dir_all(&dir).unwrap();std::fs::write(std::path::Path::new(&dir).join("detail_tactics_popup.ui"),s).unwrap();}
+    }
+    // 영어 게임(한글 글리프 없음)에서 모드 화면 문구에 한글이 0 이어야 한다(BRIEF_I18N). 창 정의 + 행·셀·상태 문구 전부.
+    #[test]fn english_mode_screen_text_has_no_hangul(){
+        let hangul=|s:&str|s.chars().any(|c|('\u{ac00}'..='\u{d7a3}').contains(&c)||('\u{3131}'..='\u{318e}').contains(&c));
+        lang::set_ko_for_test(false);
+        let mut all=vec![source(),button("dt_open",710,15,216,lang::ui("상세전술")),cell_choice(0,None)];
+        for t in 0..tactics::N{all.push(lang::tactic_name(t).into());all.push(lang::tactic_desc(t).into());for lv in 0..3{all.push(choice(t,lv));}}
+        for c in CATEGORIES{all.push(lang::category_info(c.name,c.ids.len()));}
+        for s in ["내 팀 적용 준비됨","내 팀 선수 / 세이브 설정을 확인 중입니다. 확인이 끝나면 자동 적용합니다."," · 이번 버전 미지원"," · 설치 실패(원본 유지)"," · 준비 중","원본 유지"]{all.push(lang::ui(s).into());}
+        lang::set_ko_for_test(true);
+        for s in &all{assert!(!hangul(s),"영어 모드 한글: {}",s.chars().take(80).collect::<String>());}
+        // 한국어 모드는 지금 문구 그대로(창 정의가 영어 판과 달라야 하고 원래 제목을 담는다)
+        assert!(source().contains("text:\"상세전술\""));
     }
 }
