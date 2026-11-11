@@ -189,6 +189,16 @@ PORT = {k: opt(x) for k, x in {
     'ops_radius_squared': lambda f, v: n(v, 1000, 2000000) ** 2,
     'ops_camp_tps': lambda f, v: f.mem(1, 0x12f8) * n(v, 0, 10),
     'ops_gather_square': lambda f, v: n(v, 1000, 2000000) ** 2,
+    # 0.7.2 신설 E001~E004
+    'finish_reach_lt': lambda f, v: (250000 * n(v, 25, 400) // 100 + 1) ** 2,
+    'finish_reach_le': lambda f, v: (250000 * n(v, 25, 400) // 100 + 1) ** 2 - 1,
+    'finish_caution_alone': lambda f, v: 95 * n(v, 0, 130) // 100 + 100,
+    'finish_caution_scale': lambda f, v: (f.reg(1) & 0xffffffff) * n(v, 0, 130) // 100 & 0xffffffff,
+    'approach_call_objective': lambda f, v: (230000 * n(v, 25, 400) // 100) ** 2,
+    'approach_call_enemy': lambda f, v: (250000 * n(v, 25, 400) // 100) ** 2,
+    'approach_call_enemy_free': lambda f, v: (250000 * n(v, 25, 400) // 100) ** 2 + 1,
+    'pregank_enemy_radius': lambda f, v: (250000 * v // 100) ** 2 if 25 <= v <= 400 else None,
+    'pregank_enemy_radius_alt': lambda f, v: (150000 * v // 100) ** 2 if 25 <= v <= 400 else None,
     'combat_rsi_add': lambda f, v: f.reg(12) + n(v, 0, 1000),
     'combat_negative': lambda f, v: -n(v, 0, 1000),
 }.items()}
@@ -311,7 +321,7 @@ def main():
     import track_update as T
     ver, sha, patches = T.parse_sites((MOD / 'src' / 'sites.rs').read_text(encoding='utf-8'))
     tacs = parse_defaults()
-    assert len(tacs) == 100, len(tacs)
+    assert len(tacs) == 104, len(tacs)   # 100 + 0.7.2 신설 E001~E004
     print('sites %s · 창 %d · 전술표 %d' % (ver, len(patches), len(tacs)))
 
     rnd = random.Random(20261104)

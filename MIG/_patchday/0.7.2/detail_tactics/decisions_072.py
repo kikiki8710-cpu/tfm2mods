@@ -27,8 +27,50 @@ TACTIC_FIX = {
     },
 }
 
-# 새 전술(0.7.2 신설 판단 · 유저 승인 2026-11-11 · 이름 = 유저 지정) — NEW4.json(창 RE) 결과로 채운다
-NEW_TACTICS = []
+# 새 전술(0.7.2 신설 판단 · 유저 승인 2026-11-11 · 이름 = 유저 지정) — 창 = re/NEW4.json(창 RE · 18창 검사·등가 통과)
+# extra_verified 문서 끝에 붙인다: gen_extras 가 lane/combat/ops 를 감사 ID 로 정렬하므로 거기 넣으면 기존 verified 12개 번호가 밀린다.
+import json as _json
+import os as _os
+
+_N4 = {t['id']: t for t in _json.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 're', 'NEW4.json'), encoding='utf-8'))['tactics']}
+_TF = {  # 콜백 이름 정리(E003 = 「적 접근 시 교전 요청」 — RE 원안의 objective_* 이름은 뜻이 좁아 바꿈)
+    'extra_ops::objective_call_wide': 'extra_ops::approach_call_objective',
+    'extra_ops::objective_call_enemy': 'extra_ops::approach_call_enemy',
+    'extra_ops::objective_call_enemy_free': 'extra_ops::approach_call_enemy_free',
+}
+
+
+def _new(src_id, audit, tid, name, desc, tab, scope, levels, drop=()):
+    t = _N4[src_id]
+    lo, df, hi, mn, mx = levels
+    sites = []
+    for s in t['sites']:
+        if s['rva'] in drop:
+            continue
+        s = dict(s)
+        calc = s['tf']['calc']
+        s['tf'] = {'calc': _TF.get(calc, calc)}
+        s['window_name'] = f'{tid}@{s["rva"]}'
+        sites.append(s)
+    return {'audit_id': audit, 'id': tid, 'name': name, 'desc': desc, 'scope': scope, 'default': df, 'low': lo, 'high': hi,
+            'min': mn, 'max': mx, 'kind': 'Value', 'tab': tab, 'pos_mask': 31, 'sites': sites}
+
+
+NEW_TACTICS = [
+    ('extra_verified', _new('nexus_finish_start_range', 'E001', 'nexus_finish_start_range', '넥서스 마무리 시작 거리(%)',
+                            '적 넥서스나 남은 건물이 이 거리 안에 있어야 끝까지 밀어붙인다(100 = 원본 약 25만). 높을수록 멀리서도 끝내러 간다',
+                            '푸시·타워', 'Player', (70, 100, 150, 25, 400))),
+    ('extra_verified', _new('weak_team_finish_caution', 'E002', 'weak_team_finish_caution', '전력 부족 시 마무리 신중도(%)',
+                            '팀 능력이 낮을수록 넥서스 마무리를 더 조심한다(100 = 원본 · 최대 1.95배 엄격). 0이면 능력과 상관없이 시도한다(0.7.1 방식)',
+                            '푸시·타워', 'Team', (50, 100, 130, 0, 130))),
+    ('extra_verified', _new('objective_engage_call_range', 'E003', 'enemy_approach_engage_range', '적 접근 시 교전 요청 거리(%)',
+                            '체력 60% 넘을 때 보이는 적 챔피언이 이 거리 안에 오면 교전을 제안한다(100 = 원본 25만 · 에픽·세르펜을 노릴 땐 적이 그 근처 23만 안이어야 함). 높을수록 먼 적에게도 건다',
+                            '전투·생존', 'Player', (75, 100, 125, 25, 400),
+                            drop=('0xe6a96d',))),  # 180000² 갈래 = 입구 점프표가 상태 1 만 들여 정적으로 도달 불가(NEW4 §3)
+    ('extra_verified', _new('pre_gank_enemy_check_range', 'E004', 'pre_gank_enemy_check_range', '갱 시도 시 적 확인 거리(%)',
+                            '갱 도착 전 이 거리 안에 보이는 적 챔피언이 있어야 선공을 검토한다(100 = 원본 25만). 높을수록 멀리 있는 적에게도 선공을 노린다',
+                            '갱·로밍', 'Player', (75, 100, 150, 25, 400))),
+]
 
 # 새 extra 창 — 없음
 NEW_SITES = []

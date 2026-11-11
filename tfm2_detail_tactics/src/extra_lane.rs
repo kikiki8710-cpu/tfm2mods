@@ -11,6 +11,9 @@ pub(crate) fn call_general(f:&Frame,v:i64)->Option<u64>{if !(0..=1000000).contai
 pub(crate) fn same_lane_retry(f:&Frame,v:i64)->Option<u64>{if !(0..=1000000).contains(&v){return None;}tps_mul(half_tps(f.reg(0)?)?,v)}
 pub(crate) fn pregank_hp(_f:&Frame,v:i64)->Option<u64>{if !(0..=1000000).contains(&v){return None;}Some((35u64).wrapping_mul(v as u64)/100)}
 pub(crate) fn pregank_radius(_f:&Frame,v:i64)->Option<u64>{if !(0..=1000000).contains(&v){return None;}{let r=200000u64.wrapping_mul(v as u64)/100;Some(r.wrapping_mul(r))}}
+// 0.7.2 신설 E004 갱 시도 시 적 확인 거리: 평가 입구 0xe6b8c1 「근처에 보이는 적 챔프」 반경 250000(World vt+0x40 이면 150000).
+pub(crate) fn pregank_enemy_radius(_f:&Frame,v:i64)->Option<u64>{if !(25..=400).contains(&v){return None;}{let r=250000u64.wrapping_mul(v as u64)/100;Some(r.wrapping_mul(r))}} // 0xe6b903 rcx
+pub(crate) fn pregank_enemy_radius_alt(_f:&Frame,v:i64)->Option<u64>{if !(25..=400).contains(&v){return None;}{let r=150000u64.wrapping_mul(v as u64)/100;Some(r.wrapping_mul(r))}} // 0xe6b90d rax
 pub(crate) fn defense_risk(_f:&Frame,v:i64)->Option<u64>{if !(0..=1000000).contains(&v){return None;}Some(35u64.wrapping_mul(v as u64)/100)}
 pub(crate) fn defense_long(_f:&Frame,v:i64)->Option<u64>{if !(0..=1000000).contains(&v){return None;}Some(25u64.wrapping_mul(v as u64)/100)}
 pub(crate) fn defense_short(_f:&Frame,v:i64)->Option<u64>{if !(0..=1000000).contains(&v){return None;}Some(10u64.wrapping_mul(v as u64)/100)}

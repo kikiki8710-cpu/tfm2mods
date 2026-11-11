@@ -3,7 +3,7 @@
   "game_ver": "0.7.2",
   "build": "powershell -NoProfile -ExecutionPolicy Bypass -File F:/claude/tfm2mods/tfm2_detail_tactics/build_local.ps1 -RunTests",
   "notes": [
-    "2026-11-11 0.7.2 재생성(MIG/_patchday/0.7.2/detail_tactics/regen_manifest_072.py — 0.6.5 큐레이션과 같은 스키마로 sites.rs 에서 기계 생성). 실제 소스 생성물 99전술(미지원 1 = extra_n011) 210창 + Caller 반환주소 + 재배치 분기 목적지. game EXE SHA256 고정.",
+    "2026-11-11 0.7.2 재생성(MIG/_patchday/0.7.2/detail_tactics/regen_manifest_072.py — 0.6.5 큐레이션과 같은 스키마로 sites.rs 에서 기계 생성). 실제 소스 생성물 103전술(미지원 -3 = extra_n011) 227창 + Caller 반환주소 + 재배치 분기 목적지. game EXE SHA256 고정.",
     "정본 수정 순서: tools/targets/knobs/subjects/extra_* 원천 → gen_sites.py → 이 매니페스트 재생성. sites만 수동 재핀하면 다음 생성에서 소실된다.",
     "MIG 기본 MODS 목록 편입은 별도 작업이다. 현재 check/coverage는 모드명을 명시해야 이 파일을 검사한다.",
     "12B PASS는 명령/소유자/구조체 계약 불변이나 런타임 효과 검증이 아니다. offsets 별도 검증 필요. 고정 구조체 오프셋은 source_contracts와 원천 JSON/RE에서 회수한다."
@@ -16,7 +16,7 @@
       "ver": "0.6.5",
       "kind": "NOT_RVA",
       "locs": [
-        "src/micro.rs:398"
+        "src/micro.rs:399"
       ],
       "sect": "N/A",
       "bytes": null,
@@ -895,6 +895,376 @@
       ]
     },
     {
+      "name": "CALLER_RETURN_0xe672d7",
+      "value": "0xe672d7",
+      "ver": "0.7.2",
+      "kind": "RETURN_SITE",
+      "locs": [
+        "src/sites.rs:428",
+        "src/sites.rs:430"
+      ],
+      "sect": ".text",
+      "bytes": "9084c04c8b8d480b0000488b",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "RETURN_SITE"
+      ],
+      "contracts": [
+        {
+          "site": "extra_e001@0xea1897",
+          "return_rva": "0xe672d7",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        },
+        {
+          "site": "extra_e001@0xea18c1",
+          "return_rva": "0xe672d7",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6a264",
+      "value": "0xe6a264",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:436"
+      ],
+      "sect": ".text",
+      "bytes": "49bd00f115510c000000e904",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6a264",
+          "rva": "0xe6a264",
+          "length": 10,
+          "bytes": "49 bd 00 f1 15 51 0c 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6a688",
+      "value": "0xe6a688",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:448"
+      ],
+      "sect": ".text",
+      "bytes": "48b801514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6a688",
+          "rva": "0xe6a688",
+          "length": 10,
+          "bytes": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6a72a",
+      "value": "0xe6a72a",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:450"
+      ],
+      "sect": ".text",
+      "bytes": "48b801514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6a72a",
+          "rva": "0xe6a72a",
+          "length": 10,
+          "bytes": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6a7cc",
+      "value": "0xe6a7cc",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:452"
+      ],
+      "sect": ".text",
+      "bytes": "48b801514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6a7cc",
+          "rva": "0xe6a7cc",
+          "length": 10,
+          "bytes": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6a86e",
+      "value": "0xe6a86e",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:454"
+      ],
+      "sect": ".text",
+      "bytes": "48b801514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6a86e",
+          "rva": "0xe6a86e",
+          "length": 10,
+          "bytes": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6a918",
+      "value": "0xe6a918",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:456"
+      ],
+      "sect": ".text",
+      "bytes": "48b801514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6a918",
+          "rva": "0xe6a918",
+          "length": 10,
+          "bytes": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6aa86",
+      "value": "0xe6aa86",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:438"
+      ],
+      "sect": ".text",
+      "bytes": "48ba00514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6aa86",
+          "rva": "0xe6aa86",
+          "length": 10,
+          "bytes": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6ab60",
+      "value": "0xe6ab60",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:440"
+      ],
+      "sect": ".text",
+      "bytes": "48ba00514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6ab60",
+          "rva": "0xe6ab60",
+          "length": 10,
+          "bytes": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6ac3a",
+      "value": "0xe6ac3a",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:442"
+      ],
+      "sect": ".text",
+      "bytes": "48ba00514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6ac3a",
+          "rva": "0xe6ac3a",
+          "length": 10,
+          "bytes": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6ad14",
+      "value": "0xe6ad14",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:444"
+      ],
+      "sect": ".text",
+      "bytes": "48ba00514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6ad14",
+          "rva": "0xe6ad14",
+          "length": 10,
+          "bytes": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e003@0xe6adee",
+      "value": "0xe6adee",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:446"
+      ],
+      "sect": ".text",
+      "bytes": "48ba00514a8d0e0000004939",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e003@0xe6adee",
+          "rva": "0xe6adee",
+          "length": 10,
+          "bytes": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
       "name": "extra_c004@0xe6b89d",
       "value": "0xe6b89d",
       "ver": "0.7.2",
@@ -964,6 +1334,68 @@
         {
           "site": "extra_c004@0xe6cb09",
           "target_rva": "0xe6b8c1"
+        }
+      ]
+    },
+    {
+      "name": "extra_e004@0xe6b903",
+      "value": "0xe6b903",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:458"
+      ],
+      "sect": ".text",
+      "bytes": "48b900514a8d0e00000048b8",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e004@0xe6b903",
+          "rva": "0xe6b903",
+          "length": 10,
+          "bytes": "48 b9 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e004@0xe6b90d",
+      "value": "0xe6b90d",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:460"
+      ],
+      "sect": ".text",
+      "bytes": "48b800c11a3d05000000480f",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e004@0xe6b90d",
+          "rva": "0xe6b90d",
+          "length": 10,
+          "bytes": "48 b8 00 c1 1a 3d 05 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "src": "Src::Mem(5, 0xb48)",
+          "team_chk": "Src::Mem(5, 0xb10)"
         }
       ]
     },
@@ -1792,6 +2224,97 @@
       ]
     },
     {
+      "name": "extra_e001@0xea1897",
+      "value": "0xea1897",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:428"
+      ],
+      "sect": ".text",
+      "bytes": "49b921f2518d0e0000004c39",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e001@0xea1897",
+          "rva": "0xea1897",
+          "length": 10,
+          "bytes": "49 b9 21 f2 51 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xea1800",
+            "0xea193f"
+          ],
+          "src": "Src::Caller(0x48, &[Caller { ret_rva: 0xe672d7, src: Src::Mem(5, 0xb48) }, Caller { ret_rva: 0x106bce6, src: Src::Mem(5, 0x290) }, Caller { ret_rva: 0x1168ac9, src: Src::Stack(0xd0) }])",
+          "team_chk": "Src::Caller(0x48, &[Caller { ret_rva: 0xe672d7, src: Src::Mem(5, 0xb10) }, Caller { ret_rva: 0x106bce6, src: Src::Mem(5, 0x268) }, Caller { ret_rva: 0x1168ac9, src: Src::Stack(0x28) }])"
+        }
+      ]
+    },
+    {
+      "name": "extra_e001@0xea18c1",
+      "value": "0xea18c1",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:430"
+      ],
+      "sect": ".text",
+      "bytes": "49bb20f2518d0e0000000f1f",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e001@0xea18c1",
+          "rva": "0xea18c1",
+          "length": 10,
+          "bytes": "49 bb 20 f2 51 8d 0e 00 00 00",
+          "first_len": 10,
+          "function": [
+            "0xea1800",
+            "0xea193f"
+          ],
+          "src": "Src::Caller(0x48, &[Caller { ret_rva: 0xe672d7, src: Src::Mem(5, 0xb48) }, Caller { ret_rva: 0x106bce6, src: Src::Mem(5, 0x290) }, Caller { ret_rva: 0x1168ac9, src: Src::Stack(0xd0) }])",
+          "team_chk": "Src::Caller(0x48, &[Caller { ret_rva: 0xe672d7, src: Src::Mem(5, 0xb10) }, Caller { ret_rva: 0x106bce6, src: Src::Mem(5, 0x268) }, Caller { ret_rva: 0x1168ac9, src: Src::Stack(0x28) }])"
+        }
+      ]
+    },
+    {
+      "name": "CALLER_RETURN_0xea639a",
+      "value": "0xea639a",
+      "ver": "0.7.2",
+      "kind": "RETURN_SITE",
+      "locs": [
+        "src/sites.rs:432",
+        "src/sites.rs:434"
+      ],
+      "sect": ".text",
+      "bytes": "0fb64c24374008e94108cc41",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "RETURN_SITE"
+      ],
+      "contracts": [
+        {
+          "site": "extra_e002@0x101b53f",
+          "return_rva": "0xea639a",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        },
+        {
+          "site": "extra_e002@0x101b575",
+          "return_rva": "0xea639a",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        }
+      ]
+    },
+    {
       "name": "CALLER_RETURN_0xea6a5e",
       "value": "0xea6a5e",
       "ver": "0.7.2",
@@ -2345,6 +2868,35 @@
         {
           "site": "base_defense_min_enemies_6@0xfc785c",
           "return_rva": "0xeb45bd",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        }
+      ]
+    },
+    {
+      "name": "CALLER_RETURN_0xeb5a2f",
+      "value": "0xeb5a2f",
+      "ver": "0.7.2",
+      "kind": "RETURN_SITE",
+      "locs": [
+        "src/sites.rs:432",
+        "src/sites.rs:434"
+      ],
+      "sect": ".text",
+      "bytes": "89c7488bb5500500004883fe",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "RETURN_SITE"
+      ],
+      "contracts": [
+        {
+          "site": "extra_e002@0x101b53f",
+          "return_rva": "0xeb5a2f",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        },
+        {
+          "site": "extra_e002@0x101b575",
+          "return_rva": "0xeb5a2f",
           "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
         }
       ]
@@ -5640,6 +6192,35 @@
       ]
     },
     {
+      "name": "CALLER_RETURN_0xfd5fad",
+      "value": "0xfd5fad",
+      "ver": "0.7.2",
+      "kind": "RETURN_SITE",
+      "locs": [
+        "src/sites.rs:432",
+        "src/sites.rs:434"
+      ],
+      "sect": ".text",
+      "bytes": "40b50284c0746266c744243d",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "RETURN_SITE"
+      ],
+      "contracts": [
+        {
+          "site": "extra_e002@0x101b53f",
+          "return_rva": "0xfd5fad",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        },
+        {
+          "site": "extra_e002@0x101b575",
+          "return_rva": "0xfd5fad",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        }
+      ]
+    },
+    {
       "name": "CALLER_RETURN_0xfd6681",
       "value": "0xfd6681",
       "ver": "0.7.2",
@@ -6033,6 +6614,68 @@
           ],
           "src": "Src::Mem(5, 0xf0)",
           "team_chk": "Src::None"
+        }
+      ]
+    },
+    {
+      "name": "extra_e002@0x101b53f",
+      "value": "0x101b53f",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:432"
+      ],
+      "sect": ".text",
+      "bytes": "b9c3000000eb3589c831d241",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e002@0x101b53f",
+          "rva": "0x101b53f",
+          "length": 5,
+          "bytes": "b9 c3 00 00 00",
+          "first_len": 5,
+          "function": [
+            "0x101b430",
+            "0x101b5e5"
+          ],
+          "src": "Src::Caller(0x88, &[Caller { ret_rva: 0xea639a, src: Src::Stack(0x68) }, Caller { ret_rva: 0xeb5a2f, src: Src::Stack(0x68) }, Caller { ret_rva: 0xfd5fad, src: Src::Stack(0x60) }])",
+          "team_chk": "Src::Reg(14)"
+        }
+      ]
+    },
+    {
+      "name": "extra_e002@0x101b575",
+      "value": "0x101b575",
+      "ver": "0.7.2",
+      "kind": "PATCH_SITE",
+      "locs": [
+        "src/sites.rs:434"
+      ],
+      "sect": ".text",
+      "bytes": "83c1640fb7c94084ed0f95c0",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "PATCH_SITE"
+      ],
+      "contracts": [
+        {
+          "name": "extra_e002@0x101b575",
+          "rva": "0x101b575",
+          "length": 6,
+          "bytes": "83 c1 64 0f b7 c9",
+          "first_len": 3,
+          "function": [
+            "0x101b430",
+            "0x101b5e5"
+          ],
+          "src": "Src::Caller(0x88, &[Caller { ret_rva: 0xea639a, src: Src::Stack(0x68) }, Caller { ret_rva: 0xeb5a2f, src: Src::Stack(0x68) }, Caller { ret_rva: 0xfd5fad, src: Src::Stack(0x60) }])",
+          "team_chk": "Src::Reg(14)"
         }
       ]
     },
@@ -6938,6 +7581,35 @@
           ],
           "src": "Src::Caller(0x68, &[Caller { ret_rva: 0xe5f47b, src: Src::Stack(0x40) }, Caller { ret_rva: 0xfd2ebf, src: Src::Stack(0x58) }, Caller { ret_rva: 0x1167bb7, src: Src::Caller(0xb8, &[Caller { ret_rva: 0xe3ccd5, src: Src::Mem(5, 0x2fa0) }, Caller { ret_rva: 0xe48e5a, src: Src::Mem(5, 0x2fa0) }]) }])",
           "team_chk": "Src::None"
+        }
+      ]
+    },
+    {
+      "name": "CALLER_RETURN_0x106bce6",
+      "value": "0x106bce6",
+      "ver": "0.7.2",
+      "kind": "RETURN_SITE",
+      "locs": [
+        "src/sites.rs:428",
+        "src/sites.rs:430"
+      ],
+      "sect": ".text",
+      "bytes": "84c04c89a5480100000f84e6",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "RETURN_SITE"
+      ],
+      "contracts": [
+        {
+          "site": "extra_e001@0xea1897",
+          "return_rva": "0x106bce6",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        },
+        {
+          "site": "extra_e001@0xea18c1",
+          "return_rva": "0x106bce6",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
         }
       ]
     },
@@ -8910,6 +9582,35 @@
       ]
     },
     {
+      "name": "CALLER_RETURN_0x1168ac9",
+      "value": "0x1168ac9",
+      "ver": "0.7.2",
+      "kind": "RETURN_SITE",
+      "locs": [
+        "src/sites.rs:428",
+        "src/sites.rs:430"
+      ],
+      "sect": ".text",
+      "bytes": "84c07406c6460801eb5cb801",
+      "method": "현행 EXE 12B 및 .pdata/호출자/원천 JSON 대조. 패치 시 tools/targets 원천을 먼저 재탐색하고 gen_sites.py로 다시 생성.",
+      "curated": true,
+      "roles": [
+        "RETURN_SITE"
+      ],
+      "contracts": [
+        {
+          "site": "extra_e001@0xea1897",
+          "return_rva": "0x1168ac9",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        },
+        {
+          "site": "extra_e001@0xea18c1",
+          "return_rva": "0x1168ac9",
+          "owner_filter": "해당 sites 행의 Src::Caller 중첩 계약을 그대로 참조"
+        }
+      ]
+    },
+    {
       "name": "extra_c048@0x116a9b6",
       "value": "0x116a9b6",
       "ver": "0.7.2",
@@ -10074,16 +10775,16 @@
   "source_contracts": {
     "exe_sha256": "4B324F3127953A67EE1972F0D8CEB0673BB4FACCAAB530F0538DA64DD70319FB",
     "tactics": 100,
-    "supported_tactics": 99,
-    "patch_sites": 210,
-    "unique_caller_returns": 80,
-    "caller_uses": 193,
+    "supported_tactics": 103,
+    "patch_sites": 227,
+    "unique_caller_returns": 86,
+    "caller_uses": 205,
     "unique_branch_targets": 44,
     "branch_uses": 54,
     "input_sha256": {
-      "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\src\\sites.rs": "2c86c94c93513a3de5228a7978b3b7f1c2526a76a8639e58af619a708519b137",
+      "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\src\\sites.rs": "c50600aeffdd916a6a358a6054b1dbc575a585cb402489d5a0b87e0387135f95",
       "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\gen_sites.py": "7696b56ab10fe93d747484fe77e0ec9f756e0edae0f4d8c4ed30a8431440e80b",
-      "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\gen_extras.py": "27ce3eecb8d68c4e2eff7f71c79a7e8f878f33636af2a5c7c501f758518f487b",
+      "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\gen_extras.py": "dc2bfe63057c558923b3cbf1b1f8807aed20388f687268edb62ffc05cdd497e0",
       "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\promote_verified.py": "0536813903b22863b2de90d1a82d15e4c3dd4001ff3aeceb793fc4b39dae14cc",
       "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\src\\verified_candidates.rs": "27730589728034d342dbae490b9c064ce39ca7241b1c9d429e4f4a336b2a5c0a",
       "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\targets\\knobs_0.7.2.json": "6c5a468a291efa18a1f53364743124475ad49bea9b2a8f164820781d1d590e11",
@@ -10091,7 +10792,7 @@
       "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\targets\\extra_lane_0.7.2.json": "a1d91bcd05bf8b80ef639a2743822af048a31254affa95ba43aa99b9137fee3c",
       "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\targets\\extra_combat_0.7.2.json": "174412e6a25510cb21bb0ae42b7037099f4e2fd4d5640a8c5a716313210bab9b",
       "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\targets\\extra_ops_0.7.2.json": "f8a9500eb08b15329a0bb014c998ce6abc032385a5e6b8c328af8a19366c6e72",
-      "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\targets\\extra_verified_0.7.2.json": "81deb0072de68a046996f1cc3833c477f026a13fa9b219e55ffc58480cf19bbe"
+      "F:\\claude\\tfm2mods\\tfm2_detail_tactics\\tools\\targets\\extra_verified_0.7.2.json": "216936e467f9411e5929e04a3e9b36bc662ccee22da1973d651cd10adda868b7"
     }
   }
 }

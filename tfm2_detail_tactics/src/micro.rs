@@ -260,7 +260,8 @@ pub(crate) fn replay_ab_snapshot()->serde_json::Value {
         //  + 범위 확장(10-28): other_lane_collapse 3번째 라인 2창 + liner_roam_self_hp 전술 로밍 추가검사창 1 = 207
         //  + 0.7.1: candidate_move_budget 사전 거르기 창 0xf89cc2 = 208
         //  + 0.7.2: 라인 수비 사전 판정 사본 2(combat_retreat_hp 0x11519b7 · self_risk_ignore_hp 0x1147abd) = 210
-        assert_eq!(tactics::N,100);assert_eq!(sites::PATCHES.len(),210);
+        //  + 0.7.2 신설 전술 E001~E004(2+2+11+2) = 227 · 전술 100 → 104
+        assert_eq!(tactics::N,104);assert_eq!(sites::PATCHES.len(),227);
         let mut counts=[0usize;tactics::N];
         for p in sites::PATCHES{
             counts[p.tactic]+=1;assert!(!matches!(p.src,Src::None));

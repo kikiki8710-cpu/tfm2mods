@@ -1,0 +1,120 @@
+{
+ "game_version": "0.7.2",
+ "exe_sha256": "4B324F3127953A67EE1972F0D8CEB0673BB4FACCAAB530F0538DA64DD70319FB",
+ "note": "NEW4 승격용 초안(2026-11-11) — name·desc·audit_id 는 메인이 채운다. 각 전술 calc = 그 전술 sites[].tf.calc 콜백. tab·low/high/min/max 는 제안값. 2번 alt_cap_variant = 메인 원안(상한 v%) — 권고는 sites(기울기 배율). 검증 = check.py(build_site·rel32·기존 210창 겹침) + emu_check.py(기본값 200표본 레지스터·플래그·출구 일치) 18/18 + 대안 2/2.",
+ "tactics": [
+  {
+   "id": "nexus_finish_start_range",
+   "audit_id": "",
+   "name": "",
+   "desc": "",
+   "tab": "푸시·타워",
+   "scope": "Player",
+   "kind": "Value",
+   "default": 100,
+   "low": 50,
+   "high": 200,
+   "min": 25,
+   "max": 400,
+   "pos_mask": 31,
+   "sites": [
+    {"rva": "0xea1897", "win_hex": "49 b9 21 f2 51 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs r9, 0xe8d51f221", "src": {"kind": "caller", "return_off": "0x48", "cases": [{"ret_rva": "0xe672d7", "src": "mem:rbp:0xb48"}, {"ret_rva": "0x106bce6", "src": "mem:rbp:0x290"}, {"ret_rva": "0x1168ac9", "src": "stack:0xd0"}]}, "team_chk": {"kind": "caller", "return_off": "0x48", "cases": [{"ret_rva": "0xe672d7", "src": "mem:rbp:0xb10"}, {"ret_rva": "0x106bce6", "src": "mem:rbp:0x268"}, {"ret_rva": "0x1168ac9", "src": "stack:0x28"}]}, "dynamic_hex": "4c 8b 4c 24 f0", "tf": {"calc": "extra_ops::finish_reach_lt"}, "function": ["0xea1800", "0xea193f"], "notes": "적 넥서스(cache+0x1a0+적팀*8) 거리² < (R+1)² → 참(jb 0xea1922). R=250000×v/100", "dynamic_asm": "mov r9, qword ptr [rsp - 0x10]"},
+    {"rva": "0xea18c1", "win_hex": "49 bb 20 f2 51 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs r11, 0xe8d51f220", "src": {"kind": "caller", "return_off": "0x48", "cases": [{"ret_rva": "0xe672d7", "src": "mem:rbp:0xb48"}, {"ret_rva": "0x106bce6", "src": "mem:rbp:0x290"}, {"ret_rva": "0x1168ac9", "src": "stack:0xd0"}]}, "team_chk": {"kind": "caller", "return_off": "0x48", "cases": [{"ret_rva": "0xe672d7", "src": "mem:rbp:0xb10"}, {"ret_rva": "0x106bce6", "src": "mem:rbp:0x268"}, {"ret_rva": "0x1168ac9", "src": "stack:0x28"}]}, "dynamic_hex": "4c 8b 5c 24 f0", "tf": {"calc": "extra_ops::finish_reach_le"}, "function": ["0xea1800", "0xea193f"], "notes": "남은 적 구조물 목록(cache+적팀*0x20+0x140, 개수 +0x158) 하나라도 거리² ≤ (R+1)²−1 → 참(ja 0xea18d0 반대)", "dynamic_asm": "mov r11, qword ptr [rsp - 0x10]"}
+   ],
+   "calc": [
+    {"fn": "finish_reach_lt", "file": "extra_ops.rs", "rust": "fn finish_reach(v:i64)->Option<u64> {let r=scale(250_000,valid(v,25,400)?)+1;Some(r*r)} // 0.7.2 0xea1800 넥서스 마무리 관문: 거리² < (R+1)² · R=250000×v/100 (finish_reach_lt·_le 공용)\npub(crate) fn finish_reach_lt(_: &Frame,v:i64)->Option<u64> {finish_reach(v)}", "port": "lambda f, v: (250000 * n(v, 25, 400) // 100 + 1) ** 2"},
+    {"fn": "finish_reach_le", "file": "extra_ops.rs", "rust": "pub(crate) fn finish_reach_le(_: &Frame,v:i64)->Option<u64> {Some(finish_reach(v)?-1)}", "port": "lambda f, v: (250000 * n(v, 25, 400) // 100 + 1) ** 2 - 1"}
+   ]
+  },
+  {
+   "id": "weak_team_finish_caution",
+   "audit_id": "",
+   "name": "",
+   "desc": "",
+   "tab": "푸시·타워",
+   "scope": "Team",
+   "kind": "Value",
+   "default": 100,
+   "low": 50,
+   "high": 130,
+   "min": 0,
+   "max": 130,
+   "pos_mask": 31,
+   "sites": [
+    {"rva": "0x101b53f", "win_hex": "b9 c3 00 00 00", "first_len": 5, "first_asm": "mov ecx, 0xc3", "src": {"kind": "caller", "return_off": "0x88", "cases": [{"ret_rva": "0xea639a", "src": "stack:0x68"}, {"ret_rva": "0xeb5a2f", "src": "stack:0x68"}, {"ret_rva": "0xfd5fad", "src": "stack:0x60"}]}, "team_chk": "reg:r14", "dynamic_hex": "8b 4c 24 f0", "tf": {"calc": "extra_ops::finish_caution_alone"}, "function": ["0x101b430", "0x101b5e5"], "notes": "아군 목록 빔 → 계수 195(=100+95). 값 = 100+95×v/100", "dynamic_asm": "mov ecx, dword ptr [rsp - 0x10]"},
+    {"rva": "0x101b575", "win_hex": "83 c1 64 0f b7 c9", "first_len": 3, "first_asm": "add ecx, 0x64", "src": {"kind": "caller", "return_off": "0x88", "cases": [{"ret_rva": "0xea639a", "src": "stack:0x68"}, {"ret_rva": "0xeb5a2f", "src": "stack:0x68"}, {"ret_rva": "0xfd5fad", "src": "stack:0x60"}]}, "team_chk": "reg:r14", "dynamic_hex": "8b 4c 24 f0 83 c1 64", "tf": {"calc": "extra_ops::finish_caution_scale"}, "function": ["0x101b430", "0x101b5e5"], "notes": "ecx=min(할증,95) → add ecx,100 · movzx cx = 계수. 동적 = ecx←ecx×v/100 뒤 원래 add(플래그까지 원본과 같게)·movzx 는 창에서 그대로", "dynamic_asm": "mov ecx, dword ptr [rsp - 0x10]; add ecx, 0x64"}
+   ],
+   "calc": [
+    {"fn": "finish_caution_alone", "file": "extra_ops.rs", "rust": "pub(crate) fn finish_caution_alone(_: &Frame,v:i64)->Option<u64> {Some(scale(95,valid(v,0,130)?)+100)} // 0.7.2 0x101b53f 아군 없음 계수 195", "port": "lambda f, v: 95 * n(v, 0, 130) // 100 + 100"},
+    {"fn": "finish_caution_scale", "file": "extra_ops.rs", "rust": "pub(crate) fn finish_caution_scale(f:&Frame,v:i64)->Option<u64> {let c=f.reg(1)?&0xffff_ffff;Some(scale(c,valid(v,0,130)?)&0xffff_ffff)} // 0.7.2 0x101b575 ecx=min(할증,95) — 동적 조각이 이 값에 원래 add ecx,100 을 한다", "port": "lambda f, v: (f.reg(1) & 0xffffffff) * n(v, 0, 130) // 100 & 0xffffffff"}
+   ],
+   "alt_cap_variant": {"why": "메인 원안: 상한 cap=round(95×v/100) · 아군 없음 100+cap. 아군이 있으면 할증이 최대 90 이라 v≥95 구간은 효과 없음(NEW4.md §2)",
+    "sites": [
+     {"rva": "0x101b53f", "win_hex": "b9 c3 00 00 00", "first_len": 5, "first_asm": "mov ecx, 0xc3", "src": {"kind": "caller", "return_off": "0x88", "cases": [{"ret_rva": "0xea639a", "src": "stack:0x68"}, {"ret_rva": "0xeb5a2f", "src": "stack:0x68"}, {"ret_rva": "0xfd5fad", "src": "stack:0x60"}]}, "team_chk": "reg:r14", "dynamic_hex": "8b 4c 24 f0", "tf": {"calc": "extra_ops::finish_cap_alone"}, "function": ["0x101b430", "0x101b5e5"], "notes": "아군 목록 빔 → 계수 195(=100+95). 값 = 100+cap", "dynamic_asm": "mov ecx, dword ptr [rsp - 0x10]"},
+     {"rva": "0x101b569", "win_hex": "66 83 f8 5f b9 5f 00 00 00", "first_len": 9, "first_asm": "cmp ax, 0x5f", "src": {"kind": "caller", "return_off": "0x88", "cases": [{"ret_rva": "0xea639a", "src": "stack:0x68"}, {"ret_rva": "0xeb5a2f", "src": "stack:0x68"}, {"ret_rva": "0xfd5fad", "src": "stack:0x60"}]}, "team_chk": "reg:r14", "dynamic_hex": "41 53 4c 8b 5c 24 f8 66 44 39 d8 44 89 d9 41 5b", "tf": {"calc": "extra_ops::finish_cap"}, "function": ["0x101b430", "0x101b5e5"], "notes": "cmp ax,cap ; mov ecx,cap 를 함께 바꿈(cmovb 는 창 밖)", "dynamic_asm": "push r11; mov r11, qword ptr [rsp - 8]; cmp ax, r11w; mov ecx, r11d; pop r11"}
+    ],
+    "calc": [
+     {"fn": "finish_cap", "file": "extra_ops.rs", "rust": "pub(crate) fn finish_cap(_: &Frame,v:i64)->Option<u64> {Some((95*valid(v,0,130)?+50)/100)}", "port": "lambda f, v: (95 * n(v, 0, 130) + 50) // 100"},
+     {"fn": "finish_cap_alone", "file": "extra_ops.rs", "rust": "pub(crate) fn finish_cap_alone(_: &Frame,v:i64)->Option<u64> {Some((95*valid(v,0,130)?+50)/100+100)}", "port": "lambda f, v: (95 * n(v, 0, 130) + 50) // 100 + 100"}
+    ]}
+  },
+  {
+   "id": "objective_engage_call_range",
+   "audit_id": "",
+   "name": "",
+   "desc": "",
+   "tab": "오브젝트",
+   "scope": "Player",
+   "kind": "Value",
+   "default": 100,
+   "low": 75,
+   "high": 150,
+   "min": 25,
+   "max": 400,
+   "pos_mask": 31,
+   "sites": [
+    {"rva": "0xe6a264", "win_hex": "49 bd 00 f1 15 51 0c 00 00 00", "first_len": 10, "first_asm": "movabs r13, 0xc5115f100", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "4c 8b 6c 24 f0", "tf": {"calc": "extra_ops::objective_call_wide"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 진행(상태 1) → r13=230000² (적↔오브젝트 지점 거리² ≤ r13 이면 요청). 실제로 쓰이는 반경은 이것뿐", "dynamic_asm": "mov r13, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6a96d", "win_hex": "49 bd 00 c4 30 8b 07 00 00 00", "first_len": 10, "first_asm": "movabs r13, 0x78b30c400", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "4c 8b 6c 24 f0", "tf": {"calc": "extra_ops::objective_call_narrow"}, "function": ["0xe65690", "0xe6d66f"], "notes": "상태 ≥3 → r13=180000². 정적으로 도달 불가(입구 점프표가 상태 1 만 들임 · NEW4.md §3) — 일관성 위해 포함, 빼도 됨", "dynamic_asm": "mov r13, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6aa86", "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rdx, 0xe8d4a5100", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 54 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 경로 적 0: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)", "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6ab60", "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rdx, 0xe8d4a5100", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 54 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 경로 적 1: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)", "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6ac3a", "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rdx, 0xe8d4a5100", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 54 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 경로 적 2: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)", "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6ad14", "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rdx, 0xe8d4a5100", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 54 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 경로 적 3: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)", "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6adee", "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rdx, 0xe8d4a5100", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 54 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 경로 적 4: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)", "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6a688", "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rax, 0xe8d4a5101", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 44 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy_free"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 없음 경로 적 0: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)", "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6a72a", "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rax, 0xe8d4a5101", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 44 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy_free"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 없음 경로 적 1: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)", "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6a7cc", "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rax, 0xe8d4a5101", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 44 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy_free"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 없음 경로 적 2: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)", "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6a86e", "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rax, 0xe8d4a5101", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 44 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy_free"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 없음 경로 적 3: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)", "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6a918", "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rax, 0xe8d4a5101", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 44 24 f0", "tf": {"calc": "extra_ops::objective_call_enemy_free"}, "function": ["0xe65690", "0xe6d66f"], "notes": "오브젝트 없음 경로 적 4: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)", "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]"}
+   ],
+   "calc": [
+    {"fn": "objective_call_wide", "file": "extra_ops.rs", "rust": "pub(crate) fn objective_call_wide(_: &Frame,v:i64)->Option<u64> {let r=scale(230_000,valid(v,25,400)?);Some(r*r)} // 0.7.2 0xe6a264 r13", "port": "lambda f, v: (230000 * n(v, 25, 400) // 100) ** 2"},
+    {"fn": "objective_call_narrow", "file": "extra_ops.rs", "rust": "pub(crate) fn objective_call_narrow(_: &Frame,v:i64)->Option<u64> {let r=scale(180_000,valid(v,25,400)?);Some(r*r)} // 0.7.2 0xe6a96d r13", "port": "lambda f, v: (180000 * n(v, 25, 400) // 100) ** 2"},
+    {"fn": "objective_call_enemy", "file": "extra_ops.rs", "rust": "pub(crate) fn objective_call_enemy(_: &Frame,v:i64)->Option<u64> {let r=scale(250_000,valid(v,25,400)?);Some(r*r)} // 0.7.2 적↔나 ≤ R² ×5", "port": "lambda f, v: (250000 * n(v, 25, 400) // 100) ** 2"},
+    {"fn": "objective_call_enemy_free", "file": "extra_ops.rs", "rust": "pub(crate) fn objective_call_enemy_free(_: &Frame,v:i64)->Option<u64> {let r=scale(250_000,valid(v,25,400)?);Some(r*r+1)} // 0.7.2 오브젝트 없음 적↔나 < R²+1 ×5", "port": "lambda f, v: (250000 * n(v, 25, 400) // 100) ** 2 + 1"}
+   ]
+  },
+  {
+   "id": "pre_gank_enemy_check_range",
+   "audit_id": "",
+   "name": "",
+   "desc": "",
+   "tab": "갱·로밍",
+   "scope": "Player",
+   "kind": "Value",
+   "default": 100,
+   "low": 75,
+   "high": 150,
+   "min": 25,
+   "max": 400,
+   "pos_mask": 31,
+   "sites": [
+    {"rva": "0xe6b903", "win_hex": "48 b9 00 51 4a 8d 0e 00 00 00", "first_len": 10, "first_asm": "movabs rcx, 0xe8d4a5100", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 4c 24 f0", "tf": {"calc": "extra_lane::pregank_enemy_radius"}, "function": ["0xe65690", "0xe6d66f"], "notes": "World vt+0x40 == 0 → cmove 로 rax=rcx=250000² (적↔내 챔프 거리² ≤ rax 인 적이 있어야 선공 평가)", "dynamic_asm": "mov rcx, qword ptr [rsp - 0x10]"},
+    {"rva": "0xe6b90d", "win_hex": "48 b8 00 c1 1a 3d 05 00 00 00", "first_len": 10, "first_asm": "movabs rax, 0x53d1ac100", "src": "mem:rbp:0xb48", "team_chk": "mem:rbp:0xb10", "dynamic_hex": "48 8b 44 24 f0", "tf": {"calc": "extra_lane::pregank_enemy_radius_alt"}, "function": ["0xe65690", "0xe6d66f"], "notes": "World vt+0x40 ≠ 0 → rax=150000² 유지", "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]"}
+   ],
+   "calc": [
+    {"fn": "pregank_enemy_radius", "file": "extra_lane.rs", "rust": "pub(crate) fn pregank_enemy_radius(_f:&Frame,v:i64)->Option<u64>{if !(25..=400).contains(&v){return None;}{let r=250000u64.wrapping_mul(v as u64)/100;Some(r.wrapping_mul(r))}} // 0.7.2 0xe6b903 rcx", "port": "lambda f, v: (250000 * v // 100) ** 2 if 25 <= v <= 400 else None"},
+    {"fn": "pregank_enemy_radius_alt", "file": "extra_lane.rs", "rust": "pub(crate) fn pregank_enemy_radius_alt(_f:&Frame,v:i64)->Option<u64>{if !(25..=400).contains(&v){return None;}{let r=150000u64.wrapping_mul(v as u64)/100;Some(r.wrapping_mul(r))}} // 0.7.2 0xe6b90d rax (World vt+0x40 참)", "port": "lambda f, v: (150000 * v // 100) ** 2 if 25 <= v <= 400 else None"}
+   ]
+  }
+ ]
+}

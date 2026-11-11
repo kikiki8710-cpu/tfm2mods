@@ -21,6 +21,7 @@ pub const CATEGORIES: &[Category] = &[
         "battle_move_candidate_penalty",
         "tracked_target_chase_bonus",
         "champion_ultimate_waste_penalty",
+        "enemy_approach_engage_range",
     ] },
     Category { name: "라인·이동", ids: &[
         "lane_retreat_final",
@@ -58,12 +59,15 @@ pub const CATEGORIES: &[Category] = &[
         "gank_reevaluate_seconds",
         "enemy_base_allies_radius",
         "ambush_wait_accept_radius",
+        "pre_gank_enemy_check_range",
     ] },
     Category { name: "푸시·타워", ids: &[
         "push_sustain_min_healthy",
         "push_sustain_margin",
         "tower_chase_own_hp",
         "tower_tank_hits",
+        "nexus_finish_start_range",
+        "weak_team_finish_caution",
     ] },
     Category { name: "기지 방어", ids: &[
         "base_defense_min_enemies",
@@ -162,6 +166,10 @@ pub fn player_visible(id: &str, col: usize) -> bool {
         "champion_ultimate_waste_penalty" => return 31 & (1 << col) != 0,
         "lane_opportunity_enemy_limit" => return 31 & (1 << col) != 0,
         "skill_arrival_prediction_margin" => return 31 & (1 << col) != 0,
+        "nexus_finish_start_range" => return 31 & (1 << col) != 0,
+        "weak_team_finish_caution" => return 31 & (1 << col) != 0,
+        "enemy_approach_engage_range" => return 31 & (1 << col) != 0,
+        "pre_gank_enemy_check_range" => return 31 & (1 << col) != 0,
         _ => {}
     }
     // END EXTRA VISIBILITY
@@ -190,7 +198,7 @@ mod tests {
             }
             assert_eq!(tactic_at(tab, category.ids.len()), None);
         }
-        assert_eq!(seen.iter().filter(|x| **x).count(), 59);
+        assert_eq!(seen.iter().filter(|x| **x).count(), 63); // 59 + 0.7.2 신설 4종
         // 숨김은 저장 카탈로그 삭제가 아니다. 기존32종은 뺀 전술(RETIRED)을 빼고 모두 남는다.
         for t in 0..32 { assert_eq!(seen[t], !tactics::retired(t), "{}", tactics::TACTICS[t].id); }
         for id in tactics::RETIRED { assert!(!seen[tactics::index_of(id).unwrap()]); }
@@ -200,7 +208,7 @@ mod tests {
         for id in ["gank_call_rng", "support_roam_adc_min_hp", "defense_leave_hp"] {
             assert!(!seen[tactics::index_of(id).unwrap()]);
         }
-        assert_eq!(tactics::N, 100);
+        assert_eq!(tactics::N, 104);
         assert_eq!(tactic_at(CATEGORIES.len(), 0), None);
     }
 }

@@ -209,3 +209,20 @@
 [추가창] N010 0x11ab397 mov r9, 0xffffffffffffffe2 | 주체 mem:rbp:0x210
 [미지원] extra_n011 (lane_opportunity_enemy_limit): 0.7.0 판단 소멸(근접 적 >1 거절 → 교전 예측 위임) · 추적기 후보 0x103d093 = 팀 인덱스 범위검사(주입 시 ud2 위험)
 [추가창] N012 0x1039863 sub rax, 0xa ; cmovae r12, rax | 주체 reg:rdi
+[추가창] E001 0xea1897 movabs r9, 0xe8d51f221 | 주체 {'kind': 'caller', 'return_off': '0x48', 'cases': [{'ret_rva': '0xe672d7', 'src': 'mem:rbp:0xb48'}, {'ret_rva': '0x106bce6', 'src': 'mem:rbp:0x290'}, {'ret_rva': '0x1168ac9', 'src': 'stack:0xd0'}]}
+[추가창] E001 0xea18c1 movabs r11, 0xe8d51f220 | 주체 {'kind': 'caller', 'return_off': '0x48', 'cases': [{'ret_rva': '0xe672d7', 'src': 'mem:rbp:0xb48'}, {'ret_rva': '0x106bce6', 'src': 'mem:rbp:0x290'}, {'ret_rva': '0x1168ac9', 'src': 'stack:0xd0'}]}
+[추가창] E002 0x101b53f mov ecx, 0xc3 | 주체 {'kind': 'caller', 'return_off': '0x88', 'cases': [{'ret_rva': '0xea639a', 'src': 'stack:0x68'}, {'ret_rva': '0xeb5a2f', 'src': 'stack:0x68'}, {'ret_rva': '0xfd5fad', 'src': 'stack:0x60'}]}
+[추가창] E002 0x101b575 add ecx, 0x64 ; movzx ecx, cx | 주체 {'kind': 'caller', 'return_off': '0x88', 'cases': [{'ret_rva': '0xea639a', 'src': 'stack:0x68'}, {'ret_rva': '0xeb5a2f', 'src': 'stack:0x68'}, {'ret_rva': '0xfd5fad', 'src': 'stack:0x60'}]}
+[추가창] E003 0xe6a264 movabs r13, 0xc5115f100 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6aa86 movabs rdx, 0xe8d4a5100 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6ab60 movabs rdx, 0xe8d4a5100 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6ac3a movabs rdx, 0xe8d4a5100 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6ad14 movabs rdx, 0xe8d4a5100 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6adee movabs rdx, 0xe8d4a5100 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6a688 movabs rax, 0xe8d4a5101 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6a72a movabs rax, 0xe8d4a5101 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6a7cc movabs rax, 0xe8d4a5101 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6a86e movabs rax, 0xe8d4a5101 | 주체 mem:rbp:0xb48
+[추가창] E003 0xe6a918 movabs rax, 0xe8d4a5101 | 주체 mem:rbp:0xb48
+[추가창] E004 0xe6b903 movabs rcx, 0xe8d4a5100 | 주체 mem:rbp:0xb48
+[추가창] E004 0xe6b90d movabs rax, 0x53d1ac100 | 주체 mem:rbp:0xb48

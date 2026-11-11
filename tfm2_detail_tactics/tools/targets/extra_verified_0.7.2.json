@@ -734,6 +734,499 @@
       "qa_only": false,
       "status": "promoted_after_replay_comparison",
       "knob": "extra_n012"
+    },
+    {
+      "audit_id": "E001",
+      "id": "nexus_finish_start_range",
+      "name": "넥서스 마무리 시작 거리(%)",
+      "desc": "적 넥서스나 남은 건물이 이 거리 안에 있어야 끝까지 밀어붙인다(100 = 원본 약 25만). 높을수록 멀리서도 끝내러 간다",
+      "scope": "Player",
+      "default": 100,
+      "low": 70,
+      "high": 150,
+      "min": 25,
+      "max": 400,
+      "kind": "Value",
+      "tab": "푸시·타워",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xea1897",
+          "win_hex": "49 b9 21 f2 51 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs r9, 0xe8d51f221",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x48",
+            "cases": [
+              {
+                "ret_rva": "0xe672d7",
+                "src": "mem:rbp:0xb48"
+              },
+              {
+                "ret_rva": "0x106bce6",
+                "src": "mem:rbp:0x290"
+              },
+              {
+                "ret_rva": "0x1168ac9",
+                "src": "stack:0xd0"
+              }
+            ]
+          },
+          "team_chk": {
+            "kind": "caller",
+            "return_off": "0x48",
+            "cases": [
+              {
+                "ret_rva": "0xe672d7",
+                "src": "mem:rbp:0xb10"
+              },
+              {
+                "ret_rva": "0x106bce6",
+                "src": "mem:rbp:0x268"
+              },
+              {
+                "ret_rva": "0x1168ac9",
+                "src": "stack:0x28"
+              }
+            ]
+          },
+          "dynamic_hex": "4c 8b 4c 24 f0",
+          "tf": {
+            "calc": "extra_ops::finish_reach_lt"
+          },
+          "function": [
+            "0xea1800",
+            "0xea193f"
+          ],
+          "notes": "적 넥서스(cache+0x1a0+적팀*8) 거리² < (R+1)² → 참(jb 0xea1922). R=250000×v/100",
+          "dynamic_asm": "mov r9, qword ptr [rsp - 0x10]",
+          "window_name": "nexus_finish_start_range@0xea1897"
+        },
+        {
+          "rva": "0xea18c1",
+          "win_hex": "49 bb 20 f2 51 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs r11, 0xe8d51f220",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x48",
+            "cases": [
+              {
+                "ret_rva": "0xe672d7",
+                "src": "mem:rbp:0xb48"
+              },
+              {
+                "ret_rva": "0x106bce6",
+                "src": "mem:rbp:0x290"
+              },
+              {
+                "ret_rva": "0x1168ac9",
+                "src": "stack:0xd0"
+              }
+            ]
+          },
+          "team_chk": {
+            "kind": "caller",
+            "return_off": "0x48",
+            "cases": [
+              {
+                "ret_rva": "0xe672d7",
+                "src": "mem:rbp:0xb10"
+              },
+              {
+                "ret_rva": "0x106bce6",
+                "src": "mem:rbp:0x268"
+              },
+              {
+                "ret_rva": "0x1168ac9",
+                "src": "stack:0x28"
+              }
+            ]
+          },
+          "dynamic_hex": "4c 8b 5c 24 f0",
+          "tf": {
+            "calc": "extra_ops::finish_reach_le"
+          },
+          "function": [
+            "0xea1800",
+            "0xea193f"
+          ],
+          "notes": "남은 적 구조물 목록(cache+적팀*0x20+0x140, 개수 +0x158) 하나라도 거리² ≤ (R+1)²−1 → 참(ja 0xea18d0 반대)",
+          "dynamic_asm": "mov r11, qword ptr [rsp - 0x10]",
+          "window_name": "nexus_finish_start_range@0xea18c1"
+        }
+      ]
+    },
+    {
+      "audit_id": "E002",
+      "id": "weak_team_finish_caution",
+      "name": "전력 부족 시 마무리 신중도(%)",
+      "desc": "팀 능력이 낮을수록 넥서스 마무리를 더 조심한다(100 = 원본 · 최대 1.95배 엄격). 0이면 능력과 상관없이 시도한다(0.7.1 방식)",
+      "scope": "Team",
+      "default": 100,
+      "low": 50,
+      "high": 130,
+      "min": 0,
+      "max": 130,
+      "kind": "Value",
+      "tab": "푸시·타워",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0x101b53f",
+          "win_hex": "b9 c3 00 00 00",
+          "first_len": 5,
+          "first_asm": "mov ecx, 0xc3",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x88",
+            "cases": [
+              {
+                "ret_rva": "0xea639a",
+                "src": "stack:0x68"
+              },
+              {
+                "ret_rva": "0xeb5a2f",
+                "src": "stack:0x68"
+              },
+              {
+                "ret_rva": "0xfd5fad",
+                "src": "stack:0x60"
+              }
+            ]
+          },
+          "team_chk": "reg:r14",
+          "dynamic_hex": "8b 4c 24 f0",
+          "tf": {
+            "calc": "extra_ops::finish_caution_alone"
+          },
+          "function": [
+            "0x101b430",
+            "0x101b5e5"
+          ],
+          "notes": "아군 목록 빔 → 계수 195(=100+95). 값 = 100+95×v/100",
+          "dynamic_asm": "mov ecx, dword ptr [rsp - 0x10]",
+          "window_name": "weak_team_finish_caution@0x101b53f"
+        },
+        {
+          "rva": "0x101b575",
+          "win_hex": "83 c1 64 0f b7 c9",
+          "first_len": 3,
+          "first_asm": "add ecx, 0x64",
+          "src": {
+            "kind": "caller",
+            "return_off": "0x88",
+            "cases": [
+              {
+                "ret_rva": "0xea639a",
+                "src": "stack:0x68"
+              },
+              {
+                "ret_rva": "0xeb5a2f",
+                "src": "stack:0x68"
+              },
+              {
+                "ret_rva": "0xfd5fad",
+                "src": "stack:0x60"
+              }
+            ]
+          },
+          "team_chk": "reg:r14",
+          "dynamic_hex": "8b 4c 24 f0 83 c1 64",
+          "tf": {
+            "calc": "extra_ops::finish_caution_scale"
+          },
+          "function": [
+            "0x101b430",
+            "0x101b5e5"
+          ],
+          "notes": "ecx=min(할증,95) → add ecx,100 · movzx cx = 계수. 동적 = ecx←ecx×v/100 뒤 원래 add(플래그까지 원본과 같게)·movzx 는 창에서 그대로",
+          "dynamic_asm": "mov ecx, dword ptr [rsp - 0x10]; add ecx, 0x64",
+          "window_name": "weak_team_finish_caution@0x101b575"
+        }
+      ]
+    },
+    {
+      "audit_id": "E003",
+      "id": "enemy_approach_engage_range",
+      "name": "적 접근 시 교전 요청 거리(%)",
+      "desc": "체력 60% 넘을 때 보이는 적 챔피언이 이 거리 안에 오면 교전을 제안한다(100 = 원본 25만 · 에픽·세르펜을 노릴 땐 적이 그 근처 23만 안이어야 함). 높을수록 먼 적에게도 건다",
+      "scope": "Player",
+      "default": 100,
+      "low": 75,
+      "high": 125,
+      "min": 25,
+      "max": 400,
+      "kind": "Value",
+      "tab": "전투·생존",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe6a264",
+          "win_hex": "49 bd 00 f1 15 51 0c 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs r13, 0xc5115f100",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "4c 8b 6c 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_objective"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 진행(상태 1) → r13=230000² (적↔오브젝트 지점 거리² ≤ r13 이면 요청). 실제로 쓰이는 반경은 이것뿐",
+          "dynamic_asm": "mov r13, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6a264"
+        },
+        {
+          "rva": "0xe6aa86",
+          "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rdx, 0xe8d4a5100",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 54 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 경로 적 0: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)",
+          "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6aa86"
+        },
+        {
+          "rva": "0xe6ab60",
+          "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rdx, 0xe8d4a5100",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 54 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 경로 적 1: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)",
+          "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6ab60"
+        },
+        {
+          "rva": "0xe6ac3a",
+          "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rdx, 0xe8d4a5100",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 54 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 경로 적 2: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)",
+          "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6ac3a"
+        },
+        {
+          "rva": "0xe6ad14",
+          "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rdx, 0xe8d4a5100",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 54 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 경로 적 3: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)",
+          "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6ad14"
+        },
+        {
+          "rva": "0xe6adee",
+          "win_hex": "48 ba 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rdx, 0xe8d4a5100",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 54 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 경로 적 4: 적↔나 거리² > 250000² 이면 이 적 건너뜀(ja)",
+          "dynamic_asm": "mov rdx, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6adee"
+        },
+        {
+          "rva": "0xe6a688",
+          "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rax, 0xe8d4a5101",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 44 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy_free"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 없음 경로 적 0: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)",
+          "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6a688"
+        },
+        {
+          "rva": "0xe6a72a",
+          "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rax, 0xe8d4a5101",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 44 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy_free"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 없음 경로 적 1: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)",
+          "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6a72a"
+        },
+        {
+          "rva": "0xe6a7cc",
+          "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rax, 0xe8d4a5101",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 44 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy_free"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 없음 경로 적 2: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)",
+          "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6a7cc"
+        },
+        {
+          "rva": "0xe6a86e",
+          "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rax, 0xe8d4a5101",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 44 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy_free"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 없음 경로 적 3: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)",
+          "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6a86e"
+        },
+        {
+          "rva": "0xe6a918",
+          "win_hex": "48 b8 01 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rax, 0xe8d4a5101",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 44 24 f0",
+          "tf": {
+            "calc": "extra_ops::approach_call_enemy_free"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "오브젝트 없음 경로 적 4: 적↔나 거리² < 250000²+1 이면 요청(jb 0xe6ae4d)",
+          "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]",
+          "window_name": "enemy_approach_engage_range@0xe6a918"
+        }
+      ]
+    },
+    {
+      "audit_id": "E004",
+      "id": "pre_gank_enemy_check_range",
+      "name": "갱 시도 시 적 확인 거리(%)",
+      "desc": "갱 도착 전 이 거리 안에 보이는 적 챔피언이 있어야 선공을 검토한다(100 = 원본 25만). 높을수록 멀리 있는 적에게도 선공을 노린다",
+      "scope": "Player",
+      "default": 100,
+      "low": 75,
+      "high": 150,
+      "min": 25,
+      "max": 400,
+      "kind": "Value",
+      "tab": "갱·로밍",
+      "pos_mask": 31,
+      "sites": [
+        {
+          "rva": "0xe6b903",
+          "win_hex": "48 b9 00 51 4a 8d 0e 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rcx, 0xe8d4a5100",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 4c 24 f0",
+          "tf": {
+            "calc": "extra_lane::pregank_enemy_radius"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "World vt+0x40 == 0 → cmove 로 rax=rcx=250000² (적↔내 챔프 거리² ≤ rax 인 적이 있어야 선공 평가)",
+          "dynamic_asm": "mov rcx, qword ptr [rsp - 0x10]",
+          "window_name": "pre_gank_enemy_check_range@0xe6b903"
+        },
+        {
+          "rva": "0xe6b90d",
+          "win_hex": "48 b8 00 c1 1a 3d 05 00 00 00",
+          "first_len": 10,
+          "first_asm": "movabs rax, 0x53d1ac100",
+          "src": "mem:rbp:0xb48",
+          "team_chk": "mem:rbp:0xb10",
+          "dynamic_hex": "48 8b 44 24 f0",
+          "tf": {
+            "calc": "extra_lane::pregank_enemy_radius_alt"
+          },
+          "function": [
+            "0xe65690",
+            "0xe6d66f"
+          ],
+          "notes": "World vt+0x40 ≠ 0 → rax=150000² 유지",
+          "dynamic_asm": "mov rax, qword ptr [rsp - 0x10]",
+          "window_name": "pre_gank_enemy_check_range@0xe6b90d"
+        }
+      ]
     }
   ]
 }

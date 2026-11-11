@@ -15,10 +15,10 @@ def records(ver=DEFAULT_VER):
     assert len(rows)==56 and len({t['audit_id'] for t in rows})==56
     assert len({t['id'] for t in rows})==56
     verified=json.loads((ROOT/'tools'/'targets'/f'extra_verified_{ver}.json').read_text(encoding='utf-8'))
-    assert len(verified['tactics'])==12
+    assert len(verified['tactics'])==16   # 12 + 0.7.2 신설 E001~E004(후방 추가 · 기존 번호 보존)
     # 기존 88개 저장 순서를 고정하고 검증 후보는 후방에만 추가한다.
     docs.append(verified);rows.extend(verified['tactics'])
-    assert len(rows)==68 and len({t['id'] for t in rows})==68
+    assert len(rows)==72 and len({t['id'] for t in rows})==72
     return docs, rows
 
 def write_catalog(ver=DEFAULT_VER):
@@ -44,7 +44,7 @@ def write_catalog(ver=DEFAULT_VER):
     for name in ('오브젝트','위치·기술'):
         if name not in [n for n,_ in cats]:cats.append((name,[]))
     visible=set(json.loads((ROOT/'tools'/'visible_extras.json').read_text(encoding='utf-8'))['audit_ids'])
-    assert len(visible)==29 and visible <= {t['audit_id'] for t in rows}
+    assert len(visible)==33 and visible <= {t['audit_id'] for t in rows}
     for t in rows:
         if t['audit_id'] not in visible:continue
         match=next((ids for name,ids in cats if name==t['tab']),None)
@@ -74,7 +74,7 @@ def load(pe,sha,md,starts,ends,order,func_cache,interior_all,log,ver=DEFAULT_VER
         for s in t['sites']:
             patches.append(build_site(pe,md,starts,ends,func_cache,interior_all,log,order['extra_'+t['audit_id'].lower()],
                                       f"extra_{t['audit_id'].lower()}@{s['rva']}",s,s['src'],s.get('team_chk'),f"[추가창] {t['audit_id']}"))
-    assert len({p['tactic'] for p in patches})+len(unsupported)==68
+    assert len({p['tactic'] for p in patches})+len(unsupported)==72
     return patches,unsupported
 
 

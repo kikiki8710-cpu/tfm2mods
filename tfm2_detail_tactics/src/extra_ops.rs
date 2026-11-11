@@ -43,6 +43,18 @@ pub(crate) fn tower_radius_high(f:&Frame,v:i64)->Option<u64> {let _=f;let r=towe
 pub(crate) fn tower_radius_low(f:&Frame,v:i64)->Option<u64> {let _=f;let r=tower_radius(v,100_000)?;Some(r*r+1)}
 pub(crate) fn tower_minion_gate(_: &Frame,v:i64)->Option<u64> {valid(v,50,150)?;Some(if v<100 {2} else if v>100 {0} else {1})}
 pub(crate) fn tower_wave_limit(_: &Frame,v:i64)->Option<u64> {Some(300_000/valid(v,50,150)?)}
+// ── 0.7.2 신설 전술(E001~E003 · 유저 승인 2026-11-11 · 근거 = REPORT RE 2026-11-11_0.7.2-새전술4_창RE)
+// E001 넥서스 마무리 시작 거리: 헬퍼 0xea1800 「적 넥서스/남은 구조물이 R 안」 · 원본 상수 250001² = (R+1)² 꼴(R=250000).
+fn finish_reach(v:i64)->Option<u64> {let r=scale(250_000,valid(v,25,400)?)+1;Some(r*r)}
+pub(crate) fn finish_reach_lt(_: &Frame,v:i64)->Option<u64> {finish_reach(v)}            // 0xea1897 거리² < (R+1)²
+pub(crate) fn finish_reach_le(_: &Frame,v:i64)->Option<u64> {Some(finish_reach(v)?-1)}  // 0xea18c1 거리² ≤ (R+1)²−1
+// E002 전력 부족 시 마무리 신중도: 0x101b430 계수 = 100 + min(할증,95) → 할증에 v% 를 곱한다(v=0 이면 0.7.1 식 a+m<b).
+pub(crate) fn finish_caution_alone(_: &Frame,v:i64)->Option<u64> {Some(scale(95,valid(v,0,130)?)+100)}  // 0x101b53f 아군 없음 계수 195
+pub(crate) fn finish_caution_scale(f:&Frame,v:i64)->Option<u64> {let c=f.reg(1)?&0xffff_ffff;Some(scale(c,valid(v,0,130)?)&0xffff_ffff)} // 0x101b575 ecx=min(할증,95) — 동적 조각이 뒤에 원래 add ecx,100
+// E003 적 접근 시 교전 요청 거리: engage 0xe65690 체력>59 갈래 · 적↔나 R(250000) · 에픽·세르펜 목표면 적↔지점 230000 도 같은 비율.
+pub(crate) fn approach_call_objective(_: &Frame,v:i64)->Option<u64> {let r=scale(230_000,valid(v,25,400)?);Some(r*r)}   // 0xe6a264 r13
+pub(crate) fn approach_call_enemy(_: &Frame,v:i64)->Option<u64> {let r=scale(250_000,valid(v,25,400)?);Some(r*r)}       // 적↔나 ≤ R² ×5
+pub(crate) fn approach_call_enemy_free(_: &Frame,v:i64)->Option<u64> {let r=scale(250_000,valid(v,25,400)?);Some(r*r+1)} // 오브젝트 없음 적↔나 < R²+1 ×5
 
 #[cfg(test)]
 mod tests {
